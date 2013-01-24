@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="K" name="Dew point depression" abbreviation="DpD" xmlns:ns2="group">
+<DerivedParameter unit="K" name="Dewpoint depression" abbreviation="DpD" xmlns:ns2="group">
     <Method name="Difference">
         <Field abbreviation="T"/>
         <Field abbreviation="DpT"/>

@@ -6,7 +6,7 @@
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=nogaps
-pluginName=ncgrib
+pluginName=grid
 eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>

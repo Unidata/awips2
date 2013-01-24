@@ -46,6 +46,9 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -67,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation.
  * 21 May 2009             mpduff      Fixed typo in window title.
  * 24 Aug 2009  2258       mpduff      Implemented dialog functionality.
+ * 07 Dec 2012  1353       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -75,6 +79,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class BestEstimateQpeDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BestEstimateQpeDlg.class);
 
     /**
      * QPE source Local radio button.
@@ -232,18 +238,13 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
     private Calendar cal = new GregorianCalendar();
 
     /**
-     * Currently looping flag.
-     */
-    private boolean looping = false;
-
-    /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public BestEstimateQpeDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Display Best Estimate QPE");
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         dateTimeFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -711,7 +712,6 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
                         .getActiveVizContainer();
                 if (container != null) {
                     container.getLoopProperties().setLooping(false);
-                    looping = false;
                 }
             }
         });
@@ -734,7 +734,7 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -786,10 +786,8 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         displayManager.setLabels(labelsChk.getSelection());
         try {
             displayManager.displayQPE();
-            looping = true;
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
     }
 }

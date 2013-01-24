@@ -1,0 +1,100 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- Done to force instantiation of the GribTables -->
+	<bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
+		factory-method="getInstance" depends-on="gribRegistered" />
+
+	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
+
+	<bean id="gribPostProcessor"
+		class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
+		factory-method="getInstance" />
+
+	<bean id="ingest-grib" class="org.apache.camel.component.jms.JmsComponent">
+		<constructor-arg ref="jmsIngestGribConfig" />
+		<property name="taskExecutor" ref="gribThreadPool" />
+	</bean>
+	<bean id="jmsIngestGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+		factory-bean="jmsConfig" factory-method="copy">
+	</bean>
+	<bean id="gribThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="4" />
+		<property name="maxPoolSize" value="4" />
+	</bean>
+
+	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
+	<bean id="largeFileLockRelease" class="com.raytheon.edex.plugin.grib.GribLockRelease" />
+
+    <bean id="gribCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="grib-camel"/>
+  	</bean>
+  	
+  	<bean id="gribLayerCollector" class="com.raytheon.uf.edex.plugin.grib.ogc.GribLayerCollector" >
+		<constructor-arg ref="gribLayerTransformer" />
+	</bean>
+
+	<camelContext id="grib-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" /> 
+			<route id="gribFileConsumerRoute"> 
+				<from ref="gribFileEndpoint" /> 
+					<bean ref="fileToString" /> 
+					<setHeader headerName="pluginName"> 
+						<constant>grib</constant> 
+					</setHeader> 
+				<to uri="ingest-grib:queue:Ingest.Grib" /> 
+			</route> 
+
+		<!-- Begin Grib Routes -->
+		<route id="gribIngestRoute">
+			<from uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=4&amp;destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>grib</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="largeFileChecker" />
+					<bean ref="gribDecoder" method="decode" />
+					<bean ref="gribPostProcessor" method="process" />
+					<bean ref="persist" method="persist" />
+					<bean ref="index" method="index" />
+					<bean ref="processUtil" method="log" />
+					<multicast parallelProcessing="false">
+						<bean ref="gribLayerCollector" method="add"/>
+						<to uri="directvm:gribIngestAlert"/>
+					</multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:grib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+				<doFinally>
+					<bean ref="largeFileLockRelease" />
+				</doFinally>
+			</doTry>
+		</route>
+
+		<route id="gribIngestAlert">
+			<from uri="directvm:gribIngestAlert" />
+			<bean ref="toDataURI" method="toDataURI" />
+			<to uri="vm:stageNotification" />
+		</route>
+
+		<route id="gribPurgeExpired">
+			<from uri="jms-generic:queue:Purge.expired.grib.layers?destinationResolver=#qpidDurableResolver" />
+			<bean ref="gribLayerCollector" method="purgeExpired"/>
+		</route>
+		
+		<route id="gribPurgeAll">
+			<from uri="jms-generic:queue:Purge.all.grib.layers?destinationResolver=#qpidDurableResolver" />
+			<bean ref="gribLayerCollector" method="purgeAll"/>
+		</route>
+	</camelContext>
+</beans>

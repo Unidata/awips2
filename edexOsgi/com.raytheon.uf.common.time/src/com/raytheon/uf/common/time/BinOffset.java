@@ -20,6 +20,8 @@
 package com.raytheon.uf.common.time;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -138,6 +140,22 @@ public class BinOffset implements ISerializableObject {
             normalizedTime = new DataTime(new Date(adjustedTime));
         }
         return normalizedTime;
+    }
+
+    /**
+     * Takes range and offsets into account to determine what the times should
+     * be normalized to in the range
+     * 
+     * @param times
+     *            the times to normalize
+     * @return the normalized times
+     */
+    public Set<DataTime> getNormalizedTimes(DataTime[] times) {
+        Set<DataTime> set = new HashSet<DataTime>();
+        for (DataTime dt : times) {
+            set.add(getNormalizedTime(dt));
+        }
+        return set;
     }
 
     public TimeRange getTimeRange(DataTime baseTime) {

@@ -78,6 +78,8 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  *  09/01/12      #860        Greg Hull   Add smarter caching (for all constraints) of available times.
  *  09/05/12      #860        Greg Hull   Add this to the URICatalog for storing the latest time.
  *  09/13/12      #860        Greg Hull   set default for inventoryEnabled to false.
+ *  11/2012		  #885		  T. Lee	  Set unmapped satellite projection resolution to "native"
+ *  01/02/2013                X. Guo      Added codes to get Extpoint constraint name
  *
  * </pre>
  * 
@@ -879,7 +881,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 			// sanity check : if the parameter is not given in the attribute set then we  
 			//   won't be able to instantiate the resourceData. 
 			// These should be NON_EDITABLE_ATTRIBUTES
-			else if( prmInfo.getParamType() == ResourceParamType.IMPLEMENTATION_PARAM ) {
+			else if( prmInfo.getParamType() == ResourceParamType.IMPLEMENTATION_PARAM &&
+					 (prmInfo.getDefaultValue() == null ||
+					  prmInfo.getDefaultValue().isEmpty() ) ) {
+				
 				if( !paramValues.containsKey( prmInfo.getParamName() ) ) {
 					throw new VizException( "Error initializing rscDefn "+
 							getResourceDefnName()+ ": a value is not specified for parameter "+
@@ -1013,7 +1018,22 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
 		reqMsg.setInventoryName( inventoryAlias );
 		reqMsg.setReqConstraintsMap( searchConstraints );
-		reqMsg.setRequestedParam( getRscTypeGenerator() );
+		String genType = getRscTypeGenerator();
+		String cnstrName = null;
+		if ( genType != null ) {
+			HashMap<String, ResourceParamInfo> rscImplParams = 
+				ResourceExtPointMngr.getInstance().getResourceParameters( rscImplementation );
+			for( ResourceParamInfo prmInfo : rscImplParams.values() ) {    		
+				if( prmInfo.getParamType() == ResourceParamType.REQUEST_CONSTRAINT ) {
+					String prmName = prmInfo.getParamName();
+					if ( prmName.equals(genType)) {
+						cnstrName = prmInfo.getConstraintName();
+						break;
+					}
+				}
+			}
+    	}
+		reqMsg.setRequestedParam( cnstrName );
 
 		Object rslts;
 
@@ -1047,8 +1067,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     //
     public ArrayList<String> generatedSubTypesList() throws VizException {
 		// Grids, Satellite, Radar, etc all are dynamically updated when new alert updates 
-		// are recieved (when new data is ingested). PGEN doesn't have alert updates and so
+		// are received (when new data is ingested). PGEN doesn't have alert updates and so
 		// we need to always check for new products.     	
+
     	if( isPgenResource() ) {
     		return getPgenProducts();
     	}
@@ -1135,8 +1156,13 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 	    	// parameter and create a subType for each unique combination.
 	    	//
 	    	else if( numSubTypeGenParams == 2 ) {
-	    		String subType = queryResults[1] + "_"+     // note that the 'km' here will make the code 
+	    		String subType;
+	    		if (queryResults[2] == "0" && getSubTypeGenParamsList()[1].equals("resolution")) {  // check resolution
+	    			subType = queryResults[1] + "_native";   
+	    		} else {
+	    			subType = queryResults[1] + "_"+     // note that the 'km' here will make the code 
 	    		queryResults[2] + "km";    // to parse the subType non-generic so we might want to change it.
+	    		}
 
 	    		if( !generatedSubTypesList.contains( subType ) ) {
 	    			generatedSubTypesList.add( subType );					
@@ -1243,12 +1269,12 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     		// many times by the LabelProvider when showing the attrSet List and there can
     		// be a slight delay for example with all (40) radar products.
     		//    		
-    		if( availTimesCache.size() == 12 ) {
+    		if( availTimesCache.size() == 4 ) {
     			for( DataTimesCacheEntry uriRefreshCallback : availTimesCache.values() ) {    				
     				uriRefreshCallback.addToUriCatalog( );    				
     			}
     		}
-    		else if( availTimesCache.size() > 12 ) {
+    		else if( availTimesCache.size() > 4 ) {
 				availTimesCache.get( resourceConstraints ).addToUriCatalog();
     		}
     	}
@@ -1548,8 +1574,12 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     					}
     					else if( getRscImplementation().equals("McidasSatellite") ) {
     						McidasRecord satRec = (McidasRecord) pdo;
+    						if ( satRec.getResolution() == 0 && getSubTypeGenParamsList()[1].equals("resolution") ) {
+       							subType = satRec.getAreaName() + "_native";     							
+    						} else {
     						subType = satRec.getAreaName() + "_" + 
     								satRec.getResolution().toString() + "km";
+    						}
     						attrSetKey = satRec.getImageType();
     					}
     				}
@@ -1670,7 +1700,12 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 				String genPrm1 = getSubTypeGenParamsList()[0];
 				String genPrm2 = getSubTypeGenParamsList()[1];
 				subType = uriAttrValues.get( genPrm1 ).toString();
+				if ( uriAttrValues.get( genPrm2 ).toString() == "0" && getSubTypeGenParamsList()[1].equals("resolution") ) {
+					subType = subType+"_native";
+				}
+				else {
 				subType = subType+"_"+uriAttrValues.get( genPrm2 ).toString() + "km";
+			}
 			}
 
 			if( subType != null &&

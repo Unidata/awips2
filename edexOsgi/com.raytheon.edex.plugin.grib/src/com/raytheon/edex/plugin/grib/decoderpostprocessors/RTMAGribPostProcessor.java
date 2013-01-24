@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
 import java.util.Calendar;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 
@@ -47,10 +47,10 @@ import com.raytheon.uf.common.time.TimeRange;
 public class RTMAGribPostProcessor implements IDecoderPostProcessor {
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
         Calendar time = record.getDataTime().getRefTimeAsCalendar();
-        if (record.getModelInfo().getParameterAbbreviation().equals("TCC")
+        if (record.getParameter().getAbbreviation().equals("TCC")
                 && time.get(Calendar.MINUTE) > 0) {
 
             time.set(Calendar.MINUTE, 0);
@@ -66,6 +66,6 @@ public class RTMAGribPostProcessor implements IDecoderPostProcessor {
                         "Error creating new dataURI for RTMA data!", e);
             }
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

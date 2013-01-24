@@ -42,11 +42,10 @@ import com.facebook.thrift.protocol.TMessage;
 import com.facebook.thrift.protocol.TSet;
 import com.facebook.thrift.protocol.TStruct;
 import com.facebook.thrift.protocol.TType;
+import com.raytheon.uf.common.serialization.BaseSerializationContext;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.EnclosureType;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationMetadata;
-import com.raytheon.uf.common.serialization.IDeserializationContext;
-import com.raytheon.uf.common.serialization.ISerializationContext;
 import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
 import com.raytheon.uf.common.serialization.SerializationCache;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -59,11 +58,14 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 12, 2008	#1448		chammack	Initial creation
- * Jun 17, 2010   #5091        njensen     Optimized primitive arrays
- * Mar 1, 2011                       njensen     Restructured deserializeArray()
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 12, 2008 #1448       chammack    Initial creation
+ * Jun 17, 2010 #5091       njensen     Optimized primitive arrays
+ * Mar 01, 2011             njensen     Restructured deserializeArray()
+ * Sep 14, 2012 #1169       djohnson    Add ability to write another object into the stream directly.
+ * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
+ * Nov 02, 2012 1302        djohnson    No more field level adapters.
  * 
  * </pre>
  * 
@@ -72,16 +74,13 @@ import com.raytheon.uf.common.serialization.SerializationException;
  */
 // Warnings are suppressed in this class because generics cause issues with the
 // extensive use of reflection. The erased objects are used instead.
-@SuppressWarnings("unchecked")
-public class ThriftSerializationContext implements ISerializationContext,
-        IDeserializationContext {
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public class ThriftSerializationContext extends BaseSerializationContext {
 
     /** The tag that is used to indicate the value of an enumeration */
     private static final String ENUM_VALUE_TAG = "__enumValue__";
 
     private final SelfDescribingBinaryProtocol protocol;
-
-    private final DynamicSerializationManager serializationManager;
 
     private static Map<Class<?>, Byte> types;
 
@@ -115,8 +114,9 @@ public class ThriftSerializationContext implements ISerializationContext,
      */
     public ThriftSerializationContext(SelfDescribingBinaryProtocol protocol,
             DynamicSerializationManager serializationManager) {
+        super(serializationManager);
+
         this.protocol = protocol;
-        this.serializationManager = serializationManager;
     }
 
     /*
@@ -718,10 +718,6 @@ public class ThriftSerializationContext implements ISerializationContext,
         field.name = keyStr;
         protocol.writeFieldBegin(field);
 
-        // if (adapter != null) {
-        // // If there is an adapter, use it to serialize
-        // adapter.serialize(this, val);
-        // } else
         if (type != TType.VOID) {
             // Otherwise, as long as it's not void, use basic type serialization
             serializeType(val, valClass, type);
@@ -851,9 +847,6 @@ public class ThriftSerializationContext implements ISerializationContext,
             FastClass fc, BeanMap bm) throws TException, SerializationException {
 
         TField field = protocol.readFieldBegin();
-        // System.out.println(field.type);
-        // ISerializationTypeAdapter factory = md.attributesWithFactories
-        // .get(field.name);
         Object obj = null;
 
         if (field.type == TType.STOP) {
@@ -861,12 +854,8 @@ public class ThriftSerializationContext implements ISerializationContext,
         }
 
         if (field.type != TType.VOID) {
-            // if (factory != null) {
-            // obj = factory.deserialize(this);
-            // } else {
             obj = deserializeType(field.type, o.getClass(), fc, field.name,
                     EnclosureType.FIELD);
-            // }
             if (field.type == TType.STRING) {
                 Class<?> fieldClass = findFieldClass(o.getClass(), field.name);
                 if (fieldClass != null && fieldClass.isEnum()) {
@@ -895,7 +884,6 @@ public class ThriftSerializationContext implements ISerializationContext,
      * @return
      * @throws SerializationException
      */
-    @SuppressWarnings("rawtypes")
     private Object deserializeType(byte type, Class clazz, FastClass fclazz,
             String fieldName, EnclosureType enclosureType)
             throws SerializationException {
@@ -1102,7 +1090,6 @@ public class ThriftSerializationContext implements ISerializationContext,
      * @return
      * @throws SerializationException
      */
-    @SuppressWarnings("rawtypes")
     private Object deserializeArray(FastClass fclazz, String fieldName)
             throws SerializationException {
         try {
@@ -1363,5 +1350,4 @@ public class ThriftSerializationContext implements ISerializationContext,
             throw new SerializationException(e);
         }
     }
-
 }

@@ -5,14 +5,10 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.ffmp
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
+Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
  com.raytheon.edex.common;bundle-version="1.11.7",
  com.raytheon.uf.common.monitor;bundle-version="1.11.7",
- org.geotools;bundle-version="2.5.2",
  org.apache.commons.logging;bundle-version="1.0.4",
- com.raytheon.uf.common.dataplugin.qpf;bundle-version="1.11.9",
  com.raytheon.uf.common.mpe;bundle-version="1.0.0",
  com.raytheon.uf.common.hydro;bundle-version="1.11.11",
  com.raytheon.uf.common.localization;bundle-version="1.11.26",
@@ -21,12 +17,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.edex.plugin.radar;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.common.cache;bundle-version="1.12.1174"
-Import-Package: com.raytheon.edex.plugin.grib,
- com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.dataplugin.grib.spatial.projections,
- com.raytheon.uf.common.dataplugin.scan.data,
+Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.ohd,
- com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.dat.utils;resolution:=optional,
  com.raytheon.uf.edex.plugin.scan.common

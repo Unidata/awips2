@@ -1,3 +1,20 @@
+# Product Discipline 0: Meteorological products, Parameter Category 0: Temperature
 16:16:Prob of Temperature above normal:%:PTAN
 17:17:Prob of Temperature below normal:%:PTBN
 20:20:Prob of Temperature near normal:%:PTNN
+#192-254 Reserved for local use
+192:192:Snow Phase Change Heat Flux:W/m^2:SNOHF
+193:193:Temperature tendency by all radiation:K/s:TTRAD
+194:194:Relative Error Variance::REV
+195:195:Large Scale Condensate Heating rate:K/s:LRGHR
+196:196:Deep Convective Heating rate:K/s:CNVHR
+197:197:Total Downward Heat Flux at Surface:W/m^2:THFLX
+198:198:Temperature Tendency By All Physics:K/s:TTDIA
+199:199:Temperature Tendency By Non-radiation Physics:K/s:TTPHY
+200:200:Standard Dev. of IR Temp. over 1x1 deg. area:K:TSD1D
+201:201:Shallow Convective Heating rate:K/s:SHAHR
+202:202:Vertical Diffusion Heating rate:K/s:VDFHR
+203:203:Potential temperature at top of viscous sublayer:K:THZ0
+204:204:Tropical Cyclone Heat Potential:J/m^2*K:TCHP
+255:255:Missing
+
