@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.stats.ui;
 
 /**
- * TODO Add Description
+ * Grouping Composite for the Stats Graph.
  *
  * <pre>
  *
@@ -35,10 +35,14 @@ package com.raytheon.uf.viz.stats.ui;
  * @author mpduff
  * @version 1.0
  */
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
@@ -107,6 +111,8 @@ public class GroupingComp extends Composite implements IGroupSelection {
 
     /** Grouping callback */
     private final IStatsGroup callback;
+
+    private final List<SelectionEntry> selectionEntries = new ArrayList<SelectionEntry>();
 
     /**
      * Constructor.
@@ -193,12 +199,26 @@ public class GroupingComp extends Composite implements IGroupSelection {
      */
     private void createControls() {
         List<String> keyArray = graphData.getKeysWithData();
+        Map<String, List<String>> grpNameMap = graphData.getGroupAndNamesMap();
 
+        // Create the Selection Entry objects
         for (String key : keyArray) {
+            SelectionEntry se = new SelectionEntry();
+            String[] parts = colonPattern.split(key);
+
+            Set<String> grpNames = grpNameMap.keySet();
+            Iterator<String> iter = grpNames.iterator();
+            for (int i = 0; i < grpNames.size(); i++) {
+                se.addPair(iter.next(), parts[i]);
+            }
+            this.selectionEntries.add(se);
+        }
+
+        for (SelectionEntry se : selectionEntries) {
             GridData gd = new GridData(20, 10);
             Label lbl = new Label(controlComp, SWT.BORDER);
             lbl.setLayoutData(gd);
-            lbl.setData(key);
+            lbl.setData(se);
             lbl.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseDown(MouseEvent e) {
@@ -208,8 +228,9 @@ public class GroupingComp extends Composite implements IGroupSelection {
             });
 
             Button btn = new Button(controlComp, SWT.CHECK);
-            btn.setText(key);
+            btn.setText(se.toString());
             btn.setSelection(true);
+            btn.setData(se);
             btn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -218,8 +239,8 @@ public class GroupingComp extends Composite implements IGroupSelection {
                 }
             });
 
-            labelMap.put(key, lbl);
-            checkBtnMap.put(key, btn);
+            labelMap.put(se.toString(), lbl);
+            checkBtnMap.put(se.toString(), btn);
         }
     }
 
@@ -286,7 +307,7 @@ public class GroupingComp extends Composite implements IGroupSelection {
      */
     private void handleLabelClickEvent(Label lbl) {
         RGB rgb = lbl.getBackground().getRGB();
-        String key = (String) lbl.getData();
+        String key = ((SelectionEntry) lbl.getData()).toString();
 
         ColorDialog colorDlg = new ColorDialog(this.getShell());
         colorDlg.setRGB(rgb);
@@ -364,8 +385,6 @@ public class GroupingComp extends Composite implements IGroupSelection {
      */
     @Override
     public void setSelections(Map<String, Map<String, Boolean>> selectionMap) {
-        List<String> keySequence = graphData.getKeySequence();
-
         Multimap<String, String> offMap = ArrayListMultimap.create();
         for (String key : selectionMap.keySet()) {
             for (String selection : selectionMap.get(key).keySet()) {
@@ -383,21 +402,18 @@ public class GroupingComp extends Composite implements IGroupSelection {
             }
         } else {
             for (String btnKey : checkBtnMap.keySet()) {
-                String[] parts = colonPattern.split(btnKey);
+                Button b = checkBtnMap.get(btnKey);
+                SelectionEntry se = (SelectionEntry) b.getData();
 
-                for (String group : offMap.keySet()) {
-                    for (String part : parts) {
-                        int idx = keySequence.indexOf(part);
-                        if (idx >= 0
-                                && offMap.get(group).contains(
-                                        keySequence.get(idx))) {
-                            checkBtnMap.get(btnKey).setSelection(false);
-                            keyRgbMap.remove(btnKey);
-                        } else {
-                            checkBtnMap.get(btnKey).setSelection(true);
-                            keyRgbMap.put(btnKey, labelMap.get(btnKey)
-                                    .getBackground().getRGB());
-                        }
+                for (String key : offMap.keySet()) {
+                    Collection<String> valueList = offMap.get(key);
+                    if (valueList.contains(se.getValue(key))) {
+                        checkBtnMap.get(btnKey).setSelection(false);
+                        keyRgbMap.remove(btnKey);
+                    } else {
+                        checkBtnMap.get(btnKey).setSelection(true);
+                        keyRgbMap.put(btnKey, labelMap.get(btnKey)
+                                .getBackground().getRGB());
                     }
                 }
             }
