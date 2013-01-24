@@ -1,0 +1,42 @@
+
+body{
+  font-family: Helvetica;
+  margin-left: 75px;
+  margin-right: 75px;
+  background: #D3D3D3;
+}
+#banner{
+  background: white;
+  font-family: Lucida Sans;
+  font-size: 24pt;
+  text-align: center;
+  border: 1px solid #C0C0C0;
+}
+#interfaceBody{
+  margin-top: 10px;
+}
+#interfaceRight{
+  border: 1px solid #000000;
+  background: white;
+  margin-left: 149px;
+  padding: 10px;
+}
+#leftTabs{
+  font-size: 10pt;
+  float: left;
+  width: 150px;
+}
+.leftTabSelected{
+  background: white;
+  text-align: center;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  border-bottom: 1px solid black;
+  cursor: default;
+}
+.leftTabEntry{
+  background: #A0A0A0;
+  text-align: center;
+  border: 1px solid black;
+  cursor: pointer;
+}

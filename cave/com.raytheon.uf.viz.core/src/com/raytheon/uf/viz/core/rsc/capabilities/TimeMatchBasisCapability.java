@@ -20,8 +20,7 @@
 package com.raytheon.uf.viz.core.rsc.capabilities;
 
 /**
- * Capability for resources to show they can be the time match basis. This
- * capability will be removed from the actual time match basis resource
+ * Under no circumstances use this class
  * 
  * <pre>
  * 
@@ -35,7 +34,7 @@ package com.raytheon.uf.viz.core.rsc.capabilities;
  * @author mschenke
  * @version 1.0
  */
-
+@Deprecated
 public class TimeMatchBasisCapability extends AbstractCapability {
 
     /*

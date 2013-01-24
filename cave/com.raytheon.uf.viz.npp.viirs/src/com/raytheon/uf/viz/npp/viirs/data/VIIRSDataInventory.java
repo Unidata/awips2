@@ -51,8 +51,8 @@ import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamField;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
@@ -243,7 +243,7 @@ public class VIIRSDataInventory extends AbstractInventory implements
         }
     }
 
-    public List<AbstractRequestableLevelNode> evaluateRequestConstraints(
+    public List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> constraints) {
         List<String> sources = new ArrayList<String>();
         List<String> parameters = extractParameters(constraints);
@@ -274,7 +274,7 @@ public class VIIRSDataInventory extends AbstractInventory implements
             return walkTree(null, sources, parameters, levels, true, true, null);
         } catch (InterruptedException e) {
         }
-        return new ArrayList<AbstractRequestableLevelNode>(0);
+        return new ArrayList<AbstractRequestableNode>(0);
     }
 
     /**
@@ -407,7 +407,7 @@ public class VIIRSDataInventory extends AbstractInventory implements
      * com.raytheon.uf.common.dataplugin.level.Level)
      */
     @Override
-    protected AbstractDerivedLevelNode getImportNode(
+    protected AbstractDerivedDataNode getImportNode(
             AbstractRequestableData nodeToImport, SourceNode destSourceNode,
             DerivParamDesc desc, DerivParamMethod method, Level level) {
         return null;
@@ -425,8 +425,8 @@ public class VIIRSDataInventory extends AbstractInventory implements
      * com.raytheon.uf.common.dataplugin.level.Level)
      */
     @Override
-    protected AbstractDerivedLevelNode getImportNode(
-            AbstractRequestableLevelNode nodeToImport,
+    protected AbstractDerivedDataNode getImportNode(
+            AbstractRequestableNode nodeToImport,
             String nodeToImportSourceName, SourceNode destSourceNode,
             DerivParamDesc desc, DerivParamMethod method, Level level) {
         return null;

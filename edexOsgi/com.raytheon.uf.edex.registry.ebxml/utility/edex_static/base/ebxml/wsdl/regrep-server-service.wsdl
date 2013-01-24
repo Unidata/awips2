@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<definitions 
+  name="regrep-server-service" 
+  targetNamespace="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0" 
+  xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:bindings="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0"
+  xmlns:spib="urn:oasis:names:tc:ebxml-regrep:wsdl:spi:bindings:4.0"
+  xmlns:notb="urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:bindings:4.0"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl"
+  >
+  <documentation>
+    This is the the informative service description template in WSDL for the OASIS ebXML RegRep services.
+    It relies on regrep-server-binding.wsdl for messages and portTypes.
+    <p/>
+    Author: Matt MacKenzie, Farrukh Najmi    
+  </documentation>
+  <import location="regrep-server-binding.wsdl" namespace="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0"/>
+  <import location="regrep-server-spi-binding.wsdl" namespace="urn:oasis:names:tc:ebxml-regrep:wsdl:spi:bindings:4.0"/>
+  <import location="NotificationListenerBindings.wsdl" namespace="urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:bindings:4.0"/>
+  <service name="QueryManagerSOAPService">
+    <documentation>
+      A service providing SOAP endpoint QueryManager interface.
+    </documentation>
+    <port binding="bindings:QueryManagerSOAPBinding" name="QueryManagerPort">
+      <documentation>
+        A template SOAP endpoint for ebXML RegRep QueryManager interface.
+      </documentation>
+      <soap:address location="http://your.server.com/query"/>
+    </port>
+  </service>
+  
+  <service name="LifecycleManagerSOAPService">
+    <documentation>
+      A service providing SOAP endpoints for LifecycleManager interface.
+    </documentation>
+    <port binding="bindings:LifecycleManagerSOAPBinding" name="LifecycleManagerPort">
+      <documentation>
+        A template SOAP endpoint for ebXML RegRep LifecycleManager interface.
+      </documentation>
+      <soap:address location="http://your.server.com/lcm"/>
+    </port>
+  </service>
+  
+  <service name="ValidatorSOAPService">
+    <documentation>
+      A service providing SOAP endpoints for Validator interface.
+    </documentation>
+    <port binding="spib:ValidatorSOAPBinding" name="ValidatorPort">
+      <documentation>
+        A template SOAP endpoint for ebXML RegRep Validator interface.
+      </documentation>
+      <soap:address location="http://your.server.com/validator"/>
+    </port>
+  </service>
+  
+  <service name="CatalogerSOAPService">
+    <documentation>
+      A service providing SOAP endpoints for Cataloger interface.
+    </documentation>
+    <port binding="spib:CatalogerSOAPBinding" name="CatalogerPort">
+      <documentation>
+        A template SOAP endpoints for ebXML RegRep Cataloger interface.
+      </documentation>
+      <soap:address location="http://your.server.com/cataloger"/>
+    </port>
+  </service>
+  
+  <service name="NotificationListenerSOAPService">
+    <port binding="notb:NotificationListenerSoapBinding" name="NotificationListenerPort">
+      <soap:address location="http://your.server.com/notificationListener"/>
+    </port>
+  </service>
+  
+</definitions>

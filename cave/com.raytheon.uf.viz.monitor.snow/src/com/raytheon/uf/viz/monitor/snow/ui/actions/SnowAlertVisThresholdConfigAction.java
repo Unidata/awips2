@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonDispThreshDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19 2009  3963       dhladky    Initial creation.
+ * Dec  6 2012  #1351      skorolev   Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -46,27 +47,19 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonDispThreshDlg;
  */
 
 public class SnowAlertVisThresholdConfigAction extends AbstractHandler {
-    
+
     private SnowMonDispThreshDlg snowMonDispThreshDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        
-        System.out.println("Activating/Action the Snow Alrt Vis Config...");
-        
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        
-        if (snowMonDispThreshDlg == null)
-        {
-            snowMonDispThreshDlg = new SnowMonDispThreshDlg(shell, CommonConfig.AppName.SNOW, DataUsageKey.MONITOR);
-            snowMonDispThreshDlg.open();
-            snowMonDispThreshDlg = null;
+        if (snowMonDispThreshDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            snowMonDispThreshDlg = new SnowMonDispThreshDlg(shell,
+                    CommonConfig.AppName.SNOW, DataUsageKey.MONITOR);
         }
-       
-        // figure out what to do here in the future
+        snowMonDispThreshDlg.open();
         return null;
     }
 
 }
-
-

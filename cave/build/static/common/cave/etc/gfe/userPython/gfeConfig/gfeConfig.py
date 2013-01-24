@@ -30,8 +30,7 @@
 # Heading
 #-----------------------------------------------------------------------------
 
-#import siteConfig
-#GFESUITE_HOME = siteConfig.GFESUITE_HOME
+GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
 yes = True
 no  = False

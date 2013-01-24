@@ -29,12 +29,12 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
- * TODO Add Description
+ * ACARDS dao.
  * 
  * <pre>
  * 
@@ -42,6 +42,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
+ * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
+ * Nov 02, 2012 1302       djohnson    Add Javadoc.
  * 
  * </pre>
  * 
@@ -50,11 +52,6 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  */
 
 public class ACARSDao extends DefaultPluginDao {
-
-    /**
-     * The cache region to store query
-     */
-    private final String QUERY_CACHE_REGION = "Queries";
 
     /**
      * Creates a new ReccoDao
@@ -103,10 +100,11 @@ public class ACARSDao extends DefaultPluginDao {
 
         List<ACARSRecord> retData = null;
 
-        List<PersistableDataObject> results = super.queryByExample(example);
+        @SuppressWarnings("unchecked")
+        List<PersistableDataObject<?>> results = super.queryByExample(example);
         if (results != null) {
             retData = new ArrayList<ACARSRecord>();
-            for (PersistableDataObject d : results) {
+            for (PersistableDataObject<?> d : results) {
                 retData.add((ACARSRecord) d);
             }
         }
@@ -125,6 +123,7 @@ public class ACARSDao extends DefaultPluginDao {
 
         List<?> result = (List<?>) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public List<?> doInTransaction(TransactionStatus status) {
                         Query hibQuery = getSession(false)
                                 .createQuery(hqlQuery);

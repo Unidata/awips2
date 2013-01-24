@@ -27,14 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -42,8 +43,8 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.viz.derivparam.tree.OrLevelNode;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -71,9 +72,9 @@ public class GridUpdater implements IAlertObserver {
     private class UpdateValue {
         public int timeOffset;
 
-        public AbstractDerivedLevelNode node;
+        public AbstractDerivedDataNode node;
 
-        public UpdateValue(Integer timeOffset, AbstractDerivedLevelNode node) {
+        public UpdateValue(Integer timeOffset, AbstractDerivedDataNode node) {
             this.timeOffset = timeOffset == null ? 0 : timeOffset;
             this.node = node;
         }
@@ -129,23 +130,21 @@ public class GridUpdater implements IAlertObserver {
 
     private GridInventory inventory;
 
-    private Map<GribMapKey, Set<UpdateValue>> updateMap = new HashMap<GribMapKey, Set<UpdateValue>>();
+    private Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<GridMapKey, Set<UpdateValue>>();
 
     public GridUpdater(GridInventory inventory) {
-        // TODO remove following line once Util removes static block
-        Util.getCurrentMemory();
         this.inventory = inventory;
     }
 
     public void startObserving() {
-        ProductAlertObserver.addObserver("grib", this);
+        ProductAlertObserver.addObserver(GridInventory.PLUGIN_NAME, this);
     }
 
     public void stopObserving() {
-        ProductAlertObserver.removeObserver("grib", this);
+        ProductAlertObserver.removeObserver(GridInventory.PLUGIN_NAME, this);
     }
 
-    public synchronized void addNode(AbstractDerivedLevelNode node)
+    public synchronized void addNode(AbstractDerivedDataNode node)
             throws VizException {
         List<Dependency> dependencies = node.getDependencies();
         if (dependencies == null || dependencies.isEmpty()) {
@@ -155,9 +154,9 @@ public class GridUpdater implements IAlertObserver {
 
         for (int i = 0; i < dep.size(); i++) {
             Dependency dependency = dep.get(i);
-            if (dependency.node instanceof GribRequestableLevelNode) {
-                GribRequestableLevelNode gNode = (GribRequestableLevelNode) dependency.node;
-                GribMapKey updateKey = new GribMapKey(
+            if (dependency.node instanceof GridRequestableNode) {
+                GridRequestableNode gNode = (GridRequestableNode) dependency.node;
+                GridMapKey updateKey = new GridMapKey(
                         gNode.getRequestConstraintMap());
                 Set<UpdateValue> set = updateMap.get(updateKey);
                 if (set == null) {
@@ -180,15 +179,16 @@ public class GridUpdater implements IAlertObserver {
                 gribMap.put(GridInventory.LEVEL_TWO_QUERY,
                         level.getLeveltwovalue());
 
-                GribMapKey updateKey = new GribMapKey(gribMap);
+                GridMapKey updateKey = new GridMapKey(gribMap);
                 Set<UpdateValue> set = updateMap.get(updateKey);
                 if (set == null) {
                     set = new HashSet<UpdateValue>();
                     updateMap.put(updateKey, set);
                 }
                 set.add(new UpdateValue(dependency.timeOffset, node));
-            } else {
-                for (Dependency d : dependency.node.getDependencies()) {
+            } else if (dependency.node instanceof AbstractDerivedDataNode) {
+                AbstractDerivedDataNode dataNode = (AbstractDerivedDataNode) dependency.node;
+                for (Dependency d : dataNode.getDependencies()) {
                     d.timeOffset += dependency.timeOffset;
                     if (!dep.contains(d)) {
                         dep.add(d);
@@ -210,13 +210,12 @@ public class GridUpdater implements IAlertObserver {
         Set<String> datauris = new HashSet<String>();
         for (AlertMessage alert : alertMessages) {
             if (myUpdates.remove(alert.dataURI)) {
-                // This updater triggered this alert, if it processes it now
-                // we
+                // This updater triggered this alert, if it processes it now we
                 // could do this forever
                 continue;
             }
-            GribMapKey updateKey = new GribMapKey(alert.decodedAlert);
-            GribTimeCache.getInstance().clearTimes(updateKey);
+            GridMapKey updateKey = new GridMapKey(alert.decodedAlert);
+            GridTimeCache.getInstance().clearTimes(updateKey);
             LevelNode lNode = null;
             try {
                 Level level = LevelFactory.getInstance().getLevel(
@@ -233,7 +232,7 @@ public class GridUpdater implements IAlertObserver {
                 inventory.reinitTree();
                 // System.out.println(alert.dataURI);
                 // System.out.println("LevelId=" + level.getId());
-            } else if (!(lNode instanceof GribRequestableLevelNode)) {
+            } else if (!(lNode instanceof GridRequestableNode)) {
                 if (lNode instanceof OrLevelNode) {
                     DerivParamMethod method = ((OrLevelNode) lNode).getMethod();
                     // Null means it is an alias model and supplement means
@@ -242,8 +241,7 @@ public class GridUpdater implements IAlertObserver {
                     if (method == null
                             || !method.getName().equals("Supplement")) {
                         inventory.reinitTree();
-                        // System.out.println(((AbstractDerivedLevelNode)
-                        // lNode)
+                        // System.out.println(((AbstractDerivedLevelNode) lNode)
                         // .getModelName());
                     }
                 } else {
@@ -257,8 +255,8 @@ public class GridUpdater implements IAlertObserver {
                 continue;
             }
             for (UpdateValue value : set) {
-                GribRecord fakeRec = new GribRecord();
-                fakeRec.setPluginName("grib");
+                GridRecord fakeRec = new GridRecord();
+                fakeRec.setPluginName(GridInventory.PLUGIN_NAME);
                 Object obj = alert.decodedAlert.get("dataTime");
                 if (!(obj instanceof DataTime)) {
                     throw new IllegalArgumentException(
@@ -270,21 +268,23 @@ public class GridUpdater implements IAlertObserver {
                 DataTime time = (DataTime) obj;
                 fakeRec.setDataTime(new DataTime(time.getRefTime(), time
                         .getFcstTime() - value.timeOffset));
-                GribModel modelInfo = new GribModel();
-                modelInfo.setModelName(value.node.getModelName());
-                modelInfo.setParameterAbbreviation(value.node.getDesc()
-                        .getAbbreviation());
-                modelInfo.setLevel(value.node.getLevel());
+                fakeRec.setDatasetId(value.node.getModelName());
+
+                Parameter param = new Parameter(value.node.getDesc()
+                        .getAbbreviation(), value.node.getDesc().getName(),
+                        value.node.getDesc().getUnit());
+                fakeRec.setParameter(param);
+                fakeRec.setLevel(value.node.getLevel());
                 if (value.node instanceof GatherLevelNode) {
-                    modelInfo.setPerturbationNumber(null);
+                    fakeRec.setEnsembleId(null);
                 } else {
-                    modelInfo
-                            .setPerturbationNumber((Integer) alert.decodedAlert
-                                    .get(GridInventory.PERT_QUERY));
+                    fakeRec.setEnsembleId((String) alert.decodedAlert
+                            .get(GridInventory.ENSEMBLE_QUERY));
                 }
-                // do I need to set this?
-                modelInfo.setTypeEnsemble(null);
-                fakeRec.setModelInfo(modelInfo);
+                fakeRec.setSecondaryId((String) alert.decodedAlert
+                        .get(GridConstants.SECONDARY_ID));
+                fakeRec.setLocation((GridCoverage) alert.decodedAlert
+                        .get(GridConstants.LOCATION));
                 try {
                     fakeRec.constructDataURI();
                     datauris.add(fakeRec.getDataURI());
@@ -294,6 +294,7 @@ public class GridUpdater implements IAlertObserver {
                                     "Unable to generate updates for derived product",
                                     e);
                 }
+
             }
         }
         myUpdates.addAll(datauris);
@@ -304,15 +305,15 @@ public class GridUpdater implements IAlertObserver {
      * 
      */
     public synchronized void refreshNodes() {
-        GribTimeCache.getInstance().flush();
-        Set<AbstractDerivedLevelNode> oldNodes = new HashSet<AbstractDerivedLevelNode>();
+        GridTimeCache.getInstance().flush();
+        Set<AbstractDerivedDataNode> oldNodes = new HashSet<AbstractDerivedDataNode>();
         for (Set<UpdateValue> values : updateMap.values()) {
             for (UpdateValue value : values) {
                 oldNodes.add(value.node);
             }
         }
         updateMap.clear();
-        for (AbstractDerivedLevelNode node : oldNodes) {
+        for (AbstractDerivedDataNode node : oldNodes) {
             // Get Node will automatically add this to the updater.
             inventory.getNode(node.getModelName(), node.getDesc()
                     .getAbbreviation(), node.getLevel());
