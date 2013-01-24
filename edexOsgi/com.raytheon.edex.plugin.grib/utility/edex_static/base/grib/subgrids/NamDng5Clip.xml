@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>NamDNG5</modelNames>
-   <referenceModel>NamDNG5</referenceModel>
+   <referenceGrid>197</referenceGrid>
    <nx>1000</nx>
    <ny>689</ny>
    <!-- 

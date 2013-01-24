@@ -1,0 +1,28 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <bean id="userAdminAuthorization"
+        class="com.raytheon.uf.edex.useradmin.services.UserAdminPrivilegedRequestHandler" />
+
+    <bean id="userAuthenticationDataChangedHandler"
+        class="com.raytheon.uf.edex.useradmin.services.UserAuthenticationDataChangedHandler">
+        <constructor-arg type="java.lang.String"
+            value="jms-generic:topic:user.authentication.changed?destinationResolver=#qpidDurableResolver" />
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.useradmin.request.UserAdminAuthRequest" />
+        <constructor-arg ref="userAdminAuthorization" />
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.useradmin.request.UserAuthenticationDataChanged" />
+        <constructor-arg ref="userAuthenticationDataChangedHandler" />
+    </bean>
+
+</beans>

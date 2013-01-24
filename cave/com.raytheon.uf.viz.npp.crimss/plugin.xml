@@ -13,7 +13,7 @@
       <page
             class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
             id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
-            name="CRiMSS"
+            name="CrIMSS"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
 

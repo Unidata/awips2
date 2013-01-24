@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 16, 2009            snaples     Initial creation
+ * Dec 04, 2012 15544      wkwock      fix missing 12z-18z after 12
  * 
  * </pre>
  * 
@@ -1020,6 +1021,12 @@ public class DailyQcUtils {
             btime.set(Calendar.MINUTE, 0);
             btime.set(Calendar.SECOND, 0);
             hrgt12z = 0;
+        }
+        /* In order to allow user access the 12~18Z point data for the most recent day,
+        advance one more day from current day if the later than 18Z */
+        Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        if (currentTime.get(Calendar.HOUR_OF_DAY)>=18) {
+        	btime.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         emonth = btime.get(Calendar.MONTH);

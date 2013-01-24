@@ -24,6 +24,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 
 //import gov.noaa.nws.ncep.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
+import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
@@ -45,6 +46,7 @@ import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscRscAttrs;
  *  06/12/09     #115        Greg Hull    Modified to work with AbstractEditResourceAttrsDialog
  * 	04/25/10     #245        Greg Hull    Changed SLIDER_TEXT to SPINNER
  * 	04/27/10     #245        Greg Hull    Added Apply Button
+ *  12/14/12     #861        Greg Hull    Added COLOR_PALLETTE for Pgen Rsc
  * 
  * </pre>
  * 
@@ -184,6 +186,46 @@ public class EditMiscResourceAttrsDialog extends AbstractEditResourceAttrsDialog
     				}
     			});
         	}
+        	else if( miscRscAttr.guiElem == EditElement.COLOR_PALLETE ) {
+        		final RscAttrValue rscAttr = editedRscAttrSet.getRscAttr( miscRscAttr.getAttrName() );
+        		
+        		if( rscAttr == null ) {
+        			System.out.println("Resource Attr "+miscRscAttr.getAttrName()+" not found in rscAttrSet");
+        			return gridComp;
+        		}
+        		else if( !(rscAttr.getAttrValue() instanceof RGB ) ) {
+        			System.out.println("Resource Attr "+miscRscAttr.getAttrName()+" is not of expected class RGB");
+        			return gridComp;
+        		}
+        		Composite colComp = new Composite( gridComp, SWT.NONE );
+
+        		GridData gd = new GridData();
+        		gd.horizontalIndent = 0;
+        		gd.verticalIndent = 5;
+        		colComp.setLayoutData( gd );
+
+        		gridLayout = new GridLayout(1,true);
+        		gridLayout.verticalSpacing = 0;
+        		colComp.setLayout( gridLayout );
+
+        		if( !miscRscAttr.attrLabel.equals( "" ) ) {
+                	Label colLbl = new Label( colComp, SWT.NONE );
+                	colLbl.setText( miscRscAttr.attrLabel );
+        		}
+
+        		// We could add parameters for this (similar to the spinner) but since it is now
+        		// only used by the PGEN resource, just set the values for it.
+        		final ColorMatrixSelector cms = new ColorMatrixSelector(colComp, false, true,
+        				22, 60, 20, 25, 28, 90, 4, 8, 5);
+        	    cms.setColorValue( (RGB)rscAttr.getAttrValue());
+
+        		cms.addListener(new IPropertyChangeListener() {
+    				public void propertyChange( PropertyChangeEvent event ) {
+    					rscAttr.setAttrValue( event.getNewValue() );
+    				}
+    			});
+        	}
+
         	else if( miscRscAttr.guiElem == EditElement.SPINNER ) {
         		final RscAttrValue rscAttr = editedRscAttrSet.getRscAttr( miscRscAttr.getAttrName() );
         		

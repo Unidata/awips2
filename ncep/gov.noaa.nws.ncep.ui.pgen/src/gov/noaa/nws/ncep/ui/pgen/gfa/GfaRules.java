@@ -12,6 +12,7 @@ import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.ENDG_HR;
 import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.ISSUE_TIME;
 import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.SNAPSHOT_TYPE;
 import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.UNTIL_TIME;
+import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.OUTLOOK_END_TIME;
 import static gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool.pad;
 import static java.lang.Math.abs;
 import static java.lang.Math.ceil;
@@ -53,8 +54,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * 										pre-load it when PGEN is activated.
  * 07/11					J. Wu		Remove smears with empty state list.
  * 03/12	    #601		J. Wu		Fixed conditional wording for "contgByd".
- * 06/12	    TTR393		J. Wu		Adjust algorithm in "processMaybe" to spped
+ * 06/12	    TTR393		J. Wu		Adjust algorithm in "processMaybe" to speed
  *                                      up processing by 200 times.
+ * 11/12	    #909/TTR650	J. Wu		Remove outlooks if "genOlk" is "NO".
  * 
  * </pre>
  * 
@@ -223,6 +225,7 @@ public class GfaRules {
 		/*
 		 * Now do conditional wording.
 		 */
+		ArrayList<Gfa> invalidOtlk = new ArrayList<Gfa>();
 		for ( Gfa smear : checkStates ) {
 
 			/* see corresponding method af_getSSAttr in the legacy code 
@@ -247,6 +250,14 @@ public class GfaRules {
 			
 			assignIssueTime( smear );
 
+			/*
+			 * Assign "airmetTag".
+			 */
+            assignAirmetTag( smear );
+			
+			/*
+			 * Do wording
+			 */
 			GfaWording wording = new GfaWording();
 
 			// <FROM CONDS DVLPG> wording.
@@ -263,6 +274,12 @@ public class GfaRules {
 				wording.genOlk = processMAYBE( smear, originalSS );
 			}
 
+			/*
+			 * Outlooks should be removed if "genOlk" is "NO".
+			 */
+			if ( smear.isOutlook() && !("YES".equalsIgnoreCase(wording.genOlk)) ) {
+				invalidOtlk.add( smear );
+			}
 
 			// OTLK CONDS CONTG BYD wording
 			// since "smear" element can be either Smear or Outlook, we need an if statement
@@ -291,10 +308,10 @@ public class GfaRules {
 
 		}
 		
-		// Return valid Gfa - those with at least one state in it.
+		// Return valid Gfa - those with at least one state in it and outlooks with GenOlk is "YES"
 		clipped.clear();
+		if ( invalidOtlk.size() > 0  ) checkStates.removeAll( invalidOtlk );	    
 		clipped.addAll( checkStates );
-		
 	}
 
 
@@ -571,7 +588,18 @@ public class GfaRules {
 		}
 
 		smear.addAttribute(ISSUE_TIME, issueTimeCal);
-		smear.addAttribute(UNTIL_TIME, AirmetCycleInfo.getUntilTime());
+		
+		Calendar untilTimeCal = AirmetCycleInfo.getUntilTime();		
+		smear.addAttribute(UNTIL_TIME, untilTimeCal );
+				
+		Calendar otlkEndTime = Calendar.getInstance();
+		otlkEndTime.set(Calendar.DAY_OF_MONTH, untilTimeCal.get(Calendar.DAY_OF_MONTH));
+		otlkEndTime.set(Calendar.HOUR_OF_DAY, untilTimeCal.get(Calendar.HOUR_OF_DAY) + 6 );
+		otlkEndTime.set(Calendar.MINUTE, untilTimeCal.get(Calendar.MINUTE) );
+		otlkEndTime.set(Calendar.SECOND, untilTimeCal.get(Calendar.SECOND) );
+
+		smear.addAttribute( OUTLOOK_END_TIME, otlkEndTime );
+		
 	}
 	
 	/**
@@ -1507,6 +1535,34 @@ public class GfaRules {
 				
 	    current.setGfaArea( gfaArea.toString() );	
 				
+	}
+	
+	/**
+	 * Assigns airmetTag to the smear.
+	 * 
+	 * @param smear
+	 */
+	static void assignAirmetTag(Gfa smear) {		
+        
+		/*
+		 * Note, if necessary, this could be controlled as a preference?
+		 */
+		boolean addAirmetTag = true;
+		String haz = smear.getGfaHazard();
+		if ( addAirmetTag && !("FZLVL".equals( haz ) ) && !("M_FZLVL".equals( haz ) )) {
+			String prefix = "";
+			if ( haz.equals( "TURB-HI") ) {
+				prefix = "H";
+			}
+			else if ( haz.equals( "TURB-LO") ) {
+				prefix = "L";
+			}
+			
+			String airmetTag = new String ( prefix + smear.getGfaTag()+smear.getGfaDesk() );
+			smear.setGfaValue( Gfa.AIRMET_TAG, airmetTag );
+			
+		}
+
 	}
 	
 }
