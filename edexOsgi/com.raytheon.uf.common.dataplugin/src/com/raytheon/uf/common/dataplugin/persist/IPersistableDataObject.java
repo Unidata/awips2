@@ -35,17 +35,19 @@ package com.raytheon.uf.common.dataplugin.persist;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 20Aug2007      393       MW Fegan      Initial creation    
- *  
+ * Oct 10, 2012 1261        djohnson     Add generic for identifier.
+ * 
  * </pre>
+ * 
  * @author mfegan
  * @version 1
- *
+ * 
  */
-public interface IPersistableDataObject {
+public interface IPersistableDataObject<IDENTIFIER_TYPE> {
     /**
      * Returns an object representing the identifier.
      *  
      * @return the identifier
      */
-	public Object getIdentifier();
+    IDENTIFIER_TYPE getIdentifier();
 }

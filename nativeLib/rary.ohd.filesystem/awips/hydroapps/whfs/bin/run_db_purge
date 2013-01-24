@@ -7,6 +7,8 @@ RUN_FROM_DIR=`dirname $0`
 
 # set up SOME environment variables for WHFS applications
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
 export DB_PURGE_LOG_DIR=$(get_apps_defaults db_purge_log_dir)
 
 

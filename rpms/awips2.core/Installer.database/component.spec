@@ -66,7 +66,7 @@ cp -r %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE
 
 # Copy The SQL Scripts That The Database RPM Will Need To The
 # Temporary Directory.
-DIRS_TO_COPY=('damcat' 'hmdb' 'migrated' 'setup' 'SHEF' 'vtec')
+DIRS_TO_COPY=('damcat' 'hmdb' 'migrated' 'setup' 'SHEF' 'vtec' 'ebxml' 'events')
 for dir in ${DIRS_TO_COPY[*]};
 do
    cp -r %{_baseline_workspace}/${PATH_TO_DDL}/${dir}/* \
@@ -166,6 +166,7 @@ IFHS=${AWIPS2_DATA_DIRECTORY}/pgdata_ihfs
 MAPS=${AWIPS2_DATA_DIRECTORY}/maps
 DAMCAT=${AWIPS2_DATA_DIRECTORY}/damcat
 HMDB=${AWIPS2_DATA_DIRECTORY}/hmdb
+EBXML=${AWIPS2_DATA_DIRECTORY}/ebxml
 
 # Add The PostgreSQL Libraries And The PSQL Libraries To LD_LIBRARY_PATH.
 export LD_LIBRARY_PATH=${POSTGRESQL_INSTALL}/lib:$LD_LIBRARY_PATH
@@ -271,6 +272,15 @@ function update_createDamcat()
       ${SQL_SHARE_DIR}/createDamcat.sql
 }
 
+function update_createEbxml()
+{
+   echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
+   AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
+   rm -f .awips2_escape.tmp
+   perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
+      ${SQL_SHARE_DIR}/createEbxml.sql
+}
+
 function update_createHMDB()
 {
    echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
@@ -334,6 +344,10 @@ echo "--------------------------------------------------------------------------
 echo "\| Creating a Directory for the hmdb Tablespace..."
 echo "--------------------------------------------------------------------------------"
 create_sql_element ${HMDB}
+echo "--------------------------------------------------------------------------------"
+echo "\| Creating a Directory for the ebxml Tablespace..."
+echo "--------------------------------------------------------------------------------"
+create_sql_element ${EBXML}
 echo ""
 echo "--------------------------------------------------------------------------------"
 echo "\| Starting PostgreSQL..."
@@ -371,6 +385,9 @@ execute_psql_sql_script ${SQL_SHARE_DIR}/bit_table.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/collective.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/national_category.sql metadata
 
+# create the events schema
+execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata
+
 echo "--------------------------------------------------------------------------------"
 echo "\| Creating shef Tables..."
 echo "--------------------------------------------------------------------------------"
@@ -387,6 +404,12 @@ execute_psql_sql_script ${SQL_SHARE_DIR}/populateDamcatDatabase.sql dc_ob7oax
 update_createHMDB
 su ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_USER} ${SQL_SHARE_DIR} ${SQL_LOG}"
+   
+update_createEbxml
+echo "--------------------------------------------------------------------------------"
+echo "\| Creating ebxml Tables..."
+echo "--------------------------------------------------------------------------------"
+execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql postgres
 echo "--------------------------------------------------------------------------------"
 echo "\| Creating VTEC Tables..."
 echo "--------------------------------------------------------------------------------"

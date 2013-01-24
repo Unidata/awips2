@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="cxf-2.5.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="FastInfoset-1.2.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="geronimo-activation_1.1_spec-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="geronimo-annotation_1.0_spec-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="geronimo-servlet_2.5_spec-1.1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jsr311-api-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="neethi-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="stax2-api-3.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="woodstox-core-asl-4.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="wsdl4j-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="xml-resolver-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="xmlbeans-2.4.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="xmlschema-core-2.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="xmlsec-1.4.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="xmltooling-1.3.2-1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

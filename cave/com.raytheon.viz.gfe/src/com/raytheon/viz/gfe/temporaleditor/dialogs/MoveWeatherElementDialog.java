@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/19/09     #2159      rjpeter     Initial creation.
+ * 11/14/2012   #1298      rferrel     Changes for non-blocking dialog.
  * </pre>
  * 
  * @author rjpeter
@@ -70,7 +71,7 @@ public class MoveWeatherElementDialog extends CaveJFACEDialog {
             AbstractTemporalEditorBar sourceBar,
             List<AbstractTemporalEditorBar> destBars) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         this.temporalEditor = temporalEditor;
         this.parm = parm;
         this.sourceBar = sourceBar;

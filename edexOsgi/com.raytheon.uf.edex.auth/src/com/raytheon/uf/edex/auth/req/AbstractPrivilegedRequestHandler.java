@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.auth.req;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -51,6 +52,7 @@ public abstract class AbstractPrivilegedRequestHandler<T extends AbstractPrivile
      * @param request
      * @return
      */
-    public abstract AuthorizationResponse authorized(IUser user, T request);
+    public abstract AuthorizationResponse authorized(IUser user, T request)
+            throws AuthorizationException;
 
 }

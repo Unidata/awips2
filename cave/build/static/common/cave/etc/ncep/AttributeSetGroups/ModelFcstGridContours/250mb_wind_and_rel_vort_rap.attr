@@ -8,6 +8,7 @@
 GLEVEL =  250
 GVCORD =  pres
 SKIP   =    0/1
+FILTER=y
 SCALE  =   5
 GDPFUN =  (vor(wnd))            !(vor(wnd)) !kntv(wnd)
 TYPE   =    c/f ! c ! b
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ @ WIND   = AND RELATIVE VORTICITY!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

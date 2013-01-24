@@ -45,13 +45,20 @@ public interface IUser extends ISerializableObject {
      * 
      * @return the user identifier object
      */
-    public IUserId uniqueId();
+    IUserId uniqueId();
+
+    // /**
+    // * Retrieve the roles assigned to the user.
+    // *
+    // * @return the roles
+    // */
+    // IRole[] getUserRoles();
 
     /**
      * Get the authentication data used to identify the user
      * 
      * @return data needed to authenticate the user
      */
-    public IAuthenticationData authenticationData();
+    IAuthenticationData authenticationData();
 
 }

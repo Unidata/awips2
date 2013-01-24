@@ -16,6 +16,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Cloud;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -105,7 +108,21 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
         	     /*
         	      * create a new DrawableElement with reversed points based on the selectedDrawableElement
                	  */
-        		AbstractDrawableComponent	reversedDrawableElement = PgenToolUtils.createReversedDrawableElement(selectedDrawableElement); 
+        		AbstractDrawableComponent reversedDrawableElement = null;
+        		if ( selectedDrawableElement instanceof Cloud ){
+    				reversedDrawableElement = selectedDrawableElement.copy();
+        			DrawableElement de = flipPgenSource.getNearestElement( loc, (Cloud)reversedDrawableElement );
+        			if ( de != null && de instanceof Line ){
+        				((Cloud)reversedDrawableElement).add(PgenToolUtils.createReversedDrawableElement(de));
+        				((Cloud)reversedDrawableElement).remove(de);
+        			}
+        			else {
+        				return false;
+        			}
+        		}
+        		else {
+        			reversedDrawableElement = PgenToolUtils.createReversedDrawableElement(selectedDrawableElement); 
+        		}
 
         		leftMouseButtonDownHandler(flipPgenSource, selectedDrawableElement, reversedDrawableElement, loc); 
         		flipNCMapEditor.refresh(); 

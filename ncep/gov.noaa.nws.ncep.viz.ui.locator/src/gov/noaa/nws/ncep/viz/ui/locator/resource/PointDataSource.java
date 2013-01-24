@@ -112,9 +112,24 @@ public class PointDataSource  {
 			return null;// Check for invalid Coordinate
 		}
 
-		Envelope searchEnv = new Envelope(loc.x-DIST, loc.x+DIST, loc.y-DIST, loc.y+DIST);
+		List rawPointList=null;
+		double searchRange = DIST;
 		
-		List rawPointList = pointDataSortTree.query(searchEnv);
+		do {
+			searchRange *= 2;
+
+			if( searchRange > 130 ) {
+				break;
+			}
+			
+			Envelope searchEnv = new Envelope( 
+					loc.x-searchRange, loc.x+searchRange, loc.y-searchRange, loc.y+searchRange);
+			rawPointList = pointDataSortTree.query(searchEnv);
+			
+//			if( searchRange > 1 ) {
+//				System.out.println("search range is "+ searchRange );
+//			}
+		} while( rawPointList.isEmpty() );
 
 		/*
 		 * Compute distance (in meter) of the nearest point

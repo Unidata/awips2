@@ -42,7 +42,7 @@ import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
- * Data access object for retrieving GribModel objects from the database
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -57,10 +57,11 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * @author bphillip
  * @version 1
  */
+@Deprecated
 public class GribModelDao extends CoreDao {
 
     private static final IUFStatusHandler handler = UFStatus
-            .getHandler(GridCoverageDao.class);
+            .getHandler(GribModelDao.class);
 
     /**
      * Creates a new GribModelDao
