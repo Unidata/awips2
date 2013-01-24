@@ -7,6 +7,7 @@
 ## Edited by Phil Kurimski 3-01-2012 OB12.2.1-4     ##
 ##           Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)
 ##           QINGLU LIN      7-31-2012 DR 15217 use roundAndPad ##
+##           Qinglu Lin     12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
 ######################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -119,7 +120,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 #if(${windSpeed} >= 40 || ${hailSize} >= 0.70)
 ...SIGNIFICANT WEATHER ADVISORY FOR ##
-#headlineLocList(${areas} true false true false) #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+#headlineLocList(${areas} true false true false true) #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 ...##
 #elseif(${windSpeed} == 0 && ${hailSize} == 0)
 !** YOU DID NOT SELECT ANY WIND OR HAIL THREATS. PLEASE RE-GENERATE THIS ADVISORY **!

@@ -56,12 +56,18 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * 11/22/2010   2235        cjeanbap    Added audio file to StatusMessage.
  * 02/02/2011   6500        cjeanbap    Added paramter to method signature and
  *                                      properly assign source value.
+ * 06/12/2012   0609        djohnson    Use EDEXUtil for EDEX_HOME.
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
 public class EDEXUtil implements ApplicationContextAware {
+
+    public static final String EDEX_HOME = System.getProperty("edex.home");
+
+    public static final String EDEX_BIN = EDEX_HOME + File.separatorChar
+            + "bin";
 
     static Log logger = LogFactory.getLog(EDEXUtil.class);
 
@@ -89,6 +95,7 @@ public class EDEXUtil implements ApplicationContextAware {
         return serverId;
     }
 
+    @Override
     public void setApplicationContext(ApplicationContext context)
             throws BeansException {
         CONTEXT = context;

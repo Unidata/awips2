@@ -9,7 +9,8 @@
 GLEVEL =  700
 GVCORD =  pres
 SKIP   =    0
-SCALE  =   0         !0         !0         !-1        !1         !1
+FILTER=y
+SCALE  =   0         !0         !0         !-1        !3         !3
 GDPFUN =  sm5s(relh)!sm5s(relh)!sm5s(relh)!sm5s(hght)!sm5s(omeg)!sm5s(omeg)
 TYPE   =    c
 CINT   =    10;30!50;70!90!3!-25;-23;-21;-19;-17;-15;-13;-11;-9;-7;-5;-3;-1!1;3;5;7;9;11
@@ -21,4 +22,3 @@ HLSYM  =   0
 !CLRBAR=  1
 WIND   =    
 TITLE  =   5/0/~ @ HEIGHT, REL HUMIDITY AND OMEGA!
-FILTER =  1

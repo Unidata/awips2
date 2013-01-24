@@ -41,6 +41,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 7, 2010            mschenke     Initial creation
  * 03/14/2012   DR 14690  Qinglu Lin   Add clear2().
  * 10/26/2012   DR 15479  Qinglu Lin   Added removeDuplicateCoordinate().
+ * 12/06/2012   DR 15559  Qinglu Lin   Added computeSlope(), computeCoordinate(), 
+ *                                     and adjustPolygon().
  * 
  * </pre>
  * 
@@ -145,6 +147,151 @@ public class WarngenUIState {
     	warningPolygon = gf.createPolygon(gf.createLinearRing(vertices), null);
     }
     
+    /**
+     * computeSlope
+     *     compute the slope of a line. 
+     *     
+     * History
+     * 12/06/2012   DR 15559  Qinglu Lin   Created. 
+     */
+    private double computeSlope(Coordinate[] coords, int i) {
+    	double min = 1.0E-08;
+    	double dx = coords[i].x-coords[i+1].x;
+    	double slope = 0.0;
+    	if (Math.abs(dx)>min) {
+    		slope = (coords[i].y-coords[i+1].y)/dx;
+    	}
+    	return slope;
+    }
+    
+    /**
+     * computeCoordinate
+     *     Compute the x component of a coordinate after its y component 
+     * is adjusted. 
+     *     
+     * History
+     * 12/06/2012   DR 15559  Qinglu Lin   Created. 
+     */
+    private void computeCoordinate(Coordinate[] c, int i, int j) {
+    	double slope;
+    	slope = computeSlope(c,i); 
+    	int iPlus1 = i+1;
+    	if (c[j].x>=c[i].x && c[j].x<=c[iPlus1].x ||
+    			c[j].x>=c[iPlus1].x && c[j].x<=c[i].x) {
+
+    		double x,y;
+    		double min1 = 0.005d;
+    		y = slope*(c[j].x-c[i].x) + c[i].y;
+    		double d = Math.abs(y-c[j].y);
+    		if (d>min1) 
+    			return;
+
+    		double min2 = 1.0E-8d;    		
+    		double delta = 0.005d; // empirical value
+    		double dyMin = 0.01d;
+    		int jMinus1 = j-1;
+    		if (jMinus1<0) 
+    			jMinus1 = c.length-2;
+    		int jPlus1 = j+1;
+    		if (Math.abs(y-c[j].y)<min1) {
+    			double dy1, dy2;
+    			dy1 = Math.abs(c[jMinus1].y-y);
+    			dy2 = Math.abs(c[jPlus1].y-y);
+    			if (dy1>=dy2 && (Math.abs(dy1)>dyMin || Math.abs(dy2)>dyMin)) {
+    				// attempt to use l2 for computation
+    				if (c[j].y==c[jMinus1].y && Math.abs(c[j].x-c[jMinus1].x)>min2) {
+    					// l2 is a horizontal line, use l3 for computation
+    					if (c[jPlus1].y<c[j].y) delta = -delta;
+    					slope = computeSlope(c,j);
+    					if (Math.abs(slope) > min2) {
+    						y = c[j].y+delta;
+    						x = (y-c[jPlus1].y)/slope + c[jPlus1].x;
+    					} else {
+    						// l3 is a vertical line
+    						y = c[j].y+delta;
+    						x = c[j].x;
+    					}
+    				} else {
+    					// use l2 for computation
+    					if (c[jMinus1].y<c[j].y) delta = -delta;
+    					slope = computeSlope(c,jMinus1);
+    					if (Math.abs(slope) > min2) {
+    						y = c[j].y+delta;
+    						x = (y-c[jMinus1].y)/slope + c[jMinus1].x;
+    					} else {
+    						// l2 is a vertical line
+    						y = c[j].y+delta;
+    						x = c[j].x;
+    					}
+    				}
+    			} else {
+    				if (Math.abs(dy1)>dyMin || Math.abs(dy2)>dyMin) {
+    					// attempt to use l3 for computation
+    					if (c[j].y==c[jPlus1].y && Math.abs(c[j].x-c[jPlus1].x)>min2) {
+    						// l3 is a horizontal line, use l2 for computation
+    						if (c[jMinus1].y<c[j].y) delta = -delta;
+    						slope = computeSlope(c,jMinus1);
+    						if (Math.abs(slope) > min2) {
+    							y = c[j].y+delta;
+    							x = (y-c[jMinus1].y)/slope + c[jMinus1].x;
+    						} else {
+    							// l2 is a vertical line
+    							y = c[j].y+delta;
+    							x = c[j].x;
+    						}
+    					} else {
+    						// use l3 for computation
+    						if (c[jPlus1].y<c[j].y) delta = -delta;
+    						slope = computeSlope(c,j);
+    						if (Math.abs(slope) > min2) {
+    							y = c[j].y+delta;
+    							x = (y-c[jPlus1].y)/slope + c[jPlus1].x;
+    						} else {
+    							// l3 is a vertical line
+    							y = c[j].y+delta;
+    							x = c[j].x;
+    						}
+    					}
+    				} else {
+    					x = c[j].x;
+    					y = c[j].y;
+    				}
+    			}
+    			c[j].x = x;
+    			c[j].y = y;
+    			if (j==0) 
+    				c[c.length-1] = c[j];
+    		}
+    	}
+    }
+
+    /**
+     * adjustPolygon
+     *     When a point is very close to a line in the initial warning polygon, the resulting coordinates
+     * cause the failure of polygon drawing in follow-up. The method move that kind of points away from 
+     * the line, and return a Polygon.
+     *
+     * History
+     * 12/06/2012   DR 15559  Qinglu Lin   Created.
+     */
+    public void adjustPolygon(Coordinate[] coords) {	
+    	int n = coords.length;
+    	for (int i=0; i<n-1; ++i) {
+    		int j;
+    		for (j=i+2; j<=n-2; j++) {
+    			computeCoordinate(coords,i,j);
+    		}
+    		if (i<=n-3)
+    			for (j=0; j<i; j++) {
+    				computeCoordinate(coords,i,j);
+    			}
+    		else
+    			for (j=1; j<i; j++) {
+    				computeCoordinate(coords,i,j);
+    			}
+    	}
+    }
+
     /**
      * Set the old warning area in lat/lon projection. Will be converted to
      * local

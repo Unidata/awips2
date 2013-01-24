@@ -1,0 +1,10 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean class="com.raytheon.uf.common.util.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.geospatial.util.JtsGeometryConverter"/></constructor-arg>
+  		<constructor-arg><value>com.vividsolutions.jts.geom.Geometry</value></constructor-arg>
+	</bean>
+	
+</beans>
