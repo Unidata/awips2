@@ -81,12 +81,8 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * <<<<<<< HEAD
- * Oct 3, 2012     728     mpduff      Initial creation
- * =======
  * Oct 03, 2012     728    mpduff      Initial creation.
  * Jan 17, 2013    1357    mpduff      Added mouse listeners.
- * >>>>>>> Issue #1357 - Remaining stats items implemented.
  * 
  * </pre>
  * 
@@ -752,8 +748,7 @@ public class StatsDisplayCanvas extends Canvas {
 
                             long diff = x - startMillis;
                             if (diff == 0) {
-                                xPix = Math
-                                        .round((x / millisPerPixelX + GRAPH_BORDER));
+                                xPix = GRAPH_BORDER;
                             } else {
                                 xPix = Math
                                         .round((diff / millisPerPixelX + GRAPH_BORDER));
