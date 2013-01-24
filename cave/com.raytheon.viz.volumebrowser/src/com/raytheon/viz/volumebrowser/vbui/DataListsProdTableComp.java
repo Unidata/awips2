@@ -84,6 +84,8 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Jul 31, 2012 #875       rferrel     Now uses markers.
  * Sep 26, 2012 #1216      rferrel     Change listener added to update
  *                                      points menu.
+ * Jan 14, 2013 #1516      rferrel     Remove listeners on dispose and specify 
+ *                                      Data Selection in Points Tool Action.
  * 
  * </pre>
  * 
@@ -95,7 +97,21 @@ public class DataListsProdTableComp extends Composite implements
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataListsProdTableComp.class);
 
+    /**
+     * Listener to update planes current point menu.
+     */
     private IPointChangedListener pointChangeListener;
+
+    /**
+     * Listener to trigger reset.
+     */
+    private IPointChangedListener resetPointChangeListener;
+
+    /**
+     * Listener to trigger reset.
+     */
+
+    private IToolChangedListener resetToolChangeListener;
 
     /**
      * Perform a regular expression find instead of simply completing the input
@@ -112,6 +128,13 @@ public class DataListsProdTableComp extends Composite implements
                 super(proposals);
             }
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * net.sf.swtaddons.autocomplete.AutocompleteContentProposalProvider
+             * #getMatchingProposals(java.lang.String[], java.lang.String)
+             */
             @Override
             protected List getMatchingProposals(String[] proposals,
                     String contents) {
@@ -381,10 +404,19 @@ public class DataListsProdTableComp extends Composite implements
 
     }
 
+    /**
+     * Dynamic controls for populating the sources' list.
+     */
     private SelectionControl sourceControl;
 
+    /**
+     * Dynamic controls for populating the fields' list.
+     */
     private SelectionControl fieldControl;
 
+    /**
+     * Dynamic controls for populating the planes' list.
+     */
     private SelectionControl planeControl;
 
     /**
@@ -437,28 +469,33 @@ public class DataListsProdTableComp extends Composite implements
 
         initializeComponents();
 
+        resetToolChangeListener = new IToolChangedListener() {
+            @Override
+            public void toolChanged() {
+                VizApp.runAsync(new Runnable() {
+                    public void run() {
+                        updateMenuInventory();
+                    }
+                });
+            }
+        };
+
         ToolsDataManager.getInstance().addBaselinesChangedListener(
-                new IToolChangedListener() {
-                    @Override
-                    public void toolChanged() {
-                        VizApp.runAsync(new Runnable() {
-                            public void run() {
-                                updateMenuInventory();
-                            }
-                        });
+                resetToolChangeListener);
+
+        resetPointChangeListener = new IPointChangedListener() {
+            @Override
+            public void pointChanged() {
+                VizApp.runAsync(new Runnable() {
+                    public void run() {
+                        updateMenuInventory();
                     }
                 });
+            }
+        };
+
         PointsDataManager.getInstance().addPointsChangedListener(
-                new IPointChangedListener() {
-                    @Override
-                    public void pointChanged() {
-                        VizApp.runAsync(new Runnable() {
-                            public void run() {
-                                updateMenuInventory();
-                            }
-                        });
-                    }
-                });
+                resetPointChangeListener);
     }
 
     /**
@@ -838,7 +875,7 @@ public class DataListsProdTableComp extends Composite implements
             tbContrib.xml.id = "SoundingPointsButton";
 
             final PointToolAction pta = new PointToolAction("Points",
-                    pointDisplayString);
+                    pointDisplayString, currentDataSelection);
             planeControl.toolbar.add(pta);
 
             pointChangeListener = new IPointChangedListener() {
@@ -924,6 +961,18 @@ public class DataListsProdTableComp extends Composite implements
      */
     public DataSelection getActiveDataSelection() {
         return currentDataSelection;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.volumebrowser.vbui.IDataMenuAction#setActiveDataSelection
+     * (
+     * com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection)
+     */
+    public void setActiveDataSelection(DataSelection dataSelection) {
+        currentDataSelection = dataSelection;
     }
 
     /**
@@ -1063,7 +1112,6 @@ public class DataListsProdTableComp extends Composite implements
         String[] selectedPlanes = planeControl.list.getSelectedKeys();
         DataCatalogManager.getDataCatalogManager().updateAvailableData(
                 selectedSources, selectedFields, selectedPlanes);
-
     }
 
     /**
@@ -1166,8 +1214,28 @@ public class DataListsProdTableComp extends Composite implements
         markAvailableData(plane, planeControl);
     }
 
+    /**
+     * Obtain the product table.
+     * 
+     * @return prodTable
+     */
     public ProductTableComp getProductTable() {
         return prodTable;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.swt.widgets.Widget#dispose()
+     */
+    @Override
+    public void dispose() {
+        ToolsDataManager.getInstance().removeBaselinesChangedListener(
+                resetToolChangeListener);
+
+        PointsDataManager.getInstance().removePointsChangedListener(
+                resetPointChangeListener);
+
+        super.dispose();
+    }
 }
