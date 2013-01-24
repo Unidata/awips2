@@ -36,22 +36,22 @@
                     </properties>
                     <resourceData xsi:type="dataMappedGridResourceData" customLegend="NOHRSC ${customLegend}" spatial="false" sampling="true" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampleFormat="${sampleFormat}">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="${param}" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="NOHRSC-SNOW" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.leveltwovalue">
+                            <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="-999999.0" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.masterLevel.name">
+                            <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.levelonevalue">
+                            <mapping key="info.level.levelonevalue">
                                 <constraint constraintValue="0.0" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>

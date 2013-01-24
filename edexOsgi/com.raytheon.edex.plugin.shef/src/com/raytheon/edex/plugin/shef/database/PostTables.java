@@ -78,6 +78,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 02/02/2009   1943       J. Sanchez  Add method postRiverStatus.
  * 05/29/2009   2410       J. Sanchez  Posted data for unknstnvalue.
  * 02/24/2012   14535      W. Kwock    Correct the duration value.
+ * 11/29/2012   15530      lbousaidi   corrected posting and production time for
+ * 									   latestobsvalue table.
  * 
  * </pre>
  * 
@@ -1074,11 +1076,10 @@ public class PostTables {
             }
 
             cs.setString(11, productId);
-            cs.setTimestamp(12, new Timestamp(shefData.getObservationTimeObj()
-                    .getTime()));
-            cs.setTimestamp(13, new Timestamp(shefData.getObservationTimeObj()
-                    .getTime()));
-
+            
+            cs.setTimestamp(12, new java.sql.Timestamp(productTime.getTime()));
+            cs.setTimestamp(13, new java.sql.Timestamp(postTime.getTime()));
+            
             int doOverwrite = PostTables.determineUpdateAction(duplicateOption,
                     record.isRevisedRecord());
             cs.setInt(14, doOverwrite);

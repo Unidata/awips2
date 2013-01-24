@@ -42,12 +42,12 @@
 		  <hilo>${HILO}</hilo>
 		  <hlsym>${HLSYM}</hlsym>       
 		  <wind>${WIND}</wind>
-          
+          <clrbar>${CLRBAR}</clrbar>          
           <metadataMap>
              <mapping key="pluginName">
                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
              </mapping>
-             <mapping key="modelInfo.modelName">
+             <mapping key="info.datasetId">
                 <constraint constraintValue="${primaryModel}" constraintType="EQUALS" />
              </mapping>
              <!-- a constraint on the "modelInfo.modelName" is set in code from -->

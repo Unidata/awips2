@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -80,6 +81,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                        for the colorbar                                     
  *  06/21/2012     #825	      Greg Hull   rm mosaicInfo.txt; get legend info from the Record.
  *  07/18/12       717        Archana     Refactored a field used to align the label data      
+ * 12/19/2012     #960        Greg Hull   override propertiesChanged() to update colorBar.
+ *        
  * </pre>
  * 
  * @author mli
@@ -684,6 +687,14 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
         }
 
 	}
+
+	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
 
     // the colorBar and/or the colormap may have changed so update the 
     // colorBarPainter and the colorMapParametersCapability which holds

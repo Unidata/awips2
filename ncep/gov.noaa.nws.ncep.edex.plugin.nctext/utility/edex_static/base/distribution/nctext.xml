@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
+<!--  Text decoder pattern -->
+	<regex>^[ACFNRUW][A-Z].*</regex>
+    <regex>^S[A-CEG-Z].*</regex>
+    <!-- Only have AFOS mapping for T[BCX] -->
+    <regex>^T[BCX].*</regex>
+    <regex>^SF[A-OQ-TV-Z].*</regex>
+    <regex>^SDUS1.*</regex>
+    <regex>^SDUS4[1-6].*</regex>
+    <regex>^SDUS9[^7].*</regex>
+    <regex>^SFU[^S].*</regex>
+    <regex>^SFUS4[^1].*</regex>
+    <regex>^SFP[^A].*</regex>
+    <regex>^SFPA[^4].*</regex>
+    <regex>^SFPA4[^1].*</regex>
+    <regex>^BMBB91.*</regex>
+    <regex>^N.*</regex>
+    <regex>^F[EHIJKLMQVWX].*</regex>
+<!-- End  Text decoder pattern -->
 <regex>^FXCA62 TJSJ (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).+</regex> 
 <regex>^FXUS[67][1-6] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).+</regex>
 	<regex>^FPAK20 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).+</regex> 

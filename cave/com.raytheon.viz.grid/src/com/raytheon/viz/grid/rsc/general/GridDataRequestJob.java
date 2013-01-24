@@ -37,7 +37,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
- * TODO Add Description
+ * A Job for asynchronously requesting data for GridResources.
  * 
  * <pre>
  * 
@@ -63,7 +63,7 @@ class GridDataRequestJob extends Job {
 
         public final List<PluginDataObject> pdos;
 
-        public GeneralGridData gridData;
+        public List<GeneralGridData> gridData;
 
         public GridDataRequest(DataTime time, List<PluginDataObject> pdos) {
             this.time = time;
@@ -91,6 +91,13 @@ class GridDataRequestJob extends Job {
         for (GridDataRequest request = getNext(); request != null; request = getNext()) {
             try {
                 request.gridData = resource.getData(request.time, request.pdos);
+                if (request.gridData == null) {
+                    // need to remove unfulfillable requests to avoid infinite
+                    // loop.
+                    synchronized (requests) {
+                        requests.remove(request);
+                    }
+                }
                 resource.issueRefresh();
             } catch (VizException e) {
                 synchronized (requests) {
@@ -117,7 +124,7 @@ class GridDataRequestJob extends Job {
         return null;
     }
 
-    public GeneralGridData requestData(DataTime time,
+    public List<GeneralGridData> requestData(DataTime time,
             List<PluginDataObject> pdos) {
         synchronized (requests) {
             GridDataRequest request = new GridDataRequest(time, pdos);
