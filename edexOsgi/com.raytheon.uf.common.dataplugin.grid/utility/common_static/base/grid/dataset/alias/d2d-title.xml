@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="d2d-title">
+	<alias base="AKWAVE239">AKWAVE</alias>
+	<alias base="AUTOSPE">SPE</alias>
+	<alias base="AVN203">GFS190</alias>
+	<alias base="AVN211">GFS80</alias>
+	<alias base="AVN225">GFS75</alias>
+	<alias base="AVN37">GFSGbl</alias>
+	<alias base="AVN38">GFSGbl</alias>
+	<alias base="AVN39">GFSGbl</alias>
+	<alias base="AVN40">GFSGbl</alias>
+	<alias base="AVN41">GFSGbl</alias>
+	<alias base="AVN42">GFSGbl</alias>
+	<alias base="AVN43">GFSGbl</alias>
+	<alias base="AVN44">GFSGbl</alias>
+	<alias base="AVN">GFS180</alias>
+	<alias base="AVN-NorthernHemisphere">GFSGbl</alias>
+	<alias base="BHPE">BiasHPE</alias>
+	<alias base="CPCoutlook211">CPCoutlook-Long</alias>
+	<alias base="DGEX185">DGEX</alias>
+	<alias base="DGEX186">DGEX</alias>
+	<alias base="ECMF10">ECMWF-LowRes</alias>
+	<alias base="ECMF11">ECMWF-LowRes</alias>
+	<alias base="ECMF12">ECMWF-LowRes</alias>
+	<alias base="ECMF1">ECMWF-LowRes</alias>
+	<alias base="ECMF2">ECMWF-LowRes</alias>
+	<alias base="ECMF3">ECMWF-LowRes</alias>
+	<alias base="ECMF4">ECMWF-LowRes</alias>
+	<alias base="ECMF5">ECMWF-LowRes</alias>
+	<alias base="ECMF6">ECMWF-LowRes</alias>
+	<alias base="ECMF7">ECMWF-LowRes</alias>
+	<alias base="ECMF8">ECMWF-LowRes</alias>
+	<alias base="ECMF9">ECMWF-LowRes</alias>
+	<alias base="ECMF-MODEL0">ECMWF-MODEL0</alias>
+	<alias base="ECMF-NorthernHemisphere">ECMWF-LowRes</alias>
+	<alias base="ENPWAVE253">ENPwave</alias>
+	<alias base="ENSEMBLE37">GFSensemble</alias>
+	<alias base="ENSEMBLE38">GFSensemble</alias>
+	<alias base="ENSEMBLE39">GFSensemble</alias>
+	<alias base="ENSEMBLE40">GFSensemble</alias>
+	<alias base="ENSEMBLE41">GFSensemble</alias>
+	<alias base="ENSEMBLE42">GFSensemble</alias>
+	<alias base="ENSEMBLE43">GFSensemble</alias>
+	<alias base="ENSEMBLE44">GFSensemble</alias>
+	<alias base="ENSEMBLE">GFSensemble</alias>
+	<alias base="ETA207">NAM95</alias>
+	<alias base="ETA212">NAMWX</alias>
+	<alias base="ETA218">NAM12</alias>
+	<alias base="ETA242">AK-NAM12</alias>
+	<alias base="EtaBufr">NAM Bufr</alias>
+	<alias base="ETA">NAM80</alias>
+	<alias base="GFS160">AK-GFS</alias>
+	<alias base="GFS161">SJU-GFS</alias>
+	<alias base="GFS199">Guam-GFS</alias>
+	<alias base="GFS201">GFS360</alias>
+	<alias base="GFS212">GFS40</alias>
+	<alias base="GFS213">GFS90</alias>
+	<alias base="GFS254">PR-GFS</alias>
+	<alias base="GfsBufr">GFSBufr</alias>
+	<alias base="GFSLAMP">GFSLAMP-Stn</alias>
+	<alias base="GFSLAMPTstorm">GFSLAMP-Grid</alias>
+	<alias base="GWW233">GWW</alias>
+	<alias base="HPCqpfNDFD">HPC</alias>
+	<alias base="HurWind175">GuamHurWind</alias>
+	<alias base="HurWind226">TPC-HurWind</alias>
+	<alias base="HurWind250">HawHurWind</alias>
+	<alias base="MANSPE">SPE</alias>
+	<alias base="mesoEta212">NAM40</alias>
+	<alias base="mesoEta215">NAM20</alias>
+	<alias base="mesoEta216">AK-NAM40</alias>
+	<alias base="mesoEta217">AK-NAM20</alias>
+	<alias base="mesoEta237">PR-NAM12</alias>
+	<alias base="MOSGuide-AK">AK-GriddedMOS</alias>
+	<alias base="MOSGuide">GriddedMOS</alias>
+	<alias base="MPE-Local">MPE</alias>
+	<alias base="MPE-Mosaic">MPE</alias>
+	<alias base="MRF203">gfs190</alias>
+	<alias base="MRF204">GFS150</alias>
+	<alias base="MRF205">GFS150</alias>
+	<alias base="MRF21">gfsLR21</alias>
+	<alias base="MRF22">gfsLR22</alias>
+	<alias base="MRF23">gfsLR23</alias>
+	<alias base="MRF24">gfsLR24</alias>
+	<alias base="MRF25">gfsLR25</alias>
+	<alias base="MRF26">gfsLR26</alias>
+	<alias base="MRF">gfsLR</alias>
+	<alias base="mrfNH">gfsLR</alias>
+	<alias base="NGM202">NGM180</alias>
+	<alias base="NGM207">NGM95</alias>
+	<alias base="NGM213">NGM90</alias>
+	<alias base="NGM">NGM80</alias>
+	<alias base="OPCWave180">OPCWave-W-ATL</alias>
+	<alias base="OPCWave181">OPCWave-NE-PAC</alias>
+	<alias base="OPCWave182">OPCWave-TE-PAC</alias>
+	<alias base="RTGSSTHR">RTG-SST-HR-Analysis</alias>
+	<alias base="RTGSST">RTG-SST-Analysis</alias>
+	<alias base="RUC130">RAP13</alias>
+	<alias base="RUC236">RAP40</alias>
+	<alias base="SREF212">SREF</alias>
+	<alias base="SREF216">AK-SREF</alias>
+	<alias base="SREF243">PR-SREF</alias>
+	<alias base="UKMET37">UKMET</alias>
+	<alias base="UKMET38">UKMET</alias>
+	<alias base="UKMET39">UKMET</alias>
+	<alias base="UKMET40">UKMET</alias>
+	<alias base="UKMET41">UKMET</alias>
+	<alias base="UKMET42">UKMET</alias>
+	<alias base="UKMET43">UKMET</alias>
+	<alias base="UKMET44">UKMET</alias>
+	<alias base="UKMET-NorthernHemisphere">UKMET</alias>
+	<alias base="WNAWAVE238">WNAwave</alias>
+</aliasList>

@@ -1,3 +1,2 @@
 color= RGB {255,250,225}
-lineStyle=SOLID
-lineWidth=2
+monoColorEnable=false

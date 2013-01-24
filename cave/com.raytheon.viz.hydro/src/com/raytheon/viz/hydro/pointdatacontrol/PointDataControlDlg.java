@@ -102,6 +102,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 09 OCT 2012 #15396				   Fixed Instantaneous precip index so legend and map display 
  * 									   will change each time duration is incremented or decremented
  * 									   for the "30 minutes Instantaneous" rainfall map .
+ * 04 Dec 2012 15602     wkwock        Fix Hrs hour capped at 100.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -1023,6 +1025,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
         hoursSpnr.setPageIncrement(5);
         hoursSpnr.setSelection(24);
         hoursSpnr.setLayoutData(gd);
+        hoursSpnr.setMaximum(1000);
         // hoursSpnr.addSelectionListener(new SelectionAdapter() {
         // @Override
         // public void widgetSelected(SelectionEvent event) {

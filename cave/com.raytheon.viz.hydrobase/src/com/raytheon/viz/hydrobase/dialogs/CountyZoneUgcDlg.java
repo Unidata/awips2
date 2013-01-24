@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * 30 Dec 2008  1802       askripsk    Connect to database.
+ * 04 Dec 2012  15522      wkwock      Fix incorrect zones and not able to add
  * 
  * </pre>
  * 
@@ -94,6 +95,10 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
      */
     private Button clearBtn;
 
+    /**
+     * for keep track whether selected zones are initialized.  false is not initialized.
+     */
+    private boolean zonesFlag = false;
     /**
      * Constructor.
      * 
@@ -157,6 +162,9 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         selectionCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+				if (!zonesFlag) {
+					getZoneData();
+				}
                 updateDisplay();
             }
         });
@@ -328,6 +336,7 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
     private void getZoneData() {
         try {
             CountyZoneUgcDataManager.getInstance().getZonesSelected(true);
+            zonesFlag=true;
         } catch (VizException e) {
             e.printStackTrace();
         }

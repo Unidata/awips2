@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.grid.inv;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,17 +29,16 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.viz.grid.data.RadarRequestableData;
+import com.raytheon.viz.grid.util.RadarAdapter;
 
 /**
  * 
@@ -59,7 +56,7 @@ import com.raytheon.viz.grid.data.RadarRequestableData;
  * @author bsteffen
  * @version 1.0
  */
-public class RadarRequestableLevelNode extends AbstractRequestableLevelNode {
+public class RadarRequestableLevelNode extends AbstractBaseDataNode {
 
     protected static final String TIME_FIELD = "dataTime";
 
@@ -105,42 +102,34 @@ public class RadarRequestableLevelNode extends AbstractRequestableLevelNode {
         this.rcMap = rcMap;
     }
 
-    @Override
-    public boolean isTimeAgnostic() {
-        return false;
-    }
-
-    @Override
     public Map<String, RequestConstraint> getRequestConstraintMap() {
         return rcMap;
     }
 
     @Override
-    public boolean hasRequestConstraints() {
-        return true;
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
+        return null;
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response)
             throws VizException {
-        Set<DataTime> resultsSet = RadarUpdater.getInstance().getTimes(this);
+        Set<TimeAndSpace> resultsSet = RadarUpdater.getInstance()
+                .getTimes(this);
         if (resultsSet != null) {
             return resultsSet;
         }
 
-        DataTime[] results = CatalogQuery.performTimeQuery(rcMap, latestOnly,
-                null);
+        DataTime[] results = CatalogQuery.performTimeQuery(rcMap, false, null);
         if (results != null) {
-            resultsSet = new HashSet<DataTime>(results.length);
+            resultsSet = new HashSet<TimeAndSpace>(results.length);
             for (int i = 0; i < results.length; i++) {
-                resultsSet.add(results[i]);
+                resultsSet.add(new TimeAndSpace(results[i], RadarAdapter
+                        .getInstance().getCoverage()));
             }
-            if (!latestOnly) {
-                RadarUpdater.getInstance().setTimes(this, resultsSet);
-            }
+            RadarUpdater.getInstance().setTimes(this, resultsSet);
             return resultsSet;
         } else {
             return null;
@@ -148,69 +137,31 @@ public class RadarRequestableLevelNode extends AbstractRequestableLevelNode {
     }
 
     @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
-            throws VizException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        DbQueryRequest dbRequest = getDataQueryInternal(property, timeOut,
-                cache);
-        DbQueryResponse response = (DbQueryResponse) ThriftClient
-                .sendRequest(dbRequest);
-        return processDataQueryResults(response);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataQueryInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
-    @Override
-    protected DbQueryRequest getDataQueryInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
+    public DbQueryRequest getDataRequest(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability) {
         Map<String, RequestConstraint> newQuery = new HashMap<String, RequestConstraint>(
                 rcMap);
         DbQueryRequest dbRequest = new DbQueryRequest();
-        DataTime[] times = property.getSelectedEntryTime();
-        if (times != null && times.length > 0) {
-            RequestConstraint dtRC = new RequestConstraint();
-            dtRC.setConstraintType(ConstraintType.IN);
-            for (DataTime t : times) {
-                dtRC.addToConstraintValueList(t.toString());
-            }
-            newQuery.put("dataTime", dtRC);
+        RequestConstraint dtRC = new RequestConstraint();
+        dtRC.setConstraintType(ConstraintType.IN);
+        for (TimeAndSpace ast : availability) {
+            dtRC.addToConstraintValueList(ast.getTime().toString());
         }
+        newQuery.put("dataTime", dtRC);
         newQuery.put("pluginName", new RequestConstraint("radar"));
         dbRequest.setConstraints(newQuery);
         return dbRequest;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * processQueryResults
-     * (com.raytheon.uf.common.dataquery.responses.DbQueryResponse)
-     */
     @Override
-    protected List<AbstractRequestableData> processDataQueryResults(
-            DbQueryResponse response) throws VizException {
-        List<Map<String, Object>> rows = response.getResults();
-        List<AbstractRequestableData> rval = new ArrayList<AbstractRequestableData>(
+    public Set<AbstractRequestableData> getData(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability, Object response)
+            throws VizException {
+        List<Map<String, Object>> rows = ((DbQueryResponse) response)
+                .getResults();
+        Set<AbstractRequestableData> rval = new HashSet<AbstractRequestableData>(
                 rows.size());
         // switch to GribRequestableData and build a grib record from the radar
         // record... won't work because of the get data call, can't be a
@@ -220,11 +171,6 @@ public class RadarRequestableLevelNode extends AbstractRequestableLevelNode {
                     paramAbbrev));
         }
         return rval;
-    }
-
-    @Override
-    public List<Dependency> getDependencies() {
-        return Collections.emptyList();
     }
 
     public String getParamAbbrev() {

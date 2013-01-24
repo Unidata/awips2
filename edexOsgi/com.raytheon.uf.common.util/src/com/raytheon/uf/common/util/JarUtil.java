@@ -21,6 +21,7 @@ package com.raytheon.uf.common.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -29,7 +30,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * TODO Add Description
+ * Utilities for working with Jar files.
  * 
  * <pre>
  * 
@@ -38,6 +39,7 @@ import java.util.jar.JarFile;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2011            njensen     Initial creation
+ * Nov 09, 2012 1322       djohnson    Add getResResourcePath.
  * 
  * </pre>
  * 
@@ -176,6 +178,26 @@ public class JarUtil {
                     throw new IOException("Unable to close jar file", e);
                 }
             }
+        }
+    }
+
+    /**
+     * Attempts to find the specified resource on the classpath. First it
+     * searches for the provided string resource path, if that fails, returns
+     * the string prepended with "/res" since that is where the "res" resources
+     * are placed in the jar files. This is required because in Eclipse the
+     * Spring files are not prepended with "res" as they are in jar files.
+     * 
+     * @param resourcePath
+     *            the resource path
+     * @return the String resource path to use
+     */
+    public static String getResResourcePath(String resourcePath) {
+        URL url = JarUtil.class.getResource(resourcePath);
+        if (url != null) {
+            return resourcePath;
+        } else {
+            return "/res" + resourcePath;
         }
     }
 

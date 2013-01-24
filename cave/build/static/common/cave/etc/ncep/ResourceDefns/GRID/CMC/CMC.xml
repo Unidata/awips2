@@ -6,7 +6,7 @@
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=cmc
-pluginName=ncgrib
+pluginName=grid
 eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>

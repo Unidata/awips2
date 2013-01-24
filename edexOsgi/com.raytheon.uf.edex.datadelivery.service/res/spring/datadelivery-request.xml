@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <bean id="datadeliveryAuthorization"
+        class="com.raytheon.uf.edex.datadelivery.service.services.DataDeliveryPrivilegedRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest" />
+        <constructor-arg ref="datadeliveryAuthorization" />
+    </bean>
+
+    <bean id="subscriptionDeleteService"
+        class="com.raytheon.uf.edex.datadelivery.service.services.SubscriptionDeleteHandler" />
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest" />
+        <constructor-arg ref="subscriptionDeleteService" />
+    </bean>
+
+</beans>

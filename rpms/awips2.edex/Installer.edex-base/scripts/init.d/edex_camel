@@ -29,12 +29,12 @@ if [ $TOTAL_MEM -gt 4 ]; then
    HIGH_MEM=on
 fi
 
-# Default Services to start
-SERVICES=('ingest' 'ingestGrib' 'request')
-
-if [ $HIGH_MEM == "on" ]; then
-    SERVICES=('ingest' 'ingestGrib' 'ingestDat' 'request')
-fi 
+# determine services to load
+if [ -f /etc/rc.d/init.d/edexServiceList ]; then
+	. /etc/rc.d/init.d/edexServiceList
+else
+    SERVICES=( 'request' 'ingest' 'ingestGrib' 'ingestDat')
+fi
 
 # Who to run EDEX server as, usually "awips".  (NOT "root")
 EDEXUSER=awips

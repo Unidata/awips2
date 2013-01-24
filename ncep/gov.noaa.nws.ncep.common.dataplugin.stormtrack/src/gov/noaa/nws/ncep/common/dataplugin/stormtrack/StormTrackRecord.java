@@ -53,6 +53,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * Date         Ticket#    	Engineer    Description
  * ------------ ---------- 	----------- --------------------------
  * 07/2011					T. Lee		ATCF and Ensemble storm tracks
+ * 10/19/2011    858        Greg Hull   remove forecastHr
+ * 
  * </pre>
  * 
  * @author tlee
@@ -73,7 +75,7 @@ public class StormTrackRecord extends PluginDataObject {
 	@Column(length = 32)
 	@XmlElement
 	@DynamicSerializeElement
-	@DataURI(position = 7)
+	@DataURI(position = 6)
 	private String reportType;
 
 	/**
@@ -119,15 +121,11 @@ public class StormTrackRecord extends PluginDataObject {
 	@XmlElement
 	private String model;
 
-	/**
-	 * TAU -- forecast Period: -24 through 120 hours, 0 for best-track, negative
-	 * forecastHours used for CARQ and WRNG records.
-	 */
-	@DataURI(position = 4)
-	@Column
-	@DynamicSerializeElement
-	@XmlElement
-	private int fcstHour;
+//	@DataURI(position = 4)
+//	@Column
+//	@DynamicSerializeElement
+//	@XmlElement
+//	private int fcstHour;
 
 	/**
 	 * Latitude (degrees) for the DTG: -900 through 900
@@ -168,7 +166,7 @@ public class StormTrackRecord extends PluginDataObject {
 	/**
 	 * Wind intensity (kts) for the radii defined i this record: 34, 50, 64
 	 */
-	@DataURI(position = 5)
+	@DataURI(position = 4)
 	@DynamicSerializeElement
 	@XmlElement
 	private float windCategory;
@@ -294,7 +292,7 @@ public class StormTrackRecord extends PluginDataObject {
 	/**
 	 * Literal storm name, NONAME, or INVEST
 	 */
-	@DataURI(position = 6)
+	@DataURI(position = 5)
 	@Column(length = 32)
 	@DynamicSerializeElement
 	@XmlElement
@@ -377,7 +375,7 @@ public class StormTrackRecord extends PluginDataObject {
 		this.warnTime = null;
 		this.techniqueNum = IDecoderConstantsN.INTEGER_MISSING;
 		this.model = " ";
-		this.fcstHour = IMISSD;
+//		this.fcstHour = IMISSD;
 		this.clat = RMISSD;
 		this.clon = RMISSD;
 		this.windMax = RMISSD;
@@ -476,11 +474,7 @@ public class StormTrackRecord extends PluginDataObject {
 	}
 
 	public int getFcstHour() {
-		return fcstHour;
-	}
-
-	public void setFcstHour(int fcstHour) {
-		this.fcstHour = fcstHour;
+		return dataTime.getFcstTime()/3600; //fcstHour;
 	}
 
 	public float getClat() {

@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!-- Separated from the other beans because we want to be able to use 
+        any DAO implementation along with the other Spring files (e.g. in-memory 
+        version in order to test proposed changes and inform the user of their effects) -->
+    <bean id="bandwidthContextFactory"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthContextFactory" />
+        
+    <bean id="retrievalAgents" class="java.util.Collections" factory-method="emptyMap">
+        <!-- No retrievals for in-memory -->
+    </bean>
+        
+    <bean id="registryManagerInstanceInitializer" class="java.lang.String">
+        <!-- required for depends-on -->
+    </bean>
+
+    <bean id="registerDataDeliveryHandlers" class="java.lang.String">
+        <!-- required for depends-on -->
+    </bean>
+</beans>

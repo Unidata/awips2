@@ -35,6 +35,10 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jan 6, 2008	1802    	askripsky	Initial creation
+ * Jan 3, 2013  15520       lbousaidi   added a dollar-quoted string to getUpdate and
+ *                                      getInsert statements to always write literally
+ *                                      the string content.
+
  * 
  * </pre>
  * 
@@ -765,7 +769,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
 
         String rval = "INSERT INTO riverstat ( " + columns
                 + " ) VALUES ( %s, %s, %s, %s, %s, %s, %s,"
-                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
+                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, $$%s$$,%s,"
                 + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )";
 
         rval = String.format(rval, getDBString(lid), getDBString(primaryPE),
@@ -776,7 +780,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
                 getDBString(level), getDBString(riverMile), getDBString(pool),
                 getDBString(periodOfRecord), getDBString(rated),
                 getDBString(latitude), getDBString(longitude),
-                getDBString(remark), getDBString(reviseDate, dateFormat),
+                getDBStringNoQuote(remark), getDBString(reviseDate, dateFormat),
                 getDBString(latLonSource), getDBString(stream),
                 getDBString(tidalEffect), getDBString(backWater),
                 getDBString(verticalDatum), getDBString(actionFlow),
@@ -809,7 +813,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
     public String getUpdateStatement() {
         // Set the basic update statement
         String rval = "UPDATE riverstat SET lid=%s, primary_pe=%s, bf=%s, cb=%s, da=%s, response_time=%s, threshold_runoff=%s,"
-                + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark=%s, rrevise=%s,"
+                + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark=$$%s$$, rrevise=%s,"
                 + " rsource=%s, stream=%s, tide=%s, backwater=%s, vdatum=%s, action_flow=%s, wstg=%s, zd=%s, ratedat=%s,"
                 + " usgs_ratenum=%s, uhgdur=%s, use_latest_fcst=%s WHERE %s";
 
@@ -822,7 +826,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
                 getDBString(level), getDBString(riverMile), getDBString(pool),
                 getDBString(periodOfRecord), getDBString(rated),
                 getDBString(latitude), getDBString(longitude),
-                getDBString(remark), getDBString(reviseDate, dateFormat),
+                getDBStringNoQuote(remark), getDBString(reviseDate, dateFormat),
                 getDBString(latLonSource), getDBString(stream),
                 getDBString(tidalEffect), getDBString(backWater),
                 getDBString(verticalDatum), getDBString(actionFlow),

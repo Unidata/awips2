@@ -254,7 +254,7 @@ public class StationTableComp extends TableComp {
      * @return Column index.
      */
     @Override
-    protected int getColumnIndex(AppName appName, String sortCol) {
+    public int getColumnIndex(AppName appName, String sortCol) {
         return tableConfig.getTableColumnIndex(appName, sortCol);
     }
 
@@ -301,7 +301,7 @@ public class StationTableComp extends TableComp {
      * @param name
      */
     public void setIdLabel(String name) {
-        idLbl.setText("Zone/County: "+ this.id +" - "+ name);
+        idLbl.setText("Zone/County: " + this.id + " - " + name);
         controlComp.layout();
     }
 
@@ -355,11 +355,11 @@ public class StationTableComp extends TableComp {
         }
     }
 
-	@Override
-	protected void packColumns() {
-	      for (int i = 0; i < table.getColumnCount(); i++) {
-	          table.getColumn(i).pack();
-	          table.getColumn(i).setWidth(defaultColWidth);
-	      }
-	}
+    @Override
+    protected void packColumns() {
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumn(i).pack();
+            table.getColumn(i).setWidth(defaultColWidth);
+        }
+    }
 }

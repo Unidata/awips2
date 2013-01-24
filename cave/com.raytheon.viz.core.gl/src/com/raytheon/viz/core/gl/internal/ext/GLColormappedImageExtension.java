@@ -208,9 +208,18 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
 
         program.setUniform("colorMapSz", colorMapParameters.getColorMap()
                 .getSize());
-        int textureType = ((GLColormappedImage) image).getTextureType();
-        program.setUniform("isFloat", textureType == GL.GL_FLOAT
-                || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
+        int textureType = image.getTextureType();
+        boolean isFloat = textureType == GL.GL_FLOAT
+                || textureType == GL.GL_HALF_FLOAT_ARB;
+        double dataMin = colorMapParameters.getDataMin();
+        double dataMax = colorMapParameters.getDataMax();
+        if (isFloat == false) {
+            // get format from image and get data min/max from it
+            dataMin = image.getDataMin();
+            dataMax = image.getDataMax();
+        }
+
+        program.setUniform("isFloat", isFloat);
         program.setUniform("logarithmic",
                 colorMapParameters.isLogarithmic() ? 1 : 0);
         program.setUniform("logFactor", colorMapParameters.getLogFactor());
@@ -218,8 +227,8 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
 
         program.setUniform("applyMask", colorMapParameters.isUseMask() ? 1 : 0);
 
-        program.setUniform("naturalMin", colorMapParameters.getDataMin());
-        program.setUniform("naturalMax", colorMapParameters.getDataMax());
+        program.setUniform("naturalMin", dataMin);
+        program.setUniform("naturalMax", dataMax);
         program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
         program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
 

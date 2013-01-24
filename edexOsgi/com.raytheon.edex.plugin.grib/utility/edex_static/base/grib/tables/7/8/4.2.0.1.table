@@ -86,7 +86,7 @@
 205:205:Total Column Integrated Snow:kg m-2:TCOLS
 206:206:Total Icing Potential Diagnostic::TIPD
 207:207:Number concentration for ice particles::NCIP
-208:208:Snow temperature:K:SNO T
+208:208:Snow temperature:K:SNOT
 209:209:Total column-integrated supercooled liquid water:kg m-2:TCLSW
 210:210:Total column-integrated melting ice:kg m-2:TCOLM
 211:211:Evaporation - Precipitation:cm per day:EMNP
@@ -105,4 +105,7 @@
 224:224:Convective precipitation (nearest grid point):kg/m2:ACPCPN
 225:225:Freezing Rain:kg/m2:FRZR
 226:226:Predominant Weather:Numeric (See note 3):PWTHER
-255:255:Missing::
+227:227:Frozen Rain:mm:FROZR
+241:241:Total Snow:mm:TSNOW
+242:242:Relative Humidity with Respect to Precipitable Water:%:RHPW
+255:255:Missing
