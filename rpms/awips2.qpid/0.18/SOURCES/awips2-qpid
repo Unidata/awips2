@@ -1,0 +1,172 @@
+#!/bin/bash
+#
+# awips2-qpid   This script will start and stop the AWIPS II
+#               Qpid instance.
+# description: Qpid 0.18
+# processname: qpid-server
+# config: /awips2/qpid/etc/config.xml
+
+# Source function library
+. /etc/rc.d/init.d/functions 
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+_QPID_USER="awips"
+
+_QPID_SERVER=qpid-server
+_QPID_STOPALL=qpid.stopall
+
+JAVA_INSTALL="/awips2/java"
+QPID_INSTALL="/awips2/qpid"
+_QPID_LOG_DIRECTORY="${QPID_INSTALL}/log"
+if [ ! -d ${_QPID_LOG_DIRECTORY} ]; then
+   mkdir -p ${_QPID_LOG_DIRECTORY}
+   chown -R ${_QPID_USER}:fxalpha ${_QPID_LOG_DIRECTORY}
+fi
+_CURRENT_DATE=`date +"%Y%m%d"`
+_START_QPID_LOG="${_QPID_LOG_DIRECTORY}/start-qpid-${_CURRENT_DATE}.log"
+
+# default path
+export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+# add AWIPS II java to the path
+export JAVA_HOME=${JAVA_INSTALL}
+export PATH=${JAVA_INSTALL}/bin:$PATH
+export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib
+# add AWIPS II qpid to the path
+export PATH=${QPID_INSTALL}/bin:$PATH
+# set QPID_HOME
+export QPID_HOME=${QPID_INSTALL}
+
+function startQPID()
+{
+   # first, verify that qpid is not already running
+   statusQPID > /dev/null 2>&1
+   if [ $? -eq 0 ]; then
+      echo "QPID is already running."
+
+      statusQPID
+      return 1   
+   fi
+
+   # qpid is not running
+   # prepare to start qpid
+   echo -n "Starting QPID"
+   nohup su ${_QPID_USER} -c "/bin/bash ${_QPID_SERVER} >> ${_START_QPID_LOG} 2>&1" > /dev/null &
+   if [ $? -ne 0 ]; then
+      # failed to start the qpid server
+      failure
+      echo
+      return 1
+   fi
+
+   # give qpid time to start
+   sleep 10
+   # verify that qpid has started and is still running
+   statusQPID > /dev/null 2>&1
+   if [ $? -eq 0 ]; then
+      success
+      echo
+      return 0
+   else
+      failure
+      echo
+      return 1
+   fi
+}
+
+function stopQPID()
+{
+   # first, verify that qpid is running
+   statusQPID > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+      echo "QPID is not running."
+      return 1
+   fi
+
+   # prepare to stop qpid
+   echo -n "Stopping QPID"
+   nohup su ${_QPID_USER} -c "/bin/bash ${_QPID_STOPALL}" > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+      failure
+      return 1
+   fi
+
+   # give qpid time to stop
+   sleep 10
+
+   # verify that qpid has stopped
+   statusQPID > /dev/null 2>&1
+   if [ $? -eq 0 ]; then
+      # the shutdown was not successful
+      failure
+      echo
+      return 1
+   else
+      # the shutdown was was successful
+      success
+      echo
+      return 0
+   fi
+}
+
+function restartQPID()
+{
+   stopQPID
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+   startQPID
+   return $?
+}
+
+function statusQPID()
+{
+   # attempt to retrieve the qpid pid from the process table
+   pid=`ps aux | grep [j]ava\ -server\ -DPNAME=QPBRKR | grep [o]rg.apache.qpid.server.Main | awk '{print $2}'`
+   if [ $? -ne 0 ]; then
+      echo "Failed to determine the status of QPID!"
+      return 1
+   fi
+
+   if [ "${pid}" = "" ]; then
+      echo "QPID is not running."
+      return 1
+   else
+      echo "QPID is running with pid ... ${pid}."
+   fi
+
+   return 0
+}
+
+# determine which command was executed
+_command=${1}
+case ${_command} in
+   start)
+      startQPID
+      returnCode=$?
+      ;;
+   stop)
+      stopQPID
+      returnCode=$?
+      ;;
+   restart)
+      echo "Restarting QPID"
+      restartQPID
+      returnCode=$?
+      ;;
+   status)
+      statusQPID
+      returnCode=$?
+      ;;
+   *)
+      # display usage message
+      echo "Usage: $0 {start|stop|restart|status}" 1>&2
+      exit 1       
+      ;;
+esac
+
+exit ${returnCode}
