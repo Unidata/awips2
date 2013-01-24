@@ -79,7 +79,7 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
      * Constructor.
      * 
      * @param parentShell
-     * @param graphData
+     * @param selectionEntries
      * @param callback
      */
     public SelectionManagerDlg(Shell parentShell, GraphData graphData,
@@ -89,8 +89,8 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
                         | CAVE.INDEPENDENT_SHELL);
         setText("Selection Manager");
 
-        this.graphData = graphData;
         this.callback = callback;
+        this.graphData = graphData;
     }
 
     /**
@@ -254,7 +254,6 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
     private void populateTree() {
         Map<String, List<String>> grpMemberMap = graphData
                 .getGroupAndNamesMap();
-        Map<String, Boolean> stateMap = callback.getStates();
 
         for (String key : grpMemberMap.keySet()) {
             TreeItem treeItem = new TreeItem(selectionTree, SWT.NONE);
@@ -265,8 +264,7 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
             for (String subKey : array) {
                 TreeItem subTreeItem = new TreeItem(treeItem, SWT.NONE);
                 subTreeItem.setText(subKey);
-
-                subTreeItem.setChecked(stateMap.get(subKey));
+                subTreeItem.setChecked(true);
             }
         }
 
