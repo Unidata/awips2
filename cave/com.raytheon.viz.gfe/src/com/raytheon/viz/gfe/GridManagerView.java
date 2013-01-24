@@ -33,6 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.dialogs.KillJobsOnExitDialog;
 import com.raytheon.viz.gfe.dialogs.SaveParameterDialog;
@@ -54,6 +55,7 @@ import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
  * 06/11/2009   #1947      rjpeter     Updated to add saving of parms on close,
  *                                     adding cancel capability and if error on
  *                                     save then the close is cancelled.
+ * 10/30/2012   #1298      rferrel     Must keep blocking dialogs to work with eclipse plugins.
  * </pre>
  * 
  * @author dfitch
@@ -90,7 +92,7 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
         window = this.getSite().getWorkbenchWindow();
         view = parent;
 
-        dataManager = DataManager.getInstance(window);
+        dataManager = DataManagerUIFactory.getInstance(window);
         if (dataManager == null) {
             return;
         }
@@ -106,7 +108,6 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
                 .setColor(BGColorMode.EDITOR, RGBColors.getRGBColor(colorName));
 
         // Causes the GridManger to redraw on initialization.
-        DataManager.fireChangeListener();
         refresh();
     }
 
@@ -129,6 +130,11 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
         return view;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.ISaveablePart2#promptToSaveOnClose()
+     */
     @Override
     public int promptToSaveOnClose() {
         // Check for any running/queued jobs.
@@ -137,6 +143,8 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
                     .getShell();
 
             KillJobsOnExitDialog dialog = new KillJobsOnExitDialog(shell);
+            // Must keep modal and blocking in order to work with eclipse
+            // plugins.
             dialog.setBlockOnOpen(true);
             int returnCode = dialog.open();
             if (returnCode == IDialogConstants.CANCEL_ID) {
@@ -154,7 +162,8 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
 
                 SaveParameterDialog dialog = new SaveParameterDialog(shell,
                         dataManager);
-
+                // Must keep modal and blocking in order to work with eclipse
+                // plugins.
                 dialog.setBlockOnOpen(true);
                 int returnCode = dialog.open();
 

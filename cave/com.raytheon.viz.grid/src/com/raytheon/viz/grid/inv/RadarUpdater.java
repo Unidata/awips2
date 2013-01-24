@@ -9,23 +9,42 @@ import java.util.Set;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.grid.util.RadarAdapter;
 import com.raytheon.viz.grid.util.RadarProductCodeMapping;
 
+/**
+ * 
+ * Listens for updates to radatr products and transforms them into grid updates
+ * so that radar data being used in grid derived parameters will update.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 20, 2012            bsteffen     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
 public class RadarUpdater implements IAlertObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarUpdater.class);
@@ -92,14 +111,14 @@ public class RadarUpdater implements IAlertObserver {
 
     private class CacheEntry {
 
-        public CacheEntry(Set<DataTime> times) {
+        public CacheEntry(Set<TimeAndSpace> times) {
             this.insertTime = System.currentTimeMillis();
             this.times = times;
         }
 
         public long insertTime;
 
-        public Set<DataTime> times;
+        public Set<TimeAndSpace> times;
 
     }
 
@@ -114,7 +133,9 @@ public class RadarUpdater implements IAlertObserver {
         }
     };
 
-    private CacheEntry globalTimes;
+    private Set<DataTime> globalTimes;
+
+    private long globalInsertTime;
 
     private RadarUpdater() {
         ProductAlertObserver.addObserver("radar", this);
@@ -166,15 +187,14 @@ public class RadarUpdater implements IAlertObserver {
                 statusHandler.handle(Priority.PROBLEM,
                         e1.getLocalizedMessage(), e1);
             }
-            GribRecord fakeRec = new GribRecord();
-            fakeRec.setPluginName("grib");
+            GridRecord fakeRec = new GridRecord();
+            fakeRec.setPluginName(GridInventory.PLUGIN_NAME);
+
             fakeRec.setDataTime(time);
-            GribModel modelInfo = new GribModel();
-            modelInfo.setModelName(RadarAdapter.RADAR_SOURCE);
-            modelInfo.setParameterAbbreviation(paramAbbrev);
-            modelInfo.setLevel(level);
-            modelInfo.setTypeEnsemble(null);
-            fakeRec.setModelInfo(modelInfo);
+            fakeRec.setDatasetId(RadarAdapter.RADAR_SOURCE);
+            Parameter param = new Parameter(paramAbbrev);
+            fakeRec.setParameter(param);
+            fakeRec.setLevel(level);
             try {
                 fakeRec.constructDataURI();
                 datauris.add(fakeRec.getDataURI());
@@ -201,11 +221,12 @@ public class RadarUpdater implements IAlertObserver {
         return new CacheKey(productCode, elevationAngle);
     }
 
-    public void setTimes(RadarRequestableLevelNode rNode, Set<DataTime> times) {
+    public void setTimes(RadarRequestableLevelNode rNode,
+            Set<TimeAndSpace> times) {
         cache.put(getCacheKey(rNode), new CacheEntry(times));
     }
 
-    public Set<DataTime> getTimes(RadarRequestableLevelNode rNode) {
+    public Set<TimeAndSpace> getTimes(RadarRequestableLevelNode rNode) {
         CacheKey cacheKey = getCacheKey(rNode);
         CacheEntry entry = cache.get(cacheKey);
         if (entry == null) {
@@ -219,18 +240,19 @@ public class RadarUpdater implements IAlertObserver {
     }
 
     public void setGlobalTimes(Set<DataTime> times) {
-        globalTimes = new CacheEntry(times);
+        globalTimes = times;
+        globalInsertTime = System.currentTimeMillis();
     }
 
     public Set<DataTime> getGlobalTimes() {
         if (globalTimes == null) {
             return null;
         }
-        if (globalTimes.insertTime + CACHE_TIME < System.currentTimeMillis()) {
+        if (globalInsertTime + CACHE_TIME < System.currentTimeMillis()) {
             globalTimes = null;
             return null;
         }
-        return globalTimes.times;
+        return globalTimes;
     }
 
     public void clearCache() {

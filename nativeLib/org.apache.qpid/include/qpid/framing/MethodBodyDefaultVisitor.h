@@ -131,11 +131,16 @@ class MethodBodyDefaultVisitor:
     QPID_COMMON_EXTERN virtual void visit(const ClusterConfigChangeBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterMessageExpiredBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterErrorCheckBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterTimerWakeupBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterTimerDropBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterShutdownBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterDeliverToQueueBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionAnnounceBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionDeliverCloseBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionDeliverDoOutputBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionAbortBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionShadowSetUserBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionShadowPrepareBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionConsumerStateBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionDeliveryRecordBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionTxStartBody&);
@@ -155,6 +160,8 @@ class MethodBodyDefaultVisitor:
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionQueueBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionExpiryIdBody&);
     QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionAddQueueListenerBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionManagementSetupStateBody&);
+    QPID_COMMON_EXTERN virtual void visit(const ClusterConnectionConfigBody&);
 };
 
 }} // namespace qpid::framing

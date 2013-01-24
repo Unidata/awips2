@@ -23,13 +23,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
- * TODO Add Description
+ * resourceData for constructing RcmResources.
  * 
  * <pre>
  * 
@@ -55,9 +55,9 @@ public class RcmResourceData extends GridResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
         if (loadProperties instanceof GridLoadProperties) {
-            records = new GribRecord[objects.length];
+            records = new GridRecord[objects.length];
             for (int i = 0; i < objects.length; i++) {
-                records[i] = (GribRecord) objects[i];
+                records[i] = (GridRecord) objects[i];
             }
         }
         return new RcmResource(this, loadProperties);

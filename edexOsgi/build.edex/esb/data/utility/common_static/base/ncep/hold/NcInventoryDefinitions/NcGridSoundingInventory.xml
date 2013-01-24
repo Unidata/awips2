@@ -6,7 +6,7 @@
     <inventoryParameters>pluginName,modelName,eventName,dataTime</inventoryParameters>
     <baseConstraints>
         <mapping key="pluginName">
-            <constraint constraintValue="ncgrib" constraintType="EQUALS"/>
+            <constraint constraintValue="ncgribxxx" constraintType="EQUALS"/>
         </mapping>
         <!--  any other needed constraints. ie parameters, levels....  -->
     </baseConstraints>

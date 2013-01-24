@@ -340,8 +340,17 @@ public class UiUtil {
     }
 
     /**
+     * Gets the currently active window
+     * 
+     * @return
+     */
+    public static IWorkbenchWindow getCurrentWindow() {
+        return VizWorkbenchManager.getInstance().getCurrentWindow();
+    }
+
+    /**
      * Given the editor id and the renderable displays, create or open an editor
-     * with the given displays
+     * with the given displays on the active window
      * 
      * @param editor
      * @param displays
@@ -349,10 +358,28 @@ public class UiUtil {
      */
     public static AbstractEditor createOrOpenEditor(String editor,
             IRenderableDisplay... displays) {
+        return createOrOpenEditor(getCurrentWindow(), editor, displays);
+    }
+
+    /**
+     * Given the editor id and the renderable displays, create or open an editor
+     * with the given displays on the specified window
+     * 
+     * @param windowToLoadTo
+     * @param editor
+     * @param displays
+     * @return the created or opened editor
+     */
+    public static AbstractEditor createOrOpenEditor(
+            IWorkbenchWindow windowToLoadTo, String editor,
+            IRenderableDisplay... displays) {
         String editorName = (editor == null ? "com.raytheon.viz.ui.glmap.GLMapEditor"
                 : editor);
+        if (windowToLoadTo == null) {
+            windowToLoadTo = getCurrentWindow();
+        }
         // Check the current editor first
-        IEditorPart ep = EditorUtil.getActiveEditor();
+        IEditorPart ep = EditorUtil.getActiveEditor(windowToLoadTo);
         if (ep instanceof AbstractEditor) {
             AbstractEditor currentEditor = (AbstractEditor) ep;
             if (currentEditor != null
@@ -364,8 +391,7 @@ public class UiUtil {
             }
         }
 
-        IWorkbenchPage activePage = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow().getActivePage();
+        IWorkbenchPage activePage = windowToLoadTo.getActivePage();
         IEditorReference[] references = new IEditorReference[0];
         if (activePage != null) {
             references = activePage.getEditorReferences();
@@ -374,18 +400,12 @@ public class UiUtil {
         for (IEditorReference ref : references) {
             if (editorName.equals(ref.getId())) {
                 IEditorPart editorPart = ref.getEditor(false);
-                // IMultiPaneEditor multiPane = editorPart instanceof
-                // IMultiPaneEditor ? (IMultiPaneEditor) editorPart
-                // : null;
                 if (editorPart instanceof AbstractEditor) {
                     AbstractEditor aEditor = (AbstractEditor) editorPart;
                     aEditor = makeCompatible(aEditor, displays);
                     if (aEditor != null) {
-
-                        PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                                .getActivePage().bringToTop(editorPart);
+                        activePage.bringToTop(aEditor);
                         return aEditor;
-
                     }
                 }
             }
@@ -393,7 +413,7 @@ public class UiUtil {
 
         // If we get here, the editor isn't there, or has a different number of
         // panes... construct it
-        return createEditor(editorName, displays);
+        return createEditor(windowToLoadTo, editorName, displays);
     }
 
     private static AbstractEditor makeCompatible(AbstractEditor currentEditor,
@@ -428,7 +448,8 @@ public class UiUtil {
     }
 
     /**
-     * Given the editor id and displays, create the editor
+     * Opens a new editor with the specified displays on the currently active
+     * window
      * 
      * @param editor
      * @param displays
@@ -436,13 +457,28 @@ public class UiUtil {
      */
     public static AbstractEditor createEditor(String editor,
             IRenderableDisplay... displays) {
+        return createEditor(getCurrentWindow(), editor, displays);
+    }
+
+    /**
+     * Opens a new editor with the specified displays on the specified window
+     * 
+     * @param windowToLoadTo
+     * @param editor
+     * @param displays
+     * @return
+     */
+    public static AbstractEditor createEditor(IWorkbenchWindow windowToLoadTo,
+            String editor, IRenderableDisplay... displays) {
         String editorName = (editor == null ? "com.raytheon.viz.ui.glmap.GLMapEditor"
                 : editor);
+        if (windowToLoadTo == null) {
+            windowToLoadTo = getCurrentWindow();
+        }
         AbstractEditor aEditor = null;
         EditorInput cont = new EditorInput(displays);
         try {
-            IWorkbenchPage activePage = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage();
+            IWorkbenchPage activePage = windowToLoadTo.getActivePage();
             if (activePage != null) {
                 aEditor = (AbstractEditor) activePage.openEditor(cont,
                         editorName);

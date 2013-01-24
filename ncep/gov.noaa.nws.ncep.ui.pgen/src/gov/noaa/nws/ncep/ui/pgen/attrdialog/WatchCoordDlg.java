@@ -377,8 +377,8 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 			dirPath = PgenUtil.getPgenOprDirectory() + 
 								File.separator + pd1 +  File.separator + "prod" +
 							File.separator + "text" + File.separator;
-			openWCCDlg();
 			updateWatch();
+			openWCCDlg();
 		}
 	}
 
@@ -522,6 +522,10 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		wclDlg.setBlockOnOpen(true);
 		wclDlg.setOutputPath(dirPath);
 		wclDlg.open();
+		
+		if ( wclDlg.getReturnCode() == OK){
+			close();
+		}
 		
 	}
 	
