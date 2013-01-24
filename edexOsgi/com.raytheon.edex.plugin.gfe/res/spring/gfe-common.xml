@@ -21,7 +21,7 @@
 	</bean>
 
 	<bean id="gfeRegistered" factory-bean="pluginRegistry" factory-method="register"
-		depends-on="gribRegistered, textRegistered">
+		depends-on="gridRegistered, textRegistered">
 		<constructor-arg value="gfe" />
 		<constructor-arg ref="gfeProperties" />
 	</bean>
@@ -33,7 +33,7 @@
 	</bean>
 
 	<bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
-		factory-method="getInstance">
+		factory-method="getInstance" depends-on="commonTimeRegistered">
 	</bean>
 
 	<bean factory-bean="siteAwareRegistry" factory-method="register">
@@ -82,6 +82,17 @@
 		<route id="rebuildD2DCache">
 			<from uri="jms-generic:topic:rebuildD2DCache" />
 			<bean ref="d2dParmIdCache" method="buildCache" />
+		</route>
+		
+		<route id="rebuildD2DCacheAfterPurge">
+			<from uri="jms-generic:topic:pluginPurged" />
+			<doTry>
+				<bean ref="d2dParmIdCache" method="pluginPurged" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
 		</route>
 	</camelContext>
 </beans>

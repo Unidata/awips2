@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <parameterConfig AWIPS="ugrd250mb" GrADs="ugrd250mb"/>
+    <parameterConfig AWIPS="tmp2m" GrADs="tmp2m"/>
+    <parameterConfig AWIPS="vgrd850mb" GrADs="vgrd850mb"/>
+    <parameterConfig AWIPS="ugrd500mb" GrADs="ugrd500mb"/>
+    <parameterConfig AWIPS="ugrd850mb" GrADs="ugrd850mb"/>
+    <parameterConfig AWIPS="PMSL" GrADs="prmslmsl"/>
+    <parameterConfig AWIPS="rh700mb" GrADs="rh700mb"/>
+    <parameterConfig AWIPS="ugrd10m" GrADs="ugrd10m"/>
+    <parameterConfig AWIPS="vgrd500mb" GrADs="vgrd500mb"/>
+    <parameterConfig AWIPS="tmp700mb" GrADs="tmp700mb"/>
+    <parameterConfig AWIPS="vgrd250mb" GrADs="vgrd250mb"/>
+    <parameterConfig AWIPS="GH" GrADs="hgtprs"/>
+    <parameterConfig AWIPS="vgrd10m" GrADs="vgrd10m"/>
+    <parameterConfig AWIPS="rh850mb" GrADs="rh850mb"/>
+    <parameterConfig AWIPS="tmp850mb" GrADs="tmp850mb"/>
+</ParameterLookup>

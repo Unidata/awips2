@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- <bean id="ebxmlSessionFactory" class="org.hibernate.impl.SessionFactoryImpl" /> -->
+	<!-- QUERY -->
+	<!-- Define concrete implementation of the service -->
+	<bean id="queryServiceImpl"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl" >
+		<property name="queryTypeMgr" ref="queryTypeManager"/>
+	</bean>
+	
+	<!-- NOTIFICATION LISTENER -->
+	<!-- Define concrete implementation of the service -->
+	<bean id="notificationServiceImpl"
+		class="com.raytheon.uf.edex.ebxml.services.NotificationListenerImpl" />
+
+
+	<!-- LIFE CYCLE MANAGER -->
+	<!-- Define concrete implementation of the service -->
+	<bean id="lcmServiceImpl"
+		class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl">
+		<property name="queryManager" ref="queryServiceImpl" />
+		<property name="validator" ref="validatorServiceImpl" />
+		<property name="registryObjectDao" ref="registryDao"/>
+		<property name="auditTrailMgr" ref="auditTrailManager"/>
+		<property name="cataloger" ref="catalogerServiceImpl"/>
+	</bean>
+
+	<!-- VALIDATOR -->
+	<!-- Define concrete implementation of the service -->
+	<bean id="validatorServiceImpl"
+		class="com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl">
+		<property name="queryManager" ref="queryServiceImpl" />
+	</bean>
+
+
+	<!-- CATALOGER -->
+	<!-- Define concrete implementation of the service -->
+	<bean id="catalogerServiceImpl"
+		class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl" >
+		<property name="registryObjectDao" ref="registryDao"/>
+	</bean>
+
+</beans>

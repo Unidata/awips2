@@ -11,6 +11,8 @@ RUN_FROM_DIR=`dirname $0`
 
 # Set up SOME environmental variables. 
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
 export MPE_EDITOR_LOGS_DIR=$(get_apps_defaults mpe_editor_logs_dir)
 export PPROC_BIN=$(get_apps_defaults pproc_bin)
 

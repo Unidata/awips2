@@ -9,16 +9,11 @@ Require-Bundle: com.raytheon.uf.common.monitor;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.1",
  org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.1";resolution:=optional,
- org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.dataplugin.vil,
- com.raytheon.uf.common.geospatial;bundle-version="1.0.0",
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1152",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
-Import-Package: com.raytheon.edex.plugin.grib.dao,
- com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.edex.plugin.scan.common,
- javax.measure.unit
+Import-Package: com.raytheon.uf.edex.plugin.scan.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.vil,

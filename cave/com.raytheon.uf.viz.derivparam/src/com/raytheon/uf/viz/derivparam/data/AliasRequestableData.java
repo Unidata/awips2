@@ -31,7 +31,9 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * TODO Add Description
+ * Represents a simple alias, where a parameter represents the same data as
+ * another parameter. This does automatic unit conversion if the source data is
+ * in a different unit than this object.
  * 
  * <pre>
  * 
@@ -53,6 +55,7 @@ public class AliasRequestableData extends AbstractRequestableData {
     public AliasRequestableData(AbstractRequestableData sourceRecord) {
         this.sourceRecord = sourceRecord;
         this.dataTime = sourceRecord.getDataTime();
+        this.space = sourceRecord.space;
     }
 
     public Object getDataValue(Object arg) throws VizException {

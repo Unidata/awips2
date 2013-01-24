@@ -29,9 +29,11 @@ import org.apache.camel.Header;
 import org.apache.camel.Headers;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Provides logging and deletion services for camel
@@ -53,6 +55,8 @@ public class ProcessUtil {
     protected static final IUFStatusHandler handler = UFStatus
             .getNamedHandler("Ingest");
 
+    protected static final EventBus eventBus = EventBus.getInstance();
+
     protected transient final static ThreadLocal<DecimalFormat> FORMAT = new ThreadLocal<DecimalFormat>() {
 
         @Override
@@ -64,74 +68,6 @@ public class ProcessUtil {
         }
 
     };
-
-    public void delete(@Header(value = "ingestFileName") String path) {
-        File f = new File(path);
-        if (f.exists()) {
-            f.delete();
-        }
-    }
-
-    public void deleteFile(File f) {
-        if (f.exists()) {
-            f.delete();
-        }
-    }
-
-    /**
-     * 
-     * @param headers
-     */
-    public void log(@Headers Map<?, ?> headers) {
-
-        long curTime = System.currentTimeMillis();
-
-        StringBuilder sb = new StringBuilder(128);
-
-        String pluginName = getHeaderProperty(headers, "pluginName");
-        if (pluginName != null) {
-            sb.append(pluginName);
-        }
-
-        String fileName = getHeaderProperty(headers, "ingestFileName");
-        if (fileName != null) {
-            sb.append(":: ");
-            sb.append(fileName);
-        }
-
-        Long dequeueTime = getHeaderProperty(headers, "dequeueTime");
-        DecimalFormat df = FORMAT.get();
-        if (dequeueTime != null) {
-            double elapsed = (curTime - dequeueTime) / 1000.0;
-            sb.append(" processed in: ");
-            sb.append(df.format(elapsed));
-            sb.append(" (sec)");
-        }
-
-        Long enqueueTime = getHeaderProperty(headers, "enqueueTime");
-        if (enqueueTime != null) {
-            double latency = (curTime - enqueueTime) / 1000.0;
-            sb.append(" Latency: ");
-            sb.append(df.format(latency));
-            sb.append(" (sec)");
-        }
-        // Make sure we have something to log.
-        if (sb.length() > 0) {
-            handler.handle(Priority.INFO, sb.toString());
-        } else {
-            handler.handle(Priority.INFO, "No logging information available");
-        }
-    }
-
-    /**
-     * Return an incoming array as an Iterator to the elements.
-     * 
-     * @param objects
-     * @return
-     */
-    public static Iterator<?> iterate(PluginDataObject[] objects) {
-        return Arrays.asList(objects).iterator();
-    }
 
     /**
      * Get the value of a specified property if it exists.
@@ -156,5 +92,88 @@ public class ProcessUtil {
             result = (T) o;
         }
         return result;
+    }
+
+    /**
+     * Return an incoming array as an Iterator to the elements.
+     * 
+     * @param objects
+     * @return
+     */
+    public static Iterator<?> iterate(PluginDataObject[] objects) {
+        return Arrays.asList(objects).iterator();
+    }
+
+    public void delete(@Header(value = "ingestFileName") String path) {
+        File f = new File(path);
+        if (f.exists()) {
+            f.delete();
+        }
+    }
+
+    public void deleteFile(File f) {
+        if (f.exists()) {
+            f.delete();
+        }
+    }
+
+    /**
+     * 
+     * @param headers
+     */
+    public void log(@Headers Map<?, ?> headers) {
+
+        long curTime = System.currentTimeMillis();
+
+        StringBuilder sb = new StringBuilder(128);
+
+        ProcessEvent processEvent = new ProcessEvent();
+        String pluginName = getHeaderProperty(headers, "pluginName");
+        if (pluginName != null) {
+            sb.append(pluginName);
+            processEvent.setPluginName(pluginName);
+        }
+
+        String fileName = getHeaderProperty(headers, "ingestFileName");
+        if (fileName != null) {
+            sb.append(":: ");
+            sb.append(fileName);
+            processEvent.setFileName(fileName);
+        }
+
+        Long dequeueTime = getHeaderProperty(headers, "dequeueTime");
+        DecimalFormat df = FORMAT.get();
+        if (dequeueTime != null) {
+            long elapsedMilliseconds = curTime - dequeueTime;
+            double elapsed = elapsedMilliseconds / 1000.0;
+            sb.append(" processed in: ");
+            sb.append(df.format(elapsed));
+            sb.append(" (sec)");
+            processEvent.setProcessingTime(elapsedMilliseconds);
+        }
+
+        Long enqueueTime = getHeaderProperty(headers, "enqueueTime");
+        if (enqueueTime != null) {
+            long latencyMilliseconds = curTime - enqueueTime;
+            double latency = latencyMilliseconds / 1000.0;
+            sb.append(" Latency: ");
+            sb.append(df.format(latency));
+            sb.append(" (sec)");
+            processEvent.setProcessingLatency(latencyMilliseconds);
+        }
+
+        // processing in less than 0 millis isn't trackable, usually due to an
+        // error occurred and statement logged incorrectly
+        if ((processEvent.getProcessingLatency() > 0)
+                && (processEvent.getProcessingTime() > 0)) {
+            eventBus.publish(processEvent);
+        }
+
+        // Make sure we have something to log.
+        if (sb.length() > 0) {
+            handler.handle(Priority.INFO, sb.toString());
+        } else {
+            handler.handle(Priority.INFO, "No logging information available");
+        }
     }
 }

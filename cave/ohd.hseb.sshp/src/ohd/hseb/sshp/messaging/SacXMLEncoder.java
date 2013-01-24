@@ -30,6 +30,7 @@ import ohd.hseb.util.StringParser;
 
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 public class SacXMLEncoder
@@ -552,7 +553,9 @@ public class SacXMLEncoder
   
     private void writeXmlToFile(Document outputXmlDoc, String xmlFileName)
     {
-        XMLOutputter _xmlOutputter = new XMLOutputter("   ", true);
+    	Format format = Format.getRawFormat();
+    	format.setIndent("   ");
+        XMLOutputter _xmlOutputter = new XMLOutputter(format);
   
         try
         {

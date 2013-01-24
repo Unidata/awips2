@@ -19,12 +19,16 @@
  **/
 package com.raytheon.uf.viz.thinclient.localization;
 
+import java.util.Map;
+
+import org.apache.commons.collections.map.DefaultedMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -34,7 +38,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
 
 /**
- * TODO Add Description
+ * Initializer that does work of checking localization settings and configuring
+ * the servers to use based on the preferences.
  * 
  * <pre>
  * 
@@ -43,6 +48,7 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2011            bsteffen     Initial creation
+ * Dec 06, 2012   1396  njensen     Added setting VizServers
  * 
  * </pre>
  * 
@@ -77,10 +83,9 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                 .getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS);
 
         if (store.getBoolean(ThinClientPreferenceConstants.P_USE_PROXIES)) {
-            LocalizationManager
-                    .getInstance()
-                    .setCurrentServer(
-                            store.getString(ThinClientPreferenceConstants.P_SERVICES_PROXY));
+            String servicesProxy = store
+                    .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY);
+            LocalizationManager.getInstance().setCurrentServer(servicesProxy);
             String dataDir = VizApp.getServerDataDir();
             if (dataDir == null || dataDir.isEmpty()) {
                 dataDir = store
@@ -96,23 +101,20 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                     VizApp.setJmsServer(resp.getJmsServer());
                 }
             }
-            VizApp.setHttpServer(store
-                    .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY));
+            VizApp.setHttpServer(servicesProxy);
             VizApp.setPypiesServer(store
                     .getString(ThinClientPreferenceConstants.P_PYPIES_PROXY));
             boolean compressRequests = store
                     .getBoolean(ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION);
             HttpClient.getInstance().setCompressRequests(compressRequests);
 
+            // use the proxy for all servers in VizServers
+            Map<String, String> serversMap = new DefaultedMap(servicesProxy);
+            VizServers.getInstance().setServerLocations(serversMap);
         } else {
-            GetServersRequest req = new GetServersRequest();
-            GetServersResponse resp = (GetServersResponse) ThriftClient
-                    .sendLocalizationRequest(req);
-            VizApp.setHttpServer(resp.getHttpServer());
-            VizApp.setPypiesServer(resp.getPypiesServer());
-            VizApp.setServerDataDir(resp.getServerDataDir());
-            if (!disableJMS) {
-                VizApp.setJmsServer(resp.getJmsServer());
+            processGetServers();
+            if (disableJMS) {
+                VizApp.setJmsServer(null);
             }
         }
         store.setValue(ThinClientPreferenceConstants.P_SERVER_DATA_DIR,
