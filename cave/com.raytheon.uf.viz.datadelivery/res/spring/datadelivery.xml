@@ -1,0 +1,86 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+    
+    <bean id="registryHandler"
+        class="com.raytheon.uf.common.registry.ebxml.ThriftRegistryHandler" />
+
+    <!-- Comment out the ThriftRegistryHandler and uncomment this block to test the SOAP handler from CAVE -->
+    <!--
+    <bean id="soapRegistryManager" class="com.raytheon.uf.viz.datadelivery.utils.VizSoapRegistryHandler"/>
+
+    <bean id="registryHandler"
+        class="com.raytheon.uf.common.registry.ebxml.FactoryRegistryHandler">
+        <property name="txManager" ref="soapRegistryManager"/>
+        <property name="lcmFactory" ref="soapRegistryManager"/>
+        <property name="queryFactory" ref="soapRegistryManager"/>
+    </bean>
+
+    <bean id="registryEncoderType"
+        class="com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders$Type"
+        factory-method="valueOf">
+        <constructor-arg
+            value="JAXB" />
+    </bean>
+
+    <bean id="registryEncoder"
+        class="com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders"
+        factory-method="ofType">
+        <constructor-arg ref="registryEncoderType" />
+    </bean>
+
+    <bean name="registryUtilInitializer"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.registry.ebxml.RegistryUtil.setEncoderStrategy" />
+        <property name="arguments">
+            <list>
+                <ref bean="registryEncoder" />
+            </list>
+        </property>
+    </bean>
+    -->
+
+    <bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
+        <constructor-arg ref="registryHandler" />
+    </bean>
+    
+    <!-- These util:constant beans should not be required, they overwrite the ones in *-common.xml files for CAVE since
+        CAVE just gets a ClassNotFoundException on boot... 
+        someday the reason should be figured out and these beans removed -->
+    <util:constant id="dataDeliveryServerKey"
+        static-field="com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants.DATA_DELIVERY_SERVER" />
+    <util:constant id="ebxmlRegistryServiceKey"
+        static-field="com.raytheon.uf.common.registry.RegistryConstants.EBXML_REGISTRY_SERVICE" />
+    <util:constant id="ebxmlLcmServiceKey"
+        static-field="com.raytheon.uf.common.registry.RegistryConstants.EBXML_LCM_SERVICE" />
+    <util:constant id="ebxmlQueryServiceKey"
+        static-field="com.raytheon.uf.common.registry.RegistryConstants.EBXML_QUERY_SERVICE" />
+        
+    
+    <!-- Routers for services -->
+    <bean id="dataDeliveryRouter" class="com.raytheon.uf.viz.core.requests.ServerRequestRouter">
+        <constructor-arg ref="dataDeliveryServerKey" />
+    </bean>
+    
+    <bean id="registryRouter" class="com.raytheon.uf.viz.core.requests.ServerRequestRouter">
+        <constructor-arg ref="ebxmlRegistryServiceKey" />
+    </bean>
+    
+    <!-- Registers the IRequestRouter for services -->
+    <bean id="registerDataDeliveryRouter" factory-bean="requestRouterRegistry" factory-method="register">
+        <constructor-arg ref="dataDeliveryServerKey" />
+        <constructor-arg ref="dataDeliveryRouter" />
+    </bean>
+    
+    <bean id="registerRegistryRouter" factory-bean="requestRouterRegistry" factory-method="register">
+        <constructor-arg ref="ebxmlRegistryServiceKey" />
+        <constructor-arg ref="registryRouter" />
+    </bean>
+    
+</beans>

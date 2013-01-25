@@ -49,16 +49,18 @@ class Thread
     QPID_COMMON_EXTERN explicit Thread(qpid::sys::Runnable*);
     QPID_COMMON_EXTERN explicit Thread(qpid::sys::Runnable&);
 
-    QPID_COMMON_EXTERN void join();
+    QPID_COMMON_EXTERN operator bool();
+    QPID_COMMON_EXTERN bool operator==(const Thread&) const;
+    QPID_COMMON_EXTERN bool operator!=(const Thread&) const;
 
-    QPID_COMMON_EXTERN unsigned long id();
+    QPID_COMMON_EXTERN void join();
 
     QPID_COMMON_EXTERN static Thread current();
 
     /** ID of current thread for logging.
      * Workaround for broken Thread::current() in APR
      */
-    static unsigned long logId() { return current().id(); }
+    QPID_COMMON_EXTERN static unsigned long logId();
 };
 
 }}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header:  $ -->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:PostalAddressType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:PostalAddressType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode">
+            <rim:Name>
+                <rim:LocalizedString value="PostalAddressType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString value="Taxonomy describing different types of Postal Addresses"/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:PostalAddressType:Office" code="Office" id="urn:oasis:names:tc:ebxml-regrep:PostalAddressType:Office">
+                <rim:Name>
+                    <rim:LocalizedString value="Office"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="Office Postal Address"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:PostalAddressType:Home" code="Home" id="urn:oasis:names:tc:ebxml-regrep:PostalAddressType:Home">
+                <rim:Name>
+                    <rim:LocalizedString value="Home"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="Home Postal Address"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

@@ -31,14 +31,15 @@ import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 /**
- * TODO Add Description
+ * Fog Monitor area configuration dialog.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 5, 2010            mpduff     Initial creation
+ * Jan  5, 2010            mpduff       Initial creation
+ * Nov 27, 2012 1351       skorolev     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -52,31 +53,35 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
         readConfigData();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
+     * handleOkBtnSelection()
+     */
     @Override
     protected void handleOkBtnSelection() {
         FogMonitorConfigurationManager configManager = FogMonitorConfigurationManager
                 .getInstance();
         // Check for changes in the data
-        int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                "Fog Monitor Confirm Changes",
-                "Want to Update Fog Monitor's Setup files?");
+        if (!configManager.getAddedZones().isEmpty()
+                || !configManager.getAddedZones().isEmpty()) {
+            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
+                    "Fog Monitor Confirm Changes",
+                    "Want to Update Fog Monitor's Setup files?");
+            if (choice == SWT.OK) {
+                // Save the config xml file
+                configManager.setShipDistance(distanceScale.getSelection());
+                configManager.setTimeWindow(timeScale.getSelection());
+                configManager.setUseAlgorithms(fogChk.getSelection());
+                configManager.saveConfigData();
+                /**
+                 * DR#11279: re-initialize threshold manager and the monitor
+                 * using new monitor area configuration
+                 */
+                FogThresholdMgr.reInitialize();
+                FogMonitor.reInitialize();
 
-        if (choice == SWT.OK) {
-            // Save the config xml file
-            configManager.setShipDistance(distanceScale.getSelection());
-            configManager.setTimeWindow(timeScale.getSelection());
-            configManager.setUseAlgorithms(fogChk.getSelection());
-            configManager.saveConfigData();
-
-            /**
-             * DR#11279:
-             * re-initialize threshold manager and the monitor 
-             * using new monitor area configuration
-             */
-            FogThresholdMgr.reInitialize();
-            FogMonitor.reInitialize();
-
-            if ( configManager.getAddedZones().size() > 0 || addedZones.size() > 0 ) {
                 String message = "New zones have been added, the display "
                         + "thresholds for the new zones are set to "
                         + "default values, you may edit them with the display "
@@ -87,8 +92,8 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 showMessage(shell, SWT.ICON_INFORMATION | SWT.OK,
                         "Fog Monitor Confirm Changes", message);
 
-                if ((configManager.getAddedZones().size() > 0)
-                        || (addedZones.size() > 0)) {
+                if ((!configManager.getAddedZones().isEmpty())
+                        || (!configManager.getAddedZones().isEmpty())) {
                     String message2 = "New zones have been added, and their monitoring thresholds "
                             + "have been set to default values; would you like to modify "
                             + "their threshold values now?";
@@ -102,17 +107,37 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     }
                 }
             }
-            shell.dispose();
+        } else {
+            String message3 = "No changes made.\nDo you want to exit?";
+            int yesno = showMessage(shell,
+                    SWT.ICON_QUESTION | SWT.YES | SWT.NO, "Exit", message3);
+            if (yesno == SWT.NO) {
+                return;
+            }
         }
+        setReturnValue(true);
+        close();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
+     * setAlgorithmText()
+     */
     @Override
     protected void setAlgorithmText() {
-        fogChk
-                .setText("Fog Monitor algorithms' threat level is considered when determining\n"
-                        + "the guardian icon color.");
+        fogChk.setText("Fog Monitor algorithms' threat level is considered when determining\n"
+                + "the guardian icon color.");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
+     * ()
+     */
     @Override
     protected void readConfigData() {
         FogMonitorConfigurationManager configManager = FogMonitorConfigurationManager

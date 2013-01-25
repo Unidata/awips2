@@ -146,9 +146,11 @@ public class RemoteRequestServer {
                     && manager.getAuthenticator() != null
                     && manager.getRoleStorage() != null;
             if (!ableToValidatePrivilegedRequests) {
+                IllegalStateException throwable = new IllegalStateException(
+                        "Unable to perform priviledged request validation, required objects not set (IAuthenticator, IRoleStorage, IAuthenticationStorage).  ALL REQUESTS WILL BE EXECUTED!");
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "Unable to perform priviledged request validation, required objects not set (IAuthenticator, IRoleStorage, IAuthenticationStorage).  ALL REQUESTS WILL BE EXECUTED!");
+                        throwable.getLocalizedMessage(), throwable);
             }
         }
     }
