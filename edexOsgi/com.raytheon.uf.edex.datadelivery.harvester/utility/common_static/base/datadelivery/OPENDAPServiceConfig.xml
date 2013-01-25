@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<serviceConfig name="OPENDAP">
+    <!--  Date formats used by OPeNDAP providers -->
+	<dateConfig>
+		<format>yyyyMM</format>
+		<format>yyyyMMdd</format>
+		<format>EEE MMM dd hhmmss zzz yyyy</format>
+	</dateConfig>
+	<!--  configure data Set naming convention. 
+	      This covers a special case where some
+	      collectionNames are the same as the datasetNames.
+	      For these we make the dataSetName = collectionName + separator + dataSetName
+	      The other portions of this are for paring the date and cycle from the dataset. -->
+	<dataSetConfig>
+		<!-- Cycle on end of date (3) with the date pattern, dataSetName on front (1) parsed using pattern -->
+		<pattern name="PATTERN1" dataSetLocation="1" cycleLocation="3" regex="(.*)(\d{8})_(\d+z)$" />
+		<!-- Cycle on end (2), dataSetName on front (1) parsed using pattern -->
+		<pattern name="PATTERN2" dataSetLocation="1" cycleLocation="2" regex="(.*)_(\d+z)$" />
+		<!-- Cycle in the middle (2) dataSetName (1,3) -->
+		<pattern name="PATTERN3" dataSetLocation="1,3" cycleLocation="2" regex="(.*)_(\d+z)(_.*)$" />
+		<!--  SPECIAL DataSet Naming Overrides by CollectionName -->
+		<dataSetNaming name="naefs" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="ncom" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="naefs_bc" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="naefs_ndgd" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="gens" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="gens_bc" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="gens_ndgd" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="wave_akw" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_enp" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_mww3" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_nww3" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_nah" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_wna" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_nph" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_nfcens" separator="_" expression="collectionName" />
+		<dataSetNaming name="wave_glw" separator="_" expression="collectionName" />
+		<!-- SPECIAL pattern overrides for certain collections -->
+		<!-- OFS special case dataSetName = linkkey, no cycle -->
+		<pattern name="ofs" dataSetLocation="-1" regex="_" />
+		<!-- NCOM special case dataSetName = linkkey, no cycle -->
+		<pattern name="ncom" dataSetLocation="1" regex="_" />
+		<!-- RTOFS special case dataSetName = where it actually has cycles -->
+		<pattern name="ofs_hires" dataSetLocation="0" cycleLocation="1" regex="\." />
+		<!-- RTOFS special case dataSetName = linkkey, no cycle -->
+		<pattern name="rtofs" dataSetLocation="-1" regex="_" />
+	</dataSetConfig>
+	<!-- OPEnDAP service constants -->
+	<constant name="BLANK" value=""/>
+	<constant name="UNKNOWN" value="unknown"/>
+	<constant name="NONE" value="NONE"/>
+    <constant name="TIME" value="time"/>
+    <constant name="LON" value="lon"/>
+    <constant name="LAT" value="lat"/>
+    <constant name="LEV" value="lev"/>
+    <constant name="ENS" value="ens"/>
+    <constant name="NC_GLOBAL" value="NC_GLOBAL"/>
+    <constant name="HISTORY" value="history"/>
+    <constant name="TITLE" value="title"/>
+    <constant name="DATA_TYPE" value="dataType"/>
+    <constant name="LONG_NAME" value="long_name"/>
+    <constant name="MISSING_VALUE" value="missing_value"/>
+    <constant name="MINIMUM" value="minimum"/>
+    <constant name="MAXIMUM" value="maximum"/>
+    <constant name="DEGREE" value="degree"/>
+    <constant name="SIZE" value="grads_size"/>
+    <constant name="TIME_STEP" value="grads_step"/>
+    <constant name="TIME_MIN" value="grads_min"/>
+    <constant name="TIME_MAX" value="grads_max"/>
+    <constant name="UNITS" value="grads_units"/>
+    <constant name="NAME" value="grads_name"/>
+    <constant name="LENGTH" value="grads_length"/>
+    <constant name="TIMEINIT" value="grads_tinit"/>
+    <constant name="RESOLUTION" value="resolution"/>
+    <constant name="DATE_COMPARE_FORMAT" value="EEE MMM dd hhmmss zzz yyyy"/>
+    <constant name="META_DATA_SUFFIX" value=".info"/>
+    <constant name="FILL_VALUE" value="_FillValue"/>
+    <constant name="MAX_RETRIEVAL_SIZE" value="4500000" />
+    <constant name="KELVIN" value="k" />
+    <constant name="METER" value="m" />
+    <constant name="TIME_STEP_PATTERN" value="(\d{1,2})(\w+)"/>;
+    <constant name="Z_PATTERN" value="z"/>
+    <constant name="ALTERNATE_NAMING_SCHEMA1" value="collectionName+dataSetName"/>
+    <constant name="ALTERNATE_NAMING_SCHEMA2" value="collectionName"/>
+    <constant name="UNIT_PATTERN" value=".*(\[(.*?)\])\s*"/>
+    <constant name="TWOM" value="2m"/>
+    <constant name="TENM" value="10m"/>
+
+</serviceConfig>

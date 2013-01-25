@@ -41,9 +41,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
@@ -350,8 +350,7 @@ public class TimeLapseResource extends
             if (gridDisplay == null) {
                 GriddedImageData dat = dataMap.get(displayedDate);
                 gridDisplay = new GriddedImageDisplay2(dat.buff, dat.geometry,
-                        this, target.getViewType());
-                gridDisplay.init(target);
+                        this);
 
                 bufferMap.put(displayedDate, gridDisplay);
                 // project(gridGeometry.getCoordinateReferenceSystem());
@@ -389,7 +388,7 @@ public class TimeLapseResource extends
         for (DataTime dTime : bufferMap.keySet()) {
             GriddedImageDisplay2 gDisplay = bufferMap.get(dTime);
             if (gDisplay != null) {
-                gDisplay.reproject();
+                gDisplay.project(descriptor.getGridGeometry());
             }
         }
     }

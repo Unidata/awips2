@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- NOMADS crawler agent configuration -->
+<harvester>
+	<!-- Provider information -->
+	<provider serviceType="OPENDAP" name="NOMADS">
+		<providerType>Grid</providerType>
+		<projection type="LatLon">
+			<name>NomadsLatLon</name>
+			<description>Test LatLonGrid Coverage for NOMADS</description>
+		</projection>
+		<!-- The regular expression pattern searched for during a metadata purge 
+			run, if the provider returned page contains the pattern the metadata will 
+			be purged. e.g. when the purge attempts URL "http://nomads.ncep.noaa.gov:9090/dods/gfs_hd/gfs_hd20120911", 
+			it will receive a response from the server. If the response contains the 
+			pattern, it will be purged. For regular expression patterns, see http://docs.oracle.com/javase/tutorial/essential/regex/ -->
+		<errorResponsePattern>GrADS\sData\sServer\s-\serror</errorResponsePattern>
+		<!-- Specifies the time delay to keep checking previous data along with 
+			the current day It consists of two parts: 1) a numeric integer argument with 
+			a range between 0 and 2^31 - 1 (Integer.MAX_VALUE). 2) the corresponding 
+			time units to apply to the postedFileDelay, any of the enumerated constants 
+			of TimeUnit [NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, 
+			DAYS] Defaults to 0 HOURS. Examples: "3 HOURS", "1 DAYS", "30 MINUTES" -->
+		<postedFileDelay>3 HOURS</postedFileDelay>
+		<!-- The amount of time that should elapse between HTTP requests while crawling 
+			the provider. Specified in milliseconds. Defaults to 500 if not specified. -->
+		<timeBetweenCrawlRequests>100</timeBetweenCrawlRequests>
+		<connection>
+			<url>http://nomads.ncep.noaa.gov:9090/dods/</url>
+		</connection>
+	</provider>
+	
+	<!-- Registry hosts for harvester(defaults to localhost) -->
+	<!-- primary -->
+	<primaryRegistryHost>127.0.0.1</primaryRegistryHost>
+	<!-- secondary backup -->
+	<secondaryRegistryHost>127.0.0.1</secondaryRegistryHost>
+	<!-- secondary backup -->
+	<tertiaryRegistryHost>127.0.0.1</tertiaryRegistryHost>
+	
+	<agent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="crawlAgent">
+		<crawlDir>/awips2/crawl</crawlDir>
+		<dateFormat>HHddMMMyyyy</dateFormat>
+		<ignore>ruc</ignore>
+		<ignore>rap32</ignore>
+        <ignore>\.das$</ignore> 
+        <ignore>\.dds$</ignore>
+        <ignore>help$</ignore>
+        <ignore>fens_all</ignore>
+        <ignore>cmcens_all</ignore>
+        <ignore>gep_all</ignore>
+		<!-- seed scan once a day at 12z -->
+		<seedScan>0 0 12 * * ?</seedScan>
+		<!-- main scan every 12 minutes -->
+        <mainScan>0 0/12 * * * ?</mainScan>
+        <searchKey>\.info$</searchKey>
+        <!-- Ingest new collections found by Seed Scans? -->
+        <ingestNew>true</ingestNew>
+        <!-- listen to robots.txt denied directory lists? -->
+        <useRobots>true</useRobots>
+        <!-- (-1) is Unlimiited  pages visited-->
+        <maxSeedPages>-1</maxSeedPages>
+        <maxMainPages>1000</maxMainPages>
+        <!-- (-1) is Unlimiited  pages visited-->
+        <maxSeedDepth>-1</maxSeedDepth>
+        <maxMainDepth>2</maxMainDepth>
+		<!--  Commented out so you can run your own seed scan -->
+		<collection projection="LatLon" dataType="Grid" ignore="false" name="narre">
+            <seedUrl>narre</seedUrl>
+            <urlKey>narre</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120627</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_nah">
+            <parameterLookup>wave_nahParameterLookup</parameterLookup>
+            <seedUrl>wave/nah</seedUrl>
+            <urlKey>nah</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_akw">
+            <parameterLookup>wave_akwParameterLookup</parameterLookup>
+            <seedUrl>wave/akw</seedUrl>
+            <urlKey>akw</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gfs">
+            <parameterLookup>gfsParameterLookup</parameterLookup>
+            <levelLookup>gfsLevelLookup</levelLookup>
+            <seedUrl>gfs</seedUrl>
+            <urlKey>gfs</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120923</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_wna">
+            <parameterLookup>wave_wnaParameterLookup</parameterLookup>
+            <seedUrl>wave/wna</seedUrl>
+            <urlKey>wna</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_nfcens">
+            <seedUrl>wave/nfcens</seedUrl>
+            <urlKey></urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_mww3">
+            <parameterLookup>wave_mww3ParameterLookup</parameterLookup>
+            <seedUrl>wave/mww3</seedUrl>
+            <urlKey></urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_nph">
+            <parameterLookup>wave_nphParameterLookup</parameterLookup>
+            <seedUrl>wave/nph</seedUrl>
+            <urlKey>nph</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_nww3">
+            <parameterLookup>wave_nww3ParameterLookup</parameterLookup>
+            <seedUrl>wave/nww3</seedUrl>
+            <urlKey>nww3</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20271017</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gfs_hd">
+            <parameterLookup>gfs_hdParameterLookup</parameterLookup>
+            <levelLookup>gfs_hdLevelLookup</levelLookup>
+            <seedUrl>gfs_hd</seedUrl>
+            <urlKey>gfs_hd</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120923</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_glw">
+            <seedUrl>wave/glw</seedUrl>
+            <urlKey>glw</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="wave_enp">
+            <parameterLookup>wave_enpParameterLookup</parameterLookup>
+            <seedUrl>wave/enp</seedUrl>
+            <urlKey>enp</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gfs_2p5">
+            <parameterLookup>gfs_2p5ParameterLookup</parameterLookup>
+            <levelLookup>gfs_2p5LevelLookup</levelLookup>
+            <seedUrl>gfs_2p5</seedUrl>
+            <urlKey>gfs_2p5</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120923</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="hiresw">
+            <parameterLookup>hireswParameterLookup</parameterLookup>
+            <levelLookup>hireswLevelLookup</levelLookup>
+            <seedUrl>hiresw</seedUrl>
+            <urlKey>hiresw</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="cmcens">
+            <parameterLookup>cmcensParameterLookup</parameterLookup>
+            <levelLookup>cmcensLevelLookup</levelLookup>
+            <seedUrl>cmcens</seedUrl>
+            <urlKey>cmcens</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="nam">
+            <parameterLookup>namParameterLookup</parameterLookup>
+            <levelLookup>namLevelLookup</levelLookup>
+            <seedUrl>nam</seedUrl>
+            <urlKey>nam</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120925</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="sref">
+            <parameterLookup>srefParameterLookup</parameterLookup>
+            <levelLookup>srefLevelLookup</levelLookup>
+            <seedUrl>sref</seedUrl>
+            <urlKey>sref</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="sref_bc">
+            <parameterLookup>sref_bcParameterLookup</parameterLookup>
+            <levelLookup>sref_bcLevelLookup</levelLookup>
+            <seedUrl>sref_bc</seedUrl>
+            <urlKey>sref</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="ofs_hires">
+            <parameterLookup>ofs_hiresParameterLookup</parameterLookup>
+            <levelLookup>ofs_hiresLevelLookup</levelLookup>
+            <seedUrl>ofs/hires</seedUrl>
+            <urlKey>ofs</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120925</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="ofs">
+            <parameterLookup>ofsParameterLookup</parameterLookup>
+            <levelLookup>ofsLevelLookup</levelLookup>
+            <seedUrl>ofs</seedUrl>
+            <urlKey>ofs</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120925</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="akrtma">
+            <seedUrl>akrtma</seedUrl>
+            <urlKey>akrtma</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="fens">
+            <parameterLookup>fensParameterLookup</parameterLookup>
+            <levelLookup>fensLevelLookup</levelLookup>
+            <seedUrl>fens</seedUrl>
+            <urlKey>fens</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="rtofs">
+            <parameterLookup>rtofsParameterLookup</parameterLookup>
+            <levelLookup>rtofsLevelLookup</levelLookup>
+            <seedUrl>rtofs</seedUrl>
+            <urlKey>rtofs_global</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="ice">
+            <parameterLookup>iceParameterLookup</parameterLookup>
+            <seedUrl>ice</seedUrl>
+            <urlKey>ice</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="rtma2p5">
+            <seedUrl>rtma2p5</seedUrl>
+            <urlKey>rtma2p5</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gurtma">
+            <parameterLookup>gurtmaParameterLookup</parameterLookup>
+            <levelLookup>gurtmaLevelLookup</levelLookup>
+            <seedUrl>gurtma</seedUrl>
+            <urlKey>gurtma</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="naefs_bc">
+            <parameterLookup>naefs_bcParameterLookup</parameterLookup>
+            <levelLookup>naefs_bcLevelLookup</levelLookup>
+            <seedUrl>naefs_bc</seedUrl>
+            <urlKey>naefs</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="rap">
+            <parameterLookup>rapParameterLookup</parameterLookup>
+            <levelLookup>rapLevelLookup</levelLookup>
+            <seedUrl>rap</seedUrl>
+            <urlKey>rap</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="naefs_ndgd">
+            <parameterLookup>naefs_ndgdParameterLookup</parameterLookup>
+            <levelLookup>naefs_ndgdLevelLookup</levelLookup>
+            <seedUrl>naefs_ndgd</seedUrl>
+            <urlKey>naefs</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="rtma">
+            <parameterLookup>rtmaParameterLookup</parameterLookup>
+            <levelLookup>rtmaLevelLookup</levelLookup>
+            <seedUrl>rtma</seedUrl>
+            <urlKey>rtma</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="aqm">
+            <parameterLookup>aqmParameterLookup</parameterLookup>
+            <levelLookup>aqmLevelLookup</levelLookup>
+            <seedUrl>aqm</seedUrl>
+            <urlKey>aqm</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="ncom">
+            <seedUrl>ncom</seedUrl>
+            <urlKey>ncom</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="estofs">
+            <seedUrl>estofs</seedUrl>
+            <urlKey></urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20120924</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="fnl">
+            <parameterLookup>fnlParameterLookup</parameterLookup>
+            <seedUrl>fnl</seedUrl>
+            <urlKey>fnl</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="hirtma">
+            <seedUrl>hirtma</seedUrl>
+            <urlKey>hirtma</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="prrtma">
+            <parameterLookup>prrtmaParameterLookup</parameterLookup>
+            <levelLookup>prrtmaLevelLookup</levelLookup>
+            <seedUrl>prrtma</seedUrl>
+            <urlKey>prrtma</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121021</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gens_bc">
+            <parameterLookup>gens_bcParameterLookup</parameterLookup>
+            <levelLookup>gens_bcLevelLookup</levelLookup>
+            <seedUrl>gens_bc</seedUrl>
+            <urlKey>gens</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gens">
+            <parameterLookup>gensParameterLookup</parameterLookup>
+            <levelLookup>gensLevelLookup</levelLookup>
+            <seedUrl>gens</seedUrl>
+            <urlKey>gens</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+        <collection projection="LatLon" dataType="Grid" ignore="false" name="gens_ndgd">
+            <parameterLookup>gens_ndgdParameterLookup</parameterLookup>
+            <levelLookup>gens_ndgdLevelLookup</levelLookup>
+            <seedUrl>gens_ndgd</seedUrl>
+            <urlKey>gens</urlKey>
+            <periodicity>day</periodicity>
+            <firstDate>20121016</firstDate>
+            <lastDate>20121108</lastDate>
+            <dateFormat>yyyyMMdd</dateFormat>
+        </collection>
+	</agent> 	
+</harvester>
+
