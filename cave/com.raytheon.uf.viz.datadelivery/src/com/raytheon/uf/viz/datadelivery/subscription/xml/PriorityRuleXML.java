@@ -24,6 +24,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+
 /**
  * Priority rule xml object.
  * 
@@ -34,6 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19, 2012   1420     mpduff      Initial creation.
+ * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -44,20 +47,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class PriorityRuleXML extends RuleXML {
     @XmlElement(name = "priority")
-    private Integer priority;
+    private SubscriptionPriority priority;
 
     /**
      * @param priority
      *            the priority to set
      */
-    public void setPriority(Integer priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
     /**
      * @return the priority
      */
-    public Integer getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 }
