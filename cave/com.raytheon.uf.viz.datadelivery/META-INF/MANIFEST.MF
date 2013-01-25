@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.bandwidth;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0",
- com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0"
+ com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0",
+ com.raytheon.uf.common.units;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.datadelivery;uses:="org.eclipse.ui.plugin,org.osgi.framework",
