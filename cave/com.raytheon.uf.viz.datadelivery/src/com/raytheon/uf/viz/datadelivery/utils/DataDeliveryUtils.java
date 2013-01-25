@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -57,10 +58,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 25, 2012   955      djohnson     Use List instead of ArrayList, thread-safe access to DecimalFormat.
  * Aug 29, 2012   223      mpduff       Add cycles to the subscription details.
  * Oct 31, 2012  1278      mpduff       Moved spatial methods to SpatialUtils.
- * Nov 20, 2012 1286       djohnson    Add showYesNoMessage.
- * Dec 20, 2012 1413       bgonzale    Added PendingSubColumnNames.valueOfColumnName(String).
- * Jan 10, 2013 1420       mdpuff      Added getMaxLatency().
+ * Nov 20, 2012 1286       djohnson     Add showYesNoMessage.
+ * Dec 20, 2012 1413       bgonzale     Added PendingSubColumnNames.valueOfColumnName(String).
+ * Jan 10, 2013 1420       mdpuff       Added getMaxLatency().
  * Jan 14, 2013 1286       djohnson     Fix IndexOutOfBounds exception from getMaxLatency.
+ * Jan 22, 2013 1519       djohnson     Correct getMaxLatency() calculations.
  * </pre>
  * 
  * @author mpduff
@@ -68,6 +70,18 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class DataDeliveryUtils {
+
+    /**
+     * Default latency applied to hourly datasets.
+     */
+    public static final int HOURLY_DATASET_LATENCY_IN_MINUTES = 40;
+
+    /**
+     * Default latency applied non-hourly datasets.
+     */
+    public static final int NON_HOURLY_DATASET_LATENCY_IN_MINUTES = 75;
+
+    private static final int UNSET = -1;
 
     /** Decimal format */
     private final static ThreadLocal<DecimalFormat> format = new ThreadLocal<DecimalFormat>() {
@@ -551,20 +565,48 @@ public class DataDeliveryUtils {
      * @return the maximum latency in minutes
      */
     public static int getMaxLatency(Subscription subscription) {
-        List<Integer> cycles = subscription.getTime().getCycleTimes();
+        return getMaxLatency(subscription.getTime().getCycleTimes());
+    }
+
+    /**
+     * Get the maximum latency for the provided cycles. Calculated as the
+     * maximum cyclic difference.
+     * 
+     * @param cycles
+     *            The list of cycles
+     * @return the maximum latency in minutes
+     */
+    public static int getMaxLatency(List<Integer> cycles) {
         Collections.sort(cycles);
-        int max = TimeUtil.HOURS_PER_DAY * TimeUtil.MINUTES_PER_HOUR;
+        int maximumTimeBetweenCycles = UNSET;
 
         final int size = cycles.size();
         for (int i = 0; i < size; i++) {
             final int nextIndex = i + 1;
             if (nextIndex < size) {
                 int tempMax = cycles.get(nextIndex) - cycles.get(i);
-                if (tempMax > max) {
-                    max = tempMax;
-                }
+                maximumTimeBetweenCycles = Math.max(maximumTimeBetweenCycles, tempMax);
             }
         }
-        return max;
+
+        // If there was only one cycle, then default to the number of minutes in
+        // the day
+        if (maximumTimeBetweenCycles == UNSET) {
+            maximumTimeBetweenCycles = TimeUtil.HOURS_PER_DAY;
+        }
+
+        return maximumTimeBetweenCycles * TimeUtil.MINUTES_PER_HOUR;
+    }
+
+    /**
+     * Get the maximum latency for the provided dataSet. Calculated as the
+     * maximum cyclic difference.
+     * 
+     * @param dataSet
+     *            the dataset
+     * @return the maximum latency in minutes
+     */
+    public static int getMaxLatency(GriddedDataSet dataSet) {
+        return getMaxLatency(new ArrayList<Integer>(dataSet.getCycles()));
     }
 }
