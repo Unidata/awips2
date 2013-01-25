@@ -32,6 +32,7 @@ import javax.xml.bind.Unmarshaller;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -66,6 +67,7 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * Sep 17, 2012    730      jpiatt     Initial creation.
  * Oct 23, 2012   1286      djohnson   Hook into bandwidth management.
  * Jan 04, 2013   1420      mpduff     Move rules into a single file.
+ * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -498,22 +500,23 @@ public class SystemRuleManager {
      * @param cycleTimes
      * @return
      */
-    public int getPriority(Subscription sub, Set<Integer> cycleTimes) {
+    public SubscriptionPriority getPriority(Subscription sub,
+            Set<Integer> cycleTimes) {
         PriorityRulesXML rulesXml = this.getPriorityRules(false);
-        int priority = 3;
-        boolean found = false;
+        SubscriptionPriority priority = null;
         for (PriorityRuleXML rule : rulesXml.getRules()) {
             if (rule.matches(sub, cycleTimes)) {
-                if (rule.getPriority() < priority) {
+                if (priority == null
+                        || rule.getPriority().getPriorityValue() < priority
+                                .getPriorityValue()) {
                     priority = rule.getPriority();
-                    found = true;
                 }
             }
         }
 
         // Default to normal priority
-        if (!found) {
-            priority = 2;
+        if (priority == null) {
+            priority = SubscriptionPriority.NORMAL;
         }
 
         return priority;
