@@ -25,10 +25,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.annotation.XmlEnumValue;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -55,6 +52,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Dec 17, 2012  1435      mpduff     Fix ThreadLocal implementation.
  * Dec 18, 2012  1439      mpduff     Change Regex to match invalid chars.
  * Jan 04, 2013  1420      mpduff     Change default priority to normal priority.
+ * Jan 25, 2013  1528      djohnson   Subscription priority has moved up in the world to the Subscription class.
  * 
  * </pre>
  * 
@@ -107,67 +105,6 @@ public class DataDeliveryGUIUtils {
 
     /** Name Required Message */
     public static final String NAME_REQUIRED_MESSAGE = "Name required.\nA Subscription Name must be entered.";
-
-    /** Enumeration to use for subscription priorities */
-    public static enum SubscriptionPriority {
-        /** High Priority */
-        @XmlEnumValue("High")
-        HIGH("High", 1, new RGB(255, 0, 0)),
-        /** Default Priority */
-        @XmlEnumValue("Normal")
-        NORMAL("Normal", 2, new RGB(0, 255, 0)),
-        /** Low Priority */
-        @XmlEnumValue("Low")
-        LOW("Low", 3, new RGB(6, 122, 255));
-
-        /** Priority Setting */
-        private final String priorityName;
-
-        /** Numeric Value of the priority */
-        private Integer priorityValue;
-
-        /** Priority color for ui */
-        private RGB color;
-
-        private SubscriptionPriority(String priorityName,
-                Integer priorityValue, RGB color) {
-            this.priorityName = priorityName;
-            this.priorityValue = priorityValue;
-            this.color = color;
-        }
-
-        /**
-         * Get column name.
-         * 
-         * @return Priority Name
-         */
-        public String getPriorityName() {
-            return priorityName;
-        }
-
-        /**
-         * Get the integer value of the priority
-         * 
-         * @return The integer value of the priority.
-         */
-        public Integer getPriorityValue() {
-            return priorityValue;
-        }
-
-        @Override
-        public String toString() {
-            return priorityName;
-        }
-
-        /**
-         * Get the color.
-         * 
-         * @return the color
-         */
-        public RGB getColor() {
-            return color;
-        }
-    }
 
     /**
      * Constructor.
