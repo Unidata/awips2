@@ -21,109 +21,119 @@
  * under the License.
  *
  */
-#include "qpid/Exception.h"
-#include "qpid/client/ClientImportExport.h"
-#include "qpid/client/Handle.h"
-#include "qpid/sys/Time.h"
+#include "qpid/messaging/ImportExport.h"
+
+#include "qpid/messaging/exceptions.h"
+#include "qpid/messaging/Handle.h"
+#include "qpid/messaging/Duration.h"
 
 namespace qpid {
-namespace client {
+namespace messaging {
 
 template <class> class PrivateImplRef;
-
-}
-
-namespace messaging {
 
 class Message;
 class ReceiverImpl;
 class Session;
 
-/**
+/**   \ingroup messaging 
  * Interface through which messages are received.
  */
-class Receiver : public qpid::client::Handle<ReceiverImpl>
+class Receiver : public qpid::messaging::Handle<ReceiverImpl>
 {
   public:
-    struct NoMessageAvailable : qpid::Exception {};
-
-    QPID_CLIENT_EXTERN Receiver(ReceiverImpl* impl = 0);
-    QPID_CLIENT_EXTERN Receiver(const Receiver&);
-    QPID_CLIENT_EXTERN ~Receiver();
-    QPID_CLIENT_EXTERN Receiver& operator=(const Receiver&);
+    QPID_MESSAGING_EXTERN Receiver(ReceiverImpl* impl = 0);
+    QPID_MESSAGING_EXTERN Receiver(const Receiver&);
+    QPID_MESSAGING_EXTERN ~Receiver();
+    QPID_MESSAGING_EXTERN Receiver& operator=(const Receiver&);
     /**
      * Retrieves a message from this receivers local queue, or waits
      * for upto the specified timeout for a message to become
-     * available. Returns false if there is no message to give after
-     * waiting for the specified timeout.
+     * available.
      */
-    QPID_CLIENT_EXTERN bool get(Message& message, qpid::sys::Duration timeout=qpid::sys::TIME_INFINITE);
+    QPID_MESSAGING_EXTERN bool get(Message& message, Duration timeout=Duration::FOREVER);
     /**
      * Retrieves a message from this receivers local queue, or waits
-     * for upto the specified timeout for a message to become
-     * available. Throws NoMessageAvailable if there is no
-     * message to give after waiting for the specified timeout.
+     * for up to the specified timeout for a message to become
+     * available.
+     *
+     * @exception NoMessageAvailable if there is no message to give
+     * after waiting for the specified timeout, or if the Receiver is
+     * closed, in which case isClose() will be true.
      */
-    QPID_CLIENT_EXTERN Message get(qpid::sys::Duration timeout=qpid::sys::TIME_INFINITE);
+    QPID_MESSAGING_EXTERN Message get(Duration timeout=Duration::FOREVER);
     /**
      * Retrieves a message for this receivers subscription or waits
-     * for upto the specified timeout for one to become
+     * for up to the specified timeout for one to become
      * available. Unlike get() this method will check with the server
      * that there is no message for the subscription this receiver is
      * serving before returning false.
+     *
+     * @return false if there is no message to give after
+     * waiting for the specified timeout, or if the Receiver is
+     * closed, in which case isClose() will be true.
      */
-    QPID_CLIENT_EXTERN bool fetch(Message& message, qpid::sys::Duration timeout=qpid::sys::TIME_INFINITE);
+    QPID_MESSAGING_EXTERN bool fetch(Message& message, Duration timeout=Duration::FOREVER);
     /**
      * Retrieves a message for this receivers subscription or waits
      * for up to the specified timeout for one to become
      * available. Unlike get() this method will check with the server
      * that there is no message for the subscription this receiver is
      * serving before throwing an exception.
+     *
+     * @exception NoMessageAvailable if there is no message to give
+     * after waiting for the specified timeout, or if the Receiver is
+     * closed, in which case isClose() will be true.
      */
-    QPID_CLIENT_EXTERN Message fetch(qpid::sys::Duration timeout=qpid::sys::TIME_INFINITE);
+    QPID_MESSAGING_EXTERN Message fetch(Duration timeout=Duration::FOREVER);
     /**
      * Sets the capacity for the receiver. The capacity determines how
      * many incoming messages can be held in the receiver before being
      * requested by a client via fetch() (or pushed to a listener).
      */
-    QPID_CLIENT_EXTERN void setCapacity(uint32_t);
+    QPID_MESSAGING_EXTERN void setCapacity(uint32_t);
     /**
-     * Returns the capacity of the receiver. The capacity determines
+     * @return the capacity of the receiver. The capacity determines
      * how many incoming messages can be held in the receiver before
      * being requested by a client via fetch() (or pushed to a
      * listener).
      */
-    QPID_CLIENT_EXTERN uint32_t getCapacity();
+    QPID_MESSAGING_EXTERN uint32_t getCapacity();
     /**
-     * Returns the number of messages received and waiting to be
+     * @return the number of messages received and waiting to be
      * fetched.
      */
-    QPID_CLIENT_EXTERN uint32_t available();
+    QPID_MESSAGING_EXTERN uint32_t getAvailable();
     /**
-     * Returns a count of the number of messages received on this
+     * @return a count of the number of messages received on this
      * receiver that have been acknowledged, but for which that
      * acknowledgement has not yet been confirmed as processed by the
      * server.
      */
-    QPID_CLIENT_EXTERN uint32_t pendingAck();
+    QPID_MESSAGING_EXTERN uint32_t getUnsettled();
 
     /**
      * Cancels this receiver.
      */
-    QPID_CLIENT_EXTERN void cancel();
+    QPID_MESSAGING_EXTERN void close();
+
+    /**
+     * Return true if the receiver was closed by a call to close()
+     */
+    QPID_MESSAGING_EXTERN bool isClosed() const;
 
     /**
      * Returns the name of this receiver.
      */
-    QPID_CLIENT_EXTERN const std::string& getName() const;
+    QPID_MESSAGING_EXTERN const std::string& getName() const;
 
     /**
      * Returns a handle to the session associated with this receiver.
      */
-    QPID_CLIENT_EXTERN Session getSession() const;
+    QPID_MESSAGING_EXTERN Session getSession() const;
 
   private:
-  friend class qpid::client::PrivateImplRef<Receiver>;
+  friend class qpid::messaging::PrivateImplRef<Receiver>;
 };
 }} // namespace qpid::messaging
 

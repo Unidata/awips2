@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+	<bean id="dpaDecodeSrv" class="com.raytheon.uf.edex.ohd.pproc.DecodeDpaSrv" />
+
+	<bean id="dpaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="dpa" />
+		<constructor-arg value="jms-dist:queue:Ingest.dpa?destinationResolver=#qpidDurableResolver"/>
+	</bean>
+	
+	<bean id="dpaRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
+		factory-method="register">
+		<constructor-arg value="dpa" />
+		<constructor-arg value="jms-dist:queue:Ingest.dpa?destinationResolver=#qpidDurableResolver"/>
+	</bean>
+
+	<camelContext id="dpa-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<!--
+		<endpoint id="dpaFileEndpoint" uri="file:${edex.home}/data/sbn/dpa?noop=true&amp;idempotent=false" />
+
+		<route id="dpaFileConsumerRoute">
+			<from ref="dpaFileEndpoint" />
+			<bean ref="fileToString"  />
+			<setHeader headerName="pluginName">
+				<constant>dpa</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.dpa"/>
+		</route>
+		-->
+
+		<!-- Begin dpa Routes -->
+		<route id="dpaIngestRoute">
+			<from uri="jms-generic:queue:Ingest.dpa?destinationResolver=#qpidDurableResolver"/>
+			<setHeader headerName="pluginName">
+				<constant>dpa</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile"  />
+					<bean ref="radarDecompressor" method="decompressToFile" />
+					<bean ref="dpaDecodeSrv" method="process"/>
+					<!-- Uncomment when dpaDecodeSrv route properly handles only its own files
+					<bean ref="processUtil" method="log"/>
+					-->
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:dpa?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+</beans>

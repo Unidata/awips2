@@ -20,9 +20,9 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -33,21 +33,28 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-public class ConfigSummaryDlg extends Dialog implements MouseListener,
-        MouseTrackListener {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-    /**
-     * The display control.
-     */
-    private Display display;
+/**
+ * Display FFMP Basin Table's configuration summary data.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 6, 2012  1353       rferrel     Convert to CaveSWTDialog and made non-blocking.
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
+public class ConfigSummaryDlg extends CaveSWTDialog {
 
     /**
      * Canvas to display the information.
@@ -132,8 +139,8 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
     /**
      * Data labels.
      */
-    String[] dataLabels = new String[] { "Layer", "Link to Frame",
-            "Worst Case", "Zoom: Maintain Layer",
+    private final String[] dataLabels = new String[] { "Layer",
+            "Link to Frame", "Worst Case", "Zoom: Maintain Layer",
             "Zoom: only Basins in Parent", "Include CWAs", "D2D Click Action",
             "D2D Display Type", "Auto-Refresh" };
 
@@ -149,7 +156,7 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
      */
     public ConfigSummaryDlg(Shell parent, Point controlLocation,
             ConfigSummaryData cfgSumData) {
-        super(parent, 0);
+        super(parent, SWT.NO_TRIM, CAVE.DO_NOT_BLOCK);
 
         this.controlLoc = controlLocation;
         this.cfgSumData = cfgSumData;
@@ -157,15 +164,15 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
         cfgData = this.cfgSumData.getDisplayData();
     }
 
-    /**
-     * Open method to show the dialog.
+    /*
+     * (non-Javadoc)
      * 
-     * @return Null.
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.NO_TRIM);
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -175,25 +182,10 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
 
         // Initialize all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-        shell.setLocation(controlLoc.x - 100, controlLoc.y - 100);
-        shell.open();
-
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        leftSideColor.dispose();
-        rightSideColor.dispose();
-        textFont.dispose();
-
-        return null;
     }
 
     private void initializeComponents() {
+        Display display = shell.getDisplay();
         /*
          * Setup the font and colors.
          */
@@ -227,8 +219,21 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
          * Add mouse listeners to the canvas so it will be closed when the user
          * moves the mouse outside the dialog or it is clicked.
          */
-        canvas.addMouseTrackListener(this);
-        canvas.addMouseListener(this);
+        canvas.addMouseTrackListener(new MouseTrackAdapter() {
+
+            @Override
+            public void mouseExit(MouseEvent e) {
+                close();
+            }
+        });
+
+        canvas.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseDown(MouseEvent e) {
+                close();
+            }
+        });
     }
 
     /**
@@ -238,6 +243,7 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
      *            Graphic context.
      */
     private void drawCanvas(GC gc) {
+        Display display = shell.getDisplay();
         gc.setFont(textFont);
         gc.setTextAntialias(SWT.ON);
 
@@ -300,6 +306,7 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
      * Make the calculation used for draw the data on the canvas.
      */
     private void makeCalculations() {
+        Display display = shell.getDisplay();
         Image image = new Image(display, 100, 100);
         GC gc = new GC(image);
         gc.setFont(textFont);
@@ -331,34 +338,26 @@ public class ConfigSummaryDlg extends Dialog implements MouseListener,
                 + (spaceBetweenText * dataLabels.length - 1);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
     @Override
-    public void mouseDoubleClick(MouseEvent e) {
-        // do nothing
+    protected void preOpened() {
+        super.preOpened();
+        shell.setLocation(controlLoc.x - 100, controlLoc.y - 100);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
-    public void mouseDown(MouseEvent e) {
-        shell.dispose();
-    }
-
-    @Override
-    public void mouseUp(MouseEvent e) {
-        // do nothing
-
-    }
-
-    @Override
-    public void mouseEnter(MouseEvent e) {
-        // do nothing
-    }
-
-    @Override
-    public void mouseExit(MouseEvent e) {
-        shell.dispose();
-    }
-
-    @Override
-    public void mouseHover(MouseEvent e) {
-        // do nothing
+    protected void disposed() {
+        leftSideColor.dispose();
+        rightSideColor.dispose();
+        textFont.dispose();
     }
 }

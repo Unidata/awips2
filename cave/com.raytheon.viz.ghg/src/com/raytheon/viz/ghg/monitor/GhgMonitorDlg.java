@@ -111,6 +111,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 17Jun2008    1157       MW Fegan    Pass configuration to sub-dialogs.
  * 15 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
  *                                      Changes for non-blocking GhgAlertDlg.
+ * 03 Dec 2012  1353       rferrel     Changes for non-blocking GhgFilterDlg.
+ *                                      Changes for non-blocking GhgSaveDeleteFilterDlg.
  * 
  * </pre>
  * 
@@ -121,12 +123,20 @@ import com.raytheon.viz.ui.statusline.StatusStore;
 public class GhgMonitorDlg extends CaveSWTDialog implements
         GhgMonitorFilterChangeListener, GhgMonitorZoneSelectionListener,
         INotificationObserver {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GhgMonitorDlg.class);
 
     private static final Map<String, GhgConfigData.DataEnum> labelToEnumMap;
 
     private GhgAlertDlg alertDlg;
+
+    private GhgColorDlg colorDlg;
+
+    private GhgFilterDlg filterDlg;
+
+    private GhgSaveDeleteFilterDlg deleteFilterDlg;
+
+    private GhgSaveDeleteFilterDlg saveFilterDlg;
 
     /**
      * Active group one string.
@@ -937,11 +947,27 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Save the current filter.
      */
     private void saveCurrentFilter() {
-        // Show the Save Filter dialog.
+        if (saveFilterDlg == null) {
+            // Show the Save Filter dialog.
+            GhgConfigData configuration = GhgConfigData.getInstance();
+            saveFilterDlg = new GhgSaveDeleteFilterDlg(getShell(),
+                    configuration.getFilterNames(), true);
+            saveFilterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        doSaveCurrentFilter(returnValue.toString());
+                    }
+                    saveFilterDlg = null;
+                }
+            });
+        }
+        saveFilterDlg.open();
+    }
+
+    private void doSaveCurrentFilter(String name) {
         GhgConfigData configuration = GhgConfigData.getInstance();
-        GhgSaveDeleteFilterDlg saveFilterDlg = new GhgSaveDeleteFilterDlg(
-                getShell(), configuration.getFilterNames(), true);
-        String name = (String) saveFilterDlg.open();
 
         // If no name was selected then return.
         if (name == null) {
@@ -970,12 +996,27 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Delete a named filter.
      */
     private void deleteNamedFilter() {
-        // Show the Delete Filter dialog.
-        GhgConfigData configuration = GhgConfigData.getInstance();
-        GhgSaveDeleteFilterDlg deleteFilterDlg = new GhgSaveDeleteFilterDlg(
-                getShell(), configuration.getFilterNames(), false);
-        String name = (String) deleteFilterDlg.open();
+        if (deleteFilterDlg == null) {
+            // Show the Delete Filter dialog.
+            GhgConfigData configuration = GhgConfigData.getInstance();
+            deleteFilterDlg = new GhgSaveDeleteFilterDlg(getShell(),
+                    configuration.getFilterNames(), false);
+            deleteFilterDlg.setCloseCallback(new ICloseCallback() {
 
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        doDeleteNamedFilter(returnValue.toString());
+                    }
+                    deleteFilterDlg = null;
+                }
+            });
+        }
+        deleteFilterDlg.open();
+    }
+
+    private void doDeleteNamedFilter(String name) {
+        GhgConfigData configuration = GhgConfigData.getInstance();
         // If no name was selected then return.
         if (name == null) {
             return;
@@ -1074,12 +1115,23 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the filter dialog.
      */
     private void showFilterDialog() {
-        GhgConfigData configuration = GhgConfigData.getInstance();
+        if (filterDlg == null) {
+            GhgConfigData configuration = GhgConfigData.getInstance();
 
-        GhgFilterDlg filterDlg = new GhgFilterDlg(getShell(),
-                configuration.getCurrentFilter());
+            filterDlg = new GhgFilterDlg(getShell(),
+                    configuration.getCurrentFilter());
+            filterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        filterDisplay.updateFilter(returnValue.toString());
+                    }
+                    filterDlg = null;
+                }
+            });
+        }
         filterDlg.open();
-        filterDisplay.updateFilter(configuration.getCurrentFilter().name);
     }
 
     /**
@@ -1125,14 +1177,25 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the Color dialog.
      */
     private void showColorDialog() {
-        GhgColorDlg colorDlg = new GhgColorDlg(getShell());
-        boolean changeColor = (Boolean) colorDlg.open();
+        if (colorDlg == null) {
+            colorDlg = new GhgColorDlg(getShell());
+            colorDlg.setCloseCallback(new ICloseCallback() {
 
-        // Update the alert colors in the table
-        if (changeColor == true) {
-            ghgTableComp.updateDataColors();
-            ghgMapComponent.updateMapColors();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Boolean) {
+                        boolean changeColor = (Boolean) returnValue;
+                        // Update the alert colors in the table
+                        if (changeColor == true) {
+                            ghgTableComp.updateDataColors();
+                            ghgMapComponent.updateMapColors();
+                        }
+                    }
+                    colorDlg = null;
+                }
+            });
         }
+        colorDlg.open();
     }
 
     public void refresh(boolean getData) {
