@@ -90,6 +90,7 @@ import dods.dap.DAS;
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 08, 2013            dhladky      Performance enhancements, specific model fixes.
  * Jan 18, 2013 1513       dhladky      Level look up improvements.
+ * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
  * 
  * </pre>
  * 
@@ -419,7 +420,6 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     parm.setLevels(getLevels(type, collectionName, gdsmd, dz,
                             levMin, levMax));
                     parm.addLevelType(type);
-
                     parameters.put(name, parm);
 
                 } catch (Exception le) {
@@ -493,6 +493,11 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             type = new DataLevelType(LevelType.FHAG);
             type.addLayer(new Double(10).doubleValue());
             type.setUnit(serviceConfig.getConstantValue("METER"));
+        }
+        // FRZ freezing level, catches one's with on the end of the param name
+        // hgt0c etc
+        else if (param.getProviderName().endsWith(LevelType.FRZ.getLevelType())) {
+            type = new DataLevelType(LevelType.FRZ);
         }
 
         // Really special cases presented by NOMADS data sets
@@ -573,8 +578,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                             type = new DataLevelType(LevelType.MSL);
                         } else if (w1.equals(LevelType.EA.getLevelType())) {
                             type = new DataLevelType(LevelType.EA);
-                        } else if (w1.equals(LevelType.ODEG.getLevelType())) {
-                            type = new DataLevelType(LevelType.ODEG);
+                        } else if (w1.equals(LevelType.FRZ.getLevelType())) {
+                            type = new DataLevelType(LevelType.FRZ);
                         } else if (w1.equals(LevelType.LCY.getLevelType())) {
                             type = new DataLevelType(LevelType.LCY);
                         } else if (w1.equals(LevelType.MCY.getLevelType())) {
