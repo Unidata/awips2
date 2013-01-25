@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ebxml
+Bundle-SymbolicName: com.raytheon.uf.common.registry.schemas.ebxml
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: javax.persistence;bundle-version="1.0.0",
+ org.hibernate;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174"
+Export-Package: com.raytheon.uf.common.registry.schemas.ebxml.util,
+ oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4,
+ oasis.names.tc.ebxml.regrep.xsd.lcm.v4,
+ oasis.names.tc.ebxml.regrep.xsd.query.v4,
+ oasis.names.tc.ebxml.regrep.xsd.rim.v4,
+ oasis.names.tc.ebxml.regrep.xsd.rs.v4,
+ oasis.names.tc.ebxml.regrep.xsd.spi.v4
