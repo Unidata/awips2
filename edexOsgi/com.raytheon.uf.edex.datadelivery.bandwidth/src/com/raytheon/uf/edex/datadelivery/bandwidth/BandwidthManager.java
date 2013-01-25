@@ -96,6 +96,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
  * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
  * Dec 12, 2012 1286       djohnson     Remove shutdown hook and finalize().
+ * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * 
  * </pre>
  * 
@@ -796,7 +797,7 @@ abstract class BandwidthManager extends
         boolean requiresReschedule = (old.getDataSetSize() != subscription
                 .getDataSetSize())
         // Priority is different
-                || (!old.getPriority().equals(subscription.getPriority()))
+                || (old.getPriority() != subscription.getPriority())
                 // Latency is different
                 || (!(old.getLatencyInMinutes() == subscription
                         .getLatencyInMinutes()));
