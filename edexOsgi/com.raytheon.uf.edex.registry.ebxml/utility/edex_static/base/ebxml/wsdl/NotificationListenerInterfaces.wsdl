@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<definitions targetNamespace="urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:interfaces:4.0" 
+  xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" 
+  xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" 
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:interfaces:4.0" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl"
+  >
+  <documentation>
+    $Header: /cvsroot/ebxmlrr/ebxmlrr-spec/misc/4.0/services/NotificationListenerInterfaces.wsdl,v 1.7 2005/09/19 13:27:35 rschmi Exp $
+    Author: Farrukh Najmi
+    This is the the normative abstract interface definition in WSDL for the OASIS ebXML RegRep NotificationListener service.
+  </documentation>
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" schemaLocation="../../xsd/rim.xsd"/>
+    </xsd:schema>
+  </types>
+  <message name="NotificationMessage">
+    <part element="rim:Notification" name="Notification"/>
+  </message>
+  <portType name="NotificationListener">
+    <documentation>PortType for a NotificationListener interface</documentation>
+    <operation name="onNotification">
+      <documentation>Delivers a Notification from registry to NotificationListener</documentation>
+      <input message="tns:NotificationMessage"/>
+    </operation>
+  </portType>
+</definitions>

@@ -4,11 +4,10 @@ Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.hydro
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.geotools;bundle-version="2.5.2",
+Require-Bundle: org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.geospatial;bundle-version="1.11.9",
- com.raytheon.edex.common;bundle-version="1.11.9"
+ com.raytheon.edex.common;bundle-version="1.11.9",
+ com.raytheon.uf.common.dataaccess
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.hydro.service,
@@ -16,6 +15,7 @@ Export-Package: com.raytheon.uf.common.hydro.service,
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml,
+ com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.serialization.comm,
  org.apache.commons.logging
