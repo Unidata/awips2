@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <purgeRuleSet>
 	<key>modelInfo.modelName</key>
-	<!-- Default rule for data not covered by any rules -->
+	<!-- Default rule for data not covered by any rules, 2 versions up to 7 days-->
 	<defaultRule>
 		<versionsToKeep>2</versionsToKeep>
-		<period>02-00:00:00</period>
+		<period>07-00:00:00</period>
 	</defaultRule>
 	<!-- Purge rule for the NAM80 (ETA) model -->
 	<rule>

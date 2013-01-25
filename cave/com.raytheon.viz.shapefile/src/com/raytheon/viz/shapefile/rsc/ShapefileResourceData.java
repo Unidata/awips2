@@ -28,10 +28,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
@@ -107,25 +103,6 @@ public class ShapefileResourceData extends AbstractResourceData {
     public ShapefileResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
         shapeFile = new File(filename);
-        if (!shapeFile.isAbsolute()) {
-            shapeFile = PathManagerFactory.getPathManager().getStaticFile(
-                    FileUtil.join(VizApp.getMapsDir(), filename));
-            if (shapeFile != null) {
-                // Get rid of shp
-                String name = filename.substring(0, filename.length() - 3);
-                // Get all corresponding shapefile files in directory
-                String path = shapeFile.getParentFile().getAbsolutePath();
-                int idx = path.indexOf(VizApp.getMapsDir());
-                String searchPath = path.substring(idx);
-                LocalizationFile[] files = PathManagerFactory.getPathManager()
-                        .listStaticFiles(searchPath, null, false, true);
-                for (LocalizationFile f : files) {
-                    if (shapeFile.getName().contains(name)) {
-                        f.getFile();
-                    }
-                }
-            }
-        }
         if (shapeFile == null || shapeFile.exists() == false) {
             throw new VizException("Could not find shapefile",
                     new FileNotFoundException(String.valueOf(shapeFile)));
