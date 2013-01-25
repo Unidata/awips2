@@ -25,7 +25,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.monitor.ffmp.fffg.FFFGDlg;
 
 /**
@@ -38,6 +37,7 @@ import com.raytheon.uf.viz.monitor.ffmp.fffg.FFFGDlg;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/27/09                  dhladky    Initial Creation.
+ * 1/29/2012    1353        rferrel     Changes for non-blocking FFFGDlg.
  * 
  * </pre>
  * 
@@ -50,21 +50,14 @@ public class FFFGAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
-        if (fffgDlg == null) {
-
-            VizApp.runAsync(new Runnable() {
-                @Override
-                public void run() {
-
-                    Shell fshell = PlatformUI.getWorkbench()
-                            .getActiveWorkbenchWindow().getShell();
-                    fffgDlg = new FFFGDlg(fshell);
-                    fffgDlg.open();
-                    fffgDlg = null;
-                }
-            });
+        // Independent dialog is disposed on close and cannot be reopened.
+        if (fffgDlg == null || fffgDlg.getShell() == null
+                || fffgDlg.isDisposed()) {
+            Shell fshell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            fffgDlg = new FFFGDlg(fshell);
         }
+        fffgDlg.open();
 
         return null;
     }
