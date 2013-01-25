@@ -21,6 +21,7 @@ package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Date;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -73,7 +74,7 @@ public class SubscriptionBuilder {
 
     private String owner = "your_user";
 
-    private int priority = 1;
+    private SubscriptionPriority priority = SubscriptionPriority.NORMAL;
 
     private Date subscriptionStart = TimeUtil.newDate();
 
@@ -256,7 +257,7 @@ public class SubscriptionBuilder {
      * @param priority
      *            the priority to set
      */
-    public SubscriptionBuilder withPriority(int priority) {
+    public SubscriptionBuilder withPriority(SubscriptionPriority priority) {
         this.priority = priority;
         return this;
     }
