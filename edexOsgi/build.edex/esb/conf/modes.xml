@@ -77,50 +77,11 @@
 		<exclude>purgeutil-request.xml</exclude>
 		<!-- end of ncep excludes -->
 	</mode>
-	<mode name="registry">
-		<include>ebxml.*\.xml</include>
-        <includeMode>statsTemplate</includeMode>
-	</mode>
-	<mode name="datadelivery">
-        <includeMode>registry</includeMode>
-        <includeMode>datadeliverytemplate</includeMode>
-        <!-- 
-            The pattern datadelivery-registry is used to signify spring configurations 
-            that should be loaded when running datadelivery and the registry in a single JVM 
-        -->
-        <include>.*datadelivery-registry.*</include>
-        <!-- 
-            The pattern datadelivery-standalone is used to signify spring configurations 
-            that should be loaded when running datadelivery with the registry in a separate JVM 
-        -->
-        <exclude>.*datadelivery-standalone.*</exclude>
-	</mode>
-	<mode name="dataprovideragent">
-		<include>manualIngest*</include>
-		<include>time-common.xml</include>
-		<include>distribution-spring.xml</include>
-		<include>persist-ingest.xml</include>
-		<include>auth-common.xml</include>
-		<!-- grid specific services -->
-		<include>grib-common.xml</include>
-		<include>grib-distribution.xml</include>
-		<include>grib-datadelivery.xml</include>
-		<include>level-common.xml</include>
-		<!-- pointdata/obs specific services -->
-		<include>pointdata-common.xml</include>
-		<include>obs-common.xml</include>
-		<include>obs-datadelivery.xml</include>
-		<!-- dpa services -->
-		<include>.*dpa.*</include>
-		<!-- OGC services -->
-		<include>.*ogc.*</include>
-		<!-- excluded services -->
-		<exclude>fssobs-common</exclude>
-	</mode>
 	<mode name="ingest">
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
-		<exclude>grib-ingest.xml</exclude>
+		<exclude>grib-decode.xml</exclude>
+		<exclude>grid-staticdata-process.xml</exclude>
 		<exclude>ncgrib-ingest.xml</exclude>
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
@@ -152,8 +113,11 @@
 	</mode>
 	<mode name="ingestGrib">
 		<include>time-common.xml</include>
+		<include>auth-common.xml</include>
+		<include>nwsauth-request.xml</include>
 		<include>grib-common.xml</include>
-		<include>grib-ingest.xml</include>
+		<include>grib-decode.xml</include>
+		<include>grid-staticdata-process.xml</include>
 		<include>level-common.xml</include>
 	 	<include>grid-common.xml</include>
 	 	<include>gridcoverage-.*.xml</include>
@@ -161,7 +125,6 @@
 		<include>persist-ingest.xml</include>
 		<include>management-common.xml</include>
 	 	<include>database-common.xml</include>
-		<include>auth-common.xml</include>
         <include>event-ingest.xml</include>
 		<!-- ncep excludes until tested -->
 		<exclude>ncgrib-common.xml</exclude>
@@ -176,6 +139,7 @@
 	</mode>
 	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
+	    <include>nwsauth-request.xml</include>
 		<include>time-common.xml</include>
 		<include>ffmp-ingest.xml</include>
 		<include>ffmp-common.xml</include>
@@ -217,12 +181,61 @@
         <includeMode>excludeDpaAndOgc</includeMode>
         <includeMode>statsTemplate</includeMode>
 	</mode>
+	<mode name="registry">
+		<include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>dataDeliveryTemplate</includeMode>
+	</mode>
+
+    <mode name="statsTemplate" template="true">
+        <include>event-common.xml</include>
+        <include>stats-common.xml</include>
+    </mode>
+    <mode name="dataDeliveryTemplate" template="true">
+        <include>database-common.xml</include>
+        <include>.*datadelivery.*</include>
+        <include>.*bandwidth.*</include>
+        <!-- Exclude the inmemory versions of Spring files -->
+        <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
+        <include>time-common.xml</include>
+        <include>auth-common.xml</include>
+        <include>nwsauth-request.xml</include>
+        <include>grid-staticdata-process.xml</include>
+        <include>grid-common.xml</include>
+        <include>gridcoverage-.*.xml</include>
+        <include>parameter-common.xml</include>     
+        <include>pointdata-common.xml</include>
+        <include>obs-common.xml</include>
+        <include>level-common.xml</include>
+        <include>persist-ingest.xml</include>
+        <include>management-common.xml</include>
+        <include>event-ingest.xml</include>
+        <!-- 
+            The pattern datadelivery-registry is used to signify spring configurations 
+            that should be loaded when running datadelivery and the registry in a single JVM 
+        -->
+        <include>.*datadelivery-registry.*</include>
+        <!-- 
+            The pattern datadelivery-standalone is used to signify spring configurations 
+            that should be loaded when running datadelivery with the registry in a separate JVM 
+        -->
+        <exclude>.*datadelivery-standalone.*</exclude>
+
+        <includeMode>statsTemplate</includeMode>
+    </mode>
+    <mode name="excludeDpaAndOgc" template="true">
+        <!-- exclude dpa services -->
+        <exclude>.*dpa.*</exclude>
+        <!-- exclude OGC services -->
+        <exclude>.*ogc.*</exclude>
+    </mode>
 
 	<!-- modes listed below are not supported in a production setting, they 
 		are for DEVELOPMENT purposes only -->
 	<mode name="grib">
 		<include>grib-common.xml</include>
-		<include>grib-ingest.xml</include>
+		<include>grib-decode.xml</include>
+		<include>grid-staticdata-process.xml</include>
 		<include>grib-distribution.xml</include>
 		<include>level-common.xml</include>
 		<include>persist-ingest.xml</include>
@@ -274,34 +287,28 @@
         <exclude>.*datadelivery-registry.*</exclude>
         <includeMode>datadeliverytemplate</includeMode>
     </mode>
-    <mode name="statsTemplate" template="true">
-        <include>event-common.xml</include>
-        <include>stats-common.xml</include>
-    </mode>
-    <mode name="datadeliverytemplate" template="true">
-        <include>.*datadelivery.*</include>
-        <include>.*bandwidth.*</include>
-        <!-- Exclude the inmemory versions of Spring files -->
-        <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
-        <include>time-common.xml</include>
-        <include>grib-common.xml</include>
-        <include>grid-common.xml</include>
-        <include>gridcoverage-.*.xml</include>
-        <include>parameter-common.xml</include>     
-        <include>pointdata-common.xml</include>
-        <include>obs-common.xml</include>
-        <include>level-common.xml</include>
-        <include>persist-ingest.xml</include>
-        <include>management-common.xml</include>
-        <include>database-common.xml</include>
-        <include>auth-common.xml</include>
-        <include>event-ingest.xml</include>
-        <includeMode>statsTemplate</includeMode>
-    </mode>
-    <mode name="excludeDpaAndOgc" template="true">
-        <!-- exclude dpa services -->
-        <exclude>.*dpa.*</exclude>
-        <!-- exclude OGC services -->
-        <exclude>.*ogc.*</exclude>
-    </mode>
+	<mode name="dataprovideragent">
+		<include>manualIngest*</include>
+		<include>time-common.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>auth-common.xml</include>
+		<!-- grid specific services -->
+		<include>grib-common.xml</include>
+		<include>grid-staticdata-process.xml</include>
+		<include>gridcoverage-.*.xml</include>
+		<include>grib-distribution.xml</include>
+		<include>grib-datadelivery.xml</include>
+		<include>level-common.xml</include>
+		<!-- pointdata/obs specific services -->
+		<include>pointdata-common.xml</include>
+		<include>obs-common.xml</include>
+		<include>obs-datadelivery.xml</include>
+		<!-- dpa services -->
+		<include>.*dpa.*</include>
+		<!-- OGC services -->
+		<include>.*ogc.*</include>
+		<!-- excluded services -->
+		<exclude>fssobs-common</exclude>
+	</mode>
 </edexModes>

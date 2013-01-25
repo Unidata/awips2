@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -31,7 +30,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
+import com.raytheon.uf.viz.core.maps.actions.AbstractMapHandler;
 import com.raytheon.uf.viz.kml.export.KmlExportOptions.KmlExportTimeMode;
 import com.raytheon.viz.ui.EditorUtil;
 
@@ -45,14 +44,16 @@ import com.raytheon.viz.ui.EditorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Jun  1, 2012            bsteffen     Initial creation
+ * Nov 13, 2012      #1326 randerso     Moved setEnabled method into
+ *                                      AbstractMapHandler for reuse
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class KmlExportHandler extends AbstractHandler {
+public class KmlExportHandler extends AbstractMapHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -83,21 +84,6 @@ public class KmlExportHandler extends AbstractHandler {
         }
         options.setPanes(panes);
         return options;
-    }
-
-    @Override
-    public void setEnabled(Object evaluationContext) {
-        IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
-        if (container == null) {
-            super.setBaseEnabled(false);
-            return;
-        }
-        IDisplayPane pane = container.getActiveDisplayPane();
-        if (pane == null) {
-            super.setBaseEnabled(false);
-            return;
-        }
-        super.setBaseEnabled(pane.getRenderableDisplay() instanceof MapRenderableDisplay);
     }
 
 }

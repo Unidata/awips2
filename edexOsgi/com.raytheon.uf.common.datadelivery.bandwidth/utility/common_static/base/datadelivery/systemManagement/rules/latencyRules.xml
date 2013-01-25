@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latencyRules>
+    <latencyRule>
+        <ruleField>Dataset Frequency</ruleField>
+        <ruleName>Hourly-Products</ruleName>
+        <ruleOperator>&lt;=</ruleOperator>
+        <ruleUnit>Hrs</ruleUnit>
+        <ruleValue>1</ruleValue>
+        <latency>40</latency>
+    </latencyRule>
+    <latencyRule>
+        <ruleField>Dataset Frequency</ruleField>
+        <ruleName>MultiHour-Products</ruleName>
+        <ruleOperator>&gt;</ruleOperator>
+        <ruleUnit>Hrs</ruleUnit>
+        <ruleValue>1</ruleValue>
+        <latency>115</latency>
+    </latencyRule>
+</latencyRules>

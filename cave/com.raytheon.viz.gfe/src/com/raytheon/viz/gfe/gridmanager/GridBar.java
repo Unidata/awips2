@@ -1469,7 +1469,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     @Override
     public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
         // System.out.println("parmInventoryChanged for " + this);
-        canvas.calcStepTimes();
         if (this.parm.equals(parm)
                 && this.gridManager.checkVisibility(timeRange)) {
             redraw();
@@ -1510,7 +1509,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         if (desiredVisiblity != parmVisible) {
             parmVisible = desiredVisiblity;
             // System.out.println("gridVisibilityChanged for " + this);
-            canvas.calcStepTimes();
             redraw();
         }
     }

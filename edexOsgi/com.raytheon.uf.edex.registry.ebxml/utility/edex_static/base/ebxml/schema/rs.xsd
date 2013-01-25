@@ -1,0 +1,174 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<schema targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" 
+        xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.w3.org/2001/XMLSchema  http://www.w3.org/2001/XMLSchema.xsd"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified">
+    
+    <annotation>
+        <documentation xml:lang="en">The schema for OASIS ebXML Registry Services</documentation>
+    </annotation>
+    
+    <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" schemaLocation="rim.xsd"/>
+    
+    <complexType name="RegistryRequestType">
+        <annotation>
+            <documentation xml:lang="en">Base type for all ebXML Registry requests</documentation>
+        </annotation>
+        <complexContent>
+          <extension base="rim:ExtensibleObjectType">
+            <attribute name="id" type="string" use="required"/>
+            <!--Comment may be used by requestor to describe the request.-->
+            <attribute name="comment" type="string" use="optional"/>
+          </extension>
+        </complexContent>
+    </complexType>
+    <element name="RegistryRequest" type="tns:RegistryRequestType"/>
+    <complexType name="RegistryResponseType">
+        <annotation>
+            <documentation xml:lang="en">Base type for all ebXML Registry responses</documentation>
+        </annotation>
+        <complexContent>
+          <extension base="rim:ExtensibleObjectType">
+            <sequence>
+              <element name="Exception" type="tns:RegistryExceptionType" minOccurs="0" maxOccurs="unbounded"/>
+              <element ref="rim:RegistryObjectList" minOccurs="0" maxOccurs="1"/>
+              <element ref="rim:ObjectRefList" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+            <attribute name="status" type="rim:objectReferenceType" use="required"/>
+            <!-- id is the request if for the request for which this is a response -->
+            <attribute name="requestId" type="anyURI" use="optional"/>
+          </extension>
+        </complexContent>
+    </complexType>
+    <element name="RegistryResponse" type="tns:RegistryResponseType"/>
+
+    <!--
+    Exception type hierarchy
+    -->
+    <complexType name="RegistryExceptionType">
+        <annotation>
+            <documentation>Base for all registry exceptions. Based upon SOAPFault: http://www.w3schools.com/soap/soap_fault.asp</documentation>
+        </annotation>
+        <complexContent>
+          <extension base="rim:ExtensibleObjectType">
+            <attribute name="code" type="string" use="optional"/>
+            <attribute name="detail" type="string" use="optional"/>
+            <attribute name="message" type="string"/>
+            <attribute name="severity" type="rim:objectReferenceType" default="urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Error"/>
+          </extension>
+        </complexContent>
+    </complexType>
+    <element name="RegistryException" type="tns:RegistryExceptionType"/>
+    
+    <complexType name="AuthenticationExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="AuthorizationExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+        
+    <complexType name="InvalidRequestExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="ObjectExistsExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="ObjectNotFoundExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="QuotaExceededExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="ReferencesExistExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="TimeoutExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="UnresolvedReferenceExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="UnsupportedCapabilityExceptionType">
+        <complexContent>
+            <extension base="tns:RegistryExceptionType">
+                <sequence/>
+            </extension>
+        </complexContent>
+    </complexType>    
+</schema>

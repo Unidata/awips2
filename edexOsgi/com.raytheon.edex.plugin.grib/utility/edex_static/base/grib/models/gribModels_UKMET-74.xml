@@ -22,7 +22,6 @@
 			<id>19</id>
 			<id>89</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 
@@ -36,7 +35,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -49,7 +47,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -62,7 +59,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -75,7 +71,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -88,7 +83,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -101,7 +95,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -114,7 +107,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -127,7 +119,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -140,7 +131,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -153,7 +143,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -166,7 +155,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 
 	</model>
 
@@ -180,7 +168,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<model>
@@ -193,7 +180,6 @@
 			<id>44</id>
 			<id>45</id>
 		</process>
-		<paramInfo>ukmetNH</paramInfo>
 	</model>
 
 	<!-- END SUBCENTER 0 -->
