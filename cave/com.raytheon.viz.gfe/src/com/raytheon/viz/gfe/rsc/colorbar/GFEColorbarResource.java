@@ -28,8 +28,6 @@ import java.util.Set;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -98,8 +96,10 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 05Aug2008    #1405       ebabin      Fix fo delta not displaying after first use.
  * 06/03/2011   #8919      rferrel     No longer display color bar when
  *                                     VisMode is GRAPHIC
- * 11/13/20112  #1298      rferrel     Changes for non-blocking SetDeltaDialog.
+ * 11/13/2012   #1298      rferrel     Changes for non-blocking SetDeltaDialog.
  *                                     Changes for non-blocking SetValueDialog.
+ * 01/23/2013   #1524      randerso    Fix error when clicking on discrete color bar when 
+ *                                     no grid exists
  * 
  * </pre>
  * 
@@ -175,6 +175,10 @@ public class GFEColorbarResource extends
 
         private void setPickup(double[] v, int mouseButton) {
             WxValue val = colorbarDisplay.getValueAt(v, mouseButton);
+            if (val == null) {
+                return;
+            }
+
             Parm parm = getParm();
             if (parm == null) {
                 throw new IllegalStateException("Parm is null from colorbar");

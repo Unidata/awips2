@@ -27,10 +27,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
-import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 
 /**
  * Parent Rules xml class
@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
  * ------------ ---------- ----------- --------------------------
  * Dec 19, 2012   1420     mpduff      Initial creation.
  * Jan 14, 2013   1286     djohnson    Correct string conversion of units and use {@link Operator}.
+ * Jan 17, 2013   1357     mpduff      Moved DataSizeUnit.
  * 
  * </pre>
  * 

@@ -288,7 +288,7 @@ public abstract class AbstractRequestableResourceData extends
                 }
             }
         }
-        
+
         this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
     }
 
@@ -683,7 +683,6 @@ public abstract class AbstractRequestableResourceData extends
         int result = 1;
         result = prime * result
                 + ((binOffset == null) ? 0 : binOffset.hashCode());
-        result = prime * result + (isUpdatingOnMetadataOnly ? 1231 : 1237);
         result = prime * result
                 + ((metadataMap == null) ? 0 : metadataMap.hashCode());
         result = prime * result
@@ -721,10 +720,6 @@ public abstract class AbstractRequestableResourceData extends
         AbstractRequestableResourceData other = (AbstractRequestableResourceData) obj;
 
         if (!isObjectsEqual(binOffset, other.binOffset)) {
-            return false;
-        }
-
-        if (isUpdatingOnMetadataOnly != other.isUpdatingOnMetadataOnly) {
             return false;
         }
 
