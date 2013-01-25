@@ -95,6 +95,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Oct 22, 2012  1284      mpduff     Code Cleanup.
  * Dec 03, 2012  1285      bgonzale   Added implementation of the tableLock method.
  *                                    Update title bar text when paused.
+ * Jan 22, 2013  1520      mpduff     Change delete menus to hide.
  * 
  * </pre>
  * 
@@ -272,7 +273,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem setDefaultMI = new MenuItem(fileMenu, SWT.NONE);
         lockableMenuItems.add(setDefaultMI);
-        setDefaultMI.setText("&Set as Default");
+        setDefaultMI.setText("Set as Default");
         setDefaultMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -282,7 +283,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem loadConfigMI = new MenuItem(fileMenu, SWT.NONE);
         lockableMenuItems.add(loadConfigMI);
-        loadConfigMI.setText("&Load Configuration...");
+        loadConfigMI.setText("Load Configuration...");
         loadConfigMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -298,7 +299,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem saveConfigMI = new MenuItem(fileMenu, SWT.NONE);
         lockableMenuItems.add(saveConfigMI);
-        saveConfigMI.setText("&Save Configuration");
+        saveConfigMI.setText("Save Configuration");
         saveConfigMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -308,7 +309,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem saveConfigAsMI = new MenuItem(fileMenu, SWT.NONE);
         lockableMenuItems.add(saveConfigAsMI);
-        saveConfigAsMI.setText("&Save Configuration As...");
+        saveConfigAsMI.setText("Save Configuration As...");
         saveConfigAsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -318,7 +319,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem deleteConfigMI = new MenuItem(fileMenu, SWT.NONE);
         lockableMenuItems.add(deleteConfigMI);
-        deleteConfigMI.setText("&Delete Configuration...");
+        deleteConfigMI.setText("Delete Configuration...");
         deleteConfigMI.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -330,7 +331,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         MenuItem exitMI = new MenuItem(fileMenu, SWT.NONE);
-        exitMI.setText("&Exit");
+        exitMI.setText("Exit");
         exitMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -348,7 +349,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         // Find Menu
         MenuItem findMI = new MenuItem(editMenu, SWT.CASCADE);
         lockableMenuItems.add(findMI);
-        findMI.setText("&Find...");
+        findMI.setText("Find...");
         findMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -356,10 +357,10 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
             }
         });
 
-        MenuItem delPriorityMI = new MenuItem(editMenu, SWT.CASCADE);
-        lockableMenuItems.add(delPriorityMI);
-        delPriorityMI.setText("&Delete by Priority");
-        delPriorityMI.addSelectionListener(new SelectionAdapter() {
+        MenuItem hidePriorityMI = new MenuItem(editMenu, SWT.CASCADE);
+        lockableMenuItems.add(hidePriorityMI);
+        hidePriorityMI.setText("Hide by Priority");
+        hidePriorityMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
 
@@ -367,14 +368,14 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         });
 
         Menu subMenu = new Menu(menuBar);
-        delPriorityMI.setMenu(subMenu);
+        hidePriorityMI.setMenu(subMenu);
 
         createPriorityMenus(subMenu);
 
-        MenuItem deleteOlderMI = new MenuItem(editMenu, SWT.NONE);
-        lockableMenuItems.add(deleteOlderMI);
-        deleteOlderMI.setText("&Delete Older Than Selected");
-        deleteOlderMI.addSelectionListener(new SelectionAdapter() {
+        MenuItem hideOlderMI = new MenuItem(editMenu, SWT.NONE);
+        lockableMenuItems.add(hideOlderMI);
+        hideOlderMI.setText("Hide Older Than Selected");
+        hideOlderMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 tableComp.handleDeleteOlderThan();
@@ -382,10 +383,10 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         });
 
-        MenuItem deleteMI = new MenuItem(editMenu, SWT.NONE);
-        lockableMenuItems.add(deleteMI);
-        deleteMI.setText("&Delete Notification(s)");
-        deleteMI.addSelectionListener(new SelectionAdapter() {
+        MenuItem hideMI = new MenuItem(editMenu, SWT.NONE);
+        lockableMenuItems.add(hideMI);
+        hideMI.setText("Hide Notification(s)");
+        hideMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 tableComp.handleDeleteNotification();
@@ -401,7 +402,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem configureMI = new MenuItem(settingsMenu, SWT.NONE);
         lockableMenuItems.add(configureMI);
-        configureMI.setText("&Configure Table...");
+        configureMI.setText("Configure Table...");
         configureMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -411,7 +412,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         MenuItem filterMI = new MenuItem(settingsMenu, SWT.NONE);
         lockableMenuItems.add(filterMI);
-        filterMI.setText("&Filter Table...");
+        filterMI.setText("Filter Table...");
         filterMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -420,7 +421,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         });
 
         tooltipMI = new MenuItem(settingsMenu, SWT.CHECK);
-        tooltipMI.setText("&Tooltips");
+        tooltipMI.setText("Tooltips");
         tooltipMI.setSelection(false);
         tooltipMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -438,7 +439,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         helpMenuItem.setMenu(helpMenu);
 
         MenuItem helpNotTableMI = new MenuItem(helpMenu, SWT.NONE);
-        helpNotTableMI.setText("&About Notification Center...");
+        helpNotTableMI.setText("About Notification Center...");
         helpNotTableMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {

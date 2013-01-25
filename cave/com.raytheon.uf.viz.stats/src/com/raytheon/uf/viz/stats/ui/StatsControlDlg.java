@@ -69,7 +69,8 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 25, 2012            mpduff     Initial creation
+ * Sep 25, 2012   1357     mpduff      Initial creation.
+ * Jan 17, 2013   1357     mpduff      Added timestep settings.
  * 
  * </pre>
  * 
@@ -92,7 +93,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
             TimeUtil.MILLIS_PER_HOUR * 3, TimeUtil.MILLIS_PER_HOUR * 6,
             TimeUtil.MILLIS_PER_HOUR * 12, TimeUtil.MILLIS_PER_DAY,
             TimeUtil.MILLIS_PER_WEEK, TimeUtil.MILLIS_PER_WEEK * 2,
-            TimeUtil.MILLIS_PER_MONTH };
+            TimeUtil.MILLIS_PER_30_DAYS };
 
     /** Date Format object */
     private final ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDateFormat>() {
@@ -619,7 +620,24 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         }
         TimeRange tr = new TimeRange(start, end);
         request.setTimeRange(tr);
-        request.setTimeStep(5);
+
+        if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR) {
+            request.setTimeStep(5);
+        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 3) {
+            request.setTimeStep(5);
+        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 6) {
+            request.setTimeStep(10);
+        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 12) {
+            request.setTimeStep(20);
+        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_HOUR * 24) {
+            request.setTimeStep(40);
+        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_DAY * 7) {
+            request.setTimeStep(240);
+        } else if (tr.getDuration() <= TimeUtil.MILLIS_PER_DAY * 14) {
+            request.setTimeStep(480);
+        } else {
+            request.setTimeStep(1000);
+        }
 
         try {
             GraphDataResponse response = (GraphDataResponse) ThriftClient
