@@ -24,11 +24,11 @@ import javax.xml.bind.JAXBException;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.OperatorTypes;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
-import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 
 /**
  * Test {@link LatencyRulesXML}.
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2013 1286       djohnson     Initial creation
+ * Jan 17, 2013 1357       mpduff       DataSizeUnits was moved.
  * 
  * </pre>
  * 

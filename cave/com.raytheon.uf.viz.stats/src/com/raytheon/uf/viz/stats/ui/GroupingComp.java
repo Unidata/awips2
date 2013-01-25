@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.stats.ui;
 
 /**
- * TODO Add Description
+ * Grouping Composite for the Stats Graph.
  *
  * <pre>
  *
@@ -36,10 +36,13 @@ package com.raytheon.uf.viz.stats.ui;
  * @version 1.0
  */
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
@@ -59,22 +62,25 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.raytheon.uf.common.stats.data.GraphData;
 
 /**
  * Composites that contains the controls to change colors and to determine what
  * is displayed.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 16, 2012            lvenable     Initial creation
- *
+ * Oct 16, 2012            lvenable    Initial creation
+ * Jan 11, 2013   1357     mpduff      Implement.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -106,9 +112,11 @@ public class GroupingComp extends Composite implements IGroupSelection {
     /** Grouping callback */
     private final IStatsGroup callback;
 
+    private final List<SelectionEntry> selectionEntries = new ArrayList<SelectionEntry>();
+
     /**
      * Constructor.
-     *
+     * 
      * @param parentComp
      *            Parent composite.
      * @param swtStyle
@@ -191,12 +199,26 @@ public class GroupingComp extends Composite implements IGroupSelection {
      */
     private void createControls() {
         List<String> keyArray = graphData.getKeysWithData();
+        Map<String, List<String>> grpNameMap = graphData.getGroupAndNamesMap();
 
+        // Create the Selection Entry objects
         for (String key : keyArray) {
+            SelectionEntry se = new SelectionEntry();
+            String[] parts = colonPattern.split(key);
+
+            Set<String> grpNames = grpNameMap.keySet();
+            Iterator<String> iter = grpNames.iterator();
+            for (int i = 0; i < grpNames.size(); i++) {
+                se.addPair(iter.next(), parts[i]);
+            }
+            this.selectionEntries.add(se);
+        }
+
+        for (SelectionEntry se : selectionEntries) {
             GridData gd = new GridData(20, 10);
             Label lbl = new Label(controlComp, SWT.BORDER);
             lbl.setLayoutData(gd);
-            lbl.setData(key);
+            lbl.setData(se);
             lbl.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseDown(MouseEvent e) {
@@ -206,8 +228,9 @@ public class GroupingComp extends Composite implements IGroupSelection {
             });
 
             Button btn = new Button(controlComp, SWT.CHECK);
-            btn.setText(key);
+            btn.setText(se.toString());
             btn.setSelection(true);
+            btn.setData(se);
             btn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -216,8 +239,8 @@ public class GroupingComp extends Composite implements IGroupSelection {
                 }
             });
 
-            labelMap.put(key, lbl);
-            checkBtnMap.put(key, btn);
+            labelMap.put(se.toString(), lbl);
+            checkBtnMap.put(se.toString(), btn);
         }
     }
 
@@ -245,22 +268,22 @@ public class GroupingComp extends Composite implements IGroupSelection {
                 displaySelectionMgrDlg();
             }
         });
-// Not including this functionality in the branch.
-//        gd = new GridData(buttonWidth, SWT.DEFAULT);
-//        Button colorMgrBtn = new Button(buttonComp, SWT.PUSH);
-//        colorMgrBtn.setText("Color Manager...");
-//        colorMgrBtn.setLayoutData(gd);
-//        colorMgrBtn.addSelectionListener(new SelectionAdapter() {
-//            @Override
-//            public void widgetSelected(SelectionEvent e) {
-//                displayColorMgrDlg();
-//            }
-//        });
+        // Not including this functionality in the branch.
+        // gd = new GridData(buttonWidth, SWT.DEFAULT);
+        // Button colorMgrBtn = new Button(buttonComp, SWT.PUSH);
+        // colorMgrBtn.setText("Color Manager...");
+        // colorMgrBtn.setLayoutData(gd);
+        // colorMgrBtn.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // displayColorMgrDlg();
+        // }
+        // });
     }
 
     /**
      * Handle the check button event.
-     *
+     * 
      * @param btn
      *            Check box being checked/unchecked.
      */
@@ -278,13 +301,13 @@ public class GroupingComp extends Composite implements IGroupSelection {
 
     /**
      * Handle the color label that is being clicked.
-     *
+     * 
      * @param lbl
      *            Label that was clicked.
      */
     private void handleLabelClickEvent(Label lbl) {
         RGB rgb = lbl.getBackground().getRGB();
-        String key = (String) lbl.getData();
+        String key = ((SelectionEntry) lbl.getData()).toString();
 
         ColorDialog colorDlg = new ColorDialog(this.getShell());
         colorDlg.setRGB(rgb);
@@ -343,36 +366,30 @@ public class GroupingComp extends Composite implements IGroupSelection {
         if (selectionMangerDlg == null || selectionMangerDlg.isDisposed()) {
             selectionMangerDlg = new SelectionManagerDlg(getShell(), graphData,
                     this);
-            selectionMangerDlg.open();
-        } else {
-            selectionMangerDlg.bringToTop();
         }
+
+        selectionMangerDlg.open();
     }
 
     /**
      * Display the Color Manager dialog.
      */
     // Implementing in the next release.
-//    private void displayColorMgrDlg() {
-//        ColorManagerDlg dlg = new ColorManagerDlg(getShell(), graphData, this);
-//        dlg.open();
-//    }
+    // private void displayColorMgrDlg() {
+    // ColorManagerDlg dlg = new ColorManagerDlg(getShell(), graphData, this);
+    // dlg.open();
+    // }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void setSelections(Map<String, Map<String, Boolean>> selectionMap) {
-        List<String> keySequence = graphData.getKeySequence();
-
-        Map<String, List<String>> offMap = new HashMap<String, List<String>>();
+        Multimap<String, String> offMap = ArrayListMultimap.create();
         for (String key : selectionMap.keySet()) {
             for (String selection : selectionMap.get(key).keySet()) {
                 if (!selectionMap.get(key).get(selection)) {
-                    if (!offMap.containsKey(key)) {
-                        offMap.put(key, new ArrayList<String>());
-                    }
-                    offMap.get(key).add(selection);
+                    offMap.put(key, selection);
                 }
             }
         }
@@ -385,24 +402,52 @@ public class GroupingComp extends Composite implements IGroupSelection {
             }
         } else {
             for (String btnKey : checkBtnMap.keySet()) {
-                String[] parts = colonPattern.split(btnKey);
+                Button b = checkBtnMap.get(btnKey);
+                SelectionEntry se = (SelectionEntry) b.getData();
 
-                for (String group : offMap.keySet()) {
-                    for (String part : parts) {
-                        int idx = keySequence.indexOf(part);
-                        if (idx >= 0 && offMap.get(group).contains(keySequence.get(idx))) {
-                            checkBtnMap.get(btnKey).setSelection(false);
-                            keyRgbMap.remove(btnKey);
-                        } else {
-                            checkBtnMap.get(btnKey).setSelection(true);
-                            keyRgbMap.put(btnKey, labelMap.get(btnKey)
-                                    .getBackground().getRGB());
-                        }
+                for (String key : offMap.keySet()) {
+                    Collection<String> valueList = offMap.get(key);
+                    if (valueList.contains(se.getValue(key))) {
+                        checkBtnMap.get(btnKey).setSelection(false);
+                        keyRgbMap.remove(btnKey);
+                    } else {
+                        checkBtnMap.get(btnKey).setSelection(true);
+                        keyRgbMap.put(btnKey, labelMap.get(btnKey)
+                                .getBackground().getRGB());
                     }
                 }
             }
         }
 
         fireCallback();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setItemsOff(List<String> keys) {
+        for (String key : keys) {
+            if (checkBtnMap.containsKey(key)) {
+                checkBtnMap.get(key).setSelection(false);
+                keyRgbMap.remove(key);
+            }
+        }
+
+        fireCallback();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, Boolean> getStates() {
+        Map<String, Boolean> stateMap = new HashMap<String, Boolean>();
+
+        for (Map.Entry<String, Button> state : checkBtnMap.entrySet()) {
+            stateMap.put(state.getKey(), state.getValue().getSelection());
+        }
+
+        return stateMap;
     }
 }

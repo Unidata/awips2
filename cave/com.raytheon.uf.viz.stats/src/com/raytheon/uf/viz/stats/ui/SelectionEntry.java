@@ -1,33 +1,30 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.viz.stats.ui;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.common.stats.data.GraphData;
-import com.raytheon.uf.common.stats.util.UnitUtils;
-
 /**
- * Stats display interface.
+ * Stats Graph Item.
  * 
  * <pre>
  * 
@@ -35,47 +32,56 @@ import com.raytheon.uf.common.stats.util.UnitUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012     728     mpduff      Initial creation
+ * Jan 24, 2013            mpduff     Initial creation
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
+public class SelectionEntry {
+    private final Map<String, String> values = new LinkedHashMap<String, String>();
 
-public interface IStatsDisplay {
-    /**
-     * Get the GraphData object
-     * 
-     * @return GraphData
-     */
-    GraphData getGraphData();
+    private boolean checked = true;
 
-    /**
-     * Draw grid lines flag
-     * 
-     * @return true to draw the grid lines
-     */
-    boolean drawGridLines();
+    public SelectionEntry() {
 
-    /**
-     * Draw data lines flag
-     * 
-     * @return true to draw the data lines
-     */
-    boolean drawDataLines();
+    }
+
+    public void addPair(String key, String value) {
+        values.put(key, value);
+    }
+
+    public String getValue(String key) {
+        return values.get(key);
+    }
 
     /**
-     * Get the group settings.
-     * 
-     * @return The group settings map
+     * @return the checked
      */
-    Map<String, RGB> getGroupSettings();
+    public boolean isChecked() {
+        return checked;
+    }
 
     /**
-     * Get the UnitUtils object.
-     * 
-     * @return the UnitUtils object
+     * @param checked
+     *            the checked to set
      */
-    UnitUtils getUnitUtils();
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        for (Iterator<String> iter = values.values().iterator(); iter.hasNext();) {
+            sb.append(iter.next());
+            if (iter.hasNext()) {
+                sb.append(":");
+            }
+        }
+
+        return sb.toString();
+    }
 }
