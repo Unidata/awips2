@@ -22,11 +22,19 @@ package com.raytheon.viz.ui.cmenu;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
+import com.raytheon.viz.ui.dialogs.SetOpacityDialog;
+import com.raytheon.viz.ui.dialogs.SetOpacityDialog.IOpacityChangedListener;
 
 /**
  * Action to set the shading field for a resource
@@ -133,6 +141,10 @@ public class ShadedAction extends AbstractRightClickAction implements
                 aci.fill(menu, -1);
             }
         }
+        new Separator().fill(menu, -1);
+
+        aci = new ActionContributionItem(new SetAlphaInternalAction());
+        aci.fill(menu, -1);
     }
 
     private class SetShadingInternalAction extends Action {
@@ -161,9 +173,9 @@ public class ShadedAction extends AbstractRightClickAction implements
          */
         @Override
         public void run() {
-            getTopMostSelectedResource().getCapability(
-                    ShadeableCapability.class).setShadingField(field);
-            getContainer().refresh();
+            AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
+            rsc.getCapability(ShadeableCapability.class).setShadingField(field);
+            rsc.issueRefresh();
         }
 
         /*
@@ -184,5 +196,50 @@ public class ShadedAction extends AbstractRightClickAction implements
             return field.toUpperCase();
         }
 
+    }
+
+    private class SetAlphaInternalAction extends Action {
+
+        public SetAlphaInternalAction() {
+            super("Set Opacity", Action.AS_PUSH_BUTTON);
+            String currentField = getTopMostSelectedResource().getCapability(
+                    ShadeableCapability.class).getShadingField();
+        }
+
+        @Override
+        public String getText() {
+            int opacity = (int) (getTopMostSelectedResource().getCapability(
+                    ShadeableCapability.class).getOpacity() * 100);
+            return String.format("Set Opacity (%d%%)", opacity);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.jface.action.Action#run()
+         */
+        @Override
+        public void run() {
+            final AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            float opacity = rsc.getCapability(ShadeableCapability.class)
+                    .getOpacity();
+            RGB rgb;
+            if (rsc.hasCapability(ColorableCapability.class)) {
+                rgb = rsc.getCapability(ColorableCapability.class).getColor();
+            } else {
+                rgb = new RGB(0, 255, 255);
+            }
+            SetOpacityDialog dlg = new SetOpacityDialog(shell, opacity, rgb);
+            dlg.addOpacityChangedListener(new IOpacityChangedListener() {
+                @Override
+                public void opacityChanged(float opacity) {
+                    rsc.getCapability(ShadeableCapability.class).setOpacity(
+                            opacity);
+                }
+            });
+            dlg.open();
+        }
     }
 }
