@@ -207,7 +207,7 @@ public class BandwidthUtil {
         // will have to revisit when other data type are introduced.
         // perhaps minute of the day?
         dao.setCycle(baseReferenceTime.get(Calendar.HOUR_OF_DAY));
-        dao.setPriority(subscription.getPriority());
+        dao.setPriority(subscription.getPriority().getPriorityValue());
         dao.setRegistryId(subscription.getId());
         return dao;
     }
