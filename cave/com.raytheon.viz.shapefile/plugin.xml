@@ -45,6 +45,7 @@
             commandId="com.raytheon.viz.shapefile.shapefileImport">
       </handler>
    </extension>
+   <!--
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
@@ -56,5 +57,6 @@
          </command>
       </menuContribution>
    </extension>
+   -->
 
 </plugin>

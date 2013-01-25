@@ -618,7 +618,8 @@ public class LocalizationManager implements IPropertyChangeListener {
         // Clean up any stale files that don't exist anymore
         for (File check : toCheck) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            if (available.contains(check) == false) {
+            // hidden files are not returned from server so ignore those
+            if (check.isHidden() == false && available.contains(check) == false) {
                 String name = check.getName();
                 // Make sure python object files don't get removed when
                 // .py file is still available
