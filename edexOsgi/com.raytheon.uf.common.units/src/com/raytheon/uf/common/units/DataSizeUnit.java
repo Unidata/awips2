@@ -1,4 +1,4 @@
-package com.raytheon.uf.viz.datadelivery.utils;
+package com.raytheon.uf.common.units;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * Enumeration for Data Size units and conversions. Based off of TimeUnit class.
@@ -19,13 +18,14 @@ import javax.xml.bind.annotation.XmlType;
  * ------------ ---------- ----------- --------------------------
  * Jan 08, 2013 1420       mpduff       Initial creation.
  * Jan 14, 2013 1286       djohnson     Add lookup map via string version.
+ * Jan 17, 2013 1357       mpduff       Moved to com.raytheon.uf.common.units so other plugins can use it.
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-@XmlType(name = "ruleUnit")
+
 @XmlEnum
 public enum DataSizeUnit {
     @XmlEnumValue("Byte")
