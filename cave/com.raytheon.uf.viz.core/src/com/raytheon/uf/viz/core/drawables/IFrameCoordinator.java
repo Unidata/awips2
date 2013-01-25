@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.drawables;
 
+import java.util.Date;
+
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 
 /**
@@ -86,6 +89,20 @@ public interface IFrameCoordinator {
      * @param mode
      */
     public void changeFrame(FrameChangeOperation operation, FrameChangeMode mode);
+
+    /**
+     * Tell the coordinator to change the frame given the desired time
+     * 
+     * @param frameTime
+     */
+    public void changeFrame(Date frameTime);
+
+    /**
+     * Tell the coordinator to change the frame given the desired time
+     * 
+     * @param frameTime
+     */
+    public void changeFrame(DataTime frameTime);
 
     /**
      * Get the coordinators current animation mode

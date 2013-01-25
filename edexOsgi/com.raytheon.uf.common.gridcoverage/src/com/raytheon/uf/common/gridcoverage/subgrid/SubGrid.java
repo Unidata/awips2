@@ -36,9 +36,6 @@ package com.raytheon.uf.common.gridcoverage.subgrid;
  */
 public class SubGrid {
 
-    /** The model name */
-    private String modelName;
-
     /** the upper left x the subgrid will start with */
     private int upperLeftX;
 
@@ -125,21 +122,6 @@ public class SubGrid {
 
     public void setUpperRightLon(double upperRightLon) {
         this.upperRightLon = upperRightLon;
-    }
-
-    /**
-     * @return the modelName
-     */
-    public String getModelName() {
-        return modelName;
-    }
-
-    /**
-     * @param modelName
-     *            the modelName to set
-     */
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
     }
 
 }

@@ -26,9 +26,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -37,236 +36,189 @@ import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Dialog to display the control for adding a new zone.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
- *
+ * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public class AddNewZoneDlg extends Dialog
-{
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-    
-    /**
-     * The display control.
-     */
-    private Display display;
-    
-    /**
-     * Return value when the shell is disposed.
-     */
-    private Boolean returnValue = false;
-    
+public class AddNewZoneDlg extends CaveSWTDialog {
+
     /**
      * Application name.
      */
-    private CommonConfig.AppName appName;
-    
+    private AppName appName;
+
     /**
      * Marine zone radio button.
      */
     private Button marineZoneRdo;
-    
+
     /**
      * County radio button.
      */
     private Button countyRdo;
-    
+
     /**
      * ID text control.
      */
     private Text idTF;
-    
+
     /**
      * Centroid latitude text control.
      */
     private Text centroidLatTF;
-    
+
     /**
      * Centroid longitude text control.
      */
     private Text centroidLonTF;
-    
-    private Button marineRdo;
-    
-    private Button nonMarineRdo;
-    
-    private INewZoneStnAction macDlg; 
-    
+
+    /**
+     * Call back interface.
+     */
+    private INewZoneStnAction macDlg;
+
+    /**
+     * Area configuration manager.
+     */
+    private MonitorConfigurationManager configMan;
+
     /**
      * Constructor.
-     * @param parent Parent shell.
-     * @param appName Application name.
+     * 
+     * @param parent
+     *            Parent shell.
+     * @param appName
+     *            Application name.
      */
-    public AddNewZoneDlg(Shell parent, CommonConfig.AppName appName, INewZoneStnAction macDlg)
-    {    
-        super(parent, 0);
-        
+    public AddNewZoneDlg(Shell parent, AppName appName, INewZoneStnAction macDlg) {
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        setText(appName.toString() + ": Add a New Zone to Monitor Area.");
         this.appName = appName;
         this.macDlg = macDlg;
+        configMan = getConfigManager(appName);
     }
-    
-    /**
-     * Open method used to display the dialog.
-     * @return True/False.
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
-    public Object open()
-    {        
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("Add a New Zone");
-        
-        // Create the main layout for the shell.
+    @Override
+    protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 2;
         mainLayout.marginWidth = 2;
         mainLayout.verticalSpacing = 2;
-        shell.setLayout(mainLayout);
-      
-        // Initialize all of the controls and layouts
-        initializeComponents();
-        
-        shell.pack();
-        
-        shell.open();
-        while (!shell.isDisposed())
-        {
-            if (!display.readAndDispatch())
-            {
-                display.sleep();
-            }
-        }
-        
-        return returnValue;
+        return mainLayout;
     }
-    
-    /**
-     * Initialize the components on the display.
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
-    private void initializeComponents()
-    {
-        if (appName != CommonConfig.AppName.SNOW)
-        {
+    @Override
+    protected void initializeComponents(Shell shell) {
+        setReturnValue(false);
+        if (appName != AppName.SNOW) {
             createTopZoneCountyControls();
-        }
-        else
-        {
+        } else {
             createCountyZoneLabels();
         }
-        
         createTextControls();
         createBottomButtons();
     }
-    
+
     /**
-     * Create the top zone county controls.
+     * Creates the top zone county controls.
      */
-    private void createTopZoneCountyControls()
-    {
+    private void createTopZoneCountyControls() {
         Composite topComp = new Composite(shell, SWT.NONE);
         topComp.setLayout(new GridLayout(2, true));
         topComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        
         /*
          * Add the label.
          */
         Label topLbl = new Label(topComp, SWT.RIGHT);
         topLbl.setText("Please type in a new: ");
         topLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-        
         /*
          * Add the radio controls.
          */
         Composite radioComp = new Composite(topComp, SWT.NONE);
         radioComp.setLayout(new GridLayout(1, false));
-        
         marineZoneRdo = new Button(radioComp, SWT.RADIO);
         marineZoneRdo.setText("Marine Zone");
         marineZoneRdo.setSelection(true);
-        
         countyRdo = new Button(radioComp, SWT.RADIO);
         countyRdo.setText("County");
     }
-    
+
     /**
-     * Create the county zone labels.
+     * Creates the county zone labels.
      */
-    private void createCountyZoneLabels()
-    {
+    private void createCountyZoneLabels() {
         Composite labelComp = new Composite(shell, SWT.NONE);
         labelComp.setLayout(new GridLayout(1, false));
-        labelComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        
+        labelComp
+                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         Label topLbl = new Label(labelComp, SWT.CENTER);
         topLbl.setText("Please type in a new county/zone");
         topLbl.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
     }
-    
+
     /**
-     * Create the text controls.
+     * Creates the text controls.
      */
-    private void createTextControls()
-    {
+    private void createTextControls() {
         Composite textComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(2, false);
         gl.verticalSpacing = 10;
         textComp.setLayout(gl);
         textComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        
+
         GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label idLbl = new Label(textComp, SWT.RIGHT);
         idLbl.setText("Id (e.g. AMZ080):");
         idLbl.setLayoutData(gd);
-        
+
         idTF = new Text(textComp, SWT.BORDER);
         idTF.setLayoutData(new GridData(120, SWT.DEFAULT));
-        
+
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label centroidLatLbl = new Label(textComp, SWT.RIGHT);
         centroidLatLbl.setText("Centroid Lat (e.g. 29.198):");
         centroidLatLbl.setLayoutData(gd);
-        
+
         centroidLatTF = new Text(textComp, SWT.BORDER);
         centroidLatTF.setLayoutData(new GridData(120, SWT.DEFAULT));
-        
+
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label centroidLonLbl = new Label(textComp, SWT.RIGHT);
         centroidLonLbl.setText("Centroid Lon (e.g. -71.75):");
         centroidLonLbl.setLayoutData(gd);
-        
+
         centroidLonTF = new Text(textComp, SWT.BORDER);
         centroidLonTF.setLayoutData(new GridData(120, SWT.DEFAULT));
-        
-
-        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // marineRdo = new Button(textComp, SWT.RADIO);
-        // marineRdo.setLayoutData(gd);
-        // marineRdo.setSelection(false);
-        // marineRdo.setText("Marine Station");
-        //
-        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // nonMarineRdo = new Button(textComp, SWT.RADIO);
-        // nonMarineRdo.setLayoutData(gd);
-        // nonMarineRdo.setSelection(true);
-        // nonMarineRdo.setText("Non-Marine Station");
-        
         /*
          * Create the Use Decimal label.
          */
@@ -276,113 +228,132 @@ public class AddNewZoneDlg extends Dialog
         useDecimalLbl.setText("Use Decimal Degrees, West Longitude negative");
         useDecimalLbl.setLayoutData(gd);
     }
-    
+
     /**
-     * Create the bottom Add and Close buttons.
+     * Creates the bottom Add and Close buttons.
      */
-    private void createBottomButtons()
-    {        
+    private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
         mainButtonComp.setLayout(new GridLayout(1, false));
         mainButtonComp.setLayoutData(gd);
-        
+
         // Add a separator label.
         Label sepLbl = new Label(mainButtonComp, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
-        
+
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, false));
         buttonComp.setLayoutData(gd);
-        
+
         gd = new GridData(100, SWT.DEFAULT);
         Button addBtn = new Button(buttonComp, SWT.PUSH);
         addBtn.setText("Add");
         addBtn.setLayoutData(gd);
-        addBtn.addSelectionListener(new SelectionAdapter()
-        {
+        addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event)
-            {
-            	String latString = centroidLatTF.getText();
+            public void widgetSelected(SelectionEvent event) {
+                String latString = centroidLatTF.getText();
                 String lonString = centroidLonTF.getText();
-
-                if (((latString != null) && (latString.length() > 0)) && 
-                        (lonString != null) && (lonString.length() > 0)) {
-                    double lat;
-                    double lon;
-                    try {
-                        lat = Double.parseDouble(latString);
-                        lon = Double.parseDouble(lonString);
-
-                        handleAddNewAction(lat, lon);
-                    } catch (NumberFormatException e) {
-                        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-                        messageBox.setText("Invalid Lat/Lon");
-                        messageBox.setMessage("Invalid Lat/Lon entered.  Please enter correctly formatted Lat/Lon values");
-                        messageBox.open();
-                    }
-
-                    //shell.dispose();
-                } else {
-                    MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-                    messageBox.setText("Invalid Lat/Lon");
-                    messageBox.setMessage("Invalid Lat/Lon entered.  Please enter correctly formatted Lat/Lon values");
-                    messageBox.open();
-                }
+                handleAddNewAction(latString, lonString);
             }
         });
-        
+
         gd = new GridData(100, SWT.DEFAULT);
         Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
-        closeBtn.addSelectionListener(new SelectionAdapter()
-        {
+        closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event)
-            {
-                shell.dispose();
+            public void widgetSelected(SelectionEvent event) {
+                setReturnValue(true);
+                close();
             }
         });
     }
-    
-    private void handleAddNewAction(double lat, double lon) {
-        String areaId = idTF.getText();
-        if ( areaId.length() != 6 || (areaId.charAt(2) != 'C' && areaId.charAt(2) != 'Z') ) {
-        	displayInputErrorMsg("Invalid Area ID entered. Please enter a correctly formatted Area ID"); 
-        	return;
-        }
-        if ( macDlg.isExistingZone(areaId) ) {
-        	displayInputErrorMsg("The Area ID, " + areaId + ", is already in your Monitoring Area or among your Additional Zones"); 
-        	return;
-        }
-        
-        ZoneType type = ZoneType.REGULAR;
-        if (marineRdo.getSelection()) {
-            type = ZoneType.MARITIME;
-        }
 
-        MonitorConfigurationManager configManager = null; 
-        if ( appName == CommonConfig.AppName.FOG ) {
-        	configManager = FogMonitorConfigurationManager.getInstance();
-        } else if ( appName == CommonConfig.AppName.SAFESEAS ) {
-        	configManager = SSMonitorConfigurationManager.getInstance();
-        } else if ( appName == CommonConfig.AppName.SNOW ) {
-        	configManager = SnowMonitorConfigurationManager.getInstance();
-        } else {
-        	return;
+    /**
+     * Adds a new zone.
+     * 
+     * @param latString
+     * @param lonString
+     */
+    private void handleAddNewAction(String latString, String lonString) {
+        String areaId = idTF.getText();
+        if (areaId.equals("") || areaId.length() != 6
+                || (areaId.charAt(2) != 'C' && areaId.charAt(2) != 'Z')) {
+            displayInputErrorMsg("Invalid Area ID entered. Please enter a correctly formatted Area ID");
+            return;
         }
-        	configManager.addArea(areaId, lat, lon, type, false);
-            macDlg.addNewZoneAction(areaId, centroidLatTF.getText(), centroidLonTF.getText());
-                
+        if (macDlg.isExistingZone(areaId)) {
+            displayInputErrorMsg("The Area ID, "
+                    + areaId
+                    + ", is already in your Monitoring Area or among your Additional Zones");
+            return;
+        }
+        if (latString == null || latString.isEmpty() || lonString == null
+                || lonString.isEmpty()) {
+            MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
+                    | SWT.OK);
+            messageBox.setText("Invalid Lat/Lon");
+            messageBox
+                    .setMessage("Invalid Lat/Lon entered.  Please enter correctly formatted Lat and Lon values");
+            messageBox.open();
+            return;
+        } else {
+            try {
+                double lat = Double.parseDouble(latString.trim());
+                double lon = Double.parseDouble(lonString.trim());
+                ZoneType type = ZoneType.REGULAR;
+                if (appName != AppName.SNOW) {
+                    if (marineZoneRdo.getSelection()) {
+                        type = ZoneType.MARITIME;
+                    }
+                }
+                configMan.addArea(areaId, lat, lon, type, false);
+                macDlg.addNewZoneAction(areaId, centroidLatTF.getText(),
+                        centroidLonTF.getText());
+            } catch (NumberFormatException e) {
+                MessageBox messageBox = new MessageBox(shell,
+                        SWT.ICON_INFORMATION | SWT.OK);
+                messageBox.setText("Invalid Lat/Lon");
+                messageBox
+                        .setMessage("Invalid Lat/Lon entered.  Please enter correctly formatted Lat and Lon values");
+                messageBox.open();
+                return;
+            }
+        }
     }
 
-	private void displayInputErrorMsg(String msg) {
-        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+    /**
+     * Displays Input Error Message
+     * 
+     * @param msg
+     */
+    private void displayInputErrorMsg(String msg) {
+        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
+                | SWT.OK);
         messageBox.setText("Invalid input");
         messageBox.setMessage(msg);
         messageBox.open();
-	}
+    }
+
+    /**
+     * Gets Configuration Manager.
+     * 
+     * @param app
+     * @return manager
+     */
+    private MonitorConfigurationManager getConfigManager(AppName app) {
+        MonitorConfigurationManager mngr = null;
+        if (app == AppName.FOG) {
+            mngr = FogMonitorConfigurationManager.getInstance();
+        } else if (app == AppName.SAFESEAS) {
+            mngr = SSMonitorConfigurationManager.getInstance();
+        } else if (app == AppName.SNOW) {
+            mngr = SnowMonitorConfigurationManager.getInstance();
+        }
+        return mngr;
+    }
 }

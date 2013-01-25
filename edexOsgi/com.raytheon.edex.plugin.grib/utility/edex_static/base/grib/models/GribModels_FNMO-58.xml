@@ -20,7 +20,6 @@
 		<process>
 			<id>58</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 	<model>
@@ -31,7 +30,6 @@
 		<process>
 			<id>58</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 	<model>
@@ -42,7 +40,6 @@
 		<process>
 			<id>58</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 	<model>
@@ -54,7 +51,6 @@
 			<id>50</id>
 			<id>58</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 	<model>
@@ -66,7 +62,6 @@
 			<id>50</id>
 			<id>58</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 	<model>
@@ -127,7 +122,6 @@
 		<process>
 			<id>120</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 	<model>
@@ -138,7 +132,6 @@
 		<process>
 			<id>120</id>
 		</process>
-		<paramInfo>nogaps</paramInfo>
 	</model>
 
 

@@ -663,7 +663,6 @@ public abstract class PluginDao extends CoreDao {
                                 if (rule.isPeriodSpecified()
                                         && refTime.before(periodCutoffTime)) {
                                     timesPurgedByRule.add(refTime);
-
                                 } else {
                                     timesKeptByRule.add(refTime);
                                 }
@@ -715,17 +714,16 @@ public abstract class PluginDao extends CoreDao {
                 for (int i = 0; i < refTimesForKey.size(); i++) {
                     currentRefTime = refTimesForKey.get(i);
                     if (i < rule.getVersionsToKeep()) {
+                        // allow for period to override versions to keep
                         if (rule.isPeriodSpecified()
                                 && currentRefTime.before(periodCutoffTime)) {
                             timesPurgedByRule.add(currentRefTime);
                         } else {
                             timesKeptByRule.add(currentRefTime);
                         }
-                        timesKeptByRule.add(currentRefTime);
                     } else {
                         timesPurgedByRule.add(currentRefTime);
                     }
-
                 }
                 /*
                  * This rule only specifies a time cutoff
@@ -781,10 +779,6 @@ public abstract class PluginDao extends CoreDao {
         // then it will be retained
         timesPurged.removeAll(timesKept);
 
-        int itemsDeletedForKey = 0;
-        List<Date> orderedTimesPurged = new ArrayList<Date>(timesPurged);
-        Collections.sort(orderedTimesPurged);
-
         // flags to control how hdf5 is purged and what needs to be returned
         // from the database purge to properly purge hdf5. If purging and
         // trackToUri is false, hdf5PurgeDates is used to determine if the
@@ -793,9 +787,10 @@ public abstract class PluginDao extends CoreDao {
         // TODO: Update to allow files to not be in hourly granularity
         boolean purgeHdf5Data = false;
         boolean trackToUri = false;
-        Set<Date> hdf5PurgeDates = new HashSet<Date>();
 
         try {
+            Set<Date> roundedTimesKept = new HashSet<Date>();
+
             // Determine if this plugin uses HDF5 to store data
             purgeHdf5Data = (PluginFactory.getInstance()
                     .getPluginRecordClass(pluginName).newInstance() instanceof IPersistable);
@@ -822,22 +817,12 @@ public abstract class PluginDao extends CoreDao {
                         trackToUri = true;
                     } else {
                         // need to compare each key to check for optimized
-                        // purge,
-                        // all productKeys must be a pathKey for optimized
-                        // purge,
-                        // both key lists should be small 3 or less, no need to
-                        // optimize list look ups
+                        // purge, all productKeys must be a pathKey for
+                        // optimized purge, both key lists should be small 3 or
+                        // less, no need to optimize list look ups
                         trackToUri = false;
                         for (String productKey : productKeys.keySet()) {
-                            boolean keyMatch = false;
-                            for (String pathKey : pathKeys) {
-                                if (pathKey.equals(productKey)) {
-                                    keyMatch = true;
-                                    break;
-                                }
-                            }
-
-                            if (!keyMatch) {
+                            if (!pathKeys.contains(productKey)) {
                                 trackToUri = true;
                                 break;
                             }
@@ -849,17 +834,22 @@ public abstract class PluginDao extends CoreDao {
                 }
 
                 // we can optimize purge, sort dates by hour to determine files
-                // to drop
+                // to drop, also don't remove from metadata if we are keeping
+                // the hdf5 around
                 if (!trackToUri) {
-                    Set<Date> roundedTimesKept = new HashSet<Date>();
-
                     for (Date dateToRound : timesKept) {
                         roundedTimesKept.add(roundDateToHour(dateToRound));
                     }
-                    for (Date dateToRound : timesPurged) {
-                        Date roundedDate = roundDateToHour(dateToRound);
-                        if (!roundedTimesKept.contains(roundedDate)) {
-                            hdf5PurgeDates.add(dateToRound);
+
+                    Iterator<Date> purgeTimeIterator = timesPurged.iterator();
+
+                    while (purgeTimeIterator.hasNext()) {
+                        Date purgeTime = purgeTimeIterator.next();
+
+                        // keeping this hdf5 file, remove the purge time
+                        if (roundedTimesKept
+                                .contains(roundDateToHour(purgeTime))) {
+                            purgeTimeIterator.remove();
                         }
                     }
                 }
@@ -870,23 +860,48 @@ public abstract class PluginDao extends CoreDao {
                     this.pluginName, e);
         }
 
+        int itemsDeletedForKey = 0;
+        List<Date> orderedTimesPurged = new ArrayList<Date>(timesPurged);
+        Collections.sort(orderedTimesPurged);
+
         Map<String, List<String>> hdf5FileToUriMap = new HashMap<String, List<String>>();
+        Date previousRoundedDate = null;
         for (Date deleteDate : orderedTimesPurged) {
-            boolean purgeHdf5ForRefTime = purgeHdf5Data;
-            // if we aren't tracking by uri, check hdf5 date map
-            if (purgeHdf5ForRefTime && !trackToUri) {
-                purgeHdf5ForRefTime = hdf5PurgeDates.contains(deleteDate);
-            }
+            Date roundedDate = roundDateToHour(deleteDate);
 
             // Delete the data in the database
             int itemsDeletedForTime = purgeDataByRefTime(deleteDate,
-                    productKeys, purgeHdf5ForRefTime, trackToUri,
-                    hdf5FileToUriMap);
+                    productKeys, purgeHdf5Data, trackToUri, hdf5FileToUriMap);
 
             itemsDeletedForKey += itemsDeletedForTime;
+
+            // check if any hdf5 data up to this point can be deleted
+            if (purgeHdf5Data
+                    && (trackToUri || ((previousRoundedDate != null) && roundedDate
+                            .after(previousRoundedDate)))) {
+                // delete these entries now
+                for (Map.Entry<String, List<String>> hdf5Entry : hdf5FileToUriMap
+                        .entrySet()) {
+                    try {
+                        IDataStore ds = DataStoreFactory.getDataStore(new File(
+                                hdf5Entry.getKey()));
+                        List<String> uris = hdf5Entry.getValue();
+                        if (uris == null) {
+                            ds.deleteFiles(null);
+                        } else {
+                            ds.delete(uris.toArray(new String[uris.size()]));
+                        }
+                    } catch (Exception e) {
+                        PurgeLogger.logError("Error occurred purging file: "
+                                + hdf5Entry.getKey(), this.pluginName, e);
+                    }
+                }
+                hdf5FileToUriMap.clear();
+            }
         }
 
         if (purgeHdf5Data) {
+            // delete any remaining data
             for (Map.Entry<String, List<String>> hdf5Entry : hdf5FileToUriMap
                     .entrySet()) {
                 try {
@@ -1129,6 +1144,7 @@ public abstract class PluginDao extends CoreDao {
             throws DataAccessLayerException {
 
         int results = 0;
+
         DatabaseQuery dataQuery = new DatabaseQuery(this.daoClass);
 
         if (refTime != null) {
@@ -1141,10 +1157,8 @@ public abstract class PluginDao extends CoreDao {
             }
         }
 
-        List<Integer> idList = null;
-        DatabaseQuery idQuery = null;
+        List<PluginDataObject> pdos = null;
 
-        dataQuery.addReturnedField("id");
         dataQuery.setMaxResults(500);
 
         // fields for hdf5 purge
@@ -1152,12 +1166,8 @@ public abstract class PluginDao extends CoreDao {
         StringBuilder pathBuilder = new StringBuilder();
 
         do {
-            idList = (List<Integer>) this.queryByCriteria(dataQuery);
-            if (!idList.isEmpty()) {
-                idQuery = new DatabaseQuery(this.daoClass);
-                idQuery.addQueryParam("id", idList, QueryOperand.IN);
-                List<PluginDataObject> pdos = (List<PluginDataObject>) this
-                        .queryByCriteria(idQuery);
+            pdos = (List<PluginDataObject>) this.queryByCriteria(dataQuery);
+            if ((pdos != null) && !pdos.isEmpty()) {
                 this.delete(pdos);
 
                 if (trackHdf5 && (hdf5FileToUriPurged != null)) {
@@ -1197,7 +1207,7 @@ public abstract class PluginDao extends CoreDao {
                 results += pdos.size();
             }
 
-        } while ((idList != null) && !idList.isEmpty());
+        } while ((pdos != null) && !pdos.isEmpty());
 
         return results;
     }
@@ -1437,8 +1447,9 @@ public abstract class PluginDao extends CoreDao {
             // allow zero length file to disable purge for this plugin
             if (rulesFile.length() > 0) {
                 try {
-                    PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(rulesFile);
+                    PurgeRuleSet purgeRules = SerializationUtil
+                            .jaxbUnmarshalFromXmlFile(PurgeRuleSet.class,
+                                    rulesFile);
 
                     // ensure there's a default rule
                     if (purgeRules.getDefaultRules() == null) {
@@ -1469,6 +1480,7 @@ public abstract class PluginDao extends CoreDao {
                             "EDEX");
             return null;
         }
+
         try {
             PurgeRuleSet purgeRules = SerializationUtil
                     .jaxbUnmarshalFromXmlFile(PurgeRuleSet.class, defaultRule);
@@ -1477,6 +1489,7 @@ public abstract class PluginDao extends CoreDao {
             PurgeLogger.logError("Error deserializing default purge rule!",
                     "DEFAULT");
         }
+
         return null;
     }
 
