@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_SubjectRoleScheme.xml,v 1.13 2007/05/25 17:18:54 farrukh_najmi Exp $ -->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="Subject Role"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="Defines various roles that may be assigned to subjects. Subjects may be persons, services etc. Roles give privilges to subjects based upon applicable access control policy."/>
+            </rim:Description>
+
+            <!--Regproc roles are defined in SubmitObjectsRequest_RegistrationProcedures.xml -->
+            <!--rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalSubmitter" code="ChangeProposalSubmitter" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalSubmitter" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Change Proposal Submitter"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing a subject who is affiliated with the Submitting Organization for the Register and is authorized to submit change proposals for a Register. Such role typically has maximal priviliges with register resources."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReceiver" code="ChangeProposalReceiver" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReceiver" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Change Proposal Receiver"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing a subject who is affiliated with the Register Manager for a Register and is authorized to perform acceptance review of change proposals received for that register."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReviewer" code="ChangeProposalReviewer" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ChangeProposalReviewer" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Change Proposal Reviewer"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing a subject who is affiliated with the Control Body for a Register and is authorized to perform a detailed technical review of a change proposal once it has been accepted by the Register Manager."/>
+                </rim:Description>
+            </rim:ClassificationNode-->
+
+             <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryLocalAdministrator" code="RegistryLocalAdministrator" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryLocalAdministrator" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Registry Local Administrator"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing a local administrator. Such role typically has maximal priviliges at their given site."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryGuest" code="RegistryGuest" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryGuest" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Registry Guest"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing an un-authenticated user. Such role typically has minimal priviliges."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryUser" code="RegistryUser" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryUser" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Registry User"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing an authenticated non-admin user."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryAdministrator" code="RegistryAdministrator" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryAdministrator" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Registry Administrator"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing an administrator of the registry server. Such role typically has maximal priviliges with all resources in that registry."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>
