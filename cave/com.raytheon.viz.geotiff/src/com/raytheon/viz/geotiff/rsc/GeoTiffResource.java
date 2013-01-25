@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -102,8 +103,8 @@ public class GeoTiffResource extends
 
             image = new PureMemoryBasedTileSet(resourceData.getNameGenerator()
                     .getName(this), this, gridCoverage.getGridGeometry(),
-                    PureMemoryBasedTileSet.calculateLevels(img), target
-                            .getViewType());
+                    PureMemoryBasedTileSet.calculateLevels(img),
+                    target.getViewType());
             image.setMapDescriptor(this.descriptor);
             image.setImage(img);
             image.init(target);
@@ -130,5 +131,17 @@ public class GeoTiffResource extends
         if (image != null) {
             image.paint(target, paintProps);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
+     * referencing.crs.CoordinateReferenceSystem)
+     */
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        image.reproject();
     }
 }

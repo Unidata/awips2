@@ -110,6 +110,16 @@ public class LocalizationInitializer {
             }
         }
 
+        processGetServers();
+    }
+
+    /**
+     * Sends a GetServersRequest and sets the references that hold the various
+     * server addresses
+     * 
+     * @throws VizException
+     */
+    protected final void processGetServers() throws VizException {
         GetServersRequest req = new GetServersRequest();
         GetServersResponse resp = (GetServersResponse) ThriftClient
                 .sendLocalizationRequest(req);

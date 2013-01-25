@@ -328,13 +328,6 @@ class GribDecoder():
             
             if not thinnedGrid:
                 numpyDataArray = numpy.resize(data, (ny, nx))
-            # Check y direction scan mode
-            if scanMode & 64 == 64:
-                numpyDataArray = numpy.flipud(numpyDataArray)
-                
-            # Check x direction scan mode
-            if scanMode & 128 == 128:
-                numpyDataArray = numpy.fliplr(numpyDataArray)
                     
             # Check if rows are scanned in opposite direction.  If so, we need to flip them around 
             if scanMode & 16 == 16:
@@ -356,6 +349,14 @@ class GribDecoder():
                         theRow = numpy.array(numpyDataArray[i], copy=True)
                         numpyDataArray[i] = theRow[::-1]
                         i = i + 2
+                        
+            # Check y direction scan mode
+            if scanMode & 64 == 64:
+                numpyDataArray = numpy.flipud(numpyDataArray)
+                
+            # Check x direction scan mode
+            if scanMode & 128 == 128:
+                numpyDataArray = numpy.fliplr(numpyDataArray)
                 
         else:
             if not thinnedGrid:

@@ -1,0 +1,90 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="jmsIngestHarvesterConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+            factory-bean="jmsConfig" factory-method="copy">
+    </bean>
+    
+    <bean id="jms-harvester" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestHarvesterConfig" />
+        <property name="taskExecutor" ref="harvesterThreadPool" />      
+    </bean>
+
+	<bean id="harvesterThreads" class="java.lang.Integer">
+		<constructor-arg value="${metadata-process.threads}" />
+	</bean>
+
+	<bean id="harvesterThreadPool"
+        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" ref="harvesterThreads" />
+        <property name="maxPoolSize" ref="harvesterThreads" />
+    </bean>
+    
+    <bean id="crawlerCommunicationStrategy" class="com.raytheon.uf.edex.datadelivery.harvester.crawler.FileCommunicationStrategy" />
+
+    <bean id="MetaDataProcessor" class="com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler" depends-on="registryInit,registerDataDeliveryHandlers">
+        <constructor-arg ref="crawlerCommunicationStrategy" />
+    </bean>
+  	
+  	<camelContext id="MetaData-context"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<endpoint id="metaDataCron" uri="quartz://datadelivery/harvester/?cron=${metadata-process.cron}"/>
+
+		<route id="metaDataProcess">
+			<from uri="metaDataCron" />
+			<to uri="jms-harvester:queue:metaDataProcessWork?destinationResolver=#qpidDurableResolver" />
+		</route>
+				
+		<route id="metaDataProcessWork">
+		    <from uri="jms-harvester:queue:metaDataProcessWork?concurrentConsumers=#harvesterThreads&amp;destinationResolver=#qpidDurableResolver" />
+            <doTry>
+            	<pipeline>
+    				<bean ref="MetaDataProcessor" method="metaDataCheck" />
+    			</pipeline>
+    			<doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:metaDataProcess?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+		</route>
+		
+	</camelContext>
+
+    <!-- Start of DataSetMetaData purge configuration -->
+    <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher"
+        factory-method="getInstance" depends-on="DbInit">
+    </bean>
+
+    <camelContext id="DataSetMetaDataPurge-context"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="datasetMetaDataPurgeCron" uri="quartz://datadelivery/metaDataPurge/?cron=${metadata-purge.cron}"/>
+
+        <route id="metaDataPurge">
+            <from uri="datasetMetaDataPurgeCron" />
+            <to uri="jms-generic:queue:metaDataPurgeWork" />
+        </route>
+
+        <route id="metaDataPurgeWork">
+            <from uri="jms-generic:queue:metaDataPurgeWork" />
+            <doTry>
+                <pipeline>
+                    <bean ref="DataSetMetaDataPurgeLauncher" method="runPurge" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:metaDataPurge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+    <!-- End of DataSetMetaData purge configuration -->
+  
+</beans>

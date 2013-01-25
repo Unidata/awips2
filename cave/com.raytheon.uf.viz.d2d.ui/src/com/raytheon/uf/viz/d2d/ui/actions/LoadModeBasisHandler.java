@@ -23,6 +23,7 @@ import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
@@ -68,11 +69,11 @@ public class LoadModeBasisHandler extends LoadModeHandler {
             return;
         }
         AbstractTimeMatcher timeMatcher = descriptor.getTimeMatcher();
-        if (timeMatcher == null) {
+        if (timeMatcher instanceof D2DTimeMatcher == false) {
             setBaseEnabled(false);
             return;
         }
-        if (timeMatcher.getTimeMatchBasis() != null) {
+        if (((D2DTimeMatcher) timeMatcher).getTimeMatchBasis() != null) {
             setBaseEnabled(false);
             return;
         }

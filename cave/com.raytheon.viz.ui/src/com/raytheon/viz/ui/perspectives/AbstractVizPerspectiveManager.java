@@ -114,7 +114,7 @@ public abstract class AbstractVizPerspectiveManager implements
                 if (mgr != null) {
                     for (AbstractModalTool tool : mgr.getToolManager()
                             .getSelectedModalTools()) {
-                        if (tool != null) {
+                        if (tool != null && tool.getCurrentEditor() != part) {
                             tool.deactivate();
                             tool.setEditor((IDisplayPaneContainer) part);
                             tool.activate();
