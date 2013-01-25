@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 
 /**
  * Header image for X axis.
@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionP
  * ------------ ---------- ----------- --------------------------
  * Nov 28, 2012   1269     lvenable    Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class XHeaderImage extends AbstractCanvasImage {
     private final String sortBy = "Sort by: ";
 
     /** Map of rectangles and subscription priorities. */
-    private Map<Rectangle, SubscriptionPriority> rectPriMap;
+    private final Map<Rectangle, SubscriptionPriority> rectPriMap;
 
     /**
      * Constructor.

@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
@@ -425,7 +426,7 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
         subscription.setLatencyInMinutes(6);
-        subscription.setPriority(2);
+        subscription.setPriority(SubscriptionPriority.HIGH);
 
         // Reserves a full bucket at 19700103 18:03:00 which fragments the
         // subscription to 19700103 18:00:00 and 18:06:00
@@ -538,9 +539,9 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
         // Two subscriptions that will fill up a bucket exactly
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.setPriority(2);
+        subscription.setPriority(SubscriptionPriority.NORMAL);
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
-        subscription.setPriority(4);
+        subscription.setPriority(SubscriptionPriority.HIGH);
 
         // subscription2 will not be able to schedule for cycle hour 8
         subscription.getTime().setCycleTimes(
@@ -552,7 +553,8 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
         service.schedule(subscription2);
 
         BandwidthGraphData graphData = service.getBandwidthGraphData();
-        final Map<String, Integer> priorityMap = graphData.getPriorityMap();
+        final Map<String, SubscriptionPriority> priorityMap = graphData
+                .getPriorityMap();
 
         assertThat(priorityMap.get(subscription.getName()),
                 is(equalTo(subscription.getPriority())));
