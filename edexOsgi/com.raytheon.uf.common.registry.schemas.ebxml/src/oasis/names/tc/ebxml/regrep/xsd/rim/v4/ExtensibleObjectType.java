@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -39,6 +40,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -82,10 +84,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         RegistryResponseType.class, RegistryRequestType.class })
 @DynamicSerialize
 @MappedSuperclass
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 public abstract class ExtensibleObjectType {
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @BatchSize(size = 15)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
