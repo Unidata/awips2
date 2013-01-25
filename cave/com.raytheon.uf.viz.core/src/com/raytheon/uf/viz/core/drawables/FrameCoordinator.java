@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.drawables;
 
+import java.util.Arrays;
+import java.util.Date;
+
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -103,6 +106,36 @@ public class FrameCoordinator implements IFrameCoordinator {
         if (descriptor instanceof AbstractDescriptor) {
             lock = ((AbstractDescriptor) descriptor).getLockObject();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IFrameCoordinator#changeFrame(java
+     * .util.Date)
+     */
+    @Override
+    public void changeFrame(Date frameTime) {
+        changeFrame(new DataTime(frameTime));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IFrameCoordinator#changeFrame(com.
+     * raytheon.uf.common.time.DataTime)
+     */
+    @Override
+    public void changeFrame(DataTime frameTime) {
+        // Default behavior for now
+        FramesInfo info = descriptor.getFramesInfo();
+        DataTime[] currTimes = info.getFrameTimes();
+        int idx = Arrays.binarySearch(currTimes, frameTime);
+        // Force within range
+        idx = Math.min(currTimes.length - 1, Math.max(0, idx));
+        descriptor.setFramesInfo(new FramesInfo(idx));
     }
 
     @Override

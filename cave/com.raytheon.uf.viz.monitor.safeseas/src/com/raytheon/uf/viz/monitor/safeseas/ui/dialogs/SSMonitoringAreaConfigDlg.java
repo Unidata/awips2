@@ -38,7 +38,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 5, 2010            mpduff     Initial creation
+ * Jan  5, 2010            mpduff      Initial creation
+ * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -48,63 +49,92 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param title
+     */
     public SSMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SAFESEAS);
         readConfigData();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
+     * handleOkBtnSelection()
+     */
     @Override
     protected void handleOkBtnSelection() {
         SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
                 .getInstance();
         // Check for changes in the data
-        int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                "SAFESEAS Monitor Confirm Changes",
-                "Want to update the SAFESEAS setup files?");
-
-        if (choice == SWT.OK) {
-            // Save the config xml file
-            configManager.setShipDistance(distanceScale.getSelection());
-            configManager.setTimeWindow(timeScale.getSelection());
-            configManager.setUseAlgorithms(fogChk.getSelection());
-            configManager.saveConfigData();
-
-            /**
-             * DR#11279: re-initialize threshold manager and the monitor using
-             * new monitor area configuration
-             */
-            SSThresholdMgr.reInitialize();
-            SafeSeasMonitor.reInitialize();
-
-            showMessage(shell, SWT.OK, "SAFESEAS Config Change",
-                    "You're updating the SAFESEAS monitoring settings."
-                            + "\n\nIf SAFESEAS is running anywhere within "
-                            + "the office, please clear it.\n");
-            if (configManager.getAddedZones().size() > 0
-                    || addedZones.size() > 0) {
+        if (!configManager.getAddedZones().isEmpty()
+                || !configManager.getAddedZones().isEmpty()) {
+            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
+                    "SAFESEAS Monitor Confirm Changes",
+                    "Want to update the SAFESEAS setup files?");
+            if (choice == SWT.OK) {
+                // Save the config xml file
+                configManager.setShipDistance(distanceScale.getSelection());
+                configManager.setTimeWindow(timeScale.getSelection());
+                configManager.setUseAlgorithms(fogChk.getSelection());
+                configManager.saveConfigData();
+                /**
+                 * DR#11279: re-initialize threshold manager and the monitor
+                 * using new monitor area configuration
+                 */
+                SSThresholdMgr.reInitialize();
+                SafeSeasMonitor.reInitialize();
+                showMessage(shell, SWT.OK, "SAFESEAS Config Change",
+                        "You're updating the SAFESEAS monitoring settings."
+                                + "\n\nIf SAFESEAS is running anywhere within "
+                                + "the office, please clear it.\n");
                 String message2 = "New zones have been added, and their monitoring thresholds "
                         + "have been set to default values; would you like to modify "
                         + "their threshold values now?";
                 int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES
                         | SWT.NO, "Edit Thresholds Now?", message2);
                 if (yesno == SWT.YES) {
-
                     SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
                             shell, CommonConfig.AppName.SAFESEAS,
                             DataUsageKey.MONITOR);
                     ssMonitorDlg.open();
                 }
             }
-            shell.dispose();
+        } else {
+            String message3 = "No changes made.\nDo you want to exit?";
+            int yesno = showMessage(shell,
+                    SWT.ICON_QUESTION | SWT.YES | SWT.NO, "Exit", message3);
+            if (yesno == SWT.NO) {
+                return;
+            }
         }
+        setReturnValue(true);
+        close();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
+     * setAlgorithmText()
+     */
     @Override
     protected void setAlgorithmText() {
         fogChk.setText("The Fog Monitor overall threat level is "
                 + "considered when determining the anchor color.");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
+     * ()
+     */
     @Override
     protected void readConfigData() {
         SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager

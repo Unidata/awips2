@@ -91,6 +91,13 @@ class GridDataRequestJob extends Job {
         for (GridDataRequest request = getNext(); request != null; request = getNext()) {
             try {
                 request.gridData = resource.getData(request.time, request.pdos);
+                if (request.gridData == null) {
+                    // need to remove unfulfillable requests to avoid infinite
+                    // loop.
+                    synchronized (requests) {
+                        requests.remove(request);
+                    }
+                }
                 resource.issueRefresh();
             } catch (VizException e) {
                 synchronized (requests) {

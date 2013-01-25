@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>21600</fcst>
+    <fcst>32400</fcst>
+    <fcst>43200</fcst>
+    <fcst>54000</fcst>
+    <fcst>64800</fcst>
+    <fcst>75600</fcst>
+    <fcst>86400</fcst>
+    <fcst>97200</fcst>
+    <fcst>108000</fcst>
+    <fcst>118800</fcst>
+    <fcst>129600</fcst>
+    <fcst>140400</fcst>
+    <fcst>151200</fcst>
+    <fcst>162000</fcst>
+    <fcst>172800</fcst>
+    <fcst>183600</fcst>
+    <fcst>194400</fcst>
+    <fcst>205200</fcst>
+    <fcst>216000</fcst>
+    <fcst>226800</fcst>
+    <fcst>237600</fcst>
+    <fcst>248400</fcst>
+    <fcst>259200</fcst>
+    <fcst>270000</fcst>
+    <fcst>280800</fcst>
+    <fcst>291600</fcst>
+    <fcst>302400</fcst>
+    <fcst>313200</fcst>
+    <fcst>324000</fcst>
+    <fcst>334800</fcst>
+    <fcst>345600</fcst>
+    <fcst>356400</fcst>
+    <fcst>367200</fcst>
+    <fcst>378000</fcst>
+    <fcst>388800</fcst>
+    <fcst>399600</fcst>
+    <fcst>410400</fcst>
+    <fcst>421200</fcst>
+    <fcst>432000</fcst>
+    <fcst>442800</fcst>
+    <fcst>453600</fcst>
+    <fcst>464400</fcst>
+    <fcst>475200</fcst>
+    <fcst>486000</fcst>
+    <fcst>496800</fcst>
+    <fcst>507600</fcst>
+    <fcst>518400</fcst>
+    <fcst>529200</fcst>
+    <fcst>540000</fcst>
+    <fcst>550800</fcst>
+    <fcst>561600</fcst>
+    <fcst>572400</fcst>
+    <fcst>583200</fcst>
+    <fcst>594000</fcst>
+    <fcst>604800</fcst>
+    <fcst>615600</fcst>
+    <fcst>626400</fcst>
+    <fcst>637200</fcst>
+    <fcst>648000</fcst>
+    <fcst>658800</fcst>
+    <fcst>669600</fcst>
+    <fcst>680400</fcst>
+    <fcst>691200</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>mnt</short_name>
+    <long_name>Minimum Temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>minT</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 2</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>pop12hr</short_name>
+    <long_name>Probability of 12hr precip</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>12hrPcpProb</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>pop6hr</short_name>
+    <long_name>Probability of 6hr precip</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>6hrPcpProb</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/second</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>rh</short_name>
+    <long_name>Relative Humidity</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>rh</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 2</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wd</short_name>
+    <long_name>Wind Direction</long_name>
+    <units>degreeTrue</units>
+    <udunits>degree_True</udunits>
+    <uiname>windDir</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>mxt</short_name>
+    <long_name>Maximum Temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>maxT</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 2</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>dpt</short_name>
+    <long_name>Dewpoint Temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>Td</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 2</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ws</short_name>
+    <long_name>Wind Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>windSpeed</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>t</short_name>
+    <long_name>temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>T</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>2 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>
