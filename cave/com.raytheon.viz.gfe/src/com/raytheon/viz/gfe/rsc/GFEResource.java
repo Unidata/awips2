@@ -105,6 +105,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
@@ -253,6 +254,7 @@ public class GFEResource extends
         @Override
         public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
             resetFrame(timeRange);
+            TimeMatchingJob.scheduleTimeMatch(getDescriptor());
         }
 
     };
@@ -309,7 +311,6 @@ public class GFEResource extends
         lastIscMode = dataManager.getParmManager().iscMode();
 
         updateRightClickMenu();
-
     }
 
     public void reset() {

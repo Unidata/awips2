@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <parameterConfig AWIPS="ice_thickness" GrADs="ice_thickness"/>
+    <parameterConfig AWIPS="ICEC" GrADs="ice_coverage"/>
+    <parameterConfig AWIPS="ssh" GrADs="ssh"/>
+    <parameterConfig AWIPS="sst" GrADs="sst"/>
+    <parameterConfig AWIPS="v_velocity" GrADs="v_velocity"/>
+    <parameterConfig AWIPS="sss" GrADs="sss"/>
+    <parameterConfig AWIPS="u_velocity" GrADs="u_velocity"/>
+</ParameterLookup>
