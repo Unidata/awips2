@@ -40,14 +40,15 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
@@ -161,10 +162,18 @@ public class D2DParmIdCache {
             } else if (parmName.equalsIgnoreCase("staticCoriolis")) {
                 parmStr = parmStr.replace("staticcoriolis", "staticCoriolis");
             } else {
+                String gfeParamName = null;
+                try {
+                    gfeParamName = ParameterMapper.getInstance().lookupAlias(
+                            parmId.getParmName(), "gfeParamName");
+                } catch (MultipleMappingException e) {
+                    statusHandler.handle(Priority.WARN,
+                            e.getLocalizedMessage(), e);
+                    gfeParamName = e.getArbitraryMapping();
+                }
                 parmStr = parmStr.replaceFirst(
                         parmId.getParmName(),
-                        DataFieldTableLookup.getInstance().lookupCdlName(
-                                parmId.getParmName()));
+                        gfeParamName);
             }
             parmIds.get(parmId.getDbId().toString()).add(parmStr);
         }

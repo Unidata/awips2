@@ -272,8 +272,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
     private int separatorPosition = 0;
 
-    private List<Date> stepTimes;
-
     private boolean quickviewMode;
 
     private GridID quickviewGrid;
@@ -736,8 +734,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
             }
         }
 
-        calcStepTimes();
-
         resize();
     }
 
@@ -906,96 +902,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
         for (GridBar gridBar : gridBarList) {
             gridBar.setSelection(gridBar == selectedBar);
         }
-    }
-
-    public void nextSelectedGrid() {
-        Date seTime = gridManager.getSelectedTime();
-        Date time = null;
-        for (Date stepTime : stepTimes) {
-            if (seTime.before(stepTime)) {
-                time = stepTime;
-                break;
-            }
-        }
-
-        if (time == null && stepTimes.size() > 0) {
-            time = stepTimes.get(0);
-        }
-
-        if (time != null) {
-            gridManager.setSelectedTime(time);
-            gridManager.syncSelectTR(time);
-        }
-    }
-
-    public void previousSelectedGrid() {
-
-        Date seTime = gridManager.getSelectedTime();
-        Date time = null;
-        for (int i = stepTimes.size() - 1; i >= 0; i--) {
-            Date stepTime = stepTimes.get(i);
-            if (seTime.after(stepTime)) {
-                time = stepTime;
-                break;
-            }
-        }
-
-        if (time == null && stepTimes.size() > 0) {
-            time = stepTimes.get(stepTimes.size() - 1);
-        }
-
-        if (time != null) {
-            gridManager.setSelectedTime(time);
-            gridManager.syncSelectTR(time);
-        }
-
-        return;
-    }
-
-    public void firstSelectedGrid() {
-        Date time = null;
-
-        if (time == null && stepTimes.size() > 0) {
-            time = stepTimes.get(0);
-        }
-
-        if (time != null) {
-            gridManager.setSelectedTime(time);
-            gridManager.syncSelectTR(time);
-        }
-    }
-
-    public void lastSelectedGrid() {
-        Date time = null;
-
-        if (time == null && stepTimes.size() > 0) {
-            time = stepTimes.get(stepTimes.size() - 1);
-        }
-
-        if (time != null) {
-            gridManager.setSelectedTime(time);
-            gridManager.syncSelectTR(time);
-        }
-    }
-
-    public void calcStepTimes() {
-        ArrayList<Parm> parms = new ArrayList<Parm>();
-        for (GridBar gridBar : gridBarList) {
-            if (gridBar.isParmVisible()) {
-                Parm p = gridBar.getParm();
-                if (!parms.contains(p)) {
-                    parms.add(p);
-                }
-
-                // TODO ISC?
-                // p = view.iscGridID().parm();
-                // if (!parms.contains(p)) {
-                // parms.add(p);
-                // }
-            }
-        }
-        stepTimes = dataMgr.getParmManager().calcStepTimes(parms,
-                new TimeRange());
     }
 
     /**
