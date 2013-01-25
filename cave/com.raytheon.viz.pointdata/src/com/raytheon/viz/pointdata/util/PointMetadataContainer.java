@@ -102,15 +102,17 @@ public class PointMetadataContainer extends MetadataContainer {
         }
         pdc = pdca.getBaseRecords(baseParams, originalConstraints);
         for (PointDataLevelNode node : nodes) {
-            IDataRecord rec = pdc.getParameterRecord(node.getParameter());
             Set<AbstractRequestableData> cacheSet = new HashSet<AbstractRequestableData>();
-            cacheSet.add(new PointRequestableData(rec, pdc.getDescription(
-                    node.getParameter()).getUnitObject()));
-            dataCache.put(node, cacheSet);
-            if (!Arrays.asList("id", "latitude", "longitude", "dataURI")
-                    .contains(rec.getName())) {
-                pdc.remove(rec.getName());
+            if (pdc != null) {
+                IDataRecord rec = pdc.getParameterRecord(node.getParameter());
+                cacheSet.add(new PointRequestableData(rec, pdc.getDescription(
+                        node.getParameter()).getUnitObject()));
+                if (!Arrays.asList("id", "latitude", "longitude", "dataURI")
+                        .contains(rec.getName())) {
+                    pdc.remove(rec.getName());
+                }
             }
+            dataCache.put(node, cacheSet);
         }
     }
 
