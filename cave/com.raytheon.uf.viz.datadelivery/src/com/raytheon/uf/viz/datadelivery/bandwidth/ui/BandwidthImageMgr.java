@@ -45,6 +45,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
  * Nov 28, 2012    1269    lvenable     Initial creation
  * Dec 13, 2012   1269     lvenable     Fixes and updates.
  * Jan 25, 2013   1528     djohnson     Subscription priority is now an enum on subscriptions.
+ * Jan 28, 2013  1529      djohnson    Add hasSubscriptionNameChecked().
  * 
  * </pre>
  * 
@@ -490,5 +491,14 @@ public class BandwidthImageMgr implements IGraphOptions {
         regenerateImage(CanvasImages.GRAPH);
         regenerateImage(CanvasImages.X_HEADER);
 
+    }
+
+    /**
+     * Check whether there is a checked subscription name.
+     * 
+     * @return true if at least one subscription name is checked
+     */
+    public boolean hasSubscriptionNameChecked() {
+        return checkMap.containsValue(Boolean.TRUE);
     }
 }
