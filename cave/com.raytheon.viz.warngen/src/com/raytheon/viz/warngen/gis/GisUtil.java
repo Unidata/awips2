@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.viz.warngen.suppress.SuppressMap;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -37,7 +38,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -206,27 +206,21 @@ public class GisUtil {
                 yDirection = Direction.SOUTH;
         }
 
+        List<Geometry> geoms = new ArrayList<Geometry>(geom.getNumGeometries());
+        GeometryUtil.buildGeometryList(geoms, geom);
         boolean isExtreme = false;
-        Coordinate[] coords;
-        if (geom instanceof Polygon) {
-            LineString lineString = ((Polygon) geom).getExteriorRing();
-            coords = lineString.getCoordinates();
-            isExtreme = isExtreme(coords, point,
-                    (extremaThresholdX + extremaThresholdY) / 2.0);
-        } else if (geom instanceof MultiPolygon) {
-            int geoms = ((MultiPolygon) geom).getNumGeometries();
 
-            for (int i = 0; i < geoms; i++) {
-                LineString lineString = ((Polygon) ((MultiPolygon) geom)
-                        .getGeometryN(i)).getExteriorRing();
-                coords = lineString.getCoordinates();
-                if (isExtreme(coords, point,
+        for (Geometry g : geoms) {
+            if (g instanceof Polygon) {
+                LineString lineString = ((Polygon) g).getExteriorRing();
+                if (isExtreme(lineString.getCoordinates(), point,
                         (extremaThresholdX + extremaThresholdY) / 2.0)) {
                     isExtreme = true;
                     break;
                 }
             }
         }
+
         EnumSet<Direction> retVal = EnumSet.noneOf(Direction.class);
 
         if (xDirection != null && !suppressType.equals(SuppressMap.EAST_WEST)
