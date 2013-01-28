@@ -51,6 +51,10 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
+import com.raytheon.uf.common.comm.stream.DynamicSerializeStreamEntity;
+import com.raytheon.uf.common.comm.stream.DynamicSerializeStreamHandler;
+import com.raytheon.uf.common.comm.stream.OStreamEntity;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -73,6 +77,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    07/17/12    #911         njensen    Refactored significantly
  *    08/09/12     15307        snaples   Added putEntitiy in postStreamingEntity.
  *    01/07/13     DR 15294     D. Friedman  Added streaming requests.
+ *    Jan 24, 2013     1526     njensen     Added postDynamicSerialize()
  * 
  * </pre>
  * 
@@ -437,87 +442,59 @@ public class HttpClient {
     }
 
     /**
+     * Transforms the object into bytes and posts it to the server at the
+     * address. If gzip requests are enabled the object will be transformed into
+     * a byte[] and then gzipped before sending. Otherwise the object will
+     * streamed to a byte[] and the response will be streamed back into the
+     * response object.
+     * 
+     * @param address
+     *            the address to post to
+     * @param obj
+     *            the object to transform and send
+     * @return the object response
+     * @throws CommunicationException
+     * @throws Exception
+     */
+    public Object postDynamicSerialize(String address, final Object obj)
+            throws CommunicationException, Exception {
+        if (gzipRequests) {
+            // TODO can't stream gzipped requests at this time
+            return SerializationUtil.transformFromThrift(
+                    Object.class,
+                    postBinary(address,
+                            SerializationUtil.transformToThrift(obj)));
+        } else {
+            HttpPost put = new HttpPost(address);
+            // stream the send
+            DynamicSerializeStreamEntity sdse = new DynamicSerializeStreamEntity(
+                    obj);
+            put.setEntity(sdse);
+            // stream the response
+            DynamicSerializeStreamHandler handlerCallback = new DynamicSerializeStreamHandler();
+            HttpClientResponse resp = this.process(put, handlerCallback);
+            checkStatusCode(resp);
+            return handlerCallback.getResponseObject();
+        }
+    }
+
+    /**
      * Post a message to an http address, and return the result as a byte array.
      * <p>
      * Implementation note: The given stream handler will be used at least
-     * twice:  Once to determine the length, another to actually send the
-     * content.  This is done because pypies does not accept chunked requests
+     * twice: Once to determine the length, another to actually send the
+     * content. This is done because pypies does not accept chunked requests
      * bodies.
-     *
+     * 
      * @param address
-     * @param handler the handler responsible for generating the message to be posted
+     * @param handler
+     *            the handler responsible for generating the message to be
+     *            posted
      * @return
      * @throws CommunicationException
      */
-    public byte[] postBinary(String address, OStreamHandler handler) throws CommunicationException {
-        class OStreamEntity extends AbstractHttpEntity {
-            OStreamHandler handler;
-            long contentLength = -1;
-
-            public OStreamEntity(OStreamHandler handler) {
-                this.handler = handler;
-            }
-
-            @Override
-            public InputStream getContent() throws IOException,
-                    IllegalStateException {
-                throw new IllegalStateException("OStreamEntity does not support getContent().");
-            }
-
-            @Override
-            public long getContentLength() {
-                if (contentLength < 0) {
-                    class CountingStream extends OutputStream {
-                        long count;
-
-                        @Override
-                        public void write(int b) throws IOException {
-                            ++count;
-                        }
-
-                        @Override
-                        public void write(byte[] b) throws IOException {
-                            count += b.length;
-                        }
-
-                        @Override
-                        public void write(byte[] b, int off, int len)
-                                throws IOException {
-                            count += len;
-                        }
-                    }
-
-                    CountingStream cs = new CountingStream();
-                    try {
-                        handler.writeToStream(cs);
-                        contentLength = cs.count;
-                    } catch (CommunicationException e) {
-                        // ignore
-                    }
-                }
-                return contentLength;
-            }
-
-            @Override
-            public boolean isRepeatable() {
-                return true;
-            }
-
-            @Override
-            public boolean isStreaming() {
-                return false;
-            }
-
-            @Override
-            public void writeTo(OutputStream stream) throws IOException {
-                try {
-                    handler.writeToStream(stream);
-                } catch (CommunicationException e) {
-                    throw new IOException(e.getMessage(), e.getCause());
-                }
-            }
-        }
-
+    public byte[] postBinary(String address, OStreamHandler handler)
+            throws CommunicationException {
         OStreamEntity entity = new OStreamEntity(handler);
         HttpPost put = new HttpPost(address);
         put.setEntity(entity);
@@ -684,12 +661,13 @@ public class HttpClient {
     }
 
     /**
-     * Responsible for writing HTTP content to a stream.  May be called
-     * more than once for a given entity.  See postBinary(String, OStreamHandler)
-     * for details.
+     * Responsible for writing HTTP content to a stream. May be called more than
+     * once for a given entity. See postBinary(String, OStreamHandler) for
+     * details.
      */
     public static interface OStreamHandler {
-        public void writeToStream(OutputStream os) throws CommunicationException;
+        public void writeToStream(OutputStream os)
+                throws CommunicationException;
     }
 
     /**
