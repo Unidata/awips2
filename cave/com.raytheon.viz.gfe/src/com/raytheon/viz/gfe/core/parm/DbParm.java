@@ -623,6 +623,7 @@ public class DbParm extends Parm {
 
             success &= allSaved;
         }
+
         // if any pending saves
         if (sgr.size() > 0) {
             if (doSave(sgr)) {
@@ -632,13 +633,7 @@ public class DbParm extends Parm {
             } else {
                 success = false;
             }
-        }
-
-        // if any pending saves
-        if (sgr.size() > 0) {
-            if (!doSave(sgr)) {
-                success = false;
-            }
+            pendingUnlocks.clear();
         }
 
         if (success) {
