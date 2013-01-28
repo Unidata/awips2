@@ -97,6 +97,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
  * Dec 12, 2012 1286       djohnson     Remove shutdown hook and finalize().
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
+ * Jan 28, 2013 1530       djohnson     Unschedule all allocations for a subscription that does not fully schedule.
  * 
  * </pre>
  * 
@@ -568,7 +569,43 @@ abstract class BandwidthManager extends
                 .getCycleTimes());
         List<BandwidthAllocation> unscheduled = schedule(subscription, cycles);
 
+        unscheduleSubscriptionsForAllocations(unscheduled);
+
         return unscheduled;
+    }
+
+    /**
+     * Unschedules all subscriptions the allocations are associated to.
+     * 
+     * @param unscheduled
+     *            the unscheduled allocations
+     */
+    private void unscheduleSubscriptionsForAllocations(
+            List<BandwidthAllocation> unscheduled) {
+        Set<Subscription> subscriptionsToUnschedule = Sets.newHashSet();
+        for (BandwidthAllocation unscheduledAllocation : unscheduled) {
+            if (unscheduledAllocation instanceof SubscriptionRetrieval) {
+                SubscriptionRetrieval retrieval = (SubscriptionRetrieval) unscheduledAllocation;
+                try {
+                    subscriptionsToUnschedule.add(retrieval.getSubscription());
+                } catch (SerializationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to deserialize a subscription", e);
+                    continue;
+                }
+            }
+        }
+
+        for (Subscription sub : subscriptionsToUnschedule) {
+            sub.setUnscheduled(true);
+            try {
+                subscriptionUpdated(sub);
+            } catch (SerializationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to deserialize a subscription", e);
+                continue;
+            }
+        }
     }
 
     /**
@@ -659,7 +696,8 @@ abstract class BandwidthManager extends
 
             // If BandwidthManager does not know about the subscription, and
             // it's active, attempt to add it..
-            if (subscriptionDaos.isEmpty() && subscription.isActive()) {
+            if (subscriptionDaos.isEmpty() && subscription.isActive()
+                    && !subscription.isUnscheduled()) {
                 final boolean subscribedToCycles = !subscription.getTime()
                         .getCycleTimes().isEmpty();
                 final boolean useMostRecentDataSetUpdate = !subscribedToCycles;
@@ -688,8 +726,8 @@ abstract class BandwidthManager extends
                     unscheduled = schedule(adhoc);
                 }
                 return unscheduled;
-            } else if (!subscription.isActive()) {
-                // See if the subscription was inactivated..
+            } else if (!subscription.isActive() || subscription.isUnscheduled()) {
+                // See if the subscription was inactivated or unscheduled..
                 // Need to remove BandwidthReservations for this
                 // subscription.
                 return remove(subscriptionDaos, true);
