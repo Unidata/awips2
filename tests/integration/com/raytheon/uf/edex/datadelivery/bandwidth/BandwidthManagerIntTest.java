@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDat
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -81,6 +82,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Oct 12, 2012 0726       djohnson     Initial creation
  * Oct 23, 2012 1286       djohnson     Create reusable abstract int test.
  * Dec 11, 2012 1286       djohnson     Add test verifying fulfilled retrievals won't cause NPEs when the subscription is updated.
+ * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * 
  * </pre>
  * 
@@ -313,7 +315,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will have higher priority
-        subscription2.setPriority(subscription.getPriority() + 1);
+        subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(
@@ -335,13 +337,13 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         BandwidthAllocation unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().intValue(),
+                subscription.getPriority().getPriorityValue(),
                 unscheduledAllocation.getPriority(), 0.0);
 
         unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().intValue(),
+                subscription.getPriority().getPriorityValue(),
                 unscheduledAllocation.getPriority(), 0.0);
     }
 
@@ -352,7 +354,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will have higher priority
-        subscription2.setPriority(subscription.getPriority() + 1);
+        subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(
@@ -389,7 +391,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will have higher priority
-        subscription2.setPriority(subscription.getPriority() + 1);
+        subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(
