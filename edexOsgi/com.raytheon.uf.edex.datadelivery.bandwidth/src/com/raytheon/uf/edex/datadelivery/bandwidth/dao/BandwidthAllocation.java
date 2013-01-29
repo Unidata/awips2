@@ -298,4 +298,16 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         return sb.toString();
     }
 
+    /**
+     * Check whether this allocation is higher priority than another.
+     * 
+     * @param other
+     *            the other
+     * @return true if this allocation is higher priority than the other one
+     */
+    public boolean isHigherPriorityThan(BandwidthAllocation other) {
+        // A lower priority value means it's higher priority
+        return this.getPriority() < other.getPriority();
+    }
+
 }
