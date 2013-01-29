@@ -203,6 +203,7 @@ public class Subscription implements ISerializableObject, Serializable {
         this.setDataSetType(sub.getDataSetType());
         this.setRoute(sub.getRoute());
         this.setLatencyInMinutes(sub.getLatencyInMinutes());
+        this.setEnsemble(sub.getEnsemble());
     }
 
     @XmlAttribute
