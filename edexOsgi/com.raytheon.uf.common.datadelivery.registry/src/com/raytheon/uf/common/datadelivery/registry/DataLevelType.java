@@ -31,6 +31,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                        Code clean up.
  * Set 06, 2012   1121     mpduff      Added a unique key.
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * Jan 24, 2013  1527      dhladky     Changed 0DEG to FRZ
  * 
  * </pre>
  * 
@@ -110,7 +111,7 @@ public class DataLevelType implements ISerializableObject, Serializable {
                 "Cloud Level", 110), SIGL("sigma", "Sigma Level", 111), PVL(
                 "pv", "PV Level", 111), CTL("top", "Top Level", 112), MSL(
                 "mean", "Mean Sea Level", 113), EA("entire",
-                "Entire Atmosphere (As Single Layer)", 114), ODEG("0c",
+                "Entire Atmosphere (As Single Layer)", 114), FRZ("0c",
                 "0c isotherm", 115), LCY("low", "Low Cloud Bottom Level", 116), MCY(
                 "middle", "Middle Cloud Level", 117), HCY("high",
                 "High Cloud Level", 118), PBL("planetary",
@@ -175,11 +176,8 @@ public class DataLevelType implements ISerializableObject, Serializable {
                     break;
                 }
             }
-
-            // special case since enums can't start with integers
-            if (rval == LevelType.ODEG) {
-                return "0DEG";
-            } else if (rval == LevelType.U || rval == LevelType.V) {
+            
+            if (rval == LevelType.U || rval == LevelType.V) {
                 return LevelType.MAXW.toString();
             }
 
