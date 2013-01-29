@@ -24,6 +24,46 @@
 		<contribute xsi:type="titleItem" titleText="------ Z/V ------"
 			id="${icao}Terminal4panelZV" />
 		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev6} ${elev8}"
+			id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZV"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="183" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="" />
+			<substitute key="elevation1" value="${elev1}--${elev1}" />
+			<substitute key="elevation2" value="${elev2}--${elev2}" />
+			<substitute key="elevation3" value="${elev6}--${elev6}" />
+			<substitute key="elevation4" value="${elev8}--${elev8}" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev3} ${elev5} ${elev6}"
+			id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZV"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="183" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="" />
+			<substitute key="elevation1" value="${elev1}--${elev1}" />
+			<substitute key="elevation2" value="${elev3}--${elev3}" />
+			<substitute key="elevation3" value="${elev5}--${elev5}" />
+			<substitute key="elevation4" value="${elev6}--${elev6}" />
+		</contribute>		
+		<contribute xsi:type="bundleItem"
 			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev3} ${elev4}"
 			id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZV"
 			suppressErrors="${suppressErrors3}">
@@ -38,14 +78,94 @@
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
 			<substitute key="mode2" value="" />
-			<substitute key="elevation1" value="${elev1}" />
-			<substitute key="elevation2" value="${elev2}" />
-			<substitute key="elevation3" value="${elev3}" />
-			<substitute key="elevation4" value="${elev4}" />
-		</contribute>
+			<substitute key="elevation1" value="${elev1}--${elev1}" />
+			<substitute key="elevation2" value="${elev2}--${elev2}" />
+			<substitute key="elevation3" value="${elev3}--${elev3}" />
+			<substitute key="elevation4" value="${elev4}--${elev4}" />
+		</contribute>		
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev3} ${elev7} ${elev8} ${elev9}"
+			id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZV"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="183" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="" />
+			<substitute key="elevation1" value="${elev3}--${elev3}" />
+			<substitute key="elevation2" value="${elev7}--${elev7}" />
+			<substitute key="elevation3" value="${elev8}--${elev8}" />
+			<substitute key="elevation4" value="${elev9}--${elev9}" />
+		</contribute>		
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev8} ${elev9} ${elev10} ${elev12}"
+			id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZV"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="183" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="" />
+			<substitute key="elevation1" value="${elev8}--${elev8}" />
+			<substitute key="elevation2" value="${elev9}--${elev9}" />
+			<substitute key="elevation3" value="${elev10}--${elev10}" />
+			<substitute key="elevation4" value="${elev12}--${elev12}" />
+		</contribute>	
 		<contribute xsi:type="separator" id="below${icao}Terminal4panelZSRM8" />
 		<contribute xsi:type="titleItem" titleText="------ Z/SRM8 ------"
 			id="${icao}Terminal4panelZSRM8" />
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev6} ${elev8}"
+			id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZSRM8"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="SRM8" />
+			<substitute key="elevation1" value="${elev1}--${elev1}" />
+			<substitute key="elevation2" value="${elev2}--${elev2}" />
+			<substitute key="elevation3" value="${elev6}--${elev6}" />
+			<substitute key="elevation4" value="${elev8}--${elev8}" />			
+		</contribute>		
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev3} ${elev5} ${elev6}"
+			id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZSRM8"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="SRM8" />
+			<substitute key="elevation1" value="${elev1}--${elev1}" />
+			<substitute key="elevation2" value="${elev3}--${elev3}" />
+			<substitute key="elevation3" value="${elev5}--${elev5}" />
+			<substitute key="elevation4" value="${elev6}--${elev6}" />
+		</contribute>			
 		<contribute xsi:type="bundleItem"
 			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev3} ${elev4}"
 			id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZSRM8"
@@ -60,11 +180,51 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
+			<substitute key="mode2" value="SRM8" />			
+			<substitute key="elevation1" value="${elev1}--${elev1}" />
+			<substitute key="elevation2" value="${elev2}--${elev2}" />
+			<substitute key="elevation3" value="${elev3}--${elev3}" />
+			<substitute key="elevation4" value="${elev4}--${elev4}" />
+		</contribute>						
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev3} ${elev7} ${elev8} ${elev9}"
+			id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZSRM8"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
 			<substitute key="mode2" value="SRM8" />
-			<substitute key="elevation1" value="${elev1}" />
-			<substitute key="elevation2" value="${elev2}" />
-			<substitute key="elevation3" value="${elev3}" />
-			<substitute key="elevation4" value="${elev4}" />			
-		</contribute>
+			<substitute key="elevation1" value="${elev3}--${elev3}" />
+			<substitute key="elevation2" value="${elev7}--${elev7}" />
+			<substitute key="elevation3" value="${elev8}--${elev8}" />
+			<substitute key="elevation4" value="${elev9}--${elev9}" />
+		</contribute>			
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev8} ${elev9} ${elev10} ${elev12}"
+			id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZSRM8"
+			suppressErrors="${suppressErrors3}">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="180" />
+			<substitute key="product2" value="181" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="182" />
+			<substitute key="product6" value="" />
+			<substitute key="product7" value="" />
+			<substitute key="product8" value="" />
+			<substitute key="mode2" value="SRM8" />		
+			<substitute key="elevation1" value="${elev8}--${elev8}" />
+			<substitute key="elevation2" value="${elev9}--${elev9}" />
+			<substitute key="elevation3" value="${elev10}--${elev10}" />
+			<substitute key="elevation4" value="${elev12}--${elev12}" />
+		</contribute>				
 	</contribute>
 </menuTemplate>
