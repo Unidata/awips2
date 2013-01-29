@@ -58,7 +58,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
-import com.google.common.base.Strings;
 import com.raytheon.uf.common.stats.data.DataPoint;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.data.StatsData;
@@ -83,6 +82,7 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
  * ------------ ---------- ----------- --------------------------
  * Oct 03, 2012     728    mpduff      Initial creation.
  * Jan 17, 2013    1357    mpduff      Added mouse listeners.
+ * Jan 29, 2013    1523    mpduff      Fix for count units.
  * 
  * </pre>
  * 
@@ -676,11 +676,10 @@ public class StatsDisplayCanvas extends Canvas {
         String unit = graphData.getDisplayUnit();
         StringBuilder yAxisLabel = new StringBuilder(graphTitle);
 
-        if (!Strings.isNullOrEmpty(unit) && !unit.equalsIgnoreCase(COUNT)
-                && !view.equals(DataView.COUNT)) {
-            yAxisLabel.append(" (").append(unit).append(")");
-        } else if (view.equals(DataView.COUNT)) {
+        if (isCount(unit)) {
             yAxisLabel.append(" Counts");
+        } else {
+            yAxisLabel.append(" (").append(unit).append(")");
         }
 
         gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -698,6 +697,10 @@ public class StatsDisplayCanvas extends Canvas {
         gc.drawString(yAxisLabel.toString(), 0, 0, true);
 
         t.dispose();
+    }
+
+    private boolean isCount(String unit) {
+        return view.equals(DataView.COUNT) || COUNT.equalsIgnoreCase(unit);
     }
 
     /**
