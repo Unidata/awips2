@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.units.DataSizeUnit;
@@ -44,7 +45,6 @@ import com.raytheon.uf.viz.datadelivery.subscription.xml.OperatorAdapter;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.PriorityRuleXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.RuleXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     rules are only for future subscriptions.
  * Jan 14, 2013  1286       djohnson   Rule operators are now used as objects.
  * Jan 17, 2013  1357       mpduff     Moved DataSizeUnit.
+ * Jan 25, 2013   1528     djohnson     Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -543,17 +544,17 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
             }
 
             if (PRIORITY_TYPE.equals(ruleType)) {
-                Integer priority = ((PriorityRuleXML) ruleXml).getPriority();
+                SubscriptionPriority priority = ((PriorityRuleXML) ruleXml)
+                        .getPriority();
 
-                int o = 0;
                 SubscriptionPriority[] priorityOptions = SubscriptionPriority
                         .values();
                 for (SubscriptionPriority item : priorityOptions) {
-                    if (priority == item.getPriorityValue()) {
-                        priorityCombo.select(o);
+                    if (priority == item) {
+                        priorityCombo.select(priorityCombo.indexOf(priority
+                                .getPriorityName()));
                         break;
                     }
-                    o++;
                 }
             } else {
                 Integer latency = ((LatencyRuleXML) ruleXml).getLatency();
@@ -732,12 +733,11 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
 
         if (PRIORITY_TYPE.equals(ruleType)) {
             PriorityRuleXML rule = new PriorityRuleXML();
-            priorityVal = SubscriptionPriority.valueOf(priorityCombo.getText()
-                    .toUpperCase());
+            priorityVal = SubscriptionPriority.fromPriorityName(priorityCombo
+                    .getText());
             for (SubscriptionPriority pri : SubscriptionPriority.values()) {
                 if (pri.equals(priorityVal)) {
-                    priority = pri.getPriorityValue();
-                    (rule).setPriority(priority);
+                    rule.setPriority(pri);
                     break;
                 }
             }
