@@ -34,9 +34,9 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.SortBy;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
 
 /**
  * The graph image class.
@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionP
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
  * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
  * Jan 04, 2013   1420     mpduff      Change default priority to normal priority.
+ * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum, remove incorrect use of ordinal values.
  * 
  * </pre>
  * 
@@ -171,20 +172,17 @@ public class GraphImage extends AbstractCanvasImage {
 
         for (String subName : subscriptionList) {
             if (imageMgr.isColorByPriority()) {
-                if (graphData.getPriority(subName) == SubscriptionPriority.NORMAL
-                        .ordinal()) {
+                if (graphData.getPriority(subName) == SubscriptionPriority.NORMAL) {
                     c = new Color(
                             display,
                             imageMgr.getPriorityColor(SubscriptionPriority.NORMAL));
                     gc.setBackground(c);
-                } else if (graphData.getPriority(subName) == SubscriptionPriority.HIGH
-                        .ordinal()) {
+                } else if (graphData.getPriority(subName) == SubscriptionPriority.HIGH) {
                     c = new Color(
                             display,
                             imageMgr.getPriorityColor(SubscriptionPriority.HIGH));
                     gc.setBackground(c);
-                } else if (graphData.getPriority(subName) == SubscriptionPriority.LOW
-                        .ordinal()) {
+                } else if (graphData.getPriority(subName) == SubscriptionPriority.LOW) {
                     c = new Color(display,
                             imageMgr.getPriorityColor(SubscriptionPriority.LOW));
                     gc.setBackground(c);
