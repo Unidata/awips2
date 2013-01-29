@@ -307,8 +307,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 28Nov2012   14842	    M.Gamazaychikov	Re-wrote processPopup method
  * 13Dec2012   1353         rferrel     Change to make edit cancel message not
  *                                       dispaly the red had kill job message.
- * 31Dec2012   15651	    M.Gamazaychikov	Added an argument to re-factored PrintDisplay.print
- * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method.
+ * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method
  * </pre>
  * 
  * @author lvenable
@@ -4192,7 +4191,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void printAllText() {
         FontData fontData = textEditor.getFont().getFontData()[0];
-        PrintDisplay.print(textEditor.getText(), fontData, charWrapCol, statusHandler);
+        PrintDisplay.print(textEditor.getText(), fontData, statusHandler);
     }
 
     /**
@@ -4215,7 +4214,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
-            PrintDisplay.print(textEditor.getSelectionText(), fontData, charWrapCol,
+            PrintDisplay.print(textEditor.getSelectionText(), fontData, 
                     statusHandler);
             textEditor.setText(tmpText);
             textEditor.setSelection(point);
