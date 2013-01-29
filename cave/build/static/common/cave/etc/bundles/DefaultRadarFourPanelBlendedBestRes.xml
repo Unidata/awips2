@@ -85,7 +85,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation1}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 						    </resourceData>
@@ -119,7 +119,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation1}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 							</resourceData>
@@ -173,7 +173,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation2}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 						    </resourceData>
@@ -207,7 +207,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation2}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 							</resourceData>
@@ -256,7 +256,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation4}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 						    </resourceData>
@@ -290,7 +290,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation4}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 							</resourceData>
@@ -344,7 +344,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation3}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 						    </resourceData>
@@ -378,7 +378,7 @@
 									</mapping>
 									<mapping key="primaryElevationAngle">
 										<constraint constraintValue="${elevation3}"
-											constraintType="IN" />
+											constraintType="BETWEEN" />
 									</mapping>
 								</metadataMap>
 							</resourceData>
