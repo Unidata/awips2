@@ -23,8 +23,10 @@ package com.raytheon.viz.texteditor.dialogs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.SortedSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -97,8 +99,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                       functionality.
  * 06/28/2010   3283        cjeanbap    Implement window resize.
  * 25Sep2012    1196        lvenable    Dialog refactor to prevent blocking.
- * 22Jan2013    1496        rferrel     Changes to designator hours query
+ * 29Jan2013    1496        rferrel     Changes to designator hours query
  *                                       off the UI thread.
+ *                                      Changes to have multiple query jobs.
  * </pre>
  * 
  * @author lvenable
@@ -146,11 +149,6 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
      * Newest time used to populate "000" designator's time.
      */
     private long newestTime = -1L;
-
-    /**
-     * Index of designator who time is being updated.
-     */
-    private int dtlIndex;
 
     /**
      * custom mouse handling so we can do the required vertical bar
@@ -705,7 +703,6 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         // Keep this list the same size as disignatorList.
         designatorTimeList.add("");
         updateSelectionList(designatorTimeList);
-        dtlIndex = 0;
     }
 
     /**
@@ -723,6 +720,8 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
         designatorTimeList.setItem(0, value);
 
+        checkLoadBtn();
+
         loadingTimes = false;
         if (!loadingProduct) {
             getShell().setCursor(null);
@@ -730,16 +729,17 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Update the the next chuck of times retrieved. Assume these values should
-     * be inserted staring at dtlIndex+1.
+     * Update the the chuck of times retrieved. The values should be inserted
+     * starting at startIndex.
      * 
      * @param queryResponse
+     * @param startIndex
      */
-    private void updateAfterQuery(Message queryResponse) {
+    private void updateAfterQuery(Message queryResponse, int startIndex) {
 
         Property[] properties = queryResponse.getHeader().getProperties();
-
         ArrayList<Long> times = new ArrayList<Long>();
+
         // We use this time to populate the "000" designator entry.
         if (properties != null) {
             for (Property p : properties) {
@@ -755,10 +755,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
         String value = null;
         try {
-            int startIndex = dtlIndex;
+            int index = startIndex;
             int selectIndex = designatorList.getSelectionIndex();
             for (Long time : times) {
-                ++dtlIndex;
                 if (time > 0) {
                     Calendar c = TimeTools.newCalendar(time);
                     value = String.format(TIME_FORMAT, c);
@@ -767,11 +766,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                 } else {
                     value = DATA_NONE;
                 }
-                designatorTimeList.setItem(dtlIndex, value);
+                designatorTimeList.setItem(index, value);
+                ++index;
             }
 
             // Selected designator time updated check status of load buttons.
-            if (selectIndex > startIndex && selectIndex <= dtlIndex) {
+            if (selectIndex > startIndex && selectIndex <= index) {
                 checkLoadBtn();
             }
         } catch (IllegalArgumentException ex) {
@@ -1445,18 +1445,132 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
     }
 
-    /*
+    /**
      * Job to query for designator times.
      */
     private class QueryRequests extends Job {
+        /*
+         * This contains the query command for getting a some of the Designator
+         * times for the query and where in the designator time list the times
+         * belong.
+         */
+        private class TimesRequest {
+            /**
+             * Clone copy of the query passed to the constructor.
+             */
+            protected TextDBQuery query;
+
+            /**
+             * The index in the Designator Time list where to start placing the
+             * results.
+             */
+            protected int startIndex;
+
+            /**
+             * Query results.
+             */
+            protected Message queryResults;
+
+            public TimesRequest(TextDBQuery query, int startIndex) {
+                this.query = query.clone();
+                this.startIndex = startIndex;
+            }
+        }
+
+        /**
+         * List of pending Times Requests needed to populate the designator
+         * times.
+         */
+        final LinkedBlockingQueue<TimesRequest> timesRequestQueue = new LinkedBlockingQueue<AfosBrowserDlg.QueryRequests.TimesRequest>();
+
+        /**
+         * List of completed Times Requests that need to be processed to update
+         * the designator's hours.
+         */
+        final LinkedBlockingQueue<TimesRequest> timesResultQueue = new LinkedBlockingQueue<AfosBrowserDlg.QueryRequests.TimesRequest>();
+
+        /**
+         * A job for taking a pending TimesRequest, perform the query and then
+         * place it on the result list.
+         */
+        private class QueryJob extends Job {
+            /**
+             * Flag to indicate active request has been canceled.
+             */
+            private boolean canceled = false;
+
+            /**
+             * Constructor.
+             * 
+             * @param name
+             */
+            public QueryJob(String name) {
+                super("QueryJob");
+                setSystem(true);
+            }
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime
+             * .IProgressMonitor)
+             */
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                while (true) {
+                    TimesRequest timesRequest = timesRequestQueue.poll();
+                    if (timesRequest == null || canceled) {
+                        queryJobList.remove(this);
+                        return Status.OK_STATUS;
+                    }
+                    timesRequest.queryResults = timesRequest.query
+                            .executeQuery();
+                    timesRequest.query = null;
+
+                    if (!canceled) {
+                        timesResultQueue.add(timesRequest);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Maximum number of product ids to place in a Times Request.
+         */
         private final int MAX_PRODUCTS_PER_QUERY = 25;
 
-        private TextDBQuery request = null;
+        /**
+         * Maximum number of jobs to service the Times Request.
+         */
+        private final int MAX_QUERIES = 5;
 
+        /**
+         * Active Query Jobs. The list must be synchronized since it is modified
+         * in multiple threads outside of any synchronized block.
+         */
+        private final java.util.List<QueryJob> queryJobList = Collections
+                .synchronizedList(new ArrayList<AfosBrowserDlg.QueryRequests.QueryJob>(
+                        MAX_QUERIES));
+
+        /**
+         * The pending request for getting designator hours.
+         */
+        private TextDBQuery pendingRequest = null;
+
+        /**
+         * Flag to indicate the current request is canceled.
+         */
         private boolean canceled = false;
 
+        /**
+         * The complete list of productIds to run in the request query.
+         */
         private java.util.List<String> productIds;
 
+        /**
+         * Constructor.
+         */
         public QueryRequests() {
             super("QueryRequests");
             setSystem(true);
@@ -1471,6 +1585,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             java.util.List<String> prodIds = null;
+            TextDBQuery request = null;
 
             synchronized (this) {
                 if (monitor.isCanceled()) {
@@ -1478,6 +1593,8 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                 } else {
                     prodIds = productIds;
                     productIds = null;
+                    request = pendingRequest;
+                    pendingRequest = null;
                 }
             }
 
@@ -1490,52 +1607,88 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             });
 
             int cnt = 0;
+            int startIndex = 1;
 
+            // Queue up requests for getting Designator hours and start jobs
+            // to process them.
             Iterator<String> iterator = prodIds.iterator();
             while (iterator.hasNext()) {
                 String productId = iterator.next();
 
                 if (canceled) {
-                    synchronized (this) {
-                        canceled = false;
-                        this.notify();
-                        return Status.OK_STATUS;
-                    }
+                    break;
                 }
 
                 request.addProductId(productId);
                 ++cnt;
 
                 if (cnt >= MAX_PRODUCTS_PER_QUERY || !iterator.hasNext()) {
-                    final Message queryResponse = request.executeQuery();
-                    if (!canceled) {
-                        VizApp.runAsync(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if (!canceled) {
-                                    updateAfterQuery(queryResponse);
-                                }
-                            }
-                        });
+                    TimesRequest timesRequest = new TimesRequest(request,
+                            startIndex);
+                    timesRequestQueue.add(timesRequest);
+                    if (queryJobList.size() < MAX_QUERIES) {
+                        QueryJob queryJob = new QueryJob("");
+                        queryJobList.add(queryJob);
+                        queryJob.schedule();
                     }
                     request.clearProductIds();
+                    startIndex += cnt;
                     cnt = 0;
                 }
             }
 
-            synchronized (this) {
-                request = null;
+            // Wait for all query jobs to finish and update results.
+            boolean finished = false;
+            while (!(finished || canceled)) {
+                if (!timesResultQueue.isEmpty()) {
+                    final java.util.List<TimesRequest> resultList = new ArrayList<AfosBrowserDlg.QueryRequests.TimesRequest>();
+                    timesResultQueue.drainTo(resultList);
+
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            for (TimesRequest result : resultList) {
+                                if (canceled) {
+                                    break;
+                                }
+                                updateAfterQuery(result.queryResults,
+                                        result.startIndex);
+                            }
+                        }
+                    });
+                }
+
+                if (queryJobList.size() > 0) {
+                    synchronized (this) {
+                        try {
+                            wait(200L);
+                        } catch (InterruptedException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
+                        }
+                    }
+                } else {
+                    finished = timesResultQueue.isEmpty();
+                }
             }
 
-            VizApp.runAsync(new Runnable() {
+            if (!canceled) {
+                VizApp.runAsync(new Runnable() {
 
-                @Override
-                public void run() {
-                    finishDesignatorTimeList();
-                }
-            });
+                    @Override
+                    public void run() {
+                        finishDesignatorTimeList();
+                    }
+                });
+            }
 
+            // Make sure everything is in proper state for the next time job is
+            // schedule.
+            timesRequestQueue.clear();
+            timesResultQueue.clear();
+            queryJobList.clear();
+            canceled = false;
             return Status.OK_STATUS;
         }
 
@@ -1548,27 +1701,15 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
          * @param productIds
          *            - List of products for the query.
          */
-        public void addRequest(TextDBQuery request,
+        public synchronized void addRequest(TextDBQuery request,
                 java.util.List<String> productIds) {
-            synchronized (this) {
-                if (this.request != null) {
-                    if (getState() != Job.NONE) {
-                        cancel();
-                        while (request != null && getState() != Job.NONE) {
-                            try {
-                                wait(100L);
-                            } catch (InterruptedException e) {
-                                AfosBrowserDlg.statusHandler.handle(
-                                        Priority.PROBLEM,
-                                        e.getLocalizedMessage(), e);
-                            }
-                        }
-                    }
-                }
-                this.request = request;
-                this.productIds = productIds;
-                schedule();
+            if (getState() != Job.NONE) {
+                cancel();
             }
+
+            this.pendingRequest = request;
+            this.productIds = productIds;
+            schedule();
         }
 
         /*
@@ -1579,6 +1720,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         @Override
         protected void canceling() {
             canceled = true;
+            for (QueryJob query : queryJobList) {
+                query.canceled = true;
+            }
         }
     }
 }
