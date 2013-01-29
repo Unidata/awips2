@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset.presenter;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.viz.ui.presenter.IPresenterView;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
@@ -119,9 +120,9 @@ public interface IGriddedTimingSelectionDlgView extends IPresenterView {
     int getLatency();
 
     /**
-     * Get the priority value.
+     * Get the priority.
      * 
-     * @return priority value
+     * @return priority
      */
-    int getPriority();
+    SubscriptionPriority getPriority();
 }
