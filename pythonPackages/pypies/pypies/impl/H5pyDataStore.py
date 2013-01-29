@@ -30,6 +30,7 @@
 #    06/16/10                      njensen       Initial Creation.
 #    05/03/11        9134          njensen       Optimized for pointdata
 #    10/09/12                      rjpeter       Optimized __getGroup for retrievals
+#    01/17/13        DR 15294      D. Friedman   Clear out data in response
 #
 #
 #
@@ -94,6 +95,9 @@ class H5pyDataStore(IDataStore.IDataStore):
                 except:
                     logger.warn("Exception occurred on file " + fn + ":" + IDataStore._exc())
                     exc.append(IDataStore._exc())
+                    # Clear out data so we don't send the whole thing back to the client.
+                    # NOTE: This assumes pypies no longer needs the data
+                    r.putDataObject(None)
                     failRecs.append(r)
 
             if ss:
