@@ -44,6 +44,8 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.hydrocommon.actions.SetProjection;
@@ -74,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 21, 2008            randerso     Initial creation
  * Feb 18, 2010  4111      snaples      Updated to support contexts
  * Apr 27, 2010            mschenke     refactor for common perspective switching
+ * Jan 29, 2013  1550      mpduff       Add ability to preload maps on open.
  * </pre>
  * 
  * @author randerso
@@ -84,6 +87,9 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
     private static final String MPE = "mpe";
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void open() {
         // First time opened, set perspective default background color
@@ -132,6 +138,33 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                                 perspectiveWindow, editorId, displays);
                         if (editor != null) {
                             initialize(editor);
+
+                            String[] maps;
+
+                            // Get the maps configured for display at startup
+                            String displayMaps = AppsDefaults.getInstance()
+                                    .getToken("mpe_display_maps",
+                                            "statesCounties");
+
+                            if (displayMaps.contains(",")) {
+                                maps = displayMaps.split(",");
+                            } else {
+                                maps = new String[1];
+                                maps[0] = displayMaps;
+                            }
+
+                            IDisplayPaneContainer currentEditor = EditorUtil
+                                    .getActiveVizContainer();
+                            MapManager mapMgr = MapManager
+                                    .getInstance((IMapDescriptor) currentEditor
+                                            .getActiveDisplayPane()
+                                            .getDescriptor());
+
+                            // Load the configured maps
+                            for (String map : maps) {
+                                mapMgr.loadMapByBundleName(map.trim());
+                            }
+
                             return editor;
                         } else {
                             throw new VizException(
@@ -162,13 +195,15 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
      * Initializes a newly created MPE editor
      * 
      * @param editor
-     * @return
      */
     private static void initialize(AbstractEditor editor) {
         // Project editor
         SetProjection.setDefaultProjection(editor, MPE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public IInputHandler[] getPerspectiveInputHandlers(AbstractEditor editor) {
         IInputHandler[] superHandlers = super
@@ -242,6 +277,9 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         return handlers.toArray(new IInputHandler[handlers.size()]);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager,
             IDisplayPaneContainer container, IDisplayPane pane) {
