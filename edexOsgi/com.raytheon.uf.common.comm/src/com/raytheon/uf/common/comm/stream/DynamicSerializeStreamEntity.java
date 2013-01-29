@@ -108,8 +108,8 @@ public class DynamicSerializeStreamEntity extends AbstractHttpEntity {
             DynamicSerializationManager.getManager(SerializationType.Thrift)
                     .serialize(obj, os);
         } catch (SerializationException e) {
-            throw new IOException("Error serializing " + obj.getClass()
-                    + " to stream", e);
+            throw new IOException("Error serializing "
+                    + (obj != null ? obj.getClass() : null) + " to stream", e);
         }
     }
 
