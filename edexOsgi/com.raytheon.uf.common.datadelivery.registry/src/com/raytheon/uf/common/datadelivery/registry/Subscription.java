@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -50,6 +52,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Nov 20, 2012 1286        djohnson    Add unscheduled.
  * Dec 12, 2012 1433        bgonzale    Refactored Subscription copy ctor into two ctors.
  * Jan 03, 2013 1441        djohnson    Default to no group.
+ * Jan 25, 2013 1528        djohnson    Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -65,6 +68,73 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
     Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT })
 public class Subscription implements ISerializableObject, Serializable {
+
+    /** Enumeration to use for subscription priorities */
+    @XmlEnum
+    public static enum SubscriptionPriority {
+        /** High Priority */
+        @XmlEnumValue("High")
+        HIGH("High", 1),
+        /** Default Priority */
+        @XmlEnumValue("Normal")
+        NORMAL("Normal", 2),
+        /** Low Priority */
+        @XmlEnumValue("Low")
+        LOW("Low", 3);
+
+        /** Priority Setting */
+        private final String priorityName;
+
+        /** Numeric Value of the priority */
+        private int priorityValue;
+
+        private SubscriptionPriority(String priorityName, Integer priorityValue) {
+            this.priorityName = priorityName;
+            this.priorityValue = priorityValue;
+        }
+
+        /**
+         * Get column name.
+         * 
+         * @return Priority Name
+         */
+        public String getPriorityName() {
+            return priorityName;
+        }
+
+        /**
+         * Get the integer value of the priority
+         * 
+         * @return The integer value of the priority.
+         */
+        public int getPriorityValue() {
+            return priorityValue;
+        }
+
+        @Override
+        public String toString() {
+            return priorityName;
+        }
+
+        /**
+         * Retrieve the {@link SubscriptionPriority} by its string
+         * representation.
+         * 
+         * @param string
+         *            the string representation
+         * @return the {@link SubscriptionPriority}
+         */
+        public static SubscriptionPriority fromPriorityName(String string) {
+            for (SubscriptionPriority potential : SubscriptionPriority.values()) {
+                if (potential.getPriorityName().equals(string)) {
+                    return potential;
+                }
+            }
+            throw new IllegalArgumentException(
+                    "Unable to find priority with priority name [" + string
+                            + "]");
+        }
+    }
 
     private static final long serialVersionUID = -6422673887457060034L;
 
@@ -166,7 +236,7 @@ public class Subscription implements ISerializableObject, Serializable {
 
     @XmlAttribute
     @DynamicSerializeElement
-    private Integer priority;
+    private SubscriptionPriority priority = SubscriptionPriority.NORMAL;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -363,7 +433,7 @@ public class Subscription implements ISerializableObject, Serializable {
      * 
      * @return subscription name
      */
-    public Integer getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 
@@ -373,7 +443,7 @@ public class Subscription implements ISerializableObject, Serializable {
      * @param priority
      *           priority
      */
-    public void setPriority(Integer priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
