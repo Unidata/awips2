@@ -562,7 +562,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         sub.setOfficeID(LocalizationManager.getInstance().getCurrentSite());
         if (create) {
             sub.setOwner(LocalizationManager.getInstance().getCurrentUser());
-            sub.setPriority(1);
         } else {
             sub.setOwner(this.subscription.getOwner());
             sub.setGroupName(this.subscription.getGroupName());
