@@ -39,7 +39,7 @@ import com.raytheon.uf.common.message.Property;
  * Nov 3, 2008            jkorman     Initial creation
  * 28May2010               cjeanbap    Added operational functionality.
  * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
- * 22Jan2013    1496      rferrel     Added method clearProductIds
+ * 29Jan2013    1496      rferrel     Added methods clearProductIds and clone.
  * 
  * </pre>
  * 
@@ -89,6 +89,34 @@ public class TextDBQuery {
      */
     public TextDBQuery(IQueryTransport transport) {
         queryTransport = transport;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    public TextDBQuery clone() {
+        TextDBQuery tdq = new TextDBQuery(queryTransport);
+        tdq.queryViewName = this.queryViewName;
+        tdq.queryOpName = this.queryOpName;
+        tdq.querySubObName = this.querySubObName;
+        tdq.queryTimeFormatName = this.queryTimeFormatName;
+        tdq.queryTimeFormat = this.queryTimeFormat;
+        tdq.queryAfosCmd = this.queryAfosCmd;
+        tdq.queryWmoId = this.queryWmoId;
+        tdq.querySite = this.querySite;
+        tdq.queryHour = this.queryHour;
+        tdq.queryHdrTime = this.queryHdrTime;
+        tdq.queryBBB = this.queryBBB;
+        tdq.queryNnnXxx = this.queryNnnXxx;
+        tdq.queryFullDataRead = this.queryFullDataRead;
+        tdq.queryOperationalMode = this.queryOperationalMode;
+        tdq.queryProduct = this.queryProduct;
+        if (productIds != null) {
+            tdq.productIds = new ArrayList<String>(productIds);
+        }
+        return tdq;
     }
 
     /**
