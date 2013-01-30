@@ -51,7 +51,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.timeseries.util.GraphData;
@@ -88,7 +87,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04 Mar 2011 7644      lbousaid      fixed Zoom in feature       
  * 30 May 2012 14967     wkwock        fix insert deleted data to rejecteddata table    
  * 23 Jul 2012 15195     mpduff        Fix dates for displaying groups
- * 06 Dec 2012 15066     wkwock        Fix "ctrl+r" not work in group mode                   
+ * 06 Dec 2012 15066     wkwock        Fix "ctrl+r" not work in group mode
+ * 30 Jan 2012 15459     mpduff        Redmine 1560 - Make graph canvases redraw on page up/down.
  * 
  * </pre>
  * 
@@ -316,20 +316,20 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     /**
      * Display Canvas List.
      */
-    private ArrayList<TimeSeriesDisplayCanvas> canvasList = new ArrayList<TimeSeriesDisplayCanvas>();
+    private final ArrayList<TimeSeriesDisplayCanvas> canvasList = new ArrayList<TimeSeriesDisplayCanvas>();
 
     /** List of page composites */
-    private ArrayList<Composite> pageCompList = new ArrayList<Composite>();
+    private final ArrayList<Composite> pageCompList = new ArrayList<Composite>();
 
     /**
      * The page currently displayed.
      */
     private int currentPage = 0;
-    
+
     /**
      * A flag if Zoom In or not .
      */
-    private boolean zoomIn= false;
+    private boolean zoomIn = false;
 
     /** Flag for inverse printing */
     private boolean inverseVideo = false;
@@ -353,7 +353,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     /**
      * Holds the list of deleted points.
      */
-    private List<ForecastData> deleteList = new ArrayList<ForecastData>();
+    private final List<ForecastData> deleteList = new ArrayList<ForecastData>();
 
     /**
      * Holds the list of inserted points.
@@ -370,14 +370,14 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     private Rectangle bounds = null;
 
     private TimeSeriesDlg parentDialog = null;
-    
+
     private int showCatValue = 0;
-    
-    /** 
+
+    /**
      * Zoom reset flag
      * 
-     * true when click the zoom reset menu, then false 
-     * when a graph has been reset
+     * true when click the zoom reset menu, then false when a graph has been
+     * reset
      */
     private boolean reset = false;
 
@@ -389,7 +389,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      */
     public TimeSeriesDisplayDlg(Shell parent, Rectangle bounds,
             TimeSeriesDlg parentDialog) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+        super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
         setText("Time Series Display");
 
         this.bounds = bounds;
@@ -420,7 +421,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     protected void initializeComponents(final Shell shell) {
         // Get default values from Apps Defaults
         loadAppsDefaults();
-        
+
         // Initialize all of the controls and layouts
         Menu menuBar = new Menu(shell, SWT.BAR);
 
@@ -947,17 +948,17 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         setMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	
-            	if (zoomIn == false) {             	
-            		setZoom(false);
-            		setZoomAction(true);
-            		setSelectZoom(true);
-            		zoomIn=true;
-            	} else {            	
-            		setZoom(true);
-            		setZoomAction(true);
-            		setSelectZoom(true);
-            	}
+
+                if (zoomIn == false) {
+                    setZoom(false);
+                    setZoomAction(true);
+                    setSelectZoom(true);
+                    zoomIn = true;
+                } else {
+                    setZoom(true);
+                    setZoomAction(true);
+                    setSelectZoom(true);
+                }
             }
         });
 
@@ -967,18 +968,18 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         resetMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	if (groupInfo.isGroupSelected()) {
-            	    setZoom(false);
-            	    setZoomAction(false);
-            	    setSelectZoom(false);
+                if (groupInfo.isGroupSelected()) {
+                    setZoom(false);
+                    setZoomAction(false);
+                    setSelectZoom(false);
                     reset = true;
-                    for (TimeSeriesDisplayCanvas dc :canvasList){
-                    	dc.setZoomed(false);
-                    	dc.redraw();
+                    for (TimeSeriesDisplayCanvas dc : canvasList) {
+                        dc.setZoomed(false);
+                        dc.redraw();
                     }
-            	} else {
-            		displayCanvas.resetTS();
-            	}
+                } else {
+                    displayCanvas.resetTS();
+                }
             }
         });
     }
@@ -1083,7 +1084,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 redrawCanvases();
             }
         });
-        
+
         if (showCatValue == 1) {
             dataOnlyMI.setSelection(true);
         } else if (showCatValue == 2) {
@@ -1188,7 +1189,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 redrawCanvases();
             }
         });
-        
+
         if (showCatValue == 1) {
             batchDataOnlyMI.setSelection(true);
         } else if (showCatValue == 2) {
@@ -1197,12 +1198,12 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             batchDataAndCategoriesMI.setSelection(true);
         }
     }
-    
+
     private void loadAppsDefaults() {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         this.showCatValue = appsDefaults.getInt("timeseries_showcat", 0);
     }
-    
+
     private void updateMaxFcst(List<ForecastData> pointList) {
         ForecastData point = pointList.get(0);
         String pe = point.getPe();
@@ -1213,7 +1214,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             if (pe.toUpperCase().startsWith("H")
                     || pe.toUpperCase().startsWith("Q")) {
                 String lid = point.getLid();
-                
+
                 /* call Load Max Forecast if update or insert of H or Q PE's */
                 if (pe.toUpperCase().startsWith("H")
                         || pe.toUpperCase().startsWith("Q")) {
@@ -1263,9 +1264,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 if (pi.getGraphDataList().size() == 0) {
                     continue;
                 }
-                
-                idx++; 
-                
+
+                idx++;
+
                 /* Graphs on each page */
                 ArrayList<GraphData> graphList = pi.getGraphDataList();
                 GraphData[] graphArray = graphList
@@ -1280,7 +1281,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 pageGL.marginWidth = 0;
 
                 pageComp.setLayout(pageGL);
-                
+
                 GridData pageGridData = new GridData(SWT.FILL, SWT.FILL, true,
                         true);
                 pageComp.setLayoutData(pageGridData);
@@ -1321,33 +1322,34 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         dataAndCategoriesMI.setSelection(false);
                         dataOnlyShowCatMI.setSelection(false);
                     } else {
-                    	String showCat = AppsDefaults.getInstance().getToken("timeseries_showcat");
-                    	int sc = Integer.parseInt(showCat);
-                    	System.out.println(showCat);
-                    	if (sc == 1) {
+                        String showCat = AppsDefaults.getInstance().getToken(
+                                "timeseries_showcat");
+                        int sc = Integer.parseInt(showCat);
+                        System.out.println(showCat);
+                        if (sc == 1) {
                             batchDataOnlyShowCatMI.setSelection(false);
                             batchDataOnlyMI.setSelection(true);
                             batchDataAndCategoriesMI.setSelection(false);
                             dataOnlyShowCatMI.setSelection(false);
                             dataOnlyMI.setSelection(true);
                             dataAndCategoriesMI.setSelection(false);
-                    	} else if (sc == 2) {
+                        } else if (sc == 2) {
                             batchDataOnlyShowCatMI.setSelection(true);
                             batchDataOnlyMI.setSelection(false);
                             batchDataAndCategoriesMI.setSelection(false);
                             dataOnlyShowCatMI.setSelection(true);
                             dataOnlyMI.setSelection(false);
-                            dataAndCategoriesMI.setSelection(false);                    		
-                    	} else {
-	                        batchDataOnlyShowCatMI.setSelection(false);
-	                        batchDataOnlyMI.setSelection(false);
-	                        batchDataAndCategoriesMI.setSelection(true);
-	                        dataOnlyShowCatMI.setSelection(false);
-	                        dataOnlyMI.setSelection(false);
-	                        dataAndCategoriesMI.setSelection(true);
-                    	}
+                            dataAndCategoriesMI.setSelection(false);
+                        } else {
+                            batchDataOnlyShowCatMI.setSelection(false);
+                            batchDataOnlyMI.setSelection(false);
+                            batchDataAndCategoriesMI.setSelection(true);
+                            dataOnlyShowCatMI.setSelection(false);
+                            dataOnlyMI.setSelection(false);
+                            dataAndCategoriesMI.setSelection(true);
+                        }
                     }
-                    
+
                     String traceMode = groupInfo.getTraceMode().trim();
                     if (traceMode.equalsIgnoreCase("B")) {
                         bothMI.setSelection(true);
@@ -1364,8 +1366,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     }
 
                     displayCanvas = new TimeSeriesDisplayCanvas(this,
-                            canvasComp, gd, beginDate,
-                            endDate, groupInfo.isGroupSelected());
+                            canvasComp, gd, beginDate, endDate,
+                            groupInfo.isGroupSelected());
                     displayCanvas.setHorizontalSpan(gd.getXsize());
                     displayCanvas.setVerticalSpan(gd.getYsize());
                     displayCanvas.showGridLines(groupInfo.isGridLines());
@@ -1379,7 +1381,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 pageCompList.get(idx).setVisible(false);
                 stackGridComp.layout();
             }
-            
+
             if (pageCompList.size() > 0) {
                 ((GridData) pageCompList.get(0).getLayoutData()).exclude = false;
                 pageCompList.get(0).setVisible(true);
@@ -1683,7 +1685,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         shell.redraw();
         shell.update();
     }
-    
+
     protected void pageUpAction() {
         if (currentPage == 0) {
             currentPage = groupInfo.getPageInfoList().size() - 1;
@@ -1693,6 +1695,10 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         for (int i = 0; i < pageCompList.size(); i++) {
             if (currentPage == i) {
                 ((GridData) pageCompList.get(i).getLayoutData()).exclude = false;
+                canvasList.get(i).setGetAgain(true);
+                canvasList.get(i).redraw();
+                canvasList.get(i).update();
+
                 pageCompList.get(i).setVisible(true);
             } else {
                 ((GridData) pageCompList.get(i).getLayoutData()).exclude = true;
@@ -1702,7 +1708,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             stackGridComp.setFocus();
         }
     }
-    
+
     protected void pageDownAction() {
         if (currentPage == groupInfo.getPageInfoList().size() - 1) {
             currentPage = 0;
@@ -2233,17 +2239,18 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         }
     }
 
-	/**
-	 * @param reset the reset to set
-	 */
-	public void setReset(boolean reset) {
-		this.reset = reset;
-	}
+    /**
+     * @param reset
+     *            the reset to set
+     */
+    public void setReset(boolean reset) {
+        this.reset = reset;
+    }
 
-	/**
-	 * @return the reset
-	 */
-	public boolean isReset() {
-		return reset;
-	}
+    /**
+     * @return the reset
+     */
+    public boolean isReset() {
+        return reset;
+    }
 }
