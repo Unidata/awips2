@@ -19,14 +19,14 @@
  **/
 package com.raytheon.uf.common.dataaccess.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
-import com.raytheon.uf.common.dataaccess.exception.MissingRequiredIdentifierException;
+import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
 
 /**
  * 
@@ -55,7 +55,19 @@ public abstract class AbstractDataFactory {
      * 
      * @return the required identifiers
      */
-    public abstract String[] getRequiredIdentifiers();
+    public String[] getRequiredIdentifiers(){
+        return null;
+    }
+
+    /**
+     * Return the complete set of all valid identifiers for a request, or null
+     * if there is no well defined set or if no validation should occur.
+     * 
+     * @return the valid identifiers.
+     */
+    public String[] getValidIdentifiers() {
+        return null;
+    }
 
     /**
      * Validates that a request is compatible with the factory
@@ -65,36 +77,26 @@ public abstract class AbstractDataFactory {
      */
     public void validateRequest(IDataRequest<?> request) {
         String[] required = getRequiredIdentifiers();
-        List<String> missing = null;
-        if (required != null && required.length > 0) {
-            Map<String, Object> identifiers = request.getIdentifiers();
-            if (identifiers != null) {
-                for (String s : required) {
-                    if (!identifiers.containsKey(s)) {
-                        if (missing == null) {
-                            missing = new ArrayList<String>(required.length);
-                        }
-                        missing.add(s);
-                    }
-                }
-            } else {
-                missing = Arrays.asList(required);
+        Collection<String> missing = Collections.emptySet();
+        Collection<String> invalid = Collections.emptySet();
+        Map<String, Object> identifiers = request.getIdentifiers();
+        if (identifiers != null) {
+            if (required != null) {
+                missing = new HashSet<String>(Arrays.asList(required));
+                missing.removeAll(identifiers.keySet());
             }
+            String[] valid = getValidIdentifiers();
+            if (valid != null) {
+                invalid = new HashSet<String>(identifiers.keySet());
+                invalid.removeAll(Arrays.asList(valid));
+            }
+        } else if (required != null) {
+            missing = Arrays.asList(required);
         }
 
-        if (missing != null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Request of ");
-            sb.append(request.getDatatype());
-            sb.append(" data is missing identifiers: ");
-            Iterator<String> itr = missing.iterator();
-            while (itr.hasNext()) {
-                sb.append(itr.next());
-                if (itr.hasNext()) {
-                    sb.append(", ");
-                }
-            }
-            throw new MissingRequiredIdentifierException(sb.toString());
+        if (!missing.isEmpty() || !invalid.isEmpty()) {
+            throw new InvalidIdentifiersException(request.getDatatype(), missing,
+                    invalid);
         }
     }
 }
