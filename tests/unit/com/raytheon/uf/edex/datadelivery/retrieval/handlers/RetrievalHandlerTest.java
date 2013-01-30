@@ -19,11 +19,10 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,10 +30,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
 import com.raytheon.uf.edex.event.EventBusTest;
 
@@ -50,6 +45,7 @@ import com.raytheon.uf.edex.event.EventBusTest;
  * Jul 06, 2012 740       djohnson     Initial creation
  * Aug 09. 2012 1022      djohnson     Changes to RetrievalHandler.
  * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
+ * Jan 30, 2013 1543      djohnson     RetrievalTask now requires a Network.
  * 
  * </pre>
  * 
@@ -69,8 +65,11 @@ public class RetrievalHandlerTest {
 
     private final SubscriptionNotifyTask subNotifyTask = mock(SubscriptionNotifyTask.class);
 
+    private final IRetrievalResponseCompleter retrievalCompleter = mock(IRetrievalResponseCompleter.class);
+
     private final RetrievalHandler handler = new RetrievalHandler(
-            executorService, mockDao, retrievalTask, subNotifyTask);
+            executorService, mockDao, Arrays.asList(retrievalTask),
+            subNotifyTask);
 
     @BeforeClass
     public static void classSetUp() {
@@ -82,31 +81,45 @@ public class RetrievalHandlerTest {
         verify(mockDao).resetRunningRetrievalsToPending();
     }
 
-    @Test
-    public void testIllegalStateExceptionThrownDuringProcessWillReturnFalse() {
-
-        PathManagerFactoryTest.initLocalization();
-        Retrieval retrieval = new Retrieval() {
-            private static final long serialVersionUID = 1109443017002028345L;
-
-            @Override
-            public ArrayList<RetrievalAttribute> getAttribute() {
-                throw new IllegalStateException(EXCEPTION_MESSAGE);
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public ServiceType getServiceType() {
-                return ServiceType.OPENDAP;
-            }
-        };
-
-        RetrievalTask task = new RetrievalTask("someDestination", subNotifyTask);
-        assertFalse("Expected false when an IllegalStateException was thrown!",
-                task.process(retrieval));
-    }
+    // FIXME: Create PerformRetrievalPluginDataObjectsFinderTest and move this
+    // test there
+    // @Test
+    // public void testIllegalStateExceptionThrownDuringProcessWillReturnFalse()
+    // throws SerializationException {
+    //
+    // PathManagerFactoryTest.initLocalization();
+    // Retrieval retrieval = new Retrieval() {
+    // private static final long serialVersionUID = 1109443017002028345L;
+    //
+    // @Override
+    // public ArrayList<RetrievalAttribute> getAttribute() {
+    // throw new IllegalStateException(EXCEPTION_MESSAGE);
+    // }
+    //
+    // /**
+    // * {@inheritDoc}
+    // */
+    // @Override
+    // public ServiceType getServiceType() {
+    // return ServiceType.OPENDAP;
+    // }
+    // };
+    // RetrievalRequestRecord record = new RetrievalRequestRecord();
+    // try {
+    // record.setRetrievalObj(retrieval);
+    // } catch (NullPointerException npe) {
+    // // This is expected because we create an anonymous retrieval
+    // // instance, and can't dynamically serialize it
+    // }
+    //
+    // RetrievalTask task = new RetrievalTask(
+    // new PerformRetrievalPluginDataObjectsFinder(Network.OPSNET),
+    // new NotifyOfPluginDataObjectsDecorator(
+    // mock(IRetrievedDataProcessor.class)),
+    // retrievalCompleter);
+    // assertFalse("Expected false when an IllegalStateException was thrown!",
+    // task.process(record));
+    // }
 
     @Test
     public void testOnNotifyOfSubscriptionsARetrievalTaskIsExecuted() {
