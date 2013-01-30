@@ -78,32 +78,36 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
 
     private static final String NAMESPACE = "namespace";
 
+    private static final String[] VALID_IDENTIFIERS = {
+            GridConstants.DATASET_ID, GridConstants.SECONDARY_ID,
+            GridConstants.ENSEMBLE_ID, NAMESPACE };
+
+    @Override
+    public String[] getValidIdentifiers() {
+        return VALID_IDENTIFIERS;
+    }
+
     @Override
     public GridGeometry2D getGeometry(IGridRequest request) {
         Object locationId = null;
-        if (request.getIdentifiers().containsKey(GridConstants.LOCATION_ID)) {
-            locationId = request.getIdentifiers()
-                    .get(GridConstants.LOCATION_ID);
-        } else {
-            DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
-            dbQueryRequest.setDistinct(Boolean.TRUE);
-            dbQueryRequest.addRequestField(GridConstants.LOCATION_ID);
+        DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(GridConstants.LOCATION_ID);
 
-            DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
-                    dbQueryRequest, request.toString());
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
 
-            if (dbQueryResponse.getResults().isEmpty()) {
-                return null;
-            }
-
-            if (dbQueryResponse.getResults().size() > 1) {
-                throw new DataRetrievalException(
-                        "The provided request parameters refer to more than one geographical location.");
-            }
-
-            locationId = dbQueryResponse.getResults().get(0)
-                    .get(GridConstants.LOCATION_ID);
+        if (dbQueryResponse.getResults().isEmpty()) {
+            return null;
         }
+
+        if (dbQueryResponse.getResults().size() > 1) {
+            throw new DataRetrievalException(
+                    "The provided request parameters refer to more than one geographical location.");
+        }
+
+        locationId = dbQueryResponse.getResults().get(0)
+                .get(GridConstants.LOCATION_ID);
         GridCoverage cov = GridCoverageLookup.getInstance().getCoverage(
                 Integer.parseInt(locationId.toString()));
         if (cov != null) {
@@ -114,13 +118,6 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         }
     }
 
-    @Override
-    public String[] getRequiredIdentifiers() {
-        // What is required? Technically it would be nice if you specified a
-        // datasetid, but some parameters are only in one model so maybe it's
-        // not required.
-        return null;
-    }
 
     @Override
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
@@ -130,7 +127,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         Map<String, Object> identifiers = request.getIdentifiers();
         try {
             GridQueryAssembler assembler = new GridQueryAssembler();
-            if (identifiers.containsKey(NAMESPACE)) {
+            if (identifiers != null && identifiers.containsKey(NAMESPACE)) {
                 assembler.setNamespace(identifiers.get(NAMESPACE).toString());
             }
             if (request.getParameters() != null) {
@@ -163,19 +160,20 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                 assembler.setLevelTwoValue(null);
             }
 
-            if (identifiers.containsKey(GridConstants.DATASET_ID)) {
-                assembler.setDatasetId(identifiers
-                        .get(GridConstants.DATASET_ID).toString());
+            if (identifiers != null) {
+                if (identifiers.containsKey(GridConstants.DATASET_ID)) {
+                    assembler.setDatasetId(identifiers.get(
+                            GridConstants.DATASET_ID).toString());
+                }
+                if (identifiers.containsKey(GridConstants.ENSEMBLE_ID)) {
+                    assembler.setEnsembleId(identifiers.get(
+                            GridConstants.ENSEMBLE_ID).toString());
+                }
+                if (identifiers.containsKey(GridConstants.SECONDARY_ID)) {
+                    assembler.setSecondaryId(identifiers.get(
+                            GridConstants.SECONDARY_ID).toString());
+                }
             }
-            if (identifiers.containsKey(GridConstants.ENSEMBLE_ID)) {
-                assembler.setEnsembleId(identifiers.get(
-                        GridConstants.ENSEMBLE_ID).toString());
-            }
-            if (identifiers.containsKey(GridConstants.SECONDARY_ID)) {
-                assembler.setSecondaryId(identifiers.get(
-                        GridConstants.SECONDARY_ID).toString());
-            }
-
             mergeConstraintMaps(assembler.getConstraintMap(), result);
         } catch (CommunicationException e) {
             throw new DataRetrievalException(e);
@@ -224,7 +222,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         String datasetId = gridRecord.getDatasetId();
 
         Level level = gridRecord.getLevel();
-        if (request.getIdentifiers().containsKey(NAMESPACE)) {
+        Map<String, Object> identifiers = request.getIdentifiers();
+        if (identifiers != null && identifiers.containsKey(NAMESPACE)) {
             // perform reverse mappings so the parameters and levels that are
             // returned match exactly what was requested.
             String namespace = request.getIdentifiers().get(NAMESPACE)
@@ -234,9 +233,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
             parameter = reverseResolveMapping(ParameterMapper.getInstance(),
                     parameter, namespace, requestParameters);
 
-            if (request.getIdentifiers().containsKey(GridConstants.DATASET_ID)) {
-                List<String> requestedDatasets = Arrays.asList(request
-                        .getIdentifiers().get(GridConstants.DATASET_ID)
+            if (identifiers.containsKey(GridConstants.DATASET_ID)) {
+                List<String> requestedDatasets = Arrays.asList(identifiers.get(GridConstants.DATASET_ID)
                         .toString());
                 datasetId = reverseResolveMapping(
                         DatasetIdMapper.getInstance(), datasetId, namespace,
@@ -275,8 +273,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         defaultGridData.setParameter(parameter);
         defaultGridData.setLevel(level);
         defaultGridData.setUnit(gridRecord.getParameter().getUnit());
-        Map<String, Object> attributes = new HashMap<String, Object>(
-                request.getIdentifiers());
+        Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put(GridConstants.DATASET_ID, datasetId);
         attributes.put(GridConstants.SECONDARY_ID, gridRecord.getSecondaryId());
         attributes.put(GridConstants.ENSEMBLE_ID, gridRecord.getEnsembleId());
