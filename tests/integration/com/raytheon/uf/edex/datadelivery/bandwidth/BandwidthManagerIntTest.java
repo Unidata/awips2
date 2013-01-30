@@ -87,6 +87,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Dec 11, 2012 1286       djohnson     Add test verifying fulfilled retrievals won't cause NPEs when the subscription is updated.
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 28, 2013 1530       djohnson     Test that all allocations are unscheduled for subscription that doesn't fully schedule.
+ * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * 
  * </pre>
  * 
@@ -490,15 +491,14 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     public void testDetermineRequiredLatencyReturnsNecessaryLatency()
             throws SerializationException {
 
-        // Subscription starts out too big
-        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+        Subscription subscription = createSubscriptionThatFillsUpTenBuckets();
         subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
         subscription.setLatencyInMinutes(0);
 
         int requiredLatency = bandwidthManager
                 .determineRequiredLatency(subscription);
 
-        assertEquals("The required latency was calculated incorrectly", 7,
+        assertEquals("The required latency was calculated incorrectly", 30,
                 requiredLatency);
     }
 
