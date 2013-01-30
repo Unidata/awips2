@@ -72,6 +72,9 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
 
     private static final String FIELD_SECTOR_ID = "sectorID";
 
+    private static final String[] VALID_IDENTIFIERS = { "source",
+            "creatingEntity", FIELD_SECTOR_ID, FIELD_PYHSICAL_ELEMENT };
+
     private Map<String, GridGeometry2D> sectorGeometryMapCache;
 
     public SatelliteGridFactory() {
@@ -178,15 +181,9 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
                 .toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.dataaccess.impl.AbstractDataFactory#
-     * getRequiredIdentifiers()
-     */
     @Override
-    public String[] getRequiredIdentifiers() {
-        return null;
+    public String[] getValidIdentifiers() {
+        return VALID_IDENTIFIERS;
     }
 
     protected DefaultGridData constructGridDataResponse(IGridRequest request,
