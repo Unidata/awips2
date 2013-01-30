@@ -23,17 +23,22 @@
 # any purpose.
 #
 #    SmartScript -- library of methods for Smart Tools and Procedures
-# History
-# Time        Ticket#      Developer    Comments
-# ----------------------------------------------------------------------
-# 01/09/2012  DR15626      J. Zeng      Add methods 
-#                                       enableISCsend
-#                                       clientISCSendStatus
-#                                       manualSendISC_autoMode
-#                                       manualSendISC_manualMode
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/09/13        DR15626       J. Zeng        Add methods 
+#                                                   enableISCsend
+#                                                   clientISCSendStatus
+#                                                   manualSendISC_autoMode
+#                                                   manualSendISC_manualMode
+#    01/30/13        1559          dgilling       Fix TypeError in 
+#                                                 getGridCellSwath().
+#    
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1558,8 +1563,6 @@ class SmartScript(BaseTool.BaseTool):
         return self.__dataMgr.getSpatialDisplayManager().getActivatedParm()
 
     def getGridCellSwath(self, editArea, cells):
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
         from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
         # Returns an AFPS.ReferenceData swath of the given
         # number of cells around the given an edit area.
@@ -1574,10 +1577,10 @@ class SmartScript(BaseTool.BaseTool):
             grid2DBit = self.getGridLoc().gridCellSwath(
                 polygon.getCoordinates(), float(cells), False)
             if grid2DB is not None:
-                grid2DB = grid2DB | grid2DBit
+                grid2DB = grid2DB.orEquals(grid2DBit)
             else:
                 grid2DB = grid2DBit
-        return ReferenceData(self.getGridLoc(), ReferenceID("test"), grid2DB)
+        return self.getGridLoc().convertToReferenceData(grid2DB)
 
     def getLatLon(self, x, y):
         # Get the latitude/longitude values for the given grid point
