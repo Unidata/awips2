@@ -22,8 +22,8 @@ package com.raytheon.viz.warnings.rsc;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,14 +33,10 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
@@ -70,132 +66,38 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class WarningsResource extends AbstractWWAResource {
 
-    protected static class RepaintHeartbeat extends TimerTask {
+    protected static class RefreshTimerTask extends TimerTask {
 
-        private final HashSet<AbstractVizResource<?, ?>> resourceSet = new HashSet<AbstractVizResource<?, ?>>();
-
-        private boolean cancelled = false;
-
-        public RepaintHeartbeat() {
-
-        }
-
-        /**
-         * copy resources from old task, just in case some were added after it
-         * should have been replaced (threads are fun)
-         **/
-        public void copyResourceSet(RepaintHeartbeat oldTask) {
-            // copy resources, in case one was added after a cancel
-            Set<AbstractVizResource<?, ?>> oldResourceSet = oldTask
-                    .getResourceSet();
-            synchronized (oldResourceSet) {
-                for (AbstractVizResource<?, ?> rsc : oldResourceSet) {
-                    this.addResource(rsc);
-                }
-            }
-        }
-
-        public Set<AbstractVizResource<?, ?>> getResourceSet() {
-            return resourceSet;
-        }
+        private final Set<WarningsResource> resourceSet = new HashSet<WarningsResource>();
 
         @Override
         public void run() {
-            // get the unique displays from all the added resources
-            ArrayList<IRenderableDisplay> displaysToRefresh = new ArrayList<IRenderableDisplay>(
-                    1);
+            List<WarningsResource> rscs;
             synchronized (resourceSet) {
-                for (AbstractVizResource<?, ?> rsc : resourceSet) {
-                    try {
-                        IRenderableDisplay disp = rsc.getDescriptor()
-                                .getRenderableDisplay();
-                        if (!displaysToRefresh.contains(disp)) {
-                            displaysToRefresh.add(disp);
-                        }
-                    } catch (Exception e) {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Encountered error during Warnings Heartbeat, continuing with other Warnings ",
-                                        e);
-                    }
-                }
+                rscs = new ArrayList<WarningsResource>(resourceSet);
             }
-
-            // create an array with final modifier
-            final IRenderableDisplay[] refreshList = displaysToRefresh
-                    .toArray(new IRenderableDisplay[displaysToRefresh.size()]);
-
-            // execute refersh in UI thread
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    for (IRenderableDisplay disp : refreshList) {
-                        disp.refresh();
-                    }
-                }
-
-            });
-
-            // cancel the task if there are no more resources
-            boolean cancel = false;
-            synchronized (resourceSet) {
-                if (resourceSet.size() < 1) {
-                    cancel = true;
-                }
-            }
-
-            if (cancel) {
-                doCancel();
+            for (WarningsResource rsc : rscs) {
+                rsc.issueRefresh();
             }
         }
 
-        public void addResource(AbstractVizResource<?, ?> rsc) {
-            // if task has no resources then it needs to be started when the
-            // first is added
-            boolean start = false;
+        public void addResource(WarningsResource rsc) {
             synchronized (resourceSet) {
-                // if this is the first resource added to an empty set start the
-                // timer
-                if (resourceSet.size() < 1) {
-                    start = true;
-                }
                 resourceSet.add(rsc);
             }
-            if (start) {
-                WarningsResource.scheduleHeartBeat();
-            }
         }
 
-        public void removeResource(AbstractVizResource<?, ?> rsc) {
+        public void removeResource(WarningsResource rsc) {
             synchronized (resourceSet) {
                 resourceSet.remove(rsc);
-                // cancel the task if there are no more resources
-                if (resourceSet.size() < 1) {
-                    doCancel();
-                }
             }
         }
 
-        private void doCancel() {
-            synchronized (heartBeatChangeLock) {
-                if (cancelled == false) {
-                    cancelled = true;
-                    heartBeatTimer.cancel();
-                    heartBeatTask = new RepaintHeartbeat();
-                    heartBeatTimer = new Timer();
-                    heartBeatTask.copyResourceSet(this);
-                }
-            }
-        }
     }
 
-    /** lock when changing heartBeatTask **/
-    protected static final Object heartBeatChangeLock = new Object();
+    protected static RefreshTimerTask refreshTask;
 
-    protected static RepaintHeartbeat heartBeatTask = null;
-
-    protected static Timer heartBeatTimer = null;
+    protected static Timer refreshTimer;
 
     /**
      * Constructor
@@ -207,14 +109,13 @@ public class WarningsResource extends AbstractWWAResource {
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        DataTime earliest = this.descriptor.getFramesInfo().getFrameTimes()[0];
-        requestData(earliest);
-        synchronized (heartBeatChangeLock) {
-            if (heartBeatTask == null) {
-                heartBeatTask = new RepaintHeartbeat();
-            }
-            heartBeatTask.addResource(this);
+        FramesInfo info = descriptor.getFramesInfo();
+        DataTime[] times = info.getFrameTimes();
+        if (times != null && times.length > 0) {
+            // Request data for "earliest" time
+            requestData(times[0]);
         }
+        scheduleRefreshTask(this);
     }
 
     /*
@@ -224,9 +125,7 @@ public class WarningsResource extends AbstractWWAResource {
      */
     @Override
     protected void disposeInternal() {
-        synchronized (heartBeatChangeLock) {
-            heartBeatTask.removeResource(this);
-        }
+        cancelRefreshTask(this);
         for (WarningEntry entry : entryMap.values()) {
             if (entry.shadedShape != null) {
                 entry.shadedShape.dispose();
@@ -405,42 +304,44 @@ public class WarningsResource extends AbstractWWAResource {
     }
 
     /**
+     * Cancel the heart beat timer task
+     * 
+     * @param resource
+     */
+    protected static void cancelRefreshTask(WarningsResource resource) {
+        synchronized (RefreshTimerTask.class) {
+            if (refreshTask != null) {
+                refreshTask.removeResource(resource);
+                if (refreshTask.resourceSet.isEmpty()) {
+                    refreshTimer.cancel();
+                    refreshTimer = null;
+                    refreshTask = null;
+                }
+            }
+        }
+    }
+
+    /**
      * schedule the heart beat for the next minute
      */
-    protected static void scheduleHeartBeat() {
-        // get simulated time
-        Date currentTime = SimulatedTime.getSystemTime().getTime();
-        // get a calendar
-        Calendar now = Calendar.getInstance();
-        // set calendar time to simulated time
-        now.setTime(currentTime);
-        // add one to the minutes field
-        now.add(Calendar.MINUTE, 1);
-        // reset second and milisecond to 0
-        now.set(Calendar.SECOND, 0);
-        now.set(Calendar.MILLISECOND, 0);
-        // schedule task to fire every minute
-        synchronized (heartBeatChangeLock) {
-            try {
-                if (heartBeatTimer == null) {
-                    heartBeatTimer = new Timer();
-                }
-                // schedule on the minute every minute
-                heartBeatTimer.schedule(heartBeatTask, now.getTime(),
-                        1 * 60 * 1000);
-            } catch (Exception e) {
-                try {
-                    heartBeatTimer.cancel();
-                } catch (Exception e2) {
-                    // ignore, we just want to make sure the timer is cancelled
-                } finally {
-                    // create a new task if there was an error when scheduling
-                    heartBeatTask = new RepaintHeartbeat();
-                    heartBeatTimer = new Timer();
-                }
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        "Error scheduling warnings heart beat ", e);
+    protected static void scheduleRefreshTask(WarningsResource resource) {
+        synchronized (RefreshTimerTask.class) {
+            if (refreshTask == null) {
+                refreshTimer = new Timer(true);
+                refreshTask = new RefreshTimerTask();
+
+                // get a calendar
+                Calendar now = Calendar.getInstance();
+                // add one to the minutes field
+                now.add(Calendar.MINUTE, 1);
+                // reset second and milisecond to 0
+                now.set(Calendar.SECOND, 0);
+                now.set(Calendar.MILLISECOND, 0);
+
+                refreshTimer.scheduleAtFixedRate(refreshTask, now.getTime(),
+                        60 * 1000);
             }
+            refreshTask.addResource(resource);
         }
     }
 
