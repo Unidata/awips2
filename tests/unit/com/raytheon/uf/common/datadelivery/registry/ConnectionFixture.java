@@ -1,5 +1,3 @@
-package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
-
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -19,44 +17,49 @@ package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.uf.common.datadelivery.registry;
 
-import java.util.Map;
-
-import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * Interface for Provider Retrieval Adapter
+ * Fixture for {@link Connection}s.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 07, 2011            dhladky     Initial creation
+ * Jan 30, 2013 1543       djohnson     Initial creation
  * 
  * </pre>
  * 
- * /
- * 
- * @author dhladky
+ * @author djohnson
  * @version 1.0
  */
 
-public interface IRetrievalAdapter {
+public class ConnectionFixture extends AbstractFixture<Connection> {
 
-    public IRetrievalRequestBuilder createRequestMessage(
-            RetrievalAttribute prxml);
+    public static final ConnectionFixture INSTANCE = new ConnectionFixture();
 
-    public com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse performRequest(
-            IRetrievalRequestBuilder requestBuilder);
+    /**
+     * Private constructor.
+     */
+    private ConnectionFixture() {
 
-    public Map<String, PluginDataObject[]> processResponse(
-            IRetrievalResponse response) throws Exception;
+    }
 
-    public void setProviderRetrievalXML(Retrieval prxml);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Connection get(long seedValue) {
+        Connection connection = new Connection();
+        connection.setPassword("somePassword");
+        connection.setUrl("http://someUrl");
+        connection.setUserName("someUserName");
 
-    public Retrieval getProviderRetrievalXMl();
+        return connection;
+    }
 
 }
