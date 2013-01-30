@@ -98,7 +98,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Dec 12, 2012 1286       djohnson     Remove shutdown hook and finalize().
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 28, 2013 1530       djohnson     Unschedule all allocations for a subscription that does not fully schedule.
- * 
+ * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * </pre>
  * 
  * @author dhladky
@@ -1160,8 +1160,7 @@ abstract class BandwidthManager extends
      * @return the graph data
      */
     private BandwidthGraphData getBandwidthGraphData() {
-        return new BandwidthGraphDataAdapter(retrievalManager)
-                .get();
+        return new BandwidthGraphDataAdapter(retrievalManager).get();
     }
 
     /**
@@ -1544,95 +1543,86 @@ abstract class BandwidthManager extends
      * @return the required latency, in minutes
      */
     @VisibleForTesting
-    int determineRequiredLatency(Subscription subscription) {
+    int determineRequiredLatency(final Subscription subscription) {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
-        try {
-            final Subscription clone = BandwidthUtil.cheapClone(
-                    Subscription.class, subscription);
 
-            if (clone.getLatencyInMinutes() < 1) {
-                clone.setLatencyInMinutes(1);
-            }
-
-            boolean foundLatency = false;
-            int latency = clone.getLatencyInMinutes();
-            int previousLatency = latency;
-            do {
-                // Double the latency until we have two values we can binary
-                // search between...
-                previousLatency = latency;
-                latency *= 2;
-                clone.setLatencyInMinutes(latency);
-                foundLatency = isSchedulableWithoutConflict(clone);
-            } while (!foundLatency);
-
-            SortedSet<Integer> possibleLatencies = new TreeSet<Integer>();
-            for (int i = previousLatency; i < (latency + 1); i++) {
-                possibleLatencies.add(Integer.valueOf(i));
-            }
-
-            IBinarySearchResponse<Integer> response = AlgorithmUtil
-                    .binarySearch(possibleLatencies, new Comparable<Integer>() {
-                        @Override
-                        public int compareTo(Integer valueToCheck) {
-                            clone.setLatencyInMinutes(valueToCheck);
-
-                            boolean latencyWouldWork = isSchedulableWithoutConflict(clone);
-
-                            // Check if one value less would not work, if so
-                            // then this is the required latency, otherwise keep
-                            // searching
-                            if (latencyWouldWork) {
-                                clone.setLatencyInMinutes(clone
-                                        .getLatencyInMinutes() - 1);
-
-                                return (isSchedulableWithoutConflict(clone)) ? 1
-                                        : 0;
-                            } else {
-                                // Still too low, stuff would be unscheduled
-                                return -1;
-                            }
-                        }
-                    });
-
-            final Integer binarySearchedLatency = response.getItem();
-            if (binarySearchedLatency != null) {
-                latency = binarySearchedLatency.intValue();
-
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler
-                            .debug(String
-                                    .format("Found required latency of [%s] in [%s] iterations",
-                                            binarySearchedLatency,
-                                            response.getIterations()));
-                }
-            } else {
-                statusHandler
-                        .warn(String
-                                .format("Unable to find the required latency with a binary search, using required latency [%s]",
-                                        latency));
-            }
-
-            timer.stop();
-
-            int bufferRoomInMinutes = retrievalManager.getPlan(
-                    subscription.getRoute()).getBucketMinutes();
-
-            final String logMsg = String
-                    .format("Determined required latency of [%s] in [%s] ms.  Adding buffer room of [%s] minutes",
-                            latency, timer.getElapsedTime(),
-                            bufferRoomInMinutes);
-            statusHandler.info(logMsg);
-
-            latency += bufferRoomInMinutes;
-
-            return latency;
-        } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to serialize a Subscription", e);
-            return -1;
+        boolean foundLatency = false;
+        int latency = subscription.getLatencyInMinutes();
+        if (latency < 1) {
+            latency = 1;
         }
+        int previousLatency = latency;
+        do {
+            // Double the latency until we have two values we can binary
+            // search between...
+            previousLatency = latency;
+            latency *= 2;
+
+            Subscription clone = new Subscription(subscription);
+            clone.setLatencyInMinutes(latency);
+            foundLatency = isSchedulableWithoutConflict(clone);
+        } while (!foundLatency);
+
+        SortedSet<Integer> possibleLatencies = new TreeSet<Integer>();
+        for (int i = previousLatency; i < (latency + 1); i++) {
+            possibleLatencies.add(Integer.valueOf(i));
+        }
+
+        IBinarySearchResponse<Integer> response = AlgorithmUtil.binarySearch(
+                possibleLatencies, new Comparable<Integer>() {
+                    @Override
+                    public int compareTo(Integer valueToCheck) {
+                        Subscription clone = new Subscription(subscription);
+                        clone.setLatencyInMinutes(valueToCheck);
+
+                        boolean latencyWouldWork = isSchedulableWithoutConflict(clone);
+
+                        // Check if one value less would not work, if so
+                        // then this is the required latency, otherwise keep
+                        // searching
+                        if (latencyWouldWork) {
+                            clone.setLatencyInMinutes(clone
+                                    .getLatencyInMinutes() - 1);
+
+                            return (isSchedulableWithoutConflict(clone)) ? 1
+                                    : 0;
+                        } else {
+                            // Still too low, stuff would be unscheduled
+                            return -1;
+                        }
+                    }
+                });
+
+        final Integer binarySearchedLatency = response.getItem();
+        if (binarySearchedLatency != null) {
+            latency = binarySearchedLatency.intValue();
+
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug(String.format(
+                        "Found required latency of [%s] in [%s] iterations",
+                        binarySearchedLatency, response.getIterations()));
+            }
+        } else {
+            statusHandler
+                    .warn(String
+                            .format("Unable to find the required latency with a binary search, using required latency [%s]",
+                                    latency));
+        }
+
+        timer.stop();
+
+        int bufferRoomInMinutes = retrievalManager.getPlan(
+                subscription.getRoute()).getBucketMinutes();
+
+        final String logMsg = String
+                .format("Determined required latency of [%s] in [%s] ms.  Adding buffer room of [%s] minutes",
+                        latency, timer.getElapsedTime(), bufferRoomInMinutes);
+        statusHandler.info(logMsg);
+
+        latency += bufferRoomInMinutes;
+
+        return latency;
     }
 
     /**
