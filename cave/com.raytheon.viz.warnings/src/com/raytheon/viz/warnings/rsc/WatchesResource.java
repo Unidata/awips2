@@ -192,6 +192,9 @@ public class WatchesResource extends AbstractWWAResource {
                 JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
                         this.descriptor, PointStyle.CROSS);
                 jtsCompiler.handle(geo, color);
+                if (record.getPhen() == null) {
+                    return;
+                }
                 ss.setFillPattern(FillPatterns.getGLPattern(record.getPhen()
                         .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
                 ss.compile();
