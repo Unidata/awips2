@@ -49,7 +49,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Oct 29, 2008       1659 jkorman     Initial creation
  * ======================================
  * AWIPS2 DR Work
- * 20120918           1185 jkorman     Added save to archive capability.  
+ * 20120918           1185 jkorman     Added save to archive capability. 
+ * Jan 30, 2010       15779  lbousaidi   added 4 letter to station id for ACR
  * </pre>
  * 
  * @author jkorman
@@ -219,6 +220,8 @@ public class MetarToShefTransformer extends
             place = 1;
             if (options.isOptStripICAO()) {
                 lineHdr.append(stnId.substring(1));
+            } else {  // Only for ALASKA region
+                lineHdr.append(stnId);
             }
 
             lineHdr.append(" :");
