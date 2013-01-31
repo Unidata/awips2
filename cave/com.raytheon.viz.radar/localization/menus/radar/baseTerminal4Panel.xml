@@ -24,7 +24,7 @@
 		<contribute xsi:type="titleItem" titleText="------ Z/V ------"
 			id="${icao}Terminal4panelZV" />
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev6} ${elev8}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev6} ${elev8}"
 			id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZV"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -44,7 +44,7 @@
 			<substitute key="elevation4" value="${elev8}--${elev8}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev3} ${elev5} ${elev6}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev1} ${elev3} ${elev5} ${elev6}"
 			id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZV"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -64,7 +64,7 @@
 			<substitute key="elevation4" value="${elev6}--${elev6}" />
 		</contribute>		
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev3} ${elev4}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev3} ${elev4}"
 			id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZV"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -84,7 +84,7 @@
 			<substitute key="elevation4" value="${elev4}--${elev4}" />
 		</contribute>		
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev3} ${elev7} ${elev8} ${elev9}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev3} ${elev7} ${elev8} ${elev9}"
 			id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZV"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -104,7 +104,7 @@
 			<substitute key="elevation4" value="${elev9}--${elev9}" />
 		</contribute>		
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev8} ${elev9} ${elev10} ${elev12}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev8} ${elev9} ${elev10} ${elev12}"
 			id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZV"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -127,7 +127,7 @@
 		<contribute xsi:type="titleItem" titleText="------ Z/SRM8 ------"
 			id="${icao}Terminal4panelZSRM8" />
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev6} ${elev8}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev6} ${elev8}"
 			id="${icao}${elev1}${elev2}${elev6}${elev8}Terminal4panelZSRM8"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -147,7 +147,7 @@
 			<substitute key="elevation4" value="${elev8}--${elev8}" />			
 		</contribute>		
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev3} ${elev5} ${elev6}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev1} ${elev3} ${elev5} ${elev6}"
 			id="${icao}${elev1}${elev3}${elev5}${elev6}Terminal4panelZSRM8"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -167,7 +167,7 @@
 			<substitute key="elevation4" value="${elev6}--${elev6}" />
 		</contribute>			
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev3} ${elev4}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev1} ${elev2} ${elev3} ${elev4}"
 			id="${icao}${elev1}${elev2}${elev3}${elev4}Terminal4panelZSRM8"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -187,7 +187,7 @@
 			<substitute key="elevation4" value="${elev4}--${elev4}" />
 		</contribute>						
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev3} ${elev7} ${elev8} ${elev9}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev3} ${elev7} ${elev8} ${elev9}"
 			id="${icao}${elev3}${elev7}${elev8}${elev9}Terminal4panelZSRM8"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
@@ -207,7 +207,7 @@
 			<substitute key="elevation4" value="${elev9}--${elev9}" />
 		</contribute>			
 		<contribute xsi:type="bundleItem"
-			file="bundles/DefaultRadarFourPanelBlendedBestRes.xml" menuText="${elev8} ${elev9} ${elev10} ${elev12}"
+			file="bundles/DefaultTerminalRadar4PanelBlendedBestRes.xml" menuText="${elev8} ${elev9} ${elev10} ${elev12}"
 			id="${icao}${elev8}${elev9}${elev10}${elev12}Terminal4panelZSRM8"
 			suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
