@@ -30,6 +30,7 @@ import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.dataplugin.warning.gis.PreparedGeometryCollection;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -44,7 +45,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
-import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * Utility for polygon operations
@@ -57,7 +57,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Dec 1, 2010            mschenke     Initial creation
  * 12/06/2012   DR 15559  Qinglu Lin   Added round() methods.
- *
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -850,7 +850,7 @@ public class PolygonUtil {
         List<PreparedGeometry> prepped = new ArrayList<PreparedGeometry>(
                 geomList.size());
         for (Geometry g : geomList) {
-            prepped.add(PreparedGeometryFactory.prepare(g));
+            prepped.add(new PreparedGeometryCollection(g));
         }
 
         GeometryFactory gf = warningArea.getFactory();
@@ -931,56 +931,54 @@ public class PolygonUtil {
             }
         }
     }
-    
-    public static void truncate(List<Coordinate >coordinates, int decimalPlaces) {
+
+    public static void truncate(List<Coordinate> coordinates, int decimalPlaces) {
         for (Coordinate coordinate : coordinates) {
             truncate(coordinate, decimalPlaces);
         }
     }
-    
+
     public static void truncate(Coordinate[] coordinates, int decimalPlaces) {
         for (Coordinate coordinate : coordinates) {
             truncate(coordinate, decimalPlaces);
         }
     }
-    
+
     public static void truncate(Coordinate coordinate, int decimalPlaces) {
         double x = coordinate.x * Math.pow(10, decimalPlaces);
         double y = coordinate.y * Math.pow(10, decimalPlaces);
-        
+
         x = x >= 0 ? Math.floor(x) : Math.ceil(x);
         y = y >= 0 ? Math.floor(y) : Math.ceil(y);
-        
+
         coordinate.x = x / Math.pow(10, decimalPlaces);
         coordinate.y = y / Math.pow(10, decimalPlaces);
     }
 
-    public static void round(List<Coordinate >coordinates, int decimalPlaces) {
+    public static void round(List<Coordinate> coordinates, int decimalPlaces) {
         for (Coordinate coordinate : coordinates) {
             round(coordinate, decimalPlaces);
         }
     }
-    
+
     public static void round(Coordinate[] coordinates, int decimalPlaces) {
         for (Coordinate coordinate : coordinates) {
             round(coordinate, decimalPlaces);
         }
     }
-    
+
     /**
-     * round()
-     *     Rounding coordinates, instead of truncating them.     
-     *
-     * History
-     * 12/06/2012   DR 15559  Qinglu Lin   Created. 
+     * round() Rounding coordinates, instead of truncating them.
+     * 
+     * History 12/06/2012 DR 15559 Qinglu Lin Created.
      */
     public static void round(Coordinate coordinate, int decimalPlaces) {
         double x = coordinate.x * Math.pow(10, decimalPlaces);
         double y = coordinate.y * Math.pow(10, decimalPlaces);
-        
+
         x = Math.round(x);
         y = Math.round(y);
-        
+
         coordinate.x = x / Math.pow(10, decimalPlaces);
         coordinate.y = y / Math.pow(10, decimalPlaces);
     }
