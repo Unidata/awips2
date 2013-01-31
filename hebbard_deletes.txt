@@ -1,7 +1,0 @@
-cave/build/static/common/cave/etc/ncep/PgenXmlOverlayProducts
-cave/build/static/common/cave/etc/ncep/ResourceDefns/OVERLAYS/G2tAtl
-cave/build/static/common/cave/etc/ncep/ResourceDefns/OVERLAYS/G2tPac
-cave/build/static/common/cave/etc/ncep/ResourceDefns/OVERLAYS/G2tTpc
-ncep/gov.noaa.nws.ncep.edex.plugin.convsigmet/gov.noaa.nws.ncep.edex.plugin.convsigmet
-ncep/gov.noaa.nws.ncep.edex.plugin.nonconvsigmet/gov.noaa.nws.ncep.edex.plugin.nonconvsigmet
-ncep/gov.noaa.nws.ncep.viz.rsc.ncgrid/src/gov/noaa/nws/ncep/viz/rsc/ncgrid/util
