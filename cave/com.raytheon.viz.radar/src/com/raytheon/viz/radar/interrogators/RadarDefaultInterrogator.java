@@ -44,11 +44,10 @@ import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.units.PiecewisePixel;
-import com.raytheon.viz.radar.util.DataUtilities;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Default interrogator for radar resource.
  * 
  * <pre>
  * 
@@ -264,7 +263,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
     protected UnitConverter getConverter(ColorMapParameters params,
             RadarRecord radarRecord) {
         UnitConverter converter = null;
-        Unit<?> dataUnit = DataUtilities.getDataUnit(radarRecord);
+        Unit<?> dataUnit = radarRecord.getDataUnit();
         if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
             Unit<?> displayUnit = params.getDisplayUnit();
             if (dataUnit.isCompatible(displayUnit)) {
