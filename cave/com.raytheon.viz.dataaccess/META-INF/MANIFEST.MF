@@ -14,7 +14,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
  com.raytheon.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- javax.measure;bundle-version="1.0.0"
+ javax.measure;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: com.raytheon.viz.dataaccess.rsc
+Export-Package: com.raytheon.viz.dataaccess.rsc,
+ com.raytheon.viz.dataaccess.rsc.geometry,
+ com.raytheon.viz.dataaccess.rsc.grid
