@@ -174,6 +174,10 @@ public class EnvelopeIntersection {
 
         MathTransform latLonToTargetCRS = targetCRSToLatLon.inverse();
 
+        // If we are able to create a polygon from the lineStrings, save it in
+        // this variable to use later if all else fails.
+        Geometry correctedPolygon = null;
+
         int numStrings = lineStrings.size();
         if (numStrings == 1) {
             // Check for one continuous line string that starts and ends at same
@@ -182,7 +186,8 @@ public class EnvelopeIntersection {
             Coordinate[] coords = ls.getCoordinates();
             if (coords[0].equals(coords[coords.length - 1])) {
                 border = gf.createPolygon(gf.createLinearRing(coords), null);
-                border = JTS.transform(corrector.correct(JTS.transform(border,
+                border = correctedPolygon = JTS.transform(corrector.correct(JTS
+                        .transform(border,
                         targetCRSToLatLon)), latLonToTargetCRS);
             }
         }
@@ -478,6 +483,28 @@ public class EnvelopeIntersection {
                     border = gf.createGeometryCollection(borders
                             .toArray(new Geometry[0]));
                 }
+            }
+        }
+
+        if ((border == null || border.isEmpty() || border.isValid() == false)) {
+            if (correctedPolygon != null) {
+                // buffering will make an invalid polygon valid. This is known
+                // to be the correct action for rounded grids such as lat/lon
+                // source on a polar stereographic target or radial data.
+                border = correctedPolygon.buffer(0);
+            } else if (lineStrings.size() == 1) {
+                // There is a last resort. There are no known envelopes that hit
+                // this but just in case we have problems this will be slightly
+                // better than nothing.
+                border = lineStrings.get(0).getEnvelope();
+            } else {
+                // Also a last resort.
+                List<Geometry> envelopes = new ArrayList<Geometry>(
+                        lineStrings.size());
+                for (LineString ls : lineStrings) {
+                    envelopes.add(ls.getEnvelope());
+                }
+                gf.createGeometryCollection(envelopes.toArray(new Geometry[0]));
             }
         }
 
