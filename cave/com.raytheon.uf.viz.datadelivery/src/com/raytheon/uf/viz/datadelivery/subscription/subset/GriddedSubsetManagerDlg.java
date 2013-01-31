@@ -84,6 +84,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jan 04, 2013 1299       djohnson     Add logging of invalid forecast hour information if it occurs again.
  * Jan 04, 2013 1420       mpduff       Pass cycles in for rules.
  * Jan 18, 2013 1414       bsteffen     Add ensemble tab.
+ * Jan 28, 2013 1533       djohnson     Update the calculated dataset size after loading subset xml.
  * 
  * </pre>
  * 
@@ -200,6 +201,7 @@ public class GriddedSubsetManagerDlg
         if (ensembleTab != null) {
             ensembleTab.loadFromSubsetXML(subsetXml);
         }
+        updateDataSize();
     }
 
     /*

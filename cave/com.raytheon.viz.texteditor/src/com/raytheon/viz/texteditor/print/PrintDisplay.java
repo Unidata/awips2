@@ -43,7 +43,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 15, 2011 10557      rferrel     Initial creation
  * Jul 17, 2012 14274      rferrel     Now use eclipse Printer instead of awt.
  *                                      Text is printed using same font as the GUI
- * Dec 31, 2012 15651	   mgamazaychikov	Added setFont method to scale font for printing
+ * Dec 31, 2012 15651	   M Gamazaychikov	Added setFont method to scale font for printing
  * 
  * </pre>
  * 
@@ -53,7 +53,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class PrintDisplay {
     public static void print(final String printedText, final FontData fontData,
-            int aLineWidth, IUFStatusHandler statusHandler) {
+            IUFStatusHandler statusHandler) {
         PrinterData data = Printer.getDefaultPrinterData();
         if (data == null) {
             statusHandler.handle(Priority.PROBLEM,
@@ -67,11 +67,9 @@ public class PrintDisplay {
         }
 
         final Printer printer = new Printer(data);
-        PrintDisplay pd = new PrintDisplay(printer, printedText, fontData, aLineWidth);
+        PrintDisplay pd = new PrintDisplay(printer, printedText, fontData);
         pd.printJob();
     }
-    
-    private int lineWidth;
 
     private Printer printer;
 
@@ -105,16 +103,10 @@ public class PrintDisplay {
 
     int end;
 
-    private PrintDisplay(Printer printer, String text, FontData fontData, int aWidth) {
+    private PrintDisplay(Printer printer, String text, FontData fontData) {
         this.printer = printer;
         this.textToPrint = text;
         this.printerFontData = fontData;
-    	if (aWidth == -1) {
-    		this.lineWidth = 69;
-    	}
-    	else {
-    		this.lineWidth = aWidth;
-    	}
     }
 
     private void printJob() {
@@ -129,6 +121,19 @@ public class PrintDisplay {
 
     protected void setFont() {
     	/*
+    	 * get the max number of characters in a line of text
+    	 * and add a length of tab
+    	 */
+    	String [] textLines = textToPrint.split("[\n]");
+    	int maxChar =  textLines[0].length();
+    	for ( int counter=1; counter<textLines.length; counter++){
+    		if (textLines[counter].length() > maxChar){
+    			maxChar = textLines[counter].length();
+    		}
+    	}
+    	maxChar = maxChar + 4;
+    	
+    	/*
     	 * get the original font size and set the gc font.
     	 */
     	float origFontSize = printerFontData.getHeight();
@@ -138,8 +143,8 @@ public class PrintDisplay {
         /*
          * Create a buffer for computing line width in pixels.
          */
-        StringBuilder aBuffer = new StringBuilder(lineWidth);
-        for (int i = 0; i < lineWidth; i++) {
+        StringBuilder aBuffer = new StringBuilder(maxChar);
+        for (int i = 0; i < maxChar; i++) {
         	aBuffer.append(' ');
         }
         /*
