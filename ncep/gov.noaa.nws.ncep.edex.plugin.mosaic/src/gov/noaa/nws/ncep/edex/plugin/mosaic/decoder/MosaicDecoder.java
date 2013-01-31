@@ -26,6 +26,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -40,6 +41,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  * 
+ * 01/19/13   #      Greg hull   Use getStaticLocalizationFile to get mosaicInfo file
+ * 
  * @author L. Lin
  * @version 1.0
  */
@@ -50,33 +53,32 @@ public class MosaicDecoder extends AbstractDecoder {
 
     private String traceId = "";
 
+    public static final String MOSAIC_INFO_FILE = "ncep"+File.separator+"dictionary"+
+    													 File.separator+"mosaicInfo.txt";
+
     private MosaicInfoDict infoDict;
 
     private byte[] headerBlock = new byte[120];
 
     public MosaicDecoder() throws DecoderException {
 
-        final String NCEP_DIR = "ncep";
-        final String dictDir = "dictionary";
-
         IPathManager manager = PathManagerFactory.getPathManager();
 
-        LocalizationContext baseContext = null;
-        File baseDir = null;
-        baseContext = manager.getContext(EDEX_STATIC, LocalizationLevel.BASE);
-        baseContext.setContextName(NCEP_DIR);
+        LocalizationFile lf = manager.getStaticLocalizationFile( MOSAIC_INFO_FILE );
 
-        baseDir = manager.getFile(baseContext, "");
-        infoDict = MosaicInfoDict.getInstance(baseDir + File.separator
-                + dictDir + File.separator);
-
+        if( lf == null ) {
+        	theLogger.error("Error finding "+ MOSAIC_INFO_FILE );
+        }
+        else {
+        	infoDict = MosaicInfoDict.getInstance( lf.getFile() );
+        }
     }
 
     public PluginDataObject[] decode(byte[] messageData, Headers headers)
             throws DecoderException {
-        String prodName = null;
-
-        if (headers != null) {
+        String prodName  = null;
+        
+        if ( headers != null) {
             /*
              * traceId equals to the file name
              */
@@ -109,6 +111,7 @@ public class MosaicDecoder extends AbstractDecoder {
                 if (prodName == null) {
                     prodName = "unknown";
                 }
+                
                 MosaicInfo info = infoDict.getInfo(prodCode);
                 if (info == null) {
                     theLogger.error(traceId + "-Unknown mosaic product code: "
