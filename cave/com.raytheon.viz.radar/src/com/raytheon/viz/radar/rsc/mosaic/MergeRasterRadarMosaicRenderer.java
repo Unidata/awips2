@@ -42,10 +42,10 @@ import com.raytheon.viz.core.rsc.BestResResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;
-import com.raytheon.viz.radar.util.DataUtilities;
 
 /**
- * TODO Add Description
+ * mosaic renderer that merges large low res raster products with smaller
+ * highres raster products.
  * 
  * <pre>
  * 
@@ -181,8 +181,8 @@ public class MergeRasterRadarMosaicRenderer implements IRadarMosaicRenderer {
             RadarRecord rr1 = records.get(c - 1);
             RadarRecord rr2 = records.get(c);
 
-            Unit<?> unit1 = DataUtilities.getDataUnit(rr1);
-            Unit<?> unit2 = DataUtilities.getDataUnit(rr2);
+            Unit<?> unit1 = rr1.getDataUnit();
+            Unit<?> unit2 = rr2.getDataUnit();
             if (!unit2.isCompatible(unit1)) {
                 // No joining can occur
                 continue;
