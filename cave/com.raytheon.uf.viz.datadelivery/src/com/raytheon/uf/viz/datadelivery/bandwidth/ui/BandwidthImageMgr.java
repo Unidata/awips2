@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.bandwidth.ui;
 
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 
 /**
  * Bandwidth utilization graph image manager.
@@ -42,7 +43,9 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionP
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 28, 2012    1269    lvenable     Initial creation
- * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Dec 13, 2012   1269     lvenable     Fixes and updates.
+ * Jan 25, 2013   1528     djohnson     Subscription priority is now an enum on subscriptions.
+ * Jan 28, 2013  1529      djohnson    Add hasSubscriptionNameChecked().
  * 
  * </pre>
  * 
@@ -137,10 +140,11 @@ public class BandwidthImageMgr implements IGraphOptions {
     private void init(Composite parentComp, BandwidthGraphData graphData,
             Map<CanvasImages, CanvasSettings> canvasSettingsMap) {
 
-        priorityColorMap = new HashMap<SubscriptionPriority, RGB>();
-        for (SubscriptionPriority priority : SubscriptionPriority.values()) {
-            priorityColorMap.put(priority, priority.getColor());
-        }
+        priorityColorMap = new EnumMap<SubscriptionPriority, RGB>(
+                SubscriptionPriority.class);
+        priorityColorMap.put(SubscriptionPriority.LOW, new RGB(6, 122, 255));
+        priorityColorMap.put(SubscriptionPriority.NORMAL, new RGB(0, 255, 0));
+        priorityColorMap.put(SubscriptionPriority.HIGH, new RGB(255, 0, 0));
 
         canvasImgMap = new HashMap<BandwidthImageMgr.CanvasImages, AbstractCanvasImage>();
         populateCanvasMap(parentComp, graphData, canvasSettingsMap);
@@ -487,5 +491,14 @@ public class BandwidthImageMgr implements IGraphOptions {
         regenerateImage(CanvasImages.GRAPH);
         regenerateImage(CanvasImages.X_HEADER);
 
+    }
+
+    /**
+     * Check whether there is a checked subscription name.
+     * 
+     * @return true if at least one subscription name is checked
+     */
+    public boolean hasSubscriptionNameChecked() {
+        return checkMap.containsValue(Boolean.TRUE);
     }
 }
