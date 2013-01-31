@@ -51,7 +51,8 @@ import com.raytheon.uf.common.localization.IPathManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 03, 2012            bkowal      Initial creation
+ * Jan 03, 2013            bkowal      Initial creation
+ * Jan 31, 2013 #1555      bkowal      Made hdf5 variable generic
  * 
  * </pre>
  * 
@@ -71,13 +72,13 @@ public final class PDOUtil {
         final IPersistable persistable = (IPersistable) pdo;
 
         IHDFFilePathProvider pathProvider = pdo.getHDFPathProvider();
-        String satelliteHDF5Path = pathProvider.getHDFPath(pluginName,
+        String hdf5Path = pathProvider.getHDFPath(pluginName,
                 persistable);
-        String satelliteHDF5File = pathProvider.getHDFFileName(pluginName,
+        String hdf5File = pathProvider.getHDFFileName(pluginName,
                 persistable);
         File file = new File(pluginName + IPathManager.SEPARATOR
-                + satelliteHDF5Path + IPathManager.SEPARATOR
-                + satelliteHDF5File);
+                + hdf5Path + IPathManager.SEPARATOR
+                + hdf5File);
         return DataStoreFactory.getDataStore(file);
     }
 
