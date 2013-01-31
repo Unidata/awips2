@@ -313,6 +313,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method
  * 22JAN2013   1496         rferrel     Query for loading products no longer on the UI thread.
  * 31JAN2013   1563         rferrel     Force location of airport tooltip.
+ * 31JAN2013   1568         rferrel     Spell checker now tied to this dialog instead of parent.
  * </pre>
  * 
  * @author lvenable
@@ -4473,7 +4474,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
-            PrintDisplay.print(textEditor.getSelectionText(), fontData, 
+            PrintDisplay.print(textEditor.getSelectionText(), fontData,
                     statusHandler);
             textEditor.setText(tmpText);
             textEditor.setSelection(point);
@@ -6274,11 +6275,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Displays the spell checker dialog to initiate spell checking.
      */
     private void checkSpelling() {
-        SpellCheckDlg spellCheckDlg = new SpellCheckDlg(getParent(),
-                textEditor, StatusConstants.CATEGORY_WORKSTATION,
+        SpellCheckDlg spellCheckDlg = new SpellCheckDlg(shell, textEditor,
+                StatusConstants.CATEGORY_WORKSTATION,
                 StatusConstants.SUBCATEGORY_CONNECTIVITY);
         spellCheckDlg.open();
-
     }
 
     /*
