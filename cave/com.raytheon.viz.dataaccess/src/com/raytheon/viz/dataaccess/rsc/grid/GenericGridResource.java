@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.dataaccess.rsc;
+package com.raytheon.viz.dataaccess.rsc.grid;
 
 import java.nio.Buffer;
 
@@ -26,19 +26,17 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
+import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
 
 /**
  * Renders a generic grid image based on grid data that is retrieved using the
@@ -51,6 +49,7 @@ import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2013            bkowal     Initial creation
+ * Jan 31, 2013 #1555     bkowal     Refactor
  * 
  * </pre>
  * 
@@ -59,29 +58,17 @@ import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
  */
 
 public class GenericGridResource extends
-        AbstractVizResource<GenericGridResourceData, MapDescriptor> {
+        AbstractDataAccessResource<GenericGridResourceData> {
 
     private static final String GRID_COLORMAP = "Grid/gridded data";
 
-    private static final String GENERIC_GRID_LEGEND_TEXT = "Generic Grid ";
-
-    private static final String NODATA_LEGEND_TEXT = GENERIC_GRID_LEGEND_TEXT
-            + " No Data Available";
+    private static final String GENERIC_LEGEND_TEXT = "Generic Grid ";
 
     private GriddedImageDisplay2 griddedImageDisplay;
 
-    private boolean noData = false;
-
-    private Buffer buffer = null;
-
-    private GridGeometry2D gridGeometry;
-
-    private DataTime dataTime;
-
     protected GenericGridResource(GenericGridResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
-        this.griddedImageDisplay = null;
+        super(resourceData, loadProperties, GENERIC_LEGEND_TEXT);
     }
 
     /**
@@ -91,95 +78,97 @@ public class GenericGridResource extends
      * 
      * @throws VizException
      */
-    private void prepareData() throws VizException {
-        IGridData gridData = this.resourceData.getGridData();
-        if (gridData == null) {
-            this.noData = true;
-            return;
-        }
+    @Override
+    protected void prepareData(IGraphicsTarget target) throws VizException {
+        IGridData gridData = this.resourceData.getFirstDataElement();
 
-        this.gridGeometry = gridData.getGridGeometry();
+        GridGeometry2D gridGeometry = gridData.getGridGeometry();
 
         // Extract the raw data
         ByteBufferWrapper byteBufferWrapper = new ByteBufferWrapper(
-                this.gridGeometry);
+                gridGeometry);
         byteBufferWrapper = gridData.populateData(byteBufferWrapper);
-        this.buffer = byteBufferWrapper.getBuffer();
-
-        this.dataTime = gridData.getDataTime();
+        Buffer buffer = byteBufferWrapper.getBuffer();
 
         // Prepare the Color Map
         SingleLevel singleLevel = null;
-        if ((gridData.getLevel() == null) == false) {
+        if (gridData.getLevel() != null) {
             // TODO: convert level to single level
         }
         ColorMapParameters colorMapParameters = ColorMapParameterFactory.build(
-                this.buffer.array(), gridData.getParameter(),
-                gridData.getUnit(), singleLevel);
+                buffer.array(), gridData.getParameter(), gridData.getUnit(),
+                singleLevel);
 
         colorMapParameters.setColorMapName(GRID_COLORMAP);
         colorMapParameters.setColorMap(ColorMapLoader
                 .loadColorMap(colorMapParameters.getColorMapName()));
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
+        this.griddedImageDisplay = new GriddedImageDisplay2(buffer,
+                gridGeometry, this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource#
+     * buildLegendTextInternal()
+     */
     @Override
-    public String getName() {
-        if (this.noData) {
-            return NODATA_LEGEND_TEXT;
-        }else if(this.dataTime == null){
-            return GENERIC_GRID_LEGEND_TEXT;
-        } else {
-            StringBuilder legend = new StringBuilder(GENERIC_GRID_LEGEND_TEXT);
-            IGridData gridData = resourceData.getGridData();
-            if (gridData != null) {
-                if (gridData.getParameter() != null) {
-                    legend.append(" ");
-                    legend.append(gridData.getParameter());
-                }
-                if (gridData.getLevel() != null) {
-                    legend.append(" ");
-                    legend.append(gridData.getLevel());
-                }
-            }
-            legend.append(this.dataTime.getLegendString());
-            return legend.toString();
+    protected String buildLegendTextInternal() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        IGridData gridData = this.resourceData.getFirstDataElement();
+        if (gridData.getParameter() != null) {
+            stringBuilder.append(gridData.getParameter());
+            stringBuilder.append(_SPACE_);
         }
+        if (gridData.getLevel() != null) {
+            stringBuilder.append(gridData.getLevel());
+            stringBuilder.append(_SPACE_);
+        }
+
+        return stringBuilder.toString();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource#disposeResource
+     * ()
+     */
     @Override
     protected void disposeInternal() {
-        if ((this.griddedImageDisplay == null) == false) {
+        if (this.griddedImageDisplay != null) {
             this.griddedImageDisplay.dispose();
         }
         this.griddedImageDisplay = null;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
+     * .uf.viz.core.IGraphicsTarget,
+     * com.raytheon.uf.viz.core.drawables.PaintProperties)
+     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (this.noData) {
-            return;
-        }
-
-        if (this.griddedImageDisplay == null) {
-            this.griddedImageDisplay = new GriddedImageDisplay2(this.buffer,
-                    this.gridGeometry, this);
-        }
         this.griddedImageDisplay.paint(target, paintProps);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
+     * referencing.crs.CoordinateReferenceSystem)
+     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
-        if ((this.griddedImageDisplay == null) == false) {
-            this.griddedImageDisplay.dispose();
-            this.griddedImageDisplay = null;
-        }
-    }
-
-    @Override
-    protected void initInternal(IGraphicsTarget target) throws VizException {
-        this.prepareData();
+        this.griddedImageDisplay.project(this.descriptor.getGridGeometry());
     }
 }
