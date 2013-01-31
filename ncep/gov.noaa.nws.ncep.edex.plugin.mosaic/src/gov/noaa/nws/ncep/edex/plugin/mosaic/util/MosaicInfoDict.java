@@ -16,6 +16,8 @@ import java.util.Map;
  * Date         Ticket#         Engineer    Description
  * ------------ ----------      ----------- --------------------------
  * 09/2009      143				L. Lin     	Initial coding
+ * 01/19/13     #               Greg hull   pass in File instead of path
+ *
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -23,25 +25,22 @@ import java.util.Map;
  * @version 1.0
  */
 
-public class MosaicInfoDict implements Iterable<MosaicInfo> {
-    public static final String MOSAIC_INFO_FILE = "mosaicInfo.txt";
+public class MosaicInfoDict implements Iterable<MosaicInfo>  {
 
     private static MosaicInfoDict instance = null;
 
     private Map<Integer, MosaicInfo> dict;
 
-    private MosaicInfoDict(String dir) {
+    private MosaicInfoDict(File midf) {
 
         dict = new LinkedHashMap<Integer, MosaicInfo>();
-
-        // file points to $AWIPS/edex/data/utility/common_static/base/mosaicInfo.txt
-        File file = new File(dir + File.separator + MOSAIC_INFO_FILE);
-
+        
         try {
         	//read the mosaicInfo.txt to pointer in
-            BufferedReader in = new BufferedReader(new FileReader(file));
+            BufferedReader in = new BufferedReader(new FileReader(midf));
             
             String s = in.readLine();
+            
             //read in line by line and put into mosaic information dictionary
             while (s != null) {
                 if ((s.length() > 0) && (s.charAt(0) != '#')) {
@@ -69,7 +68,7 @@ public class MosaicInfoDict implements Iterable<MosaicInfo> {
      * @return
      */
     public MosaicInfo getInfo(int productCode) {
-        return dict.get(productCode);
+    	return dict.get(productCode);
     }
 
     /*
@@ -82,9 +81,9 @@ public class MosaicInfoDict implements Iterable<MosaicInfo> {
         return Collections.unmodifiableCollection(dict.values()).iterator();
     }
 
-    public static synchronized MosaicInfoDict getInstance(String dir) {
+    public static synchronized MosaicInfoDict getInstance(File midf ) {
         if (instance == null) {
-            instance = new MosaicInfoDict(dir);
+            instance = new MosaicInfoDict(midf);
         }
         return instance;
 
@@ -100,6 +99,7 @@ public class MosaicInfoDict implements Iterable<MosaicInfo> {
     }
 
     public static void main(String[] args) {
-        MosaicInfoDict dict = MosaicInfoDict.getInstance(args[0]);
+    	File f = new File( args[0]);
+        MosaicInfoDict dict = MosaicInfoDict.getInstance( f );
     }
 }
