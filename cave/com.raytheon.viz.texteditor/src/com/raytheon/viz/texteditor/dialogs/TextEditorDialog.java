@@ -57,6 +57,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
@@ -311,6 +312,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                       dispaly the red had kill job message.
  * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method
  * 22JAN2013   1496         rferrel     Query for loading products no longer on the UI thread.
+ * 31JAN2013   1563         rferrel     Force location of airport tooltip.
  * </pre>
  * 
  * @author lvenable
@@ -514,6 +516,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     /* the alarm/alert topic */
     private static final String ALARM_ALERT_TOPIC = "edex.alarms.msg";
+
+    /**
+     * Airport information tool tip.
+     */
+    private DefaultToolTip airportToolTip;
 
     /**
      * AFOS browser menu item.
@@ -3718,6 +3725,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.setLayoutData(gd);
         textEditor.setWordWrap(false);
         textEditor.setEditable(false);
+        airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
         textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
 
         textEditor.addKeyListener(new KeyAdapter() {
@@ -3874,9 +3882,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                     if (valid) {
                         if (isSaoMetarFlag) {
-                            Point p = textEditor.getLocation();
-                            textEditor.setLocation(p);
-                            displayAirportTooltip(textEditor);
+                            Point p = new Point(e.x, e.y);
+                            displayAirportTooltip(p);
                         }
                         if (inEditMode) {
                             rewrap(eventStart, eventStart);
@@ -3891,7 +3898,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             @Override
             public void mouseUp(org.eclipse.swt.events.MouseEvent e) {
-                textEditor.setToolTipText(null);
+                airportToolTip.setText(null);
+                airportToolTip.hide();
             }
         });
     }
@@ -8066,18 +8074,23 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     /**
-     * Set up tool tip dispaly with airport information.
+     * Set airport tool tip to the information at location and display the
+     * information.
      * 
-     * @param st
+     * @param location
      */
-    private void displayAirportTooltip(StyledText st) {
-        String word = parseProduct(st);
-        String result = AfosBrowserModel.getInstance().getNodeHelp(word);
-        if (result == null) {
-            result = word;
+    private void displayAirportTooltip(Point location) {
+        String word = parseProduct(textEditor, location.y);
+        if (word != null) {
+            String result = AfosBrowserModel.getInstance().getNodeHelp(word);
+            if (result != null) {
+                // dispaly below and to the right of location.
+                location.x += 5;
+                location.y += 5;
+                airportToolTip.setText(result);
+                airportToolTip.show(location);
+            }
         }
-
-        textEditor.setToolTipText(result);
     }
 
     /**
@@ -8086,45 +8099,54 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * 
      * @param st
      *            -- the styled text widget containing the selection of text
+     * @param y
+     *            -- The cursor's y location
      * @return result -- the start and finish positions of the selected range
      */
-    private String parseProduct(StyledText st) {
-        String lineText = getLineOffset(st);
+    private String parseProduct(StyledText st, int y) {
+        String lineText = getLineOffset(st, st.getLineIndex(y));
 
         String result = new String("");
-        char c = lineText.charAt(0);
-        if ((c == 'M') || (c == 'S') || (c == 'T')) {
-            // # Most obs start with METAR, SPECI, TESTM, or TESTS. Skip over
-            // that tag,
-            // # a space, and the K or P, to get to the 3-char station ID.
-            if (lineText.length() > 10) {
-                result = lineText.substring(7, 10);
+        try {
+            char c = lineText.charAt(0);
+            if ((c == 'M') || (c == 'S') || (c == 'T')) {
+                // # Most obs start with METAR, SPECI, TESTM, or TESTS. Skip
+                // over
+                // that tag,
+                // # a space, and the K or P, to get to the 3-char station ID.
+                if (lineText.length() > 10) {
+                    result = lineText.substring(7, 10);
+                } else {
+                    result = lineText.substring(lineText.length() - 3);
+                }
+            } else if ((c == 'W') || (c == 'Y')) {
+                // # Canadian SAOs have 3-character IDs, starting with W or Y.
+                // Grab
+                // 'em.
+                result = lineText.substring(0, 3);
             } else {
-                result = lineText.substring(lineText.length() - 3);
+                // # Some military obs don't get tagged. Skip the K or P and get
+                // 3
+                // chars.
+                int wordLineStart = 1;
+                result = lineText.substring(wordLineStart, wordLineStart + 4);
             }
-        } else if ((c == 'W') || (c == 'Y')) {
-            // # Canadian SAOs have 3-character IDs, starting with W or Y. Grab
-            // 'em.
-            result = lineText.substring(0, 3);
-        } else {
-            // # Some military obs don't get tagged. Skip the K or P and get 3
-            // chars.
-            int wordLineStart = 1;
-            result = lineText.substring(wordLineStart, wordLineStart + 4);
+        } catch (StringIndexOutOfBoundsException ex) {
+            // User has non METAR/SAO products and the parsing failed.
+            result = null;
         }
 
         return result;
     }
 
     /**
-     * Get the line of text is the styled text current caret location.
+     * For the give line index get the line that is the start of the product.
      * 
      * @param st
-     * @return lineText
+     * @param lineIndex
+     * @return line
      */
-    private String getLineOffset(StyledText st) {
-        int caretOffset = st.getCaretOffset();
-        int lineIndex = st.getLineAtOffset(caretOffset);
+    private String getLineOffset(StyledText st, int lineIndex) {
         String lineText = st.getLine(lineIndex);
         int lineOffset = st.getOffsetAtLine(lineIndex);
 
@@ -8144,7 +8166,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 lineOffset = lineIndex;
                 lineText = st.getLine(lineIndex);
             }
-            st.setCaretOffset(caretOffset);
         }
 
         return lineText;
