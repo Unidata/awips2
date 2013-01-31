@@ -70,7 +70,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="msl-P, msl-P2" constraintType="IN"/>
@@ -169,7 +169,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="ICON" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="PTyp, Snow3" constraintType="IN"/>
@@ -268,7 +268,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="ICON" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="PTyp, Snow3" constraintType="IN"/>
@@ -367,7 +367,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="ICON" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="PTyp, Snow3" constraintType="IN"/>
@@ -466,7 +466,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="ICON" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="PTyp, Snow3" constraintType="IN"/>
@@ -702,7 +702,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="DivFn, qDiv" constraintType="IN"/>
@@ -981,7 +981,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="DivFn, DivFn" constraintType="IN"/>
@@ -1152,7 +1152,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="AV, geoVort" constraintType="IN"/>
@@ -1287,7 +1287,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.level.levelonevalue" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.level.levelonevalue" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="wSp" constraintType="EQUALS"/>
@@ -1386,7 +1386,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="STREAMLINE" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.level.levelonevalue" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.level.levelonevalue" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="Wind" constraintType="EQUALS"/>
@@ -1485,7 +1485,7 @@ ModFamD| |N|Winter: Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.level.levelonevalue" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.level.levelonevalue" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="wDiv" constraintType="EQUALS"/>
