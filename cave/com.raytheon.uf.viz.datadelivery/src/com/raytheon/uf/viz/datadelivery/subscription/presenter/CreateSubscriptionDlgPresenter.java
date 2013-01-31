@@ -44,6 +44,7 @@ import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -102,6 +103,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 11, 2013 1453       djohnson     Sets cycle times on construction.
  * Jan 14, 2013 1286       djohnson     Check that message to display is not null or empty, and 
  *                                      only send notification of subscription creation on OK status.
+ * Jan 25, 2013 1528       djohnson     Use priority enum instead of raw integers, default to existing priority on edit.
  * </pre>
  * 
  * @author mpduff
@@ -373,6 +375,10 @@ public class CreateSubscriptionDlgPresenter {
             view.setActiveEndDateBtnEnabled(false);
         }
 
+        if (!create) {
+            view.setPriority(subscription.getPriority());
+        }
+
         List<Integer> cycleTimes = subscription.getTime().getCycleTimes();
         if (cycleTimes != null) {
             List<String> cycleStrings = new ArrayList<String>();
@@ -504,8 +510,8 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         // priority
-        int priorityInd = view.getPriority();
-        subscription.setPriority(priorityInd);
+        SubscriptionPriority priority = view.getPriority();
+        subscription.setPriority(priority);
 
         subscription.setOfficeID(LocalizationManager.getInstance()
                 .getCurrentSite());
