@@ -20,28 +20,13 @@
 package com.raytheon.uf.common.hydro.dataaccess;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryDataFactory;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
-import com.raytheon.uf.common.dataaccess.impl.AbstractDataFactory;
-import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
+import com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory;
 import com.raytheon.uf.common.dataaccess.impl.FactoryUtil;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.common.dataquery.db.QueryResultRow;
-import com.raytheon.uf.common.dataquery.requests.QlServerRequest;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.message.response.AbstractResponseMessage;
-import com.raytheon.uf.common.message.response.ResponseMessageError;
-import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
-import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -61,6 +46,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012            njensen     Initial creation
+ * Jan 30, 2012 1551       bkowal      Refactored
  * 
  * </pre>
  * 
@@ -68,8 +54,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @version 1.0
  */
 
-public class HydroGeometryFactory extends AbstractDataFactory implements
-        IGeometryDataFactory {
+public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
 
     // TODO always require at least one PE
     // TODO possibly take care of it for them and add value
@@ -82,26 +67,26 @@ public class HydroGeometryFactory extends AbstractDataFactory implements
 
     private GeometryFactory gisFactory = new GeometryFactory();
 
+    private static final String IHFS_DATABASE = "ihfs";
+
+    public HydroGeometryFactory() {
+        super(IHFS_DATABASE, REQUIRED);
+    }
+
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.dataaccess.IDataFactory#getAvailableTimes(com.
-     * raytheon.uf.common.dataaccess.IDataRequest)
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #getAvailableTimes
+     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * com.raytheon.uf.common.time.BinOffset)
      */
-    @Override
-    public DataTime[] getAvailableTimes(IGeometryRequest request)
-            throws TimeAgnosticDataException {
-        validateRequest(request);
-        String query = HydroQueryAssembler.assembleGetTimes(request);
-        List<Object[]> result = sendServerRequest(query);
-        DataTime[] dts = new DataTime[result.size()];
-        for (int i = 0; i < dts.length; i++) {
-            dts[i] = new DataTime((Timestamp) result.get(i)[0]);
-        }
-        return dts;
-    }
-
+    /*
+     * For now this will remain as a method override; maybe this is the standard
+     * way to retrieve the times based on a BinOffset when the database is
+     * accessed directly?
+     */
     @Override
     public DataTime[] getAvailableTimes(IGeometryRequest request,
             BinOffset binOffset) throws TimeAgnosticDataException {
@@ -112,140 +97,92 @@ public class HydroGeometryFactory extends AbstractDataFactory implements
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.dataaccess.IDataFactory#getData(com.raytheon.uf
-     * .common.dataaccess.IDataRequest, com.raytheon.uf.common.time.DataTime[])
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #makeGeometry(java.lang.Object[], java.lang.String[], java.util.Map)
      */
     @Override
-    public IGeometryData[] getData(IGeometryRequest request, DataTime... times) {
-        validateRequest(request);
-        String query = HydroQueryAssembler.assembleGetData(request, times);
-        List<Object[]> result = sendServerRequest(query);
-        return makeGeometries(result, request.getParameters(),
-                request.getIdentifiers());
+    protected IGeometryData makeGeometry(Object[] data, String[] paramNames,
+            Map<String, Object> attrs) {
+
+        // order is lid, producttime, lat, lon, other params
+        String lid = (String) data[0];
+        Timestamp date = (Timestamp) data[1];
+        double lat = (Double) data[2];
+        double lon = (Double) data[3];
+
+        // intentionally setting level as null until hydrologists determine
+        // something better
+        return super.buildGeometryData(new DataTime(date), null,
+                gisFactory.createPoint(new Coordinate(lon, lat)), lid, attrs,
+                4, data, paramNames);
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.dataaccess.IDataFactory#getData(com.raytheon.uf
-     * .common.dataaccess.IDataRequest, com.raytheon.uf.common.time.TimeRange)
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #assembleGetTimes
+     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
      */
     @Override
-    public IGeometryData[] getData(IGeometryRequest request, TimeRange timeRange) {
-        validateRequest(request);
-        String query = HydroQueryAssembler.assembleGetData(request, timeRange);
-        List<Object[]> result = sendServerRequest(query);
-        return makeGeometries(result, request.getParameters(),
-                request.getIdentifiers());
+    protected String assembleGetTimes(IGeometryRequest request) {
+        return HydroQueryAssembler.assembleGetTimes(request);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.common.dataaccess.geom.IGeometryDataFactory#
-     * getAvailableLocationNames
+     * @see
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #assembleGetTimes
+     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * com.raytheon.uf.common.time.BinOffset)
+     */
+    @Override
+    protected String assembleGetTimes(IGeometryRequest request,
+            BinOffset binOffset) {
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * com.raytheon.uf.common.time.DataTime[])
+     */
+    @Override
+    protected String assembleGetData(IGeometryRequest request,
+            DataTime... times) {
+        return HydroQueryAssembler.assembleGetData(request, times);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * com.raytheon.uf.common.time.TimeRange)
+     */
+    @Override
+    protected String assembleGetData(IGeometryRequest request,
+            TimeRange timeRange) {
+        return HydroQueryAssembler.assembleGetData(request, timeRange);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
+     * #assembleGetAvailableLocationNames
      * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
      */
     @Override
-    public String[] getAvailableLocationNames(IGeometryRequest request) {
-        String query = "select lid from location;";
-        List<Object[]> results = sendServerRequest(query);
-        int size = results.size();
-        String[] locations = new String[size];
-        for (int i = 0; i < size; i++) {
-            locations[i] = (String) results.get(i)[0];
-        }
-
-        return locations;
-    }
-
-    @Override
-    public String[] getRequiredIdentifiers() {
-        return REQUIRED;
-    }
-
-    /**
-     * Sends the query to the server and returns the results
-     * 
-     * @param query
-     *            the query to run
-     * @return the results of the query
-     */
-    private List<Object[]> sendServerRequest(String query) {
-        Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-
-        rcMap.put("query", new RequestConstraint(query));
-        rcMap.put("database", new RequestConstraint("ihfs"));
-        rcMap.put("mode", new RequestConstraint("sqlquery"));
-        QlServerRequest qsr = new QlServerRequest(rcMap);
-        AbstractResponseMessage response = null;
-        try {
-            response = (AbstractResponseMessage) RequestRouter.route(qsr);
-        } catch (Exception e) {
-            throw new DataRetrievalException("Error retrieving IHFS data", e);
-        }
-
-        QueryResult result = null;
-        if (response instanceof ResponseMessageError) {
-            throw new DataRetrievalException("Error retrieving IHFS data: "
-                    + response.toString());
-        } else if (response instanceof ResponseMessageGeneric) {
-            result = (QueryResult) ((ResponseMessageGeneric) response)
-                    .getContents();
-        } else {
-            throw new DataRetrievalException(
-                    "Unable to process response of type" + response.getClass());
-        }
-
-        List<Object[]> unmappedResults = new ArrayList<Object[]>();
-        for (QueryResultRow row : result.getRows()) {
-            unmappedResults.add(row.getColumnValues());
-        }
-        return unmappedResults;
-    }
-
-    /**
-     * Builds the data objects that will be returned by calls to getData() on
-     * the factory
-     * 
-     * @param serverResult
-     *            the results from the query run on the server
-     * @param paramNames
-     *            the names of the parameters that were requested
-     * @param identifiers
-     *            the identifiers from the data request
-     * @return the IGeometryData based on the results of the query
-     */
-    private IGeometryData[] makeGeometries(List<Object[]> serverResult,
-            String[] paramNames, Map<String, Object> identifiers) {
-        List<IGeometryData> resultList = new ArrayList<IGeometryData>();
-        Map<String, Object> attrs = Collections.unmodifiableMap(identifiers);
-
-        // loop over each db row
-        for (Object[] row : serverResult) {
-            DefaultGeometryData geom = new DefaultGeometryData();
-            // order is lid, producttime, lat, lon, other params
-            String lid = (String) row[0];
-            Timestamp date = (Timestamp) row[1];
-            double lat = (Double) row[2];
-            double lon = (Double) row[3];
-            if (row.length > 4) {
-                for (int i = 4; i < row.length; i++) {
-                    String name = paramNames[i - 4];
-                    geom.addData(name, row[i]);
-                }
-            }
-            geom.setLocationName(lid);
-            geom.setDataTime(new DataTime(date));
-            // intentionally setting level as null until hydrologists determine
-            // something better
-            geom.setLevel(null);
-            geom.setGeometry(gisFactory.createPoint(new Coordinate(lon, lat)));
-            geom.setAttributes(attrs);
-            resultList.add(geom);
-        }
-
-        return resultList.toArray(new DefaultGeometryData[0]);
+    protected String assembleGetAvailableLocationNames(IGeometryRequest request) {
+        return "select lid from location;";
     }
 }
