@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012            njensen     Initial creation
  * Jan 30, 2012 1551       bkowal      Refactored
+ * Jan 31, 2012 1555       bkowal      Modification based on existing hydro code
  * 
  * </pre>
  * 
@@ -109,6 +110,14 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
         Timestamp date = (Timestamp) data[1];
         double lat = (Double) data[2];
         double lon = (Double) data[3];
+        /*
+         * Assuming that this applies to all ihfs data Refer to GageData.java
+         * 
+         * method: setLon
+         */
+        if (lon > 0) {
+            lon *= -1;
+        }
 
         // intentionally setting level as null until hydrologists determine
         // something better
