@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.datadelivery.common.ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -28,7 +30,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 
 /**
  * This is the priority group information composite. This class is intended to
@@ -43,6 +45,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionP
  * Jun 27, 2012     702    jpiatt      Initial creation.
  * Aug 21, 2012     712    mpduff      Default to Default, and allow for setting the combo box.
  * Jan 04, 2013    1420    mpduff      Add latency.
+ * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
  * 
  * </pre>
  * 
@@ -60,7 +63,7 @@ public class PriorityComp extends Composite {
     private final int latency;
 
     /** The priority value */
-    private final int priority;
+    private SubscriptionPriority priority;
 
     /**
      * Constructor.
@@ -70,10 +73,11 @@ public class PriorityComp extends Composite {
      * @param latency
      * @param priority
      */
-    public PriorityComp(Composite parent, int latency, int priority) {
+    public PriorityComp(Composite parent, int latency,
+            SubscriptionPriority priority) {
         super(parent, SWT.NONE);
         this.latency = latency;
-        this.priority = priority - 1;
+        this.priority = priority;
         init();
     }
 
@@ -127,9 +131,16 @@ public class PriorityComp extends Composite {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         priorityCombo = new Combo(priorityComp, SWT.READ_ONLY);
         priorityCombo.setItems(priorities);
-        priorityCombo.select(this.priority);
         priorityCombo.setLayoutData(gd);
         priorityCombo.setToolTipText("Select a priority");
+        priorityCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                priority = SubscriptionPriority.fromPriorityName(priorityCombo
+                        .getItem(priorityCombo.getSelectionIndex()));
+            }
+        });
+        setPriority(priority);
 
         Composite latencyComp = new Composite(subPriorityGroup, SWT.NONE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -153,8 +164,8 @@ public class PriorityComp extends Composite {
      * 
      * @return priority
      */
-    public int getPriorityIndex() {
-        return priorityCombo.getSelectionIndex();
+    public SubscriptionPriority getPriority() {
+        return priority;
     }
 
     /**
@@ -162,10 +173,9 @@ public class PriorityComp extends Composite {
      * 
      * @param index
      */
-    public void setPriorityIndex(int index) {
-        if (index <= priorityCombo.getItemCount()) {
-            priorityCombo.select(index);
-        }
+    public void setPriority(SubscriptionPriority priority) {
+        priorityCombo.select(priorityCombo.indexOf(priority.getPriorityName()));
+        this.priority = priority;
     }
 
     /**

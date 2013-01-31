@@ -453,7 +453,8 @@ public class DataDeliveryUtils {
                 .append(newline);
         fmtStr.append("Provider : ").append(sub.getProvider()).append(newline);
         fmtStr.append("Office ID: ").append(sub.getOfficeID()).append(newline);
-        fmtStr.append("Priority : ").append(sub.getPriority()).append(newline);
+        fmtStr.append("Priority : ")
+                .append(sub.getPriority().getPriorityValue()).append(newline);
 
         fmtStr.append("Coverage: ").append(newline);
         final Coverage coverage = sub.getCoverage();
