@@ -129,6 +129,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       and in updateListSelected().
  *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
  *                                       to true in boxSelected().                                      
+ *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
  * 
  * </pre>
  * 
@@ -1572,6 +1573,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
             warngenLayer.setWarningAction(action);
+            warngenLayer.initRemovedGids();
             if (action == WarningAction.CON) {
                 oldWarning = conSelected(data);
             } else if (action == WarningAction.COR) {
@@ -1827,7 +1829,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param selected
      */
     private AbstractWarningRecord conSelected(FollowupData data) {
-        CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
+    	CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
                 .getLocalizedSite());
         AbstractWarningRecord newWarn = null;
         if (WarningAction.COR == WarningAction.valueOf(data.getAct())) {
