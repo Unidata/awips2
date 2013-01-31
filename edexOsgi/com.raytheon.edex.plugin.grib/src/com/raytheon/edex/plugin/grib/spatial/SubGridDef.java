@@ -65,7 +65,9 @@ public class SubGridDef implements ISerializableObject {
     @XmlElement(required = true)
     private double ny;
     
-
+    @XmlElement
+    private Boolean shiftWest;
+    
     // annotation on setter to enforce data constraints
     private Double centerLatitude;
 
@@ -96,6 +98,13 @@ public class SubGridDef implements ISerializableObject {
         this.ny = ny;
     }
 
+    public Boolean getShiftWest() {
+        return shiftWest;
+    }
+
+    public void setShiftWest(Boolean shiftWest) {
+        this.shiftWest = shiftWest;
+    }    
     /**
      * a model may have more than one grid so use reference grid instead.
      * 
