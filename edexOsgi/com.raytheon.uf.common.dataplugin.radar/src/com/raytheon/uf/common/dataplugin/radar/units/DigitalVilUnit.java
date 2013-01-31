@@ -1,4 +1,4 @@
-package com.raytheon.viz.radar.units;
+package com.raytheon.uf.common.dataplugin.radar.units;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Quantity;
