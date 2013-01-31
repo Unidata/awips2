@@ -7,7 +7,6 @@
     <resourceParameters>
 GDFILE=ecmwf
 pluginName=grid
-eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
