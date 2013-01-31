@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.subscription.subset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -123,6 +125,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 02, 2012 1345       djohnson     Use gui thread task executor.
  * Jan 04, 2012 1420       mpduff       Pass the subscription in to the GriddedTimingSelectionDlg.
  * Jan 10, 2013 1444       mpduff       Fix the loading of saved subsets from the saved subset tab.
+ * Jan 28, 2013 1530       djohnson     Break out long method chaining into local variables for debugging.
  * </pre>
  * 
  * @author mpduff
@@ -562,7 +565,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         sub.setOfficeID(LocalizationManager.getInstance().getCurrentSite());
         if (create) {
             sub.setOwner(LocalizationManager.getInstance().getCurrentUser());
-            sub.setPriority(1);
         } else {
             sub.setOwner(this.subscription.getOwner());
             sub.setGroupName(this.subscription.getGroupName());
@@ -908,8 +910,11 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                 // Data providers have parameters with multiple level types
                 // containing multiple levels
                 if (levelType.getId() == 100) {
-                    for (int index : p.getLevels().getSelectedLevelIndices()) {
-                        v.addLevel(String.valueOf(p.getLevels().getLevel()
+                    final Levels levels = p.getLevels();
+                    final List<Integer> selectedLevelIndices = levels
+                            .getSelectedLevelIndices();
+                    for (int index : selectedLevelIndices) {
+                        v.addLevel(String.valueOf(levels.getLevel()
                                 .get(index)));
                     }
                 }
