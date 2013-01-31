@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="GEMPAK">
+	<alias base="0DEG">FRZL</alias>
+	<alias base="ADCL">LCLV</alias>
+	<alias base="AMSL">HGHT</alias>
+	<alias base="BCBL">BCBL</alias>
+	<alias base="BCLY">BCLY</alias>
+	<alias base="BCTL">BCTL</alias>
+	<alias base="BCY">BCLY</alias>
+	<alias base="BLD">PLBL</alias>
+	<alias base="BLS">DPTH</alias>
+	<alias base="BSS">DPTH</alias>
+	<alias base="CBL">CLDL</alias>
+	<alias base="CCBL">CCBL</alias>
+	<alias base="CCL">CCLY</alias>
+	<alias base="CCLY">CCLY</alias>
+	<alias base="CCTL">CCTL</alias>
+	<alias base="CCY">CCLY</alias>
+	<alias base="CEIL">CEIL</alias>
+	<alias base="CLG">CEIL</alias>
+	<alias base="CTL">CLDT</alias>
+	<alias base="DBLL">DPTH</alias>
+	<alias base="DBSL">DPTH</alias>
+	<alias base="DCBL">DCCBL</alias>
+	<alias base="DCCBL">DCCBL</alias>
+	<alias base="DCCTL">DCCTL</alias>
+	<alias base="DCTL">DCCTL</alias>
+	<alias base="EA">NONE</alias>
+	<alias base="EATM">NONE</alias>
+	<alias base="EHLT">EHLT</alias>
+	<alias base="EL">EHLT</alias>
+	<alias base="ELYR">ELYR</alias>
+	<alias base="EOCN">NONE</alias>
+	<alias base="ETA">ELVL</alias>
+	<alias base="ETAL">ELVL</alias>
+	<alias base="FH">HGHT</alias>
+	<alias base="FHAG">HGHT</alias>
+	<alias base="FRZ">FRZL</alias>
+	<alias base="GCBL">GSCBL</alias>
+	<alias base="GCTL">GSCTL</alias>
+	<alias base="GSCBL">GSCBL</alias>
+	<alias base="GSCTL">GSCTL</alias>
+	<alias base="HCBL">HCBL</alias>
+	<alias base="HCL">HCLY</alias>
+	<alias base="HCLY">HCLY</alias>
+	<alias base="HCTL">HCTL</alias>
+	<alias base="HCY">HCLY</alias>
+	<alias base="HSCLW">HTSLW</alias>
+	<alias base="HTFL">HTFL</alias>
+	<alias base="HTGL">HGHT</alias>
+	<alias base="HTSLW">HTSLW</alias>
+	<alias base="HYB">HYBL</alias>
+	<alias base="HYBL">HYBL</alias>
+	<alias base="ISBL">PRES</alias>
+	<alias base="K">THTA</alias>
+	<alias base="Ke">THTA</alias>
+	<alias base="LBSLW">LBSLW</alias>
+	<alias base="LBTHL">HYBL</alias>
+	<alias base="LCBL">LCBL</alias>
+	<alias base="LCL">LCLV</alias>
+	<alias base="LCLY">LCLY</alias>
+	<alias base="LCTL">LCTL</alias>
+	<alias base="LCY">LCLY</alias>
+	<alias base="LLTW">LWBZ</alias>
+	<alias base="LSCLW">LBSLW</alias>
+	<alias base="LWBZ">LWBZ</alias>
+	<alias base="LYRBL">PRES</alias>
+	<alias base="LYRFHAG">HGHT</alias>
+	<alias base="LYRK">THTA</alias>
+	<alias base="LYRKe">THTA</alias>
+	<alias base="LYRMB">PRES</alias>
+	<alias base="LYRSIG">SGMA</alias>
+	<alias base="MAXW">MWSL</alias>
+	<alias base="MB">PRES</alias>
+	<alias base="MCBL">MCBL</alias>
+	<alias base="MCLY">MCLY</alias>
+	<alias base="MCTL">MCTL</alias>
+	<alias base="MCY">MCLY</alias>
+	<alias base="MEPT">MTHE</alias>
+	<alias base="MLD">DPTH</alias>
+	<alias base="MSL">NONE</alias>
+	<alias base="MTHE">MTHE</alias>
+	<alias base="MWSL">MWSL</alias>
+	<alias base="NONE">NONE</alias>
+	<alias base="NTAT">TOPA</alias>
+	<alias base="OBIL">OBIL</alias>
+	<alias base="OBML">OBML</alias>
+	<alias base="OITL">OITL</alias>
+	<alias base="OLYR">OLYR</alias>
+	<alias base="OML">OML</alias>
+	<alias base="OSD">OSEQ</alias>
+	<alias base="OSEQ">OSEQ</alias>
+	<alias base="OSEQD">OSEQ</alias>
+	<alias base="PBL">PLBL</alias>
+	<alias base="PDLY">PDLY</alias>
+	<alias base="PLBL">PLBL</alias>
+	<alias base="PV">POTV</alias>
+	<alias base="PVL">POTV</alias>
+	<alias base="SCBL">SCCBT</alias>
+	<alias base="SCCBT">SCCBT</alias>
+	<alias base="SCCTL">SCCTL</alias>
+	<alias base="SCTL">SCCTL</alias>
+	<alias base="SEAB">SEAB</alias>
+	<alias base="SFC">NONE</alias>
+	<alias base="SIG">SGMA</alias>
+	<alias base="SIGL">SGMA</alias>
+	<alias base="SPDL">PDLV</alias>
+	<alias base="TEMP">TEMP</alias>
+	<alias base="THEL">THTA</alias>
+	<alias base="TILT">TILT</alias>
+	<alias base="TMPL">TMPL</alias>
+	<alias base="TRO">TROP</alias>
+	<alias base="TROP">TROP</alias>
+	<alias base="VPT">POTV</alias>
+	<alias base="WBZ">LWBZ</alias>
+</aliasList>
