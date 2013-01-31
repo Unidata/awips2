@@ -27,216 +27,238 @@ import org.eclipse.core.commands.ExecutionException;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.tools.AbstractTool;
 
+/**
+ * 
+ * Contains logic for rotating panels
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 30, 2013            mschenke     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author mschenke
+ * @version 1.0
+ */
 public class RotatePanelsHandler extends AbstractTool {
 
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    public Object execute(ExecutionEvent event) throws ExecutionException {
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
-        if (container == null) {
+        if (container == null || container instanceof IMultiPaneEditor == false) {
             return null;
         }
-        // direction is usually +1 or -1 to specify which direction to rotate
-        String dirStr = arg0.getParameter("direction");
-        // start index is the index to start rotating from, for example if you
-        // want to display pane 3 then you set startIndex to 2 and direction to
-        // +1, this is done so that if pane 3 has no data it will rotate past
-        // pane 3 and the next available pane with data.
-        String startStr = arg0.getParameter("startIndex");
-        // hideIndex can be set to 0 or 1 to specify which half of a blended
-        // images should be hidden.
-        String hideIndexStr = arg0.getParameter("hideIndex");
-        boolean toggle = false;
-        int dir = Integer.parseInt(dirStr);
-        if (startStr == null) {
-            // If there is no startIndex rotate from the currently displayed
-            // pane
-            if (container instanceof IMultiPaneEditor) {
-                // If it is going from multiple panes to a single pain, toggle
-                // the blended image
-                toggle = ((IMultiPaneEditor) container).displayedPaneCount() > 1;
-            }
-            if (rotateCurrent(container, dir)) {
-                // if it wraps around when we rotate, toggle the blended image.
-                toggle = true;
+
+        // Get editor and panes
+        IMultiPaneEditor editor = (IMultiPaneEditor) container;
+        IDisplayPane[] panes = getEditorPanes(editor);
+
+        // Get direction to rotate
+        String dirStr = event.getParameter("direction");
+        int direction = Integer.parseInt(dirStr);
+
+        // Get pane to start rotation on
+        IDisplayPane startPane = null;
+        String startStr = event.getParameter("startIndex");
+        if (startStr != null) {
+            int startIdx = Integer.parseInt(startStr);
+            if (editor.displayedPaneCount() > 1) {
+                // more than one pane so we want to start on resulting pane
+                startPane = panes[getNextIndex(panes, startIdx, direction)];
+            } else {
+                // Get pane specified by startIdx
+                startPane = panes[getNextIndex(panes, startIdx, 0)];
             }
         } else {
-            int start = Integer.parseInt(startStr);
-            rotate(container, start, dir);
-        }
-
-        Integer hideIndex = null;
-        if (hideIndexStr != null) {
-            hideIndex = Integer.parseInt(hideIndexStr);
-        }
-        if (toggle || hideIndex != null) {
-            for (IDisplayPane pane : container.getDisplayPanes()) {
-                for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
-                    if (rp.getResource() != null
-                            && rp.getResource().hasCapability(
-                                    BlendableCapability.class)) {
-                        BlendableCapability cap = rp.getResource()
-                                .getCapability(BlendableCapability.class);
-                        if (hideIndex != null) {
-                            cap.toggle(hideIndex);
-                        } else {
-                            cap.toggle();
-                        }
-                    }
+            // No startStr, get first visible pane
+            for (IDisplayPane pane : panes) {
+                if (pane.isVisible()) {
+                    startPane = pane;
+                    break;
                 }
             }
         }
 
-        if (container instanceof IMultiPaneEditor) {
-            ((IMultiPaneEditor) container).setSelectedPane(
-                    IMultiPaneEditor.IMAGE_ACTION, null);
-        }
+        if (startPane != null) {
+            Integer hideIndex = null;
+            String hideIndexStr = event.getParameter("hideIndex");
+            if (hideIndexStr != null) {
+                hideIndex = Integer.parseInt(hideIndexStr);
+            }
 
+            rotateToNextPane(editor, startPane, direction, hideIndex);
+        }
         return null;
     }
 
     /**
-     * rotate starting from the activeDisplayPane in direction
+     * Rotates to next pane in container. If container has > 1 pane displayed,
+     * will rotate to pane passed in, otherwise to next in line
      * 
-     * @param direction
-     *            should be either 1, or -1
-     * @return true if the data wrapped to the other side of the pane array.
+     * @param container
+     * @param pane
      */
-    public boolean rotateCurrent(IDisplayPaneContainer container, int direction) {
-        if (container instanceof IMultiPaneEditor) {
-            IMultiPaneEditor mEditor = (IMultiPaneEditor) container;
-            int index = getIndex(container, mEditor.getActiveDisplayPane());
-            return rotate(container, index, direction);
-        }
-        return false;
+    public static void rotateToNextPane(IMultiPaneEditor editor,
+            IDisplayPane pane) {
+        rotateToNextPane(editor, pane, 1, 0);
     }
 
-    public void rotate(IDisplayPaneContainer container, IDisplayPane pane,
-            int direction) {
-        if (container instanceof IMultiPaneEditor) {
-            rotate(container, getIndex(container, pane), direction);
+    /**
+     * Rotates to the next panel given the direction
+     * 
+     * @param editor
+     * @param pane
+     * @param direction
+     */
+    private static void rotateToNextPane(IMultiPaneEditor editor,
+            IDisplayPane pane, int direction, Integer hideIndex) {
+        boolean wrapped = false;
+        IDisplayPane paneToRotateTo = pane;
+        if (editor.displayedPaneCount() == 1) {
+            IDisplayPane[] panes = getEditorPanes(editor);
+            int paneIdx = -1;
+            for (int i = 0; i < panes.length; ++i) {
+                if (panes[i] == pane) {
+                    paneIdx = i;
+                    break;
+                }
+            }
+
+            if (paneIdx >= 0) {
+                int idxToCheck = paneIdx;
+                boolean done = false;
+                do {
+                    int tmpIdx = idxToCheck + direction;
+                    idxToCheck = getNextIndex(panes, idxToCheck, direction);
+                    if (idxToCheck != tmpIdx) {
+                        wrapped = true;
+                    }
+                    IDisplayPane next = panes[idxToCheck];
+                    List<D2DLegendResource> rscs = next.getDescriptor()
+                            .getResourceList()
+                            .getResourcesByTypeAsType(D2DLegendResource.class);
+                    for (D2DLegendResource rsc : rscs) {
+                        if (rsc.hasProducts()) {
+                            paneToRotateTo = next;
+                            done = true;
+                            break;
+                        }
+                    }
+                } while (idxToCheck != paneIdx && !done);
+            }
+        }
+        rotateToPane(editor, paneToRotateTo, hideIndex, wrapped);
+    }
+
+    /**
+     * Sets container so pane passed in is the only visible pane
+     * 
+     * @param container
+     * @param pane
+     */
+    private static void rotateToPane(IMultiPaneEditor editor,
+            IDisplayPane pane, Integer hideIndex, boolean wrapped) {
+        IDisplayPane[] panes = getEditorPanes(editor);
+        boolean found = false;
+        for (IDisplayPane editorPane : panes) {
+            if (editorPane == pane) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            for (IDisplayPane editorPane : panes) {
+                if (editorPane != pane) {
+                    editor.hidePane(editorPane);
+                }
+            }
+            editor.showPane(pane);
+            editor.setSelectedPane(IMultiPaneEditor.VISIBLE_PANE, pane);
+            editor.setSelectedPane(IMultiPaneEditor.IMAGE_ACTION, null);
+
+            if (hideIndex == null) {
+                // Search pane for current resource index
+                hideIndex = 0;
+                for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
+                    if (rp.getResource() != null
+                            && rp.getResource().hasCapability(
+                                    BlendableCapability.class)) {
+                        hideIndex = rp.getResource()
+                                .getCapability(BlendableCapability.class)
+                                .getResourceIndex();
+                    }
+                }
+                if (wrapped) {
+                    // If we wrapped, switch index
+                    if (hideIndex == 0) {
+                        hideIndex = 1;
+                    } else {
+                        hideIndex = 0;
+                    }
+                }
+            }
+
+            // Toggle displayed resource
+            for (IDisplayPane p : panes) {
+                for (ResourcePair rp : p.getDescriptor().getResourceList()) {
+                    if (rp.getResource() != null
+                            && rp.getResource().hasCapability(
+                                    BlendableCapability.class)) {
+                        rp.getResource()
+                                .getCapability(BlendableCapability.class)
+                                .toggle(hideIndex);
+                    }
+                }
+            }
         }
     }
 
     /**
-     * rotate starting from a specific index in direction
+     * Gets the editor panes. Will reorder panes to special A1 ordering of
+     * UL,UR,LR,LL if number of panes is 4
      * 
-     * @param index
-     *            the index to start rotating from
-     * @param direction
-     *            should be either 1, or -1
-     * @return true if the data wrapped to the other side of the pane array.
+     * @param editor
+     * @return
      */
-    private boolean rotate(IDisplayPaneContainer container, int index,
-            int direction) {
-        boolean wrapped = false;
-        IMultiPaneEditor mEditor = (IMultiPaneEditor) container;
-        IDisplayPane[] panes = mEditor.getDisplayPanes();
+    private static IDisplayPane[] getEditorPanes(IMultiPaneEditor editor) {
+        IDisplayPane[] panes = editor.getDisplayPanes();
         if (panes.length == 4) {
-            // Pretend the panels are in the order 0, 1, 3, 2 because
-            // AWIPS I rotates the panes in a weird order = ul, ur, lr, ll
-            IDisplayPane[] reorderedPanes = new IDisplayPane[4];
-            reorderedPanes[0] = panes[0];
-            reorderedPanes[1] = panes[1];
-            reorderedPanes[2] = panes[3];
-            reorderedPanes[3] = panes[2];
-            panes = reorderedPanes;
+            IDisplayPane[] tmp = new IDisplayPane[panes.length];
+            tmp[0] = panes[0];
+            tmp[1] = panes[1];
+            tmp[2] = panes[3];
+            tmp[3] = panes[2];
+            panes = tmp;
         }
-
-        IDisplayPane paneToShow = null;
-
-        if (panes != null && index < panes.length && panes.length != 1) {
-            boolean from4To1 = mEditor.displayedPaneCount() > 1;
-            boolean hasProducts = false;
-            if (panes[index] != null) {
-                List<D2DLegendResource> rscs = panes[index].getDescriptor()
-                        .getResourceList()
-                        .getResourcesByTypeAsType(D2DLegendResource.class);
-                for (D2DLegendResource rsc : rscs) {
-                    hasProducts = rsc.hasProducts();
-                    if (hasProducts) {
-                        break;
-                    }
-                }
-            }
-
-            if (from4To1 && hasProducts) {
-                paneToShow = panes[index];
-            } else {
-                IDisplayPane displayedPane = null;
-                boolean done = false;
-                for (int i = index + direction; !done; i = i + direction) {
-                    if (i < 0) {
-                        i += panes.length;
-                        wrapped = true;
-                    } else if (i >= panes.length) {
-                        wrapped = true;
-                        i -= panes.length;
-                    }
-                    IDisplayPane pane = panes[i];
-                    if (i == index) {
-                        done = true;
-                    }
-
-                    if (pane != panes[index] && pane != null) {
-                        List<D2DLegendResource> rscs = pane
-                                .getDescriptor()
-                                .getResourceList()
-                                .getResourcesByTypeAsType(
-                                        D2DLegendResource.class);
-                        for (D2DLegendResource rsc : rscs) {
-                            if (rsc.hasProducts()) {
-                                displayedPane = pane;
-                                done = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                paneToShow = displayedPane != null ? displayedPane
-                        : panes[index];
-            }
-
-            for (IDisplayPane displayPane : panes) {
-                if (displayPane != paneToShow) {
-                    mEditor.hidePane(displayPane);
-                }
-            }
-            mEditor.showPane(paneToShow);
-            mEditor.setSelectedPane(IMultiPaneEditor.VISIBLE_PANE, paneToShow);
-
-            container.refresh();
-        }
-        try {
-            HistoryList.getInstance().refreshLatestBundle();
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-        return wrapped;
+        return panes;
     }
 
-    private int getIndex(IDisplayPaneContainer container, IDisplayPane pane) {
-        IMultiPaneEditor mEditor = (IMultiPaneEditor) container;
-        IDisplayPane[] panes = mEditor.getDisplayPanes();
-        int currentIndex = -1;
-        for (int i = 0; i < panes.length; i++) {
-            if (panes[i] == pane) {
-                currentIndex = i;
-            }
+    /**
+     * Gets the next index in line for rotation given panes, curIdx, and
+     * direction
+     * 
+     * @param panes
+     * @param curIdx
+     * @param direction
+     * @return
+     */
+    private static int getNextIndex(IDisplayPane[] panes, int curIdx,
+            int direction) {
+        int idxToCheck = curIdx + direction;
+        if (idxToCheck < 0) {
+            idxToCheck = panes.length - 1;
+        } else if (idxToCheck >= panes.length) {
+            idxToCheck = 0;
         }
-        // Pretend the panels are in the order 0, 1, 3, 2 because
-        // AWIPS I rotates the panes in a wierd order = ul, ur, lr, ll
-        if (panes.length == 4 && currentIndex == 3) {
-            currentIndex = 2;
-        } else if (panes.length == 4 && currentIndex == 2) {
-            currentIndex = 3;
-        }
-        return currentIndex;
+        return idxToCheck;
     }
 }
