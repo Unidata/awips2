@@ -79,28 +79,19 @@ public abstract class AbstractGridDataPluginFactory extends
             }
             if ((resultMap.get(null) instanceof PluginDataObject) == false) {
                 throw new DataRetrievalException(
-                        "The PluginDataObject objects returned by the DbQueryRequest are not of type SatelliteRecord as expected.");
+                        "The objects returned by the DbQueryRequest are not of type PluginDataObject as expected.");
             }
 
             PluginDataObject pdo = (PluginDataObject) resultMap
                     .get(null);
 
-            IDataRecord dataRecord = null;
-
-            try {
-                dataRecord = PDOUtil.getDataRecords(pdo, "Data",
-                        request.getStorageRequest());
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new DataRetrievalException(
-                        "Failed to retrieve the IDataRecord for PluginDataObject: "
-                                + pdo.toString(), e);
-            }
+            IDataRecord dataRecord = getDataRecord(pdo,
+                    request.getStorageRequest());
 
             /*
              * Extract the grid geometry.
              */
-            GridGeometry2D gridGeometry = PDOUtil.retrieveGeometry(pdo);
+            GridGeometry2D gridGeometry = getGridGeometry(pdo);
 
             gridGeometry = trimGridGeometryToRequest(gridGeometry,
                     request.getStorageRequest());
@@ -113,6 +104,22 @@ public abstract class AbstractGridDataPluginFactory extends
         }
 
         return gridData.toArray(new IGridData[gridData.size()]);
+    }
+
+    protected IDataRecord getDataRecord(PluginDataObject pdo,
+            Request storageRequest) {
+        try {
+            return PDOUtil.getDataRecord(pdo, "Data", storageRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataRetrievalException(
+                    "Failed to retrieve the IDataRecord for PluginDataObject: "
+                            + pdo.toString(), e);
+        }
+    }
+
+    protected GridGeometry2D getGridGeometry(PluginDataObject pdo) {
+        return PDOUtil.retrieveGeometry(pdo);
     }
 
     /**
