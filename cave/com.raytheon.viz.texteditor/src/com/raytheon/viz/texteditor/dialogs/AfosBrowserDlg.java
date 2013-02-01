@@ -1518,20 +1518,24 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
              */
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                while (true) {
-                    TimesRequest timesRequest = timesRequestQueue.poll();
-                    if (timesRequest == null || canceled) {
-                        queryJobList.remove(this);
-                        return Status.OK_STATUS;
-                    }
-                    timesRequest.queryResults = timesRequest.query
-                            .executeQuery();
-                    timesRequest.query = null;
+                try {
+                    while (true) {
+                        TimesRequest timesRequest = timesRequestQueue.poll();
+                        if (timesRequest == null || canceled) {
+                            break;
+                        }
+                        timesRequest.queryResults = timesRequest.query
+                                .executeQuery();
+                        timesRequest.query = null;
 
-                    if (!canceled) {
-                        timesResultQueue.add(timesRequest);
+                        if (!canceled) {
+                            timesResultQueue.add(timesRequest);
+                        }
                     }
+                } finally {
+                    queryJobList.remove(this);
                 }
+                return Status.OK_STATUS;
             }
         }
 
@@ -1637,6 +1641,11 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                 }
             }
 
+            // Shorter wait for better response when few product IDs.
+            long waitTime = 40L;
+            long waitDelta = 10L;
+            long waitMax = 200L;
+
             // Wait for all query jobs to finish and update results.
             boolean finished = false;
             while (!(finished || canceled)) {
@@ -1662,10 +1671,13 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                 if (queryJobList.size() > 0) {
                     synchronized (this) {
                         try {
-                            wait(200L);
+                            wait(waitTime);
                         } catch (InterruptedException e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
+                        }
+                        if (waitTime < waitMax) {
+                            waitTime += waitDelta;
                         }
                     }
                 } else {
