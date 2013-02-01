@@ -42,13 +42,6 @@
             resourceType="PLAN_VIEW"/>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.units">
-      <units
-            class="com.raytheon.viz.radar.units.RadarUnits"
-            name="RadarUnits">
-      </units>
-   </extension>
-   <extension
          point="org.eclipse.ui.commands">
       <command
             id="com.raytheon.viz.radar.ui.RadarDisplayControls"
