@@ -66,7 +66,7 @@ public final class PDOUtil {
     private PDOUtil() {
     }
     
-    private static IDataStore getDataStore(PluginDataObject pdo){
+    public static IDataStore getDataStore(PluginDataObject pdo) {
         final String pluginName = pdo.getPluginName();
         final IPersistable persistable = (IPersistable) pdo;
 
@@ -97,7 +97,7 @@ public final class PDOUtil {
         return dataStore.retrieve(pdo.getDataURI());
     }
 
-    public static IDataRecord getDataRecords(PluginDataObject pdo,
+    public static IDataRecord getDataRecord(PluginDataObject pdo,
             String dataset, Request request)
             throws FileNotFoundException, StorageException {
         IDataStore dataStore = getDataStore(pdo);
