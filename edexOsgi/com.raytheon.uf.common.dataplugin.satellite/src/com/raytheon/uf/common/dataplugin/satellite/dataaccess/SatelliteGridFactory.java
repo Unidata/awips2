@@ -196,7 +196,8 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
         
         SatelliteRecord satelliteRecord = (SatelliteRecord) pdo;
         DefaultGridData defaultGridData = new DefaultGridData(
-                DataWrapperUtil.constructArrayWrapper(dataRecord), gridGeometry);
+                DataWrapperUtil.constructArrayWrapper(dataRecord, false),
+                gridGeometry);
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(satelliteRecord.getPhysicalElement());
         defaultGridData.setLevel(null);
