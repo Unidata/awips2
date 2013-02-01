@@ -135,12 +135,12 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
      * 
      * @param dbQueryRequest
      *            the DbQueryRequest to execute
-     * @param gridRequestString
-     *            the original grid request for reporting purposes
+     * @param requestString
+     *            the original request for reporting purposes
      * @return a DbQueryResponse
      */
     protected DbQueryResponse executeDbQueryRequest(
-            DbQueryRequest dbQueryRequest, String gridRequestString) {
+            DbQueryRequest dbQueryRequest, String requestString) {
         DbQueryResponse dbQueryResponse = null;
 
         try {
@@ -149,7 +149,7 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
         } catch (Exception e1) {
             throw new DataRetrievalException(
                     "Unable to complete the DbQueryRequest for request: "
-                            + gridRequestString, e1);
+                            + requestString, e1);
         }
 
         return dbQueryResponse;
