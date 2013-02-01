@@ -150,40 +150,51 @@ public class ProductQueryJob extends Job {
         }
 
         Request request = null;
-        while (!canceled.get()) {
-            synchronized (this) {
-                if (requests.size() > 0) {
-                    request = requests.remove(0);
-                } else {
-                    break;
+        try {
+            while (true) {
+                synchronized (this) {
+                    if (requests.size() > 0) {
+                        request = requests.remove(0);
+                    } else {
+                        break;
+                    }
+                }
+
+                try {
+                    final ICommand command = request.getCommand();
+                    final boolean isObsUpdated = request.isObsUpdated();
+                    final List<StdTextProduct> prodList = command
+                            .executeCommand(queryTransport);
+                    // User may have canceled during long query.
+                    if (!canceled.get()) {
+                        VizApp.runAsync(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                callback.requestDone(command, prodList,
+                                        isObsUpdated);
+                            }
+                        });
+                    } else {
+                        break;
+                    }
+                } catch (CommandFailedException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                    if (!canceled.get()) {
+                        VizApp.runAsync(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                callback.requestDone(null, null, false);
+                            }
+                        });
+                    }
                 }
             }
-
-            try {
-                final ICommand command = request.getCommand();
-                final boolean isObsUpdated = request.isObsUpdated();
-                final List<StdTextProduct> prodList = command
-                        .executeCommand(queryTransport);
-                // User may have canceled while long query is be performed.
-                if (!canceled.get()) {
-                    VizApp.runAsync(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            callback.requestDone(command, prodList,
-                                    isObsUpdated);
-                        }
-                    });
-                } else {
-                    canceled.set(false);
-                }
-            } catch (CommandFailedException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-                callback.requestDone(null, null, false);
-            }
+        } finally {
+            canceled.set(false);
         }
-        canceled.set(false);
         return Status.OK_STATUS;
     }
 
