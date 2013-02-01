@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar.units;
+package com.raytheon.uf.common.dataplugin.radar.units;
 
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
