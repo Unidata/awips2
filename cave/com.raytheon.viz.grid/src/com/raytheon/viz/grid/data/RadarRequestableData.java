@@ -47,7 +47,6 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.grid.util.RadarAdapter;
 import com.raytheon.viz.grid.util.SliceUtil;
-import com.raytheon.viz.radar.util.DataUtilities;
 
 /**
  * A requestable data record which wraps a RadarRecord and can convert radar
@@ -136,7 +135,7 @@ public class RadarRequestableData extends GridRequestableData {
             // to float
             ColorMapParameters cMapParams = RadarAdapter
                     .getColorMap(radarSource);
-            cMapParams.setDataUnit(DataUtilities.getDataUnit(radarSource));
+            cMapParams.setDataUnit(radarSource.getDataUnit());
             /*
              * UnitConverter dataToImage =
              * DataUtilities.getDataToImageConverter( radarSource, cMapParams);
