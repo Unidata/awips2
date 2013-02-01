@@ -19,16 +19,18 @@
  **/
 package com.raytheon.uf.common.dataaccess.util;
 
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.IntArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
+import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedShortArrayWrapper;
 
 /**
  * This methods in this utility may eventually be added to an abstract class.
@@ -69,6 +71,11 @@ public final class DataWrapperUtil {
      * @return the array-wrapped data
      */
     public static DataWrapper1D constructArrayWrapper(IDataRecord dataRecord) {
+        return constructArrayWrapper(dataRecord, true);
+    }
+
+    public static DataWrapper1D constructArrayWrapper(IDataRecord dataRecord,
+            boolean signed) {
         DataWrapper1D arrayWrapper = null;
 
         long[] dimensions = dataRecord.getSizes();
@@ -81,9 +88,13 @@ public final class DataWrapperUtil {
          */
         if (dataRecord instanceof ByteDataRecord) {
             ByteDataRecord byteDataRecord = (ByteDataRecord) dataRecord;
-
+            if (signed) {
             arrayWrapper = new ByteArrayWrapper(byteDataRecord.getByteData(),
                     nx, ny);
+            } else {
+                arrayWrapper = new UnsignedByteArrayWrapper(
+                        byteDataRecord.getByteData(), nx, ny);
+            }
         } else if (dataRecord instanceof FloatDataRecord) {
             FloatDataRecord floatDataRecord = (FloatDataRecord) dataRecord;
 
@@ -97,11 +108,19 @@ public final class DataWrapperUtil {
         } else if (dataRecord instanceof ShortDataRecord) {
             ShortDataRecord shortDataRecord = (ShortDataRecord) dataRecord;
 
+            if (signed) {
             arrayWrapper = new ShortArrayWrapper(
                     shortDataRecord.getShortData(), nx, ny);
+            } else {
+                arrayWrapper = new UnsignedShortArrayWrapper(
+                        shortDataRecord.getShortData(), nx, ny);
+            }
         }
 
-        arrayWrapper.setFillValue(dataRecord.getFillValue().doubleValue());
+        Number fillValue = dataRecord.getFillValue();
+        if (fillValue != null) {
+            arrayWrapper.setFillValue(fillValue.doubleValue());
+        }
 
         return arrayWrapper;
     }
