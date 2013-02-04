@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 15, 2011            randerso     Initial creation
+ * Jan 30, 2013 15719      jdynina      Allowed more than 128 char wx string 
  * 
  * </pre>
  * 
@@ -235,7 +236,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
         byte[] thisData = grid.getBuffer().array();
         byte[] rhsData = rhsGrid.getBuffer().array();
         for (int i = 0; i < thisData.length; i++) {
-            if (!this.keys[thisData[i]].equals(slice.keys[rhsData[i]])) {
+            if (!this.keys[0xFF & thisData[i]]
+                    .equals(slice.keys[0xFF & rhsData[i]])) {
                 return false;
             }
         }
@@ -255,10 +257,11 @@ public class WeatherGridSlice extends AbstractGridSlice {
         Grid2DByte weatherGrid = getWeatherGrid();
         byte[] b = weatherGrid.getBuffer().array();
         for (int i = 0; i < b.length; i++) {
-            if (b[i] >= keyLength) {
+            int index = 0xFF & b[i];
+            if (index >= keyLength) {
                 return "Data Values Exceeded in Grid at coordinate: "
                         + (i % weatherGrid.getXdim()) + ","
-                        + (i / weatherGrid.getXdim()) + " Value=" + b[i]
+                        + (i / weatherGrid.getXdim()) + " Value=" + index
                         + " MinAllowed=0 MaxAllowed=" + (keyLength - 1);
             }
         }
@@ -366,7 +369,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
                 if (editArea.get(i, j) != 0) {
                     // Get the WeatherKey from the source grid
                     byte dByte = gsWeatherGrid.get(i, j);
-                    WeatherKey dKey = gs.keys[dByte];
+                    WeatherKey dKey = gs.keys[0xFF & dByte];
                     // See if this key already exists in target grid
                     boolean found = false;
                     byte keyIndex = 0;
@@ -445,14 +448,16 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
         List<WeatherKey> currentKeys = new ArrayList<WeatherKey>(
                 Arrays.asList(this.keys));
-        byte[] b = weatherGrid.getBuffer().array();
-        for (int i = 0; i < b.length; i++) {
+        byte[] data = weatherGrid.getBuffer().array();
+        int thisB;
+        for (int i = 0; i < data.length; i++) {
+            thisB = 0xFF & data[i];
             byte keyIndex;
-            if ((keyIndex = (byte) currentKeys.indexOf(gs.keys[b[i]])) != -1) {
-                b[i] = keyIndex;
+            if ((keyIndex = (byte) currentKeys.indexOf(gs.keys[thisB])) != -1) {
+                data[i] = keyIndex;
             } else {
-                b[i] = (byte) currentKeys.size();
-                currentKeys.add(new WeatherKey(gs.keys[b[i]]));
+                data[i] = (byte) currentKeys.size();
+                currentKeys.add(new WeatherKey(gs.keys[thisB]));
             }
         }
 
@@ -601,7 +606,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
         byte[] rhsB = gs.getWeatherGrid().getBuffer().array();
         byte[] b = bits.getBuffer().array();
         for (int i = 0; i < thisB.length; i++) {
-            if (keys[thisB[i]].equals(gs.keys[rhsB[i]])) {
+            if (keys[0xFF & thisB[i]].equals(gs.keys[0xFF & rhsB[i]])) {
                 b[i] = (byte) 1;
             }
         }
@@ -644,7 +649,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
         // process the grid
         for (int i = 0; i < weatherGrid.getXdim(); i++) {
             for (int j = 0; j < weatherGrid.getYdim(); j++) {
-                used[weatherGrid.get(i, j)] = true;
+                used[0xFF & weatherGrid.get(i, j)] = true;
             }
         } // indicate used
 
@@ -681,7 +686,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
         // now remap the data
         for (int i = 0; i < weatherGrid.getXdim(); i++) {
             for (int j = 0; j < weatherGrid.getYdim(); j++) {
-                weatherGrid.set(i, j, (byte) invMapping[weatherGrid.get(i, j)]);
+                weatherGrid.set(i, j,
+                        (byte) invMapping[0xFF & weatherGrid.get(i, j)]);
             }
         }
 
