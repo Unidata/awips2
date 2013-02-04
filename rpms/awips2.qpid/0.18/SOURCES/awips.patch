@@ -62,7 +62,7 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
 ***************
 *** 19,29 ****
   
-  commons-beanutils-core=lib/required/commons-beanutils-core-1.8.3.jar
+! commons-beanutils-core=lib/required/commons-beanutils-core-1.8.3.jar
   commons-cli=lib/required/commons-cli-1.2.jar
 ! commons-codec=lib/required/commons-codec-1.6.jar
   commons-collections=lib/required/commons-collections-3.2.1.jar
@@ -74,7 +74,7 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   derby-db=lib/required/derby-10.8.2.2.jar
 --- 19,29 ----
   
-  commons-beanutils-core=lib/required/commons-beanutils-core-1.8.3.jar
+! commons-beanutils-core=lib/required/commons-beanutils-1.8.3.jar
   commons-cli=lib/required/commons-cli-1.2.jar
 ! commons-codec=lib/required/commons-codec-1.4.jar
   commons-collections=lib/required/commons-collections-3.2.1.jar
