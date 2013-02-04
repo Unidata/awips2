@@ -87,8 +87,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 public abstract class ExtensibleObjectType {
 
-    @BatchSize(size = 15)
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @BatchSize(size = 500)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
