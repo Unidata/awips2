@@ -7,5 +7,5 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
     <bean id="logHandler" class="com.raytheon.uf.edex.event.handler.LogHandler"/>
     
-    <bean id="statsPublishHandler" class="com.raytheon.uf.edex.event.handler.StatsHandler"/>
+    <bean id="eventPublishHandler" class="com.raytheon.uf.edex.event.handler.EventPublishHandler"/>
 </beans>
