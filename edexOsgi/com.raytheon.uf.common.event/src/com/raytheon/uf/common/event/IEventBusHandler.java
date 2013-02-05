@@ -17,14 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
-
-import org.junit.Ignore;
-
-import com.google.common.eventbus.EventBus;
+package com.raytheon.uf.common.event;
 
 /**
- * Test {@link BandwidthEventBus}.
+ * IEventBusHandler interface.
  * 
  * <pre>
  * 
@@ -32,39 +28,38 @@ import com.google.common.eventbus.EventBus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 11, 2012            djohnson     Initial creation
- * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 5, 2013    1580     mpduff      Initial creation.
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
-@Ignore
-public class BandwidthEventBusTest {
+
+public interface IEventBusHandler {
 
     /**
-     * Create a synchronous {@link BandwidthEventBus}.
+     * Publishes events for all subscribers to receive
+     * 
+     * @param event
+     *            the event
      */
-    public static void initSynchronous() {
-        // Need the normal event bus synchronous as well
-        BandwidthEventBus.eventBusFactory = new BandwidthEventBusFactory() {
-            @Override
-            public EventBus getSubscriptionBus() {
-                return new EventBus();
-            }
+    void publish(Event event);
 
-            @Override
-            public EventBus getRetrievalBus() {
-                return new EventBus();
-            }
+    /**
+     * Register an object with the event bus.
+     * 
+     * @param subscriber
+     *            the subscriber to register
+     */
+    void register(Object subscriber);
 
-            @Override
-            public EventBus getDataSetBus() {
-                return new EventBus();
-            }
-        };
-
-    }
+    /**
+     * Unregister an object with the event bus.
+     * 
+     * @param subscriber
+     *            the object subscribed to the event buss
+     */
+    void unregister(Object subscriber);
 
 }
