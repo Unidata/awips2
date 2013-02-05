@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import java.io.File;
+
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -46,6 +48,16 @@ public class IntegrationTestBandwidthContextFactory extends
         EdexBandwidthContextFactory {
 
     /**
+     * Constructor, intentionally package-private.
+     * 
+     * @param bandwidthDao
+     *            the bandwidthDao
+     */
+    IntegrationTestBandwidthContextFactory(IBandwidthDao bandwidthDao) {
+        super(bandwidthDao);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -70,5 +82,15 @@ public class IntegrationTestBandwidthContextFactory extends
             BandwidthDaoUtil bandwidthDaoUtil) {
         return new IntegrationTestBandwidthManager(dbInit, bandwidthDao,
                 retrievalManager, bandwidthDaoUtil);
+    }
+
+    /**
+     * Get the integration test bandwidth map config file.
+     * 
+     * @return the file
+     */
+    public static File getIntegrationTestBandwidthMapConfigFile() {
+        return new IntegrationTestBandwidthContextFactory((IBandwidthDao) null)
+                .getBandwidthMapConfigFile();
     }
 }

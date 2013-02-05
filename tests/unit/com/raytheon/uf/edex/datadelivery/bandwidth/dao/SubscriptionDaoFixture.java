@@ -42,7 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @version 1.0	
  */
 
-public class SubscriptionDaoFixture extends AbstractFixture<SubscriptionDao> {
+public class SubscriptionDaoFixture extends AbstractFixture<BandwidthSubscription> {
 
     public static final SubscriptionDaoFixture INSTANCE = new SubscriptionDaoFixture();
 
@@ -57,7 +57,7 @@ public class SubscriptionDaoFixture extends AbstractFixture<SubscriptionDao> {
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionDao get(long seedValue) {
+    public BandwidthSubscription get(long seedValue) {
         Subscription sub = SubscriptionFixture.INSTANCE.get(seedValue);
         try {
             return BandwidthUtil.getSubscriptionDaoForSubscription(sub,
