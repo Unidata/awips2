@@ -143,31 +143,9 @@
 						<not>
 							<equals arg1="${index}" arg2="1" />
 						</not>
-						<then>
-							<if>
-								<!-- TODO: we need our own ant plugin so this
-								becomes unnecessary [SPECIAL CASE]. -->
-								<equals arg1="@{plugin.type}" arg2="cots" />
-								<then>
-									<propertyregex property="plugin.name"
-									override="true"
-									input="@{line}"
-									regexp="(.+)/(.+)"
-									select="\1"
-									casesensitive="true" />
-								</then>
-								<else>
-									<propertyregex property="plugin.name"
-									override="true"
-									input="@{line}"
-									regexp="(.+)/component-deploy.xml"
-									select="\1"
-									casesensitive="true" />
-								</else>
-							</if>
-							
+						<then>							
 							<copyPlugin
-								plugin.name="${plugin.name}"
+								plugin.name="@{line}"
 								plugin.type="@{plugin.type}"
 								plugin.directories="@{plugin.directories}"
 								plugin.pattern="@{line}" />
@@ -196,7 +174,7 @@
 	 		delimiter=";">
 	 			<sequential>
 	 				<if>
-	 					<available file="@{directory}/${plugin.name}" />
+	 					<available file="@{directory}/@{plugin.name}" />
 	 					<then>
 	 						<var name="plugin.directory" value="@{directory}" />
 	 					</then>
@@ -207,13 +185,13 @@
 			<!-- copy the plugin to the plugins directory -->
 			<copy todir="${builder}/tmp/plugins">
 				<fileset dir="${plugin.directory}"
-					includes="${plugin.name}/**" />
+					includes="@{plugin.name}/**" />
 			</copy>
 			<if>
 				<equals arg1="@{plugin.type}" arg2="cots" />
 				<then>
 					<copyFOSS
-						plugin.directory323="${plugin.directory}/${plugin.name}" 
+						plugin.directory323="${plugin.directory}/@{plugin.name}" 
 						destination.directory323="${builder}/dependencies-stash/@{plugin.name}" />
 				</then>
 			</if>
