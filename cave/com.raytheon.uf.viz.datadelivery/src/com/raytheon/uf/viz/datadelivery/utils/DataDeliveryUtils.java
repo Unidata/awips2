@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 10, 2013 1420       mdpuff       Added getMaxLatency().
  * Jan 14, 2013 1286       djohnson     Fix IndexOutOfBounds exception from getMaxLatency.
  * Jan 22, 2013 1519       djohnson     Correct getMaxLatency() calculations.
+ * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * </pre>
  * 
  * @author mpduff
@@ -515,7 +516,7 @@ public class DataDeliveryUtils {
         }
 
         fmtStr.append("Parameters:").append(newline);
-        ArrayList<Parameter> parmArray = sub.getParameter();
+        List<Parameter> parmArray = sub.getParameter();
         for (Parameter p : parmArray) {
             fmtStr.append("------ Name: ").append(p.getName()).append(newline);
             fmtStr.append("------ Provider Name: ").append(p.getProviderName())
