@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -312,7 +313,7 @@ public class Subscription implements ISerializableObject, Serializable {
 
     @XmlElements({ @XmlElement})
     @DynamicSerializeElement
-    private ArrayList<Parameter> parameter;
+    private List<Parameter> parameter;
 
     @XmlElement
     @DynamicSerializeElement
@@ -630,7 +631,7 @@ public class Subscription implements ISerializableObject, Serializable {
      * @param parameter
      *           subscription parameter list
      */
-    public void setParameter(ArrayList<Parameter> parameter) {
+    public void setParameter(List<Parameter> parameter) {
         this.parameter = parameter;
     }
 
@@ -639,7 +640,7 @@ public class Subscription implements ISerializableObject, Serializable {
      * 
      * @return subscription parameter list
      */
-    public ArrayList<Parameter> getParameter() {
+    public List<Parameter> getParameter() {
         return parameter;
     }
 
