@@ -34,13 +34,12 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
-import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.PropertiesUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBusTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -57,6 +56,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 22, 2012 1286       djohnson     Initial creation
  * Dec 11, 2012 1286       djohnson     Use a synchronous event bus for tests.
  * Dec 11, 2012 1403       djohnson     No longer valid to run without bandwidth management.
+ * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * 
  * </pre>
  * 
@@ -102,9 +102,7 @@ public abstract class AbstractBandwidthManagerIntTest {
                         .getResourceAsStream("/com.raytheon.uf.edex.datadelivery.bandwidth.properties"));
         System.getProperties().putAll(properties);
 
-        SerializationUtilTest.initSerializationUtil();
         TimeUtilTest.freezeTime(TimeUtil.MILLIS_PER_DAY * 2);
-        BandwidthEventBusTest.initSynchronous();
     }
 
     @AfterClass
@@ -118,7 +116,7 @@ public abstract class AbstractBandwidthManagerIntTest {
         DatabaseUtil.start();
         context = new ClassPathXmlApplicationContext(
                 IntegrationTestBandwidthManager.INTEGRATION_TEST_SPRING_FILES,
-                BandwidthManagerIntTest.class);
+                BandwidthManagerIntTest.class, EDEXUtil.getSpringContext());
         bandwidthDao = (IBandwidthDao) context.getBean("bandwidthDao",
                 IBandwidthDao.class);
         bandwidthManager = (BandwidthManager) context.getBean(

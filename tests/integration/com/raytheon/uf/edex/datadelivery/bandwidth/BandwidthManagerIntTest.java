@@ -63,7 +63,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
@@ -679,8 +679,8 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         bandwidthManager.schedule(subscription);
 
-        final List<SubscriptionDao> subscriptionDaos = bandwidthDao
-                .getSubscriptionDao(subscription);
+        final List<BandwidthSubscription> subscriptionDaos = bandwidthDao
+                .getBandwidthSubscription(subscription);
 
         assertEquals("Incorrect number of subscription daos found.", 4,
                 subscriptionDaos.size());
@@ -705,21 +705,21 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription = createSubscriptionThatFillsUpABucket();
         subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
 
+        final Network network = subscription.getRoute();
+        final List<BandwidthAllocation> bandwidthAllocationsOrig = getRetrievalManagerAllocationsForNetwork(network);
+        assertEquals("Incorrect number of allocations found.", 0,
+                bandwidthAllocationsOrig.size());
+
         bandwidthManager.schedule(subscription);
 
-        final Network network = subscription.getRoute();
         final List<BandwidthAllocation> bandwidthAllocations = getRetrievalManagerAllocationsForNetwork(network);
 
         assertEquals("Incorrect number of allocations found.", 4,
                 bandwidthAllocations.size());
 
-        System.out.println("allocs: " + bandwidthAllocations);
-
         sendDeletedSubscriptionEvent(subscription);
 
         final List<BandwidthAllocation> allocationsAfterDelete = getRetrievalManagerAllocationsForNetwork(network);
-
-        System.out.println("allocs: " + allocationsAfterDelete);
 
         assertEquals(
                 "Expected all bandwidth allocations to have been deleted.", 0,
@@ -776,8 +776,8 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         assertFalse("Shouldn't have been able to fully schedule.",
                 unableToSchedule.isEmpty());
 
-        final List<SubscriptionDao> subscriptionDaos = bandwidthDao
-                .getSubscriptionDao(subscription);
+        final List<BandwidthSubscription> subscriptionDaos = bandwidthDao
+                .getBandwidthSubscription(subscription);
 
         assertEquals("Incorrect number of subscription daos found.", 0,
                 subscriptionDaos.size());
@@ -812,7 +812,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
                 subscription.getOwner(), subscription.getId());
         event.setObjectType(DataDeliveryRegistryObjectTypes.SUBSCRIPTION);
-        BandwidthEventBus.publish(event);
+        bandwidthManager.subscriptionRemoved(event);
     }
 
     /**

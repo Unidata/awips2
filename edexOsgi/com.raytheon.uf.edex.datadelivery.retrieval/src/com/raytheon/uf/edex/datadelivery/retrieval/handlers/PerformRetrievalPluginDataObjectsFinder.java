@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Expose process() for testing.
  * 
  * </pre>
  * 
@@ -83,7 +85,7 @@ public class PerformRetrievalPluginDataObjectsFinder implements
     @Override
     public RetrievalPluginDataObjects findRetrievalPluginDataObjects()
             throws Exception {
-        RetrievalDao dao = new RetrievalDao();
+        RetrievalDao dao = RetrievalDao.getInstance();
         RetrievalPluginDataObjects retVal = null;
 
         ITimer timer = TimeUtil.getTimer();
@@ -129,7 +131,8 @@ public class PerformRetrievalPluginDataObjectsFinder implements
     /**
      * The actual work gets done here.
      */
-    private RetrievalPluginDataObjects process(
+    @VisibleForTesting
+    RetrievalPluginDataObjects process(
             RetrievalRequestRecord requestRecord) {
         requestRecord.setState(State.FAILED);
         List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = new ArrayList<RetrievalAttributePluginDataObjects>();
@@ -150,7 +153,7 @@ public class PerformRetrievalPluginDataObjectsFinder implements
             // Perform the actual retrievals and transforms to plugin data
             // objects
             final List<RetrievalAttribute> attributes = retrieval
-                    .getAttribute();
+                    .getAttributes();
 
             for (RetrievalAttribute attXML : attributes) {
                 IRetrievalRequestBuilder request = pra
