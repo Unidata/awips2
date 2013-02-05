@@ -65,7 +65,7 @@ public class RetrievalResponseCompleter implements IRetrievalResponseCompleter {
 
         // update database
         try {
-            RetrievalDao dao = new RetrievalDao();
+            RetrievalDao dao = RetrievalDao.getInstance();
             dao.completeRetrievalRequest(retrieval);
             notifyTask.checkNotify(retrieval);
         } catch (DataAccessLayerException e) {
