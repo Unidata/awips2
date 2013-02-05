@@ -54,7 +54,7 @@ public class RetrievalHandler {
 
     private final ScheduledExecutorService executorService;
 
-    private final RetrievalTask retrievalTask;
+    private final List<RetrievalTask> retrievalTasks;
 
     private final SubscriptionNotifyTask subNotifyTask;
 
@@ -64,23 +64,26 @@ public class RetrievalHandler {
      * @param executor
      */
     public RetrievalHandler(ScheduledExecutorService executorService,
-            RetrievalTask retrievalTask, SubscriptionNotifyTask subNotifyTask) {
-        this(executorService, new RetrievalDao(), retrievalTask, subNotifyTask);
+            List<RetrievalTask> retrievalTasks,
+            SubscriptionNotifyTask subNotifyTask) {
+        this(executorService, new RetrievalDao(), retrievalTasks, subNotifyTask);
     }
 
     @VisibleForTesting
     RetrievalHandler(ScheduledExecutorService executorService,
-            RetrievalDao retrievalDao, RetrievalTask retrievalTask,
+            RetrievalDao retrievalDao, List<RetrievalTask> retrievalTasks,
             SubscriptionNotifyTask subNotifyTask) {
         this.executorService = executorService;
-        this.retrievalTask = retrievalTask;
+        this.retrievalTasks = retrievalTasks;
         this.subNotifyTask = subNotifyTask;
 
         // set all Running state retrievals to pending
         retrievalDao.resetRunningRetrievalsToPending();
 
-        executorService.scheduleWithFixedDelay(retrievalTask, 1, 5,
-                TimeUnit.MINUTES);
+        for (RetrievalTask retrievalTask : retrievalTasks) {
+            executorService.scheduleWithFixedDelay(retrievalTask, 1, 5,
+                    TimeUnit.MINUTES);
+        }
         executorService.scheduleWithFixedDelay(subNotifyTask, 1, 1,
                 TimeUnit.MINUTES);
     }
@@ -88,6 +91,8 @@ public class RetrievalHandler {
     public void notify(List<String> subscriptions) {
         statusHandler.info("Notifying that subscriptions are available.");
 
-        executorService.execute(retrievalTask);
+        for (RetrievalTask retrievalTask : retrievalTasks) {
+            executorService.execute(retrievalTask);
+        }
     }
 }

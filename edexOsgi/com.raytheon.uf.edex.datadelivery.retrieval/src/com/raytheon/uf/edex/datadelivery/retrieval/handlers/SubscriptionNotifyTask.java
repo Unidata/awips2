@@ -19,7 +19,6 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -291,9 +290,8 @@ public class SubscriptionNotifyTask implements Runnable {
                         try {
                             sb.append("Failed parameters: ");
                             for (RetrievalRequestRecord failedRec : failedRecs) {
-                                Retrieval retrieval = SerializationUtil
-                                        .transformFromThrift(Retrieval.class,
-                                                failedRec.getRetrieval());
+                                Retrieval retrieval = failedRec
+                                        .getRetrievalObj();
                                 for (RetrievalAttribute att : retrieval
                                         .getAttribute()) {
                                     sb.append(att.getParameter().getName()

@@ -1,5 +1,3 @@
-package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
-
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -19,44 +17,39 @@ package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 
-import java.util.Map;
+import org.junit.Ignore;
 
-import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.edex.datadelivery.retrieval.IServiceFactoryLookup;
+import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
 
 /**
- * Interface for Provider Retrieval Adapter
+ * Implementation of {@link IServiceFactoryLookup} that doesn't really
+ * go out to the internet.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 07, 2011            dhladky     Initial creation
+ * Jan 30, 2013 1543       djohnson     Initial creation
  * 
  * </pre>
  * 
- * /
- * 
- * @author dhladky
+ * @author djohnson
  * @version 1.0
  */
-
-public interface IRetrievalAdapter {
-
-    public IRetrievalRequestBuilder createRequestMessage(
-            RetrievalAttribute prxml);
-
-    public com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse performRequest(
-            IRetrievalRequestBuilder requestBuilder);
-
-    public Map<String, PluginDataObject[]> processResponse(
-            IRetrievalResponse response) throws Exception;
-
-    public void setProviderRetrievalXML(Retrieval prxml);
-
-    public Retrieval getProviderRetrievalXMl();
-
+@Ignore
+public class TestRetrievalServiceFactoryLookup implements
+        IServiceFactoryLookup {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ServiceFactory getProviderServiceFactory(Provider provider) {
+        return new MockServiceFactory(provider);
+    }
 }
