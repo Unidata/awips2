@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation
  * 09 sep 2010  5399	   lbousaidi   changed constructor for both
  * 							 		   openTabularTimeSeries and openGraphTimeSeries
+ * 05 Feb 2013  1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -570,9 +571,10 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         QuestionableData currData = getCurrentlySelectedData();
 
         if (currData != null) {
-            TimeSeriesDlg tsd = new TimeSeriesDlg(shell, currData.getLid(), 
-            		currData.getPe(), currData.getTs() , true);
-            tsd.open();
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            TimeSeriesDlg.getInstance().updateAndOpen(currData.getLid(),
+                    currData.getPe(), currData.getTs(), true);
+            shell.setCursor(null);
         }
     }
 
@@ -580,9 +582,10 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         QuestionableData currData = getCurrentlySelectedData();
 
         if (currData != null) {
-            TimeSeriesDlg tsd = new TimeSeriesDlg(shell, currData.getLid(), 
-            		currData.getPe(), currData.getTs() , false);
-            tsd.open();
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            TimeSeriesDlg.getInstance().updateAndOpen(currData.getLid(),
+                    currData.getPe(), currData.getTs(), false);
+            shell.setCursor(null);
         }
     }
 
