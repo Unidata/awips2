@@ -66,7 +66,8 @@ public class RetrievalHandler {
     public RetrievalHandler(ScheduledExecutorService executorService,
             List<RetrievalTask> retrievalTasks,
             SubscriptionNotifyTask subNotifyTask) {
-        this(executorService, new RetrievalDao(), retrievalTasks, subNotifyTask);
+        this(executorService, RetrievalDao.getInstance(), retrievalTasks,
+                subNotifyTask);
     }
 
     @VisibleForTesting

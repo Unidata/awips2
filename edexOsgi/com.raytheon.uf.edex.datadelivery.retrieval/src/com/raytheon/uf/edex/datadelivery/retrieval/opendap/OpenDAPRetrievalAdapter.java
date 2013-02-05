@@ -98,7 +98,7 @@ class OpenDAPRetrievalAdapter extends RetrievalAdapter {
 
         OpenDAPTranslator translator;
         try {
-            translator = new OpenDAPTranslator(response.getAttribute());
+            translator = getOpenDapTranslator(response.getAttribute());
         } catch (InstantiationException e) {
             throw new TranslationException(
                     "Unable to instantiate a required class!", e);
@@ -121,5 +121,14 @@ class OpenDAPRetrievalAdapter extends RetrievalAdapter {
         }
 
         return map;
+    }
+
+    /**
+     * @param attribute
+     * @return
+     */
+    OpenDAPTranslator getOpenDapTranslator(RetrievalAttribute attribute)
+            throws InstantiationException {
+        return new OpenDAPTranslator(attribute);
     }
 }

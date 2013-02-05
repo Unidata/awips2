@@ -40,11 +40,12 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 06, 2012 740       djohnson     Initial creation
- * Aug 09. 2012 1022      djohnson     Changes to RetrievalHandler.
- * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
- * Jan 30, 2013 1543      djohnson     RetrievalTask now requires a Network.
- * Feb 05, 2013 1580      mpduff       EventBus refactor.
+ * Jul 06, 2012 740        djohnson     Initial creation
+ * Aug 09. 2012 1022       djohnson     Changes to RetrievalHandler.
+ * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 30, 2013 1543       djohnson     RetrievalTask now requires a Network.
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 07, 2013 1543       djohnson     Move test to its proper test class, as per peer review comments.
  * 
  * </pre>
  * 
@@ -53,8 +54,6 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
  */
 
 public class RetrievalHandlerTest {
-
-    private static final String EXCEPTION_MESSAGE = "thrown on purpose";
 
     private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
 
@@ -74,46 +73,6 @@ public class RetrievalHandlerTest {
     public void testAllRunningRetrievalsAreResetToPendingOnConstruction() {
         verify(mockDao).resetRunningRetrievalsToPending();
     }
-
-    // FIXME: Create PerformRetrievalPluginDataObjectsFinderTest and move this
-    // test there
-    // @Test
-    // public void testIllegalStateExceptionThrownDuringProcessWillReturnFalse()
-    // throws SerializationException {
-    //
-    // PathManagerFactoryTest.initLocalization();
-    // Retrieval retrieval = new Retrieval() {
-    // private static final long serialVersionUID = 1109443017002028345L;
-    //
-    // @Override
-    // public ArrayList<RetrievalAttribute> getAttribute() {
-    // throw new IllegalStateException(EXCEPTION_MESSAGE);
-    // }
-    //
-    // /**
-    // * {@inheritDoc}
-    // */
-    // @Override
-    // public ServiceType getServiceType() {
-    // return ServiceType.OPENDAP;
-    // }
-    // };
-    // RetrievalRequestRecord record = new RetrievalRequestRecord();
-    // try {
-    // record.setRetrievalObj(retrieval);
-    // } catch (NullPointerException npe) {
-    // // This is expected because we create an anonymous retrieval
-    // // instance, and can't dynamically serialize it
-    // }
-    //
-    // RetrievalTask task = new RetrievalTask(
-    // new PerformRetrievalPluginDataObjectsFinder(Network.OPSNET),
-    // new NotifyOfPluginDataObjectsDecorator(
-    // mock(IRetrievedDataProcessor.class)),
-    // retrievalCompleter);
-    // assertFalse("Expected false when an IllegalStateException was thrown!",
-    // task.process(record));
-    // }
 
     @Test
     public void testOnNotifyOfSubscriptionsARetrievalTaskIsExecuted() {

@@ -5,18 +5,19 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="bandwidthContextFactory"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory" />
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory">
+        <constructor-arg ref="hibernateBandwidthDao" />
+    </bean>
 
     <bean
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
         <constructor-arg ref="bandwidthManager" />
     </bean>
 
-
     <bean id="registryManagerInstanceInitializer" class="java.lang.String">
         <!-- required for depends-on -->
     </bean>
-    
+
     <bean id="registerDataDeliveryHandlers" class="java.lang.String">
         <!-- required for depends-on -->
     </bean>
