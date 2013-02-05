@@ -320,8 +320,10 @@ ANY	^(LGXP[0-9][0-9]) KNHC (..)(..)(..)
 
 #ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
 #	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\4\5Z-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
-ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+#ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+#	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[01789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/GRID\7/SPC/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^ZETA98.(KTUA|PACR|KSTR|KRSA|KORN|KRHA|KKRF|KMSR|KTAR|KPTR|KTIR|KALR|KFWR) /Grid/SBN/HydroRaw
 # ZETA98 KTAR 012300 /mNWS_160 !grib/nws/NWS_160/#255/201102012200/F001/APCP/sfc/
