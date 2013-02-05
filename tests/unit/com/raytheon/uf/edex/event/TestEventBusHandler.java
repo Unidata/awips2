@@ -17,14 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
-
-import org.junit.Ignore;
-
-import com.google.common.eventbus.EventBus;
+package com.raytheon.uf.edex.event;
 
 /**
- * Test {@link BandwidthEventBus}.
+ * Test event bus handler.
  * 
  * <pre>
  * 
@@ -32,39 +28,25 @@ import com.google.common.eventbus.EventBus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 11, 2012            djohnson     Initial creation
- * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 5, 2013    1580     mpduff     Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
-@Ignore
-public class BandwidthEventBusTest {
 
-    /**
-     * Create a synchronous {@link BandwidthEventBus}.
-     */
-    public static void initSynchronous() {
-        // Need the normal event bus synchronous as well
-        BandwidthEventBus.eventBusFactory = new BandwidthEventBusFactory() {
-            @Override
-            public EventBus getSubscriptionBus() {
-                return new EventBus();
-            }
-
-            @Override
-            public EventBus getRetrievalBus() {
-                return new EventBus();
-            }
-
-            @Override
-            public EventBus getDataSetBus() {
-                return new EventBus();
-            }
-        };
-
+public class TestEventBusHandler extends EdexEventBusHandler {
+    private static class SynchronousEventBusFactory implements
+            GoogleEventBusFactory {
+        @Override
+        public com.google.common.eventbus.EventBus getEventBus() {
+            return new com.google.common.eventbus.EventBus(
+                    AsynchronousEventBusFactory.EVENT_BUS_NAME);
+        }
     }
 
+    public TestEventBusHandler() {
+        super(new SynchronousEventBusFactory());
+    }
 }
