@@ -31,15 +31,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
@@ -79,6 +83,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
@@ -105,6 +110,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
  * 06/21/2009   2521       dhladky     Initial Creation.
  * 02/03/2011   6500       cjeanbap    Fixed NullPointerException.
  * 07/31/2011   578        dhladky     FFTI modifications
+ * 01/27/13     1478       D. Hladky   Added creation of full cache records to help read write stress on NAS
  * </pre>
  * 
  * @author dhladky
@@ -133,6 +139,18 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     private static final String templateTaskName = "FFMP Template";
 
     private static final String productType = "ffmp";
+
+    /**
+     * The thought was this will eventually be dynamic when We start writing
+     * long time source records to a DAO.  This is the time backward limit for FFTI and cache load data.
+     */
+    public static final int SOURCE_CACHE_TIME = 6;
+
+    /**
+     * The thought was this will eventually be dynamic, static in AWIPS I.
+     * This is the time back limit for Flash Flood Guidance sources
+     */
+    public static final int FFG_SOURCE_CACHE_TIME = 24;
 
     /** ArrayList of domains to filter for */
     private ArrayList<DomainXML> domains = null;
@@ -199,7 +217,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         this.pathManager = PathManagerFactory.getPathManager();
 
-        statusHandler.handle(Priority.DEBUG, getGeneratorName()
+        statusHandler.handle(Priority.INFO, getGeneratorName()
                 + " process Filter Config...");
         domains = new ArrayList<DomainXML>();
         boolean configValid = getRunConfig().isPopulated();
@@ -418,7 +436,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             }
                         } else {
                             statusHandler
-                                    .debug(getGeneratorName()
+                                    .info(getGeneratorName()
                                             + ": templates not loaded yet. Skipping product");
                         }
                     }
@@ -500,7 +518,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             statusHandler.handle(Priority.DEBUG,
                                     "Checking status ..." + fftiDone);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            statusHandler.handle(Priority.DEBUG,
+                                    "Checking status failed!" + e);
                         }
                     }
 
@@ -574,16 +593,19 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         @Override
         public void run() {
             try {
-                logger.debug("ProcessProduct: Starting thread "
-                        + ffmpProduct.getSourceName());
+                statusHandler.handle(
+                        Priority.DEBUG,
+                        "ProcessProduct: Starting thread "
+                                + ffmpProduct.getSourceName());
                 process();
-                logger.debug("ProcessProduct: Finishing thread "
-                        + ffmpProduct.getSourceName());
+                statusHandler.handle(
+                        Priority.DEBUG,
+                        "ProcessProduct: Finishing thread "
+                                + ffmpProduct.getSourceName());
             } catch (Exception e) {
                 processes.remove(ffmpProduct.getSourceName());
-                logger.error("ProcessProduct: removed "
-                        + ffmpProduct.getSourceName());
-                e.printStackTrace();
+                statusHandler.handle(Priority.ERROR, "ProcessProduct: removed "
+                        + ffmpProduct.getSourceName(), e);
             }
         }
 
@@ -713,7 +735,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                         generator, ffmpRec,
                                         ffmp.getFFTISource());
                                 fftiSources.add(ffmp.getFFTISource());
-                                // System.out.println("Adding source to FFTISources!!!!!!!!!!!!"+ffmpRec.getSourceName());
                                 ffti.processFFTI();
                             }
                         }
@@ -735,7 +756,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 while (productKeys.size() > 0) {
                     // wait for all threads to finish before returning
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(100);
                         statusHandler.handle(Priority.DEBUG,
                                 "Checking status ..." + productKeys.size());
                         for (String source : productKeys.keySet()) {
@@ -743,7 +764,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                     "Still processing ..." + source);
                         }
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        statusHandler.handle(Priority.WARN,
+                                "Product Procesing Interrupted! " + e);
                     }
                 }
             }
@@ -865,7 +887,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-
+                        statusHandler.handle(Priority.WARN,
+                                "Domain processing Interrupted!", e);
                     }
                 }
             }
@@ -974,8 +997,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 getAbsoluteSourceFileName(sourceId));
 
         try {
-            sbl = (SourceBinList) SerializationUtil
-                    .transformFromThrift(FileUtil.file2bytes(f.getFile(), true));
+            sbl = SerializationUtil
+                    .transformFromThrift(SourceBinList.class, FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to locate file " + f.getName());
@@ -983,7 +1006,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.ERROR,
                     "Unable to read file " + f.getName());
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "General IO problem with file "
+                    + f.getName(), ioe);
         }
 
         return sbl;
@@ -1092,7 +1116,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         statusHandler.handle(
                                 Priority.ERROR,
                                 "Unable to locate new FFG file. "
-                                        + pattern.toString());
+                                        + pattern.toString(), e);
                     }
                 }
             }
@@ -1124,11 +1148,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 siteKey = parts[0];
             }
 
-            container = loadFFMPDataContainer(siteSourceKey,
-
-            hucs, siteKey,
-
-            config.getCWA(), backDate);
+            container = loadFFMPDataContainer(siteSourceKey, hucs, siteKey,
+                    config.getCWA(), backDate);
 
             if (container != null) {
                 ffmpData.put(siteSourceKey, container);
@@ -1200,7 +1221,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.ERROR, getGeneratorName()
                     + ": filter: " + filter.getName()
                     + ": failed to route filter to generator", e);
-            e.printStackTrace();
         }
 
         filter.setValidTime(new Date(System.currentTimeMillis()));
@@ -1262,7 +1282,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             boolean write = true;
 
             try {
-                // write out the fast loader buddy file
+                // write out the fast loader cache file
 
                 long ptime = System.currentTimeMillis();
                 SourceXML source = getSourceConfig().getSource(
@@ -1274,15 +1294,16 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     sourceName = source.getDisplayName();
                     sourceSiteDataKey = sourceName;
                     // FFG is so infrequent go back a day
-                    backDate = new Date(config.getDate().getTime()
-                            - (3600 * 1000 * 24));
+                    backDate = new Date(
+                            config.getDate().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
                 } else {
                     sourceName = ffmpRec.getSourceName();
                     sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
                             + "-" + dataKey;
                     backDate = new Date(ffmpRec.getDataTime().getRefTime()
                             .getTime()
-                            - (3600 * 1000 * 6));
+                            - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
                 }
 
                 // deal with setting of needed HUCS
@@ -1336,7 +1357,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         if (newDate != null && oldDate != null) {
                             if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
                                     .getTime()) >= (source
-                                    .getExpirationMinutes(ffmpRec.getSiteKey()) * 60 * 1000)) {
+                                    .getExpirationMinutes(ffmpRec.getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)) {
                                 // force a re-query back to the newest time in
                                 // existing source container, this will fill in
                                 // gaps
@@ -1348,10 +1369,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                         ffmpRec.getWfo(), source, ffmpRec
                                                 .getSiteKey());
 
-                            } else if (oldDate.after(new Date(backDate
-                                    .getTime()
-                                    - (source.getExpirationMinutes(ffmpRec
-                                            .getSiteKey()) * 60 * 1000)))) {
+                            } else if (oldDate
+                                    .after(new Date(
+                                            backDate.getTime()
+                                                    - (source
+                                                            .getExpirationMinutes(ffmpRec
+                                                                    .getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)))) {
                                 // force a re-query back to barrierTime for
                                 // existing source container, this happens if
                                 // the
@@ -1423,14 +1446,14 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     // this is defensive for if errors get thrown
                     if (backDate == null) {
                         backDate = new Date((System.currentTimeMillis())
-                                - (3600 * 1000 * 6));
+                                - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
                     }
 
                     fdc.purge(backDate);
 
                     if (write) {
                         // write it out
-                        writeLoaderBuddyFiles(fdc);
+                        writeCacheFiles(fdc);
                     }
                 }
             }
@@ -1451,37 +1474,31 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         long time = System.currentTimeMillis();
         FFMPDataContainer fdc = null;
+        FFMPAggregateRecord record = null;
+        boolean populated = false;
 
-        synchronized (hucs) {
-            for (String huc : hucs) {
-
-                FFMPBasinData basinData = null;
-
-                if (checkBuddyFile(sourceSiteDataKey, huc, wfo, backDate)) {
-                    try {
-                        basinData = readLoaderBuddyFile(sourceSiteDataKey, huc,
-                                wfo, backDate);
-                    } catch (Exception e) {
-                        statusHandler.handle(
-                                Priority.ERROR,
-                                "General Error Reading buddy file: "
-                                        + e.getMessage());
-                    }
-
-                    if (fdc == null) {
-                        fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
-                    }
-                }
-
-                if (basinData != null) {
-                    fdc.setBasinBuddyData(basinData, huc);
-                }
+        if (checkCacheFile(sourceSiteDataKey, wfo, backDate)) {
+            try {
+                record = readCacheFile(sourceSiteDataKey, wfo, backDate);
+            } catch (Exception e) {
+                statusHandler.handle(Priority.ERROR,
+                        "General Error Reading cache file: " + e.getMessage());
             }
+
+            if (fdc == null && record != null) {
+                // creates a place holder for this source
+                fdc = new FFMPDataContainer(sourceSiteDataKey, hucs, record);
+                populated = true;
+            }
+        }
+
+        if (record != null && !populated) {
+            fdc.setCacheData(record);
         }
 
         if (fdc != null) {
             long time2 = System.currentTimeMillis();
-            statusHandler.handle(Priority.DEBUG, "Loaded Source files: in "
+            statusHandler.handle(Priority.INFO, "Loaded Source files: in "
                     + (time2 - time) + " ms: source: " + sourceSiteDataKey);
         }
 
@@ -1489,60 +1506,59 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Load existing buddy file
+     * Load existing cache file
      * 
      * @param sourceSiteDataKey
-     * @param huc
      * @param wfo
      * @return
      * @throws IOException
      */
-    private FFMPBasinData readLoaderBuddyFile(String sourceSiteDataKey,
-            String huc, String wfo, Date backDate) throws IOException {
+    private FFMPAggregateRecord readCacheFile(String sourceSiteDataKey, String wfo,
+            Date backDate) throws IOException {
 
-        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
-                + huc + ".bin");
-        FFMPBasinData basinData = null;
-        BufferedInputStream is = null;
+        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + ".bin");
+        FFMPAggregateRecord record = null;
+        GZIPInputStream gis = null;
 
         try {
-            is = new BufferedInputStream(new FileInputStream(file));
+            gis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)));
             DynamicSerializationManager dsm = DynamicSerializationManager
                     .getManager(SerializationType.Thrift);
-            basinData = (FFMPBasinData) dsm.deserialize(is);
+            record = (FFMPAggregateRecord) dsm.deserialize(gis);
         } catch (SerializationException e) {
             statusHandler
                     .handle(Priority.ERROR,
-                            "Serialization Error Reading buddy file: "
+                            "Serialization Error Reading cache file: "
                                     + e.getMessage());
+
         } catch (IOException e) {
             statusHandler.handle(Priority.ERROR,
-                    "IO Error Reading buddy file: " + e.getMessage());
+                    "IO Error Reading cache file: " + e.getMessage());
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "General Error Reading buddy file: " + e.getMessage());
+                    "General Error Reading cache file: " + e.getMessage());
         } catch (Throwable t) {
             statusHandler.handle(Priority.ERROR,
-                    "Bogus Thrift Error Reading buddy file: " + t.getMessage());
+                    "Bogus Thrift Error Reading cache file: " + t.getMessage());
         } finally {
-            if (is != null) {
-                is.close();
+            if (gis != null) {
+                gis.close();
             }
         }
 
-        return basinData;
+        return record;
 
     }
 
     /**
-     * Write buddy file
+     * Write cache file
      * 
      * @param sourceSiteDataKey
      * @param huc
      * @param wfo
      * @return
      */
-    public void writeLoaderBuddyFiles(FFMPDataContainer fdc) {
+    public void writeCacheFiles(FFMPDataContainer fdc) {
 
         // Write all huc levels in separate files
         File fileDir = new File("" + sharePath + config.getCWA());
@@ -1555,7 +1571,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Inner class to thread writing of BuddyFiles
+     * Inner class to thread writing of cache files
      * 
      * @author dhladky
      * 
@@ -1569,7 +1585,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 long time = System.currentTimeMillis();
                 write();
                 long time2 = System.currentTimeMillis();
-                statusHandler.handle(Priority.DEBUG, "Wrote loader files: in "
+                statusHandler.handle(Priority.INFO, "Wrote cache file: in "
                         + (time2 - time) + " ms  :" + fdc.getFilePath());
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
@@ -1604,61 +1620,69 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                     if (lockfile.canWrite()) {
                         // write the lock if we can even write to anything
-                        synchronized (fdc.getKeys()) {
-                            for (String huc : fdc.getKeys()) {
+                        FFMPAggregateRecord cacheRecord = null;
 
-                                FFMPBasinData fbd = fdc.getBasinData(huc);
+                        synchronized (fdc) {
 
-                                if (fbd.getBasins().size() > 0) {
+                            cacheRecord = new FFMPAggregateRecord();
+                            // times for Guidance basins will be null
+                            cacheRecord.setTimes(fdc.getOrderedTimes());
 
-                                    String tmpFilePath = fileName + "-" + huc
-                                            + ".tmp";
-                                    BufferedOutputStream os = null;
+                            for (Entry<String, FFMPBasinData> entry : fdc
+                                    .getBasinMap().entrySet()) {
+                                FFMPBasinData fbd = entry.getValue();
+                                fbd.setCache();
+                                cacheRecord.setBasinData(fbd);
+                            }
+                        }
 
-                                    try {
-                                        File file = new File(tmpFilePath);
-                                        file.createNewFile();
+                        if (cacheRecord.getBasinsMap().size() > 0) {
 
-                                        if (file.canWrite()) {
-                                            os = new BufferedOutputStream(
-                                                    new FileOutputStream(file));
-                                            DynamicSerializationManager dsm = DynamicSerializationManager
-                                                    .getManager(SerializationType.Thrift);
-                                            dsm.serialize(fbd, os);
-                                            fileNames.put(tmpFilePath, fileName
-                                                    + "-" + huc + ".bin");
-                                        } else {
-                                            statusHandler
-                                                    .handle(Priority.WARN,
-                                                            "Can not write buddy file: "
-                                                                    + file.getAbsolutePath());
-                                        }
-                                    } catch (SerializationException e) {
-                                        statusHandler.handle(Priority.ERROR,
-                                                "Serialization Error Writing buddy file: "
-                                                        + e.getMessage());
-                                    } catch (IOException e) {
-                                        statusHandler.handle(Priority.ERROR,
-                                                "IO Error Writing buddy file: "
-                                                        + e.getMessage());
-                                    } catch (Exception e) {
-                                        statusHandler.handle(Priority.ERROR,
-                                                "General Error Writing buddy file: "
-                                                        + e.getMessage());
-                                    } finally {
-                                        if (os != null) {
-                                            os.close();
-                                        }
-                                    }
+                            String tmpFilePath = fileName + ".tmp";
+                            GZIPOutputStream gos = null;
+
+                            try {
+                                File file = new File(tmpFilePath);
+                                file.createNewFile();
+
+                                if (file.canWrite()) {
+                                    gos = new GZIPOutputStream(new BufferedOutputStream(
+                                            new FileOutputStream(file)));
+                                    DynamicSerializationManager dsm = DynamicSerializationManager
+                                            .getManager(SerializationType.Thrift);
+                                    dsm.serialize(cacheRecord, gos);
+                                    fileNames.put(tmpFilePath, fileName
+                                            + ".bin");
+                                } else {
+                                    statusHandler.handle(
+                                            Priority.WARN,
+                                            "Can not write cache file: "
+                                                    + file.getAbsolutePath());
+                                }
+                            } catch (SerializationException e) {
+                                statusHandler.handle(Priority.ERROR,
+                                        "Serialization Error Writing cache file: "
+                                                + e.getMessage());
+                            } catch (IOException e) {
+                                statusHandler.handle(
+                                        Priority.ERROR,
+                                        "IO Error Writing cache file: "
+                                                + e.getMessage());
+                            } catch (Exception e) {
+                                statusHandler.handle(Priority.ERROR,
+                                        "General Error Writing cache file: "
+                                                + e.getMessage());
+                            } finally {
+                                if (gos != null) {
+                                    gos.close();
                                 }
                             }
                         }
                     }
+
                 } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.ERROR,
-                                    "Error writing Buddy File group: "
-                                            + e.getMessage());
+                    statusHandler.handle(Priority.ERROR,
+                            "Error writing cache File: " + e.getMessage());
                 } finally {
                     // rename the files to real path
                     try {
@@ -1684,31 +1708,29 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     } catch (Exception e) {
                         statusHandler.handle(
                                 Priority.ERROR,
-                                "IO Error Renaming buddy file: "
+                                "IO Error Renaming cache file: "
                                         + e.getMessage());
                     }
                 }
 
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "IO Error writing buddy files: " + e.getMessage());
+                        "IO Error writing cache files: " + e.getMessage());
             }
         }
     }
 
     /**
-     * Load existing buddy file
+     * Load existing cache file
      * 
      * @param sourceSiteDataKey
-     * @param huc
      * @param wfo
      * @return
      */
-    public boolean checkBuddyFile(String sourceSiteDataKey, String huc,
-            String wfo, Date backDate) {
+    public boolean checkCacheFile(String sourceSiteDataKey, String wfo,
+            Date backDate) {
 
-        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
-                + huc + ".bin");
+        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + ".bin");
 
         String sourceName = sourceSiteDataKey.split("-")[0];
         SourceXML source = getSourceConfig().getSourceByDisplayName(sourceName);
@@ -1875,8 +1897,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 getAbsoluteFFTIFileName(fftiName));
 
         try {
-            ffti = (FFTIData) SerializationUtil.transformFromThrift(FileUtil
-                    .file2bytes(f.getFile(), true));
+            ffti = SerializationUtil.transformFromThrift(FFTIData.class,
+                    FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to locate file " + f.getName(), fnfe);
