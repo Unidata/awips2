@@ -1,4 +1,23 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 
 import java.awt.Point;
 import java.io.IOException;
@@ -210,16 +229,16 @@ public class FFMPCacheRecord extends FFMPRecord {
 	}
 
 	/**
-	 * Buddy File reader
+	 * Cache File reader
 	 * 
 	 * @param basins
 	 * @param hucName
 	 */
-	public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
+	public void setCacheData(FFMPBasinData basins, String hucName) {
 		if (getBasinData(hucName) != null) {
 			
 			basins = getBasinData(hucName, true);
-			//System.out.println("Adding pieces Buddy Data: "+hucName+" "+getSourceName());
+			//System.out.println("Adding Cache Data: "+hucName+" "+getSourceName());
 			
 			synchronized (basins) {
 				for (Entry<Long, FFMPBasin> entry : basins.getBasins()
@@ -442,8 +461,7 @@ public class FFMPCacheRecord extends FFMPRecord {
                         } catch (Throwable e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "ERROR Retrieving Map for URI: " + uri
-                                            + "..." + huc);
-                            e.printStackTrace();
+                                            + "..." + huc, e);
                         }
                     }
                 }
