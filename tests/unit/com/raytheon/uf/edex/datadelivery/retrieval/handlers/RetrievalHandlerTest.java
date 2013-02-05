@@ -27,11 +27,9 @@ import java.util.Collections;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
-import com.raytheon.uf.edex.event.EventBusTest;
 
 /**
  * Test {@link RetrievalHandler}.
@@ -46,6 +44,7 @@ import com.raytheon.uf.edex.event.EventBusTest;
  * Aug 09. 2012 1022      djohnson     Changes to RetrievalHandler.
  * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
  * Jan 30, 2013 1543      djohnson     RetrievalTask now requires a Network.
+ * Feb 05, 2013 1580      mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -70,11 +69,6 @@ public class RetrievalHandlerTest {
     private final RetrievalHandler handler = new RetrievalHandler(
             executorService, mockDao, Arrays.asList(retrievalTask),
             subNotifyTask);
-
-    @BeforeClass
-    public static void classSetUp() {
-        EventBusTest.initSynchronous();
-    }
 
     @Test
     public void testAllRunningRetrievalsAreResetToPendingOnConstruction() {
