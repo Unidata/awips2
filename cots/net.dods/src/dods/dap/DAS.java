@@ -11,8 +11,10 @@
 
 package dods.dap;
 
+import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
@@ -105,6 +107,7 @@ public class DAS implements Cloneable {
      * 
      * @return a clone of this <code>DAS</code>.
      */
+    @Override
     public Object clone() {
         try {
             DAS d = (DAS) super.clone();
@@ -189,15 +192,15 @@ public class DAS implements Cloneable {
      *            the <code>PrintWriter</code> to use for output.
      */
     public void print(PrintWriter os) {
-        // os.println("Attributes {");
-        // for (Enumeration e = getNames(); e.hasMoreElements();) {
-        // String name = (String) e.nextElement();
-        // os.println("    " + name + " {");
-        // getAttributeTable(name).print(os, "        ");
-        // os.println("    }");
-        // }
-        // os.println("}");
-        // os.flush();
+        os.println("Attributes {");
+        for (Enumeration e = getNames(); e.hasMoreElements();) {
+            String name = (String) e.nextElement();
+            os.println("    " + name + " {");
+            getAttributeTable(name).print(os, "        ");
+            os.println("    }");
+        }
+        os.println("}");
+        os.flush();
     }
 
     /**
@@ -208,8 +211,7 @@ public class DAS implements Cloneable {
      * @see DAS#print(PrintWriter)
      */
     public final void print(OutputStream os) {
-        // print(new PrintWriter(new BufferedWriter(new
-        // OutputStreamWriter(os))));
+        print(new PrintWriter(new BufferedWriter(new OutputStreamWriter(os))));
     }
 
 }
