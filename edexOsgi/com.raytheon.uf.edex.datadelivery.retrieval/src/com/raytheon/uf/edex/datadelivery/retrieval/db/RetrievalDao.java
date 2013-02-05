@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -20,6 +21,23 @@ import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
 
+/**
+ * 
+ * DAO for {@link RetrievalRequestRecord} entities.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 30, 2013 1543       djohnson     Add SW history.
+ * 
+ * </pre>
+ * 
+ * @author djohnson
+ * @version 1.0
+ */
 public class RetrievalDao extends CoreDao {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalDao.class);
@@ -32,9 +50,12 @@ public class RetrievalDao extends CoreDao {
      * Returns the next PENDING retrieval request, puts it into a RUNNING state,
      * based on current time.
      * 
+     * @param network
+     *            the network to constrain requests to
+     * 
      * @return
      */
-    public RetrievalRequestRecord activateNextRetrievalRequest()
+    public RetrievalRequestRecord activateNextRetrievalRequest(Network network)
             throws DataAccessLayerException {
         Session sess = null;
         Transaction tx = null;
@@ -45,22 +66,29 @@ public class RetrievalDao extends CoreDao {
             tx = sess.beginTransaction();
 
             final String minPriHql = "select min(rec.priority) from RetrievalRequestRecord rec "
-                    + "where rec.state = :statePending";
+                    + "where rec.state = :statePending and rec.network = :network";
             final String minInsertHql = "select min(rec.insertTime) from RetrievalRequestRecord rec "
-                    + "where rec.state = :statePending and rec.priority = :minPri";
+                    + "where rec.state = :statePending and rec.priority = :minPri and rec.network = :network";
             // descending record order to retrieve all for a given subscription
             // before moving to the next one if two have the same
             // priority/insertTime
             final String pkHql = "select rec.id.subscriptionName, min(rec.id.index) from RetrievalRequestRecord rec "
                     + "where rec.state = :statePending and rec.priority = :minPri and rec.insertTime = :minInsert "
+                    + "and rec.network = :network "
                     + "group by rec.id.subscriptionName order by min(rec.id.index) desc";
 
             Query minPriQuery = sess.createQuery(minPriHql);
-            minPriQuery.setParameter("statePending", State.PENDING);
+            setQueryState(minPriQuery, State.PENDING);
+            setQueryNetwork(minPriQuery, network);
+
             Query minInsertQuery = sess.createQuery(minInsertHql);
-            minInsertQuery.setParameter("statePending", State.PENDING);
+            setQueryState(minInsertQuery, State.PENDING);
+            setQueryNetwork(minInsertQuery, network);
+
             Query pkQuery = sess.createQuery(pkHql);
-            pkQuery.setParameter("statePending", State.PENDING);
+            setQueryState(pkQuery, State.PENDING);
+            setQueryNetwork(pkQuery, network);
+
             boolean done = false;
 
             while (!done) {
@@ -398,5 +426,21 @@ public class RetrievalDao extends CoreDao {
                 }
             }
         }
+    }
+
+    /**
+     * @param query
+     * @param state
+     */
+    private void setQueryState(Query query, State state) {
+        query.setParameter("statePending", state);
+    }
+
+    /**
+     * @param query
+     * @param network
+     */
+    private void setQueryNetwork(Query query, Network network) {
+        query.setParameter("network", network);
     }
 }
