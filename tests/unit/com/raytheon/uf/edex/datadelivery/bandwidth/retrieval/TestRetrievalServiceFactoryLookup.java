@@ -22,12 +22,14 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 import org.junit.Ignore;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.edex.datadelivery.retrieval.IServiceFactoryLookup;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
+import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapServiceFactory;
 
 /**
- * Implementation of {@link IServiceFactoryLookup} that doesn't really
- * go out to the internet.
+ * Implementation of {@link IServiceFactoryLookup} that doesn't really go out to
+ * the internet.
  * 
  * <pre>
  * 
@@ -43,13 +45,20 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  * @version 1.0
  */
 @Ignore
-public class TestRetrievalServiceFactoryLookup implements
-        IServiceFactoryLookup {
+public class TestRetrievalServiceFactoryLookup implements IServiceFactoryLookup {
     /**
      * {@inheritDoc}
      */
     @Override
     public ServiceFactory getProviderServiceFactory(Provider provider) {
-        return new MockServiceFactory(provider);
+        final ServiceType serviceType = provider.getServiceType();
+        switch (serviceType) {
+        case OPENDAP:
+            return new MockOpenDapServiceFactory(provider);
+        default:
+            throw new IllegalArgumentException(
+                    "Don't know how to handle service [" + serviceType + "]");
+        }
+
     }
 }
