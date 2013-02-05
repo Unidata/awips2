@@ -47,7 +47,6 @@ import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
-import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.Link;
@@ -68,6 +67,7 @@ import dods.dap.parser.ParseException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 09, 2013  1466      dhladky     Unit test for NCOM
+ * Feb 06, 2013 1543       djohnson     Remove test setup methods no longer necessary.
  * 
  * </pre>
  * 
@@ -106,7 +106,6 @@ public class OpenDAPMetaDataParserNCOMTest {
 
     @BeforeClass
     public static void classSetUp() throws DASException, ParseException {
-        SerializationUtilTest.initSerializationUtil();
         PathManagerFactoryTest.initLocalization();
 
         ByteArrayInputStream bis = new ByteArrayInputStream(

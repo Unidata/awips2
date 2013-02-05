@@ -17,14 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
+package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import org.junit.Ignore;
-
-import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.edex.database.dao.SessionManagedDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 
 /**
- * Test {@link BandwidthEventBus}.
+ * {@link SessionManagedDao} for {@link BandwidthAllocation}s.
  * 
  * <pre>
  * 
@@ -32,39 +31,20 @@ import com.google.common.eventbus.EventBus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 11, 2012            djohnson     Initial creation
- * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 07, 2013 1543       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-@Ignore
-public class BandwidthEventBusTest {
+public class BandwidthAllocationDao extends SessionManagedDao {
 
     /**
-     * Create a synchronous {@link BandwidthEventBus}.
+     * Constructor.
      */
-    public static void initSynchronous() {
-        // Need the normal event bus synchronous as well
-        BandwidthEventBus.eventBusFactory = new BandwidthEventBusFactory() {
-            @Override
-            public EventBus getSubscriptionBus() {
-                return new EventBus();
-            }
-
-            @Override
-            public EventBus getRetrievalBus() {
-                return new EventBus();
-            }
-
-            @Override
-            public EventBus getDataSetBus() {
-                return new EventBus();
-            }
-        };
-
+    public BandwidthAllocationDao() {
+        super();
     }
 
 }
