@@ -17,12 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.event;
+package com.raytheon.uf.common.event;
 
-import org.junit.Ignore;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * Test {@link EventBus}.
+ * Publish event request.
  * 
  * <pre>
  * 
@@ -30,32 +32,47 @@ import org.junit.Ignore;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 10, 2012 1104       djohnson     Initial creation
+ * Feb 5, 2013    1580     mpduff      Initial creation.
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
-@Ignore
-public class EventBusTest {
+@DynamicSerialize
+public class EventPublishRequest implements IServerRequest {
+    @DynamicSerializeElement
+    private Event event;
 
     /**
-     * Creates a synchronous Google EventBus.
+     * Default Constructor.
      */
-    private static class SynchronousEventBusFactory implements
-            GoogleEventBusFactory {
-        @Override
-        public com.google.common.eventbus.EventBus getEventBus() {
-            return new com.google.common.eventbus.EventBus(
-                    AsynchronousEventBusFactory.EVENT_BUS_NAME);
-        }
+    public EventPublishRequest() {
+
     }
 
     /**
-     * Overrides the {@link EventBus} instance to be a synchronous version, useful for unit testing.
+     * Convenience constructor.
+     * 
+     * @param event
+     *            The event to publish
      */
-    public static void initSynchronous() {
-        EventBus.eventBusFactory = new SynchronousEventBusFactory();
+    public EventPublishRequest(Event event) {
+        this.event = event;
+    }
+
+    /**
+     * @param event
+     *            the event to set
+     */
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    /**
+     * @return the event
+     */
+    public Event getEvent() {
+        return event;
     }
 }

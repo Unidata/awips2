@@ -30,13 +30,13 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -45,8 +45,6 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
-import com.raytheon.uf.edex.event.EventBus;
-import com.raytheon.uf.edex.event.EventBusTest;
 
 /**
  * Test {@link RetrievalTask}.
@@ -103,11 +101,6 @@ public class RetrievalTaskTest {
 
     private final List<DataRetrievalEvent> eventsReceived = new ArrayList<DataRetrievalEvent>();
 
-    @BeforeClass
-    public static void classSetUp() {
-        EventBusTest.initSynchronous();
-    }
-
     @Before
     public void setUp() throws RegistryHandlerException {
         DatabaseUtil.start();
@@ -118,7 +111,7 @@ public class RetrievalTaskTest {
 
         dao = new RetrievalDao();
 
-        EventBus.getInstance().register(this);
+        EventBus.register(this);
     }
 
     @After
