@@ -65,7 +65,7 @@ public class RetrievalGenerationHandler implements IGenerateRetrieval {
     public List<String> generateRetrieval(List<SubscriptionBundle> bundles) {
 
         if (bundles != null) {
-            RetrievalDao dao = new RetrievalDao();
+            RetrievalDao dao = RetrievalDao.getInstance();
             ArrayList<String> names = new ArrayList<String>(bundles.size());
 
             for (SubscriptionBundle bundle : bundles) {
