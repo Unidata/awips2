@@ -221,12 +221,12 @@ public class FFMPConfig {
     }
 
     /**
-     * Get the DHR record
+     * Get the RADAR record
      * 
      * @param uri
      * @return
      */
-    private Object getDHRRecord(String uri) {
+    private Object getRADARRecord(String uri) {
         Object record = null;
         try {
             record = ScanCommonUtils.getRadarRecord(uri);
@@ -398,7 +398,7 @@ public class FFMPConfig {
                         } else if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.RADAR
                                         .getDataType())) {
-                            Object dataObject = getDHRRecord(dataUri);
+                            Object dataObject = getRADARRecord(dataUri);
 
                             if (dataObject != null) {
                                 // process as a VGB too
