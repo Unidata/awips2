@@ -11,5 +11,13 @@
 			<value>register</value>
 		</property>
 	</bean>
+
+	<bean id="radarGridFactory" class="com.raytheon.uf.common.dataplugin.radar.dataaccess.RadarGridFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="radar"/>
+		<constructor-arg value="com.raytheon.uf.common.dataaccess.grid.IGridRequest"/>
+		<constructor-arg ref="radarGridFactory"/>
+	</bean>	
 	
 </beans>
