@@ -29,9 +29,9 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.MockServiceFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
+import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapServiceFactory;
 
 /**
  * Fixture for {@link RetrievalRequestRecord}.
@@ -91,8 +91,9 @@ public class RetrievalRequestRecordFixture extends
 
         try {
             rec.setRetrieval(SerializationUtil
-                    .transformToThrift(new MockServiceFactory(provider)
-                            .buildRetrieval(bundle).iterator().next()));
+                    .transformToThrift(new MockOpenDapServiceFactory(provider)
+                            .getRetrievalGenerator().buildRetrieval(bundle)
+                            .iterator().next()));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
