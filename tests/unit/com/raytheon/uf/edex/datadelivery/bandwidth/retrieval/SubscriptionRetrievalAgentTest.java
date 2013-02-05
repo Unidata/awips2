@@ -120,7 +120,7 @@ public class SubscriptionRetrievalAgentTest {
         };
         agent.processAllocation(subscriptionRetrieval);
 
-        RetrievalDao dao = new RetrievalDao();
+        RetrievalDao dao = RetrievalDao.getInstance();
         final List<RetrievalRequestRecord> requests = dao
                 .getRequests(subscription.getName());
         assertThat(requests,
