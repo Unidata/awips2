@@ -14,6 +14,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -32,7 +33,6 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Class used to process SubscriptionRetrieval BandwidthAllocations.
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Oct 10, 2012 0726       djohnson     Add generics, constants, defaultPriority.
  * Nov 26, 2012            dhladky      Override default ingest routes based on plugin
  * Jan 30, 2013 1543       djohnson     Should not implement IRetrievalHandler.
+ * Feb 05, 2013 1580       mpduff      EventBus refactor.
  * 
  * </pre>
  * 
@@ -114,7 +115,7 @@ public class SubscriptionRetrievalAgent extends
             // retrievals were generated we have to send it manually
             RetrievalManagerNotifyEvent retrievalManagerNotifyEvent = new RetrievalManagerNotifyEvent();
             retrievalManagerNotifyEvent.setId(Long.toString(retrieval.getId()));
-            EventBus.getInstance().publish(retrievalManagerNotifyEvent);
+            EventBus.publish(retrievalManagerNotifyEvent);
         }
     }
 
