@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Arrays;
+
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
@@ -31,8 +34,9 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 05, 2012 1102      djohnson     Initial creation
- * Oct 16, 2012 0726      djohnson     Always use OpenDAP service type, use TimeFixture.
+ * Sep 05, 2012 1102       djohnson     Initial creation
+ * Oct 16, 2012 0726       djohnson     Always use OpenDAP service type, use TimeFixture.
+ * Jan 30, 2013 1543       djohnson     Populate attributes.
  * 
  * </pre>
  * 
@@ -56,8 +60,9 @@ public class LevelsFixture extends AbstractFixture<Levels> {
     @Override
     public Levels get(long seedValue) {
         Levels obj = new Levels();
-
-        // TODO: Populate attributes
+        obj.setLevel(Arrays.<Double> asList(1D, 2D, 3D));
+        obj.setLevelType(LevelType.SFC.getLevelTypeId());
+        obj.setName(LevelType.getLevelTypeIdName(obj.getLevelType()));
 
         return obj;
     }
