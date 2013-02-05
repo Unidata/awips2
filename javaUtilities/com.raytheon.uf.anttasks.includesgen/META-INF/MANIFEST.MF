@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Includesgen
+Bundle-SymbolicName: com.raytheon.uf.anttasks.includesgen
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.apache.ant;bundle-version="1.7.1",
+ com.raytheon.uf.featureexplorer;bundle-version="1.0.0"
