@@ -29,11 +29,11 @@ import org.apache.camel.Header;
 import org.apache.camel.Headers;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Provides logging and deletion services for camel
@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 1, 2008            chammack     Initial creation
+ * Feb 05, 2013 1580      mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -54,8 +55,6 @@ public class ProcessUtil {
 
     protected static final IUFStatusHandler handler = UFStatus
             .getNamedHandler("Ingest");
-
-    protected static final EventBus eventBus = EventBus.getInstance();
 
     protected transient final static ThreadLocal<DecimalFormat> FORMAT = new ThreadLocal<DecimalFormat>() {
 
@@ -166,7 +165,7 @@ public class ProcessUtil {
         // error occurred and statement logged incorrectly
         if ((processEvent.getProcessingLatency() > 0)
                 && (processEvent.getProcessingTime() > 0)) {
-            eventBus.publish(processEvent);
+            EventBus.publish(processEvent);
         }
 
         // Make sure we have something to log.
