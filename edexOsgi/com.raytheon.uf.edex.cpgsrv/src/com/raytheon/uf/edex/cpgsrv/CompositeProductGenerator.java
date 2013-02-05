@@ -30,6 +30,7 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.monitor.cpg.MonitorStateConfigurationManager;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.ProcessEvent;
@@ -42,7 +43,6 @@ import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * CompositeProductGenerator
@@ -57,7 +57,8 @@ import com.raytheon.uf.edex.event.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/07/2009   1981       dhladky    Initial Creation.
- * 30NOV2012    1372       dhladky    Added statistics
+ * 30NOV2012    1372       dhladky    Added statistics.
+ * 02/05/2013   1580       mpduff     EventBus refactor.
  * 
  * </pre>
  * 
@@ -106,8 +107,6 @@ public abstract class CompositeProductGenerator implements
     public Executor executor = null;
 
     protected String routeId = null;
-
-    protected static final EventBus eventBus = EventBus.getInstance();
 
     public CompositeProductGenerator(String name, String compositeProductType) {
         this(name, compositeProductType, null);
@@ -463,7 +462,7 @@ public abstract class CompositeProductGenerator implements
             // error occurred and statement logged incorrectly
             if ((processEvent.getProcessingLatency() > 0)
                     && (processEvent.getProcessingTime() > 0)) {
-                eventBus.publish(processEvent);
+                EventBus.publish(processEvent);
             }
         }
     }
