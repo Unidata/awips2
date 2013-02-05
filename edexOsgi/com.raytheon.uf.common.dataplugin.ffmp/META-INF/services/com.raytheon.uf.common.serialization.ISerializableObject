@@ -1,8 +1,2 @@
 com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord
-com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin
-com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasin
-com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin
-com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData
-com.raytheon.uf.common.dataplugin.ffmp.SourceBinList
-com.raytheon.uf.common.dataplugin.ffmp.SourceBin
-com.raytheon.uf.common.dataplugin.ffmp.SourceBinEntry
+
