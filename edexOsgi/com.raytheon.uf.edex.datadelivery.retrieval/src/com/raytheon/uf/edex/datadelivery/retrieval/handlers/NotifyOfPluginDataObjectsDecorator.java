@@ -27,10 +27,10 @@ import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Performs processing on the retrieved plugin data objects, and then sends an
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -54,8 +55,6 @@ public class NotifyOfPluginDataObjectsDecorator implements
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(NotifyOfPluginDataObjectsDecorator.class);
-
-    private static final EventBus EVENT_BUS = EventBus.getInstance();
 
     private final IRetrievalPluginDataObjectsProcessor retrievedDataProcessor;
 
@@ -103,7 +102,7 @@ public class NotifyOfPluginDataObjectsDecorator implements
             event.setNumRecords(value.length);
             event.setBytes(DataSizeUtils.calculateSize(attXML, serviceType));
 
-            EVENT_BUS.publish(event);
+            EventBus.publish(event);
         }
     }
 }
