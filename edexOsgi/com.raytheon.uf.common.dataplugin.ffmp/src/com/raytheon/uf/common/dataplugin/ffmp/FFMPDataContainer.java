@@ -20,9 +20,9 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +33,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * FFTI Data Container
+ * FFMP Data Container
  * 
  * <pre>
  * 
@@ -43,7 +43,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ----------  ----------- --------------------------
  * 03/31/11     5489     D. Hladky   Initial release
  * 07/31/12     578      D.Hladky    finished it
- * 09/27/12		DR 15471  G.Zhang	 Fixed ConcurrentModificationException
+ * 09/27/12		DR 15471 G.Zhang	 Fixed ConcurrentModificationException
+ * 01/27/13     1478     D. Hladky   Re-worked to help with memory size and NAS read write stress
  * </pre>
  * 
  * @author dhladky
@@ -62,20 +63,44 @@ public class FFMPDataContainer {
     private String filePath = null;
 
     public FFMPDataContainer() {
-        // public unused constructor
+
     }
 
+    /**
+     * Usual constructor
+     * @param sourceName
+     */
     public FFMPDataContainer(String sourceName) {
         this.sourceName = sourceName;
         basinDataMap.put("ALL", new FFMPBasinData("ALL"));
         // System.out.println("Creating source: " + sourceName);
     }
 
+    /**
+     * special constuctor
+     * @param sourceName
+     * @param hucs
+     */
     public FFMPDataContainer(String sourceName, ArrayList<String> hucs) {
         // System.out.println("Creating source with hucs: " + sourceName);
         this.sourceName = sourceName;
         for (String huc : hucs) {
             basinDataMap.put(huc, new FFMPBasinData(huc));
+        }
+    }
+    /**
+     * new container first time read in from cache
+     * @param sourceName
+     * @param hucs
+     * @param record
+     */
+    public FFMPDataContainer(String sourceName, ArrayList<String> hucs, FFMPAggregateRecord record) {
+        // System.out.println("Creating source with hucs: " + sourceName);
+        this.sourceName = sourceName;
+        for (String huc : hucs) {
+            FFMPBasinData basinData = record.getBasinData(huc);
+            basinData.populate(record.getTimes());
+            basinDataMap.put(huc, basinData);
         }
     }
 
@@ -400,7 +425,7 @@ public class FFMPDataContainer {
      * @param barrierTime
      * @return
      */
-    public ArrayList<Date> getOrderedTimes(Date barrierTime) {
+    public List<Date> getOrderedTimes(Date barrierTime) {
         ArrayList<Date> orderedTimes = new ArrayList<Date>();
         try {
             HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
@@ -414,7 +439,32 @@ public class FFMPDataContainer {
                         }
                     }
 
-                    Collections.reverse(orderedTimes);
+                    return orderedTimes;
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.debug("No ordered times available..."
+                    + getSourceName());
+        }
+
+        return null;
+    }
+    
+    /**
+     * Gets the list of times for serialization
+     * @return
+     */
+    public List<Long> getOrderedTimes() {
+        ArrayList<Long> orderedTimes = new ArrayList<Long>();
+        try {
+            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+            synchronized (basins) {
+                for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                    FFMPBasin basin = entry.getValue();
+                    for (Date time : basin.getValues().descendingKeySet()) {
+                        orderedTimes.add(time.getTime());
+                    }
 
                     return orderedTimes;
                 }
@@ -422,18 +472,22 @@ public class FFMPDataContainer {
         } catch (Exception e) {
             statusHandler.debug("No ordered times available..."
                     + getSourceName());
-            return null;
         }
 
         return null;
     }
 
+    /**
+     * Gets the source name for this Data Container
+     * @return
+     */
     public String getSourceName() {
         return sourceName;
     }
 
-    /*
-     * clean up old junk
+    /**
+     * Clean up old junk
+     * @param backDate
      */
     public void purge(Date backDate) {
         for (String huc : basinDataMap.keySet()) {
@@ -442,27 +496,33 @@ public class FFMPDataContainer {
     }
 
     /**
-     * maybe this will work
+     * Sets the Cache data for this container
      * 
-     * @param basins
-     * @param hucName
+     * @param cacheRecord
      */
-    public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
+    public void setCacheData(FFMPAggregateRecord cacheRecord) {
 
-        for (Entry<Long, FFMPBasin> entry : basins.getBasins().entrySet()) {
-            FFMPBasin basin = getBasinData(hucName).get(entry.getKey());
-            if (basin != null) {
-                if (basin instanceof FFMPGuidanceBasin) {
-                    FFMPGuidanceBasin gbasin = (FFMPGuidanceBasin) basin;
-                    gbasin.getGuidValues().putAll(
-                            ((FFMPGuidanceBasin) entry.getValue())
-                                    .getGuidValues());
+        // create a record from the cache record
+        FFMPRecord record = new FFMPRecord(cacheRecord);
+        
+        for (Entry<String, FFMPBasinData> dentry : record.getBasinsMap()
+                .entrySet()) {
+            for (Entry<Long, FFMPBasin> entry : dentry.getValue().getBasins()
+                    .entrySet()) {
+                FFMPBasin basin = entry.getValue();
+                if (basin != null) {
+                    if (basin instanceof FFMPGuidanceBasin) {
+                        FFMPGuidanceBasin gbasin = (FFMPGuidanceBasin) basin;
+                        gbasin.getGuidValues().putAll(
+                                ((FFMPGuidanceBasin) entry.getValue())
+                                        .getGuidValues());
+                    } else {
+                        basin.getValues().putAll(entry.getValue().getValues());
+                    }
                 } else {
-                    basin.getValues().putAll(entry.getValue().getValues());
+                    syncPut(getBasinData(dentry.getKey()), entry.getKey(),
+                            entry.getValue());
                 }
-            } else {
-            	syncPut(getBasinData(hucName), entry.getKey(), entry.getValue());
-                //getBasinData(hucName).put(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -523,4 +583,13 @@ public class FFMPDataContainer {
            basins.put(key, value);
         }
     }
+    
+    /**
+     * Gets the basin data map
+     * @return
+     */
+    public ConcurrentHashMap<String, FFMPBasinData> getBasinMap() {
+        return basinDataMap;
+    }
+
 }

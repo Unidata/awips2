@@ -153,8 +153,8 @@ import com.vividsolutions.jts.geom.Point;
  * 31 July  2012 14517         mpduff      Fix for blanking map on update.
  * 14 Sep 2012   1048         njensen      Code cleanup
  * 07 Dec 2012   1353         rferrel      Changes for non-blocking FFMPSplash dialog.
- * 10 Jan 2103   1475         dhladky      Some cleanup
- * 
+ * 10 Jan 2013   1475         dhladky      Some cleanup
+ * 27 Jan 2013   1478         dhladky      Changed gap collection to a generic list insted of Arraylist
  * </pre>
  * 
  * @author dhladky
@@ -3940,7 +3940,7 @@ public class FFMPResource extends
      * 
      * @return Array of Gap data
      */
-    public ArrayList<FFMPGap> getGaps() {
+    public List<FFMPGap> getGaps() {
         synchronized (timeOrderedKeys) {
             return FFMPGap.getGaps(getTimeOrderedKeys(), getResourceData()
                     .getPrimarySourceXML().getExpirationMinutes(getSiteKey()),
