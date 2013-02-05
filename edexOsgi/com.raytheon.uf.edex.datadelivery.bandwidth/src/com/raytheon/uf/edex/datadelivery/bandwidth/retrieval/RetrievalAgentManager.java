@@ -71,7 +71,7 @@ public class RetrievalAgentManager {
         this.agents = agents;
 
         // set all Running state retrievals to pending
-        RetrievalDao dao = new RetrievalDao();
+        RetrievalDao dao = RetrievalDao.getInstance();
         dao.resetRunningRetrievalsToPending();
     }
 
