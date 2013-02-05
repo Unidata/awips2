@@ -152,7 +152,7 @@ public class SubscriptionRetrievalAgent extends
     private boolean generateRetrieval(SubscriptionBundle bundle,
             Long subRetrievalKey) {
 
-        RetrievalDao dao = new RetrievalDao();
+        RetrievalDao dao = RetrievalDao.getInstance();
         // process the bundle into a retrieval
         RetrievalGenerator rg = ServiceTypeFactory.retrieveServiceFactory(
                 bundle.getProvider()).getRetrievalGenerator();
