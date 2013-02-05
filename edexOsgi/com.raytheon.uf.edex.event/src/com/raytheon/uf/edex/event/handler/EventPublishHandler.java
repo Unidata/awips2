@@ -17,18 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.service.verify;
+package com.raytheon.uf.edex.event.handler;
 
-import com.raytheon.uf.common.datadelivery.event.INotifiableEvent;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.event.EventBus;
-import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationAction;
-import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationResponse;
+import com.raytheon.uf.common.event.EventPublishRequest;
+import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * Implementation of {@link IVerificationAction} that sends an
- * {@link INotifiableEvent}. Intentionally package-private to enforce dependency
- * injection.
+ * Stats handler bean.
  * 
  * <pre>
  * 
@@ -36,24 +32,22 @@ import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVer
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 07, 2012 1104       djohnson     Initial creation
- * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 5, 2013    1580     mpduff      Initial creation.
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduffT
  * @version 1.0
  */
-class NotifyFailedVerification implements IVerificationAction {
 
-    /**
-     * {@inheritDoc}
-     */
+public class EventPublishHandler implements
+        IRequestHandler<EventPublishRequest> {
+
     @Override
-    public void verificationPerformed(Subscription subscription,
-            IVerificationResponse response) {
-        EventBus.publish(new SubscriptionVerificationFailedEvent(subscription,
-                response.getNotificationMessage()));
+    public Object handleRequest(EventPublishRequest request) throws Exception {
+        EventBus.publish(request.getEvent());
+
+        return null;
     }
 
 }

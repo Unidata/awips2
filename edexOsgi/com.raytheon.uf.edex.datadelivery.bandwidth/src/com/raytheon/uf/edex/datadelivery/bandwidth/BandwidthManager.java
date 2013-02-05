@@ -41,6 +41,7 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
@@ -76,7 +77,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Abstract {@link IBandwidthManager} implementation which provides core
@@ -99,6 +99,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 28, 2013 1530       djohnson     Unschedule all allocations for a subscription that does not fully schedule.
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * </pre>
  * 
  * @author dhladky
@@ -137,7 +138,7 @@ abstract class BandwidthManager extends
         this.retrievalManager = retrievalManager;
         this.bandwidthDaoUtil = bandwidthDaoUtil;
 
-        EventBus.getInstance().register(this);
+        EventBus.register(this);
         BandwidthEventBus.register(this);
 
         // Start a MaintenanceTask
@@ -1520,7 +1521,7 @@ abstract class BandwidthManager extends
      */
     @VisibleForTesting
     void shutdown() {
-        EventBus.getInstance().unregister(this);
+        EventBus.unregister(this);
         BandwidthEventBus.unregister(this);
         retrievalManager.shutdown();
         scheduler.shutdownNow();
