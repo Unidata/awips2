@@ -27,6 +27,7 @@ import java.util.Set;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.event.Event;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.StatsRecord;
@@ -36,7 +37,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.event.EventBus;
 import com.raytheon.uf.edex.stats.util.ConfigLoader;
 
 /**
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Removed instance variable of event bus.
  * Nov 07, 2012   1317     mpduff      Updated config files.
+ * Feb 05, 2013   1580     mpduff      EventBus refactor.
  * 
  * </pre>
  * 
@@ -85,7 +86,7 @@ public class StatsHandler {
      */
     public StatsHandler() throws Exception {
         loadEventValidTypes();
-        EventBus.getInstance().register(this);
+        EventBus.register(this);
     }
 
     /**
