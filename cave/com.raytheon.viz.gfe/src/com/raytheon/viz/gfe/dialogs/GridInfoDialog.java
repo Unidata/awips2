@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
-import java.awt.Toolkit;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -75,7 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 20, 2008  #875      bphillip     Implemented Dialog functionality
  * Sep 20, 2012  #1190     dgilling     Use new WsId.getHostName() method.
  * Nov 12, 2012  #1298     rferrel      Code cleanup for non-blocking dialog.
- * Jan 10, 2013  #DR15572  jzeng        add getWindowMax() and getMaxWidth(String str) 
+ * Jan 10, 2013  #DR15572  jzeng        add getMaxWidth(String str) 
  *                                      and adjustDlg(String str), 
  *                                      change gridInfoText from Label to Text
  *                                      to make sure the info get displayed inside the screen
@@ -107,15 +106,9 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
     // set gridInfoText to be Text
     private Text gridInfoText;
-    
-    // width of the screen
-    private int WidthofScreen;
-    
-    // width of the grouplist
-    private final int WidthofGroup = 240;
-    
+        
     private SimpleDateFormat gmtFormatter;
-
+      
     public GridInfoDialog(Shell parent, Parm parm, Date clickTime) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -127,8 +120,6 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
         gmtFormatter = new SimpleDateFormat("MMM dd yy HH:mm:ss zzz");
         gmtFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-        //make sure there is enough space for the group list
-        WidthofScreen = this.getWindowMax() - WidthofGroup; 
     }
 
     @Override
@@ -153,34 +144,30 @@ public class GridInfoDialog extends CaveJFACEDialog implements
             b.setText(gridInfoElements[i]);
             b.addSelectionListener(this);
         }
+        
         // Composite composite2 = new Composite(top, SWT.NONE);
         // layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         // composite2.setLayoutData(layoutData);
         // composite2.setLayout(new GridLayout(1, true));
 
-        gridInfoText = new Text(top, SWT.NONE | SWT.H_SCROLL);
+        gridInfoText = new Text(top, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.READ_ONLY);
         layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gridInfoText.setEditable(false);
         gridInfoText.setBackground(group.getBackground());
         gridInfoText.setLayoutData(layoutData);
     }
-
-    /*
-	 * To get the width of the screen
-	 */
-	private int getWindowMax(){
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		return toolkit.getScreenSize().width;
-	}
 	
 	/*
 	 * adjust the width of the dialog
 	 */
 	private void adjustDlg(String infoText){
+	    int screenWidth = this.getParentShell().getDisplay().
+	        getPrimaryMonitor().getBounds().width;
+	    int maxWidth = (int)Math.round(screenWidth * 0.75);
+	    
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		int maxLength = getMaxWidth(infoText);
-		if ( maxLength > WidthofScreen ) {
-			gd.widthHint = WidthofScreen;
+		if ( maxLength > maxWidth ) {
+			gd.widthHint = maxWidth;
 			gridInfoText.setLayoutData(gd);
 		} else {
         	gridInfoText.setLayoutData(gd);
