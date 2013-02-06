@@ -4,5 +4,5 @@
     <sourceType>BOUNDED_AREA</sourceType>
     <dbName>ncep</dbName>
     <dbTableName>bounds.statebnds</dbTableName>
-	<dbFieldName>area</dbFieldName> 
+	<dbFieldName>name</dbFieldName> 
 </LocatorDataSource>
