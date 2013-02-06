@@ -53,7 +53,7 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013            bkowal     Initial creation
- * 
+ * Feb 6, 2013  #1555      bkowal     Improve Geometry Loop
  * </pre>
  * 
  * @author bkowal
@@ -155,7 +155,6 @@ public class GenericGeometryResource extends
         this.initDrawableStorage();
 
         int numberOfPoints = 0;
-        List<Geometry> shapeGeometries = new ArrayList<Geometry>();
 
         for (IGeometryData geometryData : this.resourceData.getData()) {
             Geometry geometry = geometryData.getGeometry();
@@ -166,12 +165,19 @@ public class GenericGeometryResource extends
                                 geometry.getCoordinate().y });
                 this.pointsToRender.add(pixels);
             } else {
-                // Calculate the number of points; build the list of geometries
-                // we will be adding to the shape.
+                // Calculate the number of points.
+
+                /*
+                 * Theoretically, this should also work for GeometryCollection
+                 * because the Multi Geometry types returned by the getGeometryN
+                 * method of GeometryCollection support the getNumPoints method
+                 * because they (the Multi Geometry Types) extend
+                 * GeometryCollection which extends Geometry and getNumPoints is
+                 * a method defined by Geometry.
+                 */
                 for (int i = 0; i < geometry.getNumGeometries(); i++) {
                     Geometry _geometry = geometry.getGeometryN(i);
                     numberOfPoints += _geometry.getNumPoints();
-                    shapeGeometries.add((Geometry) _geometry.clone());
                 }
             }
         }
@@ -185,13 +191,15 @@ public class GenericGeometryResource extends
                     this.descriptor, PointStyle.CROSS);
             this.shape.allocate(numberOfPoints);
             // add the geometries
-            for (Geometry geometry : shapeGeometries) {
+            for (IGeometryData geometryData : this.resourceData.getData()) {
                 try {
-                    jtsCompiler.handle(geometry);
+                    jtsCompiler.handle((Geometry) geometryData.getGeometry()
+                            .clone());
                 } catch (VizException e1) {
                     statusHandler.handle(UFStatus.Priority.ERROR,
                             "Failed to handle Geometry "
-                                    + geometry.getClass().getName(), e1);
+                                    + geometryData.getGeometry().getClass()
+                                            .getName(), e1);
                 }
             }
 
