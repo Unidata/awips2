@@ -26,6 +26,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2011            mschenke     Initial creation
+ * Jan 31, 2013 1557       jsanchez     Added the XMLElement allowDuplicates.
  * 
  * </pre>
  * 
@@ -79,6 +80,9 @@ public class PointSourceConfiguration {
 
     @XmlElement
     private double distanceThreshold = 10;
+
+    @XmlElement
+    protected boolean allowDuplicates = false;
 
     @XmlElementWrapper(name = "sortBy")
     @XmlElement(name = "sort")
@@ -171,6 +175,14 @@ public class PointSourceConfiguration {
 
     public void setType(PointType type) {
         this.type = type;
+    }
+
+    public boolean isAllowDuplicates() {
+        return allowDuplicates;
+    }
+
+    public void setAllowDuplicates(boolean allowDuplicates) {
+        this.allowDuplicates = allowDuplicates;
     }
 
 }
