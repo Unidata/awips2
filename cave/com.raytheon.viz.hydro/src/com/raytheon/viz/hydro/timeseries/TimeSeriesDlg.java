@@ -46,7 +46,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -472,8 +471,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * tabular display.
      */
     private boolean displayGraph = false;
-
-    private Rectangle bounds = null;
 
     private TabularTimeSeriesDlg tabularDlg;
 
@@ -2045,7 +2042,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             tabInfoList.clear();
 
             if ((tabularDlg != null) && tabularDlg.isOpen()) {
-                tabularDlg.close();
+                tabularDlg.disposeDialog();
             }
 
             tabularDlg = new TabularTimeSeriesDlg(shell, beginCal.getTime(),
@@ -2133,11 +2130,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         } else {
 
             if (timeSeriesDisplayDlg != null) {
-                bounds = timeSeriesDisplayDlg.getDialogBounds();
                 timeSeriesDisplayDlg.disposeDialog();
             }
 
-            timeSeriesDisplayDlg = new TimeSeriesDisplayDlg(shell, bounds, this);
+            timeSeriesDisplayDlg = new TimeSeriesDisplayDlg(shell, this);
 
             PageInfo pageInfo = new PageInfo();
             LIDData firstLidData = new LIDData();
