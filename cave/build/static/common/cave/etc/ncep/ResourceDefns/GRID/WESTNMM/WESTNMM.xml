@@ -6,7 +6,6 @@
     <resourceParameters>
 GDFILE=westnmm
 pluginName=ncgrib
-eventName=%
     </resourceParameters>
     <filterLabels>Forecast</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
