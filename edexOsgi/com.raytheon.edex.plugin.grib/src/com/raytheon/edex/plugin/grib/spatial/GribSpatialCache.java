@@ -307,7 +307,12 @@ public class GribSpatialCache {
                     referenceCoverage);
             
             double shiftX = 0;
-            if (shiftSubGridWest == true && modelName != "TPCSurgeProb")
+            
+            // Check whether 'shiftWest' flag is set in subgrid definition xml file
+            if (subGridDef.getShiftWest() != null) 
+            	shiftSubGridWest = subGridDef.getShiftWest();
+            
+            if (shiftSubGridWest == true)
             	shiftX = subGridDef.getNx() / 5;
   
             double xCenterPoint = subGridCenterGridCoord.x - shiftX;
