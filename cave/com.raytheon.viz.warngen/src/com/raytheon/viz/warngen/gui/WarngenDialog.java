@@ -128,7 +128,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
  *                                       and in updateListSelected().
  *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
- *                                       to true in boxSelected().                                      
+ *                                       to true in boxSelected().
  *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
  * 
  * </pre>
@@ -146,6 +146,17 @@ public class WarngenDialog extends CaveSWTDialog implements
     private static final int BULLET_HEIGHT = 230;
 
     private static final int FONT_HEIGHT = 9;
+
+    static {
+        // Ensure TemplateRunner gets initialized for use
+        new Job("Template Runner Initialization") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                TemplateRunner.initialize();
+                return Status.OK_STATUS;
+            }
+        }.schedule();
+    }
 
     private String result;
 
@@ -1452,7 +1463,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .equalsIgnoreCase(lastAreaSource);
 
         try {
-            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon, true);
+            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon);
         } catch (VizException e1) {
             statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
