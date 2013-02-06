@@ -40,6 +40,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -122,6 +124,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 09 2011 9962        lbousaidi   reload time series when there is update/insert
  * 									   and highlight the row that was updated.
  * Feb 05,2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ *                                     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -134,30 +137,46 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TabularTimeSeriesDlg.class);
 
+    /** Location and size to use when opening a new dialog. */
+    private static Rectangle bounds;
+
+    /** Line terminator to use when reading a line from a shef file. */
     private final String CARRIAGECONTROL = "\r";
 
+    /** Maximum number time series to place in a list. */
     private final int MAX_TS_ON_LIST = 120;
 
+    /** Default header label */
     private final String HDRDEFAULT = "    Value     Time(Z)    RV SQ QC   Product       Time         Posted";
 
+    /** Stage header label.. */
     private final String HDRSTAGE = "    Value        Flow       Time(Z)            RV   SQ QC     Product                Time                 Posted";
 
+    /** Flow header label. */
     private final String HDRFLOW = "    Value      Stage      Time(Z)    RV SQ QC   Product       Time         Posted";
 
+    /** Quality control value for manual "Good" */
     private final int QC_MANUAL_PASSED = 121;
 
+    /** Quality control value for manual "Quest". */
     private final int QC_MANUAL_QUEST = 122;
 
+    /** Quality control value for manue "Bad". */
     private final int QC_MANUAL_FAILED = 123;
 
+    /** Value used for undefined type source. */
     private final String UNDEFINED_TYPESOURCE = "??";
 
+    /** Default value or product ID. */
     private final String INSERT_PROD_ID = "CCCCWRKXXX";
 
+    /** The base for all shel file names. */
     private final String SHEF_FILE_NAME = "shef_product";
 
+    /** Message title to use when invalid product ID error message. */
     private final String INVALID_PRODUCT_ID = "Invalid Product ID";
 
+    /** the Send configuration dialog. */
     private SendConfigDlg sendConfigDlg;
 
     /**
@@ -176,8 +195,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     private SimpleDateFormat prodBasisFmt = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
 
+    /** Date format for shef information. */
     private SimpleDateFormat shefDateFormat = new SimpleDateFormat("yyyyMMdd");
 
+    /** Time format for shef information. */
     private SimpleDateFormat shefTimeFormat = new SimpleDateFormat("HHmm");
 
     /**
@@ -234,7 +255,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     private Label headerLbl;
 
     /**
-     * TODO: need to replace this with a real time object.
+     * Dummy time to use; based on the simulated time.
      */
     private Calendar dummyTime;
 
@@ -389,6 +410,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     /** Date format for the database */
     private static SimpleDateFormat dbFormat;
 
+    /* Setup the format static variables. */
     static {
         tabularFormat = new SimpleDateFormat("MM/dd HH:mm");
         tabularFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -412,24 +434,38 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     /** SHEF broadcast filename */
     String attachedFilename = null;
 
-    /* Vars used in the printing methods */
+    /** Printer to use. */
     private Printer printer;
 
+    /** Printer's line height. */
     private int lineHeight = 0;
 
+    /** Printer's tab width. */
     private int tabWidth = 0;
 
+    /** Printer's left margin. */
     private int leftMargin;
 
+    /** Printer's right margin. */
     private int rightMargin;
 
+    /** Printer's top margin. */
     private int topMargin;
 
+    /** Printer's bottom margin. */
     private int bottomMargin;
 
-    private int x, y;
+    /** Printer's horizontal location for printing. */
+    private int x;
 
-    private int index, end;
+    /** Printer's vertical location for printing. */
+    private int y;
+
+    /** Location in the text that is being printed. */
+    private int index;
+
+    /** Number of characters in the text being printed. */
+    private int end;
 
     private StringBuffer wordBuffer;
 
@@ -475,6 +511,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         this.tsDataJobManager = new TimeSeriesDataJobManager();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -503,7 +544,31 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent event) {
+                bounds = shell.getBounds();
+            }
+        });
+
+        if (bounds != null) {
+            shell.setBounds(bounds);
+        }
+    }
+
+    /**
+     * Set up to retrieve selection data.
+     */
     private void scheduleDataRetrieval() {
+        shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         this.topDataList.setEnabled(false);
         String selection = this.extractFormInformation();
         tsDataJobManager.scheduleGetTableData(this, this, selection);
@@ -1055,7 +1120,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                close();
+                disposeDialog();
             }
         });
     }
@@ -1203,12 +1268,17 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             scheduleDataRetrieval();
         } catch (VizException ve) {
-            ve.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Time Series Load", ve);
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Time Series Load", ex);
         }
     }
 
+    /**
+     * Get table data for the selection.
+     * 
+     * @param selection
+     */
     public void getDataForTable(String selection) {
         TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
 
@@ -1240,9 +1310,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     ts, dur, ext, beginningTime, endingTime, basisTime,
                     forecast);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Getting Table Data: ", e);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Getting Table Data: ", e);
         }
     }
 
@@ -1389,6 +1459,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             }
         }
 
+        shell.setCursor(null);
         this.topDataList.setEnabled(true);
         this.parentDialog.enableTableButton();
         this.parentDialog.enableBothButton();
@@ -1491,8 +1562,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     Date defaultDate = dbFormat.parse(productTimeLbl.getText());
                     dr.setProductTime(defaultDate);
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.error("Parse Error", e);
                 }
 
             }
@@ -1513,8 +1583,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     dr.setProductId(INSERT_PROD_ID);
 
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM, "Parse Error: " + e);
                 }
             }
 
@@ -1561,8 +1630,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 scheduleDataRetrieval();
 
             } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, "", e);
             }
         }
 
@@ -1636,7 +1704,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     dr.setProductTime(newDateTime);
                     dr.setBasisTime(newDefaultTime);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM, "Parse error: ", e);
                 }
 
                 newDateTime = now;
@@ -1660,8 +1728,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     dr.setProductId(INSERT_PROD_ID);
 
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM, "Parse error: ", e);
                 }
             }
 
@@ -1749,8 +1816,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 }
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                        + " Error inserting forecast data.");
-                e.printStackTrace();
+                        + " Error inserting forecast data.", e);
             }
 
             /* call Load Max Forecast if update or insert of H or Q PE's */
@@ -1759,9 +1825,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 try {
                     LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
                 } catch (VizException e) {
-                    e.printStackTrace();
                     statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                            + " Error inserting max forecast record.");
+                            + " Error inserting max forecast record.", e);
                 }
             }
         } // end if fcst
@@ -2116,7 +2181,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         throw new VizException("Error Updating QC value");
                     }
                 } catch (VizException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Updating QC value: ", e);
                 }
             }
 
@@ -2150,8 +2216,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         status = dataManager.insertRejectedData(dr);
                     }
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Inserted Rejected Data: ", e);
                 }
 
             }
@@ -2202,8 +2268,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             out.write(text);
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO Log error here
+            statusHandler.handle(Priority.PROBLEM, "Saving Table: ", e);
         }
     }
 
@@ -2250,24 +2315,16 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             Rectangle clientArea = printer.getClientArea();
             Rectangle trim = printer.computeTrim(0, 0, 0, 0);
             Point dpi = printer.getDPI();
-            leftMargin = dpi.x + trim.x; // one inch from left side of paper
-            rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
-            // inch
-            // from
-            // right
-            // side
-            // of
-            // paper
-            topMargin = dpi.y + trim.y; // one inch from top edge of paper
-            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height; // one
-            // inch
-            // from
-            // bottom
-            // edge
-            // of
-            // paper
+            // one inch from left side of paper
+            leftMargin = dpi.x + trim.x;
+            // one inch from right side of paper
+            rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
+            // one inch from top edge of paper
+            topMargin = dpi.y + trim.y;
+            // one inch from bottom edge of paper
+            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
 
-            /* Create a buffer for computing tab width. */
+            // Create a buffer for computing tab width.
             int tabSize = 4; // is tab width a user setting in your UI?
             StringBuffer tabBuffer = new StringBuffer(tabSize);
             for (int i = 0; i < tabSize; i++) {
@@ -2435,8 +2492,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             return sb.toString();
         } catch (VizException e) {
-            e.printStackTrace();
-            // TODO log error message
+            statusHandler.handle(Priority.PROBLEM, "", e);
         }
         return null;
     }
@@ -2481,6 +2537,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         if (y + lineHeight <= bottomMargin) {
             printer.endPage();
         }
+        wordBuffer = null;
     }
 
     /**
@@ -2491,12 +2548,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             String word = wordBuffer.toString();
             int wordWidth = gc.stringExtent(word).x;
             if (x + wordWidth > rightMargin) {
-                /* word doesn't fit on current line, so wrap */
+                // word doesn't fit on current line, so wrap
                 newline();
             }
             gc.drawString(word, x, y, false);
             x += wordWidth;
-            wordBuffer = new StringBuffer();
+            wordBuffer.setLength(0);
         }
     }
 
@@ -2606,7 +2663,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 siteLabel = selectedLid;
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.INFO, "Uable to get site: ", e);
             siteLabel = selectedLid;
         }
 
@@ -2631,6 +2688,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
     }
 
+    /**
+     * Update the flood stage label based on selection.
+     */
     private void updateFloodStageLabel() {
         TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
         String selection = topDataList.getItem(topDataList.getSelectionIndex());
@@ -2643,8 +2703,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             floodList = (ArrayList<Object[]>) dataManager
                     .getFloodStage(selectedLid);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get Flood Stage List: ", e);
         }
 
         /* Should only be one here, lid is primary key */
@@ -2793,24 +2853,23 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 }
 
-                /* report on any duplicates which are ignored */
-                // TODO print this to log
+                // report on any duplicates which are ignored
                 if (duplicateCnt > 0) {
-                    System.out.println(duplicateCnt
+                    statusHandler.handle(Priority.INFO, duplicateCnt
                             + " records detected in copy operation.");
                 }
 
                 int selection = topDataList.getSelectionIndex();
 
-                /* reload list of timeseries */
+                // reload list of timeseries
                 tabularLoadTimeseries();
                 topDataList.select(selection);
 
             }
         } catch (ParseException pe) {
-            pe.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Parse eror: ", pe);
         } catch (VizException ve) {
-            ve.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "", ve);
         }
 
     }
@@ -2939,14 +2998,14 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                     out.write(aRec + "\n");
                 } catch (VizException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM, "", e);
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM, "", e);
                 }
             }
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "", e);
             showMessage(shell, SWT.ERROR | SWT.OK, "Unable to Save File",
                     "File:  " + SHEF_FILE_NAME + "." + getPid()
                             + "\nUser does NOT have write permission.");
@@ -3047,12 +3106,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     }
                 }
             } catch (VizException e) {
-                e.printStackTrace();
                 statusHandler.handle(Priority.PROBLEM,
                         "Error transmitting text product", e);
 
             } catch (IOException e) {
-                e.printStackTrace();
                 statusHandler.handle(Priority.PROBLEM,
                         "Error transmitting text product", e);
             }
@@ -3094,6 +3151,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         return retVal;
     }
 
+    /**
+     * Get the text from the shef file.
+     * 
+     * @return text
+     */
     private String getFileText() {
         if (shefFileName != null) {
             StringBuilder sb = new StringBuilder();
@@ -3133,6 +3195,16 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 }
             }
         }
+    }
+
+    /**
+     * Update bounds then close the dialog.
+     */
+    public void disposeDialog() {
+        if (isOpen()) {
+            bounds = shell.getBounds();
+        }
+        close();
     }
 
     /**
@@ -3256,6 +3328,13 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         this.currentTabInfo = currentTabInfo;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydro.timeseries.ForecastDataAttributeListener#notifyUpdate
+     * (com.raytheon.viz.hydro.timeseries.FcstAttUpdateEvent)
+     */
     @Override
     public void notifyUpdate(FcstAttUpdateEvent faue) {
         fcstAtt = faue.getFcstAttributes();
