@@ -135,7 +135,7 @@ ModFamV | | N|Conv: Severe Type Family| | OTHER| | \
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="cCin, NBE" constraintType="IN"/>
@@ -341,7 +341,7 @@ ModFamV | | N|Conv: Severe Type Family| | OTHER| | \
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-				    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+				    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="BlkMag, EHI" constraintType="IN"/>
@@ -479,7 +479,7 @@ ModFamV | | N|Conv: Severe Type Family| | OTHER| | \
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-				    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+				    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="BlkMag, EHI" constraintType="IN"/>
@@ -902,7 +902,7 @@ ModFamV | | N|Conv: Severe Type Family| | OTHER| | \
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-				    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+				    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="STP, VGP" constraintType="IN"/>

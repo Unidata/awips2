@@ -152,11 +152,27 @@ public class PrintDisplay {
          */
         int lineWidthPixels = gc.stringExtent(aBuffer.toString()).x;
     	int deviceWidthPixels = rightMargin - leftMargin;
-        printerFont.dispose();
+
     	/*
     	 * Scale the original font size;
     	 */
     	float fontSize = (float)deviceWidthPixels / (float)lineWidthPixels * (float)origFontSize;
+    	
+        /*
+         * Validate that the line width in scaled font does not exceed the deviceWidthPixelx
+         */
+		boolean isValidated = false;
+		while (!isValidated) {
+			printerFontData.setHeight((int) (fontSize));
+			gc.setFont(new Font(printer, printerFontData));
+			lineWidthPixels = gc.stringExtent(aBuffer.toString()).x;
+			if (lineWidthPixels < deviceWidthPixels) {
+				isValidated = true;
+			} else {
+				fontSize--;
+			}
+		}
+        printerFont.dispose();
     	/*
     	 * Set the printerFont Data font to the scaled font
     	 */
