@@ -153,6 +153,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 12/17/2012   DR 15571   Qinglu Lin  For hydro products,futurePoints is null. Resolved an issue caused by trying to get 
  *                                     Coordinate[] from futurePoints.
  * 12/18/2012   DR 15571   Qinglu Lin  Resolved coordinate issue in TML line caused by clicking Restart button.                                   
+ * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed 
+ *                                     counties from being re-hatched.        
  *                                     
  * </pre>
  * 
@@ -239,6 +241,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private GeospatialDataList geoData = null;
 
     private WarningAction warningAction = WarningAction.NEW;
+
+    private Set<String> removedGids = new HashSet<String>();
 
     static {
         for (int i = 0; i < 128; i++) {
@@ -1270,12 +1274,22 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     Geometry oldArea = oldWarningArea.getGeometryN(n);
                     Geometry geom = GeometryUtil.intersection(warningPolygon,
                             oldArea);
-                    if (geom.isEmpty() == false) {
-                        if (intersection == null) {
-                            intersection = geom;
-                        } else {
-                            intersection = GeometryUtil.union(intersection,
-                                    geom);
+                    String[] gids = GeometryUtil.getGID(geom);
+                    boolean flag = false;
+                    for (String gid: gids) {
+                        if (removedGids.contains(gid)) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        if (geom.isEmpty() == false) {
+                            if (intersection == null) {
+                                intersection = geom;
+                            } else {
+                                intersection = GeometryUtil.union(intersection,
+                                        geom);
+                            }
                         }
                     }
                 }
@@ -2114,6 +2128,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             for (GeospatialData f : geoData.features) {
                 Geometry geom = f.geometry;
                 if (f.prepGeom.contains(point)) {
+                    String[] gids = GeometryUtil.getGID(geom);
                     if (GeometryUtil.contains(state.getWarningArea(), point)) {
                         // remove county
                         Geometry tmp = GeometryUtil.difference(
@@ -2123,6 +2138,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         }
 
                         state.setWarningArea(tmp);
+                        for (String gid: gids) {
+                            removedGids.add(gid);
+                        }
                     } else {
                         if (oldWarningArea != null) {
                             // for a CON, prevents extra areas to be added
@@ -2145,6 +2163,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 }
                                 state.setWarningArea(GeometryUtil.union(
                                         state.getWarningArea(), geom));
+                                for (String gid: gids) {
+                                    removedGids.remove(gid);
+                                }
                             }
                         } else {
                             // add county
@@ -2360,5 +2381,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
     
     public void setWarningAction(WarningAction warningAction) {
     	this.warningAction = warningAction;
+    }
+
+    public void initRemovedGids() {
+    	removedGids.clear();
     }
 }
