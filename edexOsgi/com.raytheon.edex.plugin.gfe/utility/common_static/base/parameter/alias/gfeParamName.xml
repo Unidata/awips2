@@ -33,7 +33,8 @@
 	<alias base="MMSP">mmsp</alias>
 	<alias base="DIRPW">dirpw</alias>
 	<alias base="PERPW">perpw</alias>
-	<alias base="PR">pr</alias>
+        <alias base="HTSGW">htsgw</alias>
+        <alias base="PR">pr</alias>
 	<alias base="CPOFP">cpofp</alias>
 	<alias base="CPOZP">cpozp</alias>
 	<alias base="PW">pw</alias>
@@ -48,7 +49,8 @@
 	<alias base="SH">sh</alias>
 	<alias base="Heli">heli</alias>
 	<alias base="SLI">sli</alias>
-	<alias base="T">t</alias>
+        <alias base="BLI">bli</alias>
+        <alias base="T">t</alias>
 	<alias base="TCC">tcc</alias>
 	<alias base="ThP">thp</alias>
 	<alias base="TP">tp</alias>
