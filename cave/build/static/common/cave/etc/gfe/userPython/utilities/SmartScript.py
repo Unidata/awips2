@@ -297,12 +297,8 @@ class SmartScript(BaseTool.BaseTool):
         #SendISCOnSave is enabled, then this routine will fail as grids are
         #sent when saved and the manual operation is not allowed.  The
         #overall isc send state must also be True for this command to work.
-        req = []
-        parms = self.__parmMgr.getAllAvailableParms();
-        for parm in parms:
-            pid = parm.getParmID()
-            tr = parm.getParmTimeRange()
-            req.append(SendISCRequest(pid,tr)) 
+        req = ArrayList()
+        req.add(SendISCRequest())
         self.__parmOp.sendISC(req)
 
     def manualSendISC_manualMode(self, requests):
@@ -310,13 +306,12 @@ class SmartScript(BaseTool.BaseTool):
         #SendISCOnSave is enabled, then this routine will fail as grids are
         #sent when saved and the manual operation is not allowed.
         #The requests are tuples of (parmName, parmLevel, timeRange). The
-        #TimeRange is an AFPS.TimeRange() instance.  The overall isc
+        #TimeRange is an TimeRange() instance.  The overall isc
         #send state must also be True for this command to work.
-        req = []
+        req = ArrayList()
         for parmName, parmLevel, tr in requests:
-            pid = ParmID.ParmID(parmName, self.mutableID(),
-              parmLevel).toJavaObj()
-            req.append(SendISCRequest(pid, tr))
+            pid = ParmID.ParmID(name=parmName, dbid=self.mutableID(), level=parmLevel).toJavaObj()
+            req.add(SendISCRequest(pid, tr.toJavaObj()))
         self.__parmOp.sendISC(req)
 
 
