@@ -54,6 +54,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * 01/29/2008              chammack    Initial Creation.
  * 02/13/2008   879        rbell       Legacy conversion
  * 06/10/2009   2159       rjpeter     Updated checkDims to check grid for null
+ * 01/30/2013   15719      jdynina     Allowed more than 128 char width wx
+ *                                     string
  * </pre>
  * 
  * @author chammack
@@ -233,8 +235,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         byte[] thisData = grid.getBuffer().array();
         byte[] rhsData = rhsGrid.getBuffer().array();
         for (int i = 0; i < thisData.length; i++) {
-            if (!this.key[thisData[i]]
-                    .equals(rhsDiscreteGridSlice.key[rhsData[i]])) {
+            if (!this.key[0xFF & thisData[i]]
+                    .equals(rhsDiscreteGridSlice.key[0xFF & rhsData[i]])) {
                 return false;
             }
         }
@@ -254,10 +256,11 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         Grid2DByte discreteGrid = getDiscreteGrid();
         byte[] b = discreteGrid.getBuffer().array();
         for (int i = 0; i < b.length; i++) {
-            if (b[i] >= keyLength) {
+            int index = 0xFF & b[i];
+            if (index >= keyLength) {
                 return "Data Values Exceeded in Grid at coordinate: "
                         + (i % discreteGrid.getXdim()) + ","
-                        + (i / discreteGrid.getXdim()) + " Value=" + b[i]
+                        + (i / discreteGrid.getXdim()) + " Value=" + index
                         + " MinAllowed=0 MaxAllowed=" + (keyLength - 1);
             }
         }
@@ -365,7 +368,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                 if (editArea.get(i, j) != 0) {
                     // Get the DiscreteKey from the source grid
                     byte dByte = gsDiscreteGrid.get(i, j);
-                    DiscreteKey dKey = gs.key[dByte];
+                    DiscreteKey dKey = gs.key[0xFF & dByte];
                     // See if this key already exists in target grid
                     boolean found = false;
                     byte keyIndex = 0;
@@ -445,9 +448,9 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         List<DiscreteKey> currentKeys = new ArrayList<DiscreteKey>(
                 Arrays.asList(this.key));
         byte[] data = discreteGrid.getBuffer().array();
-        byte thisB;
+        int thisB;
         for (int i = 0; i < data.length; i++) {
-            thisB = data[i];
+            thisB = 0xFF & data[i];
             byte keyIndex;
             if ((keyIndex = (byte) currentKeys.indexOf(gs.key[thisB])) != -1) {
                 data[i] = keyIndex;
@@ -599,7 +602,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         byte[] rhsB = gs.getDiscreteGrid().getBuffer().array();
         byte[] b = bits.getBuffer().array();
         for (int i = 0; i < thisB.length; i++) {
-            if (key[thisB[i]].equals(gs.key[rhsB[i]])) {
+            if (key[0xFF & thisB[i]].equals(gs.key[0xFF & rhsB[i]])) {
                 b[i] = (byte) 1;
             }
         }
@@ -659,9 +662,9 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         DiscreteKey newKey[] = new DiscreteKey[usedKeys.size()];
         for (Iterator<Byte> usedKeysI = usedKeys.iterator(); usedKeysI
                 .hasNext(); keyIndex++) {
-            Byte thisByte = usedKeysI.next();
+            byte thisByte = usedKeysI.next();
             discreteGrid.setAllOfValue(thisByte, (byte) keyIndex);
-            newKey[keyIndex] = key[thisByte.intValue()];
+            newKey[keyIndex] = key[0xFF & thisByte];
         }
 
         setDiscreteGrid(discreteGrid);
