@@ -129,7 +129,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="cCape, PBE" constraintType="IN"/>
@@ -229,7 +229,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="cCape, PBE" constraintType="IN"/>
@@ -329,7 +329,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="cCape, PBE" constraintType="IN"/>
@@ -429,7 +429,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="cCin, NBE" constraintType="IN"/>
@@ -731,7 +731,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="Heli, HeliD" constraintType="IN"/>
