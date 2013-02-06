@@ -26,10 +26,10 @@ import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -51,6 +51,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.timeseries.util.GraphData;
@@ -89,6 +92,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 23 Jul 2012 15195     mpduff        Fix dates for displaying groups
  * 06 Dec 2012 15066     wkwock        Fix "ctrl+r" not work in group mode
  * 30 Jan 2012 15459     mpduff        Redmine 1560 - Make graph canvases redraw on page up/down.
+ * 06 Feb 2013 1578      rferrel       Code cleanup for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -97,6 +101,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class TimeSeriesDisplayDlg extends CaveSWTDialog {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TimeSeriesDisplayDlg.class);
+
+    /** Location and size of dialog. */
+    private static Rectangle bounds = null;
 
     /**
      * Time Series Control menu item.
@@ -365,12 +375,13 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      */
     private Composite mainComp = null;
 
+    /** Canvas to display graph on. */
     private Composite canvasComp = null;
 
-    private Rectangle bounds = null;
-
+    /** parent dialog for this display */
     private TimeSeriesDlg parentDialog = null;
 
+    /** Application default value used to enable widgets in the dialog. */
     private int showCatValue = 0;
 
     /**
@@ -387,16 +398,19 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      * @param parent
      *            Parent shell.
      */
-    public TimeSeriesDisplayDlg(Shell parent, Rectangle bounds,
-            TimeSeriesDlg parentDialog) {
+    public TimeSeriesDisplayDlg(Shell parent, TimeSeriesDlg parentDialog) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE, CAVE.DO_NOT_BLOCK
                 | CAVE.INDEPENDENT_SHELL);
         setText("Time Series Display");
 
-        this.bounds = bounds;
         this.parentDialog = parentDialog;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -407,16 +421,24 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
+     */
     @Override
     protected Object constructShellLayoutData() {
         return new GridData(SWT.FILL, SWT.FILL, true, true);
     }
 
-    @Override
-    protected void disposed() {
-        setReturnValue(bounds);
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(final Shell shell) {
         // Get default values from Apps Defaults
@@ -447,24 +469,33 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         shell.setMinimumSize(new Point(900, 900));
     }
 
-    @Override
-    protected void opened() {
-        shell.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                bounds = shell.getBounds();
-            }
-
-        });
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
     @Override
     protected void preOpened() {
+        super.preOpened();
+
+        shell.addShellListener(new ShellAdapter() {
+
+            @Override
+            public void shellClosed(ShellEvent e) {
+                bounds = shell.getBounds();
+            }
+        });
+
         if (bounds != null) {
             shell.setBounds(bounds);
         }
     }
 
+    /**
+     * This dialog's parent dialog.
+     * 
+     * @return parentDialog
+     */
     public TimeSeriesDlg getParentDialog() {
         return this.parentDialog;
     }
@@ -825,9 +856,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                             dataManager.delete(deleteList);
                             updateMaxFcst(deleteList);
                         } catch (VizException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                            System.err.println("Error deleting points");
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error deleting points: ", e);
                         }
                     }
 
@@ -836,8 +866,11 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                             dataManager.insert(insertList);
                             updateMaxFcst(insertList);
                         } catch (VizException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "Insert Error: ", e);
+                            }
+
                             MessageBox mb = new MessageBox(shell,
                                     SWT.ICON_ERROR | SWT.OK);
                             mb.setText("Insert Error");
@@ -852,9 +885,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                             dataManager.edit(editList);
                             updateMaxFcst(editList);
                         } catch (VizException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                            System.err.println("Error editing points");
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error editing points: ", e);
                         }
                     }
 
@@ -1199,29 +1231,38 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * From Apps defaults get the showCatValue.
+     */
     private void loadAppsDefaults() {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         this.showCatValue = appsDefaults.getInt("timeseries_showcat", 0);
     }
 
+    /**
+     * If pointList is for a Max Forecast perform an update.
+     * 
+     * @param pointList
+     */
     private void updateMaxFcst(List<ForecastData> pointList) {
         ForecastData point = pointList.get(0);
         String pe = point.getPe();
         String ts = point.getTs();
 
         if (ts.startsWith("F") || ts.startsWith("C")) {
-            /* call Load Max Forecast if update or insert of H or Q PE's */
+            // call Load Max Forecast if update or insert of H or Q PE's
             if (pe.toUpperCase().startsWith("H")
                     || pe.toUpperCase().startsWith("Q")) {
                 String lid = point.getLid();
 
-                /* call Load Max Forecast if update or insert of H or Q PE's */
+                // call Load Max Forecast if update or insert of H or Q PE's
                 if (pe.toUpperCase().startsWith("H")
                         || pe.toUpperCase().startsWith("Q")) {
                     try {
                         LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
                     } catch (VizException e) {
-                        e.printStackTrace();
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Error updating MaxFcst: " + e);
                     }
                 }
             }
@@ -1669,6 +1710,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 destBytesPerLine, destDataArray);
     }
 
+    /**
+     * Clear and redraw the graph.
+     */
     public void createNewGraph() {
         if (stackGridComp != null) {
             stackGridComp.dispose();
@@ -1686,6 +1730,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         shell.update();
     }
 
+    /**
+     * Adjust view up a page.
+     */
     protected void pageUpAction() {
         if (currentPage == 0) {
             currentPage = groupInfo.getPageInfoList().size() - 1;
@@ -1709,6 +1756,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Adjust view down a page.
+     */
     protected void pageDownAction() {
         if (currentPage == groupInfo.getPageInfoList().size() - 1) {
             currentPage = 0;
@@ -1730,6 +1780,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
 
     /**
      * Redraw each Canvas in the list.
+     * 
+     * @param getData
+     *            - when true fetch the data.
      */
     private void redrawCanvases(boolean getData) {
         for (TimeSeriesDisplayCanvas c : canvasList) {
@@ -1738,6 +1791,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Redraw each Canvas without fetching the data.
+     */
     private void redrawCanvases() {
         redrawCanvases(false);
     }
@@ -1753,6 +1809,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Return the location ID.
+     * 
      * @return the lid
      */
     public String getLid() {
@@ -1760,6 +1818,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Set the Location ID.
+     * 
      * @param lid
      *            the lid to set
      */
@@ -1768,13 +1828,17 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
-     * @return the beginDate
+     * Get the being date.
+     * 
+     * @return the begin date
      */
     public Date getBeginDate() {
         return beginDate;
     }
 
     /**
+     * Set the being date.
+     * 
      * @param beginDate
      *            the beginDate to set
      */
@@ -1783,6 +1847,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the end date.
+     * 
      * @return the endDate
      */
     public Date getEndDate() {
@@ -1790,6 +1856,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Set the end date.
+     * 
      * @param endDate
      *            the endDate to set
      */
@@ -1798,6 +1866,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the site name.
+     * 
      * @return the siteName
      */
     public String getSiteName() {
@@ -1805,6 +1875,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Set the site name.
+     * 
      * @param siteName
      *            the siteName to set
      */
@@ -1813,6 +1885,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the group information.
+     * 
      * @return the groupInfo
      */
     public GroupInfo getGroupInfo() {
@@ -1820,6 +1894,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Set the group information.
+     * 
      * @param groupInfo
      *            the groupInfo to set
      */
@@ -1828,6 +1904,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the points' menu item.
+     * 
      * @return the pointsMI
      */
     public MenuItem getPointsMI() {
@@ -1835,6 +1913,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the lines menu item.
+     * 
      * @return the linesMI
      */
     public MenuItem getLinesMI() {
@@ -1842,6 +1922,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the points and line menu item.
+     * 
      * @return the bothMI
      */
     public MenuItem getBothMI() {
@@ -1856,6 +1938,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get the Batch Data Only, Show Categories menu item.
+     * 
      * @return the batchDataOnlyShowCatMI
      */
     public MenuItem getBatchDataOnlyShowCatMI() {
@@ -1869,14 +1953,27 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         return batchDataAndCategoriesMI;
     }
 
+    /**
+     * Get the data only menu item.
+     * 
+     * @return dataOnlyMI
+     */
     public MenuItem getScaleStagesDataOnlyMI() {
         return dataOnlyMI;
     }
 
+    /**
+     * @return dataOnlyShowCatMI
+     */
     public MenuItem getScaleStagesDataOnlyShowCategoreMI() {
         return dataOnlyShowCatMI;
     }
 
+    /**
+     * Get the Data and Categories menu item.
+     * 
+     * @return dataAndCategoriesMI
+     */
     public MenuItem getScaleStagesDataAndCategoriesMI() {
         return dataAndCategoriesMI;
     }
@@ -2227,16 +2324,14 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         return showLatestFcstMI.getSelection();
     }
 
+    /**
+     * Update bounds then close the dialog.
+     */
     public void disposeDialog() {
-        shell.dispose();
-    }
-
-    public Rectangle getDialogBounds() {
-        if (shell.isDisposed()) {
-            return bounds;
-        } else {
-            return shell.getBounds();
+        if (isOpen()) {
+            bounds = shell.getBounds();
         }
+        close();
     }
 
     /**
