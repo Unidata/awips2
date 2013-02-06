@@ -3,10 +3,10 @@
     <inventoryName>NcGridSoundingInventory</inventoryName>
     <!--  Do we want to store level information in here???? -->    
     <!-- Alternatively could store dataTime.refTime,dataTime.forecasttime -->
-    <inventoryParameters>pluginName,modelName,eventName,dataTime</inventoryParameters>
+    <inventoryParameters>pluginName,info.datasetId,info.secondaryId,dataTime</inventoryParameters>
     <baseConstraints>
         <mapping key="pluginName">
-            <constraint constraintValue="ncgribxxx" constraintType="EQUALS"/>
+            <constraint constraintValue="grid" constraintType="EQUALS"/>
         </mapping>
         <!--  any other needed constraints. ie parameters, levels....  -->
     </baseConstraints>
