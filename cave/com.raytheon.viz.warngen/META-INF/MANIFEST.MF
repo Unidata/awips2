@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.viz.warngen;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.warngen.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.awipstools
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.viz.awipstools
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
@@ -17,9 +17,9 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.lang,
  org.geotools,
  com.raytheon.viz.awipstools,
- com.raytheon.edex.common,
  com.raytheon.viz.texteditor;bundle-version="1.10.13",
  com.raytheon.viz.textworkstation;bundle-version="1.11.4",
+ com.raytheon.uf.common.serialization;bundle-version="1.11.17",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.11.17",
  javax.jms;bundle-version="1.0.0",
  com.raytheon.uf.viz.core.maps;bundle-version="1.0.0",
