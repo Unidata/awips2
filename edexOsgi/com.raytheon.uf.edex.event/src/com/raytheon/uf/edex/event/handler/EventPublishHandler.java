@@ -24,7 +24,7 @@ import com.raytheon.uf.common.event.EventPublishRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * Stats handler bean.
+ * Event handler bean.
  * 
  * <pre>
  * 
@@ -49,5 +49,4 @@ public class EventPublishHandler implements
 
         return null;
     }
-
 }
