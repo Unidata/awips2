@@ -24,21 +24,21 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.stats.data.GraphData;
-
+import com.raytheon.uf.common.stats.util.UnitUtils;
 
 /**
  * Stats display interface.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 3, 2012     728     mpduff      Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -46,29 +46,36 @@ import com.raytheon.uf.common.stats.data.GraphData;
 public interface IStatsDisplay {
     /**
      * Get the GraphData object
-     *
+     * 
      * @return GraphData
      */
     GraphData getGraphData();
 
     /**
      * Draw grid lines flag
-     *
+     * 
      * @return true to draw the grid lines
      */
     boolean drawGridLines();
 
     /**
      * Draw data lines flag
-     *
+     * 
      * @return true to draw the data lines
      */
     boolean drawDataLines();
 
     /**
      * Get the group settings.
-     *
+     * 
      * @return The group settings map
      */
     Map<String, RGB> getGroupSettings();
+
+    /**
+     * Get the UnitUtils object.
+     * 
+     * @return the UnitUtils object
+     */
+    UnitUtils getUnitUtils();
 }
