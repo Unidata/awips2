@@ -115,10 +115,13 @@ public class ConfigLoader {
 
     /**
      * Loads the StatisticsConfig files in the STATS_DIR directory.
+     * 
+     * @throws Exception
+     *             Exception
      */
     public void load() throws Exception {
         LocalizationContext[] searchContext = pm
-                .getLocalSearchHierarchy(LocalizationType.EDEX_STATIC);
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
         Map<String, LocalizationFile> statConfs = new HashMap<String, LocalizationFile>();
 
         // grab all stats from contexts, allowing overwrite by name
