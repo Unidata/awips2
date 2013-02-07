@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Slider;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
-import com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -91,6 +91,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Nov 6, 2012    1269     lvenable    Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
  * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
+ * Jan 28, 2013   1529     djohnson    Disable menu items if no subscriptions selected.
  * 
  * </pre>
  * 
@@ -886,6 +887,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
 
         MenuItem viewSubs = new MenuItem(m, SWT.NONE);
         viewSubs.setText("View Selected Subscriptions...");
+        viewSubs.setEnabled(imageMgr.hasSubscriptionNameChecked());
         viewSubs.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {

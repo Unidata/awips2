@@ -37,6 +37,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
@@ -88,6 +89,8 @@ import dods.dap.DAS;
  * Dec 12, 2012 supplement dhladky      Restored operation of ensembles.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 08, 2013            dhladky      Performance enhancements, specific model fixes.
+ * Jan 18, 2013 1513       dhladky      Level look up improvements.
+ * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
  * 
  * </pre>
  * 
@@ -134,8 +137,10 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 // create new default lookups
                 if (levelType.equals(LevelType.MB)
                         || levelType.equals(LevelType.SEAB)) {
+
+                    List<Double> levelList = OpenDAPParseUtility.getInstance().parseLevels(gdsmd.getUrl(), serviceConfig.getConstantValue("LEV"));
                     LookupManager.getInstance().modifyLevelLookups(
-                            collectionName, dz, levMin, levMax);
+                            collectionName, dz, levMin, levMax, levelList);
                 }
             }
 
@@ -179,7 +184,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
      * @param dataDateFormat
      * @return
      */
-    private Map<String, Parameter> getParameters(DAS das, DataSet dataSet,
+    private Map<String, Parameter> getParameters(DAS das,
+            GriddedDataSet dataSet,
             GriddedDataSetMetaData gdsmd, Link link, Collection collection,
             String dataDateFormat) {
 
@@ -336,7 +342,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         if (das.getAttributeTable(ens) != null) {
             try {
                 AttributeTable at = das.getAttributeTable(ens);
-                gdsmd.setEnsemble(OpenDAPParseUtility.getInstance().parseEnsemble(at));
+                dataSet.setEnsemble(OpenDAPParseUtility.getInstance()
+                        .parseEnsemble(at));
             } catch (Exception en) {
                 logParsingException(ens, "Ensemble", collectionName, url);
             }
@@ -413,12 +420,6 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     parm.setLevels(getLevels(type, collectionName, gdsmd, dz,
                             levMin, levMax));
                     parm.addLevelType(type);
-
-                    // set if an ensemble member
-                    if (gdsmd.getEnsemble() != null) {
-                        parm.setEnsemble(gdsmd.getEnsemble().getSize());
-                    }
-
                     parameters.put(name, parm);
 
                 } catch (Exception le) {
@@ -492,6 +493,11 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             type = new DataLevelType(LevelType.FHAG);
             type.addLayer(new Double(10).doubleValue());
             type.setUnit(serviceConfig.getConstantValue("METER"));
+        }
+        // FRZ freezing level, catches one's with on the end of the param name
+        // hgt0c etc
+        else if (param.getProviderName().endsWith(LevelType.FRZ.getLevelType())) {
+            type = new DataLevelType(LevelType.FRZ);
         }
 
         // Really special cases presented by NOMADS data sets
@@ -572,8 +578,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                             type = new DataLevelType(LevelType.MSL);
                         } else if (w1.equals(LevelType.EA.getLevelType())) {
                             type = new DataLevelType(LevelType.EA);
-                        } else if (w1.equals(LevelType.ODEG.getLevelType())) {
-                            type = new DataLevelType(LevelType.ODEG);
+                        } else if (w1.equals(LevelType.FRZ.getLevelType())) {
+                            type = new DataLevelType(LevelType.FRZ);
                         } else if (w1.equals(LevelType.LCY.getLevelType())) {
                             type = new DataLevelType(LevelType.LCY);
                         } else if (w1.equals(LevelType.MCY.getLevelType())) {
@@ -656,12 +662,12 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             }
 
             DAS das = (DAS) link.getLinks().get(DAP_TYPE.DAS.getDapType());
-            dataSet.setParameters(getParameters(das, dataSet, gdsmd, link,
-                    collection, dataDateFormat));
-
+            // set url first, used for level lookups
             gdsmd.setUrl(link.getUrl().replace(
                     serviceConfig.getConstantValue("META_DATA_SUFFIX"),
                     serviceConfig.getConstantValue("BLANK")));
+            dataSet.setParameters(getParameters(das, dataSet, gdsmd, link,
+                    collection, dataDateFormat));
             Time dataSetTime = gdsmd.getTime();
             if (dataSetTime == null) {
                 throw new IllegalStateException(
