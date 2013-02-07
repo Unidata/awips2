@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DeliveryOptionsComp;
@@ -79,6 +80,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Dec 13, 2012 1391       bgonzale     Added cancel/ok selection status.
  * Jan 02, 2013 1441       djohnson     Add isGroupSelected().
  * Jan 04, 2013 1420       mpduff       Add latency.
+ * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
  * 
  * </pre>
  * 
@@ -195,7 +197,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         // Get latency value
         SystemRuleManager ruleManager = SystemRuleManager.getInstance();
         int latency = ruleManager.getLatency(this.subscription, cycleTimes);
-        int priority = ruleManager.getPriority(this.subscription, cycleTimes);
+        SubscriptionPriority priority = ruleManager.getPriority(
+                this.subscription, cycleTimes);
         priorityComp = new PriorityComp(mainComp, latency, priority);
 
         this.createCycleGroup();
@@ -517,16 +520,16 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
      * {@inheritDoc}
      */
     @Override
-    public int getPriority() {
-        return priorityComp.getPriorityIndex();
+    public SubscriptionPriority getPriority() {
+        return priorityComp.getPriority();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setPriority(int i) {
-        priorityComp.setPriorityIndex(i);
+    public void setPriority(SubscriptionPriority priority) {
+        priorityComp.setPriority(priority);
     }
 
     /**
@@ -840,14 +843,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     @Override
     public void setSubscription(Subscription subscription) {
         this.subscription = subscription;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPriorityValue() {
-        return priorityComp.getPriorityIndex();
     }
 
     /**

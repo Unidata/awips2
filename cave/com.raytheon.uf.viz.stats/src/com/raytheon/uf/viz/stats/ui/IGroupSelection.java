@@ -19,21 +19,23 @@
  **/
 package com.raytheon.uf.viz.stats.ui;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * Interface for Group Selections.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 18, 2012    728     mpduff     Initial creation
- *
+ * Oct 18, 2012    728     mpduff      Initial creation.
+ * Jan 17, 2013   1357     mpduff      Added setItemsOff and getStates.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -41,8 +43,23 @@ import java.util.Map;
 public interface IGroupSelection {
     /**
      * Set the selections.
-     *
+     * 
      * @param selectionMap
      */
     void setSelections(Map<String, Map<String, Boolean>> selectionMap);
+
+    /**
+     * Turn off the provided items.
+     * 
+     * @param keys
+     *            keys of the items to not draw
+     */
+    void setItemsOff(List<String> keys);
+
+    /**
+     * Get the state of each item.
+     * 
+     * @return Map of item -> checked or not checked
+     */
+    Map<String, Boolean> getStates();
 }

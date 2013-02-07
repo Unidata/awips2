@@ -89,6 +89,8 @@
    <permission id="com.raytheon.localization.site/common_static/roles">
    </permission>
 
+   <permission id="com.raytheon.localization.site/common_static/datadelivery"/>
+
    <user userId="ALL">
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/colormaps</userPermission>
@@ -119,6 +121,7 @@
       <userPermission>com.raytheon.localization.site/common_static/radar/rmr/rmrAvailableRequests.xml</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/shef</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/roles</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/datadelivery</userPermission>
    </user>
 </nwsRoleData>
 
