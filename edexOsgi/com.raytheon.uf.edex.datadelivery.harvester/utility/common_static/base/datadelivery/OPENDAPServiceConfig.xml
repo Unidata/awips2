@@ -74,6 +74,7 @@
     <constant name="RESOLUTION" value="resolution"/>
     <constant name="DATE_COMPARE_FORMAT" value="EEE MMM dd hhmmss zzz yyyy"/>
     <constant name="META_DATA_SUFFIX" value=".info"/>
+    <constant name="DATA_SUFFIX" value=".dods"/>
     <constant name="FILL_VALUE" value="_FillValue"/>
     <constant name="MAX_RETRIEVAL_SIZE" value="4500000" />
     <constant name="KELVIN" value="k" />

@@ -19,8 +19,13 @@
  **/
 package com.raytheon.uf.common.registry;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Ignore;
-import org.mockito.Mockito;
 
 /**
  * Allows setting a specific {@link RegistryHandler} instance for test purposes.
@@ -48,9 +53,23 @@ public class RegistryManagerTest {
      * 
      * @return the mock {@link RegistryHandler}.
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static RegistryHandler setMockInstance() {
-        RegistryHandler mock = Mockito.mock(RegistryHandler.class);
+        RegistryHandler mock = mock(RegistryHandler.class);
         RegistryManagerTest.setInstance(mock);
+        RegistryQueryResponse response = mock(RegistryQueryResponse.class);
+        when(response.getStatus()).thenReturn(OperationStatus.SUCCESS);
+        // Handles the responses for deletes, stores, and updates...
+        // TODO: Handle retrieving objects?
+        when(mock.removeObjects(any(RegistryQuery.class))).thenReturn(response);
+        when(mock.removeObjects(anyString(), anyList())).thenReturn(response);
+        when(mock.removeObjects(anyString(), any(RegistryQuery.class)))
+                .thenReturn(response);
+        when(mock.storeObject(any())).thenReturn(response);
+        when(mock.storeOrReplaceObject(any())).thenReturn(response);
+        when(mock.removeObjects(anyString(), any(RegistryQuery.class)))
+                .thenReturn(response);
+
         return mock;
     }
 
