@@ -191,9 +191,9 @@
 							<properties isSystemResource="false" isBlinking="false"
 								isMapLayer="false" isHoverOn="false" isVisible="true">
 							</properties>
-							<resourceData xsi:type="bestResResourceData"
-								productIdentifierKey="productCode" retrieveData="false">
-								<enabler xsi:type="radarSpatialEnabler" />
+							<resourceData xsi:type="radarResourceData"
+								isUpdatingOnMetadataOnly="false"
+								isRequeryNecessaryOnTimeMatch="true">
 								<metadataMap>
 									<mapping key="productCode">
 										<constraint constraintValue="171,172"
@@ -206,62 +206,6 @@
 										<constraint constraintValue="radar" constraintType="EQUALS" />
 									</mapping>
 								</metadataMap>
-				                <resource>
-				                    <loadProperties loadWithoutData="true">
-										<capabilities>
-											<capability xsi:type="imagingCapability"
-												interpolationState="false" brightness="1.0" contrast="1.0"
-												alpha="1.0" />
-											<capability xsi:type="rangeRingsOverlayCapability" />
-										</capabilities>
-									</loadProperties>
-				                    <properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-				                    </properties>
-				                    <resourceData xsi:type="radarResourceData"
-														isUpdatingOnMetadataOnly="false"
-														isRequeryNecessaryOnTimeMatch="true">
-									    <metadataMap>
-				                            <mapping key="productCode">
-				                                <constraint constraintValue="172" constraintType="EQUALS"/>
-				                            </mapping>
-				                            <mapping key="icao">
-				                                <constraint constraintValue="${icao}" constraintType="EQUALS"/>
-				                            </mapping>
-				                            <mapping key="pluginName">
-				                                <constraint constraintValue="radar" constraintType="EQUALS"/>
-				                            </mapping>
-				                        </metadataMap>
-				                    </resourceData>
-				                </resource>
-				                <resource>
-				                    <loadProperties loadWithoutData="true">
-										<capabilities>
-											<capability xsi:type="imagingCapability"
-												interpolationState="false" brightness="1.0" contrast="1.0"
-												alpha="1.0" />
-											<capability xsi:type="rangeRingsOverlayCapability" />
-										</capabilities>
-									</loadProperties>
-				                    <properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-				                    </properties>
-				                    <resourceData xsi:type="radarResourceData"
-														isUpdatingOnMetadataOnly="false"
-														isRequeryNecessaryOnTimeMatch="true">
-									    <metadataMap>
-				                            <mapping key="productCode">
-				                                <constraint constraintValue="171" constraintType="EQUALS"/>
-				                            </mapping>
-				                            <mapping key="icao">
-				                                <constraint constraintValue="${icao}" constraintType="EQUALS"/>
-				                            </mapping>
-				                            <mapping key="pluginName">
-				                                <constraint constraintValue="radar" constraintType="EQUALS"/>
-				                            </mapping>
-				                        </metadataMap>
-				                    </resourceData>
-				                </resource>
 				            </resourceData>
 				        </resource>
 		                <resource>

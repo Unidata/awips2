@@ -302,4 +302,21 @@ public class NwsRoleData implements ISerializableObject {
         
         return false;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Application:").append(this.getApplication()).append("\n\n");
+        sb.append("Users:\n").append(this.getUserList()).append("\n\n");
+        sb.append("Permissions:\n").append(this.getPermissionList())
+                .append("\n\n");
+        sb.append("Roles:\n").append(this.getRoleList()).append("\n\n");
+
+        return sb.toString();
+    }
 }
