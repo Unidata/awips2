@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.datadelivery.bandwidth.ui;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 
 /**
  * TODO Add Description
