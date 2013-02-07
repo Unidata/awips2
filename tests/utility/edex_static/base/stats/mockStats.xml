@@ -1,0 +1,12 @@
+<statisticsConfig>
+    <!-- Event Type should be fully qualified name of stat event -->
+    <statisticsEvent type="com.raytheon.uf.edex.stats.MockEvent"
+        displayName="Mock Events" category="Mock Events">
+        <statisticsGroup name="pluginName" displayName="Data Type" />
+        <statisticsGroup name="fileName" displayName="File Name" />
+        <statisticsAggregate field="processingTime"
+            displayName="Processing Time" displayUnit="ms" />
+        <statisticsAggregate field="processingLatency"
+            displayName="Processing Latency" displayUnit="ms" />
+    </statisticsEvent>
+</statisticsConfig>

@@ -34,7 +34,9 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotificatio
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1/10/09      1674       bphillip    Initial creation
- * 10/06/09     3172      njensen   Based on grib notification
+ * 10/06/09     3172       njensen     Based on grib notification
+ * 01/18/13     #1504      randerso    Changed to send full GridUpdateNotification 
+ *                                     to D2DParmIdCache
  * 
  * </pre>
  * 
@@ -53,8 +55,8 @@ public class D2DParmIdFilter {
     public void updateParmIdCache(List<? extends GfeNotification> notifications) {
         for (GfeNotification notify : notifications) {
             if (notify instanceof GridUpdateNotification) {
-                D2DParmIdCache.getInstance().putParmID(
-                        ((GridUpdateNotification) notify).getParmId());
+                D2DParmIdCache.getInstance().processGridUpdateNotification(
+                        (GridUpdateNotification) notify);
             }
         }
     }
