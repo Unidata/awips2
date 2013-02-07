@@ -59,7 +59,6 @@ public class ParameterFixture extends AbstractFixture<Parameter> {
         obj.setBaseType("baseType" + seedValue);
         obj.setDataType(DataType.GRID);
         obj.setDefinition("definition" + seedValue);
-        obj.setEnsemble(0);
         obj.setFillValue("fillValue" + seedValue);
         obj.setLevels(LevelsFixture.INSTANCE.get(seedValue));
         obj.setLevelType(Arrays.asList(DataLevelTypeFixture.INSTANCE

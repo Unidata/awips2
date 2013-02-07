@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.event.Event;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -57,6 +58,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Aug 21, 2012            jsanchez    Updated error handling and validated config files.
  * Nov 07, 2012   1317     mpduff      Update config files.
  * Nov 29, 2012   1350     rjpeter     Updated to static, fixed localization, increased validation.
+ * Jan 15, 2013   1487     djohnson    Make validate() static and public, so it can be run independently.
  * </pre>
  * 
  * @author jsanchez
@@ -158,7 +160,8 @@ public class ConfigLoader {
      * 
      * @param config
      */
-    private void validate(Map<String, StatisticsEvent> eventMap,
+    @VisibleForTesting
+    public static void validate(Map<String, StatisticsEvent> eventMap,
             StatisticsConfig config) {
         for (Iterator<StatisticsEvent> iter = config.getEvents().iterator(); iter
                 .hasNext();) {
