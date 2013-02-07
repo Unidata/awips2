@@ -61,7 +61,7 @@ public class ResponseProcessingUtilities {
             .getHandler(ResponseProcessingUtilities.class);
 
     public static GridRecord getGridRecord(String name, Parameter parm,
-            Level level,
+            Level level, String ensembleId,
             GridCoverage gridCoverage) {
 
         com.raytheon.uf.common.parameter.Parameter parameter = new com.raytheon.uf.common.parameter.Parameter();
@@ -75,7 +75,7 @@ public class ResponseProcessingUtilities {
         record.setLevel(level);
         record.setParameter(parameter);
         record.setDatasetId(name);
-
+        record.setEnsembleId(ensembleId);
         return record;
     }
 

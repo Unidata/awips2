@@ -26,6 +26,7 @@ import java.util.Set;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.viz.ui.presenter.IPresenterView;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
@@ -44,6 +45,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Dec 13, 2012  1391      bgonzale    Added status methods.
  * Jan 02, 2013  1441      djohnson    Add isGroupSelected.
  * Jan 04, 2013  1420      mpduff      Added getters for latency and priority.
+ * Jan 25, 2013   1528     djohnson     Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -210,14 +212,14 @@ public interface ICreateSubscriptionDlgView extends IPresenterView {
      * 
      * @return
      */
-    int getPriority();
+    SubscriptionPriority getPriority();
 
     /**
      * Set the priority selection
      * 
-     * @param i
+     * @param subscriptionPriority
      */
-    void setPriority(int i);
+    void setPriority(SubscriptionPriority subscriptionPriority);
 
     /**
      * Open the dialog
@@ -405,13 +407,6 @@ public interface ICreateSubscriptionDlgView extends IPresenterView {
      * @return the latency value
      */
     int getLatencyValue();
-
-    /**
-     * Get the priority value.
-     * 
-     * @return
-     */
-    int getPriorityValue();
 
     /**
      * Set Subscription.

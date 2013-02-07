@@ -94,4 +94,16 @@ public class PermissionXML implements ISerializableObject {
     public void setDescription(String description) {
         this.description = (description == null) ? null : description.trim();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id:").append(this.getId());
+        sb.append("\ndescription:").append(this.getDescription());
+
+        return sb.toString();
+    }
 }
