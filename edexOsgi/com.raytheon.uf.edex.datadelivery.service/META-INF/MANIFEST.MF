@@ -21,4 +21,5 @@ Require-Bundle: com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.registry.event;bundle-version="1.0.0",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  com.google.guava;bundle-version="1.0.0",
- com.raytheon.uf.common.datadelivery.event;bundle-version="1.0.0"
+ com.raytheon.uf.common.datadelivery.event;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0"
