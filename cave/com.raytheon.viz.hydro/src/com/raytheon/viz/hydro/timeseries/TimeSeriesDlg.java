@@ -989,6 +989,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         stnLayoutDisplayed = true;
                     }
                     prevModeIdx = modeCbo.getSelectionIndex();
+                    checkBottomButtons();
                 }
             }
         });
@@ -1487,7 +1488,13 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * Update the enable status of the bottom buttons.
      */
     private void checkBottomButtons() {
-        boolean enabled = topDataList.getSelectionIndex() >= 0;
+        boolean enabled = false;
+        if (modeCbo.getText().equals(PREDEFINED_GROUP)) {
+            enabled = true;
+        } else {
+            enabled = topDataList.getSelectionCount() > 0;
+        }
+
         graphButton.setEnabled(enabled);
         tableButton.setEnabled(enabled);
         bothButton.setEnabled(enabled);
