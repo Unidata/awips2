@@ -25,6 +25,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.units.DataSizeUnit;
+
 /**
  * Test {@link DataSizeUnit}
  * 
@@ -34,7 +36,8 @@ import org.junit.Test;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 8, 2013   1420      mpduff      Initial creation
+ * Jan 08, 2013  1420      mpduff      Initial creation
+ * Jan 17, 2013  1357       mpduff     DataSizeUnits was moved.
  * 
  * </pre>
  * 

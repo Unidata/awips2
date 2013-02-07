@@ -23,7 +23,8 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- javax.measure;bundle-version="1.0.0"
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.datadelivery.registry,
  com.raytheon.uf.common.datadelivery.registry.ebxml,
  com.raytheon.uf.common.datadelivery.registry.handlers

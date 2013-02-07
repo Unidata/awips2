@@ -17,7 +17,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 public class StatsDataTest {
     private final String eventType = "com.raytheon.uf.common.stats.ProcessEvent";
+
     private final String field = "processingTime";
+
     private final String grouping = "pluginName:obs";
 
     final Map<Long, StatsBin> bins = new TreeMap<Long, StatsBin>();
@@ -41,7 +43,8 @@ public class StatsDataTest {
         UnitUtils unitUtils = new UnitUtils(eventType, field);
         unitUtils.setDisplayUnit("ms");
 
-        StatsData statsData = new StatsData("key", TimeUtil.MILLIS_PER_MINUTE, null, unitUtils);
+        StatsData statsData = new StatsData("key", TimeUtil.MILLIS_PER_MINUTE,
+                null);
         statsData.setBins(bins);
         statsData.addRecord(records.get(0));
         statsData.addRecord(records.get(1));
@@ -50,10 +53,9 @@ public class StatsDataTest {
         List<DataPoint> pointList = statsData.getData();
 
         int expectedPointCount = 2;
-        assertEquals("Point Counts differ", expectedPointCount, pointList.size(), 0);
+        assertEquals("Point Counts differ", expectedPointCount,
+                pointList.size(), 0);
     }
-
-
 
     // Build the Aggregate records
     private List<AggregateRecord> getTestRecords() {
