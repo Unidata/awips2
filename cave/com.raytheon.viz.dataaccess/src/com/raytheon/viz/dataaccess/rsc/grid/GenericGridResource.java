@@ -20,12 +20,20 @@
 package com.raytheon.viz.dataaccess.rsc.grid;
 
 import java.nio.Buffer;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.measure.unit.UnitFormat;
+
+import org.apache.commons.lang.StringUtils;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
+import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -33,6 +41,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.style.level.Level.LevelType;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
@@ -64,7 +73,7 @@ public class GenericGridResource extends
 
     private static final String GENERIC_LEGEND_TEXT = "Generic Grid ";
 
-    private GriddedImageDisplay2 griddedImageDisplay;
+    private Map<DataTime, GriddedImageDisplay2> displays = new HashMap<DataTime, GriddedImageDisplay2>();
 
     protected GenericGridResource(GenericGridResourceData resourceData,
             LoadProperties loadProperties) {
@@ -79,33 +88,63 @@ public class GenericGridResource extends
      * @throws VizException
      */
     @Override
-    protected void prepareData(IGraphicsTarget target) throws VizException {
-        IGridData gridData = this.resourceData.getFirstDataElement();
+    protected void prepareData(IGraphicsTarget target, DataTime time)
+            throws VizException {
+        IGridData gridData = this.resourceData.getFirstDataElement(time);
 
         GridGeometry2D gridGeometry = gridData.getGridGeometry();
 
         // Extract the raw data
-        ByteBufferWrapper byteBufferWrapper = new ByteBufferWrapper(
-                gridGeometry);
-        byteBufferWrapper = gridData.populateData(byteBufferWrapper);
-        Buffer buffer = byteBufferWrapper.getBuffer();
+        FloatBufferWrapper bufferWrapper = new FloatBufferWrapper(gridGeometry);
+        bufferWrapper = gridData.populateData(bufferWrapper);
+        Buffer buffer = bufferWrapper.getBuffer();
 
-        // Prepare the Color Map
-        SingleLevel singleLevel = null;
-        if (gridData.getLevel() != null) {
-            // TODO: convert level to single level
+        initColorMapParameters(gridData, buffer);
+
+        GriddedImageDisplay2 griddedImageDisplay = new GriddedImageDisplay2(
+                buffer, gridGeometry, this);
+        displays.put(time, griddedImageDisplay);
+    }
+
+    protected void initColorMapParameters(IGridData gridData, Buffer buffer)
+            throws VizException {
+        ColorMapCapability capability = getCapability(ColorMapCapability.class);
+        ColorMapParameters colorMapParameters = capability
+                .getColorMapParameters();
+        if (colorMapParameters == null || this.displays.isEmpty()) {
+            SingleLevel singleLevel = null;
+            if (gridData.getLevel() != null) {
+                try {
+                    singleLevel = new SingleLevel(gridData.getLevel()
+                            .getMasterLevel().getName());
+                } catch (IllegalArgumentException e) {
+                    // level cannot be mapped to a level
+                    singleLevel = new SingleLevel(LevelType.DEFAULT);
+                }
+                singleLevel.setValue(gridData.getLevel().getLevelonevalue());
+            }
+            ColorMapParameters newCmp = ColorMapParameterFactory
+                    .build(buffer.array(), gridData.getParameter(),
+                            gridData.getUnit(), singleLevel);
+            if (colorMapParameters != null) {
+                // This means the capability was serialized so preserve
+                // serialized fields.
+                newCmp.applyPersistedParameters(colorMapParameters
+                        .getPersisted());
+                newCmp.setColorMapName(colorMapParameters.getColorMapName());
+            }
+            colorMapParameters = newCmp;
         }
-        ColorMapParameters colorMapParameters = ColorMapParameterFactory.build(
-                buffer.array(), gridData.getParameter(), gridData.getUnit(),
-                singleLevel);
-
-        colorMapParameters.setColorMapName(GRID_COLORMAP);
-        colorMapParameters.setColorMap(ColorMapLoader
-                .loadColorMap(colorMapParameters.getColorMapName()));
-        getCapability(ColorMapCapability.class).setColorMapParameters(
-                colorMapParameters);
-        this.griddedImageDisplay = new GriddedImageDisplay2(buffer,
-                gridGeometry, this);
+        if (colorMapParameters.getColorMap() == null) {
+            String colorMapName = colorMapParameters.getColorMapName();
+            if (colorMapName == null) {
+                colorMapName = GRID_COLORMAP;
+                colorMapParameters.setColorMapName(colorMapName);
+            }
+            colorMapParameters.setColorMap(ColorMapLoader
+                    .loadColorMap(colorMapName));
+        }
+        capability.setColorMapParameters(colorMapParameters);
     }
 
     /*
@@ -116,9 +155,21 @@ public class GenericGridResource extends
      */
     @Override
     protected String buildLegendTextInternal() {
+        DataTime timeToInspect = null;
+        if (!isTimeAgnostic()) {
+            timeToInspect = descriptor.getTimeForResource(this);
+            if (timeToInspect == null) {
+                return "";
+            }
+        }
+        IGridData gridData = this.resourceData
+                .getFirstDataElement(timeToInspect);
+        if (gridData == null) {
+            return StringUtils.EMPTY;
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
-        IGridData gridData = this.resourceData.getFirstDataElement();
         if (gridData.getParameter() != null) {
             stringBuilder.append(gridData.getParameter());
             stringBuilder.append(_SPACE_);
@@ -140,10 +191,11 @@ public class GenericGridResource extends
      */
     @Override
     protected void disposeInternal() {
-        if (this.griddedImageDisplay != null) {
-            this.griddedImageDisplay.dispose();
+        Collection<GriddedImageDisplay2> displays = this.displays.values();
+        this.displays = new HashMap<DataTime, GriddedImageDisplay2>();
+        for (GriddedImageDisplay2 display : displays) {
+            display.dispose();
         }
-        this.griddedImageDisplay = null;
     }
 
     /*
@@ -157,7 +209,20 @@ public class GenericGridResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        this.griddedImageDisplay.paint(target, paintProps);
+        DataTime timeToPaint = null;
+        if (!isTimeAgnostic()) {
+            timeToPaint = paintProps.getDataTime();
+            if (timeToPaint == null) {
+                return;
+            }
+        }
+        GriddedImageDisplay2 griddedImageDisplay = displays.get(timeToPaint);
+        if (griddedImageDisplay == null) {
+            prepareData(target, paintProps.getDataTime());
+            griddedImageDisplay = displays.get(paintProps.getDataTime());
+        }
+        griddedImageDisplay.paint(target, paintProps);
+
     }
 
     /*
@@ -169,6 +234,39 @@ public class GenericGridResource extends
      */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
-        this.griddedImageDisplay.project(this.descriptor.getGridGeometry());
+        for (GriddedImageDisplay2 display : displays.values()) {
+            display.project(this.descriptor.getGridGeometry());
+        }
+    }
+
+    @Override
+    public String inspect(ReferencedCoordinate coord) throws VizException {
+        DataTime timeToInspect = null;
+        if (!isTimeAgnostic()) {
+            timeToInspect = descriptor.getTimeForResource(this);
+            if (timeToInspect == null) {
+                return "";
+            }
+        }
+        GriddedImageDisplay2 display = displays.get(timeToInspect);
+        if (display == null) {
+            return null;
+        }
+        ColorMapParameters cmp = getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
+
+        double value = Double.NaN;
+        try {
+            value = display.interrogate(coord.asLatLon());
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
+        String unitString = "";
+        if (cmp.getDisplayUnit() != null) {
+            unitString = _SPACE_
+                    + UnitFormat.getUCUMInstance().format(cmp.getDisplayUnit());
+            value = cmp.getDataToDisplayConverter().convert(value);
+        }
+        return value + unitString;
     }
 }
