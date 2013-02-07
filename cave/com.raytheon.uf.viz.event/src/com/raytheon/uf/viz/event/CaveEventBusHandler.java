@@ -19,13 +19,14 @@
  **/
 package com.raytheon.uf.viz.event;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import com.raytheon.uf.common.event.Event;
 import com.raytheon.uf.common.event.EventPublishRequest;
 import com.raytheon.uf.common.event.IEventBusHandler;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Cave implementation of the {@link IEventBusHandler}
@@ -45,24 +46,47 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class CaveEventBusHandler implements IEventBusHandler {
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CaveEventBusHandler.class);
+    /** Core pool size */
+    private final int corePoolSize = 1;
+
+    /** Max pool size */
+    private final int maxPoolSize = 3;
+
+    /** Time for threads to live */
+    private final int keepAliveTime = 1;
+
+    /** Max queue size */
+    private final int maxQueueSize = 10;
+
+    /** Thread pool executor */
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
+            corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.MINUTES,
+            new ArrayBlockingQueue<Runnable>(maxQueueSize));
+    {
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void publish(Event event) {
-        EventPublishRequest request = new EventPublishRequest(event);
-        try {
-            RequestRouter.route(request);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Error sending Event", e);
-        }
+    public void publish(final Event event) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                EventPublishRequest request = new EventPublishRequest(event);
+                try {
+                    RequestRouter.route(request);
+                } catch (Exception e) {
+                    // ignore failed
+                }
+            }
+        });
     }
 
     /**
-     * {@inheritDoc}
+     * This method is not supported in CAVE and will throw and
+     * UnsupportedOperationException.
      */
     @Override
     public void register(Object subscriber) {
@@ -70,11 +94,11 @@ public class CaveEventBusHandler implements IEventBusHandler {
     }
 
     /**
-     * {@inheritDoc}
+     * This method is not supported in CAVE and will throw and
+     * UnsupportedOperationException.
      */
     @Override
     public void unregister(Object subscriber) {
         throw new UnsupportedOperationException();
     }
-
 }
