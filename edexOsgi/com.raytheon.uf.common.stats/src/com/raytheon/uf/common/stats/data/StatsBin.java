@@ -28,17 +28,18 @@ import com.raytheon.uf.common.stats.AggregateRecord;
 
 /**
  * A bin of Statistical data.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 11, 2012   723      mpduff      Initial creation
- *
+ * Sep 11, 2012   723      mpduff      Initial creation.
+ * Jan 17, 2013  1357      mpduff      Change method name.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -58,6 +59,17 @@ public class StatsBin {
     }
 
     /**
+     * Copy constructor.
+     * 
+     * @param bin
+     *            The StatsBin object to copy
+     */
+    public StatsBin(StatsBin bin) {
+        this.setBinMillis(bin.getBinMillis());
+        data.addAll(bin.getData());
+    }
+
+    /**
      * @return the binMillis
      */
     public long getBinMillis() {
@@ -74,16 +86,16 @@ public class StatsBin {
 
     /**
      * Add an AggregateRecord object.
-     *
+     * 
      * @param record
      */
-    public void setData(AggregateRecord record) {
+    public void addData(AggregateRecord record) {
         this.data.add(record);
     }
 
     /**
      * Get the AggregateRecord objects
-     *
+     * 
      * @return
      */
     public List<AggregateRecord> getData() {
