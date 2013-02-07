@@ -28,6 +28,8 @@ import java.util.TimeZone;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.domain.TimePoints;
+import com.raytheon.uf.common.time.domain.api.ITimePoint;
 
 /**
  * Utilities for time, some extracted from Util.
@@ -42,14 +44,16 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
  * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
  * Jan 07, 2013 1451       djohnson    Add newGmtCalendar() and time constants.
+ * Jan 17, 2013 1357       mpduff      Change MILLIS_PER_MONTH to MILLIS_PER_30_DAYS
+ * Jan 22, 2013 1484       mpduff      Add HOURS_PER_WEEK.
+ * Jan 22, 2013 1519       djohnson    Add MINUTES_PER_DAY.
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
-public class TimeUtil {
+public final class TimeUtil {
 
     /**
      * A clock that does not really return the current time. Useful when you
@@ -63,9 +67,12 @@ public class TimeUtil {
      * 
      */
     private static class NullClock extends AbstractTimer {
+        private static final ITimePoint CONSTANT_TIME = TimePoints
+                .fromMillis(1L);
+
         @Override
-        protected long getCurrentTime() {
-            return 1;
+        protected ITimePoint getCurrentTime() {
+            return CONSTANT_TIME;
         }
     }
 
@@ -91,7 +98,15 @@ public class TimeUtil {
 
     public static final int HOURS_PER_DAY = 24;
 
+    public static final int HOURS_PER_HALF_DAY = HOURS_PER_DAY / 2;
+
+    public static final int HOURS_PER_QUARTER_DAY = HOURS_PER_HALF_DAY / 2;
+
+    public static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
+
     private static final int DAYS_PER_WEEK = 7;
+
+    public static final int HOURS_PER_WEEK = HOURS_PER_DAY * DAYS_PER_WEEK;
 
     // Util.java has a few of these constants, but that is located in an EDEX
     // plugin and this is a more appropriate place for them anyways
@@ -107,10 +122,7 @@ public class TimeUtil {
 
     public static final long MILLIS_PER_WEEK = MILLIS_PER_DAY * DAYS_PER_WEEK;
 
-    /**
-     * Note: This constant assumes a month of 30 days.
-     */
-    public static final long MILLIS_PER_MONTH = MILLIS_PER_DAY * 30;
+    public static final long MILLIS_PER_30_DAYS = MILLIS_PER_DAY * 30;
 
     /**
      * Note: This constant does not take into account leap years.
@@ -376,5 +388,11 @@ public class TimeUtil {
             calendar.set(field, calendar.getActualMaximum(field));
         }
         return calendar;
+    }
+
+    /**
+     * Disabled constructor.
+     */
+    private TimeUtil() {
     }
 }

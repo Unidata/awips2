@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -47,6 +50,7 @@ import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDat
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -81,6 +85,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Oct 12, 2012 0726       djohnson     Initial creation
  * Oct 23, 2012 1286       djohnson     Create reusable abstract int test.
  * Dec 11, 2012 1286       djohnson     Add test verifying fulfilled retrievals won't cause NPEs when the subscription is updated.
+ * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
+ * Jan 28, 2013 1530       djohnson     Test that all allocations are unscheduled for subscription that doesn't fully schedule.
+ * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * 
  * </pre>
  * 
@@ -313,7 +320,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will have higher priority
-        subscription2.setPriority(subscription.getPriority() + 1);
+        subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(
@@ -335,14 +342,43 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         BandwidthAllocation unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().intValue(),
+                subscription.getPriority().getPriorityValue(),
                 unscheduledAllocation.getPriority(), 0.0);
 
         unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().intValue(),
+                subscription.getPriority().getPriorityValue(),
                 unscheduledAllocation.getPriority(), 0.0);
+    }
+
+    @Test
+    public void unscheduledSubscriptionUnschedulesAllAllocations() {
+        String unscheduledSubDataSetName = "willBeUnscheduled";
+        Subscription subscription = createSubscriptionThatFillsUpABucket();
+        subscription.setDataSetName(unscheduledSubDataSetName);
+        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+
+        // subscription2 will have higher priority
+        subscription2.setPriority(SubscriptionPriority.HIGH);
+
+        // they conflict for cycle hour 8
+        subscription.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        subscription2.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+
+        bandwidthManager.schedule(subscription);
+        bandwidthManager.schedule(subscription2);
+
+        final List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
+                .getSubscriptionRetrievals(subscription.getProvider(),
+                        unscheduledSubDataSetName);
+
+        for (SubscriptionRetrieval subscriptionRetrieval : subscriptionRetrievals) {
+            assertThat(subscriptionRetrieval.getStatus(),
+                    is(equalTo(RetrievalStatus.UNSCHEDULED)));
+        }
     }
 
     @Test
@@ -352,7 +388,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will have higher priority
-        subscription2.setPriority(subscription.getPriority() + 1);
+        subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(
@@ -389,7 +425,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will have higher priority
-        subscription2.setPriority(subscription.getPriority() + 1);
+        subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(
@@ -419,8 +455,6 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         // Subscription starts out too big
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-
-        // they conflict for cycle hour 8
         subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(6)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
@@ -432,6 +466,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         // Hey look, this subscription will fit now!
         subscription.setDataSetSize(subscription.getDataSetSize() / 2);
+        subscription.setUnscheduled(false);
 
         unscheduled = bandwidthManager.subscriptionUpdated(subscription);
 
@@ -456,15 +491,14 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     public void testDetermineRequiredLatencyReturnsNecessaryLatency()
             throws SerializationException {
 
-        // Subscription starts out too big
-        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+        Subscription subscription = createSubscriptionThatFillsUpTenBuckets();
         subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
         subscription.setLatencyInMinutes(0);
 
         int requiredLatency = bandwidthManager
                 .determineRequiredLatency(subscription);
 
-        assertEquals("The required latency was calculated incorrectly", 6,
+        assertEquals("The required latency was calculated incorrectly", 30,
                 requiredLatency);
     }
 
@@ -712,7 +746,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         final List<BandwidthAllocation> bandwidthAllocations = bandwidthDao
                 .getBandwidthAllocations(subscription.getRoute());
 
-        assertEquals("Incorrect number of allocations found.", 4,
+        assertEquals("Incorrect number of allocations found.", 0,
                 bandwidthAllocations.size());
 
         sendDeletedSubscriptionEvent(subscription);
@@ -745,7 +779,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         final List<SubscriptionDao> subscriptionDaos = bandwidthDao
                 .getSubscriptionDao(subscription);
 
-        assertEquals("Incorrect number of subscription daos found.", 4,
+        assertEquals("Incorrect number of subscription daos found.", 0,
                 subscriptionDaos.size());
 
         sendDeletedSubscriptionEvent(subscription);

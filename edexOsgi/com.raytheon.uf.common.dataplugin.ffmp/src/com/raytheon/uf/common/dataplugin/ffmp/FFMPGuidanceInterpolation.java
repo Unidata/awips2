@@ -30,6 +30,7 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Guidance Interpolation
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 Jan, 2010 3915         dhladky     Initial creation
+ * 01/27/13     1478         dhladky     Added use of constants
  * </pre>
  * 
  * @author dhladky
@@ -258,7 +260,7 @@ public class FFMPGuidanceInterpolation {
                             getSource(orderedHours.get(index)),
                             null,
                             manager.getSource(source).getExpirationMinutes(
-                                    siteKey) * 60 * 1000);
+                                    siteKey) * TimeUtil.MILLIS_PER_MINUTE);
             if (dman.isExpired() == false) {
 
                 thisVal = dman.adjustValue(thisVal,

@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.harvester;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
+import com.raytheon.uf.common.time.domain.Durations;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
@@ -105,7 +107,8 @@ public class CrawlerTest {
         TimeUtilTest.freezeTime(time);
 
         HarvesterConfig harvesterConfig = HarvesterConfigFixture.INSTANCE.get();
-        harvesterConfig.getProvider().setPostedFileDelay("3 DAYS");
+        harvesterConfig.getProvider().setPostedFileDelay(
+                Durations.of(3, TimeUnit.DAYS));
         MainSequenceCrawler crawler = new MainSequenceCrawler(harvesterConfig,
                 mockCommunicationStrategy);
         List<ModelCrawlConfiguration> modelCrawlConfigs = crawler
@@ -129,7 +132,7 @@ public class CrawlerTest {
         TimeUtilTest.freezeTime(time);
 
         HarvesterConfig harvesterConfig = HarvesterConfigFixture.INSTANCE.get();
-        harvesterConfig.getProvider().setPostedFileDelay("2 MILLISECONDS");
+        harvesterConfig.getProvider().setPostedFileDelay(Durations.of(2, TimeUnit.MILLISECONDS));
         MainSequenceCrawler crawler = new MainSequenceCrawler(harvesterConfig,
                 mockCommunicationStrategy);
         List<ModelCrawlConfiguration> modelCrawlConfigs = crawler

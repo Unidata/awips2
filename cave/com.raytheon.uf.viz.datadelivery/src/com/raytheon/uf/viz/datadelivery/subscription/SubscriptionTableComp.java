@@ -47,12 +47,12 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
+import com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -100,6 +100,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Dec 03, 2012  1279      mpduff       Add ability to populate from a list of subscription names.
  * Dec 12, 2012  1391      bgonzale     Added a job for subscription retrieves.
  * Jan 07, 2013  1437      bgonzale     Added sort column direction updates.
+ * Jan 28, 2013  1529      djohnson     Disable menu items if no subscriptions are selected.
  * 
  * </pre>
  * 
@@ -120,7 +121,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      * Subscription action callback that is called when there is a table
      * selection.
      */
-    private ISubscriptionAction subActionCallback;
+    private final ISubscriptionAction subActionCallback;
 
     /** TableDataManager object. */
     private TableDataManager<SubscriptionManagerRowData> subManagerData;
@@ -756,11 +757,14 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             popupMenu.dispose();
         }
 
+        final boolean menuItemsEnabled = table.getSelectionIndices().length > 0;
+
         // Detail popup menu
         popupMenu = new Menu(table);
-        MenuItem item1 = new MenuItem(popupMenu, SWT.PUSH);
-        item1.setText("Details...   ");
-        item1.addSelectionListener(new SelectionAdapter() {
+        MenuItem detailsItem = new MenuItem(popupMenu, SWT.PUSH);
+        detailsItem.setText("Details...   ");
+        detailsItem.setEnabled(menuItemsEnabled);
+        detailsItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleDetails();
@@ -770,6 +774,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         if (subType == SubscriptionType.MANAGER) {
             MenuItem editItem = new MenuItem(popupMenu, SWT.PUSH);
             editItem.setText("Edit...");
+            editItem.setEnabled(menuItemsEnabled);
             editItem.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -780,6 +785,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             // Add the selected row to a subscription group
             MenuItem groupItem = new MenuItem(popupMenu, SWT.PUSH);
             groupItem.setText("Add to Group...");
+            groupItem.setEnabled(menuItemsEnabled);
             groupItem.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
