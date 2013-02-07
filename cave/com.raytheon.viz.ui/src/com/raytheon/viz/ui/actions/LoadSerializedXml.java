@@ -20,9 +20,6 @@
 package com.raytheon.viz.ui.actions;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -46,21 +43,16 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DescriptorMap;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.Procedure;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
  * Handles loading of bundles or procedures
@@ -133,11 +125,10 @@ public class LoadSerializedXml extends AbstractHandler {
         IDescriptor bundleDescriptor = renderableDisplay.getDescriptor();
         String bundleEditorId = DescriptorMap.getEditorId(bundleDescriptor
                 .getClass().getName());
-        synchronizeDisplays(bundle);
         AbstractEditor editor = UiUtil.createOrOpenEditor(bundleEditorId,
                 bundle.getDisplays());
 
-        loadTo(editor, bundle);
+        BundleLoader.loadTo(editor, bundle);
     }
 
     public static void loadProcedureToScreen(Procedure procedure,
@@ -183,7 +174,6 @@ public class LoadSerializedXml extends AbstractHandler {
         for (Bundle b : bundles) {
             // If an editor is specified, or no view part is specified,
             // assume an editor part
-            synchronizeDisplays(b);
             if (b.getView() == null) {
                 String editorName = b.getEditor();
                 AbstractEditor openedEditor = UiUtil.createEditor(editorName,
@@ -202,33 +192,22 @@ public class LoadSerializedXml extends AbstractHandler {
                     }
                 }
 
-                loadTo(openedEditor, b);
+                BundleLoader.loadTo(openedEditor, b);
             } else {
                 // There is a view part specified
                 IViewPart part = UiUtil.findView(windowToLoadTo, b.getView(),
                         false);
 
                 if (part != null && part instanceof IDisplayPaneContainer) {
-                    loadTo((IDisplayPaneContainer) part, b);
+                    BundleLoader.loadTo((IDisplayPaneContainer) part, b);
                 }
             }
 
         }
     }
 
-    private static void synchronizeDisplays(Bundle b) {
-        IDescriptor firstDesc = null;
-        for (AbstractRenderableDisplay d : b.getDisplays()) {
-            if (firstDesc == null) {
-                firstDesc = d.getDescriptor();
-            } else {
-                d.getDescriptor().synchronizeTimeMatching(firstDesc);
-            }
-        }
-    }
-
     /**
-     * Load a bundle to a container
+     * Use {@link BundleLoader} instead
      * 
      * @param editor
      *            the container to load to
@@ -236,119 +215,10 @@ public class LoadSerializedXml extends AbstractHandler {
      *            the bundle
      * @throws VizException
      */
-    public static void loadTo(final IDisplayPaneContainer container,
-            final Bundle b) throws VizException {
-        final int containerSize = container.getDisplayPanes().length;
-        final boolean multiEditor = container instanceof IMultiPaneEditor;
-
-        if (multiEditor) {
-            if (container.getDisplayPanes().length > b.getDisplays().length) {
-                VizApp.runSync(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (container.getDisplayPanes().length > b
-                                .getDisplays().length) {
-                            ((IMultiPaneEditor) container).removePane(container
-                                    .getDisplayPanes()[container
-                                    .getDisplayPanes().length - 1]);
-                        }
-                    }
-                });
-            }
-
-        }
-        List<AbstractRenderableDisplay> orderedDisplays = Arrays.asList(b
-                .getDisplays());
-        IDescriptor firstDesc = orderedDisplays.get(0).getDescriptor();
-        if (firstDesc != null && firstDesc.getTimeMatcher() != null) {
-            orderedDisplays = firstDesc.getTimeMatcher().getDisplayLoadOrder(
-                    orderedDisplays);
-        }
-        for (AbstractRenderableDisplay d : orderedDisplays) {
-            d.getDescriptor().synchronizeTimeMatching(firstDesc);
-            ResourceList rl = d.getDescriptor().getResourceList();
-            rl.instantiateResources(d.getDescriptor(), true);
-        }
-
-        final VizException[] errors = new VizException[1];
-
-        VizApp.runSync(new Runnable() {
-            @Override
-            public void run() {
-                int i = 0;
-                for (AbstractRenderableDisplay d : b.getDisplays()) {
-                    if (i >= containerSize && multiEditor) {
-                        ((IMultiPaneEditor) container).addPane(d);
-                    } else if (i >= containerSize) {
-                        errors[0] = new VizException(
-                                "Unable to add panes to non IMultiPaneEditor");
-                        return;
-                    } else {
-                        IRenderableDisplay oldDisplay = container
-                                .getDisplayPanes()[i].getRenderableDisplay();
-                        if (oldDisplay != null && oldDisplay != d) {
-                            oldDisplay.dispose();
-                        }
-                        container.getDisplayPanes()[i].setRenderableDisplay(d);
-                        container.getDisplayPanes()[i].resize();
-                        container.getDisplayPanes()[i].refresh();
-                    }
-                    i++;
-                }
-
-                if (b.getLoopProperties() != null) {
-                    container.setLoopProperties(b.getLoopProperties());
-                }
-
-                // if loading to an editor, update the globals
-                if (container instanceof IEditorPart) {
-                    VizGlobalsManager.getCurrentInstance().updateUI(container);
-                }
-            }
-        });
-
-        if (errors[0] != null) {
-            throw errors[0];
-        }
-    }
-
-    /**
-     * Load a bundle from a file into a container
-     * 
-     * @param editor
-     *            the container to load to
-     * @param f
-     *            the file containing the bundle
-     * @param descriptor
-     *            Optional: A descriptor that should be used for time matching
-     * @throws VizException
-     */
-    public static void loadTo(File f, Map<String, String> variables)
+    @Deprecated
+    public static void loadTo(final IDisplayPaneContainer container, Bundle b)
             throws VizException {
-        Bundle b = Bundle.unmarshalBundle(f, variables);
-
-        IRenderableDisplay renderableDisplay = b.getDisplays()[0];
-        IDescriptor bundleDescriptor = renderableDisplay.getDescriptor();
-        String bundleEditorId = DescriptorMap.getEditorId(bundleDescriptor
-                .getClass().getName());
-        AbstractEditor editor = UiUtil.createOrOpenEditor(bundleEditorId,
-                b.getDisplays());
-
-        loadTo(editor, b);
+        new BundleLoader(container, b).run();
     }
 
-    public static void loadTo(IDisplayPane pane, File f,
-            Map<String, String> variables) throws VizException {
-
-        Bundle b = Bundle.unmarshalBundle(f, variables);
-
-        for (AbstractRenderableDisplay d : b.getDisplays()) {
-            ResourceList rl = d.getDescriptor().getResourceList();
-            rl.instantiateResources(d.getDescriptor(), true);
-
-            pane.setRenderableDisplay(d);
-            pane.resize();
-            pane.refresh();
-        }
-    }
 }

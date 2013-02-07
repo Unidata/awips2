@@ -27,23 +27,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Response object for the GraphDataRequest.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 25, 2012    1269    lvenable    Initial creation.
  * Dec 06, 2012    1397    djohnson    Add dynamic serialize class annotation.
- *
+ * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -55,7 +57,7 @@ public class BandwidthGraphData {
 
     /** Subscription Name -> Subscription Priority */
     @DynamicSerializeElement
-    private Map<String, Integer> priorityMap;
+    private Map<String, SubscriptionPriority> priorityMap;
 
     /** Bin duration in minutes */
     @DynamicSerializeElement
@@ -81,7 +83,7 @@ public class BandwidthGraphData {
     public BandwidthGraphData(int binTimeMins) {
         this.binTimeInMins = binTimeMins;
         dataMap = new HashMap<String, List<TimeWindowData>>();
-        priorityMap = new HashMap<String, Integer>();
+        priorityMap = new HashMap<String, SubscriptionPriority>();
     }
 
     /**
@@ -102,7 +104,7 @@ public class BandwidthGraphData {
     /**
      * @return the priorityMap
      */
-    public Map<String, Integer> getPriorityMap() {
+    public Map<String, SubscriptionPriority> getPriorityMap() {
         return priorityMap;
     }
 
@@ -110,7 +112,7 @@ public class BandwidthGraphData {
      * @param priorityMap
      *            the priorityMap to set
      */
-    public void setPriorityMap(Map<String, Integer> priorityMap) {
+    public void setPriorityMap(Map<String, SubscriptionPriority> priorityMap) {
         this.priorityMap = priorityMap;
     }
 
@@ -145,7 +147,8 @@ public class BandwidthGraphData {
      * @param priority
      * @param dataArray
      */
-    public void addGraphDataArray(String subscriptionName, int priority,
+    public void addGraphDataArray(String subscriptionName,
+            SubscriptionPriority priority,
             List<TimeWindowData> dataArray) {
         dataMap.put(subscriptionName, dataArray);
         priorityMap.put(subscriptionName, priority);
@@ -206,14 +209,15 @@ public class BandwidthGraphData {
      *            The subscription name.
      * @return The priority number.
      */
-    public int getPriority(String subscriptionName) {
+    public SubscriptionPriority getPriority(String subscriptionName) {
         if (priorityMap.containsKey(subscriptionName)) {
             return priorityMap.get(subscriptionName);
         }
 
-        // This should never occur. A low priority number is being return rather
-        // than a null.
-        return 99;
+        // This should never occur.
+        throw new IllegalArgumentException(
+                "Unable to find a priority for subscription ["
+                        + subscriptionName + "]");
     }
 
     /**
