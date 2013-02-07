@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -27,22 +24,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/22/10      3437       D. Hladky   Initial release
+ * 01/17/13      1478        D. Hladky  Removed un-needed XML attributes
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject {
+    
     public FFMPGuidanceBasin() {
 
     }
 
     @DynamicSerializeElement
-    @XmlElement
     protected TreeMap<Date, HashMap<String, Float>> guidValues;
 
     @Transient
@@ -411,7 +407,10 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
     }
 
     /**
-     * useful constructor
+     * Constructor used in producing a new GuidanceBasin
+     * 
+     * @param pfaf
+     * @param aggregated
      */
     public FFMPGuidanceBasin(Long pfaf, boolean aggregated) {
         setPfaf(pfaf);
@@ -457,5 +456,15 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
         }
         return buff.toString();
     }
-
+    
+    public void populate(List<Long> times) {
+     // does nothing here, don't need to populate anything.
+    }
+    
+    /**
+     * populates the serialized array
+     */
+    public void setCache() {
+        // does nothing here, this class is serialized as is.
+    }
 }

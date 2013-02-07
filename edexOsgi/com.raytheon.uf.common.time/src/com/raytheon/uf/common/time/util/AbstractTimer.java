@@ -1,5 +1,8 @@
 package com.raytheon.uf.common.time.util;
 
+import com.raytheon.uf.common.time.domain.Durations;
+import com.raytheon.uf.common.time.domain.api.IDuration;
+import com.raytheon.uf.common.time.domain.api.ITimePoint;
 
 /**
  * 
@@ -13,19 +16,19 @@ package com.raytheon.uf.common.time.util;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 16, 2012 0743       djohnson     Initial creation
+ * Jan 14, 2013 1286       djohnson     Use time domain API.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-// @NotThreadSafe
 abstract class AbstractTimer implements ITimer {
-    private long start;
+    private ITimePoint start;
 
-    private long stop;
+    private ITimePoint stop;
 
-    private long elapsedTime;
+    private IDuration elapsedTime = Durations.ZERO;
 
     /**
      * {@inheritDoc}
@@ -33,8 +36,8 @@ abstract class AbstractTimer implements ITimer {
     @Override
     public void start() {
         if (isTimerStopped()) {
-            elapsedTime += (stop - start);
-            stop = 0;
+            elapsedTime = elapsedTime.plus(Durations.between(start, stop));
+            stop = null;
         } else if (isTimerStarted()) {
             throw new IllegalStateException(
                     "A timer that is running must be stopped before start() is called again!");
@@ -62,8 +65,21 @@ abstract class AbstractTimer implements ITimer {
      */
     @Override
     public long getElapsedTime() {
-        long currentOrStopTime = (isTimerRunning()) ? getCurrentTime() : stop;
-        return (currentOrStopTime - start) + elapsedTime;
+        return getElapsed().getMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IDuration getElapsed() {
+        ITimePoint currentOrStopTime = (isTimerRunning()) ? getCurrentTime()
+                : stop;
+        if (currentOrStopTime == null && start == null) {
+            return Durations.ZERO;
+        }
+        IDuration currentRun = Durations.between(start, currentOrStopTime);
+        return currentRun.plus(elapsedTime);
     }
 
     /**
@@ -71,12 +87,12 @@ abstract class AbstractTimer implements ITimer {
      */
     @Override
     public void reset() {
-        start = 0;
-        stop = 0;
-        elapsedTime = 0;
+        start = null;
+        stop = null;
+        elapsedTime = Durations.ZERO;
     }
 
-    protected abstract long getCurrentTime();
+    protected abstract ITimePoint getCurrentTime();
 
     /**
      * Check whether the timer is actively running.
@@ -93,7 +109,7 @@ abstract class AbstractTimer implements ITimer {
      * @return true if the timer was started
      */
     private boolean isTimerStarted() {
-        return start > 0;
+        return start != null;
     }
 
     /**
@@ -102,6 +118,6 @@ abstract class AbstractTimer implements ITimer {
      * @return true if the timer is stopped
      */
     private boolean isTimerStopped() {
-        return stop > 0;
+        return stop != null;
     }
 }

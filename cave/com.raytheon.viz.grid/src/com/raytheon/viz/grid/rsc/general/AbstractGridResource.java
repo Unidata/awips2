@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -595,6 +596,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             // reuse the old parameters. This is useful when the resource is
             // sharing capabilities, for example in an FFGVizGroupResource.
             newParameters = oldParameters;
+        } else if (oldParameters != null) {
+            newParameters.setColorMapName(oldParameters.getColorMapName());
+            newParameters.setColorMap(oldParameters.getColorMap());
+            PersistedParameters persisted = oldParameters.getPersisted();
+            if (persisted != null) {
+                newParameters.applyPersistedParameters(persisted);
+            }
         }
         return newParameters;
     }
