@@ -23,6 +23,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -149,33 +150,41 @@ public class OpenDAPTranslator extends RetrievalTranslator {
         PrimitiveVector pm = darray.getPrimitiveVector();
         float[] values = (float[]) pm.getInternalStorage();
 
+        List<String> ensembles = null;
+        if (attXML.getEnsemble() != null && attXML.getEnsemble().hasSelection()) {
+            ensembles = attXML.getEnsemble().getSelectedMembers();
+        } else {
+            ensembles = Arrays.asList((String) null);
+        }
+
         // time dependencies
         int start = 0;
-        PluginDataObject[] records = new PluginDataObject[numLevels * numTimes];
+        PluginDataObject[] records = new PluginDataObject[numLevels * numTimes
+                * ensembles.size()];
 
-        for (int i = 0; i < times.size(); i++) {
+        int bin = 0;
+        for (int i = 0; i < ensembles.size(); i++) {
+            for (DataTime dataTime : times) {
+                for (int j = 0; j < numLevels; j++) {
+                    PluginDataObject record = getPdo(bin);
+                    record.setDataTime(dataTime);
+                    record.constructDataURI();
 
-            DataTime dataTime = times.get(i);
+                    int end = start + gridSize;
 
-            for (int j = 0; j < numLevels; j++) {
-                int bin = (numLevels * i) + j;
-                PluginDataObject record = getPdo(bin);
-                record.setDataTime(dataTime);
-                record.constructDataURI();
+                    float[] subValues = Arrays.copyOfRange(values, start, end);
 
-                int end = start + gridSize;
+                    subValues = GridMetadataAdapter.adjustGrid(nx, ny,
+                            subValues, Float.parseFloat(attXML.getParameter()
+                                    .getMissingValue()), true);
 
-                float[] subValues = Arrays.copyOfRange(values, start, end);
-
-                subValues = GridMetadataAdapter.adjustGrid(nx, ny, subValues,
-                        Float.parseFloat(attXML.getParameter()
-                                .getMissingValue()), true);
-
-                record.setMessageData(subValues);
-                record.setOverwriteAllowed(true);
-                records[bin] = record;
-                statusHandler.info("Creating record: " + record.getDataURI());
-                start = end;
+                    record.setMessageData(subValues);
+                    record.setOverwriteAllowed(true);
+                    records[bin++] = record;
+                    statusHandler.info("Creating record: "
+                            + record.getDataURI());
+                    start = end;
+                }
             }
         }
 
