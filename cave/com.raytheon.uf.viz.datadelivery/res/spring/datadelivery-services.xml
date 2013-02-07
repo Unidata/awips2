@@ -8,10 +8,13 @@
         class="com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService" />
 
     <bean id="subscriptionNotificationService"
-        class="com.raytheon.uf.viz.datadelivery.subscription.SendToServerSubscriptionNotificationService" />
+        class="com.raytheon.uf.common.datadelivery.service.SendToServerSubscriptionNotificationService" />
 
     <bean id="permissionsService"
         class="com.raytheon.uf.viz.datadelivery.subscription.RequestFromServerPermissionsService" />
+
+    <bean id="groupDefinitionService"
+        class="com.raytheon.uf.common.datadelivery.service.GroupDefinitionService" />
 
     <bean id="subscriptionService"
         class="com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService"
@@ -28,6 +31,7 @@
         <property name="subscriptionNotificationService" ref="subscriptionNotificationService" />
         <property name="bandwidthService" ref="bandwidthService" />
         <property name="permissionsService" ref="permissionsService" />
+        <property name="groupDefinitionService" ref="groupDefinitionService" />
     </bean>
 
     <bean id="systemRuleManager"

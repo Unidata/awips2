@@ -100,45 +100,45 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         RoleType.class })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "RegistryObject")
 public class RegistryObjectType extends IdentifiableType {
     @XmlElement(name = "Name")
     @DynamicSerializeElement
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     protected InternationalStringType name;
 
     @XmlElement(name = "Description")
     @DynamicSerializeElement
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     protected InternationalStringType description;
 
     @XmlElement(name = "VersionInfo")
     @DynamicSerializeElement
     @Cascade(value = { org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     protected VersionInfoType versionInfo;
 
     @XmlElement(name = "Classification")
     @DynamicSerializeElement
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     protected Set<ClassificationType> classification;
 
     @XmlElement(name = "ExternalIdentifier")
     @DynamicSerializeElement
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     protected Set<ExternalIdentifierType> externalIdentifier;
 
     @XmlElement(name = "ExternalLink")
     @DynamicSerializeElement
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     protected Set<ExternalLinkType> externalLink;
 
     @XmlAttribute
