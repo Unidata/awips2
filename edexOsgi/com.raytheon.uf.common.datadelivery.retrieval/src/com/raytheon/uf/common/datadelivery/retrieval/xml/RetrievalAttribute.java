@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.CoverageAdapter;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -100,6 +101,10 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
     @DynamicSerializeElement
     private Time time;
 
+    @XmlElement
+    @DynamicSerializeElement
+    private Ensemble ensemble;
+
     @XmlElement(name = "provider")
     @DynamicSerializeElement
     private String provider;
@@ -154,6 +159,14 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
 
     public String getSubName() {
         return subName;
+    }
+
+    public Ensemble getEnsemble() {
+        return ensemble;
+    }
+
+    public void setEnsemble(Ensemble ensemble) {
+        this.ensemble = ensemble;
     }
 
 }
