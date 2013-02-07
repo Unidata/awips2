@@ -156,6 +156,7 @@ public abstract class AbstractModalTool extends AbstractTool {
         this.setEnabled(false);
         if (editor != null) {
             deactivateTool();
+            editor = null;
         }
     }
 

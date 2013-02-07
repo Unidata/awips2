@@ -250,7 +250,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                 return true;
             } catch (FileNotFoundException e) {
                 throw new LocalizationOpFailedException(
-                        "Error saving file, does not exist");
+                        "Error saving, file does not exist");
             } finally {
                 // Make sure to close input stream
                 if (in != null) {
