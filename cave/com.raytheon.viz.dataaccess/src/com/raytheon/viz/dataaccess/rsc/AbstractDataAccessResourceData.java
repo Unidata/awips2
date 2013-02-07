@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.dataaccess.rsc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.raytheon.uf.common.dataaccess.DataAccessLayer;
 import com.raytheon.uf.common.dataaccess.IData;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
@@ -51,13 +54,15 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, X extends IData>
         extends AbstractResourceData {
 
-    private X[] data;
+    private DataTime[] dataTimes;
+
+    private Map<DataTime, X[]> data;
 
     /**
      * Constructor
      */
     public AbstractDataAccessResourceData() {
-        this.data = null;
+        this.data = new HashMap<DataTime, X[]>();
     }
 
     /*
@@ -71,8 +76,33 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
     @Override
     public AbstractVizResource<?, ?> construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        this.retrieveData(this.getRequest());
+        this.populateTimes(this.getRequest());
         return this.constructResource(loadProperties, descriptor);
+    }
+
+    /**
+     * Retrieves and stores the dataTimes associated using the specified
+     * request.
+     * 
+     * @param request
+     *            the request
+     */
+    protected void populateTimes(T request) throws NoDataAvailableException {
+        dataTimes = null;
+        try {
+            dataTimes = DataAccessLayer.getAvailableTimes(request);
+            if (dataTimes == null || dataTimes.length <= 0) {
+                throw new NoDataAvailableException(this.getClass());
+            }
+        } catch (TimeAgnosticDataException e1) {
+            // Make sure that time agnostic has data before continuing.
+            dataTimes = null;
+            X[] data = retreiveData(request, null);
+            if (data == null || data.length == 0) {
+                throw new NoDataAvailableException(this.getClass());
+            }
+        }
+
     }
 
     /**
@@ -84,36 +114,21 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
      *            the class that is requesting the data; will always be a
      *            subclass of AbstractDataAccessResourceData
      */
-    private void retrieveData(T request) throws NoDataAvailableException {
-        this.data = null;
-        boolean timeAgnostic = false;
-
-        DataTime[] dataTimes = null;
-        try {
-            dataTimes = DataAccessLayer.getAvailableTimes(request);
-        } catch (TimeAgnosticDataException e1) {
-            timeAgnostic = true;
-        }
-
-        if (timeAgnostic) {
+    private X[] retreiveData(T request, DataTime dataTime) {
+        X[] data = null;
+        if (dataTime == null && dataTimes == null) {
             /*
              * If we were a legitimate resource, we would want to cache time
              * agnostic data that was retrieved. The cache could be a simple Map
              * or even the cache provided by GOOG in the guava library.
              */
-            this.data = DataAccessLayer.getData(request);
-        } else {
-            if (dataTimes == null || dataTimes.length <= 0) {
-                throw new NoDataAvailableException(this.getClass());
-            }
-
+            data = DataAccessLayer.getData(request);
+        } else if (dataTime != null) {
             /* Just use the latest time since this is a sample / test resource */
-            this.data = DataAccessLayer.getData(request, dataTimes[0]);
+            data = DataAccessLayer.getData(request, dataTime);
         }
 
-        if (this.data == null || this.data.length <= 0) {
-            throw new NoDataAvailableException(this.getClass());
-        }
+        return data;
     }
 
     /**
@@ -169,8 +184,23 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
      * 
      * @return all of the data that was retrieved
      */
-    public X[] getData() {
-        return data;
+    public X[] getData(DataTime time) {
+        if (data.containsKey(time)) {
+            return data.get(time);
+        } else {
+            X[] data = retreiveData(getRequest(), time);
+            this.data.put(time, data);
+            return data;
+        }
+    }
+    
+    /**
+     * get the dataTimes
+     * 
+     * @return all available times for this data or null if time agnostic.
+     */
+    public DataTime[] getDataTimes() {
+        return dataTimes;
     }
 
     /**
@@ -178,7 +208,12 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
      * 
      * @return the first data element that has been retrieved
      */
-    public X getFirstDataElement() {
-        return (this.data == null) ? null : this.data[0];
+    public X getFirstDataElement(DataTime time) {
+        X[] data = getData(time);
+        if (data == null) {
+            return null;
+        } else {
+            return data[0];
+        }
     }
 }

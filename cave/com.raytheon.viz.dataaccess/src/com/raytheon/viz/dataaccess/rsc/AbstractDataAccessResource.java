@@ -19,8 +19,11 @@
  **/
 package com.raytheon.viz.dataaccess.rsc;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.StringUtils;
 
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -49,7 +52,7 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
 
     protected static final String _SPACE_ = " ";
 
-    private String legendText;
+    private String genericLegendText;
 
     /**
      * Constructor
@@ -64,19 +67,33 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
     protected AbstractDataAccessResource(T resourceData,
             LoadProperties loadProperties, String genericLegendText) {
         super(resourceData, loadProperties);
-        this.buildLegendText(genericLegendText);
+        this.genericLegendText = genericLegendText;
+        if (resourceData.getDataTimes() == null) {
+            this.dataTimes = TIME_AGNOSTIC;
+        } else {
+            this.dataTimes = Arrays.asList(resourceData.getDataTimes());
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        this.prepareData(target);
+        DataTime[] timesToLoad = descriptor.getFramesInfo().getTimeMap()
+                .get(this);
+        if (timesToLoad == null && descriptor.getTimeMatcher() != null) {
+            timesToLoad = descriptor.getTimeMatcher().initialLoad(
+                    getLoadProperties(), getDataTimes(), descriptor);
+        }
+        if (timesToLoad != null) {
+            for (DataTime time : timesToLoad) {
+                prepareData(target, time);
+            }
+        }
+    }
+
+    @Override
+    public void remove(DataTime dataTime) {
+        ;// for now never remove anything from dataTimes since there are no
+         // updates on redoTimeMatching
     }
 
     /*
@@ -86,7 +103,7 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
      */
     @Override
     public String getName() {
-        return this.legendText;
+        return buildLegendText(genericLegendText);
     }
 
     /**
@@ -96,7 +113,7 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
      * @param target
      * @throws VizException
      */
-    protected abstract void prepareData(IGraphicsTarget target)
+    protected abstract void prepareData(IGraphicsTarget target, DataTime time)
             throws VizException;
 
     /**
@@ -112,15 +129,11 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
      * @param genericLegendText
      *            the request-type specific legend text
      */
-    private final void buildLegendText(String genericLegendText) {
+    private final String buildLegendText(String genericLegendText) {
         StringBuilder stringBuilder = new StringBuilder(genericLegendText);
         stringBuilder.append(this.padWithSeparator(this
                 .buildLegendTextInternal()));
-        if (this.resourceData.getFirstDataElement().getDataTime() != null) {
-            stringBuilder.append(this.resourceData.getFirstDataElement()
-                    .getDataTime().getLegendString());
-        }
-        this.legendText = stringBuilder.toString();
+        return stringBuilder.toString();
     }
 
     /**
