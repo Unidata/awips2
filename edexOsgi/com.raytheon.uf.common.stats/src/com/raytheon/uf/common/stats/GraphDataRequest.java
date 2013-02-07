@@ -36,6 +36,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 11, 2012   728      mpduff      Initial creation
+ * Jan 17, 2013  1357      mpudff      Javadoc update.
  *
  * </pre>
  *
@@ -139,6 +140,8 @@ public class GraphDataRequest implements IServerRequest {
     }
 
     /**
+     * The time step of the data in minutes.
+     * 
      * @param timeStep
      *            the timeStep to set
      */
@@ -147,6 +150,8 @@ public class GraphDataRequest implements IServerRequest {
     }
 
     /**
+     * Get the time step in minute.
+     * 
      * @return the timeStep
      */
     public int getTimeStep() {

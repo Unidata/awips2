@@ -63,10 +63,10 @@ import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
 import com.raytheon.uf.viz.d2d.core.map.MapScales;
 import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
 import com.raytheon.uf.viz.d2d.core.map.MapScales.PartId;
+import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.UiUtil;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
 import com.raytheon.viz.ui.color.BackgroundColor;
 import com.raytheon.viz.ui.color.IBackgroundColorChangedListener;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -207,12 +207,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         }
 
         if (bundleToLoad != null) {
-            try {
-                LoadSerializedXml.loadTo(this, bundleToLoad);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error loading bundle view", e);
-            }
+            new BundleLoader(this, bundleToLoad).run();
         }
     }
 
@@ -604,12 +599,12 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                 if (editableResource != null) {
                     EditableManager.makeEditable(editableResource, false);
                 }
-                
-                this.editableResource = editableResource;                
+
+                this.editableResource = editableResource;
                 if (this.editableResource != null) {
                     EditableManager.makeEditable(this.editableResource, true);
                 }
-            	
+
                 theEditor.getBackgroundColor().setColor(BGColorMode.EDITOR,
                         myRenderables[0].getBackgroundColor());
 
