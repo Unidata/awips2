@@ -105,6 +105,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 									   for the "30 minutes Instantaneous" rainfall map .
  * 04 Dec 2012 15602     wkwock        Fix Hrs hour capped at 100.
  * 07 Feb 2013 1578        rferrel     Changes for non-blocking FilteringDlg.
+ *                                     Changes for non-blocking PDC_SaveDlg.
  *                                     (TODO More code clean up when this dialog is converted.)
  * 
  * </pre>
@@ -177,6 +178,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
     /** Filter dialog for Data Source . */
     private FilteringDlg dataSourceDlg;
+
+    /** Dialog to save preset options */
+    private PDC_SaveDlg saveDlg;
 
     /**
      * The Stack Composite.
@@ -1966,8 +1970,10 @@ public class PointDataControlDlg extends CaveSWTDialog {
     }
 
     private void openSaveDialog() {
-        PDC_SaveDlg saveDlg = new PDC_SaveDlg(shell,
-                selPresetCbo.getSelectionIndex(), this);
+        if (saveDlg == null) {
+            saveDlg = new PDC_SaveDlg(shell, selPresetCbo.getSelectionIndex(),
+                    this);
+        }
         saveDlg.open();
     }
 
