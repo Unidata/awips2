@@ -256,7 +256,10 @@ public class HistoryList {
     }
 
     public static Bundle prepareHistoryEntry() {
-        IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
+        return prepareHistoryEntry(EditorUtil.getActiveVizContainer());
+    }
+
+    public static Bundle prepareHistoryEntry(IDisplayPaneContainer cont) {
         if (cont != null) {
             Bundle b = new Bundle();
             com.raytheon.uf.viz.core.IDisplayPane[] panes = cont

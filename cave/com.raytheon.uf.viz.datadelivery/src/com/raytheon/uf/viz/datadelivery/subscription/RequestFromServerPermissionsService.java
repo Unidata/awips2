@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
+import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * {@link IPermissionsService} implementation that requests permissions from the
@@ -37,6 +39,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2013 1441       djohnson     Initial creation
+ * Jan 21, 2013 1441       djohnson     Use RequestRouter.
  * 
  * </pre>
  * 
@@ -93,8 +96,13 @@ public class RequestFromServerPermissionsService implements IPermissionsService 
      */
     private DataDeliveryAuthRequest sendAuthorizationRequest(
             DataDeliveryAuthRequest request) throws VizException {
-        return (DataDeliveryAuthRequest) ThriftClient
-                .sendPrivilegedRequest(request);
+        try {
+            return (DataDeliveryAuthRequest) ((SuccessfulExecution) RequestRouter
+                    .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER))
+                    .getResponse();
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
     }
 
     /**
