@@ -75,7 +75,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Sep 06, 2012   687      mpduff       Call the table selection method of the ITableChanged interface.
  * Oct 22, 2012   1284     mpduff       Fix the start/end index for pagination of new records, code cleanup.
  * Nov 29, 2012  1285      bgonzale     Added a refresh pause button to the Notification Center Dialog.
- * 
+ * Jan 22, 2013  1520      mpduff       Update javadoc.
  * </pre>
  * 
  * @author lvenable
@@ -197,12 +197,12 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Constructor.
-     *
+     * 
      * Note: For the super class we are passing in a false for the notification
      * flag. This is turned off because the notification dialog is using the
      * NotificationHandler and it contains the necessary code that needs to be
      * executed.
-     *
+     * 
      * @param parent
      * @param tableConfig
      * @param callback
@@ -287,6 +287,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                         + " not refresh, re-sort, or allow user modification"
                         + " until unchecked.");
         pauseButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 boolean isLocked = pauseButton.getSelection();
 
@@ -320,7 +321,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the entire table list.
-     *
+     * 
      * @return TableDataManager obj
      */
     public TableDataManager<NotificationRowData> getMasterTableList() {
@@ -329,7 +330,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the table list with filters applied.
-     *
+     * 
      * @return TableDataManager obj
      */
     public TableDataManager<NotificationRowData> getFilteredTableList() {
@@ -338,7 +339,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the table list for display.
-     *
+     * 
      * @return TableDataManager obj
      */
     public ArrayList<NotificationRowData> getVisibleTableList() {
@@ -347,7 +348,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the rows of data to display.
-     *
+     * 
      * @return list of Notification Row Data objects
      */
     private ArrayList<NotificationRowData> getTableRows() {
@@ -359,7 +360,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
         // Recalculate start/end indices for visible page
         if (numRows > endIndex && endIndex - startIndex < pageConfig) {
-            endIndex = startIndex + pageConfig - 1;//numRows -1;
+            endIndex = startIndex + pageConfig - 1;// numRows -1;
             if (endIndex - startIndex > pageConfig - 1) {
                 startIndex = ((pageConfig * selectedPage) - (pageConfig - 1)) - 1;
             }
@@ -390,7 +391,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Delete table rows.
-     *
+     * 
      * @param deleteRecordIds
      */
     public void deleteTableDataRows(ArrayList<Integer> deleteRecordIds) {
@@ -408,7 +409,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the table obj.
-     *
+     * 
      * @return the table obj.
      */
     public Table getTable() {
@@ -432,7 +433,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     }
 
     /**
-     * Action taken when deleting a notification.
+     * Action taken when deleting a notification from view.
      */
     public void handleDeleteNotification() {
 
@@ -472,7 +473,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Action taken when tool tip is selected.
-     *
+     * 
      * @param showToolTips
      *            true when tooltips are on
      */
@@ -612,7 +613,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     }
 
     /**
-     * Action taken when deleted notifications by time.
+     * Action taken when deleted notifications from view by time.
      */
     public void handleDeleteOlderThan() {
 
@@ -689,8 +690,8 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     }
 
     /**
-     * Action taken to delete notifications by priority.
-     *
+     * Action taken to delete notifications from view by priority.
+     * 
      * @param priority
      *            priority indicator
      */
@@ -726,7 +727,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the start index.
-     *
+     * 
      * @return start index
      */
     public int getStartIndex() {
@@ -735,7 +736,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the end index.
-     *
+     * 
      * @return end index
      */
     public int getEndIndex() {
@@ -744,7 +745,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the selected index.
-     *
+     * 
      * @return selected index
      */
     public int getSelectedIndex() {
@@ -753,7 +754,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the table cell text.
-     *
+     * 
      * @param name
      *            The column name
      * @param rd
@@ -782,7 +783,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Populate the NotificationRowData objects
-     *
+     * 
      * @param notificationRecords
      *            list of notification records
      */
@@ -857,7 +858,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Pass filter information.
-     *
+     * 
      * @param username
      *            user name table data
      * @param priority
@@ -915,11 +916,11 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Pass filter information.
-     *
+     * 
      * @param records
      *            Notification record
      * @return boolean true if passes filter
-     *
+     * 
      */
     public boolean passesFilter(List<NotificationRecord> records) {
         for (NotificationRecord record : records) {
@@ -933,10 +934,10 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /**
      * Get the column data.
-     *
+     * 
      * @param colName
      *            The column name of interest
-     *
+     * 
      * @return The populated ColumnXML object
      */
     private ColumnXML getColumnData(String colName) {
@@ -1144,7 +1145,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.datadelivery.common.ui.TableComp#handleTableMouseClick
      * (org.eclipse.swt.events.MouseEvent)
@@ -1156,7 +1157,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.datadelivery.common.ui.TableComp#
      * handleTableSelectionChange(org.eclipse.swt.events.SelectionEvent)
      */
@@ -1169,7 +1170,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
      * notificationArrived
      * (com.raytheon.uf.viz.core.notification.NotificationMessage[])

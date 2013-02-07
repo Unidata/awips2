@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPCacheRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
@@ -88,6 +90,8 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * ------------ ----------  ----------- --------------------------
  * 04/03/10     4494        D. Hladky   Initial release
  * 12/07/12     1353        rferrel     Changes for non-blocking FFMPSplash.
+ * 01/10/13     1475        D. Hladky   Cleaned up some logging.
+ * 01/27/13     1478        D. Hladky   revamped cache file format, removed duplicate times 
  * 
  * </pre>
  * 
@@ -473,28 +477,21 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param siteKey
      * @param dataKey
      * @param source
-     * @param huc
      */
-    public void insertFFMPData(FFMPBasinData data, String siteKey,
-            String source, String huc) {
+    public void insertFFMPData(FFMPAggregateRecord data, String siteKey,
+            String source) {
 
-        final String fsiteKey = siteKey;
-        final FFMPBasinData fdata = data;
-        final String fsource = source;
-        final String fhuc = huc;
-
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-
-                if (ffmpData.containsKey(fsiteKey)) {
-                    if (ffmpData.get(fsiteKey).containsKey(fsource)) {
-                        ffmpData.get(fsiteKey).get(fsource)
-                                .setBasinBuddyData(fdata, fhuc);
-                    }
+        if (ffmpData.containsKey(siteKey)) {
+            if (ffmpData.get(siteKey).containsKey(source)) {
+                for (Entry<String, FFMPBasinData> entry : data.getBasinsMap()
+                        .entrySet()) {
+                    FFMPBasinData basinData = entry.getValue();
+                    basinData.populate(data.getTimes());
+                    ffmpData.get(siteKey).get(source)
+                            .setCacheData(basinData, basinData.getHucLevel());
                 }
             }
-        });
+        }
     }
 
     /**
@@ -528,54 +525,35 @@ public class FFMPMonitor extends ResourceMonitor {
     public void populateFFMPBasin(String dataUri, String siteKey,
             String source, String phuc, FFMPBasin basin) throws VizException {
 
-        final String fdataUri = dataUri;
-        final String fsiteKey = siteKey;
-        final String fhuc = phuc;
-        final String fsource = source;
-        final FFMPBasin fbasin = basin;
+        if (dataUri != null) {
+            ConcurrentMap<String, String> uris = getUriMap(siteKey, source,
+                    phuc);
+            if (!uris.containsKey(dataUri)) {
+                try {
+                    SourceXML sourceXML = fscm.getSource(source);
+                    FFMPCacheRecord ffmpRec = populateFFMPRecord(true, dataUri,
+                            siteKey, source, phuc);
+                    File loc = HDF5Util.findHDF5Location(ffmpRec);
+                    IDataStore dataStore = DataStoreFactory.getDataStore(loc);
 
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-
-                if (fdataUri != null) {
-                    ConcurrentMap<String, String> uris = getUriMap(fsiteKey,
-                            fsource, fhuc);
-                    if (!uris.containsKey(fdataUri)) {
-                        try {
-                            SourceXML sourceXML = fscm.getSource(fsource);
-                            FFMPCacheRecord ffmpRec = populateFFMPRecord(true,
-                                    fdataUri, fsiteKey, fsource, fhuc);
-                            // FFMPRecord ffmpRec =
-                            // loadRecordFromDatabase(fdataUri);
-                            File loc = HDF5Util.findHDF5Location(ffmpRec);
-                            IDataStore dataStore = DataStoreFactory
-                                    .getDataStore(loc);
-
-                            if (sourceXML.getSourceType().equals(
-                                    SOURCE_TYPE.GAGE.getSourceType())
-                                    && fhuc.equals("ALL")) {
-                                ffmpRec.retrieveVirtualBasinFromDataStore(
-                                        dataStore, fdataUri,
-                                        getTemplates(fsiteKey), ffmpRec
-                                                .getDataTime().getRefTime(),
-                                        fbasin);
-                            } else {
-                                ffmpRec.retrieveBasinFromDataStore(dataStore,
-                                        fdataUri, getTemplates(fsiteKey), fhuc,
-                                        ffmpRec.getDataTime().getRefTime(),
-                                        ffmpRec.getSourceName(), fbasin);
-                            }
-                        } catch (Throwable e) {
-                            statusHandler
-                                    .handle(Priority.PROBLEM,
-                                            "FFMP Can't retrieve FFMP URI, "
-                                                    + fdataUri, e);
-                        }
+                    if (sourceXML.getSourceType().equals(
+                            SOURCE_TYPE.GAGE.getSourceType())
+                            && phuc.equals("ALL")) {
+                        ffmpRec.retrieveVirtualBasinFromDataStore(dataStore,
+                                dataUri, getTemplates(siteKey), ffmpRec
+                                        .getDataTime().getRefTime(), basin);
+                    } else {
+                        ffmpRec.retrieveBasinFromDataStore(dataStore, dataUri,
+                                getTemplates(siteKey), phuc, ffmpRec
+                                        .getDataTime().getRefTime(), ffmpRec
+                                        .getSourceName(), basin);
                     }
+                } catch (Throwable e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "FFMP Can't retrieve FFMP URI, " + dataUri, e);
                 }
             }
-        });
+        }
     }
 
     /**
@@ -694,7 +672,7 @@ public class FFMPMonitor extends ResourceMonitor {
             if (source.getSourceType().equals(
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
 
-                long timeOffset = source.getExpirationMinutes(siteKey) * 1000 * 60;
+                long timeOffset = source.getExpirationMinutes(siteKey) * TimeUtil.MILLIS_PER_MINUTE;
                 earliestTime = new Date(time.getTime() - timeOffset);
             }
 
@@ -977,7 +955,7 @@ public class FFMPMonitor extends ResourceMonitor {
             hucsToLoad.clear();
             hucsToLoad.add("ALL");
             timeBack = new Date(resource.getMostRecentTime().getTime()
-                    - (3600 * 1000 * 24));
+                    - (TimeUtil.MILLIS_PER_HOUR * 24));
         }
 
         frd.floader = new FFMPDataLoader(frd, timeBack, startTime, loadType,
@@ -1149,10 +1127,13 @@ public class FFMPMonitor extends ResourceMonitor {
             res.getResourceData().floader = null;
             int val = siteCount.get(res.getSiteKey());
 
-            // clear out the cache
-            for (Entry<String, FFMPCacheRecord> entry : ffmpData.get(
-                    res.getSiteKey()).entrySet()) {
-                entry.getValue().closeCache();
+            // never opened a cache
+            if (ffmpData.get(res.getSiteKey()) != null) {
+                // clear out the cache
+                for (Entry<String, FFMPCacheRecord> entry : ffmpData.get(
+						res.getSiteKey()).entrySet()) {
+                    entry.getValue().closeCache();
+                }
             }
 
             if ((val == 1) && (siteCount.size() > 1)) {
@@ -2426,9 +2407,11 @@ public class FFMPMonitor extends ResourceMonitor {
                         }
                     } else {
                         try {
-                            statusHandler.handle(Priority.INFO,
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.handle(Priority.DEBUG,
                                     "Retrieving and Populating URI: , "
                                             + dataUri);
+                            }
                             curRecord.retrieveMapFromDataStore(dataStore,
                                     dataUri,
                                     getTemplates(fffmpRec.getSiteKey()), fhuc,
