@@ -50,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * 8/19/09     2899        njensen     Rewrote equals() for performance
  * 5/08/12     #600        dgilling    Implement clone().
  * 6/25/12     #766        dgilling    Fix isValid().
+ * 01/18/13    #1504       randerso    Removed setters since class should be immutable
  * 
  * </pre>
  * 
@@ -485,42 +486,6 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         }
 
         return date;
-    }
-
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
-
-    public void setFormat(DataType format) {
-        this.format = format;
-    }
-
-    public void setFormat(String format) {
-        if (format.equals("GRID")) {
-            this.format = DataType.GRID;
-        } else {
-            this.format = DataType.NONE;
-        }
-    }
-
-    public void setDbType(String dbType) {
-        this.dbType = dbType;
-    }
-
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
-
-    public void setModelTime(String modelTime) {
-        this.modelTime = modelTime;
-    }
-
-    public void setModelId(String modelId) {
-        this.modelId = modelId.intern();
-    }
-
-    public void setShortModelId(String shortModelId) {
-        this.shortModelId = shortModelId;
     }
 
     public Date getModelTimeAsDate() {

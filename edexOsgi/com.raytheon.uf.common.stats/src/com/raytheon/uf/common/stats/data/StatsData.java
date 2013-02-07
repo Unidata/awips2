@@ -32,22 +32,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.stats.AggregateRecord;
-import com.raytheon.uf.common.stats.util.UnitUtils;
+import com.raytheon.uf.common.stats.util.DataView;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * Statistical data object holding data to be graphed.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 07, 2012    728     mpduff      Initial creation
- *
+ * Sep 07, 2012    728     mpduff      Initial creation.
+ * Jan 17, 2013   1357     mpduff      Store data in raw units, not converted.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -84,9 +85,6 @@ public class StatsData {
     @DynamicSerializeElement
     private Map<Long, StatsBin> bins;
 
-    /** UnitUtils object */
-    private UnitUtils unitUtils;
-
     /** Constructor */
     public StatsData() {
 
@@ -94,7 +92,7 @@ public class StatsData {
 
     /**
      * Constructor
-     *
+     * 
      * @param key
      *            Key to the object
      * @param tsMillis
@@ -104,12 +102,10 @@ public class StatsData {
      * @param unitUtils
      *            UnitUtils object
      */
-    public StatsData(String key, long tsMillis, TimeRange timeRange,
-            UnitUtils unitUtils) {
+    public StatsData(String key, long tsMillis, TimeRange timeRange) {
         this.key = key;
         this.dataFrequency = (int) tsMillis;
         this.timeRange = timeRange;
-        this.unitUtils = unitUtils;
     }
 
     /**
@@ -130,7 +126,7 @@ public class StatsData {
     /**
      * @return the minValue
      */
-    public Double getMinValue(String view) {
+    public Double getMinValue(DataView view) {
         double minValue = Integer.MAX_VALUE;
 
         for (DataPoint point : pointList) {
@@ -145,7 +141,7 @@ public class StatsData {
     /**
      * @return the minValue
      */
-    public Double getMaxValue(String view) {
+    public Double getMaxValue(DataView view) {
         double maxValue = Integer.MIN_VALUE;
 
         for (DataPoint point : pointList) {
@@ -189,7 +185,7 @@ public class StatsData {
 
     /**
      * Get the list of DataPoint objects for the key.
-     *
+     * 
      * @param key
      *            The key
      * @return List of DataPoint objects
@@ -216,7 +212,7 @@ public class StatsData {
 
     /**
      * Add an AggregateRecord.
-     *
+     * 
      * @param rec
      *            the record to add
      */
@@ -226,7 +222,7 @@ public class StatsData {
 
     /**
      * Get the key
-     *
+     * 
      * @return
      */
     public String getKey() {
@@ -235,7 +231,7 @@ public class StatsData {
 
     /**
      * Set the key
-     *
+     * 
      * @param key
      *            the key to set
      */
@@ -245,7 +241,7 @@ public class StatsData {
 
     /**
      * Set the StatsBin object map.
-     *
+     * 
      * @param bins
      */
     public void setBins(Map<Long, StatsBin> bins) {
@@ -263,7 +259,7 @@ public class StatsData {
             long start = startDate.getTime();
             long bin = getBinKey(start);
             if (bins.get(bin) != null) {
-                bins.get(bin).setData(record);
+                bins.get(bin).addData(record);
             }
         }
 
@@ -272,13 +268,11 @@ public class StatsData {
 
     /**
      * Create the points for this key.
-     *
+     * 
      * @param dataKey
      */
     private void createPoints() {
         // Bins are created, now make the graph group member and point objects
-        // convert the data values before storing in the data object
-        double conversion = unitUtils.getConversion();
         for (long key : bins.keySet()) {
             StatsBin sb = bins.get(key);
             List<AggregateRecord> dataList = sb.getData();
@@ -288,9 +282,9 @@ public class StatsData {
 
                 for (AggregateRecord rec : dataList) {
                     // Check for an existing point object
-                    point.setMax(rec.getMax() / conversion);
-                    point.setMin(rec.getMin() / conversion);
-                    point.setSum(rec.getSum() / conversion);
+                    point.setMax(rec.getMax());
+                    point.setMin(rec.getMin());
+                    point.setSum(rec.getSum());
                     point.addToCount(rec.getCount());
                 }
 
@@ -301,7 +295,7 @@ public class StatsData {
 
     /**
      * Get the bin key for the given millisecond value.
-     *
+     * 
      * @param millis
      *            The millisecond value
      * @return The bin that should hold this millisecond value

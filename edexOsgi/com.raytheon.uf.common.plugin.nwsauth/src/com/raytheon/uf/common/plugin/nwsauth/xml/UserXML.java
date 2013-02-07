@@ -28,6 +28,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.auth.user.IUserId;
@@ -65,6 +68,17 @@ public class UserXML implements IUser, ISerializableObject {
     @DynamicSerializeElement
     @XmlElements({ @XmlElement(name = "userRole", type = String.class) })
     private List<String> roleList = new ArrayList<String>();
+
+    public UserXML() {
+
+    }
+
+    /**
+     * @param userId
+     */
+    public UserXML(String userId) {
+        setUserId(userId);
+    }
 
     /**
      * @return the userId
@@ -129,6 +143,30 @@ public class UserXML implements IUser, ISerializableObject {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UserXML) {
+            UserXML that = (UserXML) obj;
+
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(this.getUserId(), that.getUserId());
+            return builder.isEquals();
+
+        }
+        return super.equals(obj);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(this.getUserId()).toHashCode();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -136,17 +174,10 @@ public class UserXML implements IUser, ISerializableObject {
      */
     @Override
     public String toString() {
-        final String nl = "\n";
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getUserId()).append(nl);
-
-        for (String role : this.roleList) {
-            sb.append("  ").append(role).append(nl);
-        }
-
-        for (String perm : permissionList) {
-            sb.append("  ").append(perm).append(nl);
-        }
+        sb.append("userId:").append(this.getUserId());
+        sb.append("\nroles:").append(this.getRoleList());
+        sb.append("\npermissions:").append(this.getPermissionList());
 
         return sb.toString();
     }
