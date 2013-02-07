@@ -151,7 +151,15 @@ public abstract class AbstractBandwidthManagerIntTest {
      */
     protected Subscription createSubscriptionThatFillsUpABucket() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize);
+    }
 
+    /**
+     * Create a subscription the fills up ten buckets.
+     * 
+     * @return the subscription
+     */
+    protected Subscription createSubscriptionThatFillsUpTenBuckets() {
+        return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 10);
     }
 
     /**

@@ -10,7 +10,7 @@ import java.util.TimeZone;
 import org.junit.Test;
 
 import com.raytheon.uf.common.stats.AggregateRecord;
-import com.raytheon.uf.common.stats.util.DataViewUtils;
+import com.raytheon.uf.common.stats.util.DataView;
 
 public class DataPointTest {
     private final String eventType = "com.raytheon.uf.common.stats.ProcessEvent";
@@ -38,7 +38,7 @@ public class DataPointTest {
         assertEquals("Count does not match", expectedCount, point.getCount(), 0);
 
         assertEquals("Count does not match", expectedCount,
-                point.getValue(DataViewUtils.DataView.COUNT.getView()), 0);
+                point.getValue(DataView.COUNT), 0);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DataPointTest {
         assertEquals("Sum does not match", expectedSum, point.getSum(), 0);
 
         assertEquals("Sum does not match", expectedSum,
-                point.getValue(DataViewUtils.DataView.SUM.getView()), 0);
+                point.getValue(DataView.SUM), 0);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class DataPointTest {
         assertEquals("Min does not match", expectedMin, point.getMin(), 0);
 
         assertEquals("Min does not match", expectedMin,
-                point.getValue(DataViewUtils.DataView.MIN.getView()), 0);
+                point.getValue(DataView.MIN), 0);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class DataPointTest {
         assertEquals("Max does not match", expectedMax, point.getMax(), 0);
 
         assertEquals("Max does not match", expectedMax,
-                point.getValue(DataViewUtils.DataView.MAX.getView()), 0);
+                point.getValue(DataView.MAX), 0);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class DataPointTest {
         assertEquals("Avg does not match", expectedAvg, point.getAvg(), 0.25);
 
         assertEquals("Avg does not match", expectedAvg,
-                point.getValue(DataViewUtils.DataView.AVG.getView()), 0.25);
+                point.getValue(DataView.AVG), 0.25);
     }
 
     // Build the Aggregate records
