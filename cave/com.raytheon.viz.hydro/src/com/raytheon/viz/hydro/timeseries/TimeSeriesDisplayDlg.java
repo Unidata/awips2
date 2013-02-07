@@ -1739,13 +1739,10 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         } else {
             currentPage--;
         }
+        updateCanvases();
         for (int i = 0; i < pageCompList.size(); i++) {
             if (currentPage == i) {
                 ((GridData) pageCompList.get(i).getLayoutData()).exclude = false;
-                canvasList.get(i).setGetAgain(true);
-                canvasList.get(i).redraw();
-                canvasList.get(i).update();
-
                 pageCompList.get(i).setVisible(true);
             } else {
                 ((GridData) pageCompList.get(i).getLayoutData()).exclude = true;
@@ -1765,6 +1762,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         } else {
             currentPage++;
         }
+        updateCanvases();
         for (int i = 0; i < pageCompList.size(); i++) {
             if (currentPage == i) {
                 ((GridData) pageCompList.get(i).getLayoutData()).exclude = false;
@@ -1775,6 +1773,17 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             }
             stackGridComp.layout();
             stackGridComp.setFocus();
+        }
+    }
+
+    /**
+     * Update the canvases with new data.
+     */
+    private void updateCanvases() {
+        for (int i = 0; i < canvasList.size(); i++) {
+            TimeSeriesDisplayCanvas canvas = canvasList.get(i);
+            canvas.setGetAgain(true);
+            canvas.redraw();
         }
     }
 
