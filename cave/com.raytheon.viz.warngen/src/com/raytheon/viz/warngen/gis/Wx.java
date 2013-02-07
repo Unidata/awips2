@@ -322,7 +322,7 @@ public class Wx {
 
                 if (pathcastConfiguration.isWithinPolygon()) {
                     // Means that all points returned must be within the polygon
-                    bufferedPathCastArea = warningPolygon;
+                    bufferedPathCastArea = warningPolygon.intersection(geom);
                 } else {
                     bufferedPathCastArea = geom;
                 }
