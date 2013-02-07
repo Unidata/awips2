@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Random;
 
 import com.google.common.collect.Lists;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -79,7 +80,7 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
         subscription.setParameter(Lists.<Parameter> newArrayList());
         // Same priority for all, individual tests needing to test specific
         // priorities should set it manually anyway
-        subscription.setPriority(1);
+        subscription.setPriority(SubscriptionPriority.NORMAL);
         subscription.setProvider(ProviderFixture.INSTANCE.get(seedValue)
                 .getName());
         subscription.setSubscriptionStart(subscription.getActivePeriodStart());
