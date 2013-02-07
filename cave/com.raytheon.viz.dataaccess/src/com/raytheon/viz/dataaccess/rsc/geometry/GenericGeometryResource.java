@@ -20,16 +20,18 @@
 package com.raytheon.viz.dataaccess.rsc.geometry;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -41,6 +43,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * Renders various geometric entities based on geometry data that is retrieved
@@ -67,11 +71,20 @@ public class GenericGeometryResource extends
 
     private static final String GENERIC_LEGEND_TEXT = "Generic Geometry ";
 
-    private boolean geometriesReady;
+    private static class FrameData {
 
-    private List<double[]> pointsToRender;
+        public final List<double[]> pointsToRender;
 
-    private IWireframeShape shape;
+        public final IWireframeShape shape;
+
+        public FrameData(List<double[]> pointsToRender, IWireframeShape shape) {
+            this.pointsToRender = pointsToRender;
+            this.shape = shape;
+        }
+
+    }
+
+    private Map<DataTime, FrameData> renderableData = new HashMap<DataTime, FrameData>();
 
     /**
      * Constructor
@@ -82,7 +95,6 @@ public class GenericGeometryResource extends
     protected GenericGeometryResource(GenericGeometryResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties, GENERIC_LEGEND_TEXT);
-        this.geometriesReady = false;
     }
 
     /*
@@ -108,13 +120,22 @@ public class GenericGeometryResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (this.geometriesReady == false) {
-            this.prepareData(target);
+        DataTime timeToPaint = null;
+        if (!isTimeAgnostic()) {
+            timeToPaint = paintProps.getDataTime();
+            if (timeToPaint == null) {
+                return;
+            }
+        }
+        if (!renderableData.containsKey(timeToPaint)) {
+            this.prepareData(target, timeToPaint);
         }
 
+        FrameData frameData = renderableData.get(timeToPaint);
+
         // First, draw the points
-        if (this.pointsToRender.size() > 0) {
-            target.drawPoints(this.pointsToRender,
+        if (frameData.pointsToRender.size() > 0) {
+            target.drawPoints(frameData.pointsToRender,
                     getCapability(ColorableCapability.class).getColor(),
                     IGraphicsTarget.PointStyle.CIRCLE,
                     getCapability(MagnificationCapability.class)
@@ -123,8 +144,8 @@ public class GenericGeometryResource extends
 
         OutlineCapability outlineCapability = getCapability(OutlineCapability.class);
         // Finally, draw the shape
-        if (this.shape != null && outlineCapability.isOutlineOn()) {
-            target.drawWireframeShape(this.shape,
+        if (frameData.shape != null && outlineCapability.isOutlineOn()) {
+            target.drawWireframeShape(frameData.shape,
                     getCapability(ColorableCapability.class).getColor(),
                     outlineCapability.getOutlineWidth(),
                     outlineCapability.getLineStyle());
@@ -151,19 +172,21 @@ public class GenericGeometryResource extends
      * (com.raytheon.uf.viz.core.IGraphicsTarget)
      */
     @Override
-    protected void prepareData(IGraphicsTarget target) throws VizException {
-        this.initDrawableStorage();
+    protected void prepareData(IGraphicsTarget target, DataTime time)
+            throws VizException {
+        IWireframeShape shape = null;
+        List<double[]> pointsToRender = new ArrayList<double[]>();
 
         int numberOfPoints = 0;
 
-        for (IGeometryData geometryData : this.resourceData.getData()) {
+        for (IGeometryData geometryData : this.resourceData.getData(time)) {
             Geometry geometry = geometryData.getGeometry();
             if (geometry instanceof Point) {
                 double[] pixels = this.descriptor
                         .worldToPixel(new double[] {
                                 geometry.getCoordinate().x,
                                 geometry.getCoordinate().y });
-                this.pointsToRender.add(pixels);
+                pointsToRender.add(pixels);
             } else {
                 // Calculate the number of points.
 
@@ -184,14 +207,13 @@ public class GenericGeometryResource extends
 
         if (numberOfPoints > 0) {
             // create the wireframe shape
-            this.shape = target.createWireframeShape(false, this.descriptor,
-                    0.0f);
+            shape = target.createWireframeShape(false, this.descriptor, 0.0f);
 
-            JTSCompiler jtsCompiler = new JTSCompiler(null, this.shape,
+            JTSCompiler jtsCompiler = new JTSCompiler(null, shape,
                     this.descriptor, PointStyle.CROSS);
-            this.shape.allocate(numberOfPoints);
+            shape.allocate(numberOfPoints);
             // add the geometries
-            for (IGeometryData geometryData : this.resourceData.getData()) {
+            for (IGeometryData geometryData : this.resourceData.getData(time)) {
                 try {
                     jtsCompiler.handle((Geometry) geometryData.getGeometry()
                             .clone());
@@ -204,9 +226,9 @@ public class GenericGeometryResource extends
             }
 
             // compile
-            this.shape.compile();
+            shape.compile();
         }
-        this.geometriesReady = true;
+        renderableData.put(time, new FrameData(pointsToRender, shape));
     }
 
     /*
@@ -222,23 +244,16 @@ public class GenericGeometryResource extends
     }
 
     /**
-     * Initializes the lists that will track the geometric entities that we will
-     * be drawing.
-     */
-    private void initDrawableStorage() {
-        this.pointsToRender = new ArrayList<double[]>();
-    }
-
-    /**
      * Normally invoked when the resource is disposed; purges all saved
      * geometric entities
      */
     public void purgeDrawableStorage() {
-        this.pointsToRender = null;
-        if (this.shape != null) {
-            this.shape.dispose();
+        Collection<FrameData> frames = renderableData.values();
+        renderableData = new HashMap<DataTime, FrameData>();
+        for (FrameData frame : frames) {
+            if (frame.shape != null) {
+                frame.shape.dispose();
+            }
         }
-        this.shape = null;
-        this.geometriesReady = false;
     }
 }
