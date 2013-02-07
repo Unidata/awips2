@@ -65,7 +65,7 @@ public class PDC_SaveDlg extends CaveSWTDialog {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PDC_SaveDlg.class);
 
-    /** Tile for Warning message dialog. */
+    /** Title for Warning message dialog. */
     private final String PRESET_ERROR_TITLE = "Invalid Value";
 
     /** Message when invalid new ID. */
@@ -77,7 +77,7 @@ public class PDC_SaveDlg extends CaveSWTDialog {
     /** Message when invalid new rank. */
     private final String PRESET_RANK_ERROR = "Invalid Preset Rank.";
 
-    /** Tile for Error dialog when save fails. */
+    /** Title for Error dialog when save fails. */
     private final String ERROR_TITLE = "Error Occurred";
 
     /** Error message when save fails. */
