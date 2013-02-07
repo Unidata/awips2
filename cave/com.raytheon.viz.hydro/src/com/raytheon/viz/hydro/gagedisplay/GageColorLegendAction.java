@@ -27,44 +27,49 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Action for clicking on the contextual menu for color legend.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 2, 2008	1194     	mpduff	Initial creation
+ * Feb 07, 2013 1578        Changes for non-blocking GageLegend.
  * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class GageColorLegendAction extends AbstractRightClickAction {
-  
-    /** 
+
+    /** Text for the action. */
+    private final String displayText = "Display Gage Color Legend";
+
+    /** The dialog with the legend in it. */
+    private GageLegend dialog;
+
+    /**
      * Returns the text for the action.
      * 
      * @see org.eclipse.jface.action.Action#getText()
      */
     @Override
     public String getText() {
-        // TODO Auto-generated method stub
-        final String displayText = "Display Gage Color Legend";
         return displayText;
     }
 
-    /** 
+    /**
      * Launches the Gage Color Legend Dialog.
+     * 
      * @see org.eclipse.jface.action.Action#run()
      */
     @Override
     public void run() {
-        super.run();
-        // Display the swt dialog with the legend in it
-        GageLegend gl = new GageLegend(new Shell());
-        gl.open();
-        
-    }
+        if (dialog == null) {
+            dialog = new GageLegend(new Shell());
+        }
 
+        dialog.open();
+    }
 }
