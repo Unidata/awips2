@@ -29,6 +29,8 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -42,6 +44,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.IGetSortType;
 import com.raytheon.viz.hydrocommon.data.DataTrashCanData;
@@ -57,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
  * 18 JUL 2010  2110       mpduff      Tweaked list box labels
+ * 05 FEB 2013  1578       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -65,6 +71,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataTrashCanDlg.class);
 
     /**
      * Font used for list controls.
@@ -109,12 +117,12 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
     /**
      * Collection of trash data.
      */
-    private ArrayList<DataTrashCanData> trashData;
+    private java.util.List<DataTrashCanData> trashData;
 
     /**
      * Collection of filtered trash data.
      */
-    private ArrayList<DataTrashCanData> filteredTrashData;
+    private java.util.List<DataTrashCanData> filteredTrashData;
 
     /**
      * Constructor.
@@ -123,10 +131,16 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
      *            Parent shell.
      */
     public DataTrashCanDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Data Trash Can");
+        filteredTrashData = new ArrayList<DataTrashCanData>();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -136,11 +150,23 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -207,6 +233,14 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
             @Override
             public void keyReleased(KeyEvent e) {
                 filterDisplayList();
+            }
+        });
+
+        locationTF.addVerifyListener(new VerifyListener() {
+
+            @Override
+            public void verifyText(VerifyEvent e) {
+                e.text = e.text.toUpperCase();
             }
         });
 
@@ -297,8 +331,7 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
 
         Label label = new Label(labelComp, SWT.NONE);
         String labelText = String
-                .format(
-                        "%-8s         %-33s %2s  %6s  %3s  %4s %12s  %15s   %19s         %2s %2s %2s %8s    %6s   %11.11s          %-10.10s    %11.11s",
+                .format("%-8s         %-33s %2s  %6s  %3s  %4s %12s  %15s   %19s         %2s %2s %2s %8s    %6s   %11.11s          %-10.10s    %11.11s",
                         "Location", "Name", "PE", "Dur", "TS", "Ext", "Value",
                         "ObsTime", "BasisTime", "RV", "SQ", "QC", "User",
                         "Type", "PostTime", "Product", "ProdTime");
@@ -339,8 +372,8 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
                 try {
                     moveToDataTables();
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error moving data: ", e);
                 }
             }
         });
@@ -390,8 +423,8 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
             trashData = DataTrashCanDataManager.getInstance()
                     .getDataTrashCanData(this);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem getting trash data: ", e);
         }
 
         filterDisplayList();
@@ -408,11 +441,11 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         updateDisplayList();
     }
 
+    /**
+     * Apply add active filters to limit the display list.
+     */
     private void filterDisplayList() {
-        if (filteredTrashData == null)
-            filteredTrashData = new ArrayList<DataTrashCanData>();
-        else
-            filteredTrashData.clear();
+        filteredTrashData.clear();
 
         filterByLID();
         filterByRejectType();
@@ -421,6 +454,9 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         sortDisplayList();
     }
 
+    /**
+     * Filter the list by desired location ID.
+     */
     private void filterByLID() {
         String stationSearch = locationTF.getText().toUpperCase();
 
@@ -437,6 +473,9 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         }
     }
 
+    /**
+     * Filter by reject type All, Auto, or Manual.
+     */
     private void filterByRejectType() {
         String rejectType = rejectTypeCbo.getItem(rejectTypeCbo
                 .getSelectionIndex());
@@ -457,6 +496,9 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         }
     }
 
+    /**
+     * When active filter by the selected physical element.
+     */
     private void filterByPE() {
 
         if (peChk.getSelection()) {
@@ -479,6 +521,9 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         }
     }
 
+    /**
+     * Update the display list with the contents of filteredTrashData.
+     */
     private void updateDisplayList() {
         dataList.removeAll();
 
@@ -487,6 +532,9 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         }
     }
 
+    /**
+     * Populate the physical elements list.
+     */
     private void loadPhyElemListData() {
         try {
             for (String currPE : DataTrashCanDataManager.getInstance()
@@ -494,8 +542,8 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
                 peDataList.add(currPE);
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem getting PE values: ", e);
         }
     }
 
@@ -540,7 +588,7 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
      * 
      * @param dataToDelete
      */
-    private void deleteRecords(ArrayList<DataTrashCanData> dataToDelete) {
+    private void deleteRecords(java.util.List<DataTrashCanData> dataToDelete) {
         // Have DM delete records
         try {
             DataTrashCanDataManager.getInstance().deleteTrashRecords(
@@ -555,8 +603,8 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
     }
 
     /**
-     * Reposts data to the correct PE table and deletes it from the rejecteddata
-     * table.
+     * Repost selected data to the correct PE table and remove it from the
+     * rejected data table.
      * 
      * @throws VizException
      */
@@ -569,7 +617,12 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         getTrashData();
     }
 
-    private ArrayList<DataTrashCanData> getCurrentlySelectedRange() {
+    /**
+     * Obtain a list of selected trash can data.
+     * 
+     * @return rval
+     */
+    private java.util.List<DataTrashCanData> getCurrentlySelectedRange() {
         ArrayList<DataTrashCanData> rval = new ArrayList<DataTrashCanData>();
 
         for (int i : dataList.getSelectionIndices()) {
@@ -579,6 +632,11 @@ public class DataTrashCanDlg extends CaveSWTDialog implements IGetSortType {
         return rval;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.IGetSortType#getSortType()
+     */
     @Override
     public String getSortType() {
         return sortByCbo.getItem(sortByCbo.getSelectionIndex());
