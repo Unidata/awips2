@@ -113,6 +113,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 10, 2012   1259     bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 12, 2012 1391       bgonzale     Added job for dataset retrieval.
  * Jan 08, 2012 1436       bgonzale     Fixed area text box display update check.
+ * Jan 14, 2012 1437       bgonzale     Clear filters when creating a new configuration.
  * 
  * </pre>
  * 
@@ -860,6 +861,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
             return;
         }
 
+        xml = new FilterSettingsXML();
         setText(WINDOW_TITLE);
 
         // Clear the area.
@@ -871,6 +873,8 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         dataTypesDualList.clearSelection();
 
         // Clear the filters.
+        updateFilters();
+
         filterExpandBar.updateFilters(dataTypesDualList.getSelectedListItems(),
                 envelope);
 
