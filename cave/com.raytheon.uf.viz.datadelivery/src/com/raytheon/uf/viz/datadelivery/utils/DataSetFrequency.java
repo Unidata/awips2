@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.datadelivery.utils;
 
 import java.util.List;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
+
 /**
  * Data Set Frequency Enumeration.
  * 
@@ -30,7 +32,8 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 8, 2013    1420     mpduff      Initial creation.
+ * Jan 08, 2013 1420       mpduff       Initial creation.
+ * Jan 22, 2013 1519       djohnson     Correct the non-hourly default latency to match requirements.
  * 
  * </pre>
  * 
@@ -39,8 +42,11 @@ import java.util.List;
  */
 
 public enum DataSetFrequency {
-    HOURLY(40), SIX_HOURLY(115), TWELVE_HOURLY(115), DAILY(115);
-
+    HOURLY(DataDeliveryUtils.HOURLY_DATASET_LATENCY_IN_MINUTES), SIX_HOURLY(
+            DataDeliveryUtils.NON_HOURLY_DATASET_LATENCY_IN_MINUTES), TWELVE_HOURLY(
+            DataDeliveryUtils.NON_HOURLY_DATASET_LATENCY_IN_MINUTES), DAILY(
+            DataDeliveryUtils.NON_HOURLY_DATASET_LATENCY_IN_MINUTES);
+    
     private int defaultLatency;
 
     private DataSetFrequency(int defaultLatency) {
@@ -49,13 +55,14 @@ public enum DataSetFrequency {
 
     public static DataSetFrequency fromCycleTimes(List<Integer> cycleTimes) {
         if (cycleTimes.size() > 1) {
-            if ((cycleTimes.get(1) - cycleTimes.get(0)) == 1) {
+            final int hoursBetweenCycles = cycleTimes.get(1) - cycleTimes.get(0);
+            if (hoursBetweenCycles == 1) {
                 return DataSetFrequency.HOURLY;
-            } else if ((cycleTimes.get(1) - cycleTimes.get(0)) == 6) {
+            } else if (hoursBetweenCycles == TimeUtil.HOURS_PER_QUARTER_DAY) {
                 return DataSetFrequency.SIX_HOURLY;
-            } else if ((cycleTimes.get(1) - cycleTimes.get(0)) == 12) {
+            } else if (hoursBetweenCycles == TimeUtil.HOURS_PER_HALF_DAY) {
                 return DataSetFrequency.TWELVE_HOURLY;
-            } else if ((cycleTimes.get(1) - cycleTimes.get(0)) == 24) {
+            } else if (hoursBetweenCycles == TimeUtil.HOURS_PER_DAY) {
                 return DataSetFrequency.DAILY;
             }
         }

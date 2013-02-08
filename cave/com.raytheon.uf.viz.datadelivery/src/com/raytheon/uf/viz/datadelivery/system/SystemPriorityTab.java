@@ -268,10 +268,7 @@ public class SystemPriorityTab {
                                 create, ruleName, PRIORITY_TYPE);
                     }
 
-                    boolean reloadFlag = (Boolean) ruleDlg.open();
-                    if (reloadFlag) {
-                        loadList();
-                    }
+                    ruleDlg.open();
                 } else {
                     ruleDlg.bringToTop();
                 }
