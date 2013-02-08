@@ -44,10 +44,12 @@ import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
@@ -62,7 +64,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionNotificationService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
@@ -100,6 +101,9 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
  * Jan 04, 2012 1420       mpduff       Add Latency to PriorityComp.
  * Jan 11, 2013 1453       djohnson     Sets cycle times on construction.
+ * Jan 14, 2013 1286       djohnson     Check that message to display is not null or empty, and 
+ *                                      only send notification of subscription creation on OK status.
+ * Jan 25, 2013 1528       djohnson     Use priority enum instead of raw integers, default to existing priority on edit.
  * </pre>
  * 
  * @author mpduff
@@ -371,6 +375,10 @@ public class CreateSubscriptionDlgPresenter {
             view.setActiveEndDateBtnEnabled(false);
         }
 
+        if (!create) {
+            view.setPriority(subscription.getPriority());
+        }
+
         List<Integer> cycleTimes = subscription.getTime().getCycleTimes();
         if (cycleTimes != null) {
             List<String> cycleStrings = new ArrayList<String>();
@@ -502,8 +510,8 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         // priority
-        int priorityInd = view.getPriority();
-        subscription.setPriority(priorityInd);
+        SubscriptionPriority priority = view.getPriority();
+        subscription.setPriority(priority);
 
         subscription.setOfficeID(LocalizationManager.getInstance()
                 .getCurrentSite());
@@ -557,17 +565,21 @@ public class CreateSubscriptionDlgPresenter {
                     job.addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(final IJobChangeEvent event) {
-                            subscriptionNotificationService
-                                    .sendCreatedSubscriptionNotification(
-                                            subscription, username);
 
                             final IStatus status = event.getResult();
-                            if (status.getMessage() != null) {
+
+                            final boolean subscriptionCreated = status.isOK();
+                            if (subscriptionCreated) {
+                                sendSubscriptionNotification(subscription,
+                                        username);
+                            }
+
+                            if (!Strings.isNullOrEmpty(status.getMessage())) {
                                 guiThreadTaskExecutor.runAsync(new Runnable() {
                                     @Override
                                     public void run() {
                                         if (!view.isDisposed()) {
-                                            if (status.isOK()) {
+                                            if (subscriptionCreated) {
                                                 view.displayPopup(
                                                         CREATED_TITLE,
                                                         status.getMessage());

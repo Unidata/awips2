@@ -29,12 +29,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -47,7 +49,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 2, 2013  1441      djohnson     Initial creation
+ * Jan 2, 2013  1441       djohnson     Initial creation
+ * Jan 18, 2013 1441       djohnson     Use group definition service.
  * 
  * </pre>
  * 
@@ -67,6 +70,9 @@ public class DeleteGroupDlg extends CaveSWTDialog {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DeleteGroupDlg.class);
+
+    private final IGroupDefinitionService groupService = DataDeliveryServices
+            .getGroupDefinitionService();
 
     /**
      * @param shell
@@ -144,8 +150,11 @@ public class DeleteGroupDlg extends CaveSWTDialog {
                             + groupName + "?")) {
 
                 try {
-                    DataDeliveryHandlers.getGroupDefinitionHandler()
-                            .deleteByName(groupName);
+                    groupService
+                            .deleteGroupDefinition(
+                                    DataDeliveryHandlers
+                                            .getGroupDefinitionHandler()
+                                            .getByName(groupName));
                     groupAction.loadGroupNames();
                     return true;
                 } catch (RegistryHandlerException e) {

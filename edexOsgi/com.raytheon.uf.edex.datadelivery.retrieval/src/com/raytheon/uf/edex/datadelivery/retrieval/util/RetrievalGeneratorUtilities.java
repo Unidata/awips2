@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -87,35 +89,39 @@ public class RetrievalGeneratorUtilities {
      * @param cov
      * @return
      */
-    public static HashMap<DataTime, ArrayList<Level>> findGridDuplicates(
-            String name,
-            ArrayList<DataTime> times, ArrayList<Level> levels, Parameter parm,
+    public static Map<DataTime, List<Level>> findGridDuplicates(String name,
+            List<DataTime> times, List<Level> levels,
+            List<String> ensembleMembers, Parameter parm,
             GridCoverage cov) {
 
-        HashMap<DataTime, ArrayList<Level>> dups = new HashMap<DataTime, ArrayList<Level>>();
+        HashMap<DataTime, List<Level>> dups = new HashMap<DataTime, List<Level>>();
 
         for (DataTime time : times) {
 
-            ArrayList<Level> levDups = dups.get(time);
+            List<Level> levDups = dups.get(time);
 
             if (levDups == null) {
                 levDups = new ArrayList<Level>();
             }
 
             for (Level level : levels) {
-                try {
+                for (String ensembleMember : ensembleMembers) {
+                    try {
 
-                    GridRecord rec = ResponseProcessingUtilities.getGridRecord(
-                            name, parm, level, cov);
-                    rec.setDataTime(time);
-                    rec.constructDataURI();
-                    boolean isDup = findDuplicateUri(rec.getDataURI(), "grid");
-                    if (isDup) {
-                        levDups.add(level);
+                        GridRecord rec = ResponseProcessingUtilities
+                                .getGridRecord(name, parm, level,
+                                        ensembleMember, cov);
+                        rec.setDataTime(time);
+                        rec.constructDataURI();
+                        boolean isDup = findDuplicateUri(rec.getDataURI(),
+                                "grid");
+                        if (isDup) {
+                            levDups.add(level);
+                        }
+                    } catch (PluginException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
                     }
-                } catch (PluginException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
                 }
             }
 
