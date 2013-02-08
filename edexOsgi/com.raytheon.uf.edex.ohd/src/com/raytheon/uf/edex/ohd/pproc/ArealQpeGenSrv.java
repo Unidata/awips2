@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2011            snaples     Initial creation
+ * Jan 10, 2013 1448       bgonzale    Added app context check in processArealQpe().
  * 
  * </pre>
  * 
@@ -209,6 +210,9 @@ public class ArealQpeGenSrv {
     private SimpleDateFormat fdf = new SimpleDateFormat("yyyyMMddHH");
 
     public Object processArealQpe() {
+        if (!AppsDefaults.getInstance().setAppContext(this)) {
+            return null;
+        }
 
         // Check to see if we need to run
         String gen = appsDefaults.getToken("mpe_generate_areal_qpe");

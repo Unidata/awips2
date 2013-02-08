@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Aug 10, 2012  1002      mpduff     Change dataset size from int to long.
  * Aug 21, 2012   712      mpduff     Make priorities display as 1, 2, 3.
  * Oct  2, 2012  1103      jpiatt     Remove unused methods, update enum, code clean up.
+ * Jan 25, 2012  1528      djohnson   Priorities no longer need incrementing for display.
  * </pre>
  * 
  * @author mpduff
@@ -67,7 +68,7 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     private boolean active = false;
 
     /** Subscription priority of fulfillment. */
-    private int priority = 2;
+    private int priority;
 
     /** Subscription description. */
     private String description = null;
@@ -493,7 +494,7 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
 
         this.setName(subscription.getName());
         this.setOwner(subscription.getOwner());
-        this.setPriority(subscription.getPriority() + 1);
+        this.setPriority(subscription.getPriority().getPriorityValue());
         this.setSubscriptionStart(subscription.getSubscriptionStart());
         this.setSubscriptionEnd(subscription.getSubscriptionEnd());
         this.setActive(subscription.isActive());
