@@ -31,6 +31,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
@@ -50,7 +55,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.Bandw
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 6, 2012  1397      djohnson     Initial creation
+ * Dec 06, 2012 1397       djohnson     Initial creation
+ * Jan 25, 2013 1528       djohnson     Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -59,6 +65,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.Bandw
  */
 
 class BandwidthGraphDataAdapter {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BandwidthGraphDataAdapter.class);
 
     private final RetrievalManager retrievalManager;
 
@@ -88,7 +96,7 @@ class BandwidthGraphDataAdapter {
                         .getBucketMinutes());
 
         Map<String, List<TimeWindowData>> dataMap = new HashMap<String, List<TimeWindowData>>();
-        Map<String, Integer> priorityMap = new HashMap<String, Integer>();
+        Map<String, SubscriptionPriority> priorityMap = new HashMap<String, SubscriptionPriority>();
 
         Map<Long, SubscriptionRetrieval> retrievals = new HashMap<Long, SubscriptionRetrieval>();
         Multimap<Long, BandwidthReservation> reservations = ArrayListMultimap
@@ -133,7 +141,16 @@ class BandwidthGraphDataAdapter {
             final SubscriptionRetrieval value = entry.getValue();
             SubscriptionDao dao = value.getSubscriptionDao();
             final String subName = dao.getName();
-            priorityMap.put(subName, Integer.valueOf((int) dao.getPriority()));
+            try {
+                priorityMap.put(subName, dao.getSubscription().getPriority());
+            } catch (SerializationException e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                        "Unable to get access to the actual subscription for ["
+                                + subName + "], skipping...",
+                        e);
+                continue;
+            }
 
             List<TimeWindowData> timeWindows = dataMap.get(subName);
 
