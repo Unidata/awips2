@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.raytheon.uf.viz.datadelivery.subscription.xml.OperatorAdapter;
+
 /**
  * Operator interface.
  * 
@@ -28,14 +32,15 @@ package com.raytheon.uf.viz.datadelivery.system;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 7, 2013            mpduff     Initial creation
+ * Jan 07, 2013            mpduff      Initial creation
+ * Jan 14, 2013            djohnson    Specify JAXB adapter on the interface.
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
+@XmlJavaTypeAdapter(value = OperatorAdapter.class)
 public interface Operator<T> {
     /**
      * Evaluate whether the operator would return true when comparing operandOne

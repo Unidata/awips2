@@ -54,6 +54,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez     Initial creation.
  * Nov 09, 2012            dhladky      Changed to CSV output
+ * Jan 24, 2013   1357     mpduff       Fix comma output and paths.
  * 
  * </pre>
  * 
@@ -91,6 +92,8 @@ public class Archiver {
 
     private static final String COMMA = ",";
 
+    private static final Pattern NLPattern = Pattern.compile("[\\n\\r]+");
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Archiver.class);
 
@@ -116,14 +119,12 @@ public class Archiver {
      * @param items
      * @return
      */
-    private String createFilename(TimeRange tr, String eventType, String group) {
+    private String createFilename(TimeRange tr, String eventType) {
 
         SimpleDateFormat fileDateFormatter = new SimpleDateFormat(
                 FILE_DATE_FORMAT);
         StringBuilder sb = new StringBuilder("stats/aggregates");
         String[] chunks = PERIOD_PATTERN.split(eventType);
-        sb.append("/");
-        sb.append(group);
         sb.append("/");
         sb.append(chunks[chunks.length - 1]);
         sb.append(".");
@@ -156,24 +157,29 @@ public class Archiver {
         double count = agrec.getCount();
 
         if (eventType != null) {
-            sb.append(eventType).append(COMMA);
+            sb.append(eventType);
         }
+        sb.append(COMMA);
 
         if (startDate != null) {
-            sb.append(dateFormat.format(startDate.getTime()))
-                    .append(COMMA);
+            sb.append(dateFormat.format(startDate.getTime()));
         }
+        sb.append(COMMA);
 
         if (endDate != null) {
-            sb.append(dateFormat.format(endDate.getTime())).append(
-                    COMMA);
+            sb.append(dateFormat.format(endDate.getTime()));
         }
+        sb.append(COMMA);
+
         if (grouping != null) {
-            sb.append(grouping).append(COMMA);
+            sb.append(NLPattern.matcher(grouping).replaceAll(""));
         }
+        sb.append(COMMA);
+
         if (field != null) {
-            sb.append(field).append(COMMA);
+            sb.append(field);
         }
+        sb.append(COMMA);
 
         sb.append(max).append(COMMA);
         sb.append(min).append(COMMA);
@@ -212,10 +218,9 @@ public class Archiver {
         for (StatisticsKey key : statisticsMap.keySet()) {
 
             String eventType = key.eventType;
-            String grouping = key.grouping;
             List<AggregateRecord> records = statisticsMap.get(key);
 
-            String filename = createFilename(key.timeRange, eventType, grouping);
+            String filename = createFilename(key.timeRange, eventType);
             try {
                 writeToFile(filename, records);
             } catch (JAXBException e) {
@@ -243,8 +248,7 @@ public class Archiver {
         siteLocalization.getFile().getParentFile().mkdirs();
         // Write this to output CSV
         try {
-            bw = new BufferedWriter(new FileWriter(
-                    outputFilePath));
+            bw = new BufferedWriter(new FileWriter(outputFilePath));
             if (bw != null) {
                 for (AggregateRecord agrec : records) {
                     bw.write(getCSVOutput(agrec, dateFormatter));

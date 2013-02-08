@@ -17,4 +17,6 @@ Require-Bundle: com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174"
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.units;bundle-version="1.0.0"

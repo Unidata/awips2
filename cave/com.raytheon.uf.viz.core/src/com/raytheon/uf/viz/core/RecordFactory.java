@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.viz.core;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 
@@ -56,7 +58,7 @@ public class RecordFactory {
     private static RecordFactory instance = new RecordFactory();
 
     /** Map containing the pluginName/Record class pairs */
-    private Map<String, Class<PluginDataObject>> defMap;
+    private Map<String, Class<PluginDataObject>> defMap = new HashMap<String, Class<PluginDataObject>>();
 
     public static final String WILDCARD = "%";
 
@@ -82,34 +84,37 @@ public class RecordFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized void loadDefMap() throws VizException {
-        if (defMap == null) {
-            GetPluginRecordMapRequest req = new GetPluginRecordMapRequest();
-            Map<String, String> pluginRecordMap = (Map<String, String>) ThriftClient
-                    .sendRequest(req);
-            Map<String, Class<PluginDataObject>> newDefMap = new HashMap<String, Class<PluginDataObject>>(
-                    pluginRecordMap.size());
-            for (Map.Entry<String, String> entry : pluginRecordMap.entrySet()) {
-                String pluginName = entry.getKey();
-                String record = entry.getValue();
-                if (record != null) {
-                    try {
-                        Class<PluginDataObject> clazz = (Class<PluginDataObject>) Class
-                                .forName(record);
-                        newDefMap.put(pluginName, clazz);
-                    } catch (Exception e) {
-                        statusHandler.handle(Priority.DEBUG,
-                                "Can't find record class for " + pluginName
-                                        + " plugin", e);
-                        System.out
-                                .println("DEBUG: Can't find record class for "
-                                        + pluginName + " plugin - alerts on "
-                                        + pluginName + " data will be ignored");
-                    }
+    private void loadDefMap() throws VizException {
+        GetPluginRecordMapRequest req = new GetPluginRecordMapRequest();
+        Map<String, String> pluginRecordMap = (Map<String, String>) ThriftClient
+                .sendRequest(req);
+        for (Map.Entry<String, String> entry : pluginRecordMap.entrySet()) {
+            String pluginName = entry.getKey();
+            String record = entry.getValue();
+            if (record != null) {
+                try {
+                    Class<PluginDataObject> clazz = (Class<PluginDataObject>) Class
+                            .forName(record);
+                    defMap.put(pluginName, clazz);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.DEBUG,
+                            "Can't find record class for " + pluginName
+                                    + " plugin", e);
+                    System.out.println("DEBUG: Can't find record class for "
+                            + pluginName + " plugin - alerts on " + pluginName
+                            + " data will be ignored");
                 }
             }
-            defMap = newDefMap;
         }
+    }
+
+    /**
+     * Returns a collection of all supported plugins
+     * 
+     * @return
+     */
+    public Collection<String> getSupportedPlugins() {
+        return new TreeSet<String>(defMap.keySet());
     }
 
     /**
@@ -123,7 +128,6 @@ public class RecordFactory {
      */
     public Map<String, Object> loadMapFromUri(String dataURI)
             throws VizException {
-
         // If no dataURI return
         if (dataURI == null) {
             return null;
@@ -181,10 +185,10 @@ public class RecordFactory {
      */
     public Class<PluginDataObject> getPluginClass(String pluginName)
             throws VizException {
-        if (defMap == null) {
-            loadDefMap();
+        Class<PluginDataObject> retVal = null;
+        if (defMap != null) {
+            retVal = defMap.get(pluginName);
         }
-        Class<PluginDataObject> retVal = defMap.get(pluginName);
         if (retVal == null) {
             throw new NoPluginException("Can't find record class for "
                     + pluginName + " plugin");
