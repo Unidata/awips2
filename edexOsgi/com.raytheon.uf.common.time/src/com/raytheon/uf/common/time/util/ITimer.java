@@ -1,5 +1,7 @@
 package com.raytheon.uf.common.time.util;
 
+import com.raytheon.uf.common.time.domain.api.IDuration;
+
 /**
  * 
  * Defines a timer that can be started and stopped.
@@ -11,6 +13,7 @@ package com.raytheon.uf.common.time.util;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 16, 2012 0743       djohnson     Initial creation
+ * Jan 11, 2013            djohnson     Use {@link IDuration}.
  * 
  * </pre>
  * 
@@ -42,6 +45,13 @@ public interface ITimer {
      * @return the elapsed time in milliseconds
      */
     long getElapsedTime();
+
+    /**
+     * Get the elapsed time
+     * 
+     * @return the elapsed time
+     */
+    IDuration getElapsed();
 
     /**
      * Reset the timer.
