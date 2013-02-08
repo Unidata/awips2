@@ -48,50 +48,30 @@ class ParmID(object):
             else:
                 self.parmLevel = level
             
-            self.compositeName = self.parmName + "_" + self.parmLevel
             self.__encodeIdentifier()
         
         elif parmIdentifier is not None:
             self.__decodeIdentifier(parmIdentifier)
-            self.compositeName = self.parmName + "_" + self.parmLevel
             self.__encodeIdentifier()
 
     def getParmName(self):
         return self.parmName
 
-    def setParmName(self, parmName):
-        self.parmName = parmName
-
     def getParmLevel(self):
         return self.parmLevel
-
-    def setParmLevel(self, parmLevel):
-        self.parmLevel = parmLevel
 
     def getDbId(self):
         return self.dbId
 
-    def setDbId(self, dbId):
-        self.dbId = dbId
-
     def getCompositeName(self):
         return self.compositeName
-
-    def setCompositeName(self, compositeName):
-        self.compositeName = compositeName
 
     def getShortParmId(self):
         return self.shortParmId
 
-    def setShortParmId(self, shortParmId):
-        self.shortParmId = shortParmId
-
     def getParmId(self):
         return self.parmId
 
-    def setParmId(self, parmId):
-        self.parmId = parmId
-        
     def __decodeIdentifier(self, parmIdentifier):
         parts = parmIdentifier.split(":")
         nameLevel = parts[0].split("_")
@@ -104,9 +84,9 @@ class ParmID(object):
             self.parmLevel = self.defaultLevel()
     
     def __encodeIdentifier(self):
+        self.compositeName = self.parmName + "_" + self.parmLevel
         self.shortParmId = self.compositeName + ":" + self.dbId.getShortModelId()
-        if self.parmId is None or len(self.parmId) == 0:
-            self.parmId = self.compositeName + ":" + self.dbId.getModelId()
+        self.parmId = self.compositeName + ":" + self.dbId.getModelId()
             
     def isValid(self):
         if len(self.parmName) is None or len(self.parmLevel) is None or self.dbId is None:
