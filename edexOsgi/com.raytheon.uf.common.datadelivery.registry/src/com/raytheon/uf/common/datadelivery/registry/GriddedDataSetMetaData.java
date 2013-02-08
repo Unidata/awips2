@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -60,13 +59,6 @@ public abstract class GriddedDataSetMetaData extends
     @SlotAttribute(CYCLE_SLOT)
     private int cycle = NO_CYCLE;
 
-    /**
-     * ensemble models set this
-     */
-    @DynamicSerializeElement
-    @XmlElement
-    private Ensemble ensemble;
-
     public void setLevelTypes(Map<DataLevelType, Levels> levelTypes) {
         this.levelTypes = levelTypes;
     }
@@ -92,11 +84,4 @@ public abstract class GriddedDataSetMetaData extends
         return cycle;
     }
 
-    public void setEnsemble(Ensemble ensemble) {
-        this.ensemble = ensemble;
-    }
-
-    public Ensemble getEnsemble() {
-        return ensemble;
-    }
 }
