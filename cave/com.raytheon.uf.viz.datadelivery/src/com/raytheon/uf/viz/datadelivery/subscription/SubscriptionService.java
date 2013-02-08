@@ -43,6 +43,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -70,6 +71,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 18, 2012 1443       bgonzale     Open force apply prompt pop-up on the UI thread.
  * Dec 20, 2012 1413       bgonzale     Added new pending approve and denied request and responses.
  * Jan 04, 2013 1441       djohnson     Separated out notification methods into their own service.
+ * Jan 28, 2013 1530       djohnson     Reset unscheduled flag with each update.
  * 
  * </pre>
  * 
@@ -357,6 +359,7 @@ public class SubscriptionService implements ISubscriptionService {
         final ServiceInteraction action = new ServiceInteraction() {
             @Override
             public String call() throws RegistryHandlerException {
+                subscription.setUnscheduled(false);
                 DataDeliveryHandlers.getSubscriptionHandler().update(
                         subscription);
                 return successMessage;
@@ -379,6 +382,7 @@ public class SubscriptionService implements ISubscriptionService {
             @Override
             public String call() throws RegistryHandlerException {
                 for (Subscription sub : subs) {
+                    sub.setUnscheduled(false);
                     DataDeliveryHandlers.getSubscriptionHandler().update(sub);
                 }
                 return successMessage;
@@ -438,6 +442,7 @@ public class SubscriptionService implements ISubscriptionService {
                                         subscription).isAuthorized();
                         try {
                             if (authorized) {
+                                subscription.setUnscheduled(false);
                                 DataDeliveryHandlers.getSubscriptionHandler()
                                         .update(subscription);
                             } else {
