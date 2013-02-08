@@ -20,24 +20,21 @@
 package com.raytheon.uf.viz.stats.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
@@ -48,7 +45,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.stats.GraphDataRequest;
 import com.raytheon.uf.common.stats.GraphDataResponse;
 import com.raytheon.uf.common.stats.data.GraphData;
-import com.raytheon.uf.common.stats.util.DataViewUtils;
+import com.raytheon.uf.common.stats.util.DataView;
+import com.raytheon.uf.common.stats.util.UnitUtils;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,17 +59,19 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
 
 /**
  * The Graph Data Structure.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012     728     mpduff      Initial creation
- *
+ * Oct 03, 2012     728    mpduff      Initial creation.
+ * Jan 17, 2013    1357    mpduff      Add ability to change units.
+ * Jan 18, 2013    1386    mpduff      Change menu text.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -101,8 +101,8 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
     /** Menu bar */
     private Menu menuBar;
 
-    /** Save Menu Item */
-    private MenuItem saveMI;
+    // /** Save Menu Item */
+    // private MenuItem saveMI;
 
     /** Exit Menu item */
     private MenuItem exitMI;
@@ -143,9 +143,17 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
     /** Data view combo */
     private Combo viewCombo;
 
+    /** Menu item map */
+    private final Map<String, MenuItem> menuItemMap = new HashMap<String, MenuItem>();
+
+    /** The currently displayed unit */
+    private String displayUnit;
+
+    private UnitUtils unitUtils;
+
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent Shell
      * @param callback
@@ -204,6 +212,8 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         groupComp.setLayout(gl);
         groupComp.setLayoutData(gd);
 
+        displayCanvas.setCallback(groupComp);
+
         gd = new GridData(SWT.FILL, SWT.DEFAULT, false, true);
         gl = new GridLayout(2, false);
         Composite ctrlComp = new Composite(leftComp, SWT.NONE);
@@ -220,11 +230,11 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         graphLabel.setText("Graph: ");
 
         List<String> viewList = new ArrayList<String>();
-        viewList.add(DataViewUtils.DataView.AVG.getView());
-        viewList.add(DataViewUtils.DataView.MIN.getView());
-        viewList.add(DataViewUtils.DataView.MAX.getView());
-        viewList.add(DataViewUtils.DataView.SUM.getView());
-        viewList.add(DataViewUtils.DataView.COUNT.getView());
+        viewList.add(DataView.AVG.getView());
+        viewList.add(DataView.MIN.getView());
+        viewList.add(DataView.MAX.getView());
+        viewList.add(DataView.SUM.getView());
+        viewList.add(DataView.COUNT.getView());
 
         gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
         viewCombo = new Combo(dataComp, SWT.READ_ONLY);
@@ -314,15 +324,15 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         Menu fileMenu = new Menu(menuBar);
         fileMenuItem.setMenu(fileMenu);
 
-        saveMI = new MenuItem(fileMenu, SWT.NONE);
-        saveMI.setText("&Save\tCtrl+S");
-        saveMI.setAccelerator(SWT.CTRL + 'S');
-        saveMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                saveGraph();
-            }
-        });
+        // saveMI = new MenuItem(fileMenu, SWT.NONE);
+        // saveMI.setText("&Save Graph Image\tCtrl+S");
+        // saveMI.setAccelerator(SWT.CTRL + 'S');
+        // saveMI.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent event) {
+        // saveGraph();
+        // }
+        // });
 
         exitMI = new MenuItem(fileMenu, SWT.NONE);
         exitMI.setText("&Quit\tCtrl+Q");
@@ -371,11 +381,63 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
                 displayCanvas.redraw();
             }
         });
+
+        // Set up the display units menu choices
+        MenuItem unitsMI = new MenuItem(graphMenu, SWT.CASCADE);
+        unitsMI.setText("Display Units");
+
+        unitUtils = new UnitUtils(graphData.getEventType(),
+                graphData.getDataType());
+        String displayUnit = graphData.getDisplayUnit();
+        unitUtils.setUnitType(displayUnit);
+        unitUtils.setDisplayUnit(displayUnit);
+        Set<String> units = unitUtils.getUnitOptions();
+
+        Menu unitsMenu = new Menu(graphMenu);
+        unitsMI.setMenu(unitsMenu);
+
+        for (String unit : units) {
+            MenuItem mi = new MenuItem(unitsMenu, SWT.CHECK);
+            mi.setText(unit);
+            if (unit.equals(graphData.getDisplayUnit())) {
+                mi.setSelection(true);
+            }
+            mi.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    handleUnitsSelection(e);
+                }
+            });
+
+            menuItemMap.put(unit, mi);
+        }
+    }
+
+    /**
+     * Handle the unit selection event.
+     * 
+     * @param e
+     *            The selection event
+     */
+    private void handleUnitsSelection(SelectionEvent e) {
+        MenuItem m = (MenuItem) e.getSource();
+        for (Entry<String, MenuItem> es : menuItemMap.entrySet()) {
+            MenuItem mi = es.getValue();
+            if (es.getKey().equals(m.getText())) {
+                m.setSelection(true);
+                displayUnit = m.getText();
+                unitUtils.setDisplayUnit(displayUnit);
+                graphData.setDisplayUnit(displayUnit);
+                displayCanvas.redraw();
+            } else {
+                mi.setSelection(false);
+            }
+        }
     }
 
     /**
      * Create the canvas.
-     *
+     * 
      * @param comp
      *            Composite holding the canvas
      */
@@ -395,7 +457,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the GraphData object.
-     *
+     * 
      * @param graphData
      */
     public void setGraphData(GraphData graphData) {
@@ -412,7 +474,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the title.
-     *
+     * 
      * @param title
      */
     public void setTitle(String title) {
@@ -421,66 +483,66 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the graph title.
-     *
+     * 
      * @param graphTitle
      */
     public void setGraphTitle(String graphTitle) {
         this.graphTitle = graphTitle;
     }
 
-    /**
-     * Open a file dialog for saving the canvas.
-     */
-    private void saveGraph() {
-        FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-        String filename = dialog.open();
-        if (filename == null) {
-            return;
-        }
-        saveCanvas(filename);
-    }
+    // /**
+    // * Open a file dialog for saving the canvas.
+    // */
+    // private void saveGraph() {
+    // FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+    // String filename = dialog.open();
+    // if (filename == null) {
+    // return;
+    // }
+    // saveCanvas(filename);
+    // }
 
-    /**
-     * Captures the canvas and saves the result into a file in a format
-     * determined by the filename extension .
-     *
-     * @param control
-     *            The control to save
-     * @param fileName
-     *            The name of the image to be saved
-     */
-    public void saveCanvas(String filename) {
-        StringBuilder sb = new StringBuilder();
-        Display display = displayCanvas.getDisplay();
-        Image image = new Image(display, displayCanvas.getBounds().width,
-                displayCanvas.getBounds().height);
-        GC gc = new GC(image);
-
-        displayCanvas.drawCanvas(gc);
-
-        /* Default to PNG */
-        int style = SWT.IMAGE_PNG;
-
-        if ((filename.endsWith(".jpg") == true) || filename.endsWith("jpeg")) {
-            style = SWT.IMAGE_JPEG;
-        } else if (filename.endsWith(".bmp") == true) {
-            style = SWT.IMAGE_BMP;
-        } else {
-            filename += ".png";
-        }
-
-        ImageLoader loader = new ImageLoader();
-        loader.data = new ImageData[] { image.getImageData() };
-        loader.save(filename, style);
-
-        sb.setLength(0);
-        image.dispose();
-        gc.dispose();
-    }
+    // /**
+    // * Captures the canvas and saves the result into a file in a format
+    // * determined by the filename extension .
+    // *
+    // * @param control
+    // * The control to save
+    // * @param fileName
+    // * The name of the image to be saved
+    // */
+    // public void saveCanvas(String filename) {
+    // StringBuilder sb = new StringBuilder();
+    // Display display = displayCanvas.getDisplay();
+    // Image image = new Image(display, displayCanvas.getBounds().width,
+    // displayCanvas.getBounds().height);
+    // GC gc = new GC(image);
+    //
+    // displayCanvas.drawCanvas(gc);
+    //
+    // /* Default to PNG */
+    // int style = SWT.IMAGE_PNG;
+    //
+    // if ((filename.endsWith(".jpg") == true) || filename.endsWith("jpeg")) {
+    // style = SWT.IMAGE_JPEG;
+    // } else if (filename.endsWith(".bmp") == true) {
+    // style = SWT.IMAGE_BMP;
+    // } else {
+    // filename += ".png";
+    // }
+    //
+    // ImageLoader loader = new ImageLoader();
+    // loader.data = new ImageData[] { image.getImageData() };
+    // loader.save(filename, style);
+    //
+    // sb.setLength(0);
+    // image.dispose();
+    // gc.dispose();
+    // }
 
     /**
      * Request the graph be redrawn with a new time range.
-     *
+     * 
      * @param parameter
      *            The amount of time to move
      */
@@ -516,7 +578,6 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         default:
             return;
         }
-
         GraphDataRequest request = new GraphDataRequest();
         request.setGrouping(this.groupList);
         request.setCategory(this.category);
@@ -525,7 +586,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         request.setField(dataTypeID);
         TimeRange newTimeRange = new TimeRange(newStart, newEnd);
         request.setTimeRange(newTimeRange);
-        request.setTimeStep(5);
+        request.setTimeStep((int) graphData.getTimeStep());
         try {
             GraphDataResponse response = (GraphDataResponse) ThriftClient
                     .sendRequest(request);
@@ -544,7 +605,6 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
             }
 
             this.graphData = localGraphData;
-            this.displayCanvas.setGraphData(graphData);
             this.displayCanvas.redraw();
         } catch (VizException e) {
             this.statusHandler.handle(Priority.ERROR, "Error Requesting Data",
@@ -556,7 +616,8 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
      * Handler for data view combo box change.
      */
     private void handleDataViewChange() {
-        String view = viewCombo.getText();
+        String viewStr = viewCombo.getText();
+        DataView view = DataView.fromString(viewStr);
         this.displayCanvas.setView(view);
         this.displayCanvas.redraw();
     }
@@ -596,7 +657,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the groups.
-     *
+     * 
      * @param groupList
      *            List of groups
      */
@@ -606,7 +667,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the category.
-     *
+     * 
      * @param category
      */
     public void setCategory(String category) {
@@ -615,7 +676,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the event type.
-     *
+     * 
      * @param typeID
      */
     public void setEventType(String typeID) {
@@ -624,10 +685,18 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the data type id.
-     *
+     * 
      * @param dataTypeID
      */
     public void setDataType(String dataTypeID) {
         this.dataTypeID = dataTypeID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UnitUtils getUnitUtils() {
+        return this.unitUtils;
     }
 }

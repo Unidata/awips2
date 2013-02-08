@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -83,7 +84,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 // "slot_join_slot", joinColumns = @JoinColumn(name = "parent_slot_key",
 // referencedColumnName = "key"), inverseJoinColumns = @JoinColumn(name =
 // "child_slot_key", referencedColumnName = "key")))
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Table(name = "Slot")
 public class SlotType extends ExtensibleObjectType implements Serializable {
 
@@ -94,7 +95,7 @@ public class SlotType extends ExtensibleObjectType implements Serializable {
     @XmlTransient
     private Integer key;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @XmlElement(name = "SlotValue")
     @DynamicSerializeElement
     protected ValueType slotValue;
