@@ -57,6 +57,7 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -145,8 +146,11 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             IDataRecord dataRecord) {
         RadarRecord radarRecord = asRadarRecord(pdo);
-        DataSource source = DataWrapperUtil.constructArrayWrapper(dataRecord,
+        DataWrapper1D wrapper = DataWrapperUtil.constructArrayWrapper(
+                dataRecord,
                 false);
+        wrapper.setFillValue(0);
+        DataSource source = wrapper;
         if (radarRecord.getFormat().equals(RADIAL_FORMAT)) {
             // The raw data is in bin,radial format but the grid geometries we
             // use are radial,bin so need to do some swapping.
