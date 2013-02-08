@@ -55,9 +55,6 @@ import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher;
-import com.raytheon.viz.alerts.jobs.AutoUpdater;
-import com.raytheon.viz.alerts.jobs.MenuUpdater;
-import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 import com.raytheon.viz.ui.personalities.awips.CAVE;
 
@@ -188,8 +185,11 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
     @Override
     protected void initializeObservers() {
         ThinClientNotificationManagerJob.getInstance();
-        ProductAlertObserver.addObserver(null, new MenuUpdater());
-        ProductAlertObserver.addObserver(null, new AutoUpdater());
+        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        if (store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS) == false) {
+            // JMS Enabled, register product alerts
+            registerProductAlerts();
+        }
     }
 
     public void stopComponent() {
