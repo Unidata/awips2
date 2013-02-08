@@ -25,6 +25,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Feb 08, 2011    191      dhladky     Initial creation
  * Jul 24, 2012    955      djohnson    Use List instead of ArrayList.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 28, 2013 1530       djohnson     Never return null for selected level indices.
  * </pre>
  * 
  * @author dhladky
@@ -67,7 +68,7 @@ public class Levels implements ISerializableObject, Serializable {
 
     @XmlElements({ @XmlElement(name = "selectedLevelIndices", type = Integer.class) })
     @DynamicSerializeElement
-    private List<Integer> selectedLevelIndices;
+    private List<Integer> selectedLevelIndices = new ArrayList<Integer>();
 
     /**
      * Copy constructor

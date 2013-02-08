@@ -20,6 +20,7 @@ package com.raytheon.uf.viz.productbrowser;
  * further licensing information.
  **/
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.MenuLoader;
+import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -198,12 +199,15 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         constructResource();
     }
 
-    private void constructResource() {
+    protected void constructResource() {
         ResourcePair pair = new ResourcePair();
         pair.setResourceData(resourceData);
         pair.setLoadProperties(loadProperties);
         pair.setProperties(new ResourceProperties());
-        IDescriptor currDesc = null;
+        constructResource(Arrays.asList(pair));
+    }
+
+    protected void constructResource(List<ResourcePair> pairs) {
         // retrieves the correct editor
         getEditor();
         IDisplayPaneContainer container = getEditor();
@@ -213,11 +217,12 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         AbstractRenderableDisplay display = (AbstractRenderableDisplay) container
                 .getActiveDisplayPane().getRenderableDisplay();
         display = (AbstractRenderableDisplay) display.createNewDisplay();
-        display.getDescriptor().getResourceList().add(pair);
+        for (ResourcePair pair : pairs) {
+            display.getDescriptor().getResourceList().add(pair);
+        }
         Bundle b = new Bundle();
         b.setDisplays(new AbstractRenderableDisplay[] { display });
-        new MenuLoader(b, (AbstractEditor) EditorUtil.getActiveEditor())
-                .schedule();
+        new BundleProductLoader(EditorUtil.getActiveVizContainer(), b).schedule();
     }
 
     /**
