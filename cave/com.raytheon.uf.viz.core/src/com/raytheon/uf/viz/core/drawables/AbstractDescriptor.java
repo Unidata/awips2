@@ -578,6 +578,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             }
         }
         synchronized (timeManager) {
+            DataTime[] oldTimes = timeManager.frames;
+            int oldIdx = this.frameIndex;
             if (info.setFrames) {
                 if (info.frameTimes != null) {
                     DataTime[] newTimes = Arrays.copyOf(info.frameTimes,
@@ -593,6 +595,14 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             if (info.setMap) {
                 timeMatchingMap = new ConcurrentHashMap<AbstractVizResource<?, ?>, DataTime[]>(
                         info.timeMap);
+            }
+            FramesInfo currInfo = getFramesInfo();
+            FramesInfo oldInfo = new FramesInfo(oldTimes, oldIdx);
+            DataTime oldTime = oldInfo.getCurrentFrame();
+            DataTime currTime = currInfo.getCurrentFrame();
+            if ((oldTime != null && oldTime.equals(currTime) == false)
+                    || (currTime != null && currTime.equals(oldTime) == false)) {
+                notifyFrameChanged(oldTime, currTime);
             }
         }
     }
@@ -624,20 +634,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
      * @param frame
      */
     private void setFrameInternal(int frame) {
-        FramesInfo currInfo = getFramesInfo();
-        int frameIndex = currInfo.frameIndex;
         if (frame != frameIndex) {
-            DataTime[] times = currInfo.frameTimes;
-            DataTime oldTime = null, newTime = null;
-            // Get the old and new time
-            if (times != null && frameIndex >= 0 && frameIndex < times.length) {
-                oldTime = times[frameIndex];
-            }
-            if (times != null && frame >= 0 && frame < times.length) {
-                newTime = times[frame];
-            }
             this.frameIndex = frame;
-            notifyFrameChanged(oldTime, newTime);
         }
     }
 

@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IGriddedTimingSelectionDlgView;
 import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
@@ -55,6 +56,7 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * Oct 11, 2012  1263      jpiatt      Modified for cancel button
  * Nov 20, 2012  1286      djohnson    Implement displayYesNoPopup.
  * Jan 04, 2013  1420      mpduff      Add Priority Composite.
+ * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
  * 
  * </pre>
  * 
@@ -137,7 +139,8 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
         // Get latency value
         SystemRuleManager ruleManager = SystemRuleManager.getInstance();
         int latency = ruleManager.getLatency(this.subscription, cycleTimes);
-        int priority = ruleManager.getPriority(this.subscription, cycleTimes);
+        SubscriptionPriority priority = ruleManager
+                .getPriority(this.subscription, cycleTimes);
         priorityComp = new PriorityComp(shell, latency, priority);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
@@ -337,7 +340,7 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
      * {@inheritDoc}
      */
     @Override
-    public int getPriority() {
-        return priorityComp.getPriorityIndex();
+    public SubscriptionPriority getPriority() {
+        return priorityComp.getPriority();
     }
 }

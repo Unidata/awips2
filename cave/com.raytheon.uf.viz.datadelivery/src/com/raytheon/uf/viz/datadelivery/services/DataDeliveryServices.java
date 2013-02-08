@@ -20,8 +20,9 @@
 package com.raytheon.uf.viz.datadelivery.services;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
+import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionNotificationService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
 /**
@@ -54,6 +55,8 @@ public final class DataDeliveryServices {
     private ISubscriptionNotificationService subscriptionNotificationService;
 
     private IPermissionsService permissionsService;
+
+    private IGroupDefinitionService groupDefinitionService;
 
     /**
      * Disabled constructor.
@@ -146,5 +149,25 @@ public final class DataDeliveryServices {
      */
     public void setPermissionsService(IPermissionsService permissionsService) {
         this.permissionsService = permissionsService;
+    }
+
+    /**
+     * Get the group definition service.
+     * 
+     * @return the groupDefinitionService
+     */
+    public static IGroupDefinitionService getGroupDefinitionService() {
+        return INSTANCE.groupDefinitionService;
+    }
+
+    /**
+     * Set the group definition service.
+     * 
+     * @param groupDefinitionService
+     *            the groupDefinitionService to set
+     */
+    public void setGroupDefinitionService(
+            IGroupDefinitionService groupDefinitionService) {
+        this.groupDefinitionService = groupDefinitionService;
     }
 }
