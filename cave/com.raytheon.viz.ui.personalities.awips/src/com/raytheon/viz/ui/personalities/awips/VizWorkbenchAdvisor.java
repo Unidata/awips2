@@ -69,11 +69,14 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
 
     protected IJobChangeListener jobChangeListener;
 
+    protected CloseNonRestorableDetachedViewsListener detachedViewsListener;
+
     protected boolean singlePerspective;
 
     public VizWorkbenchAdvisor() {
         performanceListener = CaveCommandExecutionListener.getInstance();
         jobChangeListener = CaveJobChangeListener.getInstance();
+        detachedViewsListener = new CloseNonRestorableDetachedViewsListener();
 
         Activator.getDefault().getPreferenceStore()
                 .addPropertyChangeListener(new IPropertyChangeListener() {
@@ -305,6 +308,12 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
                     .getActiveWorkbenchWindow().getShell(), "Confirm Exit",
                     "Are you sure you want to exit?");
         }
+
+        // close all non-restorable detached views
+        if (bResult) {
+            detachedViewsListener.handleEvent(null);
+        }
+
         return bResult;
     }
 
