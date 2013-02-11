@@ -23,12 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.unit.UnitFormat;
 
+import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -43,7 +44,7 @@ import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.uf.viz.d2d.gfe.GFEUtil;
+import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResource;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
 import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
@@ -54,7 +55,9 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
- * TODO Add Description
+ * Data Catalog for using gfe data in the volume browser. This works by using
+ * selected model, field, and plane to create ParmId LIKE constraints that can
+ * be used to narrow down the selection.
  * 
  * <pre>
  * 
@@ -76,10 +79,10 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
     @Override
     public IDataCatalogEntry getCatalogEntry(SelectedData selectedData) {
         HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(GFEUtil.PLUGIN_NAME, new RequestConstraint("gfe"));
-        queryList.put(GFEUtil.PARM_ID, getParmIdConstraint(selectedData));
+        queryList.put(GFEDataAccessUtil.PLUGIN_NAME, new RequestConstraint("gfe"));
+        queryList.put(GFEDataAccessUtil.PARM_ID, getParmIdConstraint(selectedData));
         try {
-            String[] result = CatalogQuery.performQuery(GFEUtil.PARM_ID,
+            String[] result = CatalogQuery.performQuery(GFEDataAccessUtil.PARM_ID,
                     queryList);
             if (result != null && result.length > 0) {
                 ParmID sampleId = new ParmID(result[0]);
@@ -204,15 +207,15 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
     @Override
     protected void addProductParameters(IDataCatalogEntry catalogEntry,
             HashMap<String, RequestConstraint> productParameters) {
-        productParameters.put(GFEUtil.PARM_ID,
+        productParameters.put(GFEDataAccessUtil.PARM_ID,
                 getParmIdConstraint(catalogEntry.getSelectedData()));
     }
 
     private String[] getParmIds() {
         HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(GFEUtil.PLUGIN_NAME, new RequestConstraint("gfe"));
+        queryList.put(GFEDataAccessUtil.PLUGIN_NAME, new RequestConstraint("gfe"));
         try {
-            return CatalogQuery.performQuery(GFEUtil.PARM_ID, queryList);
+            return CatalogQuery.performQuery(GFEDataAccessUtil.PARM_ID, queryList);
         } catch (VizException e) {
             throw new RuntimeException(e);
         }
@@ -248,7 +251,7 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
             DisplayType displayType) {
         if (catalogEntry instanceof GFECatalogEntry) {
             ParmID sampleId = ((GFECatalogEntry) catalogEntry).getSampleId();
-            ParamLevelMatchCriteria criteria = GFEUtil
+            ParamLevelMatchCriteria criteria = GFEGridResource
                     .getMatchCriteria(sampleId);
             StyleRule sr = null;
             try {
@@ -277,8 +280,8 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
             } else {
                 try {
                     return UnitFormat.getUCUMInstance().format(
-                            GFEUtil.getGridParmInfo(sampleId).getUnitObject());
-                } catch (VizException e) {
+                            GFEDataAccessUtil.getGridParmInfo(sampleId).getUnitObject());
+                } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Unable to obtain a unit information for"
                                     + catalogEntry.getSelectedData()
@@ -297,9 +300,12 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
                 .getGfeLevel(selectedData.getPlanesKey());
         String modelName = VbGFEMapping.getGfeSource(selectedData
                 .getSourcesKey());
-        String parmId = String.format(GFEUtil.PARM_ID_FORMAT, parmName,
-                parmLevel, "%", "%", modelName, "%");
-        return new RequestConstraint(parmId, ConstraintType.LIKE);
+
+        Map<String, String> parmIdComponents = new HashMap<String, String>();
+        parmIdComponents.put(GFEDataAccessUtil.PARM_NAME, parmName);
+        parmIdComponents.put(GFEDataAccessUtil.PARM_LEVEL, parmLevel);
+        parmIdComponents.put(GFEDataAccessUtil.MODEL_NAME, modelName);
+        return GFEDataAccessUtil.createParmIdConstraint(parmIdComponents);
     }
 
     private static class GFECatalogEntry extends DataCatalogEntry {
