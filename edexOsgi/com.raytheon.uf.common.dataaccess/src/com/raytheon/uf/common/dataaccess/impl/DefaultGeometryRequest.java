@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataaccess.impl;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
@@ -52,9 +51,6 @@ public class DefaultGeometryRequest extends AbstractDataRequest implements
     @XmlJavaTypeAdapter(value = JTSEnvelopeAdapter.class)
     protected Envelope envelope;
 
-    @XmlElement(name="locationName")
-    protected String[] locationNames;
-
     @Override
     public void setEnvelope(Envelope env) {
         this.envelope = env;
@@ -63,17 +59,6 @@ public class DefaultGeometryRequest extends AbstractDataRequest implements
     @Override
     public Envelope getEnvelope() {
         return envelope;
-    }
-
-    @Override
-    public void setLocationNames(String... locationNames) {
-        this.locationNames = locationNames;
-
-    }
-
-    @Override
-    public String[] getLocationNames() {
-        return locationNames;
     }
 
 }

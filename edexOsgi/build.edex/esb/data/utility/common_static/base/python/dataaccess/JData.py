@@ -49,6 +49,9 @@ class JData(IData, JUtil.JavaWrapperClass):
     def getLevel(self):
         return str(self.jobj.getLevel())
     
+    def getLocationName(self):
+        return self.jobj.getLocationName()
+    
     def toJavaObj(self):
         return self.jobj
     
