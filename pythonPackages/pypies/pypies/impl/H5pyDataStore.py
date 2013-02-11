@@ -31,7 +31,7 @@
 #    05/03/11        9134          njensen       Optimized for pointdata
 #    10/09/12                      rjpeter       Optimized __getGroup for retrievals
 #    01/17/13        DR 15294      D. Friedman   Clear out data in response
-#
+#    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
 #
 #
 
@@ -324,18 +324,32 @@ class H5pyDataStore(IDataStore.IDataStore):
         deleteFile = False
 
         try:
-            locs = request.getLocations()
-            for dataset in locs:
-                ds = None
+            rootNode=f['/']
+            datasets = request.getDatasets()
+            if datasets is not None:
+                for dataset in datasets:
+                    ds = None
+                    try :
+                        ds = self.__getNode(f, None, dataset)
+                    except Exception, e:
+                        logger.warn('Unable to find uri [' + str(dataset) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
+    
+                    if ds:
+                        parent = ds.parent
+                        parent.id.unlink(ds.name)
 
-                try :
-                    ds = self.__getNode(f, None, dataset)
-                except Exception, e:
-                    logger.warn('Unable to find uri [' + str(dataset) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
-
-                if ds:
-                    grp = ds.parent
-                    grp.id.unlink(ds.name)
+            groups = request.getGroups()
+            if groups is not None:
+                for group in groups:
+                    gp = None
+                    try :
+                        gp = self.__getNode(f, group)
+                    except Exception, e:
+                        logger.warn('Unable to find uri [' + str(group) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
+    
+                    if gp:
+                        parent = gp.parent
+                        parent.id.unlink(gp.name)
 
         finally:
             # check if file has any remaining data sets
@@ -353,6 +367,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             timeMap['closeFile']=t1-t0
 
             if deleteFile:
+                logger.info('Removing empty file ['+ str(fn) + ']')
                 try:
                     os.remove(fn)
                 except Exception, e:
