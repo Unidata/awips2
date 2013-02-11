@@ -60,24 +60,4 @@ public interface IGeometryRequest extends IDataRequest<IGeometryData> {
      */
     public Envelope getEnvelope();
 
-    /**
-     * Sets a list of location names to limit what is returned. Each datatype
-     * may have its own mapping of what a location is (e.g. ICAO vs stationId vs
-     * radar name, etc). Possible location names can be retrieved by using the
-     * method getAvailableLocationNames(IGeometryRequest) on the DataAccessLayer
-     * or IGeometryDataFactory. Note that not all factories may support requests
-     * by location names and instead may throw a
-     * LocationNameUnsupportedException or ignore the location names.
-     * 
-     * @param locationNames
-     */
-    public void setLocationNames(String... locationNames);
-
-    /**
-     * Returns the location names set on the request.
-     * 
-     * @return
-     */
-    public String[] getLocationNames();
-
 }

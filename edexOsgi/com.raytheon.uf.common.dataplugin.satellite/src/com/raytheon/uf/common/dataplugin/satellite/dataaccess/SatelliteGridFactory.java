@@ -201,6 +201,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(satelliteRecord.getPhysicalElement());
         defaultGridData.setLevel(null);
+        defaultGridData.setLocationName(satelliteRecord.getSectorID());
         // unit
         Unit<?> unit = null;
         if ((satelliteRecord.getUnits() == null) == false) {
@@ -251,6 +252,20 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
             constraints.put(FIELD_PYHSICAL_ELEMENT, requestConstraint);
         }
 
+        if ((request.getLocationNames() == null) == false) {
+            RequestConstraint requestConstraint = new RequestConstraint();
+            requestConstraint.setConstraintType(ConstraintType.IN);
+            requestConstraint
+                    .setConstraintValueList(request.getLocationNames());
+            constraints.put(FIELD_SECTOR_ID, requestConstraint);
+        }
+
         return constraints;
     }
+
+    @Override
+    public String[] getAvailableLocationNames(IGridRequest request) {
+        return getAvailableLocationNames(request, FIELD_SECTOR_ID);
+    }
+
 }
