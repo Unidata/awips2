@@ -113,4 +113,15 @@ public interface IDataFactory<R extends IDataRequest<D>, D extends IData> {
      */
     public D[] getData(R request, TimeRange timeRange);
 
+    /**
+     * Gets the available location names that match the request. Implementations
+     * should throw LocationNameUnsupportedException if location names do not
+     * apply to their datatype.
+     * 
+     * @param request
+     *            the request to find matching location names for
+     * @return the available location names that match the request
+     */
+    public String[] getAvailableLocationNames(R request);
+
 }

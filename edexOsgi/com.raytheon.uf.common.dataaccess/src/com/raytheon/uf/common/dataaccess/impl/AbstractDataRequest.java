@@ -19,12 +19,13 @@
  **/
 package com.raytheon.uf.common.dataaccess.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
@@ -62,6 +63,9 @@ public abstract class AbstractDataRequest {
     @XmlElement
     protected Level[] levels;
 
+    @XmlElement(name = "locationName")
+    protected String[] locationNames;
+
     public void setDatatype(String datatype) {
         this.datatype = datatype;
     }
@@ -95,6 +99,15 @@ public abstract class AbstractDataRequest {
 
     public Level[] getLevels() {
         return levels;
+    }
+
+    public void setLocationNames(String... locationNames) {
+        this.locationNames = locationNames;
+
+    }
+
+    public String[] getLocationNames() {
+        return locationNames;
     }
 
 }
