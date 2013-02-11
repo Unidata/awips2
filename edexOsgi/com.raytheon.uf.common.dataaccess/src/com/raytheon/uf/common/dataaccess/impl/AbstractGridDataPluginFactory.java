@@ -123,6 +123,23 @@ public abstract class AbstractGridDataPluginFactory extends
     }
 
     /**
+     * Builds an IGridData with the information that is supplied
+     * 
+     * @param request
+     *            the original grid request
+     * @param pdo
+     *            a record that was retrieved from the database
+     * @param gridGeometry
+     *            the geometry extracted from the pdo
+     * @param dataRecord
+     *            the raw data
+     * @return the IGridData that was constructed
+     */
+    protected abstract IGridData constructGridDataResponse(
+            IGridRequest request, PluginDataObject pdo,
+            GridGeometry2D gridGeometry, IDataRecord dataRecord);
+
+    /**
      * Given a full PDO grid geometry and the request used this will determine
      * the geometry that describes the requested area. For null or ALL this
      * returns the full geometry, for SLAB requests this will create a subset
@@ -136,7 +153,8 @@ public abstract class AbstractGridDataPluginFactory extends
      *         this will create a subset geometry describing the slab and for
      *         all other types of requests this returns null.
      */
-    protected GridGeometry2D trimGridGeometryToRequest(GridGeometry2D gridGeom,
+    protected static GridGeometry2D trimGridGeometryToRequest(
+            GridGeometry2D gridGeom,
             Request storageRequest) {
         if (storageRequest == null || storageRequest.getType() == Type.ALL) {
             return gridGeom;
@@ -160,22 +178,5 @@ public abstract class AbstractGridDataPluginFactory extends
             return null;
         }
     }
-
-    /**
-     * Builds an IGridData with the information that is supplied
-     * 
-     * @param request
-     *            the original grid request
-     * @param pdo
-     *            a record that was retrieved from the database
-     * @param gridGeometry
-     *            the geometry extracted from the pdo
-     * @param dataRecord
-     *            the raw data
-     * @return the IGridData that was constructed
-     */
-    protected abstract IGridData constructGridDataResponse(
-            IGridRequest request, PluginDataObject pdo,
-            GridGeometry2D gridGeometry, IDataRecord dataRecord);
 
 }
