@@ -103,6 +103,11 @@ import com.vividsolutions.jts.io.WKTReader;
  * 06/18/08                njensen     Added discrete/wx to getGridData()
  * 05/04/12     #574       dgilling    Restructure class to better match AWIPS1.
  * 07/11/12     15162      ryu         No raising exception in c'tor
+ * 02/10/12     #1603      randerso    Implemented deleteDb, moved methods down from 
+ *                                     GridDatabase that belonged here.
+ *                                     Removed unncecssary conversion from Lists to/from arrays
+ *                                     Added performance logging
+ * 02/12/13     #1608      randerso    Changed to explicitly call deleteGroups
  * 
  * </pre>
  * 
@@ -2449,7 +2454,7 @@ public class IFPGridDatabase extends GridDatabase {
         IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
 
         try {
-            dataStore.delete(groupName);
+            dataStore.deleteGroups(groupName);
             statusHandler.handle(Priority.DEBUG, "Deleted: " + groupName
                     + " from " + hdf5File.getName());
 
