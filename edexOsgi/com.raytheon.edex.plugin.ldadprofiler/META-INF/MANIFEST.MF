@@ -12,7 +12,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.13",
  org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.common.localization;bundle-version="1.11.13",
  com.raytheon.edex.plugin.ldad;bundle-version="1.0.0",
- ncsa.hdf5;bundle-version="2.4.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.11.17",
  com.raytheon.uf.edex.pointdata
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
