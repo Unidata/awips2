@@ -75,7 +75,6 @@ import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -105,6 +104,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
  * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
  *                                     from the environment.
+ * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -884,7 +885,8 @@ public abstract class PluginDao extends CoreDao {
                         if (uris == null) {
                             ds.deleteFiles(null);
                         } else {
-                            ds.delete(uris.toArray(new String[uris.size()]));
+                            ds.deleteDatasets(uris.toArray(new String[uris
+                                    .size()]));
                         }
                     } catch (Exception e) {
                         PurgeLogger.logError("Error occurred purging file: "
@@ -906,7 +908,7 @@ public abstract class PluginDao extends CoreDao {
                     if (uris == null) {
                         ds.deleteFiles(null);
                     } else {
-                        ds.delete(uris.toArray(new String[uris.size()]));
+                        ds.deleteDatasets(uris.toArray(new String[uris.size()]));
                     }
                 } catch (Exception e) {
                     PurgeLogger.logError("Error occurred purging file: "
