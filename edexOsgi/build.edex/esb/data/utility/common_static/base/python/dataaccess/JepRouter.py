@@ -89,8 +89,8 @@ def getLatLonCoords(gridRequest):
     lonndarray = PythonNumpyFloatArray(latlons.getLons(), nx, ny).__numpy__[0]
     return (lonndarray, latndarray)
 
-def getAvailableLocationNames(geometryRequest):
-    return JavaDataAccessLayer.getAvailableLocationNames(geometryRequest.toJavaObj())
+def getAvailableLocationNames(request):
+    return JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj())
 
 def newGeometryRequest():
     return JGeometryRequest.JGeometryRequest(DefaultGeometryRequest())

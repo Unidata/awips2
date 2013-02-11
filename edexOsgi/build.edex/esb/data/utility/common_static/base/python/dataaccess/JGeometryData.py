@@ -93,6 +93,3 @@ class JGeometryData(IGeometryData, JData.JData):
     
     def getType(self, param):
         return str(self.jobj.getType(param))
-    
-    def getLocationName(self):
-        return self.jobj.getLocationName()
