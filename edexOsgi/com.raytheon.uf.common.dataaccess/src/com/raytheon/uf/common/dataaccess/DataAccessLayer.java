@@ -23,8 +23,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataaccess.exception.DataFactoryNotFoundException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryDataFactory;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
 import com.raytheon.uf.common.dataaccess.grid.IGridDataFactory;
 import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.time.BinOffset;
@@ -143,8 +141,9 @@ public class DataAccessLayer {
      * @param request
      * @return the available location names if the data was requested
      */
-    public static String[] getAvailableLocationNames(IGeometryRequest request) {
-        IGeometryDataFactory factory = (IGeometryDataFactory) getFactory(request);
+    public static <R extends IDataRequest<D>, D extends IData> String[] getAvailableLocationNames(
+            R request) {
+        IDataFactory<R, D> factory = getFactory(request);
         return factory.getAvailableLocationNames(request);
     }
 

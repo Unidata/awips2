@@ -147,8 +147,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
             IDataRecord dataRecord) {
         RadarRecord radarRecord = asRadarRecord(pdo);
         DataWrapper1D wrapper = DataWrapperUtil.constructArrayWrapper(
-                dataRecord,
-                false);
+                dataRecord, false);
         wrapper.setFillValue(0);
         DataSource source = wrapper;
         if (radarRecord.getFormat().equals(RADIAL_FORMAT)) {
@@ -176,9 +175,9 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         defaultGridData.setUnit(radarRecord.getDataUnit());
         defaultGridData.setLevel(getTiltLevel(radarRecord
                 .getPrimaryElevationAngle()));
+        defaultGridData.setLocationName(radarRecord.getIcao());
 
-        Map<String, Object> attributes = new HashMap<String, Object>(
-                request.getIdentifiers());
+        Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put(ICAO, radarRecord.getIcao());
         attributes.put(FORMAT, radarRecord.getFormat());
 
@@ -231,8 +230,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
             Request storageRequest) {
         RadarRecord radarRecord = asRadarRecord(pdo);
         try {
-            RadarDataRetriever.populateRadarRecord(
-PDOUtil.getDataStore(pdo),
+            RadarDataRetriever.populateRadarRecord(PDOUtil.getDataStore(pdo),
                     radarRecord);
         } catch (Exception e) {
             throw new DataRetrievalException(e);
@@ -268,6 +266,13 @@ PDOUtil.getDataStore(pdo),
                         .getLevelOneValueAsString());
             }
             constraints.put(PRIMARY_ANGLE, angleConstraint);
+        }
+
+        if (request.getLocationNames() != null) {
+            RequestConstraint icaoConstraint = new RequestConstraint(null,
+                    ConstraintType.IN);
+            icaoConstraint.setConstraintValueList(request.getLocationNames());
+            constraints.put(ICAO, icaoConstraint);
         }
 
         Map<String, Object> identifiers = request.getIdentifiers();
@@ -332,6 +337,11 @@ PDOUtil.getDataStore(pdo),
         return radarInfo;
     }
 
+    @Override
+    public String[] getAvailableLocationNames(IGridRequest request) {
+        return getAvailableLocationNames(request, ICAO);
+    }
+
     /**
      * 
      * This is used to convert data from bin,radial format to radial bin format.
@@ -359,7 +369,6 @@ PDOUtil.getDataStore(pdo),
             this.realData = realData;
             this.numBins = numBins;
         }
-
 
         @Override
         public double getDataValue(int x, int y) {

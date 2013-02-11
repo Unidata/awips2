@@ -61,6 +61,9 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
             levels[i] = Level(str(args[i]))
         self.jobj.setLevels(levels)
     
+    def getLocationNames(self):        
+        return self.jobj.getLocationNames()
+    
     def getDatatype(self):
         return self.jobj.getDatatype()
     
@@ -83,6 +86,13 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
         for lev in jlevels:
             levels.append(str(lev))
         return levels
+    
+    def setLocationNames(self, *args):
+        from java.lang import String as JavaString
+        locs = jep.jarray(len(args), JavaString)
+        for i in xrange(len(args)):
+            locs[i] = str(args[i])
+        self.jobj.setLocationNames(locs)   
     
     def toJavaObj(self):
         return self.jobj
