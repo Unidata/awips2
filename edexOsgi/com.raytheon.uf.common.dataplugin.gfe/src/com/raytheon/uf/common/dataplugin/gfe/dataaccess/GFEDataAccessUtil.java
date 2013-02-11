@@ -58,6 +58,8 @@ public class GFEDataAccessUtil {
 
     public static final String PARM_ID = "parmId";
 
+    public static final String DB_ID = "dbId";
+
     public static final String PLUGIN_NAME = "pluginName";
 
     public static final String SITE_ID = "siteId";

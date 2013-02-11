@@ -130,6 +130,20 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
         return getData(request, dbQueryResponse);
     }
 
+    public String[] getAvailableLocationNames(R request, String locationColumn) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(locationColumn);
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        List<String> locationNames = new ArrayList<String>();
+        for (Map<String, Object> result : dbQueryResponse.getResults()) {
+            locationNames.add(result.get(locationColumn).toString());
+        }
+        return locationNames.toArray(new String[0]);
+    }
+
     /**
      * Executes the provided DbQueryRequest and returns a DbQueryResponse
      * 
