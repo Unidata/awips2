@@ -34,7 +34,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Convenient location for building CRS and GridGeometries for radar radial
+ * data.
  * 
  * <pre>
  * 
@@ -54,8 +55,8 @@ public class RadarProjectionFactory {
 
     private static DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
 
-    public static ProjectedCRS constructAzRan(Coordinate centerLatLon)
-            throws FactoryException {
+    public static synchronized ProjectedCRS constructAzRan(
+            Coordinate centerLatLon) throws FactoryException {
         ParameterValueGroup group = dmtFactory
                 .getDefaultParameters("Azimuth_Range");
         group.parameter(AbstractProvider.SEMI_MAJOR.getName().getCode())
@@ -69,9 +70,9 @@ public class RadarProjectionFactory {
         return MapUtil.constructProjection("Azimuth Range", group);
     }
 
-    public static ProjectedCRS constructRadialBin(Coordinate centerLatLon,
-            float[] angleData, double binWidth, double tiltAngle)
-            throws FactoryException {
+    public static synchronized ProjectedCRS constructRadialBin(
+            Coordinate centerLatLon, float[] angleData, double binWidth,
+            double tiltAngle) throws FactoryException {
         ParameterValueGroup group = dmtFactory
                 .getDefaultParameters("Radial_Bin");
         group.parameter(AbstractProvider.SEMI_MAJOR.getName().getCode())
@@ -94,13 +95,41 @@ public class RadarProjectionFactory {
         return MapUtil.constructProjection("Radial Bin", group);
     }
 
+    /**
+     * Construct a grid geometry with a radial bin projection.
+     * 
+     * @param centerLatLon
+     *            - the location at the center of the projection.
+     * @param angleData
+     *            - The angles of the various radials
+     * @param binWidth
+     *            - the width of bins in meters.
+     * @param tiltAngle
+     *            - the elevation angle of radar tilt, 0 if there is no tilt.
+     * @param numBins
+     *            - the number of bins for the geometry
+     * @param binRadial
+     *            - If true then the geometry will be constructed for data in
+     *            bin,radial(bin-major) format as opposed to
+     *            radial,bin(radial-major). This can be good becauase radar data
+     *            is currently stored in bin,radial alignment in hdf5. Use this
+     *            option with caution because not all code using GridGeometries
+     *            will correctly use the result, for example the switch is lost
+     *            in serialization. When this is set to false then the resulting
+     *            GridGeometry should work with any code using GridGeometries
+     *            but the raw data will need to be realigned to radial,bin
+     *            format.
+     * 
+     * @return
+     * @throws FactoryException
+     */
     public static GridGeometry2D constructGridGeometry(Coordinate centerLatLon,
             float[] angleData, double binWidth, double tiltAngle, int numBins,
-            boolean swapXY) throws FactoryException {
+            boolean binRadial) throws FactoryException {
         CoordinateReferenceSystem crs = constructRadialBin(centerLatLon,
                 angleData, binWidth, tiltAngle);
         GridEnvelope2D gridRange = null;
-        if (swapXY) {
+        if (binRadial) {
             gridRange = new GridEnvelope2D(0, 0, numBins, angleData.length);
         } else {
             gridRange = new GridEnvelope2D(0, 0, angleData.length, numBins);
@@ -109,8 +138,10 @@ public class RadarProjectionFactory {
                 numBins);
         GridToEnvelopeMapper mapper = new GridToEnvelopeMapper(gridRange,
                 envelope);
-        mapper.setSwapXY(swapXY);
-        mapper.setReverseAxis(new boolean[] { false, false });
+        mapper.setSwapXY(binRadial);
+        if (binRadial) {
+            mapper.setReverseAxis(new boolean[] { false, false });
+        }
         return new GridGeometry2D(gridRange, mapper.createTransform(), crs);
     }
 
