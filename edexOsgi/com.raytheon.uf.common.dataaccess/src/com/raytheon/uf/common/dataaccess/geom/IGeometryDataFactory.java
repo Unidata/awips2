@@ -42,15 +42,4 @@ import com.raytheon.uf.common.dataaccess.IDataFactory;
 public interface IGeometryDataFactory extends
         IDataFactory<IGeometryRequest, IGeometryData> {
 
-    /**
-     * Gets the available location names that match the request. Implementations
-     * should throw LocationNameUnsupportedException if location names do not
-     * apply to their datatype.
-     * 
-     * @param request
-     *            the request to find matching location names for
-     * @return the available location names that match the request
-     */
-    public String[] getAvailableLocationNames(IGeometryRequest request);
-
 }
