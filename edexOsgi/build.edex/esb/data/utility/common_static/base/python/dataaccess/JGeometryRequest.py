@@ -54,15 +54,5 @@ class JGeometryRequest(IGeometryRequest, JDataRequest.JDataRequest):
         from com.vividsolutions.jts.geom import Envelope        
         bounds = env.bounds        
         jenv = Envelope(bounds[0], bounds[2], bounds[1], bounds[3])
-        self.jobj.setEnvelope(bounds)        
-    
-    def getLocationNames(self):        
-        return self.jobj.getLocationNames()
-    
-    def setLocationNames(self, *args):
-        from java.lang import String as JavaString
-        locs = jep.jarray(len(args), JavaString)
-        for i in xrange(len(args)):
-            locs[i] = str(args[i])
-        self.jobj.setLocationNames(locs)    
+        self.jobj.setEnvelope(bounds)         
 
