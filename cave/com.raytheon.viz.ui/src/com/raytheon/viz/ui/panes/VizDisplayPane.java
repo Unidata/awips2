@@ -610,6 +610,7 @@ public class VizDisplayPane implements IDisplayPane {
 
         try {
             initializeTarget();
+            this.renderableDisplay.setBounds(getBounds());
             this.renderableDisplay.calcPixelExtent(getBounds());
             renderableDisplay.setup(this.target);
             container.notifyRenderableDisplayChangedListeners(this,
