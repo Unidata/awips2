@@ -170,6 +170,10 @@ public class GenericGridResource extends
 
         StringBuilder stringBuilder = new StringBuilder();
 
+        if (gridData.getLocationName() != null) {
+            stringBuilder.append(gridData.getLocationName());
+            stringBuilder.append(_SPACE_);
+        }
         if (gridData.getParameter() != null) {
             stringBuilder.append(gridData.getParameter());
             stringBuilder.append(_SPACE_);

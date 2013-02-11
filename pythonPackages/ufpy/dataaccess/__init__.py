@@ -58,6 +58,10 @@ class IDataRequest(object):
         return
     
     @abc.abstractmethod
+    def setLocationNames(self, locationNames):
+        return
+    
+    @abc.abstractmethod
     def getDatatype(self):
         return
     
@@ -72,7 +76,10 @@ class IDataRequest(object):
     @abc.abstractmethod
     def getLevels(self):
         return
-
+    
+    @abc.abstractmethod
+    def getLocationNames(self):
+        return
 
 class IGridRequest(IDataRequest):
     __metaclass__ = abc.ABCMeta
@@ -87,14 +94,6 @@ class IGeometryRequest(IDataRequest):
     
     @abc.abstractmethod
     def setEnvelope(self, env):
-        return
-    
-    @abc.abstractmethod
-    def getLocationNames(self):
-        return
-    
-    @abc.abstractmethod
-    def setLocationNames(self, locationNames):
         return
 
 
@@ -111,6 +110,10 @@ class IData(object):
     
     @abc.abstractmethod
     def getLevel(self):
+        return
+    
+    @abc.abstractmethod
+    def getLocationName(self, param):
         return
 
 
@@ -157,9 +160,5 @@ class IGeometryData(IData):
     
     @abc.abstractmethod
     def getType(self, param):
-        return
-    
-    @abc.abstractmethod
-    def getLocationName(self, param):
         return
 
