@@ -160,6 +160,16 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                 assembler.setLevelTwoValue(null);
             }
 
+            if (request.getLocationNames() != null) {
+                for (String loc : request.getLocationNames()) {
+                    assembler.setDatasetId(loc);
+                    mergeConstraintMaps(assembler.getConstraintMap(), result);
+                }
+                // clear fields so it doesn't merge the last one again.
+                assembler.setDatasetId(null);
+
+            }
+
             if (identifiers != null) {
                 if (identifiers.containsKey(GridConstants.DATASET_ID)) {
                     assembler.setDatasetId(identifiers.get(
@@ -272,6 +282,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(parameter);
         defaultGridData.setLevel(level);
+        defaultGridData.setLocationName(datasetId);
         defaultGridData.setUnit(gridRecord.getParameter().getUnit());
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put(GridConstants.DATASET_ID, datasetId);
@@ -292,5 +303,11 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         }
         return base;
     }
+
+    @Override
+    public String[] getAvailableLocationNames(IGridRequest request) {
+        return getAvailableLocationNames(request, GridConstants.DATASET_ID);
+    }
+
 
 }

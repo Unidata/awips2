@@ -53,8 +53,8 @@ def getData(request, times):
 def getLatLonCoords(gridRequest):
     return router.getLatLonCoords(gridRequest)
 
-def getAvailableLocationNames(geometryRequest):
-    return router.getAvailableLocationNames(geometryRequest)
+def getAvailableLocationNames(request):
+    return router.getAvailableLocationNames(request)
 
 def newGeometryRequest():
     return router.newGeometryRequest()
