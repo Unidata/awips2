@@ -11,3 +11,4 @@ org.apache.commons.configuration/commons-configuration-1.6.jar
 org.codehaus.jackson/jackson-core-asl-1.7.3.jar
 org.codehaus.jackson/jackson-mapper-asl-1.7.3.jar
 org.junit/mockito-all-1.9.0.jar
+org.apache.commons.cxf/geronimo-servlet_2.5_spec-1.1.2.jar
