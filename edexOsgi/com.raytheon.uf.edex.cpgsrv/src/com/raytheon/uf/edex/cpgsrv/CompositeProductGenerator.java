@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 02/07/2009   1981       dhladky    Initial Creation.
  * 30NOV2012    1372       dhladky    Added statistics.
  * 02/05/2013   1580       mpduff     EventBus refactor.
+ * 02/12/2013   1615       bgonzale   Changed ProcessEvent pluginName to dataType.
  * 
  * </pre>
  * 
@@ -442,7 +443,7 @@ public abstract class CompositeProductGenerator implements
             String pluginName = getPluginDataObjects()[0].getPluginName();
 
             if (pluginName != null) {
-                processEvent.setPluginName(pluginName);
+                processEvent.setDataType(pluginName);
             }
 
             Long dequeueTime = message.getDeQueuedTime();
