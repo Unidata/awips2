@@ -242,7 +242,7 @@ public class SubscriptionNotifyTask implements Runnable {
             SubscriptionDelay subToCheck = subscriptionQueue.poll();
             while (subToCheck != null) {
                 if (dao == null) {
-                    dao = new RetrievalDao();
+                    dao = RetrievalDao.getInstance();
                 }
 
                 Map<RetrievalRequestRecord.State, Integer> stateCounts = dao
@@ -290,7 +290,7 @@ public class SubscriptionNotifyTask implements Runnable {
                                 Retrieval retrieval = failedRec
                                         .getRetrievalObj();
                                 for (RetrievalAttribute att : retrieval
-                                        .getAttribute()) {
+                                        .getAttributes()) {
                                     sb.append(att.getParameter().getName()
                                             + ", ");
                                 }

@@ -68,7 +68,7 @@ public class RetrievalPluginDataObjectsFixture extends
         List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = new ArrayList<RetrievalAttributePluginDataObjects>();
         try {
             for (RetrievalAttribute attribute : requestRecord.getRetrievalObj()
-                    .getAttribute()) {
+                    .getAttributes()) {
                 // TODO: GridRecordFixture
                 final GridRecord gridRecord = new GridRecord();
                 gridRecord.setDataURI("dataUri" + seedValue);
