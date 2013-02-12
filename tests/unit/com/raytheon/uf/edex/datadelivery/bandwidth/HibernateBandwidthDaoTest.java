@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
 
 /**
@@ -53,16 +54,16 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class HibernateBandwidthDaoTest extends
-        AbstractBandwidthDaoTest<HibernateBandwidthDao> {
+        AbstractBandwidthDaoTest<IBandwidthDao> {
 
     @Autowired
-    private HibernateBandwidthDao dao;
+    private IBandwidthDao dao;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected HibernateBandwidthDao getDao() {
+    protected IBandwidthDao getDao() {
         return dao;
     }
 
