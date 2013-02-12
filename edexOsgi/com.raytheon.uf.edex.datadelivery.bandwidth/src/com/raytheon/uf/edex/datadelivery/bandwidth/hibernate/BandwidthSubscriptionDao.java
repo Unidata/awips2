@@ -19,11 +19,19 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 
 /**
- * Data access object for {@link BandwidthSubscription} instances.
+ * Data access object for {@link BandwidthSubscription} instances. Intentionally
+ * package-private as Spring reflectively creates it, and application code must
+ * rely on the interface.
  * 
  * <pre>
  * 
@@ -38,12 +46,92 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * @author djohnson
  * @version 1.0
  */
-public class BandwidthSubscriptionDao extends SessionManagedDao {
+class BandwidthSubscriptionDao extends
+        SessionManagedDao<Long, BandwidthSubscription> implements
+        IBandwidthSubscriptionDao {
+
+    private static final String GET_SUBSCRIPTIONDAO_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME = "from BandwidthSubscription sub where "
+            + "  sub.provider = :provider and "
+            + "  sub.dataSetName = :dataSetName and "
+            + "  sub.baseReferenceTime = :baseReferenceTime";
+
+    private static final String GET_SUBSCRIPTIONDAO_BY_REGISTRY_ID_AND_BASEREFERENCETIME = "from BandwidthSubscription sub where "
+            + "sub.registryId = :registryId and "
+            + "sub.baseReferenceTime = :baseReferenceTime";
+
+    private static final String GET_SUBSCRIPTIONDAO_BY_REGISTRYID = "from BandwidthSubscription sub where "
+            + "sub.registryId = :registryId";
+
+    private static final String GET_SUBSCRIPTIONDAO_BY_SUBSCRIPTION = "from BandwidthSubscription sub where "
+            + "sub.owner = :owner and "
+            + "sub.provider = :provider and "
+            + "sub.name = :name and " + "sub.dataSetName = :dataSetName";
 
     /**
      * Constructor.
      */
     public BandwidthSubscriptionDao() {
         super();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Class<BandwidthSubscription> getEntityClass() {
+        return BandwidthSubscription.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BandwidthSubscription getByRegistryIdReferenceTime(
+            String registryId, Calendar baseReferenceTime) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("registryId", registryId);
+        params.put("baseReferenceTime", baseReferenceTime);
+        return uniqueResult(
+                GET_SUBSCRIPTIONDAO_BY_REGISTRY_ID_AND_BASEREFERENCETIME,
+                params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BandwidthSubscription> getBySubscription(
+            Subscription subscription) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("owner", subscription.getOwner());
+        params.put("provider", subscription.getProvider());
+        params.put("name", subscription.getName());
+        params.put("dataSetName", subscription.getDataSetName());
+        return query(GET_SUBSCRIPTIONDAO_BY_SUBSCRIPTION, params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BandwidthSubscription> getByRegistryId(String registryId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("registryId", registryId);
+        return query(GET_SUBSCRIPTIONDAO_BY_REGISTRYID, params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BandwidthSubscription> getByProviderDataSetReferenceTime(
+            String provider, String dataSetName, Calendar baseReferenceTime) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("provider", provider);
+        params.put("dataSetName", dataSetName);
+        params.put("baseReferenceTime", baseReferenceTime);
+        return query(
+                GET_SUBSCRIPTIONDAO_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME,
+                params);
     }
 }

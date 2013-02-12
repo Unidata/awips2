@@ -23,7 +23,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
 
 /**
  * 
- * DAO for {@link RetrievalRequestRecord} entities.
+ * DAO for {@link RetrievalRequestRecord} entities. Intentionally
+ * package-private as all access should be through the Spring set interface.
  * 
  * <pre>
  * 
@@ -33,6 +34,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Add SW history.
  * Feb 07, 2013 1543       djohnson     Use session management code.
+ * Feb 13, 2013 1543       djohnson     Exported interface which is now implemented.
  * 
  * </pre>
  * 
@@ -42,36 +44,22 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
 @Repository
 @Transactional
 // TODO: Split service functionality from DAO functionality
-public class RetrievalDao extends SessionManagedDao {
+class RetrievalDao extends
+        SessionManagedDao<RetrievalRequestRecordPK, RetrievalRequestRecord> implements IRetrievalDao {
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalDao.class);
-
-    private static RetrievalDao instance;
-
-    /**
-     * @return the instance
-     */
-    public static RetrievalDao getInstance() {
-        return instance;
-    }
 
     /**
      * Constructor.
      */
-    public RetrievalDao() {
-        // TODO: Don't use a static instance
-        RetrievalDao.instance = this;
+    RetrievalDao() {
     }
 
     /**
-     * Returns the next PENDING retrieval request, puts it into a RUNNING state,
-     * based on current time.
-     * 
-     * @param network
-     *            the network to constrain requests to
-     * 
-     * @return
+     * {@inheritDoc}
      */
+    @Override
     public RetrievalRequestRecord activateNextRetrievalRequest(Network network)
             throws DataAccessLayerException {
         Session sess = null;
@@ -170,6 +158,10 @@ public class RetrievalDao extends SessionManagedDao {
         return rval;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void completeRetrievalRequest(RetrievalRequestRecord rec)
             throws DataAccessLayerException {
         try {
@@ -183,10 +175,9 @@ public class RetrievalDao extends SessionManagedDao {
     }
 
     /**
-     * TODO: This will fail in a cluster, need to limit by machine in a cluster
-     * 
-     * @return
+     * {@inheritDoc}
      */
+    @Override
     public boolean resetRunningRetrievalsToPending() {
         boolean rval = false;
 
@@ -208,12 +199,9 @@ public class RetrievalDao extends SessionManagedDao {
     }
 
     /**
-     * Returns the state counts for the passed subscription.
-     * 
-     * @param sess
-     * @param subName
-     * @return
+     * {@inheritDoc}
      */
+    @Override
     public Map<State, Integer> getSubscriptionStateCounts(String subName)
             throws DataAccessLayerException {
         Map<State, Integer> rval = new HashMap<State, Integer>(8);
@@ -249,6 +237,10 @@ public class RetrievalDao extends SessionManagedDao {
         return rval;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public List<RetrievalRequestRecord> getFailedRequests(String subName)
             throws DataAccessLayerException {
@@ -266,6 +258,10 @@ public class RetrievalDao extends SessionManagedDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean removeSubscription(String subName)
             throws DataAccessLayerException {
         boolean rval = false;
@@ -287,11 +283,9 @@ public class RetrievalDao extends SessionManagedDao {
     }
 
     /**
-     * Get all requests for the subscription name.
-     * 
-     * @param subName
-     * @return
+     * {@inheritDoc}
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List<RetrievalRequestRecord> getRequests(String subName)
             throws DataAccessLayerException {
@@ -322,6 +316,14 @@ public class RetrievalDao extends SessionManagedDao {
      */
     private void setQueryNetwork(Query query, Network network) {
         query.setParameter("network", network);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Class<RetrievalRequestRecord> getEntityClass() {
+        return RetrievalRequestRecord.class;
     }
 
 }

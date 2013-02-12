@@ -14,12 +14,23 @@
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthSubscriptionDao">
         <property name="sessionFactory" ref="metadataSessionFactory" />
     </bean>
+    
+    <bean id="subscriptionRetrievalDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.SubscriptionRetrievalDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+    
+    <bean id="bandwidthDataSetUpdateDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthDataSetUpdateDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
 
     <bean id="hibernateBandwidthDao"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
         <property name="bandwidthAllocationDao" ref="bandwidthAllocationDao" />
         <property name="bandwidthSubscriptionDao" ref="bandwidthSubscriptionDao" />
+        <property name="subscriptionRetrievalDao" ref="subscriptionRetrievalDao" />
+        <property name="bandwidthDataSetUpdateDao" ref="bandwidthDataSetUpdateDao" />
     </bean>
 
 </beans>

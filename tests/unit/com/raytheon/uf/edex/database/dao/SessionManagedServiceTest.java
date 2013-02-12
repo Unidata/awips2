@@ -32,10 +32,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDaoFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
 
 /**
  * Test {@link SessionManagedService}.
@@ -70,10 +70,10 @@ public class SessionManagedServiceTest {
     }
 
     @Autowired
-    private HibernateBandwidthDao bandwidthService;
+    private IBandwidthDao bandwidthService;
 
     @Autowired
-    private MockService service;
+    private IMockService service;
 
     @Test
     public void exceptionThrownInDaoWillRollbackTransaction() {
