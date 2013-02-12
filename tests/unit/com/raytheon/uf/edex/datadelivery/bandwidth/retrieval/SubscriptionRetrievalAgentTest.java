@@ -29,9 +29,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
@@ -43,6 +46,7 @@ import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
@@ -68,11 +72,17 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * @author djohnson
  * @version 1.0
  */
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
 public class SubscriptionRetrievalAgentTest {
+
+    @Autowired
+    private RetrievalDao retrievalDao;
+
     @Before
     public void setUp() throws RegistryHandlerException {
-        DatabaseUtil.start();
         PathManagerFactoryTest.initLocalization();
         RegistryObjectHandlersUtil.initMocks();
         when(DataDeliveryHandlers.getProviderHandler().getByName(anyString()))
@@ -81,11 +91,6 @@ public class SubscriptionRetrievalAgentTest {
                 DataDeliveryHandlers.getDataSetMetaDataHandler().getById(
                         anyString())).thenReturn(
                 OpenDapGriddedDataSetMetaDataFixture.INSTANCE.get());
-    }
-
-    @After
-    public void tearDown() {
-        DatabaseUtil.shutdown();
     }
 
     @Test
@@ -120,8 +125,7 @@ public class SubscriptionRetrievalAgentTest {
         };
         agent.processAllocation(subscriptionRetrieval);
 
-        RetrievalDao dao = RetrievalDao.getInstance();
-        final List<RetrievalRequestRecord> requests = dao
+        final List<RetrievalRequestRecord> requests = retrievalDao
                 .getRequests(subscription.getName());
         assertThat(requests,
                 is(not(emptyCollectionOf(RetrievalRequestRecord.class))));
