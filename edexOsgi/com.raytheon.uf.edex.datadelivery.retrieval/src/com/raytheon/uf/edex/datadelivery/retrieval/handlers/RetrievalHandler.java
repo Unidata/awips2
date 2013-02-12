@@ -25,10 +25,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.springframework.stereotype.Service;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
  * Provider Retrieval Handler
@@ -46,7 +47,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
  * @author dhladky
  * @version 1.0
  */
-
+@Service
 public class RetrievalHandler {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -58,21 +59,8 @@ public class RetrievalHandler {
 
     private final SubscriptionNotifyTask subNotifyTask;
 
-    /**
-     * useful public constructor
-     * 
-     * @param executor
-     */
     public RetrievalHandler(ScheduledExecutorService executorService,
-            List<RetrievalTask> retrievalTasks,
-            SubscriptionNotifyTask subNotifyTask) {
-        this(executorService, RetrievalDao.getInstance(), retrievalTasks,
-                subNotifyTask);
-    }
-
-    @VisibleForTesting
-    RetrievalHandler(ScheduledExecutorService executorService,
-            RetrievalDao retrievalDao, List<RetrievalTask> retrievalTasks,
+            IRetrievalDao retrievalDao, List<RetrievalTask> retrievalTasks,
             SubscriptionNotifyTask subNotifyTask) {
         this.executorService = executorService;
         this.retrievalTasks = retrievalTasks;

@@ -130,7 +130,7 @@ public class RetrievalPlan {
                     allocation = o;
                     allocation.setStatus(RetrievalStatus.PROCESSING);
                     // Persist this change to the database
-                    bandwidthDao.update(allocation);
+                    bandwidthDao.createOrUpdate(allocation);
                     break;
                 }
             }
@@ -601,7 +601,7 @@ public class RetrievalPlan {
                     BandwidthBucket bucket = buckets.firstEntry().getValue();
                     bucket.add(allocation);
                     allocation.setBandwidthBucket(bucket.getBucketStartTime());
-                    bandwidthDao.update(allocation);
+                    bandwidthDao.createOrUpdate(allocation);
 
                     bucket.add(allocation);
 

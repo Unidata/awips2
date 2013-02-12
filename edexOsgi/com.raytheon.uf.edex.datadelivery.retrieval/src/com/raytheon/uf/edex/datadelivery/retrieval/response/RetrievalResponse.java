@@ -22,6 +22,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
 
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
@@ -33,6 +35,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2011            dhladky     Initial creation
+ * Feb 12, 2013 1543       djohnson    Abstract class now.
  * 
  * </pre>
  * 
@@ -41,27 +44,40 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @author dhladky
  * @version 1.0
  */
+@DynamicSerialize
+public abstract class RetrievalResponse implements IRetrievalResponse {
 
-public class RetrievalResponse implements IRetrievalResponse {
+    @DynamicSerializeElement
+    private RetrievalAttribute attribute;
 
-    private RetrievalAttribute attXML;
+    @DynamicSerializeElement
+    private Object payLoad;
 
-    private Object[] payLoad;
+    public RetrievalResponse() {
 
-    public RetrievalResponse(RetrievalAttribute attXML) {
-        this.attXML = attXML;
     }
 
-    public void setPayLoad(Object[] payLoad) {
+    public RetrievalResponse(RetrievalAttribute attribute) {
+        this.attribute = attribute;
+    }
+
+    @Override
+    public void setPayLoad(Object payLoad) {
         this.payLoad = payLoad;
     }
 
-    public Object[] getPayLoad() {
+    @Override
+    public Object getPayLoad() {
         return payLoad;
     }
 
+    @Override
     public RetrievalAttribute getAttribute() {
-        return attXML;
+        return attribute;
+    }
+
+    public void setAttribute(RetrievalAttribute attribute) {
+        this.attribute = attribute;
     }
 
 }

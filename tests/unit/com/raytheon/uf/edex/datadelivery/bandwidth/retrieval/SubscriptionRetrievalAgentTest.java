@@ -52,7 +52,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
 
@@ -79,7 +79,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
 public class SubscriptionRetrievalAgentTest {
 
     @Autowired
-    private RetrievalDao retrievalDao;
+    private IRetrievalDao retrievalDao;
 
     @Before
     public void setUp() throws RegistryHandlerException {
@@ -117,7 +117,8 @@ public class SubscriptionRetrievalAgentTest {
         IBandwidthDao bandwidthDao = mock(IBandwidthDao.class);
 
         SubscriptionRetrievalAgent agent = new SubscriptionRetrievalAgent(
-                route, "someUri", new Object(), 1, null, bandwidthDao) {
+                route, "someUri", new Object(), 1, null, bandwidthDao,
+                retrievalDao) {
             @Override
             void wakeRetrievalTasks() throws EdexException {
                 // Do nothing

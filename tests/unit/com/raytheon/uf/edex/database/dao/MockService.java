@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 
 /**
  * Mock service which uses another service.
@@ -44,9 +44,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
  */
 @Transactional
 @Repository
-public class MockService extends SessionManagedDao {
+public class MockService extends SessionManagedDao<Long, BandwidthSubscription> implements IMockService {
 
-    private HibernateBandwidthDao bandwidthService;
+    private IBandwidthDao bandwidthService;
 
     /**
      * @param config
@@ -55,12 +55,9 @@ public class MockService extends SessionManagedDao {
     }
 
     /**
-     * Stores a {@link BandwidthSubscription} then attempts an invalid transactable
-     * operation.
-     * 
-     * @param subscription
-     *            the subscription
+     * {@inheritDoc}
      */
+    @Override
     public void storeStuffThenThrowException(BandwidthSubscription subscription) {
         SpringTransactionUtils
                 .transactionRequired("storeStuffThenThrowException");
@@ -71,12 +68,9 @@ public class MockService extends SessionManagedDao {
     }
 
     /**
-     * Stores a {@link BandwidthSubscription}, not throwing an exception as long as
-     * the subscription object is valid.
-     * 
-     * @param subscription
-     *            the subscription
+     * {@inheritDoc}
      */
+    @Override
     public void storeStuffAndNotThrowException(BandwidthSubscription subscription) {
         SpringTransactionUtils
                 .transactionRequired("storeStuffAndNotThrowException");
@@ -89,11 +83,19 @@ public class MockService extends SessionManagedDao {
     }
 
     /**
-     * @param bandwidthService
-     *            the bandwidthService to set
+     * {@inheritDoc}
      */
-    public void setBandwidthService(HibernateBandwidthDao bandwidthService) {
+    @Override
+    public void setBandwidthService(IBandwidthDao bandwidthService) {
         this.bandwidthService = bandwidthService;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Class<BandwidthSubscription> getEntityClass() {
+        return BandwidthSubscription.class;
     }
 
 }

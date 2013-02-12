@@ -20,8 +20,8 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import static com.raytheon.uf.common.util.Matchers.hasNoFiles;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -41,6 +41,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 12, 2013 1543       djohnson     Can only test the retrieval response is now not null.
  * 
  * </pre>
  * 
@@ -67,13 +68,9 @@ public class DeserializeRetrievedDataFromDirectoryTest {
         final RetrievalPluginDataObjects restored = service
                 .findRetrievalPluginDataObjects();
 
-        // Just make sure the grid record URI is the same, that's good enough
-        // for our purposes
+        // Just make sure the payload is present
         assertThat(restored.getRetrievalAttributePluginDataObjects().get(0)
-                .getPluginDataObjects()[0].getDataURI(),
-                is(equalTo(retrievalPluginDataObjects
-                        .getRetrievalAttributePluginDataObjects().get(0)
-                        .getPluginDataObjects()[0].getDataURI())));
+                .getRetrievalResponse(), is(notNullValue()));
     }
 
     @Test
