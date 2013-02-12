@@ -30,25 +30,38 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
+import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
  * Test {@link RetrievalTask}.
@@ -61,13 +74,17 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Add test to simulate SBN retrieval task behavior.
+ * Feb 12, 2013 1543       djohnson     Retrieval responses are now sent further down the chain.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
+       @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RetrievalTaskTest {
     /**
      * Places the plugin data object into a collection for inspection.
@@ -85,11 +102,21 @@ public class RetrievalTaskTest {
                 throws Exception {
             final List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                     .getRetrievalAttributePluginDataObjects();
+            final RetrievalRequestRecord requestRecord = retrievalPluginDataObjects
+                    .getRequestRecord();
+            final Retrieval retrieval = requestRecord.getRetrievalObj();
+            final ServiceType serviceType = retrieval.getServiceType();
+            final RetrievalAdapter serviceRetrievalAdapter = ServiceTypeFactory
+                    .retrieveServiceRetrievalAdapter(serviceType);
 
             for (RetrievalAttributePluginDataObjects pluginDataObjectEntry : retrievalAttributePluginDataObjects) {
-                PluginDataObject[] value = pluginDataObjectEntry
-                        .getPluginDataObjects();
-                pluginDataObjects.addAll(Arrays.asList(value));
+                IRetrievalResponse value = pluginDataObjectEntry
+                        .getRetrievalResponse();
+                final Map<String, PluginDataObject[]> processed = serviceRetrievalAdapter
+                        .processResponse(value);
+                for (PluginDataObject[] pdos : processed.values()) {
+                    pluginDataObjects.addAll(Arrays.asList(pdos));
+                }
             }
         }
     }
@@ -98,7 +125,8 @@ public class RetrievalTaskTest {
 
     private RetrievalRequestRecord sbnRetrieval;
 
-    private RetrievalDao dao;
+    @Autowired
+    private IRetrievalDao dao;
 
     private final PlaceInCollectionProcessor retrievedDataProcessor = new PlaceInCollectionProcessor();
 
@@ -106,7 +134,6 @@ public class RetrievalTaskTest {
 
     @Before
     public void setUp() throws RegistryHandlerException {
-        DatabaseUtil.start();
         PathManagerFactoryTest.initLocalization();
 
         opsnetRetrieval = RetrievalRequestRecordFixture.INSTANCE.get(1);
@@ -114,14 +141,7 @@ public class RetrievalTaskTest {
         opsnetRetrieval.setNetwork(Network.OPSNET);
         sbnRetrieval.setNetwork(Network.SBN);
 
-        dao = RetrievalDao.getInstance();
-
         EventBus.register(this);
-    }
-
-    @After
-    public void tearDown() {
-        DatabaseUtil.shutdown();
     }
 
     @Test
@@ -148,7 +168,7 @@ public class RetrievalTaskTest {
                         .size()));
     }
 
-    @Test
+    @Ignore("dataRetrievalEvent is no longer sent separately from storage, perhaps restore it later?")
     public void dataRetrievalEventIsSentForItsSpecifiedNetwork()
             throws Exception {
 
@@ -223,14 +243,12 @@ public class RetrievalTaskTest {
         // Create required strategies for finding, processing, and completing
         // retrievals
         final IRetrievalPluginDataObjectsFinder retrievalDataFinder = new PerformRetrievalPluginDataObjectsFinder(
-                Network.OPSNET);
-        final IRetrievalPluginDataObjectsProcessor retrievalPluginDataObjectsProcessor = new NotifyOfPluginDataObjectsDecorator(
-                retrievedDataProcessor);
+                Network.OPSNET, dao);
         final IRetrievalResponseCompleter retrievalCompleter = new RetrievalResponseCompleter(
-                mock(SubscriptionNotifyTask.class));
+                mock(SubscriptionNotifyTask.class), dao);
 
         new RetrievalTask(Network.OPSNET, retrievalDataFinder,
-                retrievalPluginDataObjectsProcessor, retrievalCompleter).run();
+                retrievedDataProcessor, retrievalCompleter).run();
     }
 
     /**
