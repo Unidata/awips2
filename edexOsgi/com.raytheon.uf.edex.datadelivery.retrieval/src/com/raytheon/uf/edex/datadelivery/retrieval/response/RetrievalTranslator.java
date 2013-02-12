@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMet
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2011    191        dhladky     Initial creation
  * Feb 07, 2013 1543       djohnson     Allow overriding of methods for mocking in tests.
+ * Feb 12, 2013 1543       djohnson     Pass the exception as the cause for instantiation exceptions.
  * 
  * </pre>
  * 
@@ -79,7 +80,9 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
         try {
             configureFromPdoClassName(className);
         } catch (Exception e) {
-            throw new InstantiationException(e.toString());
+            InstantiationException ie = new InstantiationException();
+            ie.initCause(e);
+            throw ie;
         }
     }
 

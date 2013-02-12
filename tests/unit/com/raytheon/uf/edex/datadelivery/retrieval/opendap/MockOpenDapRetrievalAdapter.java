@@ -19,18 +19,15 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
 
-import java.io.ByteArrayInputStream;
-
 import org.junit.Ignore;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
 import com.raytheon.uf.edex.datadelivery.retrieval.response.MockOpenDAPTranslator;
 import com.raytheon.uf.edex.datadelivery.retrieval.response.OpenDAPTranslator;
-import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
 
-import dods.dap.DConnect;
 import dods.dap.DConnectTest;
 import dods.dap.DataDDS;
 
@@ -45,6 +42,7 @@ import dods.dap.DataDDS;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Initial creation
+ * Feb 12, 2013 1543       djohnson     Use DodsUtils.
  * 
  * </pre>
  * 
@@ -58,20 +56,21 @@ public class MockOpenDapRetrievalAdapter extends OpenDAPRetrievalAdapter {
      * file and recreates the {@link DataDDS} instance.
      */
     @Override
-    public RetrievalResponse performRequest(IRetrievalRequestBuilder request) {
-        DConnect dconnect = new DConnect(new ByteArrayInputStream(
-                TestUtil.readResource(DConnectTest.class,
-                        "/datadelivery/opendap/compressed_rap_dataset.dods")));
-        DataDDS data = null;
+    public OpenDapRetrievalResponse performRequest(
+            IRetrievalRequestBuilder request) {
+        DataDDS data;
         try {
-            data = dconnect.getData(null);
-        } catch (Exception e) {
+            data = DodsUtils.restoreDataDdsFromByteArray(TestUtil.readResource(
+                    DConnectTest.class,
+                    "/datadelivery/opendap/compressed_rap_dataset.dods"));
+        } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
 
-        final RetrievalResponse response = new RetrievalResponse(
-                request.getAttribute());
-        response.setPayLoad(new Object[] { data });
+        final OpenDapRetrievalResponse response = new OpenDapRetrievalResponse();
+        response.setAttribute(request.getAttribute());
+        response.setPayLoad(data);
+
         return response;
     }
 
