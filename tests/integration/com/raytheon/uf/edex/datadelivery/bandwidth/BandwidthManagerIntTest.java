@@ -42,6 +42,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
@@ -61,7 +66,9 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
@@ -94,6 +101,13 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * @author djohnson
  * @version 1.0
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_XML })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
     @Test
