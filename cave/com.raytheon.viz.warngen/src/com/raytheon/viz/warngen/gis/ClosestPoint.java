@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                         a copy constructor.
  *    Sep 25, 2012 #15425      Qinglu Lin  Updated two ClosestPoint() and added getGid().
  *    Oct 17, 2012             jsanchez    Added setter methods.
+ *    Feb 12, 2013  1600       jsanchez    Removed adjustAngle method.
  * 
  * </pre>
  * 
@@ -245,26 +246,6 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
 
     public void setGid(int gid) {
         this.gid = gid;
-    }
-
-    /**
-     * Adjusts the angle from -360/360 to be between -180/180
-     * 
-     * @param angle
-     * @return
-     */
-    public static double adjustAngle(double angle) {
-        double newVal = angle % 360;
-        if (newVal > 180) {
-            newVal -= 360;
-        } else if (newVal < -180) {
-            newVal += 360;
-        }
-
-        if (newVal < 0) {
-            newVal += 360;
-        }
-        return newVal;
     }
 
     /*
