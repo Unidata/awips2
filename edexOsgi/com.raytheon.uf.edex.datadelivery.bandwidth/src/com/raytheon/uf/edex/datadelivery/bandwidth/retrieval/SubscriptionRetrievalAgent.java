@@ -31,7 +31,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerator;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
@@ -64,12 +64,16 @@ public class SubscriptionRetrievalAgent extends
 
     private final IBandwidthDao bandwidthDao;
 
+    private final IRetrievalDao retrievalDao;
+
     public SubscriptionRetrievalAgent(Network network, String destinationUri,
             final Object notifier, int defaultPriority,
-            RetrievalManager retrievalManager, IBandwidthDao bandwidthDao) {
+            RetrievalManager retrievalManager, IBandwidthDao bandwidthDao,
+            IRetrievalDao retrievalDao) {
         super(network, destinationUri, notifier, retrievalManager);
         this.defaultPriority = defaultPriority;
         this.bandwidthDao = bandwidthDao;
+        this.retrievalDao = retrievalDao;
     }
 
     @Override
@@ -152,7 +156,6 @@ public class SubscriptionRetrievalAgent extends
     private boolean generateRetrieval(SubscriptionBundle bundle,
             Long subRetrievalKey) {
 
-        RetrievalDao dao = RetrievalDao.getInstance();
         // process the bundle into a retrieval
         RetrievalGenerator rg = ServiceTypeFactory.retrieveServiceFactory(
                 bundle.getProvider()).getRetrievalGenerator();
@@ -220,7 +223,7 @@ public class SubscriptionRetrievalAgent extends
                 timer.reset();
                 timer.start();
 
-                dao.persistAll(requestRecords);
+                retrievalDao.persistAll(requestRecords);
 
                 timer.stop();
                 statusHandler.info("Time to persist requests to db ["
