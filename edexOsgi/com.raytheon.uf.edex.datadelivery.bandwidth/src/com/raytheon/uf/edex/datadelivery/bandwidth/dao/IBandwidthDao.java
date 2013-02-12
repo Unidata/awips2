@@ -328,7 +328,7 @@ public interface IBandwidthDao {
      * @param allocation
      *            The BandwidthAllocation to store.
      */
-    void update(BandwidthAllocation allocation);
+    void createOrUpdate(BandwidthAllocation allocation);
 
     /**
      * Update a BandwidthSubscription in the database.
@@ -339,12 +339,12 @@ public interface IBandwidthDao {
     void update(BandwidthSubscription dao);
 
     /**
-     * Update a SubscriptionRetrieval in the database.
+     * Update a BandwidthAllocation in the database.
      * 
-     * @param subscriptionRetrieval
-     *            The SubscriptionRetrieval to store.
+     * @param bandwidthAllocation
+     *            The bandwidthAllocation to update.
      */
-    void update(SubscriptionRetrieval subscriptionRetrieval);
+    void update(BandwidthAllocation allocation);
 
     /**
      * Find all bandwidth allocations in the specified state.

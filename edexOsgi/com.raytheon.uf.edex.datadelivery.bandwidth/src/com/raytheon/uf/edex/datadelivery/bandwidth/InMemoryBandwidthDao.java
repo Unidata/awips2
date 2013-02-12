@@ -37,8 +37,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -493,7 +493,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void update(BandwidthAllocation allocation) {
+    public void createOrUpdate(BandwidthAllocation allocation) {
         replaceOldOrAddToCollection(bandwidthAllocations, allocation);
     }
 
@@ -509,9 +509,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void update(SubscriptionRetrieval subscriptionRetrieval) {
-        replaceOldOrAddToCollection(bandwidthAllocations,
-                subscriptionRetrieval);
+    public void update(BandwidthAllocation allocation) {
+        replaceOldOrAddToCollection(bandwidthAllocations, allocation);
     }
 
     private <T extends IPersistableDataObject<Long>> void replaceOldOrAddToCollection(

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
  * Test {@link RetrievalHandler}.
@@ -57,7 +57,7 @@ public class RetrievalHandlerTest {
 
     private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
 
-    private final RetrievalDao mockDao = mock(RetrievalDao.class);
+    private final IRetrievalDao mockDao = mock(IRetrievalDao.class);
 
     private final RetrievalTask retrievalTask = mock(RetrievalTask.class);
 
