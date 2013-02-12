@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
@@ -49,8 +49,12 @@ public class RetrievalResponseCompleter implements IRetrievalResponseCompleter {
 
     private final SubscriptionNotifyTask notifyTask;
 
-    public RetrievalResponseCompleter(SubscriptionNotifyTask notifyTask) {
+    private final IRetrievalDao dao;
+
+    public RetrievalResponseCompleter(SubscriptionNotifyTask notifyTask,
+            IRetrievalDao dao) {
         this.notifyTask = notifyTask;
+        this.dao = dao;
     }
 
     /**
@@ -65,7 +69,6 @@ public class RetrievalResponseCompleter implements IRetrievalResponseCompleter {
 
         // update database
         try {
-            RetrievalDao dao = RetrievalDao.getInstance();
             dao.completeRetrievalRequest(retrieval);
             notifyTask.checkNotify(retrieval);
         } catch (DataAccessLayerException e) {

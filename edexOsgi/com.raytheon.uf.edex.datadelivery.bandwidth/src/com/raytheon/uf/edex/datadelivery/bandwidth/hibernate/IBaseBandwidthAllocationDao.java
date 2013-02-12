@@ -19,12 +19,16 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
+import java.util.Calendar;
+import java.util.List;
+
+import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.edex.database.dao.ISessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
 /**
- * DAO that handles {@link BandwidthAllocation} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * Base DAO interface for bandwidth allocations.
  * 
  * <pre>
  * 
@@ -38,16 +42,43 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
  * 
  * @author djohnson
  * @version 1.0
+ * @param <ENTITY>
  */
-class BandwidthAllocationDao extends
-        BaseBandwidthAllocationDao<BandwidthAllocation> implements IBandwidthAllocationDao {
+interface IBaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
+        extends ISessionManagedDao<Long, ENTITY> {
 
     /**
-     * {@inheritDoc}
+     * Get by the subscription id.
+     * 
+     * @param subscriptionId
+     *            the subscription id
+     * @return
      */
-    @Override
-    protected Class<BandwidthAllocation> getEntityClass() {
-        return BandwidthAllocation.class;
-    }
+    List<ENTITY> getBySubscriptionId(Long subscriptionId);
+
+    /**
+     * Get by the network.
+     * 
+     * @param network
+     * @return
+     */
+    List<ENTITY> getByNetwork(Network network);
+
+    /**
+     * Get by retrieval status.
+     * 
+     * @param state
+     * @return
+     */
+    List<ENTITY> getByState(RetrievalStatus state);
+
+    /**
+     * Get deferred bandwidth allocations for the network and end time.
+     * 
+     * @param network
+     * @param endTime
+     * @return
+     */
+    List<ENTITY> getDeferred(Network network, Calendar endTime);
 
 }

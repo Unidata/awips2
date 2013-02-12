@@ -33,7 +33,7 @@
         </property>
     </bean>
     
-    <tx:annotation-driven transaction-manager="metadataTxManager" proxy-target-class="true" />
+    <tx:annotation-driven transaction-manager="metadataTxManager" />
     
     <bean id="metadataTxManager"
         class="org.springframework.orm.hibernate3.HibernateTransactionManager">

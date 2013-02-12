@@ -270,7 +270,7 @@ public class BandwidthDaoUtil {
      */
     public void update(BandwidthAllocation allocation) {
 
-        bandwidthDao.update(allocation);
+        bandwidthDao.createOrUpdate(allocation);
         retrievalManager.updateBandwidthAllocation(allocation);
     }
 
