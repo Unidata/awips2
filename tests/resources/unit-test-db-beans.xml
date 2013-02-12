@@ -40,30 +40,7 @@
         <property name="sessionFactory" ref="metadataSessionFactory" />
     </bean>
     
-    <bean id="bandwidthAllocationDao"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthAllocationDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-    </bean>
-
-    <bean id="bandwidthSubscriptionDao"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthSubscriptionDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-    </bean>
-
-    <bean id="hibernateBandwidthDao"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-        <property name="bandwidthAllocationDao" ref="bandwidthAllocationDao" />
-        <property name="bandwidthSubscriptionDao" ref="bandwidthSubscriptionDao" />
-    </bean>
-    
-    <bean id="retrievalDao" class="com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-    </bean>
-    
-    <bean id="mockService" class="com.raytheon.uf.edex.database.dao.MockService">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-        <property name="bandwidthService" ref="hibernateBandwidthDao" />
-    </bean>
+    <!-- Register the application context with EDEXUtil -->
+    <bean class="com.raytheon.uf.edex.core.EDEXUtil" />
     
 </beans>

@@ -48,7 +48,7 @@ public final class DatabaseUtil {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DatabaseUtil.class);
 
-    private static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
+    public static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
 
     private static ApplicationContext originalApplicationContext;
 
