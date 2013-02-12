@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012            bsteffen     Initial javadoc
+ * Feb 07, 2013 1543       djohnson     Allow package-level overriding of methods for mocking in tests.
  * 
  * </pre>
  * 
@@ -129,11 +131,13 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
      * @param coverage
      * @return
      */
-    private GridCoverage getCoverageFromCache(GridCoverage coverage) {
+    @VisibleForTesting
+    GridCoverage getCoverageFromCache(GridCoverage coverage) {
         return ResponseProcessingUtilities.getCoverageFromCache(coverage);
     }
 
-    private Level[] getLevels(RetrievalAttribute attXML) {
+    @VisibleForTesting
+    Level[] getLevels(RetrievalAttribute attXML) {
         ArrayList<Level> levels = ResponseProcessingUtilities
                 .getOpenDAPGridLevels(attXML.getParameter().getLevels());
         return levels.toArray(new Level[levels.size()]);
