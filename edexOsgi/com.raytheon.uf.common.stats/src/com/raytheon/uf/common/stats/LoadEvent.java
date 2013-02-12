@@ -23,8 +23,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Load event to track dialog/table/data load times.
@@ -54,28 +58,10 @@ public class LoadEvent extends StatisticsEvent {
     }
 
     /**
-     * The plugin name
-     */
-    @DynamicSerializeElement
-    private String pluginName;
-
-    /**
-     * The workstation id
-     */
-    @DynamicSerializeElement
-    private String workstation;
-
-    /**
      * The type of object that is having its load time tracked
      */
     @DynamicSerializeElement
     private String type;
-
-    /**
-     * The version of CAVE
-     */
-    @DynamicSerializeElement
-    private String caveVersion;
 
     /**
      * The load time in ms
@@ -89,39 +75,21 @@ public class LoadEvent extends StatisticsEvent {
     @DynamicSerializeElement
     private String message;
 
+    /**
+     * Start time in ms.
+     */
+    private long start;
+
+    /**
+     * Constructor. Sets the start time to current time.
+     */
+    public LoadEvent() {
+        start = TimeUtil.currentTimeMillis();
+    }
+
     @Override
     protected Map<String, String> getFieldUnitMap() {
         return FIELD_UNIT_MAP;
-    }
-
-    /**
-     * @return the pluginName
-     */
-    public String getPluginName() {
-        return pluginName;
-    }
-
-    /**
-     * @param pluginName
-     *            the pluginName to set
-     */
-    public void setPluginName(String pluginName) {
-        this.pluginName = pluginName;
-    }
-
-    /**
-     * @return the workstation
-     */
-    public String getWorkstation() {
-        return workstation;
-    }
-
-    /**
-     * @param workstation
-     *            the workstation to set
-     */
-    public void setWorkstation(String workstation) {
-        this.workstation = workstation;
     }
 
     /**
@@ -170,18 +138,18 @@ public class LoadEvent extends StatisticsEvent {
     }
 
     /**
-     * @return the caveVersion
+     * @return the start
      */
-    public String getCaveVersion() {
-        return caveVersion;
+    public long getStart() {
+        return start;
     }
 
     /**
-     * @param caveVersion
-     *            the caveVersion to set
+     * @param start
+     *            the start to set
      */
-    public void setCaveVersion(String caveVersion) {
-        this.caveVersion = caveVersion;
+    public void setStart(long start) {
+        this.start = start;
     }
 
     /**
@@ -191,4 +159,45 @@ public class LoadEvent extends StatisticsEvent {
     public String toString() {
         return super.toString() + " : " + getMessage();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode())
+                .append(date).append(message).append(type).toHashCode();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        LoadEvent other = (LoadEvent) obj;
+        return new EqualsBuilder().appendSuper(super.equals(obj))
+                .append(this.date, other.date).append(this.id, other.id)
+                .append(this.message, other.message)
+                .append(this.type, other.type).isEquals();
+    }
+
+    @Override
+    public void finalizeEvent() {
+        long now = TimeUtil.currentTimeMillis();
+        this.loadTime = now - start;
+    }
+
 }
