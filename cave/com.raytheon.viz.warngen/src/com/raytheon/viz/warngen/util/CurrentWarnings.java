@@ -66,6 +66,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2011            mschenke     Initial creation
+ * Feb 12, 2013 1500       mschenke     Refactored to not request full records and only request full 
+ *                                      record when actually retrieving for use
  * 
  * </pre>
  * 
@@ -81,7 +83,41 @@ public class CurrentWarnings {
         public void warningsArrived();
     }
 
-    private static final String JOIN_KEY = ".";
+    private static class WarningKey {
+
+        private final String phensig;
+
+        private final String etn;
+
+        private WarningKey(String phensig, String etn) {
+            this.phensig = String.valueOf(phensig);
+            this.etn = String.valueOf(etn);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = prime + etn.hashCode();
+            return prime * result + phensig.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            WarningKey other = (WarningKey) obj;
+            if (etn.equals(other.etn) == false)
+                return false;
+            else if (phensig.equals(other.phensig) == false)
+                return false;
+            return true;
+        }
+
+    }
 
     private static Map<String, CurrentWarnings> instanceMap = new HashMap<String, CurrentWarnings>();
 
@@ -145,11 +181,9 @@ public class CurrentWarnings {
 
     private String officeId;
 
-    private List<AbstractWarningRecord> records = new ArrayList<AbstractWarningRecord>();
-
     private Map<String, AbstractWarningRecord> recordsMap = new HashMap<String, AbstractWarningRecord>();
 
-    private Map<String, List<AbstractWarningRecord>> warningMap = new HashMap<String, List<AbstractWarningRecord>>() {
+    private Map<WarningKey, List<AbstractWarningRecord>> warningMap = new HashMap<WarningKey, List<AbstractWarningRecord>>() {
 
         private static final long serialVersionUID = 1L;
 
@@ -191,13 +225,13 @@ public class CurrentWarnings {
         List<AbstractWarningRecord> rval = new ArrayList<AbstractWarningRecord>();
 
         synchronized (officeId) {
-            for (List<AbstractWarningRecord> warnings : warningMap.values()) {
-                if (warnings.size() > 0) {
-                    AbstractWarningRecord tmp = getNewestByTracking(warnings
-                            .get(0).getEtn(), warnings.get(0).getPhensig());
-                    if (tmp != null && rval.contains(tmp) == false) {
-                        rval.add(tmp);
-                    }
+            List<WarningKey> keys = new ArrayList<WarningKey>(
+                    warningMap.keySet());
+            for (WarningKey key : keys) {
+                AbstractWarningRecord tmp = getNewestByTracking(key.etn,
+                        key.phensig);
+                if (tmp != null && rval.contains(tmp) == false) {
+                    rval.add(tmp);
                 }
             }
         }
@@ -491,8 +525,8 @@ public class CurrentWarnings {
                 recordsMap.put(record.getDataURI(), record);
             }
 
-            records.clear();
-            records.addAll(recordsMap.values());
+            List<AbstractWarningRecord> records = new ArrayList<AbstractWarningRecord>(
+                    recordsMap.values());
 
             // Sort by insert time
             Collections.sort(records, new Comparator<AbstractWarningRecord>() {
@@ -503,16 +537,19 @@ public class CurrentWarnings {
                 }
             });
 
-            warningMap.clear();
+            Map<WarningKey, List<AbstractWarningRecord>> tmpMap = new HashMap<WarningKey, List<AbstractWarningRecord>>();
             for (AbstractWarningRecord record : records) {
-                String key = toKey(record.getPhensig(), record.getEtn());
-                List<AbstractWarningRecord> recordsByKey = warningMap.get(key);
+                WarningKey key = toKey(record.getPhensig(), record.getEtn());
+                List<AbstractWarningRecord> recordsByKey = tmpMap.get(key);
                 if (recordsByKey == null) {
                     recordsByKey = new LinkedList<AbstractWarningRecord>();
-                    warningMap.put(key, recordsByKey);
+                    tmpMap.put(key, recordsByKey);
                 }
                 recordsByKey.add(record);
             }
+
+            warningMap.clear();
+            warningMap.putAll(tmpMap);
         }
     }
 
@@ -575,8 +612,8 @@ public class CurrentWarnings {
      * @param etn
      * @return
      */
-    private static String toKey(String phensig, String etn) {
-        return phensig + JOIN_KEY + etn;
+    private static WarningKey toKey(String phensig, String etn) {
+        return new WarningKey(phensig, etn);
     }
 
     /**
