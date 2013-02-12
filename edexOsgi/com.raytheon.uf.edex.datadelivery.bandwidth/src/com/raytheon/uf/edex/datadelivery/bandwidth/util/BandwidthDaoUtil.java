@@ -36,9 +36,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -242,7 +242,7 @@ public class BandwidthDaoUtil {
         return subscriptionTimes;
     }
 
-    public void remove(SubscriptionDao dao) {
+    public void remove(BandwidthSubscription dao) {
 
         List<BandwidthAllocation> reservations = bandwidthDao
                 .getBandwidthAllocations(dao.getIdentifier());
@@ -291,17 +291,17 @@ public class BandwidthDaoUtil {
             AdhocSubscription adhoc, boolean mostRecent) {
         AdhocSubscription retVal = null;
 
-        List<DataSetMetaDataDao> dataSetMetaDataUpdates = bandwidthDao
-                .getDataSetMetaDataDao(adhoc.getProvider(),
+        List<BandwidthDataSetUpdate> dataSetMetaDataUpdates = bandwidthDao
+                .getBandwidthDataSetUpdate(adhoc.getProvider(),
                         adhoc.getDataSetName());
         if (!dataSetMetaDataUpdates.isEmpty()) {
             // getDataSetMetaData returns the dataset meta-data in descending
             // order of time, so walk the iterator finding the first subscribed
             // to cycle
             try {
-                DataSetMetaDataDao daoToUse = null;
+                BandwidthDataSetUpdate daoToUse = null;
                 Time adhocTime = adhoc.getTime();
-                for (DataSetMetaDataDao current : dataSetMetaDataUpdates) {
+                for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
                     if (mostRecent
                             || adhocTime.getCycleTimes().contains(
                                     current.getDataSetBaseTime().get(

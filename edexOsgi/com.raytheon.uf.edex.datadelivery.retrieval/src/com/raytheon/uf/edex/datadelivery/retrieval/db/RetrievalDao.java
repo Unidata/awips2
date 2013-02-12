@@ -10,15 +10,15 @@ import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
 
 /**
@@ -32,18 +32,35 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Add SW history.
+ * Feb 07, 2013 1543       djohnson     Use session management code.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class RetrievalDao extends CoreDao {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+@Repository
+@Transactional
+// TODO: Split service functionality from DAO functionality
+public class RetrievalDao extends SessionManagedDao {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalDao.class);
 
+    private static RetrievalDao instance;
+
+    /**
+     * @return the instance
+     */
+    public static RetrievalDao getInstance() {
+        return instance;
+    }
+
+    /**
+     * Constructor.
+     */
     public RetrievalDao() {
-        super(DaoConfig.forClass(RetrievalRequestRecord.class));
+        // TODO: Don't use a static instance
+        RetrievalDao.instance = this;
     }
 
     /**
@@ -58,12 +75,10 @@ public class RetrievalDao extends CoreDao {
     public RetrievalRequestRecord activateNextRetrievalRequest(Network network)
             throws DataAccessLayerException {
         Session sess = null;
-        Transaction tx = null;
         RetrievalRequestRecord rval = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
+            sess = template.getSessionFactory().getCurrentSession();
 
             final String minPriHql = "select min(rec.priority) from RetrievalRequestRecord rec "
                     + "where rec.state = :statePending and rec.network = :network";
@@ -147,25 +162,9 @@ public class RetrievalDao extends CoreDao {
                 rval.setState(State.RUNNING);
                 sess.update(rval);
             }
-            tx.commit();
         } catch (Exception e) {
             throw new DataAccessLayerException(
                     "Failed looking up next retrieval", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
 
         return rval;
@@ -173,35 +172,13 @@ public class RetrievalDao extends CoreDao {
 
     public void completeRetrievalRequest(RetrievalRequestRecord rec)
             throws DataAccessLayerException {
-        Session sess = null;
-        Transaction tx = null;
-
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
-            sess.update(rec);
-
-            tx.commit();
+            update(rec);
         } catch (HibernateException e) {
             throw new DataAccessLayerException(
                     "Failed to update the database while changing the status on ["
                             + rec.getId() + "]" + " to [" + rec.getState()
                             + "]", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
     }
 
@@ -211,38 +188,20 @@ public class RetrievalDao extends CoreDao {
      * @return
      */
     public boolean resetRunningRetrievalsToPending() {
-        Session sess = null;
-        Transaction tx = null;
-        boolean rval = true;
+        boolean rval = false;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
             String hql = "update RetrievalRequestRecord rec set rec.state = :pendState where rec.state = :runState";
-            Query query = sess.createQuery(hql);
+
+            Query query = template.getSessionFactory().getCurrentSession()
+                    .createQuery(hql);
             query.setParameter("pendState", State.PENDING);
             query.setParameter("runState", State.RUNNING);
             query.executeUpdate();
-            tx.commit();
+            rval = true;
         } catch (Exception e) {
-            rval = false;
             statusHandler.error(
                     "Unable to reset old RUNNING retrievals to PENDING", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
 
         return rval;
@@ -257,16 +216,13 @@ public class RetrievalDao extends CoreDao {
      */
     public Map<State, Integer> getSubscriptionStateCounts(String subName)
             throws DataAccessLayerException {
-        Session sess = null;
-        Transaction tx = null;
         Map<State, Integer> rval = new HashMap<State, Integer>(8);
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
             String hql = "select rec.state, count(rec.id.subscriptionName) from RetrievalRequestRecord rec "
                     + "where rec.id.subscriptionName = :subName group by rec.state";
-            Query query = sess.createQuery(hql);
+            Query query = template.getSessionFactory().getCurrentSession()
+                    .createQuery(hql);
             query.setString("subName", subName);
             @SuppressWarnings("unchecked")
             List<Object> result = query.list();
@@ -284,26 +240,10 @@ public class RetrievalDao extends CoreDao {
                     }
                 }
             }
-            tx.commit();
         } catch (Exception e) {
             throw new DataAccessLayerException(
                     "Failed check pending/running retrieval count for subscription ["
                             + subName + "]", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
 
         return rval;
@@ -312,75 +252,36 @@ public class RetrievalDao extends CoreDao {
     @SuppressWarnings("unchecked")
     public List<RetrievalRequestRecord> getFailedRequests(String subName)
             throws DataAccessLayerException {
-        Session sess = null;
-        Transaction tx = null;
-
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
-            Criteria query = sess.createCriteria(RetrievalRequestRecord.class);
+            Criteria query = template.getSessionFactory().getCurrentSession()
+                    .createCriteria(RetrievalRequestRecord.class);
             query.add(Restrictions.eq("state", State.FAILED));
             query.add(Restrictions.eq("id.subscriptionName", subName));
             List<RetrievalRequestRecord> rval = query.list();
-            tx.commit();
             return rval;
         } catch (Exception e) {
             throw new DataAccessLayerException(
                     "Failed check pending/running retrieval count for subscription ["
                             + subName + "]", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
     }
 
     public boolean removeSubscription(String subName)
             throws DataAccessLayerException {
-        Session sess = null;
-        Transaction tx = null;
         boolean rval = false;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
             String hql = "delete from RetrievalRequestRecord rec "
                     + "where rec.id.subscriptionName = :subName";
-            Query query = sess.createQuery(hql);
+            Query query = template.getSessionFactory().getCurrentSession()
+                    .createQuery(hql);
             query.setString("subName", subName);
             query.executeUpdate();
-            tx.commit();
             rval = true;
         } catch (Exception e) {
             throw new DataAccessLayerException(
                     "Failed removing retrievals for subscription [" + subName
                             + "]", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
         return rval;
     }
@@ -391,40 +292,19 @@ public class RetrievalDao extends CoreDao {
      * @param subName
      * @return
      */
-    // TODO: Change to use SessionManager code
     @SuppressWarnings("unchecked")
     public List<RetrievalRequestRecord> getRequests(String subName)
             throws DataAccessLayerException {
-        Session sess = null;
-        Transaction tx = null;
-
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
-            tx = sess.beginTransaction();
-            Criteria query = sess.createCriteria(RetrievalRequestRecord.class);
+            Criteria query = template.getSessionFactory().getCurrentSession()
+                    .createCriteria(RetrievalRequestRecord.class);
             query.add(Restrictions.eq("id.subscriptionName", subName));
             List<RetrievalRequestRecord> rval = query.list();
-            tx.commit();
             return rval;
         } catch (Exception e) {
             throw new DataAccessLayerException(
                     "Failed to return retrieval records for subscription ["
                             + subName + "]", e);
-        } finally {
-            if (tx != null && !tx.wasCommitted()) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
         }
     }
 
@@ -443,4 +323,5 @@ public class RetrievalDao extends CoreDao {
     private void setQueryNetwork(Query query, Network network) {
         query.setParameter("network", network);
     }
+
 }
