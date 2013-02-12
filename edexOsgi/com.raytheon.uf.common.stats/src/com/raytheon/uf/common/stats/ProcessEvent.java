@@ -165,4 +165,9 @@ public class ProcessEvent extends StatisticsEvent {
         return super.toString() + " : " + getMessage();
     }
 
+    @Override
+    public void finalizeEvent() {
+        // not implemented
+    }
+
 }
