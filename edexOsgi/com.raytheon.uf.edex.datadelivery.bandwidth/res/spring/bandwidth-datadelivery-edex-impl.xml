@@ -3,7 +3,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <!-- Stores beans that are used in bandwidth-datadelivery.xml, but that 
@@ -18,20 +17,6 @@
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
         <!-- Used as the context for creating the BandwidthManager -->
         <constructor-arg ref="hibernateBandwidthDao" />
-    </bean>
-    
-    <bean id="bandwidthAllocationDao" class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthAllocationDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-    </bean>
-    
-    <bean id="bandwidthSubscriptionDao" class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthSubscriptionDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-    </bean>
-    
-    <bean id="hibernateBandwidthDao" class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-        <property name="bandwidthAllocationDao" ref="bandwidthAllocationDao" />
-        <property name="bandwidthSubscriptionDao" ref="bandwidthSubscriptionDao" />
     </bean>
 
     <util:map id="retrievalAgents">
