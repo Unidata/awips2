@@ -53,7 +53,6 @@ import dods.dap.parser.ParseException;
  */
 public class DConnectTest {
 
-
     private class MockHttpConnectStrategy extends
             DodsOriginalHttpConnectStrategy {
 
@@ -95,7 +94,8 @@ public class DConnectTest {
     public void ableToReadCompressedFormat() throws MalformedURLException,
             DDSException, IOException, ParseException, DODSException {
         DConnect dconnect = new DConnect(new ByteArrayInputStream(
-                TestUtil.readResource(DConnectTest.class, "compressed.dods")));
+                TestUtil.readResource(DConnectTest.class,
+                        "/datadelivery/opendap/compressed_rap_dataset.dods")));
         final DataDDS data = dconnect.getData(null);
 
         assertNotNull(data);
@@ -103,10 +103,10 @@ public class DConnectTest {
 
     @Test
     public void ableToReadUncompressedFormat() throws MalformedURLException,
-            DDSException,
-            IOException, ParseException, DODSException {
+            DDSException, IOException, ParseException, DODSException {
         DConnect dconnect = new DConnect(new ByteArrayInputStream(
-                TestUtil.readResource(DConnectTest.class, "uncompressed.dods")));
+                TestUtil.readResource(DConnectTest.class,
+                        "/datadelivery/opendap/uncompressed_rap_dataset.dods")));
         final DataDDS data = dconnect.getData(null);
 
         assertNotNull(data);
