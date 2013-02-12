@@ -66,6 +66,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackDisplay;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
 import com.raytheon.viz.core.map.GeoUtil;
@@ -102,6 +103,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                        which are at different locations in pathcast.
  *    Oct 17, 2012            jsanchez    Moved the path cast data collecting to a separate class.
  *    Jan 31, 2013 1557       jsanchez    Used allowDuplicates flag to collect points with duplicate names.
+ *    Feb 12, 2013 1600       jsanchez    Used adjustAngle method from AbstractStormTrackResource.
  * 
  * </pre>
  * 
@@ -845,9 +847,10 @@ public class Wx {
                 .getCoordinate());
         gc.setDestinationGeographicPoint(cen.x, cen.y);
         cp2.azimuth = gc.getAzimuth();
-        cp2.oppositeAzimuth = ClosestPoint.adjustAngle(cp2.azimuth + 180);
+        cp2.oppositeAzimuth = AbstractStormTrackResource
+                .adjustAngle(cp2.azimuth + 180);
         cp2.roundedAzimuth = GeoUtil.roundAzimuth(cp2.azimuth);
-        cp2.oppositeRoundedAzimuth = ClosestPoint
+        cp2.oppositeRoundedAzimuth = AbstractStormTrackResource
                 .adjustAngle(cp2.roundedAzimuth + 180);
 
         return cp2;
