@@ -9,8 +9,8 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 
 /**
  * Bandwidth Manager utility methods.
@@ -179,21 +179,21 @@ public class BandwidthUtil {
     }
 
     /**
-     * Create a new {@link SubscriptionDao} Object based on the
+     * Create a new {@link BandwidthSubscription} Object based on the
      * {@link Subscription} and {@link Calendar} Objects provided.
      * 
      * @param subscription
      *            the subscription
      * @param baseReferenceTime
      *            the base reference time
-     * @return the {@link SubscriptionDao}
+     * @return the {@link BandwidthSubscription}
      * @throws SerializationException
      *             on error serializing the subscription
      */
-    public static SubscriptionDao getSubscriptionDaoForSubscription(
+    public static BandwidthSubscription getSubscriptionDaoForSubscription(
             Subscription subscription, Calendar baseReferenceTime)
             throws SerializationException {
-        SubscriptionDao dao = new SubscriptionDao();
+        BandwidthSubscription dao = new BandwidthSubscription();
 
         dao.setDataSetName(subscription.getDataSetName());
         dao.setProvider(subscription.getProvider());
@@ -213,16 +213,16 @@ public class BandwidthUtil {
     }
 
     /**
-     * Create a new {@link DataSetMetaDataDao} Object based on the
+     * Create a new {@link BandwidthDataSetUpdate} Object based on the
      * {@link DataSetMetaData} Object provided.
      * 
      * @param dataSetMetaData
      *            the metadata
      * @return the dao
      */
-    public static DataSetMetaDataDao newDataSetMetaDataDao(
+    public static BandwidthDataSetUpdate newDataSetMetaDataDao(
             DataSetMetaData dataSetMetaData) {
-        DataSetMetaDataDao dao = new DataSetMetaDataDao();
+        BandwidthDataSetUpdate dao = new BandwidthDataSetUpdate();
         // Set the fields we need to have..
         dao.setDataSetName(dataSetMetaData.getDataSetName());
         dao.setProviderName(dataSetMetaData.getProviderName());

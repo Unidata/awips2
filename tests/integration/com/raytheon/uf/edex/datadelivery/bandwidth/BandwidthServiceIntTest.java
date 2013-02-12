@@ -79,7 +79,6 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
     private static final int ONE_HUNDRED = 100;
 
-
     private final BandwidthService service = new BandwidthService() {
         @Override
         protected Object sendRequest(IBandwidthRequest request)
@@ -90,8 +89,8 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
                     .transformFromThrift(
                             Object.class,
                             SerializationUtil
-                            .transformToThrift(BandwidthServiceIntTest.this.bandwidthManager
-                                    .handleRequest(request)));
+                                    .transformToThrift(BandwidthServiceIntTest.this.bandwidthManager
+                                            .handleRequest(request)));
         }
     };
 
@@ -156,8 +155,8 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
     public void testSaveBandwidthToServerUpdatesBandwidthMapFile() {
         service.setBandwidthForNetworkInKilobytes(Network.OPSNET, ONE_HUNDRED);
 
-        File file = new IntegrationTestBandwidthContextFactory()
-                .getBandwidthMapConfigFile();
+        File file = IntegrationTestBandwidthContextFactory
+                .getIntegrationTestBandwidthMapConfigFile();
         BandwidthMap map = BandwidthMap.load(file);
         assertEquals(
                 "Expected the bandwidth to have been saved to the configuration file!",
@@ -393,7 +392,7 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
         service.schedule(subscription2);
 
         BandwidthGraphData graphData = service.getBandwidthGraphData();
-        
+
         assertEquals("Incorrect number of subscriptions returned!", 2,
                 graphData.getNumberOfSubscriptions());
     }
@@ -451,7 +450,8 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
         final TimeWindowData secondTimeWindow = subscriptionOneTimeWindows
                 .get(1);
 
-        final List<Long> firstWindowBinStartTimes = firstTimeWindow.getBinStartTimes();
+        final List<Long> firstWindowBinStartTimes = firstTimeWindow
+                .getBinStartTimes();
         final List<Long> secondWindowBinStartTimes = secondTimeWindow
                 .getBinStartTimes();
 
@@ -473,23 +473,22 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
         assertEquals(
                 "Incorrect first bin start time in the first time window.",
-                expectedBinStartTime, firstWindowBinStartTimes
-                        .get(0).longValue());
+                expectedBinStartTime, firstWindowBinStartTimes.get(0)
+                        .longValue());
 
         expectedBinStartTime += (TimeUtil.MILLIS_PER_MINUTE * 3);
         assertEquals(
                 "Incorrect second bin start time in the first time window.",
-                expectedBinStartTime,
-                firstWindowBinStartTimes.get(1).longValue());
+                expectedBinStartTime, firstWindowBinStartTimes.get(1)
+                        .longValue());
 
         // Second retrieval window
         expectedBinStartTime = iter.next().getStartTime().getTimeInMillis();
 
         assertEquals(
                 "Incorrect first bin start time in the second time window.",
-                expectedBinStartTime,
-                secondWindowBinStartTimes
-                        .get(0).longValue());
+                expectedBinStartTime, secondWindowBinStartTimes.get(0)
+                        .longValue());
 
         // The middle bucket was already reserved, so we went ahead six minutes
         // and used that bucket
@@ -497,8 +496,8 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
         assertEquals(
                 "Incorrect second bin start time in the second time window.",
-                expectedBinStartTime,
-                secondWindowBinStartTimes.get(1).longValue());
+                expectedBinStartTime, secondWindowBinStartTimes.get(1)
+                        .longValue());
     }
 
     @Test

@@ -29,7 +29,6 @@ import javax.xml.bind.JAXBException;
 import org.junit.Test;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.TestUtil;
 
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Jul 31, 2012            djohnson     Initial creation
  * Sep 07, 2012 1102       djohnson     Add test for compareTo.
  * Sep 19, 2012 726        jspinks      Add test for Date serialization
+ * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * 
  * </pre>
  * 
@@ -83,8 +83,7 @@ public class DataSetMetaDataTest {
 
     @Test
     public void testDateSerialization() throws JAXBException {
-    	SerializationUtilTest.initSerializationUtil();
-    	
+
     	OpenDapGriddedDataSetMetaData objectUnderTest = 
     		OpenDapGriddedDataSetMetaDataFixture.INSTANCE.get();
 
