@@ -24,11 +24,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDaoFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
@@ -51,6 +53,11 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
  * @author djohnson
  * @version 1.0
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
+        "sessionManagedServiceTest.xml" })
 public class SessionManagedServiceTest {
 
     private final BandwidthSubscription subscription = SubscriptionDaoFixture.INSTANCE
@@ -62,23 +69,11 @@ public class SessionManagedServiceTest {
         subscriptionRetrieval.setBandwidthSubscription(subscription);
     }
 
+    @Autowired
     private HibernateBandwidthDao bandwidthService;
 
+    @Autowired
     private MockService service;
-
-    @Before
-    public void setUp() {
-        DatabaseUtil.start();
-
-        service = (MockService) EDEXUtil.getESBComponent("mockService");
-        bandwidthService = (HibernateBandwidthDao) EDEXUtil
-                .getESBComponent("hibernateBandwidthDao");
-    }
-
-    @After
-    public void tearDown() {
-        DatabaseUtil.shutdown();
-    }
 
     @Test
     public void exceptionThrownInDaoWillRollbackTransaction() {

@@ -27,8 +27,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -37,8 +37,6 @@ import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.PropertiesUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -66,10 +64,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Ignore
 public abstract class AbstractBandwidthManagerIntTest {
 
+    @Autowired
     protected ApplicationContext context;
 
+    @Autowired
     protected BandwidthManager bandwidthManager;
 
+    @Autowired
     protected RetrievalManager retrievalManager;
 
     protected IBandwidthDao bandwidthDao;
@@ -97,6 +98,7 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     @BeforeClass
     public static void staticSetup() throws IOException {
+        PathManagerFactoryTest.initLocalization();
         Properties properties = PropertiesUtil
                 .read(AbstractBandwidthManagerIntTest.class
                         .getResourceAsStream("/com.raytheon.uf.edex.datadelivery.bandwidth.properties"));
@@ -112,17 +114,9 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     @Before
     public void setUp() {
-        PathManagerFactoryTest.initLocalization();
-        DatabaseUtil.start();
-        context = new ClassPathXmlApplicationContext(
-                IntegrationTestBandwidthManager.INTEGRATION_TEST_SPRING_FILES,
-                BandwidthManagerIntTest.class, EDEXUtil.getSpringContext());
-        bandwidthDao = (IBandwidthDao) context.getBean("bandwidthDao",
-                IBandwidthDao.class);
-        bandwidthManager = (BandwidthManager) context.getBean(
-                "bandwidthManager",
-                BandwidthManager.class);
         retrievalManager = bandwidthManager.retrievalManager;
+        bandwidthDao = IBandwidthDao.class
+                .cast(context.getBean("bandwidthDao"));
 
         fullBucketSize = retrievalManager.getPlan(Network.OPSNET)
                 .getBucket(TimeUtil.currentTimeMillis()).getBucketSize();
@@ -132,6 +126,7 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     @After
     public void tearDown() {
+        PathManagerFactoryTest.initLocalization();
         try {
             bandwidthManager.shutdown();
         } catch (IllegalArgumentException iae) {
@@ -139,7 +134,6 @@ public abstract class AbstractBandwidthManagerIntTest {
             // event bus handler
             iae.printStackTrace();
         }
-        DatabaseUtil.shutdown();
     }
 
     /**
