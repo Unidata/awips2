@@ -1,0 +1,11 @@
+<statisticsConfig>
+    <!-- Event Type should be fully qualified name of stat event -->
+    <statisticsEvent type="com.raytheon.uf.common.stats.LoadEvent"
+        displayName="Load Time" category="FFMP Load Times">
+        <statisticsGroup name="type" displayName="Type" />
+        <!-- Processing time available display units:
+             ms, Seconds, Minutes, Hours -->
+        <statisticsAggregate field="loadTime"
+            displayName="Loading Time" displayUnit="ms" />
+    </statisticsEvent>
+</statisticsConfig>
