@@ -25,7 +25,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
@@ -201,6 +201,12 @@ public class SubscriptionNotifyTask implements Runnable {
 
     private final DelayQueue<SubscriptionDelay> subscriptionQueue = new DelayQueue<SubscriptionDelay>();
 
+    private final IRetrievalDao dao;
+
+    public SubscriptionNotifyTask(IRetrievalDao dao) {
+        this.dao = dao;
+    }
+
     public void checkNotify(RetrievalRequestRecord record) {
         SubscriptionDelay subDelay = createSubscriptionDelay(record,
                 System.currentTimeMillis());
@@ -209,8 +215,6 @@ public class SubscriptionNotifyTask implements Runnable {
 
     @Override
     public void run() {
-        RetrievalDao dao = null;
-
         statusHandler.info("SubscriptionNotifyTask() - Running...");
         try {
             SubscriptionDelay nextSub = subscriptionQueue.peek();
@@ -241,10 +245,6 @@ public class SubscriptionNotifyTask implements Runnable {
 
             SubscriptionDelay subToCheck = subscriptionQueue.poll();
             while (subToCheck != null) {
-                if (dao == null) {
-                    dao = RetrievalDao.getInstance();
-                }
-
                 Map<RetrievalRequestRecord.State, Integer> stateCounts = dao
                         .getSubscriptionStateCounts(subToCheck.subName);
                 Integer numPending = stateCounts

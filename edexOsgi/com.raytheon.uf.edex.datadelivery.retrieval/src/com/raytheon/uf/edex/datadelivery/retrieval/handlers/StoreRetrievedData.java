@@ -20,8 +20,22 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import com.google.common.collect.Maps;
+import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
+import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.EventBus;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
+import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
 
@@ -36,6 +50,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2013 1543       djohnson     Initial creation
+ * Feb 12, 2013 1543       djohnson     Now handles the retrieval responses directly.
  * 
  * </pre>
  * 
@@ -46,6 +61,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
 public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor {
 
     private final String generalDestinationUri;
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StoreRetrievedData.class);
 
     /**
      * Constructor.
@@ -62,21 +80,69 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      */
     @Override
     public void processRetrievedPluginDataObjects(
-            RetrievalPluginDataObjects retrievalPluginDataObjects) {
+            RetrievalPluginDataObjects retrievalPluginDataObjects)
+            throws Exception {
+        Map<String, PluginDataObject[]> pluginDataObjects = Maps.newHashMap();
         final RetrievalRequestRecord requestRecord = retrievalPluginDataObjects
                 .getRequestRecord();
         final List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                 .getRetrievalAttributePluginDataObjects();
+        final Retrieval retrieval = requestRecord.getRetrievalObj();
+        final ServiceType serviceType = retrieval.getServiceType();
+        final RetrievalAdapter serviceRetrievalAdapter = ServiceTypeFactory
+                .retrieveServiceRetrievalAdapter(serviceType);
 
         for (RetrievalAttributePluginDataObjects pluginDataObjectEntry : retrievalAttributePluginDataObjects) {
-            PluginDataObject[] value = pluginDataObjectEntry
-                    .getPluginDataObjects();
+            Map<String, PluginDataObject[]> value = serviceRetrievalAdapter
+                    .processResponse(pluginDataObjectEntry
+                            .getRetrievalResponse());
 
-            if (value.length == 0) {
+            if (value == null || value.isEmpty()) {
                 continue;
             }
 
-            sendToDestinationForStorage(requestRecord, value);
+            for (Entry<String, PluginDataObject[]> entry : value.entrySet()) {
+                final String key = entry.getKey();
+                final PluginDataObject[] objectsForEntry = entry.getValue();
+
+                PluginDataObject[] objectsForPlugin = pluginDataObjects
+                        .get(key);
+                objectsForPlugin = CollectionUtil.combine(
+                        PluginDataObject.class, objectsForPlugin,
+                        objectsForEntry);
+
+                pluginDataObjects.put(key, objectsForPlugin);
+            }
+
+            final RetrievalAttribute attXML = pluginDataObjectEntry
+                    .getAttributeXml();
+            for (Entry<String, PluginDataObject[]> entry : pluginDataObjects
+                    .entrySet()) {
+                final String pluginName = entry.getKey();
+                final PluginDataObject[] records = entry.getValue();
+
+                if (records == null) {
+                    statusHandler
+                            .warn("The plugin data objects was a null array, the service retrieval adapter "
+                                    + "should not return a null map of plugin data objects!");
+                    continue;
+                }
+
+                statusHandler.info("Successfully processed: " + records.length
+                        + " : " + serviceType + " Plugin : " + pluginName);
+                DataRetrievalEvent event = new DataRetrievalEvent();
+                event.setId(retrieval.getSubscriptionName());
+                event.setOwner(retrieval.getOwner());
+                event.setNetwork(retrieval.getNetwork().name());
+                event.setPlugin(pluginName);
+                event.setProvider(attXML.getProvider());
+                event.setNumRecords(records.length);
+                event.setBytes(DataSizeUtils.calculateSize(attXML, serviceType));
+
+                EventBus.publish(event);
+
+                sendToDestinationForStorage(requestRecord, records);
+            }
         }
     }
 
@@ -84,18 +150,14 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      * Sends the plugin data objects to their configured destination for storage
      * to the database.
      */
-    public boolean sendToDestinationForStorage(
-            RetrievalRequestRecord requestRecord,
-            PluginDataObject[] pdos) {
-        // do all of the PDO storage magic...
-        boolean success = false;
+    public void sendToDestinationForStorage(
+            RetrievalRequestRecord requestRecord, PluginDataObject[] pdos) {
         String pluginName = pdos[0].getPluginName();
 
         if (pluginName != null) {
-            success = RetrievalPersistUtil.routePlugin(generalDestinationUri,
+            RetrievalPersistUtil.routePlugin(generalDestinationUri,
                     pluginName, pdos);
         }
 
-        return success;
     }
 }
