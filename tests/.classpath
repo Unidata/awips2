@@ -75,5 +75,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.level"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.level"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.grid"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.log"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

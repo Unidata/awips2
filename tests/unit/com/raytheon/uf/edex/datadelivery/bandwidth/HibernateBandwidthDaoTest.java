@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import org.junit.After;
 import org.junit.Before;
 
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
 
@@ -66,7 +67,8 @@ public class HibernateBandwidthDaoTest extends
      */
     @Override
     protected HibernateBandwidthDao getDao() {
-        return HibernateBandwidthDao.getInstance();
+        return (HibernateBandwidthDao) EDEXUtil
+                .getESBComponent("hibernateBandwidthDao");
     }
 
 }
