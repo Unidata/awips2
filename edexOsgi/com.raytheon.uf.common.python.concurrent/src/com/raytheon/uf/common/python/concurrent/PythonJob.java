@@ -54,9 +54,13 @@ public class PythonJob<P extends PythonInterpreter, R extends Object>
     private IPythonExecutor<P, R> executor;
 
     public PythonJob(IPythonExecutor<P, R> executor,
-            IPythonJobListener<R> listener, ThreadLocal<P> threadLocal,
-            Object... args) {
+            IPythonJobListener<R> listener, ThreadLocal<P> threadLocal) {
         this.listener = listener;
+        this.threadPython = threadLocal;
+        this.executor = executor;
+    }
+
+    public PythonJob(IPythonExecutor<P, R> executor, ThreadLocal<P> threadLocal) {
         this.threadPython = threadLocal;
         this.executor = executor;
     }
@@ -68,12 +72,16 @@ public class PythonJob<P extends PythonInterpreter, R extends Object>
         try {
             result = executor.execute(script);
         } catch (Throwable t) {
-            listener.jobFailed(t);
+            if (listener != null) {
+                listener.jobFailed(t);
+            }
             return null;
         }
 
         // fire listener to alert the original caller that we are done
-        listener.jobFinished(result);
+        if (listener != null) {
+            listener.jobFinished(result);
+        }
         return result;
     }
 }
