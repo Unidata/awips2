@@ -80,6 +80,8 @@ def getLatLonCoords(gridRequest):
         @return: a tuple where the first element is a numpy array of lons, and the second element is a numpy array of lats
     '''
     gridGeometry = JavaDataAccessLayer.getGridGeometry(gridRequest.toJavaObj())
+    if gridGeometry is None :
+        return None
     latlons = LatLonReprojection.getLatLons(gridGeometry)
     nx = gridGeometry.getGridRange().getSpan(0)
     ny = gridGeometry.getGridRange().getSpan(1)
