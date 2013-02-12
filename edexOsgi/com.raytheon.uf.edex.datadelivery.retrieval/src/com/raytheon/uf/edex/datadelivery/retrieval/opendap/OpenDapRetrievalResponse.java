@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
+package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
 
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
+import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
 
 /**
- * DAO that handles {@link BandwidthAllocation} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * {@link RetrievalResponse} for OpenDAP.
  * 
  * <pre>
  * 
@@ -32,22 +32,30 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 13, 2013 1543       djohnson     Initial creation
+ * Feb 12, 2013 1543       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class BandwidthAllocationDao extends
-        BaseBandwidthAllocationDao<BandwidthAllocation> implements IBandwidthAllocationDao {
+@DynamicSerializeTypeAdapter(factory = OpenDapRetrievalResponseSerializer.class)
+public class OpenDapRetrievalResponse extends RetrievalResponse {
 
     /**
-     * {@inheritDoc}
+     * Constructor.
      */
-    @Override
-    protected Class<BandwidthAllocation> getEntityClass() {
-        return BandwidthAllocation.class;
+    public OpenDapRetrievalResponse() {
+
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param attribute
+     */
+    public OpenDapRetrievalResponse(RetrievalAttribute attribute) {
+        super(attribute);
     }
 
 }

@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import java.util.Calendar;
+import java.util.List;
+
+import com.raytheon.uf.edex.database.dao.ISessionManagedDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 
 /**
- * DAO that handles {@link BandwidthAllocation} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * DAO for {@link BandwidthDataSetUpdate} instances.
  * 
  * <pre>
  * 
@@ -39,15 +41,30 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
  * @author djohnson
  * @version 1.0
  */
-class BandwidthAllocationDao extends
-        BaseBandwidthAllocationDao<BandwidthAllocation> implements IBandwidthAllocationDao {
+interface IBandwidthDataSetUpdateDao extends
+        ISessionManagedDao<Long, BandwidthDataSetUpdate> {
 
     /**
-     * {@inheritDoc}
+     * Get {@link BandwidthDataSetUpdate} instances by the provider and dataset
+     * name.
+     * 
+     * @param providerName
+     * @param dataSetName
+     * @return
      */
-    @Override
-    protected Class<BandwidthAllocation> getEntityClass() {
-        return BandwidthAllocation.class;
-    }
+    List<BandwidthDataSetUpdate> getByProviderDataSet(String providerName,
+            String dataSetName);
+
+    /**
+     * Get {@link BandwidthDataSetUpdate} instances by the provider name,
+     * dataset name, and base reference time.
+     * 
+     * @param providerName
+     * @param dataSetName
+     * @param baseReferenceTime
+     * @return
+     */
+    List<BandwidthDataSetUpdate> getByProviderDataSetReferenceTime(
+            String providerName, String dataSetName, Calendar baseReferenceTime);
 
 }
