@@ -42,7 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Table(name = "bandwidth_datasetupdate")
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_datasetupdate_seq", allocationSize = 1)
 @DynamicSerialize
-public class DataSetMetaDataDao implements IPersistableDataObject<Long>,
+public class BandwidthDataSetUpdate implements IPersistableDataObject<Long>,
         Serializable, ISerializableObject {
 
     private static final long serialVersionUID = 20120723L;
