@@ -37,6 +37,11 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
@@ -50,6 +55,8 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
@@ -74,7 +81,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @author djohnson
  * @version 1.0
  */
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_XML })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
     private static final int ONE_HUNDRED = 100;
