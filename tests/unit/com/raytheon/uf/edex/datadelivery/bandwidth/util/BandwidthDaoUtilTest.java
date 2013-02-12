@@ -32,20 +32,18 @@ import java.util.TreeSet;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
-import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
@@ -61,6 +59,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * 
  * </pre>
  * 
@@ -81,11 +80,6 @@ public class BandwidthDaoUtilTest {
 
     private RetrievalPlan plan;
 
-    @BeforeClass
-    public static void staticSetup() {
-        SerializationUtilTest.initSerializationUtil();
-    }
-
     @Before
     public void setUp() {
         TimeUtilTest.freezeTime(TimeUtil.MILLIS_PER_DAY * 2);
@@ -97,8 +91,8 @@ public class BandwidthDaoUtilTest {
                 dataSetAvailabilityCalculator);
         PathManagerFactoryTest.initLocalization();
 
-        map = BandwidthMap.load(new IntegrationTestBandwidthContextFactory()
-                .getBandwidthMapConfigFile());
+        map = BandwidthMap.load(IntegrationTestBandwidthContextFactory
+                .getIntegrationTestBandwidthMapConfigFile());
         plan = new RetrievalPlan(Network.OPSNET, map, mockDao);
     }
 
@@ -143,7 +137,7 @@ public class BandwidthDaoUtilTest {
 
     @Test
     public void testRemoveDoesNotRemoveFromRetrievalPlanIfInUnscheduledState() {
-        SubscriptionDao subDao = new SubscriptionDao();
+        BandwidthSubscription subDao = new BandwidthSubscription();
         subDao.setId(10L);
 
         BandwidthAllocation alloc1 = new BandwidthAllocation();

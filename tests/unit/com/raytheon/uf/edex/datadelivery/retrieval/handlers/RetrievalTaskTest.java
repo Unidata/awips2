@@ -20,10 +20,13 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +43,7 @@ import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
@@ -56,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Add test to simulate SBN retrieval task behavior.
  * 
  * </pre>
  * 
@@ -89,11 +94,9 @@ public class RetrievalTaskTest {
         }
     }
 
-    private final RetrievalRequestRecord opsnetRetrieval = RetrievalRequestRecordFixture.INSTANCE
-            .get(1);
+    private RetrievalRequestRecord opsnetRetrieval;
 
-    private final RetrievalRequestRecord sbnRetrieval = RetrievalRequestRecordFixture.INSTANCE
-            .get(2);
+    private RetrievalRequestRecord sbnRetrieval;
 
     private RetrievalDao dao;
 
@@ -106,10 +109,12 @@ public class RetrievalTaskTest {
         DatabaseUtil.start();
         PathManagerFactoryTest.initLocalization();
 
+        opsnetRetrieval = RetrievalRequestRecordFixture.INSTANCE.get(1);
+        sbnRetrieval = RetrievalRequestRecordFixture.INSTANCE.get(2);
         opsnetRetrieval.setNetwork(Network.OPSNET);
         sbnRetrieval.setNetwork(Network.SBN);
 
-        dao = new RetrievalDao();
+        dao = RetrievalDao.getInstance();
 
         EventBus.register(this);
     }
@@ -138,9 +143,9 @@ public class RetrievalTaskTest {
 
         runRetrievalTask();
 
-        assertThat(retrievedDataProcessor.pluginDataObjects.size(),
-                is(equalTo(opsnetRetrieval.getRetrievalObj().getAttribute()
-                        .size())));
+        assertThat(retrievedDataProcessor.pluginDataObjects,
+                hasSize(opsnetRetrieval.getRetrievalObj().getAttributes()
+                        .size()));
     }
 
     @Test
@@ -151,8 +156,9 @@ public class RetrievalTaskTest {
 
         runRetrievalTask();
 
-        assertThat(eventsReceived.size(), is(equalTo(opsnetRetrieval
-                .getRetrievalObj().getAttribute().size())));
+        final int numberOfRetrievalAttributes = opsnetRetrieval
+                .getRetrievalObj().getAttributes().size();
+        assertThat(eventsReceived, hasSize(numberOfRetrievalAttributes));
         // TODO: Is there a way to distinguish between the events sent by the
         // separate retrieval attributes, e.g. to make sure each attribute sent
         // an event and not one attribute sent two?
@@ -171,6 +177,35 @@ public class RetrievalTaskTest {
         runRetrievalTask();
 
         verifyCorrectStateForRetrieval(sbnRetrieval, State.PENDING);
+    }
+
+    @Test
+    public void retrievalTaskCanStoreDataToDirectoryThatAnotherTaskProcesses()
+            throws Exception {
+        RetrievalPluginDataObjects retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
+                .get();
+
+        IRetrievalPluginDataObjectsFinder retrievalDataFinder = mock(IRetrievalPluginDataObjectsFinder.class);
+        when(retrievalDataFinder.findRetrievalPluginDataObjects()).thenReturn(
+                retrievalPluginDataObjects).thenReturn(null);
+
+        IRetrievalResponseCompleter retrievalCompleter = mock(IRetrievalResponseCompleter.class);
+
+        final File testDirectory = TestUtil
+                .setupTestClassDir(RetrievalTaskTest.class);
+        IRetrievalPluginDataObjectsProcessor serializeToDirectory = new SerializeRetrievedDataToDirectory(
+                testDirectory);
+
+        RetrievalTask downloadTask = new RetrievalTask(Network.OPSNET,
+                retrievalDataFinder, serializeToDirectory, retrievalCompleter);
+        RetrievalTask readDownloadsTask = new RetrievalTask(Network.OPSNET,
+                new DeserializeRetrievedDataFromDirectory(testDirectory),
+                retrievedDataProcessor, retrievalCompleter);
+
+        downloadTask.run();
+        readDownloadsTask.run();
+
+        assertThat(retrievedDataProcessor.pluginDataObjects, hasSize(2));
     }
 
     /**

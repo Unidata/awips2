@@ -150,7 +150,7 @@ public class RetrievalManager {
         // fulfilled.
         List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
                 .querySubscriptionRetrievals(subscriptionRetrieval
-                        .getSubscriptionDao().getId());
+                        .getBandwidthSubscription().getId());
 
         boolean completed = true;
         // If there is more than one check them all..
