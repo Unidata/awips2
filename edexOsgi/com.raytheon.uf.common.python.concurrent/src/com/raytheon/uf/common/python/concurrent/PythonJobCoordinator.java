@@ -21,8 +21,10 @@ package com.raytheon.uf.common.python.concurrent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.raytheon.uf.common.python.PythonInterpreter;
 
@@ -121,18 +123,41 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
     }
 
     /**
-     * Submits a job to the {@link ExecutorService}.
+     * Submits a job to the {@link ExecutorService}. Fires a listener back after
+     * it is done. This should be used for asynchronous operations.
      * 
      * @param callable
      * @return
      * @throws Exception
      */
-    public <R> void submitJob(IPythonExecutor<P, R> executor,
-            IPythonJobListener<R> listener, Object... args) throws Exception {
+    public <R> void submitAsyncJob(IPythonExecutor<P, R> executor,
+            IPythonJobListener<R> listener) throws Exception {
+        // fail if the listener is null, bad things happen then
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener cannot be null");
+        }
         // submit job
         PythonJob<P, R> job = new PythonJob<P, R>(executor, listener,
-                threadLocal, args);
+                threadLocal);
         execService.submit(job);
+    }
+
+    /**
+     * Submits a job to the {@link ExecutorService}. Waits on the result before
+     * returning back. This should be used for synchronous operations.
+     * 
+     * @param executor
+     * @return
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
+    public <R> R submitSyncJob(IPythonExecutor<P, R> executor)
+            throws InterruptedException, ExecutionException {
+        // submit job
+        PythonJob<P, R> job = new PythonJob<P, R>(executor, threadLocal);
+        Future<R> future = execService.submit(job);
+        // wait for return object
+        return future.get();
     }
 
     /**
