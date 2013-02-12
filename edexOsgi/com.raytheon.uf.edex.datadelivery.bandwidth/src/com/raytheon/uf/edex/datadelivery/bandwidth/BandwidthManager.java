@@ -522,7 +522,7 @@ abstract class BandwidthManager extends
                 if (z.size() > 0) {
                     retrieval.setStatus(RetrievalStatus.READY);
                 }
-                bandwidthDao.update(retrieval);
+                bandwidthDao.store(retrieval);
 
                 // Add SubscriptionRetrieval to the list to schedule..
                 reservations.add(retrieval);
@@ -652,7 +652,7 @@ abstract class BandwidthManager extends
             retrieval.setEndTime(endTime);
             // Store the SubscriptionRetrieval - retrievalManager expects
             // the BandwidthAllocations to already be stored.
-            bandwidthDao.update(retrieval);
+            bandwidthDao.store(retrieval);
             reservations.add(retrieval);
         }
 

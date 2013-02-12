@@ -99,12 +99,12 @@ public class RetrievalManager {
                                     + bandwidthAllocation.getIdentifier()
                                     + "].  The BandwidthAllocation will be deferred.");
                     bandwidthAllocation.setStatus(RetrievalStatus.DEFERRED);
-                    bandwidthDao.update(bandwidthAllocation);
+                    bandwidthDao.createOrUpdate(bandwidthAllocation);
                 } else {
 
                     synchronized (plan) {
                         unscheduled.addAll(plan.schedule(bandwidthAllocation));
-                        bandwidthDao.update(bandwidthAllocation);
+                        bandwidthDao.createOrUpdate(bandwidthAllocation);
                     }
                 }
             } else {
@@ -116,7 +116,7 @@ public class RetrievalManager {
         // Update any unscheduled allocations
         for (BandwidthAllocation allocation : unscheduled) {
             allocation.setStatus(RetrievalStatus.UNSCHEDULED);
-            bandwidthDao.update(allocation);
+            bandwidthDao.createOrUpdate(allocation);
         }
 
         return unscheduled;

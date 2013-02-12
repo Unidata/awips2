@@ -22,6 +22,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
@@ -34,8 +36,10 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
  * Test {@link PerformRetrievalPluginDataObjectsFinder}.
@@ -57,6 +61,8 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
 
     private static final String EXCEPTION_MESSAGE = "thrown on purpose";
 
+    private static final IRetrievalDao MOCK_DAO = mock(IRetrievalDao.class);
+
     private final Retrieval retrievalThatThrowsException = new Retrieval() {
         private static final long serialVersionUID = 1109443017002028345L;
 
@@ -74,12 +80,14 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
         }
     };
 
-    private final RetrievalRequestRecord retrievalThatDoesNotThrowException = RetrievalRequestRecordFixture.INSTANCE
-            .get();
+    private RetrievalRequestRecord retrievalThatDoesNotThrowException;
 
     @Before
     public void setUp() {
         PathManagerFactoryTest.initLocalization();
+
+        retrievalThatDoesNotThrowException = RetrievalRequestRecordFixture.INSTANCE
+                .get();
     }
 
     @Test
@@ -110,9 +118,21 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
                 is(equalTo(State.COMPLETED)));
     }
 
+    @Test
+    public void requestRecordSetToFailedStatusWhenNoPayloadReturned() {
+        IRetrievalResponse retrievalResponse = mock(IRetrievalResponse.class);
+        when(retrievalResponse.getPayLoad()).thenReturn(null);
+
+        PerformRetrievalPluginDataObjectsFinder.setCompletionStateFromResponse(
+                retrievalThatDoesNotThrowException, retrievalResponse);
+
+        assertThat(retrievalThatDoesNotThrowException.getState(),
+                is(equalTo(State.FAILED)));
+    }
+
     private void processRetrieval(RetrievalRequestRecord retrieval) {
         final PerformRetrievalPluginDataObjectsFinder pluginDataObjectsFinder = new PerformRetrievalPluginDataObjectsFinder(
-                Network.OPSNET);
+                Network.OPSNET, MOCK_DAO);
         pluginDataObjectsFinder.process(retrieval);
     }
 }

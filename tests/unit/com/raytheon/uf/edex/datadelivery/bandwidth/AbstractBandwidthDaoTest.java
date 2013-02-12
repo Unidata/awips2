@@ -629,7 +629,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         entity.setAgentType("someAgentType");
         dao.store(entity);
         entity.setEstimatedSize(estimatedSize);
-        dao.update(entity);
+        dao.createOrUpdate(entity);
 
         assertEquals("Expected the entity to have been updated!", 25L, dao
                 .getBandwidthAllocations(entity.getNetwork()).iterator().next()
