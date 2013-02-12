@@ -46,7 +46,9 @@ import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -73,6 +75,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009   2521    dhladky     Initial creation
  * 02/01/13     1569        D. Hladky   Added constants
+ * Feb 10, 2013  1584      mpduff      Add performance logging.
  * 
  * </pre>
  * 
@@ -84,6 +87,13 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
 public class FFMPResourceData extends AbstractRequestableResourceData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPResourceData.class);
+
+    /** Performance log entry prefix */
+    private final String prefix = "FFMP ResourceData:";
+
+    /** Performance logger */
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler(prefix);
 
     public boolean tableLoad = false;
 
@@ -158,11 +168,13 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
@@ -171,8 +183,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
         monitor.setWfo(wfo);
         this.field = monitor.getField(sourceName);
 
-        System.out.println("Loading FFMP: source: " + sourceName + " site: "
-                + siteKey + " data: " + dataKey + " WFO: " + wfo + " HUC: "
+        perfLog.log("Loading FFMP: source: " + sourceName + ", site: "
+                + siteKey + ", data: " + dataKey + ", WFO: " + wfo + ", HUC: "
                 + huc);
 
         DataTime[] availableTimes = this.getAvailableTimes();
@@ -233,7 +245,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 this.timeBack = new Date(
                         (long) (mostRecentTime.getRefTime().getTime() - (cfgBasinXML
                                 .getTimeFrame() * TimeUtil.MILLIS_PER_HOUR)));
-                ArrayList<String> hucsToLoad = monitor.getTemplates(siteKey).getTemplateMgr().getHucLevels();
+                ArrayList<String> hucsToLoad = monitor.getTemplates(siteKey)
+                        .getTemplateMgr().getHucLevels();
                 // goes back X hours and pre populates the Data Hashes
                 FFMPDataLoader loader = new FFMPDataLoader(this, timeBack,
                         mostRecentTime.getRefTime(), LOADER_TYPE.INITIAL,
@@ -277,23 +290,25 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 Date standAloneTime = null;
 
                 if (source != null) {
-                    // Special Loading for guidance sources, as mentioned in the comment
-                    if (source.getDataType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    // Special Loading for guidance sources, as mentioned in the
+                    // comment
+                    if (source.getDataType().equals(
+                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
                         long oldestTime = availableTimes[0].getRefTime()
-								.getTime();
+                                .getTime();
                         long expirationTime = source
-								.getExpirationMinutes(siteKey) * TimeUtil.MILLIS_PER_MINUTE;
-                        standAloneTime = new Date(oldestTime
-								- expirationTime);
+                                .getExpirationMinutes(siteKey)
+                                * TimeUtil.MILLIS_PER_MINUTE;
+                        standAloneTime = new Date(oldestTime - expirationTime);
                     } else {
-						// Only load current frames time
+                        // Only load current frames time
                         standAloneTime = availableTimes[availableTimes.length - 1]
-								.getRefTime();
+                                .getRefTime();
                     }
 
                     NavigableMap<Date, List<String>> sourceURIs = getMonitor()
-							.getAvailableUris(siteKey, dataKey, sourceName,
-									standAloneTime);
+                            .getAvailableUris(siteKey, dataKey, sourceName,
+                                    standAloneTime);
                     getMonitor().processUris(sourceURIs, false, siteKey,
 							sourceName, standAloneTime, FFMPRecord.ALL);
                 }

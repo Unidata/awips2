@@ -142,4 +142,10 @@ public class DataRetrievalEvent extends RetrievalEvent {
         return "DataRetrievalEvent " + super.toString() + " provider: "
                 + provider + " numRecord: " + numRecords + " bytes: " + bytes;
     }
+
+    @Override
+    public void finalizeEvent() {
+        // Not implemented
+
+    }
 }
