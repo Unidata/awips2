@@ -21,15 +21,12 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -37,7 +34,7 @@ import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
@@ -55,6 +52,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Expose process() for testing.
+ * Feb 12, 2013 1543       djohnson     Retrieval responses are now passed further down the chain.
  * 
  * </pre>
  * 
@@ -70,13 +68,17 @@ public class PerformRetrievalPluginDataObjectsFinder implements
 
     private final Network network;
 
+    private final IRetrievalDao retrievalDao;
+
     /**
      * Constructor.
      * 
      * @param network
      */
-    public PerformRetrievalPluginDataObjectsFinder(Network network) {
+    public PerformRetrievalPluginDataObjectsFinder(Network network,
+            IRetrievalDao retrievalDao) {
         this.network = network;
+        this.retrievalDao = retrievalDao;
     }
 
     /**
@@ -85,13 +87,12 @@ public class PerformRetrievalPluginDataObjectsFinder implements
     @Override
     public RetrievalPluginDataObjects findRetrievalPluginDataObjects()
             throws Exception {
-        RetrievalDao dao = RetrievalDao.getInstance();
         RetrievalPluginDataObjects retVal = null;
 
         ITimer timer = TimeUtil.getTimer();
         try {
             timer.start();
-            RetrievalRequestRecord request = dao
+            RetrievalRequestRecord request = retrievalDao
                     .activateNextRetrievalRequest(network);
 
             if (request == null) {
@@ -132,8 +133,7 @@ public class PerformRetrievalPluginDataObjectsFinder implements
      * The actual work gets done here.
      */
     @VisibleForTesting
-    RetrievalPluginDataObjects process(
-            RetrievalRequestRecord requestRecord) {
+    RetrievalPluginDataObjects process(RetrievalRequestRecord requestRecord) {
         requestRecord.setState(State.FAILED);
         List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = new ArrayList<RetrievalAttributePluginDataObjects>();
 
@@ -167,27 +167,21 @@ public class PerformRetrievalPluginDataObjectsFinder implements
                     IRetrievalResponse response = pra.performRequest(request);
 
                     if (response != null) {
-                        Map<String, PluginDataObject[]> pdoHash = pra
-                                .processResponse(response);
-                        if (pdoHash != null && !pdoHash.isEmpty()) {
-                            for (Entry<String, PluginDataObject[]> entry : pdoHash
-                                    .entrySet()) {
-                                retrievalAttributePluginDataObjects
-                                        .add(new RetrievalAttributePluginDataObjects(
-                                                attXML, entry.getValue()));
-                            }
-                            requestRecord.setState(State.COMPLETED);
-                        } else {
-                            throw new IllegalStateException(
-                                    "No PDO's to store: " + serviceType
-                                            + " original: " + attXML.toString());
-                        }
+                        setCompletionStateFromResponse(requestRecord, response);
+
+                        retrievalAttributePluginDataObjects
+                                .add(new RetrievalAttributePluginDataObjects(
+                                        attXML, response));
                     } else {
-                        // null response
-                        throw new IllegalStateException(
-                                "Null response for service: " + serviceType
-                                        + " original: " + attXML.toString());
+                        throw new IllegalStateException("No PDO's to store: "
+                                + serviceType + " original: "
+                                + attXML.toString());
                     }
+                } else {
+                    // null response
+                    throw new IllegalStateException(
+                            "Null response for service: " + serviceType
+                                    + " original: " + attXML.toString());
                 }
             }
 
@@ -197,6 +191,23 @@ public class PerformRetrievalPluginDataObjectsFinder implements
         RetrievalPluginDataObjects retrievalPluginDataObject = new RetrievalPluginDataObjects(
                 requestRecord, retrievalAttributePluginDataObjects);
         return retrievalPluginDataObject;
+    }
+
+    /**
+     * Sets the {@link RetrievalRequestRecord} status based on the
+     * {@link IRetrievalResponse}.
+     * 
+     * @param requestRecord
+     *            the request record
+     * @param response
+     *            the response
+     */
+    @VisibleForTesting
+    static void setCompletionStateFromResponse(RetrievalRequestRecord requestRecord,
+            IRetrievalResponse response) {
+        final State completionState = response.getPayLoad() == null ? State.FAILED
+                : State.COMPLETED;
+        requestRecord.setState(completionState);
     }
 
 }

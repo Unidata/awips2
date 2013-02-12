@@ -20,18 +20,22 @@
 
 package com.raytheon.uf.edex.database.dao;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.impl.SessionFactoryImpl;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -56,7 +60,7 @@ import com.raytheon.uf.common.status.UFStatus;
  */
 @Repository
 @Transactional
-public class SessionManagedDao {
+public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY extends IPersistableDataObject<IDENTIFIER>> implements ISessionManagedDao<IDENTIFIER, ENTITY> {
 
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SessionManagedDao.class);
@@ -64,87 +68,93 @@ public class SessionManagedDao {
     protected HibernateTemplate template;
 
     /**
-     * Sets Hibernate session factory.
+     * {@inheritDoc}
      */
-    @Autowired
+    @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
         template = new HibernateTemplate(sessionFactory);
     }
 
     /**
-     * Creates the object entry in the database
-     * 
-     * @param obj
-     *            The object to be created in the database
+     * {@inheritDoc}
      */
-    public void create(final Object obj) {
+    @Override
+    public void create(final ENTITY obj) {
         template.save(obj);
     }
 
     /**
-     * Updates the object entry in the database
-     * 
-     * @param obj
-     *            The object to be created in the database
+     * {@inheritDoc}
      */
-    public void update(final Object obj) {
+    @Override
+    public void update(final ENTITY obj) {
         template.update(obj);
     }
 
     /**
-     * Creates the object entry in the database
-     * 
-     * @param obj
-     *            The object to be created in the database
+     * {@inheritDoc}
      */
-    public void createOrUpdate(final Object obj) {
+    @Override
+    public void createOrUpdate(final ENTITY obj) {
         template.saveOrUpdate(obj);
     }
 
     /**
-     * Persists all objects in the collection.
-     * 
-     * @param objs
-     *            The objects to be persisted to the database
+     * {@inheritDoc}
      */
-    public void persistAll(final Collection<?> objs) {
-        for (Object obj : objs) {
+    @Override
+    public void persistAll(final Collection<ENTITY> objs) {
+        for (ENTITY obj : objs) {
             createOrUpdate(obj);
         }
     }
 
     /**
-     * Deletes the object entry in the database
-     * 
-     * @param obj
-     *            The object to be created in the database
+     * {@inheritDoc}
      */
-    public void delete(final Object obj) {
+    @Override
+    public void delete(final ENTITY obj) {
         Object toDelete = template.merge(obj);
         template.delete(toDelete);
     }
 
     /**
-     * Delete all of the entities.
-     * 
-     * @param objs
+     * {@inheritDoc}
      */
-    public void deleteAll(final Collection<?> objs) {
-        for (Object obj : objs) {
+    @Override
+    public void deleteAll(final Collection<ENTITY> objs) {
+        for (ENTITY obj : objs) {
             delete(obj);
         }
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ENTITY getById(IDENTIFIER id) {
+        final Class<ENTITY> entityClass = getEntityClass();
+        return entityClass.cast(template.get(entityClass, id));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<ENTITY> getAll() {
+        return query("from " + getEntityClass().getSimpleName(),
+                Collections.<String, Object> emptyMap());
+    }
+
+    /**
      * Internal convenience method for querying.
      * 
-     * @param <T>
      * @param queryString
      * @param params
      * @return
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Object> List<T> query(String queryString,
+    protected List<ENTITY> query(String queryString,
             Map<String, Object> params) {
         final int numberOfParams = params.size();
         String[] paramNames = new String[numberOfParams];
@@ -162,21 +172,36 @@ public class SessionManagedDao {
     /**
      * Internal convenience method for returning a single result.
      * 
-     * @param <T>
      * @param queryString
      * @param params
      * @return
      */
-    @SuppressWarnings("unchecked")
-    protected <T extends Object> T uniqueResult(String queryString,
+    protected ENTITY uniqueResult(String queryString,
             Map<String, Object> params) {
-        final List<Object> results = query(queryString, params);
+        final List<ENTITY> results = query(queryString, params);
         if (results.isEmpty()) {
             return null;
         } else if (results.size() > 1) {
             statusHandler.warn("More than one result returned for query ["
                     + queryString + "], only returning the first!");
         }
-        return (T) results.get(0);
+        return results.get(0);
     }
+
+    /**
+     * Get the hibernate dialect.
+     * 
+     * @return the dialect.
+     */
+    // TODO: Remove the requirement of this method
+    public Dialect getDialect() {
+        return ((SessionFactoryImpl) template.getSessionFactory()).getDialect();
+    }
+
+    /**
+     * Return the entity class type.
+     * 
+     * @return the entity class type
+     */
+    protected abstract Class<ENTITY> getEntityClass();
 }
