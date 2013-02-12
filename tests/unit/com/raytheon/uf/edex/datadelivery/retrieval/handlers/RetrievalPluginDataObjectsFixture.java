@@ -22,12 +22,13 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.AbstractFixture;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
+import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
+import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapRetrievalAdapter;
 
 /**
  * Fixture for {@link RetrievalPluginDataObjects} instances.
@@ -39,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 12, 2013 1543       djohnson     No longer set plugin data objects themselves, just retrieval attributes.
  * 
  * </pre>
  * 
@@ -67,21 +69,41 @@ public class RetrievalPluginDataObjectsFixture extends
                 .get(seedValue);
         List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = new ArrayList<RetrievalAttributePluginDataObjects>();
         try {
-            for (RetrievalAttribute attribute : requestRecord.getRetrievalObj()
-                    .getAttributes()) {
-                // TODO: GridRecordFixture
-                final GridRecord gridRecord = new GridRecord();
-                gridRecord.setDataURI("dataUri" + seedValue);
+            for (final RetrievalAttribute attribute : requestRecord
+                    .getRetrievalObj().getAttributes()) {
                 retrievalAttributePluginDataObjects
-                        .add(new RetrievalAttributePluginDataObjects(attribute,
-                                new PluginDataObject[] { gridRecord }));
+                        .add(new RetrievalAttributePluginDataObjects(
+                                attribute,
+                                new MockOpenDapRetrievalAdapter()
+                                        .performRequest(new IRetrievalRequestBuilder() {
+                                            @Override
+                                            public String processTime(
+                                                    Time prtXML) {
+                                                return "" + prtXML;
+                                            }
+
+                                            @Override
+                                            public String processCoverage() {
+                                                return "noCoverage";
+                                            }
+
+                                            @Override
+                                            public String getRequest() {
+                                                return "request";
+                                            }
+
+                                            @Override
+                                            public RetrievalAttribute getAttribute() {
+                                                return attribute;
+                                            }
+                                        })));
             }
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
 
-        final RetrievalPluginDataObjects retrievalPluginDataObjects = new RetrievalPluginDataObjects(requestRecord,
-                retrievalAttributePluginDataObjects);
+        final RetrievalPluginDataObjects retrievalPluginDataObjects = new RetrievalPluginDataObjects(
+                requestRecord, retrievalAttributePluginDataObjects);
         return retrievalPluginDataObjects;
     }
 }

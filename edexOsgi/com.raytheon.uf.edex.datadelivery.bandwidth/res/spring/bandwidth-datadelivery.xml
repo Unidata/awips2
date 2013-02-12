@@ -103,6 +103,7 @@
         <constructor-arg value="${bandwidth.default.retrieval.priority}" />
         <constructor-arg ref="retrievalManager" />
         <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="retrievalDao" />
     </bean>
 
     <bean id="retrievalAgentManager"
@@ -110,6 +111,7 @@
         init-method="start">
         <constructor-arg ref="retrievalAgentNotifier" />
         <constructor-arg ref="retrievalAgents" />
+        <constructor-arg ref="retrievalDao" />
     </bean>
 
     <bean id="retrievalManager"
@@ -129,7 +131,9 @@
    <bean id="BandwidthManagerProcessor"
       class="com.raytheon.uf.edex.datadelivery.bandwidth.processing.Processor" />
    <bean id="BandwidthManagerRetrieval"
-      class="com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerationHandler" />
+      class="com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerationHandler">
+      <constructor-arg ref="retrievalDao" />
+   </bean>
    <bean id="SubscriptionBundleSeparator"
       class="com.raytheon.uf.edex.datadelivery.bandwidth.separator.SubscriptionBundleSeparator" />
 </beans>
