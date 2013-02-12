@@ -31,10 +31,10 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
         // fulfilled. In the case were DD has been down for a while
         // BEFORE removing the tables...
 
-        // Empty the bandwidth tables (other than DataSetMetaDataDao) on each
+        // Empty the bandwidth tables (other than BandwidthDataSetUpdate) on each
         // start and reload..
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao.class);
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class);
 
