@@ -13,10 +13,6 @@
 		<constructor-arg ref="ddRetrievalDatabaseProperties"/>
 	</bean>
     
-    <bean id="retrievalDao" class="com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao">
-        <property name="sessionFactory" ref="metadataSessionFactory" />
-    </bean>
-    
     <bean id="subNotifyTask" class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionNotifyTask" />
     
     <!-- A RetrievalTask takes three constructor arguments:
