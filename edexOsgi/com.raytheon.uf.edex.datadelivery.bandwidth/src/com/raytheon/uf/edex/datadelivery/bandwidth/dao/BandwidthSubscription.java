@@ -48,12 +48,12 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Entity
 @Table(name = "bandwidth_subscription")
 @DynamicSerialize
-@SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1)
-public class SubscriptionDao extends PersistableDataObject<Long> implements
+@SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
+public class BandwidthSubscription extends PersistableDataObject<Long> implements
         Serializable, ISerializableObject {
 
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SubscriptionDao.class);
+            .getHandler(BandwidthSubscription.class);
 
     private static final long serialVersionUID = 20120723L;
 
@@ -150,7 +150,7 @@ public class SubscriptionDao extends PersistableDataObject<Long> implements
         }
     }
 
-    public SubscriptionDao() {
+    public BandwidthSubscription() {
         // Bean constructor
     }
 

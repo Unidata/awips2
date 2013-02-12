@@ -58,6 +58,8 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     private static BandwidthManager instance;
 
+    private IBandwidthDao bandwidthDao;
+
     /**
      * Intentionally package-private constructor, as it is created from Spring
      * which is able to reflectively instantiate.
@@ -65,7 +67,8 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param instance
      *            the {@link BandwidthManager} instance
      */
-    EdexBandwidthContextFactory() {
+    EdexBandwidthContextFactory(IBandwidthDao bandwidthDao) {
+        this.bandwidthDao = bandwidthDao;
     }
 
     /**
@@ -108,7 +111,8 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public IBandwidthDbInit getBandwidthDbInit() {
-        return new HibernateBandwidthDbInit(HibernateBandwidthDao.getInstance());
+        return new HibernateBandwidthDbInit(
+                HibernateBandwidthDao.class.cast(getBandwidthDao()));
     }
 
     /**
@@ -116,7 +120,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public IBandwidthDao getBandwidthDao() {
-        return HibernateBandwidthDao.getInstance();
+        return bandwidthDao;
     }
 
     /**
