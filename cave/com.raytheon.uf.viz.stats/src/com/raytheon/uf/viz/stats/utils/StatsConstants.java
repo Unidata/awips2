@@ -26,7 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * TODO Add Description
+ * Constants for CAVE statistics.
  * 
  * <pre>
  * 
@@ -54,12 +54,10 @@ public class StatsConstants {
     private static final String release = defineRelease();
 
     /**
-     * @return Hostname of the workstation running CAVE
+     * Return the host name.
+     * 
+     * @return the host name
      */
-    public static String getHostname() {
-        return hostname;
-    }
-
     private static String defineHostName() {
         String hn = null;
         InetAddress addr;
@@ -73,6 +71,11 @@ public class StatsConstants {
         return hn;
     }
 
+    /**
+     * Define the release that is currently running.
+     * 
+     * @return The release
+     */
     private static String defineRelease() {
         String release = null;
         BufferedReader in = null;
@@ -106,5 +109,12 @@ public class StatsConstants {
      */
     public static String getRelease() {
         return release;
+    }
+
+    /**
+     * @return Hostname of the workstation running CAVE
+     */
+    public static String getHostname() {
+        return hostname;
     }
 }
