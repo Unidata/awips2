@@ -130,6 +130,9 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
  *                                       to true in boxSelected().
  *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
+ *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
+ *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
+ *                                       and removed it from updateListSelected().
  * 
  * </pre>
  * 
@@ -1529,7 +1532,6 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     public void updateListSelected() {
         warngenLayer.setOldWarningPolygon(null);
-        setPolygonLocked(false);
         if (updateListCbo.getSelectionIndex() >= 0) {
             AbstractWarningRecord oldWarning = null;
             FollowupData data = (FollowupData) updateListCbo
@@ -1840,7 +1842,8 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param selected
      */
     private AbstractWarningRecord conSelected(FollowupData data) {
-    	CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
+        setPolygonLocked(false);
+        CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
                 .getLocalizedSite());
         AbstractWarningRecord newWarn = null;
         if (WarningAction.COR == WarningAction.valueOf(data.getAct())) {
@@ -1888,6 +1891,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Special case - allows for Correction of Followups
         if (!allowsNewProduct) {
             newWarn = conSelected(data);
+            setPolygonLocked(true);
         } else {
             CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
                     .getLocalizedSite());
@@ -1997,6 +2001,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param selected
      */
     private AbstractWarningRecord newSelected(FollowupData data) {
+        setPolygonLocked(false);
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
                 data.getEtn(), data.getPhen() + "." + data.getSig());
