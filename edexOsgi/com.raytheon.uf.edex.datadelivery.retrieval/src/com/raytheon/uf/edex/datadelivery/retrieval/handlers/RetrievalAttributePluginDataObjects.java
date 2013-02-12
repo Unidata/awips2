@@ -20,9 +20,9 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
  * Plugin data objects and the retrieval information they are associated with.
@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 12, 2013 1543       djohnson     Takes retrieval response rather than plugin data objects.
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public class RetrievalAttributePluginDataObjects {
     private RetrievalAttribute attributeXml;
 
     @DynamicSerializeElement
-    private PluginDataObject[] pluginDataObjects;
+    private IRetrievalResponse retrievalResponse;
 
     /**
      * Constructor.
@@ -59,12 +60,12 @@ public class RetrievalAttributePluginDataObjects {
      * Constructor.
      * 
      * @param attributeXml
-     * @param pluginDataObjects
+     * @param response
      */
     public RetrievalAttributePluginDataObjects(RetrievalAttribute attributeXml,
-            PluginDataObject[] pluginDataObjects) {
+            IRetrievalResponse response) {
         this.attributeXml = attributeXml;
-        this.pluginDataObjects = pluginDataObjects;
+        this.retrievalResponse = response;
     }
 
     /**
@@ -83,18 +84,18 @@ public class RetrievalAttributePluginDataObjects {
     }
 
     /**
-     * @return the pluginDataObjects
+     * @return the retrievalResponse
      */
-    public PluginDataObject[] getPluginDataObjects() {
-        return pluginDataObjects;
+    public IRetrievalResponse getRetrievalResponse() {
+        return retrievalResponse;
     }
 
     /**
-     * @param pluginDataObjects
-     *            the pluginDataObjects to set
+     * @param retrievalResponse
+     *            the retrievalResponse to set
      */
-    public void setPluginDataObjects(PluginDataObject[] pluginDataObjects) {
-        this.pluginDataObjects = pluginDataObjects;
+    public void setRetrievalResponse(IRetrievalResponse retrievalResponse) {
+        this.retrievalResponse = retrievalResponse;
     }
 
 }
