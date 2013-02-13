@@ -2,7 +2,7 @@
     <!-- Event Type should be fully qualified name of stat event -->
     <statisticsEvent type="com.raytheon.uf.common.stats.ProcessEvent"
         displayName="Processing Events" category="Data Ingest Events">
-        <statisticsGroup name="pluginName" displayName="Data Type" />
+        <statisticsGroup name="dataType" displayName="Data Type" />
         <!-- Processing time available display units:
              ms, Seconds, Minutes, Hours -->
         <statisticsAggregate field="processingTime"
