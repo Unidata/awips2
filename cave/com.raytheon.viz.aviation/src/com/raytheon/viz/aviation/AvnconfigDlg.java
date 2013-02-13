@@ -22,6 +22,9 @@ package com.raytheon.viz.aviation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -61,6 +64,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafSiteInfoEditorDlg.
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 15 Oct 2012  1229       rferrel     Changed for non-blocking HelpUsageDlg.
+ * 13 Feb 2013  1549       rferrel     Minor code cleanup.
  * 
  * </pre>
  * 
@@ -102,6 +106,8 @@ public class AvnconfigDlg extends CaveSWTDialog {
     private ClimateDataMenuDlg climateDataDlg;
 
     private HelpUsageDlg usageDlg;
+
+    private Rectangle bounds;
 
     /**
      * Constructor.
@@ -221,8 +227,7 @@ public class AvnconfigDlg extends CaveSWTDialog {
                     String description = "AvnFPS Setup Help";
 
                     String helpText = "This application is used to configure AvnFPS.\n\nButton description:\n\nText Editor:    use to modify forecaster list and default resource\nfile.\n\nMonitoring rules: use to edit watch rules for TAF monitoring.\n\nTAF Site Info:  use to create TAF definition files\n\nTAF Products:   use to create lists of TAFs to load into forecast\neditor\n\nTriggers:       use to create and install Postgres trigger file.\n\nClimate Data:   use to create and update HDF5 climate files.";
-                    usageDlg = new HelpUsageDlg(shell, description,
-                            helpText);
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
                     usageDlg.open();
                 } else {
                     usageDlg.bringToTop();
@@ -350,5 +355,27 @@ public class AvnconfigDlg extends CaveSWTDialog {
      */
     private void createBottomMessageControls() {
         msgStatusComp = new MessageStatusComp(shell, null, null);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+
+        shell.addShellListener(new ShellAdapter() {
+
+            @Override
+            public void shellClosed(ShellEvent e) {
+                bounds = shell.getBounds();
+            }
+        });
+
+        if (bounds != null) {
+            shell.setBounds(bounds);
+        }
     }
 }
