@@ -51,10 +51,9 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import com.raytheon.uf.common.comm.stream.DynamicSerializeStreamEntity;
+import com.raytheon.uf.common.comm.stream.DynamicSerializeEntity;
 import com.raytheon.uf.common.comm.stream.DynamicSerializeStreamHandler;
 import com.raytheon.uf.common.comm.stream.OStreamEntity;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -444,38 +443,33 @@ public class HttpClient {
     /**
      * Transforms the object into bytes and posts it to the server at the
      * address. If gzip requests are enabled the object will be transformed into
-     * a byte[] and then gzipped before sending. Otherwise the object will
-     * streamed to a byte[] and the response will be streamed back into the
-     * response object.
+     * a byte[] and then gzipped before sending. Streams the response back
+     * through DynamicSerialize.
      * 
      * @param address
      *            the address to post to
      * @param obj
      *            the object to transform and send
-     * @return the object response
+     * @param stream
+     *            if the request should be streamed if possible
+     * @return the deserialized object response
      * @throws CommunicationException
      * @throws Exception
      */
-    public Object postDynamicSerialize(String address, final Object obj)
-            throws CommunicationException, Exception {
+    public Object postDynamicSerialize(String address, Object obj,
+            boolean stream) throws CommunicationException, Exception {
+        HttpPost put = new HttpPost(address);
+        DynamicSerializeEntity dse = new DynamicSerializeEntity(obj, stream,
+                gzipRequests);
+        put.setEntity(dse);
         if (gzipRequests) {
-            // TODO can't stream gzipped requests at this time
-            return SerializationUtil.transformFromThrift(
-                    Object.class,
-                    postBinary(address,
-                            SerializationUtil.transformToThrift(obj)));
-        } else {
-            HttpPost put = new HttpPost(address);
-            // stream the send
-            DynamicSerializeStreamEntity sdse = new DynamicSerializeStreamEntity(
-                    obj);
-            put.setEntity(sdse);
-            // stream the response
-            DynamicSerializeStreamHandler handlerCallback = new DynamicSerializeStreamHandler();
-            HttpClientResponse resp = this.process(put, handlerCallback);
-            checkStatusCode(resp);
-            return handlerCallback.getResponseObject();
+            put.setHeader("Content-Encoding", "gzip");
         }
+        // always stream the response for memory efficiency
+        DynamicSerializeStreamHandler handlerCallback = new DynamicSerializeStreamHandler();
+        HttpClientResponse resp = this.process(put, handlerCallback);
+        checkStatusCode(resp);
+        return handlerCallback.getResponseObject();
     }
 
     /**
