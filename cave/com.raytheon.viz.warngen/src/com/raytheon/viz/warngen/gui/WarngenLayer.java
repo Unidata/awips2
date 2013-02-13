@@ -189,11 +189,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class CustomMaps extends Job {
 
-        private Set<String> customMaps = new HashSet<String>();
+        private final Set<String> customMaps = new HashSet<String>();
 
         private Set<String> mapsToLoad;
 
-        private MapManager manager;
+        private final MapManager manager;
 
         public CustomMaps() {
             super("Loading WarnGen Maps");
@@ -243,7 +243,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class AreaHatcher extends Job {
 
-        private PolygonUtil polygonUtil;
+        private final PolygonUtil polygonUtil;
 
         private Polygon hatchedArea;
 
@@ -365,7 +365,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private boolean boxEditable = true;
 
-    private CustomMaps customMaps;
+    private final CustomMaps customMaps;
 
     private AreaHatcher areaHatcher;
 
@@ -387,7 +387,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private WarningAction warningAction = WarningAction.NEW;
 
-    private Set<String> removedGids = new HashSet<String>();
+    private final Set<String> removedGids = new HashSet<String>();
 
     static {
         for (int i = 0; i < 128; i++) {
@@ -1369,6 +1369,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 state.setWarningArea(null);
                 state.geometryChanged = true;
                 dialog.getDisplay().asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         dialog.setInstructions();
                     }
@@ -1392,8 +1393,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     // snap back to last valid user selected area
                     state.setWarningPolygon((Polygon) state
                             .getMarkedWarningPolygon().clone());
-                    newHatchedArea = latLonToLocal((Geometry) state
-                            .getMarkedWarningArea());
+                    newHatchedArea = latLonToLocal(state.getMarkedWarningArea());
                     state.resetMarked();
                 } else if (warningPolygon != null) {
                     // want intersection of warningPolygon and oldWarningArea
@@ -1459,6 +1459,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             issueRefresh();
 
             VizApp.runAsync(new Runnable() {
+                @Override
                 public void run() {
                     if (dialog != null) {
                         dialog.setInstructions();
@@ -1750,7 +1751,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     hatched = (Polygon) areas[0];
                     hatchedArea = areas[1];
                 }
-                
+
                 if (hatched != null) {
                     state.setWarningPolygon(hatched);
                     updateWarnedAreaState(hatchedArea, true);
@@ -2504,6 +2505,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
                 final WarngenDialog dlg = dialog;
                 dialog.getDisplay().asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         if (dlg.isDisposed() == false
                                 && dlg.getShell().isVisible() != editable) {
