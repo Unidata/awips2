@@ -45,6 +45,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Dec 1, 2008            chammack     Initial creation
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
+ * Feb 12, 2013 1615      bgonzale     Changed ProcessEvent pluginName to dataType.
  * 
  * </pre>
  * 
@@ -127,10 +128,14 @@ public class ProcessUtil {
         StringBuilder sb = new StringBuilder(128);
 
         ProcessEvent processEvent = new ProcessEvent();
+        String dataType = getHeaderProperty(headers, "dataType");
         String pluginName = getHeaderProperty(headers, "pluginName");
-        if (pluginName != null) {
+        if (dataType != null) {
+            sb.append(dataType);
+            processEvent.setDataType(dataType);
+        } else if (pluginName != null) {
             sb.append(pluginName);
-            processEvent.setPluginName(pluginName);
+            processEvent.setDataType(pluginName);
         }
 
         String fileName = getHeaderProperty(headers, "ingestFileName");
