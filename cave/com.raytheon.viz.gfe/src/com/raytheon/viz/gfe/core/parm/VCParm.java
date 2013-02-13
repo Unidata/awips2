@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -76,6 +77,9 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
  *                                      separate thread to prevent backup
  *                                      in ParmListener's notification job 
  *                                      pool.
+ * Feb 13, 2013  #1515     dgilling     Handle RejectedExecutionExceptions
+ *                                      if notification is received after
+ *                                      Parm disposal.
  * 
  * </pre>
  * 
@@ -156,6 +160,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
      */
     @Override
     public void gridDataChanged(final ParmID parmId, final TimeRange validTime) {
+        synchronized (this) {
+            if (disposed) {
+                return;
+            }
+        }
+
         Runnable onNotificationTask = new Runnable() {
 
             @Override
@@ -200,7 +210,16 @@ public class VCParm extends VParm implements IParmListChangedListener,
             }
         };
 
-        notificationWorkers.submit(onNotificationTask);
+        try {
+            notificationWorkers.submit(onNotificationTask);
+        } catch (RejectedExecutionException e) {
+            // received a notification after thread pool shutdown
+            // do nothing, but log
+            String message = "Parm "
+                    + toString()
+                    + " received GridDataChange notification after VCParm.dispose().";
+            statusHandler.handle(Priority.EVENTB, message, e);
+        }
     }
 
     /*
@@ -215,6 +234,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
     @Override
     public void parmListChanged(final Parm[] parms, Parm[] deletions,
             Parm[] additions) {
+        synchronized (this) {
+            if (disposed) {
+                return;
+            }
+        }
+
         Runnable onNotificationTask = new Runnable() {
 
             @Override
@@ -239,7 +264,16 @@ public class VCParm extends VParm implements IParmListChangedListener,
             }
         };
 
-        notificationWorkers.submit(onNotificationTask);
+        try {
+            notificationWorkers.submit(onNotificationTask);
+        } catch (RejectedExecutionException e) {
+            // received a notification after thread pool shutdown
+            // do nothing, but log
+            String message = "Parm "
+                    + toString()
+                    + " received ParmListChange notification after VCParm.dispose().";
+            statusHandler.handle(Priority.EVENTB, message, e);
+        }
     }
 
     /*
@@ -251,6 +285,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
      */
     @Override
     public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
+        synchronized (this) {
+            if (disposed) {
+                return;
+            }
+        }
+
         // It would be better to only update those griddata objects
         // that needed it. But... that is much more difficult
         // than this simple brute force method. This seems to be
@@ -275,7 +315,16 @@ public class VCParm extends VParm implements IParmListChangedListener,
             }
         };
 
-        notificationWorkers.submit(onNotificationTask);
+        try {
+            notificationWorkers.submit(onNotificationTask);
+        } catch (RejectedExecutionException e) {
+            // received a notification after thread pool shutdown
+            // do nothing, but log
+            String message = "Parm "
+                    + toString()
+                    + " received ParmInventoryChange notification after VCParm.dispose().";
+            statusHandler.handle(Priority.EVENTB, message, e);
+        }
     }
 
     /*
