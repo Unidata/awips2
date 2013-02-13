@@ -292,7 +292,7 @@ public class ThriftClient {
         try {
             long t0 = System.currentTimeMillis();
             rval = HttpClient.getInstance().postDynamicSerialize(httpAddress,
-                    wrapper);
+                    wrapper, true);
             long time = System.currentTimeMillis() - t0;
             if (time >= SIMPLE_LOG_TIME) {
                 System.out.println("Took " + time + "ms to run request id["
