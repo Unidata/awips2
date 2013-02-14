@@ -7,6 +7,7 @@
 ##      Evan Bookbinder -- SEP 16 2011  OB11.0.8-8 ##
 ##      Phil Kurimski   -- SEP 23 2011  OB11.0.8-8 ##
 ##      Mike Rega      -- MAY 03 2012 DR 14885 MND ##
+##      Qinglu Lin         12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
 #####################################################
 ##
 #set($headline = "")
@@ -210,7 +211,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -227,7 +228,7 @@ ${endwarning}
 THIS IS A TEST MESSAGE.##
 #end
 ...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 
 
@@ -393,7 +394,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -419,7 +420,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -586,7 +587,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -612,7 +613,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -767,7 +768,7 @@ EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone
 #else
 WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
 #end
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 

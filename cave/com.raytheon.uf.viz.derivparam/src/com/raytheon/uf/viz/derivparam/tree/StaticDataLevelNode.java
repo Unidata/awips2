@@ -21,17 +21,16 @@ package com.raytheon.uf.viz.derivparam.tree;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -57,16 +56,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * @author bsteffen
  * @version 1.0
  */
-public class StaticDataLevelNode extends AbstractDerivedLevelNode {
-
-    @Override
-    protected DbQueryRequest getDataQueryInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        return null;
-    }
+public class StaticDataLevelNode extends AbstractDerivedDataNode {
 
     protected static final String TIME_FIELD = "dataTime";
 
@@ -90,38 +80,23 @@ public class StaticDataLevelNode extends AbstractDerivedLevelNode {
         this.source = source;
     }
 
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        return Arrays.asList(source);
+    @Override
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        return Collections.emptyMap();
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        return TIME_AGNOSTIC;
-    }
-
-    @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
-            throws VizException {
-        return null;
+        return new HashSet<AbstractRequestableData>(Arrays.asList(source));
     }
 
     @Override
     public boolean isConstant() {
-        return true;
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
         return true;
     }
 
@@ -174,6 +149,15 @@ public class StaticDataLevelNode extends AbstractDerivedLevelNode {
         } else if (!source.equals(other.source))
             return false;
         return true;
+    }
+
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
+            throws VizException {
+        Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
+        result.add(source.getTimeAndSpace());
+        return result;
     }
 
 }

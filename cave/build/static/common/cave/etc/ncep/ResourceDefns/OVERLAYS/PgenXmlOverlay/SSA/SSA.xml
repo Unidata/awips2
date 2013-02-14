@@ -4,10 +4,11 @@
     <resourceDefnName>SSA</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-pgenProductName=ssa_bnd.xml
+pgenStaticProductLocation=ncep/StaticPgenOverlays
+pgenStaticProductName=ssa_bnd.xml
     </resourceParameters>
-    <filterLabels></filterLabels>
-    <rscImplementation>PgenXmlOverlay</rscImplementation>
+    <filterLabels>PGEN</filterLabels>
+    <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

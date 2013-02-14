@@ -5,6 +5,8 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.PaneID;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
 
 import java.util.ArrayList;
 
@@ -34,6 +36,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
  * ------------	----------	-----------	--------------------------
  * 06/26/12      #568       G. Hull     Created to replace separate code in 
  * 										LoadControl, SelectRbd and ManageSpfControl
+ * 12/01/12      #630       G. Hull     Show Area based on Source (Resource, Predefined...)
  * 
  * </pre>
  * 
@@ -113,10 +116,23 @@ public class RbdViewComposite extends Composite {
 						if( showPane ) {
 					
 							if( isMultiPane ) {
-								rscNames.add( "Pane ("+ paneId.toString() +") : "+disp.getPredefinedAreaName() );
+								rscNames.add( "Pane ("+ paneId.toString() +")" );
 							}
 							else { 
-								rscNames.add( "Single Pane : "+disp.getPredefinedAreaName() );
+								rscNames.add( "Single Pane" );
+							}
+							
+							// TODO: show the actual center/proj/zoomLevel???
+							PredefinedArea area = disp.getInitialArea();
+							
+							if( area == null ) {
+								rscNames.add("Unspecified initial Area");
+							}
+							else if( area.getAreaSource() == AreaSource.PREDEFINED_AREA ) {
+								rscNames.add("Predefined Area "+area.getAreaName() );
+							}
+							else {
+								rscNames.add("Area From "+area.getAreaName() );
 							}
 							
 							for( ResourcePair rp : mapDescr.getResourceList() ) {

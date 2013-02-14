@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nwsRoleData xmlns:ns2="group">
+   <!-- AWIPS 2 User Admin Roles/Permissions file -->
+   <application>User Administration</application>
+   <permission id="awips.user.admin">
+      <description>
+         This permission allows the user to access and edit AWIPS 2 User Administration 
+       </description>
+   </permission>
+   
+   <user userId="ALL">
+      <userPermission>awips.user.admin</userPermission>
+   </user>
+</nwsRoleData>

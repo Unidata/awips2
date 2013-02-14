@@ -11,6 +11,96 @@
       </editor>
    </extension>
    <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="gov.noaa.nws.ncep.viz.ui.display.ZoomStateSourceProvider">
+         <variable
+               name="gov.noaa.nws.ncep.viz.tools.zoomState"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
+   </extension>
+
+<!--  Example Mouse actions from core/d2d
+<extension
+      point="com.raytheon.uf.viz.ui.mouse.action">
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.pan"
+      	default="Left Drag,Middle Drag"
+      	description="Pan"
+      	eventOptions="Left Drag,Middle Drag"
+      	name="Panning" 
+      	category="Navigation">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.zoomin"
+      	default="Scroll Forward,Middle Click"
+      	description="Zoom In"
+      	eventOptions="Long Left Click,Long Middle Click,Left Click,Middle Click,Right Click,Scroll Forward,Scroll Back"
+      	name="Zoom In" 
+      	category="Navigation">
+      </mouseAction>
+     <mouseAction 
+      	id="com.raytheon.viz.ui.input.zoomout"
+      	default="Scroll Back"
+      	description="Zoom out"
+      	eventOptions="Long Left Click,Long Middle Click,Left Click,Middle Click,Right Click,Scroll Forward,Scroll Back"
+      	name="Zoom Out" 
+      	category="Navigation">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.inspect"
+      	description="Sample loaded resources"
+      	eventOptions="Left Click,Middle Click,Long Left Click,Long Middle Click"
+      	name="Sample" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.clear"
+      	description="Reset a map, removing all maps and resources"
+      	eventOptions="Left Click,Middle Click,Right Click,Scroll Forward,Scroll Back"
+      	name="Clear" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.resource.edit"
+      	default="Middle Click"
+      	description="Toggle Editable mode on editable resources"
+      	eventOptions="Left Click,Middle Click"
+      	name="Edit Resource" 
+      	category="Legend Interaction">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.contextmenu"
+      	default="Long Right Click"
+      	description="Load Context Menu"
+      	eventOptions="Right Click,Long Right Click"
+      	name="Context Menu" 
+      	category="Editor Action">
+      </mouseAction>
+	</extension>
+<extension
+      point="com.raytheon.uf.viz.ui.mouse.action">
+      <mouseAction 
+      	id="com.raytheon.viz.d2d.ui.toggleLegend"
+      	default="Right Click"
+      	description="Switch which Legends are displayed"
+      	eventOptions="Left Click,Middle Click,Right Click"
+      	name="Toggle Legends" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.d2d.ui.hide.resource"
+      	default="Left Click"
+      	description="Show/Hide a resource when a user clicks on the title in the legend"
+      	eventOptions="Left Click,Middle Click"
+      	name="Show/Hide Resource" 
+      	category="Legend Interaction">
+      </mouseAction>
+	</extension>
+-->
+   
+   <extension
           point="org.eclipse.ui.contexts">
            <context 
                     description="The National Centers Map Editor Context"

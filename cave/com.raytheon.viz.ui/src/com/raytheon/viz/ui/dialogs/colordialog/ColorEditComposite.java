@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,17 +33,20 @@ import com.raytheon.uf.common.colormap.ColorMap;
 
 /**
  * Composite for colormap editing
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2010            mschenke     Initial creation
- * 
+ * Jan 10, 2013 15648      ryu         Editing GFE discrete colormap: a check button
+ *                                     is added and duplicate entries in the colormap
+ *                                     are removed when it is selected.
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  * @version 1.0
  */
@@ -75,6 +78,11 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
      * HSB radio button.
      */
     private Button hsbRdo;
+
+    /**
+     * GFE discrete check button.
+     */
+    private Button gfeDiscreteCheck;
 
     /**
      * Title for the upper color wheel.
@@ -125,6 +133,9 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
                 true));
         // lowerColorWheel.setColor(colorArray.get(colorArray.size() - 1));
         lowerColorWheel.setColor(initial);
+
+        // Create the GFE discrete check button.
+        createGFEDiscreteButton();
     }
 
     /**
@@ -169,6 +180,32 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
     }
 
     /**
+     * Create the GFE discrete check button.
+     */
+    private void createGFEDiscreteButton() {
+        // Create a group to contain the RGB and HSB radio buttons.
+        Group discreteGroup = new Group(getParent(), SWT.NONE);
+
+        RowLayout groupRowLayout = new RowLayout();
+        groupRowLayout.marginLeft = 10;
+        groupRowLayout.marginRight = 10;
+        groupRowLayout.spacing = 10;
+        discreteGroup.setLayout(groupRowLayout);
+        discreteGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        // Create the discrete check button.
+        gfeDiscreteCheck = new Button(discreteGroup, SWT.CHECK);
+        gfeDiscreteCheck.setText("GFE Discrete");
+        gfeDiscreteCheck.setSelection(false);
+        gfeDiscreteCheck.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                updateColorMap();
+            }
+        });
+    }
+
+    /**
      * Change the upper and lower color wheel objects to display either RGB or
      * HSB.
      */
@@ -185,7 +222,7 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
     /**
      * Fill the area between the sliders in the color bar using the color data
      * provided.
-     * 
+     *
      * @param colorData
      *            The color data object containing the RGB color and the alpha
      *            value.
@@ -200,7 +237,7 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
      * Set the color where the top or bottom slider is pointing. The color wheel
      * title is used to determine if the color is from the upper color wheel or
      * the lower color wheel.
-     * 
+     *
      * @param colorData
      *            The color data object containing the RGB color and the alpha
      *            value.
@@ -221,7 +258,7 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
      * A callback method used by the ColorBar class. This method is called to
      * update the upper or lower color wheel when the mouse is clicked in the
      * color bar and moved around.
-     * 
+     *
      * @param colorData
      *            The color data object containing the RGB color and the alpha
      *            value.
@@ -242,6 +279,9 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
      */
     public void updateColorMap() {
         colorMap = ColorUtil.buildColorMap(colorBar.getCurrentColors(), null);
+        if (isGFEDiscrete()) {
+            colorMap.removeDuplicates();
+        }
         callback.updateColorMap(colorMap);
     }
 
@@ -275,6 +315,10 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
 
     public ColorMap getColorMap() {
         return colorMap;
+    }
+
+    public boolean isGFEDiscrete() {
+        return gfeDiscreteCheck.getSelection();
     }
 
 }

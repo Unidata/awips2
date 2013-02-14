@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.core.status.StatusConstants;
  *    Date          Ticket#     Engineer    Description
  *    ------------  ----------  ----------- --------------------------
  *    06 Oct 2010   311         B. Hebbard  Initial creation (derived from DistanceTool)
+ *    19 Oct 2012   898         sgurung     Fix for fuzzy fonts
  * 
  * </pre>
  * 
@@ -120,6 +121,8 @@ public class ScaleOverlayResource extends AbstractVizResource<ScaleOverlayResour
 
 		IFont font = target.initializeFont(scaleTextFont.getFontName(),
 				(float) (12 * scaleTextSize.getSoftwareSize()), scaleTextStyle.getStyles());
+		font.setSmoothing(false);
+		font.setScaleFont(false);
 
         IExtent screenExtent = paintProps.getView().getExtent();
         IExtent mapExtent = new PixelExtent(descriptor.getGridGeometry().getGridRange());

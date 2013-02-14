@@ -76,7 +76,7 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
         String refTimeStr = formatTimestamp(stnInfo.getReftime());
         String validTimeStr = formatTimestamp(stnInfo.getRangestarttime());
         NcSoundingCube cube = NcSoundingQuery.mdlSoundingQueryByLatLon(
-                refTimeStr, validTimeStr, latLon, "grib", getSoundingType(),
+                refTimeStr, validTimeStr, latLon, "grid", getSoundingType(),
                 false, "-1");
         if (cube != null && !cube.getSoundingProfileList().isEmpty()) {
             NcSoundingProfile profileList = cube.getSoundingProfileList()
