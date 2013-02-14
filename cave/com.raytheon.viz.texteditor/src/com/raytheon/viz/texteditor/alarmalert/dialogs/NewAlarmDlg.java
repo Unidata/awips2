@@ -56,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 08, 2010 5851       cjeanbap    Properly stop alarm/alert observer listener; shellComp is null.
  * Oct 31, 2011 8510       rferrel   made PRIMARY_MODEL and add check for nonblank productID.
  * Sep 20, 2012 1196       rferrel     No longer Blocks
+ * 12/07/2012	15555	   m.gamazaychikov	Fixed the implementation for New Proximity Alarm.
  * </pre>
  * 
  * @author mnash
@@ -330,15 +331,34 @@ public class NewAlarmDlg extends CaveSWTDialog {
         AOR = new Button(aor, SWT.CHECK);
         aorData = new GridData(SWT.DEFAULT, SWT.CENTER, false, false);
         AOR.setLayoutData(aorData);
-        if (prod != null) {
+        /*
+         * DR15555 - Set the AOR selection to:
+         * 1. true - for new alarm
+         * 2. product's state - for existing alarm
+         */
+        if (prod.getProductId() != "") {
             AOR.setSelection(prod.isAor());
+        }
+        else {
+        	AOR.setSelection(true);
+        	AOR.setBackground(Display.getCurrent().getSystemColor(
+                    SWT.COLOR_YELLOW));
         }
         AOR.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (AOR.getSelection() == true) {
+                	/*
+                	 * DR15555 - handle the AOR selection:
+                	 *  - set the background yellow
+                	 *  - set the AORDistance text to empty string
+                	 *  - set the ugcList text to empty string
+                	 */
                     AOR.setBackground(Display.getCurrent().getSystemColor(
                             SWT.COLOR_YELLOW));
+                    AORDistance.setText("");
+                    ugcList.setText("");
+                    
                 } else {
                     AOR.setBackground(Display.getCurrent().getSystemColor(
                             SWT.COLOR_WIDGET_BACKGROUND));
@@ -355,22 +375,34 @@ public class NewAlarmDlg extends CaveSWTDialog {
         AORDistance = new Text(aor, SWT.SINGLE | SWT.BORDER);
         aorData = new GridData(SWT.END, SWT.DEFAULT, false, false);
         aorData.horizontalAlignment = SWT.RIGHT;
-        aorData.widthHint = 20;
+        aorData.widthHint = 60;
         AORDistance.setLayoutData(aorData);
-        if (prod != null) {
+        /*
+         * DR15555 - Set the AORDistance selection to:
+         * 1. empty string - for new alarm
+         * 2. product's distance - for existing alarm
+         */
+        if (prod.getProductId() != "") {
             AORDistance.setText(prod.getAorDistance());
+        }
+        else {
+        	AORDistance.setText("");
         }
 
         AORDistance.addListener(SWT.KeyDown, new Listener() {
             @Override
-            public void handleEvent(Event e) {
-                if (!"".equals(AORDistance.getText())
-                        || (e.character != 0x8 && e.character != 0x7f)) {
-                    AOR.setSelection(true);
-                    AOR.setBackground(Display.getCurrent().getSystemColor(
-                            SWT.COLOR_YELLOW));
-                }
-            }
+			public void handleEvent(Event e) {
+				/*
+				 * DR15555 - handle the AOR selection: 
+				 * - set the AOR background gray
+				 * - un-select the  AOR 
+				 * - set the ugcList text to empty string
+				 */
+				AOR.setSelection(false);				
+				AOR.setBackground(Display.getCurrent().getSystemColor(
+						SWT.COLOR_WIDGET_BACKGROUND));
+				ugcList.setText("");				
+			}
         });
 
         distanceLabel = new Combo(aor, SWT.READ_ONLY);
@@ -378,7 +410,12 @@ public class NewAlarmDlg extends CaveSWTDialog {
         distanceLabel.setItems(new String[] { "mi", "km" });
         aorData.horizontalAlignment = SWT.RIGHT;
         distanceLabel.setLayoutData(aorData);
-        if (prod != null) {
+        /*
+         * DR15555 - Set the distanceLabel selection to:
+         * 1. 'mi' - for new alarm
+         * 2. product's label - for existing alarm
+         */
+        if (prod.getProductId() != "") {
             distanceLabel.setText(prod.getAorLabel());
         } else {
             distanceLabel.select(0);
@@ -394,9 +431,32 @@ public class NewAlarmDlg extends CaveSWTDialog {
         ugcLabel.setText("UGC List:");
         ugcList = new Text(ugc, SWT.SINGLE | SWT.BORDER);
         ugcList.setLayoutData(gd);
-        if (prod != null) {
+        /*
+         * DR15555 - Set the ugcList selection to:
+         * 1. empty string - for new alarm
+         * 2. product's ugcList - for existing alarm
+         */
+        if (prod.getProductId() != "") {
             ugcList.setText(prod.getUgcList());
         }
+        else {
+        	ugcList.setText("");
+        }
+        ugcList.addListener(SWT.KeyDown, new Listener() {
+            @Override
+            public void handleEvent(Event e) {
+            	/*
+				 * DR15555 - handle the ugcList selection: 
+				 * - set the AOR background gray
+				 * - un-select the  AOR 
+				 * - set the AORDistance text to empty string
+				 */
+				AOR.setBackground(Display.getCurrent().getSystemColor(
+						SWT.COLOR_WIDGET_BACKGROUND));
+				AOR.setSelection(false);
+				AORDistance.setText("");
+            }
+        });
 
         // separator
         GridData fullLayoutData = new GridData(SWT.FILL, SWT.DEFAULT, true,
