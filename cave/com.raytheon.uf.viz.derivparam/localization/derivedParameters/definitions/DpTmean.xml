@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="DpTmean" name="Dew Point Temp mean" unit="K">
+<DerivedParameter abbreviation="DpTmean" name="Dewpoint Temp mean" unit="K">
 	<Method name="Alias" levels="Surface">
 		<Field abbreviation="DpTmean" level="2FHAG"/>
 	</Method>
