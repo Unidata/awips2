@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -48,23 +48,24 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
 
 /**
- * 
+ *
  * Site Aware Registry
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2010            rjpeter     Initial creation
- * Jul 31, 2012  #965      dgilling    Force ordering of sites in 
+ * Jul 31, 2012  #965      dgilling    Force ordering of sites in
  *                                     getActiveSites().
  * Nov 1, 2012   15417     ryu         Modified getActiveSites to include
  *                                     home site only if activated.
- * 
+ * Dec 11, 2012  14360     ryu         No printing stack trace on activation exception
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
  * @version 1.0
  */
@@ -100,7 +101,7 @@ public class SiteAwareRegistry {
 
     /**
      * registers/adds site activation listeners
-     * 
+     *
      * @param sa
      *            the listener to register / add to the list
      */
@@ -115,8 +116,8 @@ public class SiteAwareRegistry {
             try {
                 sa.activateSite(siteID);
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                // Stack trace is not printed per requirement for DR14360
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
             }
         }
 
@@ -134,7 +135,7 @@ public class SiteAwareRegistry {
 
     /**
      * get the set of strings for the active sites
-     * 
+     *
      * @return the requested array of Strings this is a string array to make it
      *         work with dwr frontend, most of the other stuff is Set<String>
      */
@@ -156,7 +157,7 @@ public class SiteAwareRegistry {
 
     /**
      * Checks to see if the given site is active
-     * 
+     *
      * @param site
      *            The site to check
      * @return True if the site is active, else false
@@ -182,7 +183,7 @@ public class SiteAwareRegistry {
 
     /**
      * activate the site specified in each listener
-     * 
+     *
      * @param siteID
      */
     public void activateSite(String siteID) {
@@ -203,7 +204,7 @@ public class SiteAwareRegistry {
 
     /**
      * deactivate the site specified in each listener
-     * 
+     *
      * @param siteID
      */
     public void deactivateSite(String siteID) {
@@ -223,7 +224,7 @@ public class SiteAwareRegistry {
 
     /**
      * cycle the site specified in each listener
-     * 
+     *
      * @param siteID
      */
     public void cycleSite(String siteID) {
