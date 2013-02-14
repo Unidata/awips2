@@ -23,8 +23,10 @@ import static com.raytheon.viz.gfe.product.StringUtil.stringJoin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +78,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 19 Feb 2010  4132       ryu         Product correction.
  * 30 Jul 2010  6719       jnjanga     Placed cursor at the end of inserted CTA
  * 26 Sep 2012  15423      ryu         Avoid resetting text when possible.
+ * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
  *
  * </pre>
  *
@@ -140,6 +143,10 @@ public class StyledTextComp extends Composite {
 
     private boolean highlight = Activator.getDefault().getPreferenceStore()
             .getBoolean("HighlightFramingCodes");
+
+    private boolean newProduct = false;
+
+    private Set<String> unlockCitySegs;
 
     private boolean autoWrapMode;
 
@@ -312,6 +319,7 @@ public class StyledTextComp extends Composite {
      *            The product text.
      */
     public void setProductText(String text) {
+        newProduct = true;
         textEditorST.setText(EMPTY);
         textEditorST.setStyleRange(null);
         parseProductText(text);
@@ -320,6 +328,7 @@ public class StyledTextComp extends Composite {
         lockText();
         findFramingCodes();
         textEditorST.getVerticalBar().setSelection(0);
+        newProduct = false;
     }
 
     /**
@@ -339,10 +348,8 @@ public class StyledTextComp extends Composite {
      * Lock the parts of the text that needs to be uneditable.
      */
     private void lockText() {
-        int strLen = 0;
         int startLine = 0;
         int endLine = 0;
-        StyleRange sr;
 
         // NOTE: For the endline variables we need to exclude the last line
         // in the for loop because the the parsed index is at line x
@@ -360,71 +367,70 @@ public class StyledTextComp extends Composite {
         if (ciBlockTip != null) {
             startLine = ciBlockTip.getStartIndex().x;
             endLine = ciBlockTip.getEndIndex().x;
-
-            for (int i = startLine; i < endLine; i++) {
-                // Add 1 to the length to account for the \n character
-                strLen += productTextArray[i].length() + 1;
-            }
-
-            sr = new StyleRange(textEditorST.getOffsetAtLine(startLine),
-                    strLen, lockColor, null);
-            textEditorST.setStyleRange(sr);
+            lockLines(productTextArray, startLine, endLine);
         }
 
         /*
          * Lock the mnd text.
          */
-        strLen = 0;
         HashMap<String, TextIndexPoints> mndMap = prodDataStruct.getMndMap();
         TextIndexPoints mndTip = mndMap.get("mnd");
 
         if (mndTip != null) {
             startLine = mndTip.getStartIndex().x;
             endLine = mndTip.getEndIndex().x;
-
-            for (int i = startLine; i < endLine; i++) {
-                // Add 1 to the length to account for the \n character
-                strLen += productTextArray[i].length() + 1;
-            }
-
-            sr = new StyleRange(textEditorST.getOffsetAtLine(startLine),
-                    strLen, lockColor, null);
-            textEditorST.setStyleRange(sr);
+            lockLines(productTextArray, startLine, endLine);
         }
 
         /*
          * Lock content in the UGC text.
          */
-        strLen = 0;
+        if (newProduct) {
+            unlockCitySegs = new HashSet<String>();
+        }
 
         List<SegmentData> segArray = prodDataStruct.getSegmentsArray();
-        TextIndexPoints segTip;
+        TextIndexPoints segTip, cityTip;
 
         for (SegmentData segmentData : segArray) {
             /*
              * Lock header.
              */
-            strLen = 0;
             segTip = segmentData.getSegmentDataIndexPoints("header");
+            cityTip = segmentData.getSegmentDataIndexPoints("city");
 
             if (segTip != null) {
                 startLine = segTip.getStartIndex().x;
                 endLine = segTip.getEndIndex().x;
 
-                for (int i = startLine; i < endLine; i++) {
-                    // Add 1 to the length to account for the \n character
-                    strLen += productTextArray[i].length() + 1;
+                String ugc = segTip.getText().substring(0, 6);
+
+                // Check if this is a segment for which the cities list
+                // should be unlocked. Cities list is unlocked for editing
+                // when framing codes are present.
+                if (newProduct) {
+                    if (cityTip != null &&
+                            cityTip.getText().indexOf("|*") > 0) {
+                        unlockCitySegs.add(ugc);
+                    }
                 }
 
-                sr = new StyleRange(textEditorST.getOffsetAtLine(startLine),
-                        strLen, lockColor, null);
-                textEditorST.setStyleRange(sr);
+                if (unlockCitySegs.contains(ugc)) {
+                    // Lock the segment header but skip the cities list.
+                    int cityStart = cityTip.getStartIndex().x;
+                    int cityEnd = cityTip.getEndIndex().x;
+
+                    lockLines(productTextArray, startLine, cityStart);
+                    lockLines(productTextArray, cityEnd, endLine);
+                }
+                else {
+                    lockLines(productTextArray, startLine, endLine);
+                }
             }
 
             /*
              * Lock term.
              */
-            strLen = 0;
             segTip = segmentData.getSegmentDataIndexPoints("term");
 
             if (segTip != null) {
@@ -447,16 +453,21 @@ public class StyledTextComp extends Composite {
                     ++endLineOffset;
                 }
 
-                for (int i = startLine; i < endLine + endLineOffset; i++) {
-                    // Add 1 to the length to account for the \n character
-                    strLen += productTextArray[i].length() + 1;
-                }
-
-                sr = new StyleRange(textEditorST.getOffsetAtLine(startLine),
-                        strLen, lockColor, null);
-                textEditorST.setStyleRange(sr);
+                lockLines(productTextArray, startLine, endLine + endLineOffset);
             }
         }
+    }
+
+    private void lockLines(String[] productTextArray, int startLine, int endLine) {
+        int strLen = 0;
+        for (int i = startLine; i < endLine; i++) {
+            // Add 1 to the length to account for the \n character
+            strLen += productTextArray[i].length() + 1;
+        }
+
+        StyleRange sr = new StyleRange(textEditorST.getOffsetAtLine(startLine),
+                strLen, lockColor, null);
+        textEditorST.setStyleRange(sr);
     }
 
     /**

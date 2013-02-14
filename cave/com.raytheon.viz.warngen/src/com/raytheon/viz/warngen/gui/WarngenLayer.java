@@ -144,7 +144,16 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     warningAction is neither null nor WarningAction.NEW, removed 
  *                                     some code from redrawBoxFromHatched().                                    
  * 11/15/2012   DR 15430   D. Friedman Use correct county/zone in createGeometryForWatches.
- * 
+ * 11/29/2012   DR 15571   Qinglu Lin  Called compuateCurrentStormCenter() in getStormLocations();
+ *                                     For CON, CAN, and COR, calculate Coordinate array, cc, specifically in 
+ *                                     getStormLocations().
+ * 12/10/2012   DR 15571   Qinglu Lin  Change warningAction's initialization from null to WarningAction.NEW, and add code
+ *                                     in getStormLocations() for handling case when warningAction equals WarningAction.NEW;
+ * 12/13/2012   DR 15559   Qinglu Lin  Added code to call WarngenUIState's adjustPolygon().
+ * 12/17/2012   DR 15571   Qinglu Lin  For hydro products,futurePoints is null. Resolved an issue caused by trying to get 
+ *                                     Coordinate[] from futurePoints.
+ * 12/18/2012   DR 15571   Qinglu Lin  Resolved coordinate issue in TML line caused by clicking Restart button.                                   
+ *                                     
  * </pre>
  * 
  * @author mschenke
@@ -229,7 +238,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private GeospatialDataList geoData = null;
 
-    private WarningAction warningAction = null;
+    private WarningAction warningAction = WarningAction.NEW;
 
     static {
         for (int i = 0; i < 128; i++) {
@@ -1600,8 +1609,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         .hatchWarningArea(state.getWarningPolygon(),
                                 state.getWarningArea());
                 if (hatched != null) {
-                    state.setWarningPolygon(hatched);
-                    state.snappedToArea = true;
+                    // DR 15559
+                    Coordinate[] coords = hatched.getCoordinates();
+                	PolygonUtil.round(coords, 2);
+                	state.adjustPolygon(coords);
+                	GeometryFactory gf = new GeometryFactory();
+                	LinearRing lr = gf.createLinearRing(coords);
+                	state.setWarningPolygon(gf.createPolygon(lr, null));
+                	updateWarnedAreas(true, true);
+                	issueRefresh();
+                	// End of DR 15559
+                	state.snappedToArea = true;
                 }
                 System.out.println("Time to createWarningPolygon: "
                         + (System.currentTimeMillis() - t0) + "ms");
@@ -1820,9 +1838,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Coordinate[] cc = null;
         switch (stormTrackState.displayType) {
         case POINT:
-            cc = new Coordinate[] { stormTrackState.futurePoints == null ? stormTrackState.dragMePoint
-                    .getCoordinate() : stormTrackState.futurePoints[0].coord };
-            break;
+        	cc = new Coordinate[] { stormTrackState.futurePoints == null ? stormTrackState.dragMePoint
+        			.getCoordinate() : stormTrackState.futurePoints[0].coord };
+        	if (warningAction == null || warningAction == WarningAction.NEW || warningAction == WarningAction.CON 
+        			|| warningAction == WarningAction.CAN) {
+        		Coordinate coord = new Coordinate(stormTrackState.dragMePoint.getCoordinate());
+        		DataTime currentDataTime = new DataTime(SimulatedTime.getSystemTime().getTime());
+        		if (stormTrackState.compuateCurrentStormCenter(coord,currentDataTime))
+        			cc = new Coordinate[] {coord};
+        	}
+        	break;
         case POLY:
             Coordinate[] polyPoints = stormTrackState.dragMeLine
                     .getCoordinates();
