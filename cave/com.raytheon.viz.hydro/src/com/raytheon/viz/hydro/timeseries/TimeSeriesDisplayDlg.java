@@ -21,10 +21,8 @@ package com.raytheon.viz.hydro.timeseries;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -89,7 +87,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     printable area of the page.
  * 04 Mar 2011 7644      lbousaid      fixed Zoom in feature       
  * 30 May 2012 14967     wkwock        fix insert deleted data to rejecteddata table    
- * 23 Jul 2012 15195     mpduff        Fix dates for displaying groups                   
+ * 23 Jul 2012 15195     mpduff        Fix dates for displaying groups
+ * 06 Dec 2012 15066     wkwock        Fix "ctrl+r" not work in group mode                   
  * 
  * </pre>
  * 
@@ -973,7 +972,10 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             	    setZoomAction(false);
             	    setSelectZoom(false);
                     reset = true;
-                    displayCanvas.redraw();
+                    for (TimeSeriesDisplayCanvas dc :canvasList){
+                    	dc.setZoomed(false);
+                    	dc.redraw();
+                    }
             	} else {
             		displayCanvas.resetTS();
             	}
