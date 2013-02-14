@@ -159,6 +159,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         		}
         		else {
         			elSelected = drawingLayer.getNearestElement(click, labeledLine);
+        			firstDown = loc;
         		}
         		
         		return false;
@@ -178,16 +179,23 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
             		}
             		else {
             			//add line to labeled line collection
-            			LabeledLine newll = def.createLabeledLine( labeledLine.getPgenCategory(), labeledLine.getPgenType(), 
-            					(IAttribute)attrDlg, points, labeledLine.copy(), drawingLayer.getActiveLayer());
-            			drawingLayer.replaceElement(labeledLine, newll);
+            	//		LabeledLine newll = def.createLabeledLine( labeledLine.getPgenCategory(), labeledLine.getPgenType(), 
+            	//				(IAttribute)attrDlg, points, labeledLine.copy(), drawingLayer.getActiveLayer());
+            			
+            			LabeledLine newll = def.createLabeledLine( pgenCategory, PgenLabeledLineModifyTool.this.pgenType, (IAttribute)attrDlg,
+    							points, null, drawingLayer.getActiveLayer());
+    					
+            	//		drawingLayer.replaceElement(labeledLine, newll);
+            			drawingLayer.addElement( newll );
             			labeledLine = newll;
 
             			drawingLayer.removeGhostLine();
             			points.clear();
             			
             			//re-set selected
-            			resetSelected();
+            	//		resetSelected();
+            			
+            			drawingLayer.setSelected(newll);
 
             			mapEditor.refresh();
 
@@ -275,7 +283,15 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         		if ( loc == null || elSelected == null ) return true;
         		
             	//make sure the click is close enough to the element
-            	if ( drawingLayer.getDistance(elSelected, loc) > 30 && !ptSelected2 ) return false;
+    			if ( drawingLayer.getDistance(elSelected, loc) > 30 && !ptSelected2 ){
+
+    				if ( firstDown != null && drawingLayer.getDistance(elSelected, firstDown) < 30  ){
+    					firstDown = null;
+    				}
+    				else {
+    					return false;
+    				}
+    			}
         		
         		ptSelected2 = true;
         		if ( elSelected != null ){
@@ -372,17 +388,22 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
-        	
+    		firstDown = null;
         	if (  !isResourceEditable() || shiftDown || simulate ) return false;
         	// Finish the editing
     		if (button == 1 && drawingLayer != null ){
     			
+   		    	LabeledLine mergedLine = null;
+
     	       	if ( elSelected != null){
     	       		 LabeledLine newll = labeledLine.copy();
     	       		 
     	       		 if ( elSelected instanceof SinglePointElement ){
     	       			 //if the label is dropped on another label, merge them to one label.
-    	       			 PgenUtil.mergeLabels( newll, ((SinglePointElement)elSelected).getLocation(), mapEditor);
+    	       			 if ( elSelected.getParent() instanceof Label ){
+
+    	       				mergedLine = PgenUtil.mergeLabels( newll, newll.getLabelAt(((SinglePointElement)elSelected).getLocation()), ((SinglePointElement)elSelected).getLocation(), mapEditor,drawingLayer);
+    	       			 }
     	       		 }
 
     	       		 // re-set label
@@ -429,7 +450,21 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
             			
             		}
             		
+            		if ( mergedLine != null ){
+            			
+            			ArrayList<AbstractDrawableComponent> old = new ArrayList<AbstractDrawableComponent>();
+            			old.add( mergedLine);
+            			old.add( labeledLine);
+            			
+            			ArrayList<AbstractDrawableComponent> newLines = new ArrayList<AbstractDrawableComponent>();
+            			newLines.add(newll);
+
+            			drawingLayer.replaceElements(old, newLines);
+            		}
+            		else {
             		drawingLayer.replaceElement(labeledLine, newll);
+            		}
+            		
             		labeledLine = newll;
 
             		if((labeledLine instanceof Ccfp) && labeledLine.getLabels()!=null && labeledLine.getLabels().size()>0){

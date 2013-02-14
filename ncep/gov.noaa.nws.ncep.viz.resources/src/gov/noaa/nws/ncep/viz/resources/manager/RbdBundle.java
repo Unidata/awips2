@@ -19,12 +19,16 @@
  ******************************************************************************************/
 package gov.noaa.nws.ncep.viz.resources.manager;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.ui.display.PaneID;
@@ -69,6 +73,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  *    06/13/12       #817      Greg Hull   add resolveDominantResource()  
  *    06/20/12       #647      Greg Hull   add clone()
  *    06/29/12       #568      Greg Hull   implement Comparable
+ *    11/25/12       #630      Greg Hull   getDefaultRBD()
  *
  * </pre>
  * 
@@ -105,6 +110,10 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
     @XmlElementWrapper(name = "displayList")
     protected NCMapRenderableDisplay[] displays;
 
+    // if created from a loaded display, this it the display id. 
+    // 
+    protected int displayId=0;
+    
     @XmlAttribute
     protected String rbdName;
 
@@ -211,7 +220,9 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
 			SerializationUtil.jaxbMarshalToXmlFile( rbdBndl, 
 									tempRbdFile.getAbsolutePath() );
 			
-			RbdBundle clonedRbd = RbdBundle.unmarshalRBD( tempRbdFile, null );
+			RbdBundle clonedRbd = RbdBundle.getRbd( tempRbdFile );
+			
+			clonedRbd.displayId = rbdBndl.displayId; // not serialized
 			
 			clonedRbd.setTimeMatcher( tm );
     		
@@ -219,6 +230,9 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
 			
 			tempRbdFile.delete();
 
+			// set the RbdName inside the renderable display panes
+			clonedRbd.setRbdName( clonedRbd.getRbdName() );
+			
     		return clonedRbd;
     		
 		} catch (SerializationException e) {
@@ -246,8 +260,10 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
         paneLayout = ncEditor.getPaneLayout();
         selectedPaneId = new PaneID(0, 0);
 
-        rbdName = new String(NmapUiUtils.getNcDisplayNameWithoutID(ncEditor
-                .getDisplayName()));
+        displayId = NmapUiUtils.getNcDisplayID( ncEditor.getDisplayName() );
+        
+        rbdName = new String( NmapUiUtils.
+        		getNcDisplayNameWithoutID( ncEditor.getDisplayName() ));
 
         // NCDisplayPane[] dispPanes = (NCDisplayPane[])
         // ncEditor.getDisplayPanes();
@@ -266,6 +282,7 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
                         .getDisplayPane(new PaneID(r, c));
                 displays[paneIndx] = (NCMapRenderableDisplay) pane
                         .getRenderableDisplay();
+                
             }
         }
 
@@ -287,6 +304,24 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
      */
     public void setRbdName(String rbdName) {
         this.rbdName = rbdName;
+        
+        if( displays == null ) {
+        	return;
+        }
+        
+        for( NCMapRenderableDisplay display : displays ) {
+        	if( display == null ) 
+        		continue; 
+        	
+        	String idStr = (displayId == 0 ? "" : Integer.toString( displayId )+"-" );
+        	
+        	if( paneLayout.getNumberOfPanes() > 1 ) {
+        		display.setPaneName( idStr + getRbdName()+"("+display.getPaneId()+")" );
+        	}
+        	else {
+        		display.setPaneName( idStr + getRbdName() );
+        	}
+        }
     }
 
     public String toXML() throws VizException {
@@ -356,6 +391,45 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
         this.displays = displays;
     }
 
+    
+    public static RbdBundle getDefaultRBD() throws VizException{
+    	    	
+    	File rbdFile = NcPathManager.getInstance().getStaticFile( 
+		         NcPathConstants.DFLT_RBD );
+    	
+    	try {
+    		RbdBundle dfltRbd = RbdBundle.unmarshalRBD( rbdFile, null );
+            
+            // shouldn't need this but just in case the user creates a default with
+            // real resources in it
+    		dfltRbd.resolveLatestCycleTimes();
+    		
+    		return clone( dfltRbd );
+    	}
+    	catch ( Exception ve ) {
+    		throw new VizException( "Error getting default RBD: " + ve.getMessage());
+    	}  
+    }
+
+    public static RbdBundle getRbd( File rbdFile ) throws VizException {
+    	RbdBundle rbd = unmarshalRBD( rbdFile, null );
+    	
+    	// check for any required data that may be null or not set.
+    	// This shouldn't happen except possibly from an out of date RBD. (ie older version)
+    	//
+    	for( NCMapRenderableDisplay d : rbd.displays ) {
+    		if( d.getInitialArea() == null ) {
+    			PredefinedArea dfltArea = PredefinedAreasMngr.getPredefinedArea( NmapCommon.getDefaultMap() );
+    			d.setInitialArea( dfltArea );
+    		}
+    	}
+    	
+    	// set the RbdName inside the renderable display panes
+    	rbd.setRbdName( rbd.getRbdName() );
+    	
+    	return rbd;
+    }
+
     /**
      * Unmarshal a bundle
      * 
@@ -370,7 +444,7 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
      * 
      * @throws VizException
      */
-    public static RbdBundle unmarshalRBD(File fileName,
+    private static RbdBundle unmarshalRBD(File fileName,
             Map<String, String> variables) throws VizException {
         String s = null;
         try {
@@ -402,7 +476,7 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
      * 
      * @throws VizException
      */
-    public static RbdBundle unmarshalRBD(String bundleStr,
+    private static RbdBundle unmarshalRBD(String bundleStr,
             Map<String, String> variables ) throws VizException {
 
         try {
@@ -572,6 +646,25 @@ public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
 
     }
     
+    public void resolveAreaProvider() {
+    	// if the initial area provider name is not the same area as is stored in the 
+    	// renderable displays then create the areaProvider by either getting the PredefinedArea
+    	// or by looking up the area-capable resource in the list of resources.
+    	
+//    	for( NCMapRenderableDisplay disp : displays ) {
+//    		if( )
+//            ResourceList rl = disp.getDescriptor().getResourceList();
+//            for (int r = 0; r < rl.size(); r++) {
+//                ResourcePair rp = rl.get(r);
+//                if (rp.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
+//                    AbstractNatlCntrsRequestableResourceData rdata = (AbstractNatlCntrsRequestableResourceData) rp
+//                            .getResourceData();
+//
+//                }
+//            }
+//        }
+
+    }
 
     // if the timeline has not been created then
     // get the dominant resource and initialize the timeMatcher

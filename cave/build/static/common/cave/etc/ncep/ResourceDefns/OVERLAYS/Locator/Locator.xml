@@ -4,8 +4,12 @@
     <resourceDefnName>Locator</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters> 
+# default fontSize, fontName and color which may be overridden in an attrSet.
+    fontSize=14
+    fontName=Monospace
+    color=RGB {255, 255, 255}
  </resourceParameters>
-    <filterLabels></filterLabels>
+    <filterLabels>Misc</filterLabels>
     <rscImplementation>Locator</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

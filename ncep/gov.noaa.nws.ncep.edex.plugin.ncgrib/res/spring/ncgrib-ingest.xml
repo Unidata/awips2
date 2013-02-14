@@ -33,13 +33,29 @@
 		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="ncgrib-camel"/>
   	</bean> 
-	
+  	
+  	<bean id="ncgribFilenameProcessor" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribFileNameProcessor" />
+  	
 	<camelContext id="ncgrib-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
 		<endpoint id="ncgribFileEndpoint" uri="file:${edex.home}/data/sbn/ncgrib?noop=true&amp;idempotent=false" />
+		
+		<!-- Begin Ncgrib-grid Routes -->
+		<endpoint id="ncgribGridFileEndpoint" uri="file:${edex.home}/data/sbn/ncgrib-grid?noop=true&amp;idempotent=false" />
 
+		<route id="ncgribGridFileConsumerRoute">
+	 		<from ref="ncgribGridFileEndpoint" />
+	 			<bean ref="fileToString" />
+	 			<bean ref="ncgribFilenameProcessor" />
+	 			<setHeader headerName="pluginName">
+	 				<constant>grid</constant> 
+				</setHeader>
+				<to uri="ingest-grib:queue:Ingest.Grib" />
+		</route>
+		<!-- End Ncgrib-grid Routes -->
+		
 		<!-- Begin Ncgrib Routes -->
 		<route id="ncgribFileConsumerRoute">
 			<from ref="ncgribFileEndpoint" />

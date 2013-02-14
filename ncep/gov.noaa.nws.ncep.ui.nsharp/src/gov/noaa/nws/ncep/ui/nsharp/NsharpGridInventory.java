@@ -47,7 +47,7 @@ public class NsharpGridInventory {
 		 * will have to change as well.
 		 */
 		inventoryParamNames.add( "pluginName" );
-		inventoryParamNames.add( "modelInfo.modelName" );
+		inventoryParamNames.add( "info.datasetId" );
 		inventoryParamNames.add( "dataTime.refTime" );
 		//inventoryParamNames.add( "dataTime.fcstTime");
 	}
@@ -79,7 +79,7 @@ public class NsharpGridInventory {
 
 			HashMap<String, RequestConstraint> baseConstraints = 
 									new HashMap<String,RequestConstraint>();
-			baseConstraints.put( "pluginName", new RequestConstraint( "ncgrib" ) );
+			baseConstraints.put( "pluginName", new RequestConstraint( "grid" ) );
 			
 			//inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );			
 	    	NcInventoryDefinition invDescr = 

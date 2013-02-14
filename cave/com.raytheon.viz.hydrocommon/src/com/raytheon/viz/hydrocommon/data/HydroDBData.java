@@ -36,6 +36,8 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Nov 18, 2008	1697		askripsky	Initial creation
  * Dec 2, 2008  1744        askripsky   Added getDBString methods
  * Dec 17, 2008 1782        grichard    Added getDBString methods
+ * Jan 03, 2013 15520       lbousaidi   Added getDBStringNoQuote method
+
  * 
  * </pre>
  * 
@@ -116,4 +118,16 @@ public class HydroDBData {
     public String getDBString(String str) {
         return (str != null) ? "'" + str + "'" : "null";
     }
+    
+    /**
+     * Returns "null" if the value is set to null, else returns the value
+     * Doesn't add extra  single quotes around the string
+     * @param str
+     * @return
+     */
+
+    public String getDBStringNoQuote(String str) {
+        return (str != null) ?  str  : "null";
+    }
+
 }

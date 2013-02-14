@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:amq="http://activemq.apache.org/schema/core"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!-- Stores beans that are used in bandwidth-datadelivery.xml, but that 
+        have different implementations between production code and test code -->
+    <bean
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
+        <!-- This bean version is used to set the EDEX instance of BandwidthManager -->
+        <constructor-arg ref="bandwidthManager" />
+    </bean>
+    
+    <bean id="bandwidthContextFactory"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
+        <!-- Used as the context for creating the BandwidthManager -->
+    </bean>
+
+    <util:map id="retrievalAgents">
+        <entry key="Retrievals-1" value-ref="subscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-2" value-ref="subscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-3" value-ref="subscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-4" value-ref="subscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-5" value-ref="subscriptionRetrievalAgentPrototype" />
+    </util:map>
+
+    <camelContext id="BandwidthManager-context"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="bandwidthManagerProcessWork">
+            <from
+                uri="jms-generic:queue:matureSubscriptions?destinationResolver=#qpidDurableResolver" />
+            <doTry>
+                <pipeline>
+                    <bean ref="serializationUtil" method="transformFromThrift" />
+                    <bean ref="BandwidthManagerProcessor" method="process" />
+                    <bean ref="BandwidthManagerRetrieval" method="generateRetrieval" />
+
+                    <!-- notify retrieval threads, if data delivery made 
+                        into cluster this should move to topic post -->
+                    <to uri="directvm:notifyRetrieval" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:BandwidthManagerProcess?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+</beans>

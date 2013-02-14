@@ -51,7 +51,7 @@ public class PrecipRateDataDefinition extends
     public PrecipRateDataDefinition() {
         productName = "preciprate";
         displayName = "Precipitation Rate";
-        order = new String[] { "pluginName", "icao" };
+        order = new String[] { "icao" };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());

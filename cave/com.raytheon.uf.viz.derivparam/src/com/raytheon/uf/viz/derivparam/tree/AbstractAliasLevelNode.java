@@ -20,15 +20,15 @@
 package com.raytheon.uf.viz.derivparam.tree;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -50,47 +50,21 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * @author bsteffen
  * @version 1.0
  */
-public abstract class AbstractAliasLevelNode extends AbstractDerivedLevelNode {
+public abstract class AbstractAliasLevelNode extends AbstractDerivedDataNode {
 
-    protected AbstractRequestableLevelNode sourceNode;
+    protected AbstractRequestableNode sourceNode;
 
     public AbstractAliasLevelNode(AbstractAliasLevelNode that) {
         super(that);
         this.sourceNode = that.sourceNode;
     }
 
-    public AbstractAliasLevelNode(AbstractRequestableLevelNode sourceNode,
+    public AbstractAliasLevelNode(AbstractRequestableNode sourceNode,
             DerivParamDesc desc, DerivParamMethod method, String modelName,
             Level level) {
         super(sourceNode, desc, method, modelName);
         this.sourceNode = sourceNode;
         setLevel(level);
-    }
-
-    @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
-            throws VizException {
-        return sourceNode.timeQuery(originalRequest, latestOnly, cache,
-                latestOnlyCache);
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        return sourceNode.isTimeAgnostic();
-    }
-
-    @Override
-    public Map<String, RequestConstraint> getRequestConstraintMap() {
-        // TODO Auto-generated method stub
-        return sourceNode.getRequestConstraintMap();
-    }
-
-    @Override
-    public boolean hasRequestConstraints() {
-        return sourceNode.hasRequestConstraints();
     }
 
     @Override
@@ -132,6 +106,21 @@ public abstract class AbstractAliasLevelNode extends AbstractDerivedLevelNode {
         } else if (!sourceNode.equals(other.sourceNode))
             return false;
         return true;
+    }
+
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
+            throws VizException {
+        return availability.get(sourceNode);
+    }
+
+    @Override
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> times, AvailabilityContainer container) {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        result.put(sourceNode, times);
+        return result;
     }
 
 }

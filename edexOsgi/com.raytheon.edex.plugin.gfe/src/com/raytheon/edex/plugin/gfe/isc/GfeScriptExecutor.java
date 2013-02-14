@@ -164,7 +164,7 @@ public class GfeScriptExecutor {
             }
 
             String fileContents = getFileContents(xmlFileName);
-            Pattern pat = Pattern.compile("<site>([A-Z]{3})</site>");
+            Pattern pat = Pattern.compile("<site>(.*?)</site>");
             Matcher matcher = pat.matcher(fileContents);
 
             while (matcher.find()) {
