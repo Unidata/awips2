@@ -4,6 +4,7 @@
 #####         Qinglu Lin    07-31-2012 DR 15217. Use roundAndPad for movement direction in DEG.
 #####         Qinglu Lin    08-13-2012 DR 14493. Use corToNewMarker and corEventtime.
 #####         D. Friedman   11-09-2012 DR 15430. Rework included watches. 
+#####         QINGLU LIN    12-27-2012 DR 15594. Added $lock to headlineLocList.
 ####################################################################################################
 Mile Marker Test Code                                     
 macro "mmarkers" use (called out of VM_global_library.vm):
@@ -419,7 +420,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 ## useCentralxxx = boolean to use the word CENTRAL in the County or State phrase
 ## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
 ##################################################################
-#macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState)
+#macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState $lock)
 #set($countyCount = 0)
 #set($countyCounter = 0)
 #set($itemCount = 0)
@@ -490,30 +491,58 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #if(${prevPartOfCounty.size()} > 0)
 #areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${prevCounty}</L>##
+#else
+${prevCounty}##
+#end
 #if(${prevCountyType} != ${area.areaNotation} || ${useStates} == true)
+#if(${lock} == true)
 <L> ${prevCountyType}</L>##
+#else
+ ${prevCountyType}##
+#end
 #end
 #if(${useStates} == true)
+#if(${lock} == true)
  IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
+#else
+ IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
+#end
 #end
 #else
  AND ##
 #if(${prevPartOfCounty.size()} > 0)
 #areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${prevCounty}</L>##
+#else
+${prevCounty}##
+#end
 #if(${prevCountyType} != ${area.areaNotation} || ${useStates} == true)
 #if(${countyCount} > 1)
 #if(${prevCountiesType})
+#if(${lock} == true)
 <L> ${prevCountiesType}</L>##
+#else
+ ${prevCountiesType}##
+#end
 #end
 #elseif(${prevCountyType})
+#if(${lock} == true)
 <L> ${prevCountyType}</L>##
+#else
+ ${prevCountyType}##
+#end
 #end
 #end
 #if(${useStates} == true)
+#if(${lock} == true)
  IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
+#else
+ IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
+#end
 #end 
 #end
 #set($countyCount = 1)
@@ -526,34 +555,70 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #if(${prevPartOfCounty.size()} > 0)
 #areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${prevCounty}</L>##
+#else
+${prevCounty}##
+#end
 #if(${prevCountyType} != ${area.areaNotation} || (${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
 #if(${countyCount} > 1)
 #if(${prevCountiesType})
+#if(${lock} == true)
 <L> ${prevCountiesType}</L>##
+#else
+ ${prevCountiesType}##
+#end
 #end
 #elseif(${prevCountyType})
+#if(${lock} == true)
 <L> ${prevCountyType}</L>##
+#else
+ ${prevCountyType}##
+#end
 #end
 #end
 #if((${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
+#if(${lock} == true)
  IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
+#else
+ IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
+#end
 #end
  AND ##
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${area.name}##
+#else
+${area.name}##
+#end
 #if(${countyCount} >= 1)
 #if(${area.areasNotation})
+#if(${lock} == true)
 <L> ${area.areasNotation}</L>##
+#else
+ ${area.areasNotation}##
+#end
 #end
 #elseif(${area.areaNotation})
+#if(${lock} == true)
 <L> ${area.areaNotation}</L>##
+#else
+ ${area.areaNotation}##
 #end
+#end
+#if(${lock} == true)
 </L>##
+#else
+##
+#end
 #if(${useStates} == true)
+#if(${lock} == true)
  IN <L>#areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}</L>##
+#else
+ IN #areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}##
+#end
 #end
 #else
 #if(${countyCounter} > 1)
@@ -565,9 +630,17 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${area.name} ${area.areaNotation}</L>##
+#else
+${area.name} ${area.areaNotation}##
+#end
 #if(${useStates} == true)
+#if(${lock} == true)
  IN <L>#areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}</L>##
+#else
+ IN #areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}##
+#end
 #end		
 #end
 #set($countyCount = 0)
@@ -581,7 +654,11 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #if(${prevPartOfCounty.size()} > 0)
 #areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${prevCounty}</L>##
+#else
+${prevCounty}##
+#end
 #end
 #set($countyCount= $countyCount + 1)
 #end
@@ -613,26 +690,50 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #if(${prevPartOfCounty})
 #areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
 #end
+#if(${lock} == true)
 <L>${prevCounty} ${prevCountyType}</L>##
+#else
+${prevCounty} ${prevCountyType}##
+#end
 #if(${useStates} == true)
+#if(${lock} == true)
  IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
+#else
+ IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
+#end
 #end
 #end
 #if (${indepCityCount} == ${numIndepCity})
 #if (${indepCityCount} == 1)
 ### COUNTIES + 1 INDEPENDENT CITY
 #if (${numCounties} > ${numIndepCity})
+#if(${lock} == true)
  AND THE <L>${area.name}</L>##
+#else
+ AND THE ${area.name}##
+#end
 ### NO COUNTIES AND ONE INDEPENDENT CITY
 #else
+#if(${lock} == true)
 THE <L>${area.name}</L>##
+#else
+THE ${area.name}##
+#end
 #end
 #else
 ## MULTIPLE INDEPENDENT CITIES...LAST ITEM IN THE LIST
+#if(${lock} == true)
  AND THE <L>${area.name}</L>##
+#else
+ AND THE ${area.name}##
+#end
 #end
 #else
+#if(${lock} == true)
 ...THE <L>${area.name}</L>##
+#else
+...THE ${area.name}##
+#end
 #end
 #end
 #end
@@ -750,7 +851,7 @@ ${location.name}##
 ${otherLead} WILL REMAIN OVER MAINLY OPEN WATERS.
 #else
 ${otherLead} WILL REMAIN OVER MAINLY RURAL AREAS OF ##
-#headlineLocList(${areas} true true true false).##
+#headlineLocList(${areas} true true true false false).##
 ###NOW SEARCH FOR OTHER POINTS (PRESUMABLY 3s) AND LIST THEM HERE
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
 #set($numOtherPoints = ${list.size($thirdTier)})
@@ -879,7 +980,7 @@ AND ${strOutput}
 ${ruralPhrase} WILL REMAIN OVER MAINLY OPEN WATERS.
 #else
 ## NO MAJOR POINTS FOUND. LIST RURAL AREAS
-${ruralPhrase} WILL REMAIN OVER MAINLY RURAL AREAS OF #headlineLocList(${areas} true true true false).##
+${ruralPhrase} WILL REMAIN OVER MAINLY RURAL AREAS OF #headlineLocList(${areas} true true true false false).##
 #set($numMinorPoints = ${list.size($otherCityList)})
 #if(${numMinorPoints} == 1)
 ..INCLUDING THE COMMUNITY OF ##

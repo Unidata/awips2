@@ -3,7 +3,7 @@
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
 ! J. Carr/HPC            1/99   Changed cint of thickness to 30 from 60
 ! J. Carr/HPC            7/99   Changed skip to 0. Changed contur to 2. Changed sm5s to sm9s.
 ! T. Lee/GSC		11/00	Added 543 dam to thickness contour
@@ -11,8 +11,9 @@
 GLEVEL =  500:1000      !500:1000      !0
 GVCORD =  pres          !pres          !none
 SKIP   =    0
+FILTER=y
 SCALE  =   -1            !-1            !0
-GDPFUN =  sm9s(ldf(hght)!sm9s(ldf(hght)!sm9s(mul(1e-2,pmsl))
+GDPFUN =  sm9s(ldf(hght)!sm9s(ldf(hght)!sm9s(pmsl)
 TYPE   =    c
 CINT   =    3/0/540       !3/543/999     !4
 LINE   =    6/3/2         !2/3/2         !20//3
@@ -26,4 +27,3 @@ TITLE  =   5/-1/~ PMSL, 1000-500 MB THICKNESS!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

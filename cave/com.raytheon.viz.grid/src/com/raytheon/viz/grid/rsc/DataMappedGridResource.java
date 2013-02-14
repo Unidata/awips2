@@ -21,24 +21,19 @@ package com.raytheon.viz.grid.rsc;
 
 import java.util.Map;
 
-import javax.measure.converter.UnitConverter;
-
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.datum.PixelInCell;
-
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
-import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.viz.grid.rsc.general.D2DGridResource;
+import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
 /**
- * TODO Add Description
+ * Grid Resource that does not do simple mapping from data to colors but has an
+ * overly complex mapping, usually for something where pixel values are actually
+ * enums.
  * 
  * <pre>
  * 
@@ -54,74 +49,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class DataMappedGridResource extends GridResource {
-
-    private class NcwfMemoryBasedTileSet extends GridMemoryBasedTileSet {
-
-        public NcwfMemoryBasedTileSet(String group, String dataset,
-                AbstractTileSet sharedGeometryTileset, UnitConverter converter,
-                GribRecord pdo) throws VizException {
-            super(group, dataset, sharedGeometryTileset, converter, pdo);
-        }
-
-        public NcwfMemoryBasedTileSet(String dataURI, String string,
-                int numLevels, int i, GridGeometry2D gridGeometry2D,
-                GridResource gridResource, UnitConverter conversion,
-                PixelInCell cellCorner, GribRecord record, String viewType)
-                throws VizException {
-            super(dataURI, string, numLevels, i, gridGeometry2D, gridResource,
-                    conversion, cellCorner, record, viewType);
-        }
-
-        @Override
-        protected void preloadDataObject(int level) throws StorageException {
-            super.preloadDataObject(level);
-            float[] data = new float[((float[]) loadedData[0]).length];
-            for (int i = 0; i < data.length; i++) {
-                data[i] = ((float[]) loadedData[0])[i];
-                if (Float.isNaN(data[i])) {
-                    data[i] = Float.NaN;
-                }
-            }
-
-            loadedData[0] = data; // transformNCWFData(data);
-        }
-    }
+public class DataMappedGridResource extends D2DGridResource {
 
     public DataMappedGridResource(GridResourceData data, LoadProperties props) {
         super(data, props);
-    }
-
-    private float[] transformNCWFData(float[] data) {
-        ColorMapParameters params = getCapability(ColorMapCapability.class)
-                .getColorMapParameters();
-        if (params == null || params.getImageToDisplayConverter() == null) {
-            return data;
-        }
-        UnitConverter converter = params.getDataToImageConverter();
-        if (converter == null) {
-            return data;
-        }
-        float[] newData = new float[data.length];
-        for (int i = 0; i < newData.length; i++) {
-            newData[i] = (float) converter.convert(data[i]);
-        }
-        return newData;
-    }
-
-    @Override
-    public NcwfMemoryBasedTileSet createTile(GribRecord record,
-            GridMemoryBasedTileSet commonTile) throws VizException {
-        if (commonTile != null) {
-            return new NcwfMemoryBasedTileSet(record.getDataURI(), "Data",
-                    commonTile, conversion, record);
-        }
-
-        GridGeometry2D gridGeometry2D = record.getModelInfo().getLocation()
-                .getGridGeometry();
-        return new NcwfMemoryBasedTileSet(record.getDataURI(), "Data",
-                numLevels, 256, gridGeometry2D, this, conversion,
-                PixelInCell.CELL_CORNER, record, viewType);
     }
 
     @Override
@@ -136,37 +67,19 @@ public class DataMappedGridResource extends GridResource {
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
 
-        Map<Float, GridMemoryBasedTileSet> map = tileSet.get(descriptor
-                .getFramesInfo().getTimeForResource(this));
+        Map<String, Object> map = interrogate(coord);
         if (map == null) {
-            return "No Data";
+            return "NO DATA";
         }
-
-        GridMemoryBasedTileSet tile = map.get(displayedLevel);
-        if (tile == null) {
-            tile = map.values().iterator().next();
-        }
-
-        if (tile == null) {
-            return "No Data";
-        }
-
-        Coordinate latLon;
-        try {
-            latLon = coord.asLatLon();
-        } catch (Exception e) {
-            throw new VizException("Error transforming coordinate to lat/lon",
-                    e);
-        }
-
-        // get raw image pixels (0-255)
-        Double val = tile.interrogate(latLon, true);
+        Double val = ((Float) map.get(INTERROGATE_VALUE)).doubleValue();
         if (val.isNaN() || val <= -9999) {
             return "No Data";
         }
 
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
+
+        val = params.getDisplayToImageConverter().convert(val);
 
         for (DataMappingEntry entry : params.getDataMapping().getEntries()) {
             double pixelValue = entry.getPixelValue();
@@ -182,14 +95,13 @@ public class DataMappedGridResource extends GridResource {
         }
 
         return ((DataMappedGridResourceData) this.getResourceData())
-                .getSampleFormat().format(val) + this.units;
+                .getSampleFormat().format(val) + map.get(INTERROGATE_UNIT);
     }
 
     @Override
-    protected ColorMapParameters initColorMapParameters(GribRecord record)
+    protected ColorMapParameters createColorMapParameters(GeneralGridData data)
             throws VizException {
-        ColorMapParameters params = super.initColorMapParameters(record);
-        // Always have min/max of 0-255 for data mapped
+        ColorMapParameters params = super.createColorMapParameters(data);
         params.setColorMapMin(0.0f);
         params.setColorMapMax(255.0f);
         return params;

@@ -143,15 +143,23 @@ public interface IDescriptor extends IResourceGroup {
         public DataTime getTimeForResource(AbstractVizResource<?, ?> rsc,
                 int idx) {
             DataTime[] dt = timeMap.get(rsc);
-            if (dt == null
-                    || dt.length <= idx
+            return getFrame(dt, idx);
+        }
+
+        public DataTime getCurrentFrame() {
+            return getFrame(frameTimes, frameIndex);
+        }
+
+        private DataTime getFrame(DataTime[] frames, int idx) {
+            if (frames == null
+                    || frames.length <= idx
                     || idx < 0
                     || (frameTimes != null && frameTimes.length > idx
                             && frameTimes[idx] != null && !frameTimes[idx]
                             .isVisible())) {
                 return null;
             }
-            return dt[idx];
+            return frames[idx];
         }
     }
 
@@ -376,6 +384,13 @@ public interface IDescriptor extends IResourceGroup {
      *            the timeMatcher to set
      */
     public void setTimeMatcher(AbstractTimeMatcher timeMatcher);
+
+    /**
+     * Re-does time matching for the descriptor
+     * 
+     * @throws VizException
+     */
+    public void redoTimeMatching() throws VizException;
 
     /**
      * Synchronize time matching with the other descriptor

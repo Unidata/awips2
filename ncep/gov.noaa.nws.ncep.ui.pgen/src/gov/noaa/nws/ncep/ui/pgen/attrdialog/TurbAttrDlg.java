@@ -23,8 +23,6 @@ import java.awt.Color;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -81,6 +79,10 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
     //Cloud line color
     protected Label colorLbl;
     protected ColorButtonSelector cs;
+    
+    //Closed line check box
+    protected Button closedChkBox;
+    private Button openCloseBtn;
     
     //Add-Line button
     private Button addLineBtn;
@@ -198,10 +200,38 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
         createColorAttr(pane1);
 
         /*
-         * closed check box
+         * symbol menu
          */
         createSymbolAttr(pane1);
         
+        /*
+         * closed check box
+         */
+        createClosedAttr(pane1);
+        
+		//'Open/close' button
+		openCloseBtn = new Button(pane1, SWT.TOGGLE);
+		openCloseBtn.setText("Open/Close");
+		openCloseBtn.setLayoutData(new GridData(120,30));
+		openCloseBtn.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+					if ( ((Button)e.widget).getSelection() ){
+						turbTool.setDeleteHandler(true, false, true);
+						addLineBtn.setSelection(false);
+						addLabelBtn.setSelection(false);
+	//					if ( labelDlg != null ) labelDlg.close();
+						delLineBtn.setSelection(false);
+						delLabelBtn.setSelection(false);
+	//					flipBtn.setSelection(false);
+					}
+					else {
+						turbTool.resetMouseHandler();
+					}
+					
+			}
+		});		
+                
 		//'Add Line' button
 		addLineBtn = new Button(pane1, SWT.TOGGLE);
 		addLineBtn.setText("Add Line");
@@ -216,6 +246,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 					addLabelBtn.setSelection(false);
 					delLineBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
+					openCloseBtn.setSelection(false);
 				}
 				else {
 //					turbTool.setAddLineMode(false);
@@ -237,6 +268,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 						addLineBtn.setSelection(false);
 						delLineBtn.setSelection(false);
 						delLabelBtn.setSelection(false);
+						openCloseBtn.setSelection(false);
 					}
 					else {
 						e.doit = false;
@@ -266,6 +298,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 					addLineBtn.setSelection(false);
 					addLabelBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
+					openCloseBtn.setSelection(false);
 				}
 				else {
 					turbTool.resetMouseHandler();
@@ -286,6 +319,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 						addLineBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						delLineBtn.setSelection(false);
+						openCloseBtn.setSelection(false);
 					}
 					else {
 						turbTool.resetMouseHandler();
@@ -477,6 +511,35 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 		
 	}
 
+	/**
+	 * Create 'Closed' check box
+	 * @param comp
+	 */
+	private void createClosedAttr(Composite comp){
+/*		chkBox[ChkBox.CLOSE.ordinal()] = new Button(top, SWT.CHECK);
+		chkBox[ChkBox.CLOSE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
+		chkBox[ChkBox.CLOSE.ordinal()].addSelectionListener(new SelectionAdapter(){
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button btn = (Button)e.widget;
+				if(btn.getSelection()){
+					closedChkBox.setEnabled(true);
+				}
+				else {
+					closedChkBox.setEnabled(false);
+
+				}
+			}
+
+		});
+		
+	*/
+		closedChkBox  = new Button(comp, SWT.CHECK);
+		closedChkBox.setText("Closed");
+		closedChkBox.setSelection(true);
+	}
+	
 	@Override
 	public void setAttrForDlg(IAttribute ia) {
 		if ( turbTool != null && turbTool.getLabeledLine() != null ){
@@ -493,6 +556,9 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 					this.setColor(de.getColors()[0]);
 				}
 			}
+			Line ln = (Line)turbTool.getLabeledLine().getPrimaryDE();
+			this.closedChkBox.setSelection(ln.isClosedLine());
+
 		}
 	
 	}
@@ -547,7 +613,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 	 * Returns the Close flag of the dialog.
 	 */
 	public Boolean isClosedLine(){
-			return new Boolean("True");
+		return closedChkBox.getSelection();
 	}
 	
 	public String getTopValue() {

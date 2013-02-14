@@ -36,7 +36,8 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19 2009  3963       dhladky    Initial creation.
- * Jul 14 2010  6567       zhao       Launch AreaConfigDlg w/o monitor 
+ * Jul 14 2010  6567       zhao       Launch AreaConfigDlg w/o monitor
+ * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -46,19 +47,17 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
 
 public class FogAreaConfigAction extends AbstractHandler {
 
+    private FogMonitoringAreaConfigDlg areaDialog;
+
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        
-        System.out.println("Activating/Action the FOG Area Config...");
-        //FogMonitor fog = FogMonitor.getInstance();
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        //fog.launchDialog("area", shell);
- 
-        FogMonitoringAreaConfigDlg areaDialog = new FogMonitoringAreaConfigDlg(shell, "Fog Monitor Area Configuration");
+        if (areaDialog == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            areaDialog = new FogMonitoringAreaConfigDlg(shell,
+                    "Fog Monitor Area Configuration");
+        }
         areaDialog.open();
-        
         return null;
     }
-
 }
-

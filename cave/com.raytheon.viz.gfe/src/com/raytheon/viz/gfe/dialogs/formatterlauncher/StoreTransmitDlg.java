@@ -29,7 +29,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -52,6 +51,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.product.TextDBUtil;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Display the Store/Transmit dialog.
@@ -64,32 +64,20 @@ import com.raytheon.viz.gfe.product.TextDBUtil;
  * 19 FEB 2010  4132       ryu         Product correction.
  * 28May2010    2187       cjeanbap    Added StdTextProductFactory
  *                                      functionality.
+ * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
+ * 10Jan2012    15564      mgamazaychikov Set the awipsWanPil based on productText data
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  * 
  */
-public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
+public class StoreTransmitDlg extends CaveSWTDialog implements
+        IStoreTransmitProduct {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StoreTransmitDlg.class);
 
     private static int SEQ_NUMBER = 0;
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    /**
-     * Return object when the shell is disposed.
-     */
-    private String returnObj = null;
 
     /**
      * PRoduct ID text control.
@@ -138,6 +126,8 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
      */
     private ITransmissionState transmissionCB;
 
+    private String pid;
+
     /**
      * Constructor.
      * 
@@ -147,25 +137,20 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
      *            Store flag. True is store, false is transmit.
      */
     public StoreTransmitDlg(Shell parent, boolean storeDialog,
-            ProductEditorComp editor, ITransmissionState transmissionCB) {
-        super(parent, 0);
+            ProductEditorComp editor, ITransmissionState transmissionCB,
+            String pid) {
+        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.DO_NOT_BLOCK);
 
         this.transmissionCB = transmissionCB;
         isStoreDialog = storeDialog;
         parentEditor = editor;
         this.productText = editor.getProductText();
+        this.pid = pid;
     }
 
-    /**
-     * Setup and open the dialog.
-     * 
-     * @return Return object.
-     */
-    public Object open(String initialPid) {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-
+    @Override
+    protected void initializeComponents(Shell shell) {
         String title = null;
         CAVEMode opMode = DataManager.getCurrentInstance().getOpMode();
         if (opMode.equals(CAVEMode.OPERATIONAL)) {
@@ -199,18 +184,12 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-        productIdTF.insert(initialPid);
+    }
 
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return returnObj;
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        productIdTF.insert(pid);
     }
 
     /**
@@ -225,6 +204,8 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
 
         createMainControls();
         createBottomButtons();
+
+        Display display = shell.getParent().getDisplay();
 
         countdownThread = new StoreTransmitCountdownThread(display, progBar,
                 progressLbl, countdownText, this, isStoreDialog);
@@ -327,6 +308,7 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
                     if (countdownThread.isDone() == false) {
                         countdownThread.cancelThread();
                         progressLbl.setText(countdownText);
+                        Display display = shell.getParent().getDisplay();
                         progressLbl.setBackground(display
                                 .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
                         progressLbl.setForeground(display
@@ -334,8 +316,8 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
                     }
                 }
 
-                returnObj = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }
@@ -374,9 +356,11 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
 
         // The asyncExec call is used to dispose of the shell since it is
         // called outside the GUI thread (count down thread).
-        display.asyncExec(new Runnable() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
             public void run() {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -404,7 +388,15 @@ public class StoreTransmitDlg extends Dialog implements IStoreTransmitProduct {
         } else {
             req = new OUPRequest();
             OfficialUserProduct oup = new OfficialUserProduct();
-            String awipsWanPil = productIdTF.getText();
+            /*
+             * DR15564 - set the awipsWanPil based on productText data
+             */
+            String[] splitLines = productText.split("\n");
+            String[] firstLine = splitLines[0].split(" ");
+            String[] secondLine = splitLines[1].split(" ");
+            String cccc = firstLine[1];
+            String productNnnidXxxid = secondLine[0];
+            String awipsWanPil = cccc + productNnnidXxxid;
             oup.setAwipsWanPil(awipsWanPil);
             oup.setProductText(productText);
 

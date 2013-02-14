@@ -21,4 +21,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.stormtrack,
  gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc
-Import-Package: gov.noaa.nws.ncep.viz.common.ui
+Import-Package: gov.noaa.nws.ncep.gempak.parameters,
+ gov.noaa.nws.ncep.gempak.parameters.colorbar,
+ gov.noaa.nws.ncep.viz.common.ui,
+ javax.measure.unit
