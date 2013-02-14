@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
+import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
@@ -45,16 +46,17 @@ import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Manages the serverConfigs of active sites
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 9, 2009            njensen     Initial creation
- * 
+ * Dec 11, 2012 14360     ryu         Throw specific exception for missing configuration.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -72,7 +74,7 @@ public class IFPServerConfigManager {
 
     /**
      * Returns the sites that have active configurations
-     * 
+     *
      * @return
      */
     protected static Set<String> getActiveSites() {
@@ -81,7 +83,7 @@ public class IFPServerConfigManager {
 
     /**
      * Gets the server configuration for a particular site
-     * 
+     *
      * @param siteID
      *            the site
      * @return the site's configuration
@@ -100,7 +102,7 @@ public class IFPServerConfigManager {
 
     /**
      * Initializes a site's serverConfig by reading in the site's localConfig
-     * 
+     *
      * @param siteID
      *            the site
      * @return the site's configuration
@@ -152,11 +154,11 @@ public class IFPServerConfigManager {
                 }
             }
             if (!siteConfigFound) {
-                throw new GfeConfigurationException(
+                throw new GfeMissingConfigurationException(
                         "No siteConfig.py file found for " + siteID);
             }
         } else {
-            throw new GfeConfigurationException(
+            throw new GfeMissingConfigurationException(
                     "No site config directory found for " + siteID);
         }
         siteDir = siteDirFile.getPath();
@@ -186,7 +188,7 @@ public class IFPServerConfigManager {
 
     /**
      * Removes a site's configuration from the set of active configurations
-     * 
+     *
      * @param siteID
      */
     protected static void removeSite(String siteID) {
