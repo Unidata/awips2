@@ -19,12 +19,9 @@
  **/
 package com.raytheon.viz.gfe.core.internal;
 
-import org.eclipse.ui.IWorkbenchWindow;
-
-import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.parm.Parm;
 
 /**
  * Spatial display manager for working offscreen without a display, i.e. with
@@ -46,58 +43,17 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 public class OffscreenSpatialDisplayManager extends
         AbstractSpatialDisplayManager {
 
-    private MapDescriptor descriptor;
+    private IRenderableDisplay display;
 
-    public OffscreenSpatialDisplayManager(IWorkbenchWindow window,
+    public OffscreenSpatialDisplayManager(IRenderableDisplay display,
             DataManager mgr) {
         super(mgr);
+        this.display = display;
     }
 
     @Override
-    protected MapDescriptor[] getDescriptors() {
-        return new MapDescriptor[] { descriptor };
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getGlobalTimeRange()
-     */
-    @Override
-    public TimeRange getGlobalTimeRange() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#toggleVisibility(com
-     * .raytheon .viz.gfe.core.parm.Parm)
-     */
-    @Override
-    public void toggleVisibility(Parm parm) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setGlobalTimeRange(com
-     * .raytheon.uf.common.time.TimeRange)
-     */
-    @Override
-    public void setGlobalTimeRange(TimeRange timeRange) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void setDescriptor(MapDescriptor desc) {
-        descriptor = desc;
+    protected IDescriptor[] getDescriptors() {
+        return new IDescriptor[] { display.getDescriptor() };
     }
 
 }

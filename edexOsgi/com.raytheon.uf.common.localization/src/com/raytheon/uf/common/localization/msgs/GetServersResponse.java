@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.localization.msgs;
 
+import java.util.Map;
+
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -33,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
+ * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -53,6 +56,9 @@ public class GetServersResponse implements ISerializableObject {
 
     @DynamicSerializeElement
     private String serverDataDir;
+
+    @DynamicSerializeElement
+    private Map<String, String> serverLocations;
 
     public String getHttpServer() {
         return httpServer;
@@ -86,4 +92,18 @@ public class GetServersResponse implements ISerializableObject {
         this.serverDataDir = serverDataDir;
     }
 
+    /**
+     * @return
+     */
+    public Map<String, String> getServerLocations() {
+        return serverLocations;
+    }
+
+    /**
+     * @param serverLocations
+     *            the serverLocations to set
+     */
+    public void setServerLocations(Map<String, String> serverLocations) {
+        this.serverLocations = serverLocations;
+    }
 }

@@ -31,7 +31,9 @@ import org.apache.commons.collections.map.LRUMap;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -362,7 +364,7 @@ public class ContourSupport {
                 float min = Float.POSITIVE_INFINITY;
                 float max = Float.NEGATIVE_INFINITY;
                 for (float f : data1D) {
-                    if (f != Util.GRID_FILL_VALUE) {
+                    if (f != Util.GRID_FILL_VALUE && !Float.isNaN(f)) {
                         min = Math.min(min, f);
                         max = Math.max(max, f);
                     }
@@ -632,49 +634,41 @@ public class ContourSupport {
     public static GeneralEnvelope calculateSubGrid(IExtent workingExtent,
             GeneralGridGeometry mapGridGeometry,
             GeneralGridGeometry imageGridGeometry) throws VizException {
-        GeneralEnvelope env = null;
+        GeneralEnvelope env = new GeneralEnvelope(2);
         try {
-            // transform screen extent to map crs
-            double[] screen = new double[] { workingExtent.getMinX(),
-                    workingExtent.getMinY(), workingExtent.getMaxX(),
-                    workingExtent.getMaxY() };
-            double[] map = new double[4];
+            GridGeometry2D imageGeometry2D = GridGeometry2D
+                    .wrap(imageGridGeometry);
 
-            long t0 = System.currentTimeMillis();
-            mapGridGeometry.getGridToCRS(PixelInCell.CELL_CORNER).transform(
-                    screen, 0, map, 0, 2);
-            long t1 = System.currentTimeMillis();
-            System.out.println("subgrid transform grid to CRS time: "
-                    + (t1 - t0));
+            org.opengis.geometry.Envelope subgridCRSEnvelope = MapUtil
+                    .reprojectAndIntersect(mapGridGeometry.getEnvelope(),
+                            imageGridGeometry.getEnvelope());
 
-            // TODO: Construct screen Grid Geometry
-            GeneralGridEnvelope gge = new GeneralGridEnvelope(new int[] {
-                    (int) Math.floor(screen[0]), (int) Math.floor(screen[1]) },
-                    new int[] { (int) Math.ceil(screen[2]),
-                            (int) Math.ceil(screen[3]) }, false);
-            GridGeometry2D screenGeometry = new GridGeometry2D(gge,
-                    mapGridGeometry.getGridToCRS(),
-                    mapGridGeometry.getCoordinateReferenceSystem());
-            GridGeometry2D imageGeometry = new GridGeometry2D(imageGridGeometry);
-
-            t0 = System.currentTimeMillis();
-            org.opengis.geometry.Envelope[] envs = MapUtil.computeEnvelopes(
-                    screenGeometry, imageGeometry);
-            t1 = System.currentTimeMillis();
-            System.out.println("subgrid compute envelopes time: " + (t1 - t0));
-
-            double[] grid = new double[4];
-            grid[0] = envs[0].getMinimum(0);
-            grid[1] = envs[0].getMinimum(1);
-            grid[2] = envs[0].getMaximum(0);
-            grid[3] = envs[0].getMaximum(1);
-            env = new GeneralEnvelope(2);
-            env.setRange(0, Math.min(grid[0], grid[2]),
-                    Math.max(grid[0], grid[2]));
-            env.setRange(1, Math.min(grid[1], grid[3]),
-                    Math.max(grid[1], grid[3]));
+            GridEnvelope2D subgridEnv = imageGeometry2D
+                    .worldToGrid(new Envelope2D(subgridCRSEnvelope));
+            // Add a 1 pixel border since worldToGrid is only guaranteed to
+            // include a cell if the cell center is in the envelope but we want
+            // to include the data in the subgrid if even a tiny bit of the edge
+            // overlaps.
+            subgridEnv.grow(1, 1);
+            if (!subgridEnv.isEmpty()) {
+                // Convert GridEnvelope to general envelope.
+                env.setRange(0, subgridEnv.getMinX(), subgridEnv.getMaxX());
+                env.setRange(1, subgridEnv.getMinY(), subgridEnv.getMaxY());
+            }
         } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
+            statusHandler.handle(Priority.WARN,
+                    "Cannot compute subgrid, contouring may be slow.", e);
+            // Don't use a subgrid, just contour the complete image.
+            // This may result in doing way to much contouring which can be
+            // slow, but it is better than no contouring at all. It's also worth
+            // noting that it gets slower as you zoom in and more contours are
+            // generated, but as you zoom in it also becomes more likely you
+            // will be successful in your transformation since the smaller area
+            // is less likely to contain invalid points.
+            env.setRange(0, imageGridGeometry.getGridRange().getLow(0),
+                    imageGridGeometry.getGridRange().getHigh(0));
+            env.setRange(1, imageGridGeometry.getGridRange().getLow(1),
+                    imageGridGeometry.getGridRange().getHigh(1));
         }
         System.out.println("*** Subgrid: " + env);
         return env;
@@ -1128,9 +1122,10 @@ public class ContourSupport {
         double gridPixelSize = offCenter[0] - center[0];
         double gridPixelMax = 2000.;
 
-        // If gridPixelSize is large, arrows on streamline will be too small, so adjust here
-        if(gridPixelSize > gridPixelMax) {
-            gridPixelSize = gridPixelSize/5;
+        // If gridPixelSize is large, arrows on streamline will be too small, so
+        // adjust here
+        if (gridPixelSize > gridPixelMax) {
+            gridPixelSize = gridPixelSize / 5;
         }
         float arrowSize = (float) (currentMagnification * 5 / zoom / gridPixelSize);
 

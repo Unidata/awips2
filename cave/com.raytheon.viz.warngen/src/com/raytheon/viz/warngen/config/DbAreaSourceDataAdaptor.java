@@ -15,6 +15,7 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.gis.PreparedGeometryCollection;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -26,7 +27,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
-import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * 
@@ -146,7 +146,7 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         boolean userDirections = Boolean.valueOf(String.valueOf(attributes
                 .get(useDirectionField)));
         if (userDirections) {
-            PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
+            PreparedGeometry prepGeom = new PreparedGeometryCollection(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
                 Geometry intersection = searchArea.intersection(geom);
                 partOfArea = GisUtil.asStringList(calculateLocationPortion(

@@ -20,8 +20,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.colormap;bundle-version="1.11.13",
  com.raytheon.uf.common.mpe;bundle-version="1.11.13",
  com.raytheon.uf.viz.core.maps;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
+ com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.hydrocommon,
  com.raytheon.viz.hydrocommon.actions,
@@ -45,6 +46,5 @@ Export-Package: com.raytheon.viz.hydrocommon,
  com.raytheon.viz.hydrocommon.util,
  com.raytheon.viz.hydrocommon.whfslib,
  com.raytheon.viz.hydrocommon.whfslib.colorthreshold
-Import-Package: com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.ohd,
+Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.viz.grid.rsc

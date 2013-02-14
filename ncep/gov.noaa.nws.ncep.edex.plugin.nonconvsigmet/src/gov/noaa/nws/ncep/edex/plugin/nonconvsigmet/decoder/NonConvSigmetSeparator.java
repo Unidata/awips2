@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.util.Util;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 public class NonConvSigmetSeparator extends AbstractRecordSeparator {
     private final Log logger = LogFactory.getLog(getClass());
@@ -66,14 +65,9 @@ public class NonConvSigmetSeparator extends AbstractRecordSeparator {
      * com.raytheon.edex.esb.Headers)
      */
     public void setData(byte[] data, Headers headers) {
-        try {
             doSeparate(new String(data));
-        } catch (Exception e) {
-            logger.warn("No valid records found!", e);
-        } finally {
             iterator = records.iterator();
         }
-    }
 
     /*
      * (non-Javadoc)
@@ -95,7 +89,7 @@ public class NonConvSigmetSeparator extends AbstractRecordSeparator {
         try {
             String temp = iterator.next();
             if (Util.isEmptyString(temp)) {
-                return new byte [0];
+                return (byte[]) null;
             } else {
                 return temp.getBytes();
             }
@@ -111,27 +105,43 @@ public class NonConvSigmetSeparator extends AbstractRecordSeparator {
     private void doSeparate(String message) {
         /* Regex used for separate the bulletins */
         
-        String data = message;
+        try {
+            pattern = Pattern.compile(BULLSEPARATOR);
+            matcher = pattern.matcher(message);
         
-        WMOHeader h1 = new WMOHeader(data.getBytes());
-        boolean done = false;
-        while (!done) {
-            if((h1 != null)&&(h1.isValid())) {
-                String body = data.substring(h1.getMessageDataStart());
-                WMOHeader h2 = new WMOHeader(body.getBytes());
-                if((h2 != null)&&(h2.isValid())) {
-                    int endPos = h2.getWmoHeaderStart();
-                    records.add(h1.getWmoHeader() + "\n" + body.substring(0,endPos));
-                    data = body.substring(endPos);
-                    h1 = new WMOHeader(data.getBytes());
-                } else {
-                    records.add(data);
-                    done = true;
+            /*
+             * Set number of bulletins to records only if the bulletin separator
+             * is not the same. At the point, only separators are stored in
+             * "records"
+             */
+            while (matcher.find()) {
+                if (!records.contains(matcher.group())) {
+                    records.add(matcher.group());
                 }
+            }
+
+            /*
+             * Append the raw data file to the records.
+             */
+            for (int i = 0; i < records.size(); i++) {
+                if (i < records.size() - 1) {
+                    records.set(
+                            i,
+                            "\n"
+                                    + message.substring(
+                                            message.indexOf(records.get(i)),
+                                            message.indexOf(records.get(i + 1))));
             } else {
-                records.add(data);
-                done = true;
+                    records.set(
+                            i,
+                            "\n"
+                                    + message.substring(message.indexOf(records
+                                            .get(i))));
             }
         }
+        } catch (Exception e) {
+            logger.warn("No valid records found!", e);
+        }
+        return;
     }
 }

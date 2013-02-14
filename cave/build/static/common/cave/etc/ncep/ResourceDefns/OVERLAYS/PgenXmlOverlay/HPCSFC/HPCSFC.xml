@@ -4,10 +4,11 @@
     <resourceDefnName>HPCSFC</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-pgenProductName=hpcsfc.xml
+pgenStaticProductLocation=ncep/StaticPgenOverlays
+pgenStaticProductName=hpcsfc.xml
     </resourceParameters>
-    <filterLabels></filterLabels>
-    <rscImplementation>PgenXmlOverlay</rscImplementation>
+    <filterLabels>AdministrativeBoundaries,PGEN</filterLabels>
+    <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

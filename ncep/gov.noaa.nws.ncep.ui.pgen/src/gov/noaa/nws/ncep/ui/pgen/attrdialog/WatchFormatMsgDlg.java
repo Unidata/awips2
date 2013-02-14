@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
@@ -208,21 +209,11 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
     	
 		if ( outStr != null && !outStr.isEmpty()){
 
-			//write to file
-			File out = new File( outFile );
+			FileTools.writeFile(outFile, outStr);
 
-			try {
-				FileWriter fw = new FileWriter(out);
-				fw.write(outStr);
-				fw.close();
-			}
-			catch (Exception e) {
-				System.out.println("Problem writing Watch text to file "+out.getAbsolutePath());
 			}
 		}
     
-	}
-	
 	private String generateProducts(Products pd, String xslt ){
         
     	Document sw = null;

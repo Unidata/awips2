@@ -20,9 +20,11 @@
 package com.raytheon.viz.grid.rsc.general;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.measure.Measure;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -30,19 +32,16 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
-import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
@@ -55,7 +54,8 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
 
 /**
  * 
- * TODO Add Description
+ * Resource which calculates the difference of two grid resources and displays
+ * the value as a grid.
  * 
  * <pre>
  * 
@@ -81,10 +81,6 @@ public class DifferenceGridResource extends
     private final AbstractGridResource<?> one;
 
     private final AbstractGridResource<?> two;
-
-    private GridReprojection oneInterpolation;
-
-    private GridReprojection twoInterpolation;
 
     public DifferenceGridResource(DifferenceGridResourceData resourceData,
             LoadProperties loadProperties, AbstractGridResource<?> one,
@@ -116,127 +112,137 @@ public class DifferenceGridResource extends
     }
 
     @Override
+    public Map<String, Object> interrogate(ReferencedCoordinate coord)
+            throws VizException {
+        Map<String, Object> oneMap = one.interrogate(coord);
+        Map<String, Object> twoMap = two.interrogate(coord);
+        if (oneMap == null || twoMap == null) {
+            return super.interrogate(coord);
+        }
+        Map<String, Object> myMap = new HashMap<String, Object>();
+        float oneVal = (Float) oneMap.get(INTERROGATE_VALUE);
+        float twoVal = (Float) twoMap.get(INTERROGATE_VALUE);
+        myMap.put(INTERROGATE_VALUE, oneVal - twoVal);
+        if (oneMap.get(INTERROGATE_UNIT).equals(twoMap.get(INTERROGATE_UNIT))) {
+            myMap.put(INTERROGATE_UNIT, oneMap.get(INTERROGATE_UNIT));
+        } else {
+            myMap.put(INTERROGATE_UNIT, "(" + oneMap.get(INTERROGATE_UNIT)
+                    + "-" + twoMap.get(INTERROGATE_UNIT) + ")");
+        }
+        if (myMap.containsKey(INTERROGATE_DIRECTION)
+                && twoMap.containsKey(INTERROGATE_DIRECTION)) {
+            float oneDir = (Float) oneMap.get(INTERROGATE_DIRECTION);
+            float twoDir = (Float) twoMap.get(INTERROGATE_DIRECTION);
+            myMap.put(INTERROGATE_DIRECTION, oneDir - twoDir);
+        }
+        return myMap;
+    }
+
+    @Override
     public ParamLevelMatchCriteria getMatchCriteria() {
         return one.getMatchCriteria();
     }
 
     @Override
-    public GridGeometry2D getGridGeometry() {
-        if (oneInterpolation == null) {
-            GridGeometry2D oneGeometry = one.getGridGeometry();
-            GridGeometry2D twoGeometry = two.getGridGeometry();
-            GridGeometry2D newGeometry = null;
-            if (oneGeometry.equals(twoGeometry)) {
-                newGeometry = oneGeometry;
-            } else {
-                ReferencedEnvelope oneEnv = new ReferencedEnvelope(
-                        oneGeometry.getEnvelope());
-                ReferencedEnvelope twoEnv = new ReferencedEnvelope(
-                        oneGeometry.getEnvelope());
-                if (!oneEnv.getCoordinateReferenceSystem().equals(
-                        twoEnv.getCoordinateReferenceSystem())) {
-                    // If they aren't the same crs just go to screen space.
-                    try {
-                        oneEnv = oneEnv.transform(descriptor.getCRS(), true);
-                        twoEnv = twoEnv.transform(descriptor.getCRS(), true);
-                    } catch (TransformException e) {
-                        throw new RuntimeException(e);
-                    } catch (FactoryException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                ReferencedEnvelope newEnv = new ReferencedEnvelope(
-                        oneEnv.intersection(twoEnv), descriptor.getCRS());
-                newGeometry = new GridGeometry2D(GRID_ENVELOPE, newEnv);
-            }
-            oneInterpolation = new GridReprojection(oneGeometry, newGeometry);
-            twoInterpolation = new GridReprojection(twoGeometry, newGeometry);
-        }
-        return GridGeometry2D.wrap(oneInterpolation.getTargetGeometry());
-    }
-
-    @Override
-    public GeneralGridData getData(DataTime time, List<PluginDataObject> pdos)
-            throws VizException {
+    public List<GeneralGridData> getData(DataTime time,
+            List<PluginDataObject> pdos) throws VizException {
         if (!(time instanceof CombinedDataTime)) {
             throw new VizException("Unexpected single time in diff resource");
         }
         CombinedDataTime cTime = (CombinedDataTime) time;
         DataTime oneTime = cTime.getPrimaryDataTime();
         DataTime twoTime = cTime.getAdditionalDataTime();
-        if (oneInterpolation == null || twoInterpolation == null) {
-            getGridGeometry();
-        }
-        GeneralGridData oneData = one.requestData(oneTime);
-        GeneralGridData twoData = two.requestData(twoTime);
-        if (oneData == null || twoData == null) {
+        List<GeneralGridData> oneDataList = one.requestData(oneTime);
+        List<GeneralGridData> twoDataList = two.requestData(twoTime);
+        if (oneDataList == null || oneDataList.isEmpty() || twoDataList == null
+                || twoDataList.isEmpty()) {
             return null;
         }
-        Unit<?> dataUnit = Unit.ONE;
+        List<GeneralGridData> newDataList = new ArrayList<GeneralGridData>();
+        for (GeneralGridData oneData : oneDataList) {
+            for (GeneralGridData twoData : twoDataList) {
+                GeneralGridData newData = difference(oneData, twoData);
+                if (newData != null) {
+                    newDataList.add(newData);
+                }
+            }
+        }
+        return newDataList;
+    }
+
+    private GeneralGridData difference(GeneralGridData oneData,
+            GeneralGridData twoData) throws VizException {
+        Unit<?> newUnit = oneData.getDataUnit();
         if (stylePreferences != null) {
-            dataUnit = stylePreferences.getDisplayUnits();
-            oneData.convert(dataUnit);
-            twoData.convert(dataUnit);
-        } else if (oneData.getDataUnit().isCompatible(twoData.getDataUnit())) {
-            dataUnit = oneData.getDataUnit();
-            twoData.convert(dataUnit);
+            newUnit = stylePreferences.getDisplayUnits();
+        }
+        if (!oneData.convert(newUnit)) {
+            // if oneData is somehow incompatible with our style rule then just
+            // convert to its style units
+            if (one.stylePreferences != null) {
+                oneData.convert(one.stylePreferences.getDisplayUnits());
+            }
+        }
+        if (!twoData.convert(newUnit)) {
+            // if twoData is somehow incompatible with our style rule then just
+            // convert to its style units
+            if (two.stylePreferences != null) {
+                twoData.convert(two.stylePreferences.getDisplayUnits());
+            }
+        }
+        GridGeometry2D newGeom = oneData.getGridGeometry();
+        if (!newGeom.equals(twoData.getGridGeometry())) {
+            ReferencedEnvelope oneEnv = new ReferencedEnvelope(oneData
+                    .getGridGeometry().getEnvelope());
+            ReferencedEnvelope twoEnv = new ReferencedEnvelope(twoData
+                    .getGridGeometry().getEnvelope());
+            if (!oneEnv.getCoordinateReferenceSystem().equals(
+                    twoEnv.getCoordinateReferenceSystem())) {
+                // If they aren't the same crs just go to screen space.
+                try {
+                    oneEnv = oneEnv.transform(descriptor.getCRS(), true);
+                    twoEnv = twoEnv.transform(descriptor.getCRS(), true);
+                } catch (TransformException e) {
+                    throw new RuntimeException(e);
+                } catch (FactoryException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            ReferencedEnvelope newEnv = new ReferencedEnvelope(
+                    oneEnv.intersection(twoEnv),
+                    oneEnv.getCoordinateReferenceSystem());
+            if (newEnv.isEmpty()) {
+                return null;
+            }
+            newGeom = new GridGeometry2D(GRID_ENVELOPE, newEnv);
         }
         GeneralGridData newData = null;
         try {
-            Interpolation interp = new BilinearInterpolation();
+            oneData = oneData.reproject(newGeom, new BilinearInterpolation());
+            twoData = twoData.reproject(newGeom, new BilinearInterpolation());
             if (oneData.isVector() && twoData.isVector()) {
-                DataSource oneSourceU = new FloatBufferWrapper(
-                        oneData.getUComponent(),
-                        oneInterpolation.getSourceGeometry());
-                DataSource oneSourceV = new FloatBufferWrapper(
-                        oneData.getVComponent(),
-                        oneInterpolation.getSourceGeometry());
-                DataSource twoSourceU = new FloatBufferWrapper(
-                        twoData.getUComponent(),
-                        twoInterpolation.getSourceGeometry());
-                DataSource twoSourceV = new FloatBufferWrapper(
-                        twoData.getVComponent(),
-                        twoInterpolation.getSourceGeometry());
-                float[] oneU = oneInterpolation.reprojectedGrid(interp,
-                        oneSourceU, new FloatArrayWrapper(getGridGeometry()))
-                        .getArray();
-                float[] oneV = oneInterpolation.reprojectedGrid(interp,
-                        oneSourceV, new FloatArrayWrapper(getGridGeometry()))
-                        .getArray();
-                float[] twoU = twoInterpolation.reprojectedGrid(interp,
-                        twoSourceU, new FloatArrayWrapper(getGridGeometry()))
-                        .getArray();
-                float[] twoV = twoInterpolation.reprojectedGrid(interp,
-                        twoSourceV, new FloatArrayWrapper(getGridGeometry()))
-                        .getArray();
+                float[] oneU = oneData.getUComponent().array();
+                float[] oneV = oneData.getVComponent().array();
+                float[] twoU = twoData.getUComponent().array();
+                float[] twoV = twoData.getVComponent().array();
                 float[] newU = new float[oneU.length];
                 float[] newV = new float[oneV.length];
                 for (int i = 0; i < newU.length; i++) {
                     newU[i] = oneU[i] - twoU[i];
                     newV[i] = oneV[i] - twoV[i];
                 }
-                newData = GeneralGridData.createVectorDataUV(
-                        FloatBuffer.wrap(newU), FloatBuffer.wrap(newV),
-                        dataUnit);
+                newData = GeneralGridData
+                        .createVectorDataUV(newGeom, FloatBuffer.wrap(newU),
+                                FloatBuffer.wrap(newV), newUnit);
             } else {
-                DataSource oneSource = new FloatBufferWrapper(
-                        oneData.getScalarData(),
-                        oneInterpolation.getSourceGeometry());
-                DataSource twoSource = new FloatBufferWrapper(
-                        twoData.getScalarData(),
-                        twoInterpolation.getSourceGeometry());
-                float[] oneScalar = oneInterpolation.reprojectedGrid(interp,
-                        oneSource, new FloatArrayWrapper(getGridGeometry()))
-                        .getArray();
-                float[] twoScalar = twoInterpolation.reprojectedGrid(interp,
-                        twoSource, new FloatArrayWrapper(getGridGeometry()))
-                        .getArray();
+                float[] oneScalar = oneData.getScalarData().array();
+                float[] twoScalar = twoData.getScalarData().array();
                 float[] newScalar = new float[oneScalar.length];
                 for (int i = 0; i < newScalar.length; i++) {
                     newScalar[i] = oneScalar[i] - twoScalar[i];
                 }
-                newData = GeneralGridData.createScalarData(
-                        FloatBuffer.wrap(newScalar), dataUnit);
+                newData = GeneralGridData.createScalarData(newGeom,
+                        FloatBuffer.wrap(newScalar), newUnit);
             }
         } catch (FactoryException e) {
             throw new VizException(e);
@@ -257,36 +263,6 @@ public class DifferenceGridResource extends
     }
 
     @Override
-    public Measure<Float, ?> inspectValue(ReferencedCoordinate coord)
-            throws VizException {
-        Measure<Float, ?> oneVal = one.inspectValue(coord);
-        Measure<Float, ?> twoVal = two.inspectValue(coord);
-        if (oneVal == null || twoVal == null) {
-            return null;
-        }
-        Unit<?> dataUnit = Unit.ONE;
-        if (stylePreferences != null) {
-            dataUnit = stylePreferences.getDisplayUnits();
-            if (oneVal.getUnit().isCompatible(dataUnit)) {
-                oneVal = Measure.valueOf((float) oneVal.getUnit()
-                        .getConverterTo(dataUnit).convert(oneVal.getValue()),
-                        dataUnit);
-            }
-            if (twoVal.getUnit().isCompatible(dataUnit)) {
-                twoVal = Measure.valueOf((float) twoVal.getUnit()
-                        .getConverterTo(dataUnit).convert(twoVal.getValue()),
-                        dataUnit);
-            }
-        } else if (oneVal.getUnit().isCompatible(twoVal.getUnit())) {
-            dataUnit = oneVal.getUnit();
-            twoVal = Measure.valueOf(
-                    (float) twoVal.getUnit().getConverterTo(dataUnit)
-                            .convert(twoVal.getValue()), dataUnit);
-        }
-        return Measure.valueOf(oneVal.getValue() - twoVal.getValue(), dataUnit);
-    }
-
-    @Override
     public String getName() {
         DataTime oneTime = descriptor.getTimeForResource(one);
         DataTime twoTime = descriptor.getTimeForResource(two);
@@ -300,6 +276,15 @@ public class DifferenceGridResource extends
     @Override
     public ResourceList getResourceList() {
         return resourceData.getResourceList();
+    }
+
+    @Override
+    protected boolean projectRenderable(IRenderable renderable,
+            CoordinateReferenceSystem crs) throws VizException {
+        // Always rebuild the renderables in case we projected into descriptor
+        // space.
+        return false;
+
     }
 
 }

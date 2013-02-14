@@ -26,6 +26,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
 import org.springframework.util.FileCopyUtils;
 
+import com.raytheon.uf.edex.core.EDEXUtil;
+
 /**
  * Provides a capability to transform java.io.File to Strings
  * 
@@ -36,7 +38,8 @@ import org.springframework.util.FileCopyUtils;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2008            chammack     Initial creation
+ * Dec 03, 2008            chammack    Initial creation
+ * Jun 12, 2012 00609      djohnson    Use EDEXUtil for EDEX_HOME.
  * 
  * </pre>
  * 
@@ -46,7 +49,7 @@ import org.springframework.util.FileCopyUtils;
 
 public class FileToString implements Processor {
 
-    private static String DIR = System.getProperty("edex.home")
+    private static String DIR = EDEXUtil.EDEX_HOME
             + File.separator + "data" + File.separator + "processing";
 
     @Override

@@ -41,7 +41,8 @@ import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * A renderable that can be used to display grids where every cell represents a
+ * value that can be mapped toa symbol in the WXSymbol font.
  * 
  * <pre>
  * 
