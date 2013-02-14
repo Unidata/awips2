@@ -86,6 +86,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2012 #875       rferrel     Initial creation
+ * Dec 05, 2012 #1364      rferrel     Replace File.Separator with IPathManager.SEPARATOR
+ *                                      to work correctly on all platforms.
  * 
  * </pre>
  * 
@@ -180,9 +182,10 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 LocalizationLevel.USER);
 
         pointsDir = pathMgr.getLocalizationFile(userCtx, AWIPSTOOLS
-                + File.separator + site + File.separator + POINTS_DIR);
+                + IPathManager.SEPARATOR + site + IPathManager.SEPARATOR
+                + POINTS_DIR);
         userToolsDir = pathMgr.getLocalizationFile(userCtx, AWIPSTOOLS
-                + File.separator + site);
+                + IPathManager.SEPARATOR + site);
         userToolsDir.addFileUpdatedObserver(this);
 
         childrenKeyMap = new HashMap<String, List<String>>();
@@ -392,7 +395,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private void storePoint(LocalizationFile dir, Point point, String fileName) {
         LocalizationFile lFile = pathMgr.getLocalizationFile(userCtx, dir
-                .getName().trim() + File.separator + fileName);
+                .getName().trim() + IPathManager.SEPARATOR + fileName);
 
         try {
             marshalPointToXmlFile(point, lFile);
@@ -433,7 +436,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         boolean doRequest = false;
         if (points.isEmpty()) {
             doRequest = loadPoints();
-            String d2dKey = File.separator + D2D_POINTS_GROUP;
+            String d2dKey = IPathManager.SEPARATOR + D2D_POINTS_GROUP;
             Point d2dPoint = points.get(d2dKey);
             if (d2dPoint != null) {
                 if (childrenKeyMap.get(d2dKey).size() == 0) {
@@ -444,7 +447,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 String dirPath = pointsDir.getName().trim();
                 String name = D2D_POINTS_GROUP.replace(' ',
                         PointUtilities.DELIM_CHAR);
-                String path = dirPath + File.separator + name;
+                String path = dirPath + IPathManager.SEPARATOR + name;
                 LocalizationFile d2dDir = pathMgr.getLocalizationFile(userCtx,
                         path);
                 if (!d2dDir.isDirectory()) {
@@ -484,7 +487,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         Coordinate center = getHome();
         int baseRingSize = 120;
         int startAngle = -90;
-        String group = File.separator + D2D_POINTS_GROUP;
+        String group = IPathManager.SEPARATOR + D2D_POINTS_GROUP;
         List<String> d2dChildren = childrenKeyMap.get(group);
         for (char label = 'A'; label <= 'J'; label++) {
             String name = String.valueOf(label);
@@ -527,7 +530,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private Coordinate loadHome() {
         LocalizationFile lFile = pathMgr.getLocalizationFile(
                 pointsDir.getContext(), pointsDir.getName().trim()
-                        + File.separator + HOME_LOCATION_FILE);
+                        + IPathManager.SEPARATOR + HOME_LOCATION_FILE);
         Point point = null;
         if (lFile.exists()) {
             point = loadPoint(lFile);
@@ -574,7 +577,6 @@ public class PointsDataManager implements ILocalizationFileObserver {
                     childrenKeyMap.put(key, new ArrayList<String>());
                 }
                 if (key.length() > 0) {
-                    // p
                     String parentKey = getParentKey(point);
                     childrenKeyMap.get(parentKey).add(key);
                 }
@@ -658,7 +660,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         } catch (IOException ex) {
             StringBuffer sb = new StringBuffer(lFile.toString());
             sb.replace(0, pointsDir.toString().length(), "");
-            int index = sb.lastIndexOf(File.separator);
+            int index = sb.lastIndexOf(IPathManager.SEPARATOR);
             sb.setLength(index);
             point.setGroup(sb.toString());
 
@@ -671,7 +673,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         if (point != null) {
             StringBuffer sb = new StringBuffer(lFile.toString());
             sb.replace(0, pointsDir.toString().length(), "");
-            int index = sb.lastIndexOf(File.separator);
+            int index = sb.lastIndexOf(IPathManager.SEPARATOR);
             sb.setLength(index);
             point.setGroup(sb.toString());
         }
@@ -770,10 +772,10 @@ public class PointsDataManager implements ILocalizationFileObserver {
         StringBuilder sb = new StringBuilder();
         sb.append(pointsDir.getName().trim());
         String group = point.getGroup();
-        if (!group.startsWith(File.separator)) {
-            sb.append(File.separator);
+        if (!group.startsWith(IPathManager.SEPARATOR)) {
+            sb.append(IPathManager.SEPARATOR);
         }
-        sb.append(point.getGroup()).append(File.separator)
+        sb.append(point.getGroup()).append(IPathManager.SEPARATOR)
                 .append(POINT_FILENAME_PREFIX).append(point.getName())
                 .append(POINT_FILENAME_EXT);
         String filename = sb.toString().replace(' ', PointUtilities.DELIM_CHAR);
@@ -791,8 +793,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
         StringBuilder sb = new StringBuilder();
         sb.append(pointsDir.getName().trim());
         if (group.length() > 0) {
-            if (group.charAt(0) != File.separatorChar) {
-                sb.append(File.separator);
+            if (group.startsWith(IPathManager.SEPARATOR) == false) {
+                sb.append(IPathManager.SEPARATOR);
             }
             sb.append(group);
         }
@@ -810,7 +812,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         String name = null;
         StringBuilder sb = new StringBuilder();
         sb.append(lFile.toString());
-        sb.replace(0, sb.lastIndexOf(File.separator) + 1, "");
+        sb.replace(0, sb.lastIndexOf(IPathManager.SEPARATOR) + 1, "");
         if (!lFile.isDirectory()) {
             sb.replace(0, POINT_FILENAME_PREFIX.length(), "");
             sb.replace(sb.length() - POINT_FILENAME_EXT.length(), sb.length(),
@@ -865,7 +867,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         String parentKey = point.getGroup();
         if (point.isGroup() && parentKey.length() > 0) {
             parentKey = parentKey.substring(0,
-                    parentKey.lastIndexOf(File.separator));
+                    parentKey.lastIndexOf(IPathManager.SEPARATOR));
         }
         return parentKey;
     }
@@ -897,7 +899,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
         LocalizationFile[] dirs = pathMgr.listStaticFiles(sb.toString(),
                 new String[0], false, false);
-        sb.append(File.separator).append(GROUP_TEMP_PREFIX);
+        sb.append(IPathManager.SEPARATOR).append(GROUP_TEMP_PREFIX);
         int end = sb.length();
 
         List<String> names = new ArrayList<String>();
@@ -917,7 +919,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         Point node = new GroupNode();
         node.setName(name);
         String parentKey = getPointKey(parent);
-        node.setGroup(parentKey + File.separator + name);
+        node.setGroup(parentKey + IPathManager.SEPARATOR + name);
         String nodeKey = getPointKey(node);
         PointRequest request = new PointRequest(RequestType.ADD, node);
         queueRequest(request);
@@ -964,7 +966,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
             childrenKeyMap.get(newParentKey).add(key);
         } else {
             Point newGroup = new GroupNode((Point) point);
-            String newGroupKey = newParentKey + File.separator
+            String newGroupKey = newParentKey + IPathManager.SEPARATOR
                     + point.getName();
             newGroup.setGroup(newGroupKey);
             PointRequest request = new PointRequest(RequestType.ADD, newGroup);
@@ -996,7 +998,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         String parentKey = getParentKey((Point) srcNode);
         Point parent = points.get(parentKey);
         Point destNode = new GroupNode(parent);
-        String destKey = parentKey + File.separator + destName;
+        String destKey = parentKey + IPathManager.SEPARATOR + destName;
         destNode.setName(destName);
         destNode.setGroup(destKey);
         PointRequest request = new PointRequest(RequestType.ADD, destNode);
@@ -1025,7 +1027,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         StringBuilder sb = new StringBuilder();
         sb.append(parent);
         sb.replace(0, pointsDir.getName().trim().length(), "");
-        sb.append(File.separator).append(name);
+        sb.append(IPathManager.SEPARATOR).append(name);
         Point gPoint = new GroupNode(name);
         gPoint.setGroup(sb.toString().replace(PointUtilities.DELIM_CHAR, ' '));
         String groupPath = getPointDirName(gPoint);
@@ -1045,7 +1047,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
         try {
             // Must create a file in the directory to force its creation.
-            String p = lFile.getName().trim() + File.separator + GROUP_INFO;
+            String p = lFile.getName().trim() + IPathManager.SEPARATOR
+                    + GROUP_INFO;
             LocalizationFile lf = pathMgr.getLocalizationFile(userCtx, p);
             OutputStream outStream = lf.openOutputStream();
             outStream.write(gPoint.getGroup().getBytes());
@@ -1163,7 +1166,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
         StringBuilder sb = new StringBuilder(message.getFileName());
         sb.replace(0, pointsDir.getName().length(), "");
-        sb.replace(sb.lastIndexOf(File.separator), sb.length(), "");
+        sb.replace(sb.lastIndexOf(IPathManager.SEPARATOR), sb.length(), "");
         String groupKey = sb.toString().replace(PointUtilities.DELIM_CHAR, ' ');
 
         sb.setLength(0);
@@ -1290,7 +1293,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
     }
 
     /**
-     * Determine if this group message needs to be acted upoin by this instance
+     * Determine if this group message needs to be acted upon by this instance
      * of CAVE.
      * 
      * @param message
@@ -1299,11 +1302,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private boolean checkGroup(FileUpdatedMessage message) {
         boolean stateChange = false;
         StringBuilder sb = new StringBuilder(message.getFileName());
-        sb.setLength(sb.lastIndexOf(File.separator));
+        sb.setLength(sb.lastIndexOf(IPathManager.SEPARATOR));
         sb.replace(0, pointsDir.getName().length(), "");
         String key = sb.toString().replace(PointUtilities.DELIM_CHAR, ' ');
         String parentKey = null;
-        int index = key.lastIndexOf(File.separator);
+        int index = key.lastIndexOf(IPathManager.SEPARATOR);
         if (index >= 0) {
             parentKey = key.substring(0, index);
         }
@@ -1312,7 +1315,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         switch (message.getChangeType()) {
         case ADDED:
             if (foundGroup == null) {
-                sb.replace(0, sb.lastIndexOf(File.separator) + 1, "");
+                sb.replace(0, sb.lastIndexOf(IPathManager.SEPARATOR) + 1, "");
                 String name = sb.toString().replace(PointUtilities.DELIM_CHAR,
                         ' ');
                 Point point = new GroupNode();
@@ -1357,7 +1360,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private void checkGroupDelete(FileUpdatedMessage message) {
         String filename = message.getFileName();
         String deleteKey = filename.substring(0,
-                filename.lastIndexOf(File.separator));
+                filename.lastIndexOf(IPathManager.SEPARATOR));
         List<String> childList = groupDeleteMap.get(deleteKey);
         if (childList != null) {
             childList.remove(filename);
@@ -1553,7 +1556,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
             // that represents the node. That can not be done until all
             // entries in the directory are removed. This determines
             // what we need to have deleted and adds requests to the queue.
-            String groupInfo = deleteKey + File.separator + GROUP_INFO;
+            String groupInfo = deleteKey + IPathManager.SEPARATOR + GROUP_INFO;
             groupDeleteMap.put(deleteKey, new ArrayList<String>());
             groupDeleteMap.get(deleteKey).add(groupInfo);
 
@@ -1583,7 +1586,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private void removePoint(Point point) {
         LocalizationFile lFile = null;
         if (point.isGroup()) {
-            String name = getPointDirName(point) + File.separator + GROUP_INFO;
+            String name = getPointDirName(point) + IPathManager.SEPARATOR
+                    + GROUP_INFO;
             lFile = pathMgr.getLocalizationFile(userCtx, name);
         } else {
             String name = getPointFilename(point);
