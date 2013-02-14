@@ -24,7 +24,6 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -38,9 +37,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -59,6 +56,9 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * 03/26/2008              chammack    Initial Creation.
  * 04/13/2009   2092       njensen     Support for custom labels
  * 08/20/2012   #1083      randerso    Fixed user defined labels
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -144,8 +144,6 @@ public class ContinuousColorbar implements IColorBarDisplay {
         DrawableColorMap dcm = new DrawableColorMap(cmap);
         dcm.alpha = 1.0f;
         dcm.extent = pe;
-        dcm.interpolate = rscPair.getResource()
-                .getCapability(ImagingCapability.class).isInterpolationState();
         target.drawColorRamp(dcm);
 
         GFEResource rsc = (GFEResource) rscPair.getResource();
