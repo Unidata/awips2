@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 18, 2010            mnash     Initial creation
+ * Nov 02, 2012 1302       djohnson  Remove printStackTrace.
  * 
  * </pre>
  * 
@@ -64,11 +65,11 @@ import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 
 public class LocalizationPerspectiveManager extends
         AbstractVizPerspectiveManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(LocalizationPerspectiveManager.class);
 
     /** The edit position restore map */
-    private Map<IEditorInput, Point> restoreMap = new HashMap<IEditorInput, Point>();
+    private final Map<IEditorInput, Point> restoreMap = new HashMap<IEditorInput, Point>();
 
     public LocalizationPerspectiveManager() {
         saveEditors = true;

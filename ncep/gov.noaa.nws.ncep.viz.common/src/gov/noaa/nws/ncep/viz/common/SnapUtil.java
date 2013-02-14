@@ -27,6 +27,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * 02/2012		597			S. Gurung 	Initial Creation. 
  * 02/2012                  S. Gurung   Removed references to pgen  
  * 03/2012                  S. Gurung   Fixed a bug while getting VOR text
+ * 11/2012		873			B. Yin		When snapping, check sigmet type to make sure
+ * 										no space between distance and direction for CONV_SIGMET.
  *      
  * </pre>
  * 
@@ -403,7 +405,13 @@ public class SnapUtil {
 		String first ="";
 		int count = 0; 
 		for(VORStation vs : resultList) {
-			if ( isGfa ) vs.setPgenType( GFA_TEXT );
+			if ( isGfa ) {
+				vs.setPgenType( GFA_TEXT );
+			}
+			else if ("CONV_SIGMET".equals(sigmetType) || "NCON_SIGMET".equals(sigmetType) || "OUTL_SIGMET".equals(sigmetType)){
+				vs.setPgenType( sigmetType);
+			}
+			
 			if(count==0) first = vs.toString();//first vor at the end for AREA
 			result.append(vs.toString() + ( ((++count)%numPerLines)==0 ? "\n" : vorConnector ));
 		}    	
@@ -614,12 +622,15 @@ public class SnapUtil {
 				return name;
 			}
 			
-			if("CONV_SIGMET".equals(pgenType))
+			if("CONV_SIGMET".equalsIgnoreCase(pgenType) || 
+					"NCON_SIGMET".equalsIgnoreCase(pgenType) ||
+					"OUTL_SIGMET".equalsIgnoreCase(pgenType) ){
 				return distance + azimuth + " " + name;
-			
+			}
 			//For GFA - should be (30NNW LGC"), not "30 NNW LGC"
-			if ( GFA_TEXT.equals( pgenType ) )
+			else if ( GFA_TEXT.equalsIgnoreCase( pgenType ) ){
 				return distance + azimuth + " " + name;
+			}
 
 			return distance + " " + azimuth + " " + name;
 		}

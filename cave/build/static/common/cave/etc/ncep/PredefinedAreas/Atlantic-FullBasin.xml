@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<predefinedArea>
-       <predefinedArea xsi:type="NC-MapRenderableDisplay" zoomLevel="0.4" mapCenter="-43.5 40.4 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-           <predefinedAreaName>Atlantic_FullBasin</predefinedAreaName>
-
-          <descriptor xsi:type="NCMapDescriptor">
-              <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 10000" rangeX="0 10000">
+<predefinedArea areaName="Atlantic-FullBasin" mapCenter="-43.5 40.4 0.0">
+ <zoomLevel>0.4</zoomLevel>
+   <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 9999" rangeX="0 9999">
                   <CRS>PROJCS["Lambert_Conformal_Conic_2SP",
   GEOGCS["WGS84",
     DATUM["WGS84",
@@ -26,6 +23,4 @@
   AXIS["Easting", EAST],
   AXIS["Northing", NORTH]]</CRS>
                 </gridGeometry>
-            </descriptor>
-        </predefinedArea>
 </predefinedArea>

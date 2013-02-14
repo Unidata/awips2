@@ -24,9 +24,11 @@ import javax.measure.unit.Unit;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 /**
- * TODO Add Description
+ * Wraps a data record from a PointDataContainer in the AbstractRequestableData
+ * api so it can be used in Derived Parameters
  * 
  * <pre>
  * 
@@ -50,6 +52,8 @@ public class PointRequestableData extends AbstractRequestableData {
         this.rec = rec;
         this.level = PointDataInventory.getStationLevel();
         this.parameter = rec.getName();
+        this.dataTime = TimeAndSpace.TIME_AGNOSTIC;
+        this.space = TimeAndSpace.SPACE_AGNOSTIC;
     }
 
     /*

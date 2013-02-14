@@ -36,6 +36,8 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;attribute name="condsContg" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="fromCondsEndg" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="fromCondsDvlpg" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="airmetTag" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="outlookEndTime" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="untilTime" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="issueTime" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="textVor" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -107,6 +109,10 @@ public class Gfa {
     @XmlAttribute
     protected String fromCondsDvlpg;
     @XmlAttribute
+    protected String airmetTag;
+    @XmlAttribute
+    protected String outlookEndTime;
+    @XmlAttribute
     protected String untilTime;
     @XmlAttribute
     protected String issueTime;
@@ -138,6 +144,10 @@ public class Gfa {
     protected String coverage;
     @XmlAttribute
     protected String fzlTopBottom;
+    @XmlAttribute
+    protected String cig;
+    @XmlAttribute
+    protected String vis;
     @XmlAttribute
     protected String bottom;
     @XmlAttribute
@@ -367,6 +377,52 @@ public class Gfa {
         this.fromCondsDvlpg = value;
     }
 
+    /**
+     * Gets the value of the airmetTag property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAirmetTag() {
+        return airmetTag;
+    }
+
+    /**
+     * Sets the value of the airmetTag property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAirmetTag(String value) {
+        this.airmetTag = value;
+    }
+    /**
+     * Gets the value of the outlookEndTime property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getOutlookEndTime() {
+        return outlookEndTime;
+    }
+
+    /**
+     * Sets the value of the outlookEndTime property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setOutlookEndTime(String value) {
+        this.outlookEndTime = value;
+    }
     /**
      * Gets the value of the untilTime property.
      * 
@@ -751,6 +807,52 @@ public class Gfa {
         this.fzlTopBottom = value;
     }
 
+    /**
+     * Gets the value of the CIG property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCig() {
+        return cig;
+    }
+
+    /**
+     * Sets the value of the CIG property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCig(String value) {
+        this.cig = value;
+    }
+    /**
+     * Gets the value of the VIS property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getVis() {
+        return vis;
+    }
+
+    /**
+     * Sets the value of the VIS property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setVis(String value) {
+        this.vis = value;
+    }
     /**
      * Gets the value of the bottom property.
      * 

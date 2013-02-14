@@ -1,7 +1,7 @@
 gov.noaa.nws.ncep.viz.overlays.resources.LatLonOverlayResourceData
 gov.noaa.nws.ncep.viz.overlays.resources.ScaleOverlayResourceData
 gov.noaa.nws.ncep.viz.overlays.resources.DbOverlayResourceData
-gov.noaa.nws.ncep.viz.overlays.resources.PgenXmlOverlayResourceData
+gov.noaa.nws.ncep.viz.overlays.resources.PgenStaticOverlayResourceData
 gov.noaa.nws.ncep.viz.overlays.resources.LPIResourceData
 gov.noaa.nws.ncep.viz.overlays.resources.SPIResourceData
 gov.noaa.nws.ncep.viz.overlays.resources.OverlayResourceGroupData

@@ -21,10 +21,11 @@
 package com.raytheon.edex.services;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
-import java.io.IOException;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -41,7 +42,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.ListResponseEntry;
 import com.raytheon.uf.common.localization.msgs.ListUtilityResponse;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
@@ -121,35 +121,46 @@ public class UtilityManager {
      * @throws EdexException
      */
     private static String getFileChecksum(File file) throws EdexException {
-        File checksumFile = new File(file.toString() + CHECKSUM_FILE_EXTENSION);
-
+        // TODO: Fix FileLocker so it never times out in test driver
+        File checksumFile = getChecksumFile(file);
         String chksum = null;
-        if (!checksumFile.exists()
-                || (checksumFile.lastModified() < file.lastModified())) {
-            // Create a checksum
-            try {
-                chksum = Checksum.getMD5Checksum(file);
-                FileUtil.bytes2File(chksum.getBytes(), checksumFile);
-            } catch (Exception e) {
-                // ignore, no checksum will be provided
-            }
-        } else {
-            BufferedReader br = null;
-            try {
-                br = new BufferedReader(new FileReader(checksumFile));
-                chksum = br.readLine();
-            } catch (Exception e) {
-                // ignore, no checksum will be provided
-            } finally {
-                if (br != null) {
-                    try {
-                        br.close();
-                    } catch (IOException e) {
-                        // ignore - can't do anything anyway...
-                    }
+        try {
+            if (checksumFile.exists()
+                    && checksumFile.lastModified() >= file.lastModified()) {
+
+                BufferedReader reader = new BufferedReader(new FileReader(
+                        checksumFile));
+                try {
+                    chksum = reader.readLine();
+                } finally {
+                    reader.close();
                 }
             }
 
+            if (chksum == null) {
+                chksum = writeChecksum(file);
+            }
+        } catch (Exception e) {
+            // log, no checksum will be provided
+            logger.error("Error determing file checksum for: " + file, e);
+        }
+        return chksum;
+    }
+
+    private static File getChecksumFile(File utilityFile) {
+        return new File(utilityFile.getParentFile(), utilityFile.getName()
+                + CHECKSUM_FILE_EXTENSION);
+    }
+
+    public static String writeChecksum(File file) throws Exception {
+        String chksum = null;
+        File checksumFile = getChecksumFile(file);
+        BufferedWriter bw = new BufferedWriter(new FileWriter(checksumFile));
+        try {
+            chksum = Checksum.getMD5Checksum(file);
+            bw.write(chksum);
+        } finally {
+            bw.close();
         }
         return chksum;
     }
@@ -176,7 +187,20 @@ public class UtilityManager {
             File delFile = new File(fullPath);
 
             if (delFile.exists()) {
-                delFile.delete();
+                if (!delFile.delete()) {
+                    // Failed to delete file...
+                    msg = "File could not be deleted: ";
+                    if (delFile.isDirectory() && delFile.list().length > 0) {
+                        msg += "Non-empty directory";
+                    } else if (delFile.canWrite() == false) {
+                        msg += "Do not have write permission to file";
+                    } else if (delFile.getParentFile() != null
+                            && delFile.getParentFile().canWrite() == false) {
+                        msg += "Do not have write permission to file's parent directory";
+                    } else {
+                        msg += "Reason unknown";
+                    }
+                }
                 String md5Path = fullPath + ".md5";
                 File md5File = new File(md5Path);
                 if (md5File.exists()) {
@@ -184,20 +208,22 @@ public class UtilityManager {
                 }
             }
         } catch (Exception e) {
-            return new DeleteUtilityResponse(context, e.getMessage(), fileName);
+            return new DeleteUtilityResponse(context, e.getMessage(), fileName,
+                    System.currentTimeMillis());
         }
 
+        long timeStamp = System.currentTimeMillis();
         // send notification
         try {
             EDEXUtil.getMessageProducer().sendAsync(
                     NOTIFY_ID,
                     new FileUpdatedMessage(context, fileName,
-                            FileChangeType.DELETED));
+                            FileChangeType.DELETED, timeStamp));
         } catch (Exception e) {
             logger.error("Error sending file updated message", e);
         }
 
-        return new DeleteUtilityResponse(context, msg, fileName);
+        return new DeleteUtilityResponse(context, msg, fileName, timeStamp);
     }
 
     /**

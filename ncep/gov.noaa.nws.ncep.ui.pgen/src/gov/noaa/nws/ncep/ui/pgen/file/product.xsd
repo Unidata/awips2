@@ -580,6 +580,8 @@
     		<xsd:attribute name="condsContg" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="fromCondsEndg" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="fromCondsDvlpg" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="airmetTag" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="outlookEndTime" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="untilTime" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="issueTime" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="textVor" type="xsd:string"></xsd:attribute>
@@ -596,6 +598,8 @@
     		<xsd:attribute name="lyr" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="coverage" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="fzlTopBottom" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="cig" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="vis" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="bottom" type="xsd:string"></xsd:attribute>
             <xsd:attribute name="top" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="states" type="xsd:string"></xsd:attribute>

@@ -22,7 +22,6 @@ package com.raytheon.viz.gfe.core.internal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -30,10 +29,14 @@ import org.apache.commons.lang.Validate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -44,6 +47,7 @@ import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.actions.ShowISCMarkersAction;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.GFETimeMatcher;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayModeChangedListener;
@@ -58,7 +62,6 @@ import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.edittool.AbstractGFEEditTool;
 import com.raytheon.viz.gfe.rsc.GFEResource;
 import com.raytheon.viz.gfe.rsc.GFESystemResource;
-import com.raytheon.viz.gfe.rsc.colorbar.GFEColorbarResource;
 
 /**
  * Abstract Spatial Display Manager for GFE. Most of the implemented methods
@@ -82,6 +85,8 @@ public abstract class AbstractSpatialDisplayManager implements
         ISpatialDisplayManager {
 
     protected final DataManager dataManager;
+
+    private TimeRange globalTimeRange;
 
     protected Date seTime;
 
@@ -117,7 +122,7 @@ public abstract class AbstractSpatialDisplayManager implements
 
     protected AbstractSpatialDisplayManager(DataManager dataMgr) {
         this.dataManager = dataMgr;
-        this.seTime = SimulatedTime.getSystemTime().getTime();
+        this.globalTimeRange = new TimeRange(0, 0);
         this.activatedParmChangedListeners = new HashSet<IActivatedParmChangedListener>();
         this.gridVisibilityChangedListeners = new HashSet<IGridVisibilityChangedListener>();
         this.globalSelectionTRChangedListeners = new HashSet<IGlobalSelectionTRChangedListener>();
@@ -146,6 +151,12 @@ public abstract class AbstractSpatialDisplayManager implements
                 .getBoolean("ShowISCOfficialSymbol"));
     }
 
+    /**
+     * Gets any descriptors to be kept in sync with the display manager (can be
+     * empty)
+     * 
+     * @return
+     */
     protected abstract IDescriptor[] getDescriptors();
 
     /*
@@ -311,13 +322,10 @@ public abstract class AbstractSpatialDisplayManager implements
         IDescriptor[] descriptors = getDescriptors();
         for (IDescriptor desc : descriptors) {
             ResourceList rl = desc.getResourceList();
-            synchronized (rl) {
-                for (ResourcePair rp : rl) {
-                    AbstractVizResource<?, ?> rsc = rp.getResource();
-                    if (rsc instanceof GFESystemResource) {
-                        ((GFESystemResource) rsc).addEditTool(editTool);
-                    }
-                }
+            List<GFESystemResource> rscs = rl
+                    .getResourcesByTypeAsType(GFESystemResource.class);
+            for (GFESystemResource rsc : rscs) {
+                rsc.addEditTool(editTool);
             }
         }
     }
@@ -332,87 +340,13 @@ public abstract class AbstractSpatialDisplayManager implements
     @Override
     public void removeEditTool(AbstractGFEEditTool editTool)
             throws VizException {
-        IDescriptor[] descriptors = getDescriptors();
-        for (IDescriptor desc : descriptors) {
-            ResourceList rl = desc.getResourceList();
-            synchronized (rl) {
-                for (ResourcePair rp : rl) {
-                    AbstractVizResource<?, ?> rsc = rp.getResource();
-                    if (rsc instanceof GFESystemResource) {
-                        ((GFESystemResource) rsc).removeEditTool(editTool);
-                    }
-                }
+        for (IDescriptor desc : getDescriptors()) {
+            List<GFESystemResource> rscs = desc.getResourceList()
+                    .getResourcesByTypeAsType(GFESystemResource.class);
+            for (GFESystemResource rsc : rscs) {
+                rsc.removeEditTool(editTool);
             }
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getColorMapParameters
-     * (com.raytheon.viz.gfe.core.parm.Parm)
-     */
-    @Override
-    public ColorMapParameters getColorMapParameters(Parm p)
-            throws GFEOperationFailedException {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            throw new GFEOperationFailedException(
-                    "Unable to get colormap from parm because spatial editor is not active");
-        }
-
-        IDescriptor descriptor = descriptors[0];
-        return getColorMapParameters(p, descriptor);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getColorMapParameters
-     * (com.raytheon .viz.gfe.core.parm.Parm)
-     */
-    @Override
-    public ColorMapParameters getColorMapParameters(Parm p,
-            IDescriptor descriptor) throws GFEOperationFailedException {
-        List<GFEResource> resourceList = descriptor.getResourceList()
-                .getResourcesByTypeAsType(GFEResource.class);
-        for (GFEResource gfeRsc : resourceList) {
-            if (gfeRsc.getParm().equals(p)) {
-                return gfeRsc.getCapability(ColorMapCapability.class)
-                        .getColorMapParameters();
-            }
-
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#getColorbarExtent()
-     */
-    @Override
-    public PixelExtent getColorbarExtent() {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            return null;
-        }
-
-        IDescriptor descriptor = descriptors[0];
-        ResourceList rscList = descriptor.getResourceList();
-        synchronized (rscList) {
-            for (ResourcePair rp : rscList) {
-                AbstractVizResource<?, ?> rsc = rp.getResource();
-                if (rsc instanceof GFEColorbarResource) {
-                    return ((GFEColorbarResource) rsc).getExtent();
-                }
-            }
-        }
-
-        return null;
     }
 
     /*
@@ -425,30 +359,17 @@ public abstract class AbstractSpatialDisplayManager implements
      */
     @Override
     public void setDisplayMode(Parm parm, VisMode mode) {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            return;
-        }
-
-        for (IDescriptor descriptor : descriptors) {
-            ResourceList resourceList = descriptor.getResourceList();
-            synchronized (resourceList) {
-                Iterator<ResourcePair> iterator = resourceList.iterator();
-
-                while (iterator.hasNext()) {
-                    ResourcePair resourcePair = iterator.next();
-                    AbstractVizResource<?, ?> rsc = resourcePair.getResource();
-                    if (rsc instanceof GFEResource) {
-                        Parm p = ((GFEResource) rsc).getParm();
-                        if (p.equals(parm)) {
-                            p.getDisplayAttributes().setVisMode(mode);
-                            ((GFEResource) rsc).reset();
-                        } else if (mode.equals(VisMode.IMAGE)) {
-                            p.getDisplayAttributes()
-                                    .setVisMode(VisMode.GRAPHIC);
-                            ((GFEResource) rsc).reset();
-                        }
-                    }
+        for (IDescriptor descriptor : getDescriptors()) {
+            List<GFEResource> rscs = descriptor.getResourceList()
+                    .getResourcesByTypeAsType(GFEResource.class);
+            for (GFEResource rsc : rscs) {
+                Parm p = rsc.getParm();
+                if (p.equals(parm)) {
+                    p.getDisplayAttributes().setVisMode(mode);
+                    rsc.reset();
+                } else if (mode.equals(VisMode.IMAGE)) {
+                    p.getDisplayAttributes().setVisMode(VisMode.GRAPHIC);
+                    rsc.reset();
                 }
             }
         }
@@ -465,16 +386,11 @@ public abstract class AbstractSpatialDisplayManager implements
      */
     @Override
     public GFESystemResource getSystemResource() throws VizException {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            return null;
-        }
-
-        ResourceList rl = descriptors[0].getResourceList();
-
-        for (ResourcePair rp : rl) {
-            if (rp.getResource() instanceof GFESystemResource) {
-                return (GFESystemResource) rp.getResource();
+        for (IDescriptor descriptor : getDescriptors()) {
+            List<GFESystemResource> rscs = descriptor.getResourceList()
+                    .getResourcesByTypeAsType(GFESystemResource.class);
+            for (GFESystemResource rsc : rscs) {
+                return rsc;
             }
         }
 
@@ -492,21 +408,16 @@ public abstract class AbstractSpatialDisplayManager implements
      */
     @Override
     public ResourcePair getResourcePair(Parm parm) {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0 || descriptors[0] == null) {
-            return null;
-        }
+        for (IDescriptor descriptor : getDescriptors()) {
+            ResourceList resourceList = descriptor.getResourceList();
 
-        IDescriptor descriptor = descriptors[0];
-
-        ResourceList resourceList = descriptor.getResourceList();
-
-        for (ResourcePair resourcePair : resourceList) {
-            AbstractVizResource<?, ?> rsc = resourcePair.getResource();
-            if (rsc instanceof GFEResource) {
-                GFEResource grsc = (GFEResource) rsc;
-                if (grsc.getParm().equals(parm)) {
-                    return resourcePair;
+            for (ResourcePair resourcePair : resourceList) {
+                AbstractVizResource<?, ?> rsc = resourcePair.getResource();
+                if (rsc instanceof GFEResource) {
+                    GFEResource grsc = (GFEResource) rsc;
+                    if (grsc.getParm().equals(parm)) {
+                        return resourcePair;
+                    }
                 }
             }
         }
@@ -522,57 +433,54 @@ public abstract class AbstractSpatialDisplayManager implements
      */
     @Override
     public Parm[] getCurrentlyEnabledParms() {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            return new Parm[0];
-        }
-
-        IDescriptor descriptor = descriptors[0];
-        List<Parm> parmList = new ArrayList<Parm>();
-        ResourceList rscList = descriptor.getResourceList();
-        synchronized (rscList) {
-            for (ResourcePair rp : rscList) {
-                AbstractVizResource<?, ?> rsc = rp.getResource();
-                ResourceProperties props = rp.getProperties();
-                if (rsc instanceof GFEResource && props.isVisible()) {
-                    GFEResource grsc = (GFEResource) rsc;
-                    parmList.add(grsc.getParm());
+        for (IDescriptor descriptor : getDescriptors()) {
+            List<Parm> parmList = new ArrayList<Parm>();
+            List<GFEResource> rscs = descriptor.getResourceList()
+                    .getResourcesByTypeAsType(GFEResource.class);
+            for (GFEResource rsc : rscs) {
+                if (rsc.getProperties().isVisible()) {
+                    parmList.add(rsc.getParm());
                 }
+            }
+            if (parmList.size() > 0) {
+                return parmList.toArray(new Parm[parmList.size()]);
             }
         }
 
-        return parmList.toArray(new Parm[parmList.size()]);
+        return new Parm[0];
     }
 
     @Override
     public void makeVisible(Parm parm, boolean visible, boolean makeOnlyVisible) {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            return;
+        for (IDescriptor descriptor : getDescriptors()) {
+            makeVisible(descriptor, parm, visible, makeOnlyVisible);
         }
 
-        for (IDescriptor descriptor : descriptors) {
-            ResourceList resourceList = descriptor.getResourceList();
-            synchronized (resourceList) {
-                Iterator<ResourcePair> iterator = resourceList.iterator();
-
-                while (iterator.hasNext()) {
-                    ResourcePair resourcePair = iterator.next();
-                    AbstractVizResource<?, ?> rsc = resourcePair.getResource();
-                    if (rsc instanceof GFEResource) {
-                        ResourceProperties props = resourcePair.getProperties();
-                        Parm p = ((GFEResource) rsc).getParm();
-                        if (p.equals(parm)) {
-                            props.setVisible(visible);
-                        } else if (makeOnlyVisible) {
-                            props.setVisible(false);
-                        }
-                    }
-                }
-            }
-        }
         for (IGridVisibilityChangedListener listener : this.gridVisibilityChangedListeners) {
             listener.gridVisibilityChanged(parm, visible, makeOnlyVisible);
+        }
+    }
+
+    private void makeVisible(IDescriptor descriptor, Parm parm,
+            boolean visible, boolean makeOnlyVisible) {
+        List<GFEResource> rscs = descriptor.getResourceList()
+                .getResourcesByTypeAsType(GFEResource.class);
+        for (GFEResource rsc : rscs) {
+            ResourceProperties props = rsc.getProperties();
+            Parm p = rsc.getParm();
+            if (p.equals(parm)) {
+                props.setVisible(visible);
+            } else if (makeOnlyVisible) {
+                props.setVisible(false);
+            }
+        }
+
+        try {
+            // Parm visibility affects GFE time matching
+            descriptor.redoTimeMatching();
+        } catch (VizException e) {
+            UFStatus.getHandler().handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
         }
     }
 
@@ -585,47 +493,36 @@ public abstract class AbstractSpatialDisplayManager implements
      */
     public void activateParm(Parm parmToActivate)
             throws GFEOperationFailedException {
-        IDescriptor[] descriptors = getDescriptors();
-        if (descriptors.length == 0) {
-            throw new GFEOperationFailedException(
-                    "Unable to activate parm because spatial editor is not active");
+        // Keep any resources on descriptors in sync
+        for (IDescriptor descriptor : getDescriptors()) {
+            ResourceList resourceList = descriptor.getResourceList();
+            List<GFEResource> rscs = resourceList
+                    .getResourcesByTypeAsType(GFEResource.class);
+            for (GFEResource rsc : rscs) {
+                ResourceProperties props = rsc.getProperties();
+                // skip the quick view resource
+                if (props.isSystemResource()) {
+                    continue;
+                }
+                Parm parm = ((GFEResource) rsc).getParm();
+                if (parm.equals(parmToActivate)) {
+                    props.setVisible(true);
+                }
+                ((GFEResource) rsc).reset();
+            }
         }
 
-        for (IDescriptor descriptor : descriptors) {
-            ResourceList resourceList = descriptor.getResourceList();
-            synchronized (resourceList) {
-                Iterator<ResourcePair> iterator = resourceList.iterator();
-
-                while (iterator.hasNext()) {
-                    ResourcePair resourcePair = iterator.next();
-                    AbstractVizResource<?, ?> rsc = resourcePair.getResource();
-                    if (rsc instanceof GFEResource) {
-                        ResourceProperties props = resourcePair.getProperties();
-                        // skip the quick view resource
-                        if (props.isSystemResource()) {
-                            continue;
-                        }
-                        Parm parm = ((GFEResource) rsc).getParm();
-                        if (parm.equals(parmToActivate)) {
-                            props.setVisible(true);
-                        }
-                        ((GFEResource) rsc).reset();
-                    }
-                }
-
-                this.activeParm = parmToActivate;
-                if (activeParm != null) {
-                    if (Message.inquireLastMessage(
-                            SetImageOnActiveChangedMsg.class).isEnabled()) {
-                        setDisplayMode(parmToActivate, VisMode.IMAGE);
-                    }
-                    this.lastActiveParm = parmToActivate;
-                }
-
-                for (IActivatedParmChangedListener listener : this.activatedParmChangedListeners) {
-                    listener.activatedParmChanged(parmToActivate);
-                }
+        this.activeParm = parmToActivate;
+        if (activeParm != null) {
+            if (Message.inquireLastMessage(SetImageOnActiveChangedMsg.class)
+                    .isEnabled()) {
+                setDisplayMode(parmToActivate, VisMode.IMAGE);
             }
+            this.lastActiveParm = parmToActivate;
+        }
+
+        for (IActivatedParmChangedListener listener : this.activatedParmChangedListeners) {
+            listener.activatedParmChanged(parmToActivate);
         }
     }
 
@@ -712,13 +609,51 @@ public abstract class AbstractSpatialDisplayManager implements
     }
 
     @Override
-    public void setSpatialEditorTime(Date date) {
-        seTime = date;
+    public Date getSpatialEditorTime() {
+        // Check descriptors first for current time
+        IDescriptor[] descs = getDescriptors();
+        for (IDescriptor desc : descs) {
+            FramesInfo fi = desc.getFramesInfo();
+            DataTime dt = fi.getCurrentFrame();
+            if (dt != null) {
+                return dt.getRefTime();
+            }
+        }
+        // No descriptors or no set time, use seTime
+        return seTime;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setSpatialEditorTime
+     * (java.util.Date)
+     */
     @Override
-    public Date getSpatialEditorTime() {
-        return seTime;
+    public void setSpatialEditorTime(Date date) {
+        this.seTime = date;
+        // Keep descriptors in sync
+        for (IDescriptor desc : getDescriptors()) {
+            setSpatialEditorTime(desc, date);
+        }
+    }
+
+    protected void setSpatialEditorTime(IDescriptor descriptor, Date date) {
+        AbstractTimeMatcher matcher = descriptor.getTimeMatcher();
+        if (matcher instanceof GFETimeMatcher) {
+            ((GFETimeMatcher) matcher).setSelectedDate(date);
+            try {
+                // Selected spatial editor time affects GFE time matching
+                matcher.redoTimeMatching(descriptor);
+            } catch (VizException e) {
+                UFStatus.getHandler().handle(Priority.PROBLEM,
+                        "Error redoing time matching", e);
+            }
+        }
+        if (date != null) {
+            descriptor.getFrameCoordinator().changeFrame(date);
+        }
     }
 
     private void updateElement(String commandId, boolean state) {
@@ -729,4 +664,65 @@ public abstract class AbstractSpatialDisplayManager implements
             service.refreshElements(commandId, null);
         }
     }
+
+    @Override
+    public void toggleVisibility(Parm parm) {
+        Boolean visible = null;
+        // Check for parm on any descriptor, use visiblity of first found
+        for (IDescriptor descriptor : getDescriptors()) {
+            ResourceList resourceList = descriptor.getResourceList();
+            List<GFEResource> rscs = resourceList
+                    .getResourcesByTypeAsType(GFEResource.class);
+            for (GFEResource rsc : rscs) {
+                Parm p = rsc.getParm();
+                if (p.equals(parm)) {
+                    visible = rsc.getProperties().isVisible();
+                    break;
+                }
+            }
+            if (visible != null) {
+                break;
+            }
+        }
+
+        if (visible != null) {
+            // Only if resource visibilty was found do we toggle and notify
+            visible = !visible;
+            for (IDescriptor descriptor : getDescriptors()) {
+                makeVisible(descriptor, parm, visible, false);
+            }
+
+            for (IGridVisibilityChangedListener listener : this.gridVisibilityChangedListeners) {
+                listener.gridVisibilityChanged(parm, visible, false);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setGlobalTimeRange(com
+     * .raytheon.edex.plugin.time.TimeRange)
+     */
+    @Override
+    public void setGlobalTimeRange(TimeRange timeRange) {
+        this.globalTimeRange = timeRange;
+
+        for (IGlobalSelectionTRChangedListener listener : this.globalSelectionTRChangedListeners) {
+            listener.globalSelectionTRChanged(timeRange);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getGlobalTimeRange()
+     */
+    @Override
+    public TimeRange getGlobalTimeRange() {
+        return this.globalTimeRange;
+    }
+
 }

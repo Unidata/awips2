@@ -44,6 +44,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
 
 /**
@@ -54,8 +55,8 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 01, 2011            dhladky     Initial creation
- * July 13, 2012           dhladky    Revamped to help memory
+ * Apr 01, 2011            dhladky      Initial creation
+ * July 13, 2012           dhladky      Revamped to help memory
  * 
  * </pre>
  * 
@@ -443,7 +444,6 @@ public class FFTI implements Runnable {
                     "Failed to evaluate Ratio/Diff. "
                             + attribute.getAttributeName() + ": " + displayName
                             + "\n" + e);
-            e.printStackTrace();
         }
     }
 
@@ -826,9 +826,9 @@ public class FFTI implements Runnable {
             }
 
             long cur = config.getDate().getTime();
-            long timeBack = (long) (duration * 3600 * 1000);
+            long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
             Date backDate = new Date(cur - timeBack);
-            long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey) * 60 * 1000;
+            long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
 
             FFMPDataContainer fdc = null;
 
@@ -894,6 +894,15 @@ public class FFTI implements Runnable {
         return accumulator;
     }
 
+    /**
+     * Gets the ratio and difference values for this site
+     * @param qSourceKey
+     * @param qSiteKey
+     * @param ffgType
+     * @param duration
+     * @param unit
+     * @return
+     */
     private FFTIRatioDiff getRatioAndDiffForSite(String qSourceKey,
             String qSiteKey, String ffgType, double duration, String unit) {
 
@@ -923,13 +932,13 @@ public class FFTI implements Runnable {
             values.setUnit(unit);
 
             long cur = config.getDate().getTime();
-            long timeBack = (long) (duration * 3600 * 1000);
+            long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
             Date backDate = new Date(cur - timeBack);
-            long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey) * 60 * 1000;
+            long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
 
             // make sure we have data
             Date ffgBackDate = new Date(config.getDate().getTime()
-                    - (3600 * 1000 * 24));
+                    - (TimeUtil.MILLIS_PER_HOUR * FFMPGenerator.FFG_SOURCE_CACHE_TIME));
 
             String primarySource = ffmpgen.fscm.getPrimarySource(ffmpQSource);
             ProductXML product = ffmpgen.fscm.getProduct(primarySource);
@@ -950,7 +959,7 @@ public class FFTI implements Runnable {
 
                 if (guidSourceExpiration == 0l) {
                     guidSourceExpiration = iguidSource
-                            .getExpirationMinutes(qSiteKey) * 60 * 1000;
+                            .getExpirationMinutes(qSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
                     break;
                 }
             }
@@ -1046,7 +1055,7 @@ public class FFTI implements Runnable {
             SourceXML ffmpQSource, double duration, String qSiteKey) {
 
         long cur = config.getDate().getTime();
-        long timeBack = (long) (duration * 3600 * 1000);
+        long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
         Date backDate = new Date(cur - timeBack);
         long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey);
         Double gapVal = 0.0;
@@ -1054,14 +1063,14 @@ public class FFTI implements Runnable {
         if (qpeContainer.getOrderedTimes(backDate) != null) {
 
             gapVal = 0.0;
-            ArrayList<FFMPGap> gaps = FFMPGap.getGaps(
+            List<FFMPGap> gaps = FFMPGap.getGaps(
                     qpeContainer.getOrderedTimes(backDate), expirationTime,
                     backDate, config.getDate());
             for (FFMPGap gap : gaps) {
                 gapVal += gap.getGap();
             }
 
-            gapVal = gapVal / 60;
+            gapVal = gapVal / TimeUtil.MINUTES_PER_HOUR;
         }
 
         return gapVal;
