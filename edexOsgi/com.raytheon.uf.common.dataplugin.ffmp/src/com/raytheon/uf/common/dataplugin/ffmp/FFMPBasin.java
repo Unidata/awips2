@@ -22,14 +22,11 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -45,30 +42,49 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
+ * 01/27/13      1478       D. Hladky   Added support for writing aggregate record cache
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFMPBasin implements ISerializableObject, Cloneable {
 
     /** pfafstetter id(key) in GIS **/
     @DynamicSerializeElement
-    @XmlElement
     protected Long pfaf;
 
     /** boolean aggregator **/
     @DynamicSerializeElement
-    @XmlAttribute
     protected boolean aggregated = false;
 
-    @DynamicSerializeElement
-    @XmlElement
+    /** object used in calculations 
+     *  not serialized
+     **/
+    @Transient
     protected TreeMap<Date, Float> values;
+    
+    /** object used for serialization **/
+    @DynamicSerializeElement
+    public float[] cacheValues;
+
+    /**
+     * Get the float array of serialized values
+     * @return
+     */
+    public float[] getCacheValues() {
+        return cacheValues;
+    }
+
+    /**
+     * Set the serialized array of cache values
+     * @param cacheValues
+     */
+    public void setCacheValues(float[] cacheValues) {
+        this.cacheValues = cacheValues;
+    }
 
     /**
      * @return the pfaf_id
@@ -326,14 +342,23 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     }
 
     /**
-     * No arg hibernate constructor
+     * No arg serial constructor
      */
     public FFMPBasin() {
 
+        values = new TreeMap<Date, Float>(new Comparator<Date>() {
+            @Override
+            public int compare(Date o1, Date o2) {
+                // Null checks?
+                return (int)(o2.getTime() - o1.getTime()) ;
+            }
+        });
     }
 
     /**
-     * useful constructor
+     * Useful constructor
+     * @param pfaf
+     * @param aggregated
      */
     public FFMPBasin(Long pfaf, boolean aggregated) {
         setPfaf(pfaf);
@@ -342,10 +367,44 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
             @Override
             public int compare(Date o1, Date o2) {
                 // Null checks?
-            	return (int)Math.signum(o2.getTime() - o1.getTime()) ;
+            	return (int)(o2.getTime() - o1.getTime()) ;
             }
 
         });
+    }
+    
+    /**
+     * Populates the values from the cache
+     * 
+     * @param times
+     */
+    public void populate(List<Long> times) {
+        // safe to avoid Array Index Exceptions / shouldn't happen but.....
+
+        if (cacheValues != null && (times.size() == cacheValues.length)) {
+
+            int i = 0;
+            for (Long time : times) {
+                values.put(new Date(time), cacheValues[i]);
+                i++;
+            }
+            //System.out.println("populated :"+i+" pfaf : "+pfaf);
+        }
+    }
+    
+    /**
+     * populates the serialized array
+     */
+    public void setCache() {
+        
+        cacheValues = new float[values.size()];
+        int i = 0;
+        
+        for (Date date: values.descendingKeySet()) {
+            cacheValues[i] = values.get(date);
+            i++;
+        }
+        //System.out.println("wrote :"+i+" pfaf : "+pfaf);
     }
 
     /**
