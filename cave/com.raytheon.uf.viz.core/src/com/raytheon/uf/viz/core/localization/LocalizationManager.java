@@ -22,10 +22,9 @@ package com.raytheon.uf.viz.core.localization;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,8 +50,8 @@ import com.raytheon.uf.common.localization.ILocalizationAdapter;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LockingFileInputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.msgs.AbstractPrivilegedUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityResponse;
@@ -73,9 +72,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.PrivilegedRequestFactory;
-import com.raytheon.uf.viz.core.requests.ServerRequestException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
@@ -90,7 +89,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Jul 30, 2007            njensen     Refactored.
  * Feb 12, 2008            chammack    Removed base configuration
  * Mar 26, 2008            njensen     Added rename() and getFileContents().
- * May 19, 2007     #1127  randerso   Implemented error handling
+ * May 19, 2007     #1127  randerso    Implemented error handling
+ * Sep 12, 2012 1167       djohnson    Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -224,6 +224,8 @@ public class LocalizationManager implements IPropertyChangeListener {
                 VizApp.setJmsServer(resp.getJmsServer());
                 VizApp.setPypiesServer(resp.getPypiesServer());
                 VizApp.setServerDataDir(resp.getServerDataDir());
+                VizServers.getInstance().setServerLocations(
+                        resp.getServerLocations());
             } catch (VizException e) {
                 statusHandler.handle(UFStatus.Priority.SIGNIFICANT,
                         "Error connecting to localization server", e);
@@ -525,6 +527,13 @@ public class LocalizationManager implements IPropertyChangeListener {
 
     }
 
+    /**
+     * Retrieves the LocalizationFile contents from the localization server.
+     * Locks on the file
+     * 
+     * @param file
+     * @throws LocalizationOpFailedException
+     */
     protected void retrieve(LocalizationFile file)
             throws LocalizationOpFailedException {
         try {
@@ -609,7 +618,8 @@ public class LocalizationManager implements IPropertyChangeListener {
         // Clean up any stale files that don't exist anymore
         for (File check : toCheck) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            if (available.contains(check) == false) {
+            // hidden files are not returned from server so ignore those
+            if (check.isHidden() == false && available.contains(check) == false) {
                 String name = check.getName();
                 // Make sure python object files don't get removed when
                 // .py file is still available
@@ -697,150 +707,145 @@ public class LocalizationManager implements IPropertyChangeListener {
     }
 
     /**
-     * Uploads a file to EDEX through the UtilitySrv
+     * Uploads a stream as a file to EDEX through the UtilitySrv. It is the
+     * responsibility of the caller to close the stream
      * 
      * @param context
-     *            the context to upload to
      * @param filename
-     *            the name of the file
-     * @param bytes
-     *            the contents of the file
-     * @return
-     * @throws LocalizationCommunicationException
+     * @param in
+     * @param streamLength
+     * @return the new server time stamp
      * @throws LocalizationOpFailedException
      */
-    protected boolean upload(LocalizationContext context, String filename,
-            FileInputStream fin, long totalSize)
+    protected long upload(LocalizationContext context, String filename,
+            InputStream in, long streamLength)
             throws LocalizationOpFailedException {
-        boolean success = true;
+        if (context.getLocalizationLevel().isSystemLevel()) {
+            throw new UnsupportedOperationException(
+                    "Saving to the System Level, "
+                            + context.getLocalizationLevel()
+                            + ", is not supported.");
+        }
+
+        LocalizationStreamPutRequest request;
         try {
-            LocalizationStreamPutRequest request = PrivilegedRequestFactory
+            request = PrivilegedRequestFactory
                     .constructPrivilegedRequest(LocalizationStreamPutRequest.class);
-            request.setMyContextName(getContextName(context
+            request.setMyContextName(LocalizationManager.getContextName(context
                     .getLocalizationLevel()));
             request.setContext(context);
             request.setFileName(filename);
-            request.setOffset(0);
-            boolean finished = false;
-            byte[] bytes = new byte[512 * 1024];
-            int totalRead = 0;
-            while (!finished) {
-                request.setOffset(totalRead);
-                int read = fin.read(bytes, 0, bytes.length);
+        } catch (VizException e) {
+            throw new LocalizationOpFailedException(
+                    "Could not construct privileged utility request", e);
+        }
+
+        long serverModTime = -1;
+        // Create byte[] buffer
+        byte[] bytes = new byte[512 * 1024];
+        // initial offset = 0
+        int offset = 0;
+        do {
+            // set current offset
+            request.setOffset(offset);
+            try {
+                // read in data from input stream
+                int read = in.read(bytes, 0, bytes.length);
                 if (read > 0) {
-                    totalRead += read;
-                    bytes = Arrays.copyOf(bytes, read);
-                    request.setBytes(bytes);
-                    request.setEnd(totalRead == totalSize);
+                    // byte read, trim if necessary
+                    offset += read;
+                    if (read < bytes.length) {
+                        bytes = Arrays.copyOf(bytes, read);
+                    }
                 } else {
-                    request.setBytes(new byte[0]);
-                    request.setEnd(true);
+                    bytes = new byte[0];
+                    // Should be case but paranoia takes over
+                    offset = (int) streamLength;
                 }
-
-                if (request.isEnd()) {
-                    finished = true;
-                }
-
-                success = (ThriftClient.sendLocalizationRequest(request) != null);
-            }
-        } catch (ServerRequestException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
-            success = false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error uploading file to server", e);
-            success = false;
-        } finally {
-            try {
-                fin.close();
+                request.setBytes(bytes);
+                request.setEnd(offset == streamLength);
             } catch (IOException e) {
-                // ignore message
-            }
-        }
-
-        return success;
-    }
-
-    /**
-     * Uploads a file to the edex through the UtilitySrv
-     * 
-     * @param context
-     *            the context to upload to
-     * @param filename
-     *            the name of the file
-     * @param localFile
-     *            the local file, used to send the contents of the file to the
-     *            service
-     * @return
-     * @throws LocalizationOpFailedException
-     * @throws LocalizationCommunicationException
-     */
-    protected boolean upload(LocalizationContext context, String path,
-            File localFile) throws LocalizationOpFailedException {
-        if (localFile.isDirectory()) {
-            // TODO: Someday upload entire directory structure onto
-            // server?
-        } else if (localFile.exists()) {
-            // Upload single file
-            try {
-                return upload(context, path, new LockingFileInputStream(
-                        localFile), localFile.length());
-            } catch (FileNotFoundException e) {
                 throw new LocalizationOpFailedException(
-                        "Error opening input stream on localization file", e);
+                        "Could not save file, failed to read in contents", e);
             }
-        }
-        return true;
+
+            try {
+                Number modTime = (Number) ThriftClient
+                        .sendLocalizationRequest(request);
+                if (modTime != null) {
+                    serverModTime = modTime.longValue();
+                }
+            } catch (VizException e) {
+                throw new LocalizationOpFailedException(
+                        "Error uploading file contents to localization server: "
+                                + e.getLocalizedMessage(), e);
+            }
+
+        } while (request.isEnd() == false);
+        return serverModTime;
     }
 
     /**
-     * Deletes a localization file
+     * Deletes a localization file from localization server
      * 
      * @param context
      *            the context to the file
      * @param filename
      *            the name of the file
-     * @return
+     * @return modified time on server
      * @throws LocalizationOpFailedException
-     * @throws LocalizationCommunicationException
      */
-    protected boolean delete(LocalizationContext context, String filename)
+    protected long delete(LocalizationContext context, String filename)
             throws LocalizationOpFailedException {
-        // Build list commands
-        DeleteUtilityCommand[] commands = new DeleteUtilityCommand[1];
-
-        commands[0] = new DeleteUtilityCommand(context, filename);
-        commands[0].setMyContextName(getContextName(context
-                .getLocalizationLevel()));
-
-        PrivilegedUtilityRequestMessage deleteRequest = null;
+        PrivilegedUtilityRequestMessage request;
         try {
-            deleteRequest = PrivilegedRequestFactory
+            request = PrivilegedRequestFactory
                     .constructPrivilegedRequest(PrivilegedUtilityRequestMessage.class);
-            deleteRequest.setCommands(commands);
         } catch (VizException e) {
             throw new LocalizationOpFailedException(
-                    "Error constructing privileged utility request", e);
+                    "Could not construct privileged utility request", e);
         }
 
-        AbstractUtilityResponse[] responseList = makeRequest(deleteRequest);
-        if (responseList == null) {
-            return false;
-        }
-        for (AbstractUtilityResponse response : responseList) {
-            if (!(response instanceof DeleteUtilityResponse)) {
+        DeleteUtilityCommand command = new DeleteUtilityCommand(context,
+                filename);
+        command.setMyContextName(getContextName(context.getLocalizationLevel()));
+        AbstractPrivilegedUtilityCommand[] commands = new AbstractPrivilegedUtilityCommand[] { command };
+        request.setCommands(commands);
+        try {
+            UtilityResponseMessage response = (UtilityResponseMessage) ThriftClient
+                    .sendLocalizationRequest(request);
+            if (response == null) {
                 throw new LocalizationOpFailedException(
-                        "Unexpected type returned"
-                                + response.getClass().getName());
+                        "No response received for delete command");
             }
-
-            // DeleteUtilityResponse deleteResponse = (DeleteUtilityResponse)
-            // response;
-            // TODO log this
+            AbstractUtilityResponse[] responses = response.getResponses();
+            if (responses == null || responses.length != commands.length) {
+                throw new LocalizationOpFailedException(
+                        "Unexpected return type from delete: Expected "
+                                + commands.length + " responses, received "
+                                + (responses != null ? responses.length : null));
+            }
+            AbstractUtilityResponse rsp = responses[0];
+            if (rsp instanceof DeleteUtilityResponse) {
+                DeleteUtilityResponse dur = (DeleteUtilityResponse) rsp;
+                if (dur.getErrorText() != null) {
+                    throw new LocalizationOpFailedException(
+                            "Error processing delete command: "
+                                    + dur.getErrorText());
+                }
+                // Yay, successful execution!
+                return dur.getTimeStamp();
+            } else {
+                throw new LocalizationOpFailedException(
+                        "Unexpected return type from delete: Expected "
+                                + DeleteUtilityResponse.class + " received "
+                                + (rsp != null ? rsp.getClass() : null));
+            }
+        } catch (VizException e) {
+            throw new LocalizationOpFailedException(
+                    "Error processing delete command: "
+                            + e.getLocalizedMessage(), e);
         }
-
-        return true;
     }
 
     /**

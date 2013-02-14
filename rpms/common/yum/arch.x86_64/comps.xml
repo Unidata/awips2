@@ -125,6 +125,7 @@
          <packagereq type="default">awips2-cave-viz-npp</packagereq>
          <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
          <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
+         <packagereq type="default">awips2-cave-viz-datadelivery</packagereq>
          <packagereq type="default">awips2-gfesuite-client</packagereq>
 
          <packagereq type="default">awips2-alertviz</packagereq>

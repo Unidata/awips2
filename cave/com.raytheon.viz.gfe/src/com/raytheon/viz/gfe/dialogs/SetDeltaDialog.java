@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -42,7 +43,7 @@ import com.raytheon.viz.gfe.smarttool.SmartUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * TODO Add Description
+ * Dialog to adjust a grid's delta value.
  * 
  * <pre>
  * 
@@ -51,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 16, 2011            dgilling     Initial creation
+ * Nov 13, 2012 1298       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -61,9 +63,11 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class SetDeltaDialog extends CaveJFACEDialog implements
         IDisplayedParmListChangedListener, IActivatedParmChangedListener {
 
-    private final static int ADJUST_DOWN = 97;
+    private static SetDeltaDialog dialog;
 
-    private final static int ADJUST_UP = 98;
+    private final int ADJUST_DOWN = 97;
+
+    private final int ADJUST_UP = 98;
 
     private DataManager dataManager;
 
@@ -78,8 +82,6 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
     private Label entryLabel;
 
     private Text entryField;
-
-    private int returnCode = IDialogConstants.CANCEL_ID;
 
     private float origValue;
 
@@ -117,7 +119,27 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
         }
     };
 
-    public SetDeltaDialog(Shell parent, DataManager dataManager) {
+    /**
+     * Allow only one instance of the dialog to exist at any given time.
+     */
+    public static void openDialog() {
+        if (dialog == null) {
+            Shell parent = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            DataManager dataManager = DataManager.getCurrentInstance();
+            dialog = new SetDeltaDialog(parent, dataManager);
+            dialog.setBlockOnOpen(false);
+        }
+        dialog.open();
+    }
+
+    /**
+     * Private use the static method openDialog.
+     * 
+     * @param parent
+     * @param dataManager
+     */
+    private SetDeltaDialog(Shell parent, DataManager dataManager) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE);
         this.dataManager = dataManager;
@@ -142,7 +164,7 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
      */
     @Override
     protected void buttonPressed(int buttonId) {
-        returnCode = buttonId;
+        setReturnCode(buttonId);
         if (buttonId == ADJUST_UP) {
             setNewDelta();
             SmartUtil.runTool(SmartToolConstants.ADJUST_UP);
@@ -152,16 +174,6 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
         } else {
             close();
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.window.Window#getReturnCode()
-     */
-    @Override
-    public int getReturnCode() {
-        return returnCode;
     }
 
     /*
@@ -268,6 +280,7 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
                 this);
         dataManager.getSpatialDisplayManager()
                 .removeActivatedParmChangedListener(this);
+        SetDeltaDialog.dialog = null;
         return super.close();
     }
 

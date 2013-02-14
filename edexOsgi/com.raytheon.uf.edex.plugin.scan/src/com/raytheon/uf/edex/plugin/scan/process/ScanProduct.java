@@ -27,11 +27,10 @@ import java.util.List;
 
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -92,8 +92,6 @@ public abstract class ScanProduct implements Serializable {
     public static String RADAR = "radar";
 
     public static String BINLIGHTNING = "binlightning";
-
-    public static String GRIB = "grib";
 
     public static String UA = "bufrua";
 
@@ -252,12 +250,12 @@ public abstract class ScanProduct implements Serializable {
      * @param uri
      * @return
      */
-    public static GribRecord getGribRecord(String uri) throws PluginException {
+    public static GridRecord getGridRecord(String uri) throws PluginException {
 
-        GribRecord gr = new GribRecord(uri);
-        GribDao gd = (GribDao) PluginFactory.getInstance().getPluginDao(
+        GridRecord gr = new GridRecord(uri);
+        PluginDao gd = PluginFactory.getInstance().getPluginDao(
                 gr.getPluginName());
-        gr = (GribRecord) gd.getMetadata(uri);
+        gr = (GridRecord) gd.getMetadata(uri);
         IDataStore dataStore = gd.getDataStore(gr);
 
         try {
@@ -283,8 +281,7 @@ public abstract class ScanProduct implements Serializable {
      * @param table
      */
     public static void processLightning(ScanURIFilter filter,
-            RadarRecord radarRecord,
-            Date startTime, Date stopTime,
+            RadarRecord radarRecord, Date startTime, Date stopTime,
             ScanTableData<?> table) {
 
         if (table.getTableData().size() > 0) {
@@ -308,9 +305,9 @@ public abstract class ScanProduct implements Serializable {
                 for (BinLightningRecord rec : recs) {
                     for (int i = 0; i < rec.getLatitudes().length; i++) {
                         // check the time first
-                        long obsTime = rec.getObsTimes()[i]; 
-                        if (obsTime >= startTime.getTime() &&
-                                obsTime < stopTime.getTime()) {
+                        long obsTime = rec.getObsTimes()[i];
+                        if (obsTime >= startTime.getTime()
+                                && obsTime < stopTime.getTime()) {
                             Coordinate strikeCoor = new Coordinate(
                                     rec.getLongitudes()[i],
                                     rec.getLatitudes()[i], 0.0);

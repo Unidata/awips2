@@ -19,8 +19,11 @@
  **/
 package gov.noaa.nws.ncep.edex.plugin.ncgrib;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.edex.plugin.ncgrib.util.TableTimeStamp;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,16 +36,12 @@ import ucar.grib.grib2.Grib2Input;
 import ucar.grib.grib2.Grib2Record;
 import ucar.unidata.io.RandomAccessFile;
 
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.python.decoder.PythonDecoder;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.edex.plugin.ncgrib.util.TableTimeStamp;
 
 /**
  * Generic decoder for decoding grib files
@@ -55,6 +54,7 @@ import gov.noaa.nws.ncep.edex.plugin.ncgrib.util.TableTimeStamp;
  * 10/13/10     276        llin			Modified for NC GRIB.
  * 01/19/12                xguo         Split large files
  * 05/23/12                xguo         Split large file to each record file
+ * 06/12/12     00609      djohnson     Use EDEXUtil for EDEX_HOME.
  * </pre>
  * 
  * @author njensen
@@ -193,7 +193,7 @@ public class NcgribDecoder {
             raf.read(transfer);
 
             try {
-                out = new FileOutputStream(System.getProperty("edex.home")
+                out = new FileOutputStream(EDEXUtil.EDEX_HOME
                         + "/data/sbn/ncgrib/" + fileName + "_" + num);
                 out.write(transfer);
                 out.close();
@@ -224,7 +224,7 @@ public class NcgribDecoder {
         		raf.read(transfer);
 
         		try {
-        			out = new FileOutputStream(System.getProperty("edex.home")
+        			out = new FileOutputStream(EDEXUtil.EDEX_HOME
                             + "/data/sbn/ncgrib/" + fileName + "_" + num);
         			out.write(transfer);
         			out.close();
@@ -245,7 +245,7 @@ public class NcgribDecoder {
             raf.read(transfer);
 
             try {
-                out = new FileOutputStream(System.getProperty("edex.home")
+                out = new FileOutputStream(EDEXUtil.EDEX_HOME
                         + "/data/sbn/ncgrib/" + fileName + "_" + num);
                 out.write(transfer);
                 out.close();

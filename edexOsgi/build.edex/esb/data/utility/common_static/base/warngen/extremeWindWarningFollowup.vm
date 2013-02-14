@@ -3,6 +3,7 @@
 ## MODIFIED EVAN BOOKBINDER 09-16-2011 OB11.0.8-8
 ##          Evan Bookbinder 4-25-2012  for OB 12.3.1 (corText)
 ##          QINGLU LIN      7-31-2012 DR 15217 use roundAndPad
+##          Qinglu Lin     12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
 ################################################
 ##
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
@@ -54,7 +55,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE. ##
 #end
 ...THE EXTREME WIND WARNING FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
  ${expcanHLTag}...
 
 ## One line explanation
@@ -157,7 +158,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE. ##
 #end
 ...AN EXTREME WIND WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)...
+#headlineLocList(${areas} true true true false true)...
 ## Storm current location description
 
 #if(${productClass}=="T")
@@ -206,7 +207,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 #if(${list.contains($bullets, "cta1")})
 WIDESPREAD DESTRUCTIVE WINDS OF !** **! TO !** **! MPH WILL SPREAD ACROSS ##
-#headlineLocList(${areas} true true true false)...PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
+#headlineLocList(${areas} true true true false true)...PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
 
 #end
 #if(${list.contains($bullets, "cta2")})
@@ -314,7 +315,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE EXTREME WIND WARNING FOR##
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
  ${expcanHLTag}...
 
 ## One line explanation
@@ -362,7 +363,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...AN EXTREME WIND WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)...
+#headlineLocList(${areas} true true true false true)...
 
 #if(${productClass}=="T")
 
@@ -462,7 +463,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE EXTREME WIND WARNING FOR##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
  ${expcanHLTag}...
 
 #############

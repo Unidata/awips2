@@ -30,6 +30,13 @@
          unpack="false"/>
 
    <plugin
+         id="gov.nasa.gsfc.fits"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.convsigmet"
          download-size="0"
          install-size="0"
@@ -192,6 +199,13 @@
 
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.ncpirep"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.solarimage"
          download-size="0"
          install-size="0"
          version="0.0.0"

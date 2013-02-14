@@ -8,6 +8,7 @@
 GLEVEL =  850:700!700!700!850!850!30:0!30:0!850:500
 GVCORD =  PRES!PRES!PRES!PRES!PRES!pdly!pdly!PRES
 SKIP   =
+FILTER=y
 SCALE  =   0!0!0!0!0!0!0!6 
 GDPFUN =  lav(relh)!tmpc!tmpc!tmpc!tmpc!tmpc!tmpc!sm9s(pvor(thte,wnd))
 TYPE   =    f        ! c
@@ -20,7 +21,3 @@ HLSYM  =
 !CLRBAR =  1
 WIND   =    
 TITLE  =   1/-2/~ 850-700 RH,T(BL y,850 r,700 cyan),850-500 EPV|~ 850-700 RH, R/S T, EPV!0
-COLORS = 2                                                                       
-MARKER = 2                                                                       
-GRDLBL = 5  
-FILTER =  1

@@ -18,6 +18,7 @@
  * further licensing information.
  **/
 package com.raytheon.viz.grid.rsc;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -38,19 +39,19 @@ import com.raytheon.viz.core.rsc.VizGroupResourceData;
 
 /**
  * FFG Group Resource class.
- *
+ * 
  * Based off VizGroupResource.java
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 19, 2012  1162      mpduff      Initial creation.
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -63,7 +64,7 @@ public class FFGVizGroupResource extends
 
     /**
      * Constructor.
-     *
+     * 
      * @param resourceData
      * @param loadProperties
      */
@@ -75,7 +76,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
      */
     @Override
@@ -89,7 +90,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
      * .uf.viz.core.IGraphicsTarget,
@@ -107,7 +108,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
      * .uf.common.geospatial.ReferencedCoordinate)
@@ -116,11 +117,14 @@ public class FFGVizGroupResource extends
     public String inspect(ReferencedCoordinate coord) throws VizException {
         ResourceList rl = resourceData.getResourceList();
         String value = "No Data";
+        Map<AbstractVizResource<?, ?>, DataTime[]> timeMap = descriptor
+                .getTimeMatchingMap();
         for (ResourcePair pair : rl) {
             if (pair.getResource() != null) {
-                AbstractVizResource<?,?> rsc = pair.getResource();
+                AbstractVizResource<?, ?> rsc = pair.getResource();
+                timeMap.put(rsc, timeMap.get(this));
                 value = rsc.inspect(coord);
-                if (!value.equals(NO_DATA)) {
+                if (!NO_DATA.equalsIgnoreCase(value)) {
                     return value;
                 }
             }
@@ -131,7 +135,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
      * .uf.common.geospatial.ReferencedCoordinate)
@@ -145,7 +149,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
      * .uf.viz.core.IGraphicsTarget)
@@ -179,7 +183,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.core.rsc.IRefreshListener#refresh()
      */
     @Override
@@ -190,7 +194,7 @@ public class FFGVizGroupResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
      * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,

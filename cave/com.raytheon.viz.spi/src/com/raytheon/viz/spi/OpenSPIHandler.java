@@ -20,7 +20,6 @@
 
 package com.raytheon.viz.spi;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Status;
@@ -37,12 +36,12 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.maps.actions.AbstractMapHandler;
 import com.raytheon.uf.viz.core.maps.rsc.MapResourceGroup;
 import com.raytheon.uf.viz.core.maps.rsc.MapResourceGroupData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
@@ -54,6 +53,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Jan 10, 2008 562         bphillip    Initial Creation.
+ * Nov 13, 2012      #1326  randerso    Changed to extend AbstractMapHandler
  * 
  * </pre>
  * 
@@ -61,8 +61,9 @@ import com.raytheon.viz.ui.EditorUtil;
  * @version 1
  * 
  */
-public class OpenSPIHandler extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(OpenSPIHandler.class);
+public class OpenSPIHandler extends AbstractMapHandler {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(OpenSPIHandler.class);
 
     /*
      * (non-Javadoc)

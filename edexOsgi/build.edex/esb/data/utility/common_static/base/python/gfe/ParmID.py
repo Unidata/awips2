@@ -97,24 +97,6 @@ class ParmID(JUtil.JavaWrapperClass):
     def getParmId(self):
         return self.__pid.getParmId()
     
-    def setParmName(self, parmName):
-        self.__pid.setParmName(parmName)
-        
-    def setParmLevel(self, parmLevel):
-        self.__pid.setParmLevel(parmLevel)
-        
-    def setDbId(self, dbId):
-        self.__pid.setDbId(dbId.toJavaObj())
-        
-    def setCompositeName(self, compositeName):
-        self.__pid.setCompositeName(compositeName)
-        
-    def setShortParmId(self, shortParmId):
-        self.__pid.setShortParmId(shortParmId)
-        
-    def setParmId(self, parmId):
-        self.__pid.setParmId(parmId)
-        
     @staticmethod
     def shortSerializer(parmID):
         return JavaParmID.shortSerializer(parmID.javaParmId())
