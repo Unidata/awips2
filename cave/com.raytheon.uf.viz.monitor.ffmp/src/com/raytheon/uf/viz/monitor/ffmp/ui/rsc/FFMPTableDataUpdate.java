@@ -4,6 +4,21 @@ import java.util.Date;
 
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPTableData;
 
+/**
+ * Table Data Updates go through this object
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 22 April, 2012 2521          dhladky     Initial creation
+ * 02/01/13     1569       D. Hladky   Added constants
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
+
 public class FFMPTableDataUpdate {
 
     private boolean allowNewTableUpdate = false;
