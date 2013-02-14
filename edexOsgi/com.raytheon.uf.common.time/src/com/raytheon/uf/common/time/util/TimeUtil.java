@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -101,6 +102,9 @@ public class TimeUtil {
     public static final long MILLIS_PER_YEAR = 3600 * 24 * 1000 * 365;
 
     public static final int SECONDS_PER_MINUTE = 60;
+    
+    public static final long MINUTES_PER_HOUR = 60;
+
 
     // create instance of simple date format on class load, as instantiating it
     // is expensive the SimpleDateFormat class is not thread-safe,
