@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="DpTsprd" name="Dew Point Temp sprd" unit="K">
+<DerivedParameter abbreviation="DpTsprd" name="Dewpoint Temp sprd" unit="K">
 	<Method name="Alias" levels="Surface">
 		<Field abbreviation="DpTsprd" level="2FHAG"/>
 	</Method>
