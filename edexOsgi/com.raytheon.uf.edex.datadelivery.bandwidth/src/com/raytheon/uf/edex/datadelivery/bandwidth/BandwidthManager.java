@@ -100,6 +100,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 28, 2013 1530       djohnson     Unschedule all allocations for a subscription that does not fully schedule.
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 14, 2013 1595       djohnson     Check with BandwidthUtil whether or not to reschedule subscriptions on update.
  * </pre>
  * 
  * @author dhladky
@@ -414,8 +415,8 @@ abstract class BandwidthManager extends
             // Add the current subscription to the ones BandwidthManager already
             // knows about.
             try {
-                subscriptions.add(bandwidthDao.newBandwidthSubscription(subscription,
-                        retrievalTime));
+                subscriptions.add(bandwidthDao.newBandwidthSubscription(
+                        subscription, retrievalTime));
             } catch (SerializationException e) {
                 statusHandler.error(
                         "Trapped Exception trying to schedule Subscription["
@@ -434,8 +435,9 @@ abstract class BandwidthManager extends
 
         // Retrieve all the current subscriptions by provider, dataset name and
         // base time.
-        List<BandwidthSubscription> subscriptions = bandwidthDao.getBandwidthSubscriptions(
-                dao.getProvider(), dao.getDataSetName(), retrievalTime);
+        List<BandwidthSubscription> subscriptions = bandwidthDao
+                .getBandwidthSubscriptions(dao.getProvider(),
+                        dao.getDataSetName(), retrievalTime);
 
         statusHandler.info("schedule() - Scheduling subscription ["
                 + dao.getName()
@@ -480,8 +482,10 @@ abstract class BandwidthManager extends
                     .getStatus().equals(RetrievalStatus.PROCESSING))
                     && !retrieval.isSubsumed()) {
 
-                BandwidthSubscription bandwidthSubscription = retrieval.getBandwidthSubscription();
-                Calendar retrievalTime = bandwidthSubscription.getBaseReferenceTime();
+                BandwidthSubscription bandwidthSubscription = retrieval
+                        .getBandwidthSubscription();
+                Calendar retrievalTime = bandwidthSubscription
+                        .getBaseReferenceTime();
                 Calendar startTime = BandwidthUtil.copy(retrievalTime);
 
                 int delayMinutes = retrieval.getDataSetAvailablityDelay();
@@ -516,7 +520,8 @@ abstract class BandwidthManager extends
                 // if so, mark the status of the BandwidthReservation as
                 // READY.
                 List<BandwidthDataSetUpdate> z = bandwidthDao
-                        .getBandwidthDataSetUpdate(bandwidthSubscription.getProvider(),
+                        .getBandwidthDataSetUpdate(
+                                bandwidthSubscription.getProvider(),
                                 bandwidthSubscription.getDataSetName(),
                                 bandwidthSubscription.getBaseReferenceTime());
                 if (z.size() > 0) {
@@ -621,8 +626,8 @@ abstract class BandwidthManager extends
         Calendar now = BandwidthUtil.now();
         // Store the AdhocSubscription with a base time of now..
         try {
-            subscriptions.add(bandwidthDao
-                    .newBandwidthSubscription(subscription, now));
+            subscriptions.add(bandwidthDao.newBandwidthSubscription(
+                    subscription, now));
         } catch (SerializationException e) {
             statusHandler.error(
                     "Trapped Exception trying to schedule AdhocSubscription["
@@ -740,7 +745,8 @@ abstract class BandwidthManager extends
                 // BandwidthReservations
                 // already in place for this subscription.
 
-                Subscription old = bandwidthSubscriptions.get(0).getSubscription();
+                Subscription old = bandwidthSubscriptions.get(0)
+                        .getSubscription();
 
                 // Check to see if estimated size changed. If there was a change
                 // to
@@ -750,7 +756,8 @@ abstract class BandwidthManager extends
                 // change the
                 // RetrievalPlan as long as the size stays the same
 
-                if (subscriptionRequiresReschedule(subscription, old)) {
+                if (BandwidthUtil.subscriptionRequiresReschedule(subscription,
+                        old)) {
 
                     // OK, have to remove the old Subscriptions and add the new
                     // ones..
@@ -796,7 +803,8 @@ abstract class BandwidthManager extends
                                 .iterator();
                         while (itr.hasNext()) {
                             bandwidthSubscription = itr.next();
-                            if (oldCycles.contains(bandwidthSubscription.getCycle())) {
+                            if (oldCycles.contains(bandwidthSubscription
+                                    .getCycle())) {
                                 remove.add(bandwidthSubscription);
                                 itr.remove();
                             }
@@ -821,29 +829,6 @@ abstract class BandwidthManager extends
     }
 
     /**
-     * Determines when a subscription requires rescheduling.
-     * 
-     * @param subscription
-     *            the new subscription
-     * @param old
-     *            the old version
-     * @return true if it requires rescheduling
-     */
-    protected boolean subscriptionRequiresReschedule(Subscription subscription,
-            Subscription old) {
-        // TODO: Do they have to match EXACTLY... probably not but how
-        // much is 'close enough' in bandwidth terms.
-        boolean requiresReschedule = (old.getDataSetSize() != subscription
-                .getDataSetSize())
-        // Priority is different
-                || (old.getPriority() != subscription.getPriority())
-                // Latency is different
-                || (!(old.getLatencyInMinutes() == subscription
-                        .getLatencyInMinutes()));
-        return requiresReschedule;
-    }
-
-    /**
      * {@inheritDoc}
      * 
      * @return
@@ -856,8 +841,8 @@ abstract class BandwidthManager extends
     }
 
     /**
-     * Remove BandwidthSubscription's (and dependent Objects) from any RetrievalPlans
-     * they are in and adjust the RetrievalPlans accordingly.
+     * Remove BandwidthSubscription's (and dependent Objects) from any
+     * RetrievalPlans they are in and adjust the RetrievalPlans accordingly.
      * 
      * @param bandwidthSubscriptions
      *            The subscriptionDao's to remove.
@@ -865,7 +850,8 @@ abstract class BandwidthManager extends
      * @return
      */
     private List<BandwidthAllocation> remove(
-            List<BandwidthSubscription> bandwidthSubscriptions, boolean reschedule) {
+            List<BandwidthSubscription> bandwidthSubscriptions,
+            boolean reschedule) {
 
         List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
 
@@ -890,7 +876,8 @@ abstract class BandwidthManager extends
 
                 // For each date, get a unique set of provider & dataset name
                 Set<String> providerDataSet = new HashSet<String>();
-                for (BandwidthSubscription bandwidthSubscription : map.get(baseTime)) {
+                for (BandwidthSubscription bandwidthSubscription : map
+                        .get(baseTime)) {
                     String key = bandwidthSubscription.getProvider() + "::"
                             + bandwidthSubscription.getDataSetName();
                     providerDataSet.add(key);
@@ -903,8 +890,9 @@ abstract class BandwidthManager extends
                     String[] key = providerDataSetName.split("::");
                     String provider = key[0];
                     String dataSetName = key[1];
-                    List<BandwidthSubscription> m = bandwidthDao.getBandwidthSubscriptions(
-                            provider, dataSetName, baseTime);
+                    List<BandwidthSubscription> m = bandwidthDao
+                            .getBandwidthSubscriptions(provider, dataSetName,
+                                    baseTime);
 
                     unscheduled.addAll(aggregate(m));
                 }
@@ -980,16 +968,19 @@ abstract class BandwidthManager extends
                 next.add(Calendar.DAY_OF_YEAR, 1);
                 // Since subscriptions are based on cycles in a day, add one day
                 // to the
-                // completed BandwidthSubscription to get the next days retrieval.
+                // completed BandwidthSubscription to get the next days
+                // retrieval.
 
-                // Now check if that BandwidthSubscription has already been scheduled.
-                BandwidthSubscription a = bandwidthDao.getBandwidthSubscription(
-                        dao.getRegistryId(), next);
+                // Now check if that BandwidthSubscription has already been
+                // scheduled.
+                BandwidthSubscription a = bandwidthDao
+                        .getBandwidthSubscription(dao.getRegistryId(), next);
                 if (a == null) {
                     // Create the new BandwidthSubscription record with the next
                     // time..
                     try {
-                        a = bandwidthDao.newBandwidthSubscription(subscription, next);
+                        a = bandwidthDao.newBandwidthSubscription(subscription,
+                                next);
                     } catch (SerializationException e) {
 
                         statusHandler.error(
@@ -1187,7 +1178,8 @@ abstract class BandwidthManager extends
                             + "].  Ignoring list and using the first item.");
         }
 
-        BandwidthSubscription bandwidthSubscription = bandwidthSubscriptions.get(0);
+        BandwidthSubscription bandwidthSubscription = bandwidthSubscriptions
+                .get(0);
         long id = bandwidthSubscription.getId();
 
         final List<BandwidthAllocation> bandwidthAllocations = bandwidthDao
@@ -1494,7 +1486,8 @@ abstract class BandwidthManager extends
         IBandwidthDao fromDao = copyFrom.bandwidthDao;
 
         Set<Subscription> actualSubscriptions = new HashSet<Subscription>();
-        for (BandwidthSubscription subscription : fromDao.getBandwidthSubscriptions()) {
+        for (BandwidthSubscription subscription : fromDao
+                .getBandwidthSubscriptions()) {
             try {
                 Subscription actualSubscription = subscription
                         .getSubscription();
