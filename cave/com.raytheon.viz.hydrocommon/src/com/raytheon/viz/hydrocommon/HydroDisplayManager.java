@@ -35,7 +35,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -298,12 +299,13 @@ public class HydroDisplayManager {
 
             // Get the Grib data
             Map<String, RequestConstraint> reqMap = new HashMap<String, RequestConstraint>();
-            reqMap.put("pluginName", new RequestConstraint("grib"));
-            reqMap.put("modelInfo.parameterAbbreviation",
+            reqMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                    GridConstants.GRID));
+            reqMap.put(GridConstants.PARAMETER_ABBREVIATION,
                     new RequestConstraint(paramAbr));
             reqMap.put("dataTime.refTime",
                     new RequestConstraint(sdf.format(date)));
-            reqMap.put("modelInfo.modelName", new RequestConstraint("FFG-"
+            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint("FFG-"
                     + rfc));
 
             try {
@@ -312,10 +314,10 @@ public class HydroDisplayManager {
                 lp.setEntryQueryParameters(reqMap, false);
 
                 List<Object> dataList = DataCubeContainer.getData(lp, 30);
-                GribRecord gr = null;
+                GridRecord gr = null;
                 int i = 0;
                 for (Object o : dataList) {
-                    gr = (GribRecord) o;
+                    gr = (GridRecord) o;
                     IDataRecord[] recArr = DataCubeContainer
                             .getDataRecord((PluginDataObject) o);
                     gr.setMessageData(((FloatDataRecord) recArr[0])
@@ -465,12 +467,13 @@ public class HydroDisplayManager {
 
             // Get the Grib data
             Map<String, RequestConstraint> reqMap = new HashMap<String, RequestConstraint>();
-            reqMap.put("pluginName", new RequestConstraint("grib"));
-            reqMap.put("modelInfo.parameterAbbreviation",
+            reqMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                    GridConstants.GRID));
+            reqMap.put(GridConstants.PARAMETER_ABBREVIATION,
                     new RequestConstraint(paramAbr));
             reqMap.put("dataTime.refTime",
                     new RequestConstraint(sdf.format(date)));
-            reqMap.put("modelInfo.modelName", new RequestConstraint("FFG-"
+            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint("FFG-"
                     + rfc));
 
             try {
@@ -479,10 +482,10 @@ public class HydroDisplayManager {
                 lp.setEntryQueryParameters(reqMap, false);
 
                 List<Object> dataList = DataCubeContainer.getData(lp, 30);
-                GribRecord gr = null;
+                GridRecord gr = null;
                 int i = 0;
                 for (Object o : dataList) {
-                    gr = (GribRecord) o;
+                    gr = (GridRecord) o;
                     IDataRecord[] recArr = DataCubeContainer
                             .getDataRecord((PluginDataObject) o);
                     gr.setMessageData(((FloatDataRecord) recArr[0])
@@ -726,9 +729,8 @@ public class HydroDisplayManager {
                 loopProps.setFwdFrameTime(frameRate);
                 loopProps.setLooping(true);
 
-                md.getTimeMatcher().changeTimeMatchBasis(timeLapseRsc);
                 try {
-                    md.getTimeMatcher().redoTimeMatching(md);
+                    md.redoTimeMatching();
                 } catch (VizException e) {
                     e.printStackTrace();
                 }

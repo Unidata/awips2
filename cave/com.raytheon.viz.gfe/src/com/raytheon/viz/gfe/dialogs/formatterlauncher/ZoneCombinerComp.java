@@ -95,6 +95,10 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * ------------ ---------- ----------- --------------------------
  * 21 APR 2008  ###        lvenable    Initial creation
  * 07 JUL 2011  9293       rferrel     Hook to allow checking of includeAllZones
+ * 07 Nov 2012  1298       rferrel     Changes for non-blocking ClearZoneGroupsDialog.
+ *                                     Changes for non-blocking SaveDeleteComboDlg.
+ *                                     Changes for non-blocking ShuffleZoneGroupsDialog.
+ *                                     Changes for non-blocking ZoneColorEditorDlg.
  * 
  * </pre>
  * 
@@ -104,7 +108,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  */
 public class ZoneCombinerComp extends Composite implements
         ILocalizationFileObserver, IZoneCombiner {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ZoneCombinerComp.class);
 
     /**
@@ -192,8 +196,8 @@ public class ZoneCombinerComp extends Composite implements
 
     private List<RGB> colorMap = new ArrayList<RGB>();
 
-    private static final String COLOR_MAP_FILE = FileUtil.join("gfe",
-            "combinations", "Combinations_ColorMap");
+    private final String COLOR_MAP_FILE = FileUtil.join("gfe", "combinations",
+            "Combinations_ColorMap");
 
     Matcher matcher;
 
@@ -390,11 +394,15 @@ public class ZoneCombinerComp extends Composite implements
         saveComboMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                // The dialog being opened is modal to the parent dialog. This
+                // will
+                // prevent the launching of another dialog until the modal
+                // dialog is
+                // closed.
                 SaveDeleteComboDlg saveCombDlg = new SaveDeleteComboDlg(parent
                         .getShell(), mapNames, "Save", zoneSelector.getCombos());
-                saveCombDlg.setBlockOnOpen(true);
+                saveCombDlg.setBlockOnOpen(false);
                 saveCombDlg.open();
-
             }
         });
 
@@ -421,9 +429,14 @@ public class ZoneCombinerComp extends Composite implements
         deleteComboMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                // The dialog being opened is modal to the parent dialog. This
+                // will
+                // prevent the launching of another dialog until the modal
+                // dialog is
+                // closed.
                 SaveDeleteComboDlg deleteCombDlg = new SaveDeleteComboDlg(
                         parent.getShell(), mapNames, "Delete", null);
-                deleteCombDlg.setBlockOnOpen(true);
+                deleteCombDlg.setBlockOnOpen(false);
                 deleteCombDlg.open();
             }
         });
@@ -487,15 +500,22 @@ public class ZoneCombinerComp extends Composite implements
     }
 
     private void openClearDialog() {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         ClearZoneGroupsDialog examClearDlg = new ClearZoneGroupsDialog(
                 parent.getShell(), zoneSelector, getCombinationsFileName());
+        examClearDlg.setBlockOnOpen(false);
         examClearDlg.open();
-
     }
 
     private void openShuffleDialog() {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         ShuffleZoneGroupsDialog shuffleDlg = new ShuffleZoneGroupsDialog(
                 parent.getShell(), this.zoneSelector, getCombinationsFileName());
+        shuffleDlg.setBlockOnOpen(false);
         shuffleDlg.open();
     }
 
@@ -736,7 +756,9 @@ public class ZoneCombinerComp extends Composite implements
      * Display the Color Editor dialog.
      */
     private void displayColorEditorDialog() {
-
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         ZoneColorEditorDlg zoneColorDlg = new ZoneColorEditorDlg(
                 parent.getShell(), colorMap);
         zoneColorDlg.open();

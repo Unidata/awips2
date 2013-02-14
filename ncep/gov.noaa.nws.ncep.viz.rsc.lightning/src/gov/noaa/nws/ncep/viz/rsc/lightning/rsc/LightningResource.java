@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 
@@ -61,6 +62,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *                                      show strike count in legend
  *  02/16/2012    #555     S. Gurung    Added call to setAllFramesAsPopulated() in queryRecords()
  *  05/23/12      785      Q. Zhou      Added getName for legend.
+ *  12/19/2012    #960     Greg Hull   override propertiesChanged() to update colorBar.
+ *  
  * </pre>
  * 
  * @author ghull 
@@ -677,6 +680,14 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
 			// end time should not have changed
 		}
 	}
+
+	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
 
 	protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
 		return new FrameData(frameTime,timeInt);

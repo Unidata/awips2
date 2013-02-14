@@ -4,10 +4,11 @@
     <resourceDefnName>IcaoUkAreas</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-pgenProductName=icaouk_areas.xml
+pgenStaticProductLocation=ncep/StaticPgenOverlays
+pgenStaticProductName=icaouk_areas.xml
     </resourceParameters>
-    <filterLabels></filterLabels>
-    <rscImplementation>PgenXmlOverlay</rscImplementation>
+    <filterLabels>PGEN</filterLabels>
+    <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

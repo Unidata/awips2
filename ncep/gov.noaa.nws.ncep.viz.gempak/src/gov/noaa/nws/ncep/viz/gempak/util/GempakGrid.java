@@ -1,8 +1,10 @@
 package gov.noaa.nws.ncep.viz.gempak.util;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LambertConformalNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LatLonNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.PolarStereoNcgridCoverage;
+import java.util.ArrayList;
+
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag;
 
 import javax.measure.converter.UnitConverter;
@@ -44,23 +46,41 @@ public class GempakGrid {
 	 * @return
 	 * @throws VizException
 	 */
-	public static String[] getGridCycleTimes( String aDataLocation ) throws VizException{
-        StringBuilder query = new StringBuilder();
-		query.append("import NcModelCycleQuery\n");
-		query.append("req = NcModelCycleQuery.NcModelCycleQuery()\n");
-		query.append("req.setDataLocation('" + aDataLocation + "')\n");
-		query.append("return req.execute()");
-
-		String script = query.toString();
-		try {
-			String cycleListStr = (String) Connector.getInstance().connect(
-					script, null, 600000)[0];
-
-			String[] cycleList = cycleListStr.split("\\|");
-			return cycleList;
-		} catch (VizException e) {
-			throw new VizException(e);
+	public static String[] getGridCycleTimes( String aDataLocation,String gdFile ) throws VizException{
+		byte[] cycles = new byte[1024];
+		IntByReference iret = new IntByReference(0);
+		gd.gem.in_bdta_(iret);
+		gd.gem.gd_init_ (iret);
+		gd.gem.gdc_gcyc_(gdFile, cycles, iret);
+		if ( iret.getValue() == 0 ) {
+			String cycleTime = Native.toString(cycles);
+			String cycleTime1 = cycleTime.replaceAll("/", "_");
+			String []cycleTimes = cycleTime1.trim().split(";");
+			return cycleTimes;
 		}
+		else {
+			throw new VizException();
+		}
+//		long st1 = System.currentTimeMillis();
+//		StringBuilder query = new StringBuilder();
+//		query.append("import NcModelCycleQuery\n");
+//		query.append("req = NcModelCycleQuery.NcModelCycleQuery()\n");
+//		query.append("req.setDataLocation('" + aDataLocation + "')\n");
+//		query.append("req.setModelName('" + modelname + "')\n");
+//		query.append("return req.execute()");
+//
+//		String script = query.toString();
+//		try {
+//			String cycleListStr = (String) Connector.getInstance().connect(
+//					script, null, 600000)[0];
+//
+//			String[] cycleList = cycleListStr.split("\\|");
+//			long st2 = System.currentTimeMillis();
+//			System.out.println ("***get cycleTimes throught Connector took:" + (st2-st1));
+//			return cycleList;
+//		} catch (VizException e) {
+//			throw new VizException(e);
+//		}
 	}
 	
 	/**
@@ -74,24 +94,57 @@ public class GempakGrid {
 	 * @return
 	 * @throws VizException
 	 */
-	public static String[] getAvailableGridTimes( String aDataLocation, String aCurrentCycle ) 
+	public static String[] getAvailableGridTimes( String aDataLocation, String aCurrentCycle, String gdFile ) 
 	throws VizException{
-        StringBuilder query = new StringBuilder();
-		query.append("import NcModelAvailableTimesQuery\n");
-		query.append("req = NcModelAvailableTimesQuery.NcModelAvailableTimesQuery()\n");
-		query.append("req.setDataLocation('" + aDataLocation + "')\n");
-		query.append("req.setCurrentCycle('" + aCurrentCycle + "')\n");
-		query.append("return req.execute()");
-
-		String script = query.toString();
-		try {
-			String avTimesListStr = (String) Connector.getInstance().connect(
-					script, null, 600000)[0];
-			String[] avTimesList = avTimesListStr.split("\\|");
-			return avTimesList;
-		} catch (VizException e) {
-			throw new VizException(e);
+		byte[] availables = new byte[10000];
+		IntByReference iret = new IntByReference(0);
+		gd.gem.in_bdta_(iret);
+		gd.gem.gd_init_ (iret);
+		String cycle="";
+		if ( aCurrentCycle != null ){
+			String []dtStr = aCurrentCycle.split(" ");
+			cycle =dtStr[0].split("-")[1] +  dtStr[0].split("-")[2] +"/" +dtStr[1].split(":")[0];
 		}
+		gd.gem.gdc_gtmf_(gdFile, cycle, availables, iret);
+		if ( iret.getValue() == 0 ) {
+			String availableTimes = Native.toString(availables);
+			String [] avaTimeStr = availableTimes.trim().split("\\|");
+			String [] avaTimesList = new String [avaTimeStr.length];
+			int i = 0;
+			for ( String ava:avaTimeStr) {
+				if ( ava.contains("F")) {
+					avaTimesList[i] = aCurrentCycle +" (" + Integer.parseInt(ava.split("F")[1]) + ")";
+				}
+				else {
+					avaTimesList[i] = aCurrentCycle +" (0)";
+				}
+				i ++;
+			}
+			return avaTimesList;
+		}
+		else {
+			throw new VizException();
+		}
+//		long st1 = System.currentTimeMillis();
+//        StringBuilder query = new StringBuilder();
+//		query.append("import NcModelAvailableTimesQuery\n");
+//		query.append("req = NcModelAvailableTimesQuery.NcModelAvailableTimesQuery()\n");
+//		query.append("req.setDataLocation('" + aDataLocation + "')\n");
+//		query.append("req.setModelName('" + modelName + "')\n");
+//		query.append("req.setCurrentCycle('" + aCurrentCycle + "')\n");
+//		query.append("return req.execute()");
+//
+//		String script = query.toString();
+//		try {
+//			String avTimesListStr = (String) Connector.getInstance().connect(
+//					script, null, 600000)[0];
+//			String[] avTimesList = avTimesListStr.split("\\|");
+//			long st2 = System.currentTimeMillis();
+//			System.out.println ("===get availableTimes throught connector took:" + (st2-st1));
+//			return avTimesList;
+//		} catch (VizException e) {
+//			throw new VizException(e);
+//		}
 	}
 	
 	/**
@@ -140,7 +193,7 @@ public class GempakGrid {
 	        }
 	        CharSequence spacingUnit = "degree";
 	        
-	        LatLonNcgridCoverage cov = new LatLonNcgridCoverage();
+	        LatLonGridCoverage cov = new LatLonGridCoverage();
 	        cov.setSpacingUnit(spacingUnit.toString());
 	        cov.setDx(rnav[2]);
 	        cov.setDy(rnav[3]);
@@ -188,7 +241,7 @@ public class GempakGrid {
 		    } catch (Exception e) {
 		        throw new VizException("Error creating geometry", e);
 		    }
-		    PolarStereoNcgridCoverage cov = new PolarStereoNcgridCoverage();
+		    PolarStereoGridCoverage cov = new PolarStereoGridCoverage();
 	        cov.setCrs(crs);
 	        cov.setCrsWKT(crsWKT);
 	        cov.setGeometry(geometry);
@@ -234,7 +287,7 @@ public class GempakGrid {
 	        } catch (Exception e) {
 	            throw new VizException("Error creating geometry", e);
 	        }
-	        LambertConformalNcgridCoverage cov = new LambertConformalNcgridCoverage();
+	        LambertConformalGridCoverage cov = new LambertConformalGridCoverage();
 	        cov.setCrs(crs);
 	        cov.setCrsWKT(crsWKT);
 	        cov.setGeometry(geometry);

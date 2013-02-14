@@ -26,6 +26,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiPlugin;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.EditorInput;
 
@@ -146,6 +147,8 @@ public class NmapUiUtils {
 
     public static boolean bringToTop(AbstractEditor editor) {
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(editor);
+		VizWorkbenchManager.getInstance().partBroughtToTop( editor );
+
         return false;
     }
 
@@ -175,9 +178,14 @@ public class NmapUiUtils {
             int numPanes = paneLayout.getNumberOfPanes();
             NCMapRenderableDisplay[] mapDispArray = new NCMapRenderableDisplay[numPanes];
 
-            for (int m = 0; m < numPanes; m++) {
-                mapDispArray[m] = new NCMapRenderableDisplay(
-                        new NCMapDescriptor());
+            // the name of the RenderableDisplay for multi-pane displays includes the pane number.
+            //
+            for( int r=0 ; r<paneLayout.getRows() ; r++ ) {
+                for( int c=0 ; c<paneLayout.getColumns() ; c++ ) {                	
+                	PaneID paneId = new PaneID( r,c );
+                	mapDispArray[paneLayout.getPaneIndex(paneId)] = 
+                		new NCMapRenderableDisplay( paneId, new NCMapDescriptor() );
+                }            	
             }
             /*
              * Chin,, not used.. for( int r=0 ; r<paneLayout.getRow() ; r++ ) {
@@ -199,9 +207,9 @@ public class NmapUiUtils {
 
                 int uniqNum = EditorManager.getEditorNumber();
 
-                for (int m = 0; m < numPanes; m++) {
-                    mapDispArray[m].setEditorNum(uniqNum);
-                }
+//                for (int m = 0; m < numPanes; m++) {
+//                    mapDispArray[m].setEditorNum(uniqNum);
+//                }
                 String edtDispName = new String(Integer.toString(uniqNum) + "-"
                         + editor_name);
                 edInput.setName(edtDispName);

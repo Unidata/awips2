@@ -36,6 +36,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/07                  lvenable    Initial creation.
+ * 12/05/12     1353        rferrel     Changes for non-blocking AlertAlarmValuesDlg.
  * 
  * </pre>
  * 
@@ -43,13 +44,16 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class AlertAlarmValuesAction extends AbstractHandler {
+    private AlertAlarmValuesDlg alertAlarmDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        AlertAlarmValuesDlg alertAlarmDlg = new AlertAlarmValuesDlg(shell);
+        if (alertAlarmDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            alertAlarmDlg = new AlertAlarmValuesDlg(shell);
+        }
         alertAlarmDlg.open();
 
         return null;

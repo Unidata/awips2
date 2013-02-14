@@ -71,23 +71,23 @@ public class ClusterActivationNotification extends SiteActivationNotification {
     }
 
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (isActivation()) {
             if (isFailure()) {
-                buffer.append(this.getModifiedSite()
-                        + " has failed to activate on some or all cluster memebers.  See logs for details");
+                buffer.append(this.getModifiedSite());
+                buffer.append(" has failed to activate on some or all cluster members.  See logs for details");
             } else {
-                buffer.append(this.getModifiedSite()
-                        + " has been successfully activated on all cluster members");
+                buffer.append(this.getModifiedSite());
+                buffer.append(" has been successfully activated on all cluster members");
             }
         } else{
             if (isFailure()) {
-                buffer.append(this.getModifiedSite()
-                        + " has failed to deactivate on some or all cluster memebers.  See logs for details");
+                buffer.append(this.getModifiedSite());
+                buffer.append(" has failed to deactivate on some or all cluster members.  See logs for details");
             } else {
-                buffer.append(this.getModifiedSite()
-                        + " has been successfully deactivated on all cluster members");
+                buffer.append(this.getModifiedSite());
+                buffer.append(" has been successfully deactivated on all cluster members");
             }
         }
         return buffer.toString();
