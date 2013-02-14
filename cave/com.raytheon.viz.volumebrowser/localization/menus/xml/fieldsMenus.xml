@@ -1309,7 +1309,7 @@
 				key="PWmean"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Mean Sea Level Pressure"
 				key="PMSLmean"  indentText="false" />
-			<contribute xsi:type="menuItem" menuText="Dew Point Temp"
+			<contribute xsi:type="menuItem" menuText="Dewpoint Temp"
 				key="DpTmean"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="12-hr Large scale Snowfall"
 				key="SNOL12mean"  indentText="false" />
@@ -1353,7 +1353,7 @@
 				key="PWsprd"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Mean Sea Level Pressure"
 				key="PMSLsprd"  indentText="false" />
-			<contribute xsi:type="menuItem" menuText="Dew Point Temp"
+			<contribute xsi:type="menuItem" menuText="Dewpoint Temp"
 				key="DpTsprd"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="12-hr Large scale Snowfall"
 				key="SNOL12sprd"  indentText="false" />
