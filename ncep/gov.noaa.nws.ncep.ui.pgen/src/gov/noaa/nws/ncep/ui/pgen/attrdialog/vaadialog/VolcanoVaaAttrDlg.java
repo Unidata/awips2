@@ -10,9 +10,11 @@ package gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.StringReader;
 import java.text.*;
 import java.util.*;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -47,6 +49,7 @@ import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.ui.pgen.*;
 
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -63,6 +66,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *
   * 04/11		#?			B. Yin		Re-factor IAttribute
  *  07/11        #450        G. Hull     NcPathManager
+ * 11/12		#889		B. Yin		Don't save XML file before saving text file.
+ * 11/12		#890		B. Yin		Allow lower cases and numbers in the correction text field.
  * 
  * </pre>
  * 
@@ -407,19 +412,40 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 	 */
 	public void formatPressed(){	
 		copyAttr2Vol();
-		saveVolcano();
 		
 		SaveMsgDlg smDlg = SaveMsgDlg.getInstance(this.getParentShell());
 		smDlg.setVolAttrDlgInstance(VolcanoVaaAttrDlg.INSTANCE);
 				
 		smDlg.setVolcano(volcano);	
 		
-		String xmlDir = PgenUtil.getWorkingDirectory();//LocalizationManager.getBaseDir();
 		String xsltFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
 				   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_VAA_XSLT );
-		smDlg.setTxtFileContent( convertXml2Txt(xmlDir+File.separator+volXMLFileName, xsltFile));	
 		
+		
+		ArrayList<Product> prds = new ArrayList<Product>();
+		Product volProd = getVaaProduct( volcano );
+
+		String xml = "";
+		if(volProd != null){
+			prds.add(volProd);
+			Products filePrds = ProductConverter.convert( prds );
+			try {
+				xml = SerializationUtil.marshalToXml( filePrds );
+			} catch (JAXBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		smDlg.setTxtFileContent( convertXml2Txt(xml, xsltFile));	
+		
+		smDlg.setBlockOnOpen(true);
 		smDlg.open();
+
+		if ( smDlg.getReturnCode() == OK ){ 
+			saveVolcano();
+		}
 	}
 	
 	/**
@@ -454,7 +480,7 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 		
 		createButton(parent, IDialogConstants.OK_ID, "Apply", true);
     	createButton(parent, IDialogConstants.CANCEL_ID, "Cancel",true);
-    	createButton(parent, FORMAT_ID, "Formate VAA",	true);    
+    	createButton(parent, FORMAT_ID, "Format VAA",	true);    
     	createButton(parent, RESET_ID, "Reset Form",	true);    	
     	
     	getButton(IDialogConstants.OK_ID).setEnabled(true);
@@ -1126,6 +1152,8 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 		/**
 		 * only A-Z allowed for Correction field
 		 */
+		//TTR632: Numbers and lower cases are also allowed cor correction field
+		
 		
 		public void verifyText(VerifyEvent event){
 			// Assume we don't allow it
@@ -1136,7 +1164,11 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 	        String text = ((Text) event.widget).getText();
 
 	        // Allow A-Z as first char and decrement advNo
-	        if ((myChar>=65 && myChar<=90) && text.length() == 0){	        	
+	        // Allow a-z and numbers for TTR632 
+	        if (((myChar>=65 && myChar<=90) || 
+	        	 (myChar>=97 && myChar<=122)||
+	        	 Character.isDigit(myChar))
+	        		&& text.length() == 0){	        	
 	        	event.doit = true;	        	
 	        	setTxtChange(txtAdNo, false);		          
 	        }
@@ -1256,7 +1288,7 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 	 */
 	private boolean saveVolcano() {		
 		
-		String filename = PgenUtil.getWorkingDirectory()+File.separator+getFileName();
+		String filename = PgenUtil.getPgenActivityTextProdPath()+File.separator+getFileName();
 
 		//--------------No need since the file name invisible to users
 		//boolean canWrite = checkFileStatus(filename);
@@ -1280,16 +1312,16 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 	}
 	
 	/***
-	 * Creates a formatted string comprising of the contents of the XML file, to which
+	 * Creates a formatted string comprising of the contents of the XML string, to which
 	 * formatting information is applied from the style-sheet.
-	 * @param xmlFileName - Name of the XML file
+	 * @param xmlString - XML string
 	 * @param xltFileName - Name of the style-sheet
 	 * @return A <tt>String</tt> with the formatted contents of the XML file.  
 	 */
-	private String convertXml2Txt(String xmlFileName, String xltFileName){
+	private String convertXml2Txt(String xmlString, String xltFileName){
         String res = "";
 		
-        Source xmlSource = new StreamSource(xmlFileName);
+        Source xmlSource = new StreamSource( new StringReader( xmlString ) );
         Source xsltSource = new StreamSource(xltFileName);
        
         TransformerFactory transFact = TransformerFactory.newInstance();

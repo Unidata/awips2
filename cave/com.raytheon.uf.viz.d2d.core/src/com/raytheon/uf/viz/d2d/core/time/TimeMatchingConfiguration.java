@@ -59,14 +59,6 @@ public class TimeMatchingConfiguration {
 
     private boolean timeMatchBasis = false;
 
-    // The last set of times that the resource with these properties was matched
-    // against. As long as we are matching against these same times then
-    // lastFrameTimes is valid.
-    private DataTime[] lastBaseTimes;
-
-    // The result of the last time matching.
-    private DataTime[] lastFrameTimes;
-
     /**
      * Default Constructor
      */
@@ -212,22 +204,6 @@ public class TimeMatchingConfiguration {
      */
     public void setCancel(boolean cancel) {
         this.cancel = cancel;
-    }
-
-    public DataTime[] getLastBaseTimes() {
-        return lastBaseTimes;
-    }
-
-    public void setLastBaseTimes(DataTime[] lastBaseTimes) {
-        this.lastBaseTimes = lastBaseTimes;
-    }
-
-    public DataTime[] getLastFrameTimes() {
-        return lastFrameTimes;
-    }
-
-    public void setLastFrameTimes(DataTime[] lastFrameTimes) {
-        this.lastFrameTimes = lastFrameTimes;
     }
 
 }

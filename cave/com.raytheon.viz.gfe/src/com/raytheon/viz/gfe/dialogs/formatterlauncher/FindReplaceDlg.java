@@ -36,8 +36,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -46,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Display the Find and/or Replace dialog.
@@ -66,24 +65,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  * 
  */
-public class FindReplaceDlg extends Dialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class FindReplaceDlg extends CaveSWTDialog {
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FindReplaceDlg.class);
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    /**
-     * Return object when the shell is disposed.
-     */
-    private String returnObj = null;
 
     /**
      * Flag indicating if the dialog should display the replace controls.
@@ -194,7 +178,8 @@ public class FindReplaceDlg extends Dialog {
      */
     public FindReplaceDlg(Shell parent, boolean findAndReplace,
             StyledTextComp editorComp) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.DO_NOT_BLOCK);
 
         this.findAndReplace = findAndReplace;
         this.editorComp = editorComp;
@@ -202,15 +187,8 @@ public class FindReplaceDlg extends Dialog {
         this.searchOptions = EnumSet.noneOf(FindReplaceOptions.class);
     }
 
-    /**
-     * Setup and open the dialog.
-     * 
-     * @return Return object.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         if (findAndReplace == true) {
             shell.setText("Find & Replace");
@@ -227,17 +205,6 @@ public class FindReplaceDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return returnObj;
     }
 
     /**
@@ -253,8 +220,7 @@ public class FindReplaceDlg extends Dialog {
      */
     private void createMainControls() {
         Composite mainComp = new Composite(shell, SWT.NONE);
-        mainComp
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        mainComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         mainComp.setLayout(new GridLayout(1, false));
 
         createFindTextControl(mainComp);
@@ -277,8 +243,7 @@ public class FindReplaceDlg extends Dialog {
      */
     private void createFindTextControl(Composite mainComp) {
         Composite findComp = new Composite(mainComp, SWT.NONE);
-        findComp
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        findComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         findComp.setLayout(new GridLayout(2, false));
 
         Label findLbl = new Label(findComp, SWT.NONE);
@@ -304,8 +269,7 @@ public class FindReplaceDlg extends Dialog {
      */
     private void createDirectionControls(Composite mainComp) {
         Group dirGroup = new Group(mainComp, SWT.NONE);
-        dirGroup
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        dirGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         dirGroup.setLayout(new GridLayout(2, false));
         dirGroup.setText(" Search Direction: ");
 
@@ -550,8 +514,8 @@ public class FindReplaceDlg extends Dialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                returnObj = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }
@@ -638,8 +602,8 @@ public class FindReplaceDlg extends Dialog {
                             .getSelectionRange())) {
                 String replaceString = replaceTF.getText();
 
-                editorST.replaceTextRange(selectionToBeReplaced.x, searchString
-                        .length(), replaceString);
+                editorST.replaceTextRange(selectionToBeReplaced.x,
+                        searchString.length(), replaceString);
 
                 int[] replaceMatch = findString(replaceString,
                         selectionToBeReplaced.x);
@@ -689,7 +653,7 @@ public class FindReplaceDlg extends Dialog {
 
         readyToReplace = findAndSelectString(findTF.getText());
         selectionToBeReplaced = editorST.getSelectionRange();
-        
+
     }
 
     /**

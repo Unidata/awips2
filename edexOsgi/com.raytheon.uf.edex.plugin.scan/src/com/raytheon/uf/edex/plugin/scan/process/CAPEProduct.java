@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.plugin.scan.process;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -31,7 +31,7 @@ import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
 
-public class CAPEProduct extends ScanProduct {
+public class CAPEProduct extends GridProduct {
 
     /**
      * 
@@ -59,10 +59,10 @@ public class CAPEProduct extends ScanProduct {
     @Override
     public PersistablePluginDataObject getRecord() throws PluginException,
             Exception {
-        GribRecord grib = null;
+        GridRecord grib = null;
         try {
-            filter.setGribRecord(CAPEProduct.cape, uri);
-            grib = filter.getGribRecord(CAPEProduct.cape);
+            filter.setGridRecord(CAPEProduct.cape, uri);
+            grib = filter.getGridRecord(CAPEProduct.cape);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,20 +72,20 @@ public class CAPEProduct extends ScanProduct {
     @Override
     public void process() throws Exception {
 
-        GribRecord rec = null;
+        GridRecord rec = null;
         try {
-            rec = (GribRecord) getRecord();
+            rec = (GridRecord) getRecord();
         } catch (Exception pe) {
             pe.printStackTrace();
         }
         if (rec != null) {
-            filter.setGribRecord(cape, rec);
+            filter.setGridRecord(cape, rec);
         }
     }
 
     @Override
     public void setDataType() {
-        this.dataType = GRIB;
+        this.dataType = GRID;
 
     }
 
@@ -108,11 +108,8 @@ public class CAPEProduct extends ScanProduct {
      * @return
      */
     public static Pattern getPattern(String model) {
-        return Pattern.compile(uriSeparator + GRIB + uriSeparator + wildCard
-                + uriSeparator + model + uriSeparator + cape + uriSeparator
-                + "SFC" + uriSeparator + "0.0" + uriSeparator
-                + Level.getInvalidLevelValueAsString() + uriSeparator + "null"
-                + uriSeparator + "null" + uriSeparator + "0");
+        return getGridPattern(model, cape, "SFC", "0.0",
+                Level.getInvalidLevelValueAsString());
     }
 
     /**
@@ -122,16 +119,7 @@ public class CAPEProduct extends ScanProduct {
      * @return
      */
     public static String getSQL(int interval, String model) {
-        return "select datauri from grib where modelinfo_id = (select id from grib_models where parameterabbreviation = \'"
-                + "CAPE"
-                + "\' and modelname = \'"
-                + model
-                + "\' and level_id = (select id from level where masterlevel_name = 'SFC' and levelonevalue = '0.0' and leveltwovalue = "
-                + "\'"
-                + Level.getInvalidLevelValueAsString()
-                + "\'"
-                + ")) and reftime > (now()- interval \'"
-                + interval
-                + " minutes\') order by forecasttime desc limit 1";
+        return getGridSQL(interval, model, cape, "SFC", "0.0",
+                Level.getInvalidLevelValueAsString());
     }
 }

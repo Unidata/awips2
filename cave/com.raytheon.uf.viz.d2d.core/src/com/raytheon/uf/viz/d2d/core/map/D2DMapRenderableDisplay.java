@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
@@ -267,8 +266,7 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
     }
 
     @Override
-    public void clear(IDisplayPane parentPane) {
-        super.clear(parentPane);
+    public void clear() {
         descriptor.getResourceList().clear();
         File scaleFile = MapScales.getInstance().getScaleByName(getScale())
                 .getFile();

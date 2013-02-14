@@ -13,6 +13,7 @@
  * 06/23/10		283			F. J. Yen	Initial Creation
  * 09/02/10		283			F. J. Yen	Added call to set dataTime
  * 8/2011					T. Lee		Added ENSCYC
+ * 10/2012      858         G. Hull     rm forecastHr column and set forecasttime in dataTime
  * </pre>
  * 
  * @author Fee Jing Yen, SIB
@@ -89,7 +90,10 @@ public class StormTrackParser {
 			record.setModel(stormTrackField[4]);
 		}
 		if (fieldIdx > 5 && !stormTrackField[5].equals("")) {
-			record.setFcstHour(Integer.parseInt(stormTrackField[5]));
+//			record.setFcstHour(Integer.parseInt(stormTrackField[5]));
+			int fcstSecs = Integer.parseInt(stormTrackField[5])*60*60;			
+			record.setDataTime( 
+					new DataTime( record.getDataTime().getRefTime(), fcstSecs ) );			
 		}
 		if (fieldIdx > 6 && !stormTrackField[6].equals("")) {
 			record.setClat(processLatLon(stormTrackField[6]));

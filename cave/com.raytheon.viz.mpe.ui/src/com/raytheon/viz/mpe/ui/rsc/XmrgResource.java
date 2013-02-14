@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2008            randerso     Initial creation
  * Sep 5, 2012    15079    snaples      Updated interrogate method to handle values without rounding errors.
+ * Jan 7, 2013  15483      wkwock       Fix the "Radar coverage field" error
  * </pre>
  * 
  * @author randerso
@@ -122,7 +123,7 @@ public class XmrgResource extends
 
     private static final GeometryFactory gf = new GeometryFactory();
 
-	private static final double MILLICVT = 25.4;
+    private static final double MILLICVT = 25.4;
 
     private XmrgFile xmrg;
 
@@ -464,10 +465,7 @@ public class XmrgResource extends
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
-                gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this,
-                        target.getViewType());
-                gridDisplay.init(target);
-
+                gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this);
             }
 
             GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
@@ -582,11 +580,11 @@ public class XmrgResource extends
                         } else if (s > 0 && s <= 24) {
                             s = 0;
                         }
-                        if ((cv_use.equalsIgnoreCase("Locbias") || cv_use.equalsIgnoreCase("height") || cv_use.equalsIgnoreCase("locspan") ||
-                    	tempsval == -1))
-                        {
+                        if ((cv_use.equalsIgnoreCase("Locbias")
+                                || cv_use.equalsIgnoreCase("height")
+                                || cv_use.equalsIgnoreCase("locspan") || tempsval == -1)) {
                             f = (float) parameters.getDataToDisplayConverter()
-                                .convert(s);
+                                    .convert(s);
                         } else {
                             f = (float) (s / 100 / MILLICVT);
                         }
@@ -789,8 +787,16 @@ public class XmrgResource extends
             break;
 
         case Index:
+        	List<MPERadarLoc> radars= MPEDataManager.getInstance().getRadars();
+            for (int k=dmPref.getEntries().size();k<radars.size()+2;k++){
+                DataMappingEntry dme = new DataMappingEntry();
+                dme.setPixelValue((double) (k));
+                dme.setDisplayValue(Double.MAX_VALUE);
+                dmPref.addEntry(dme);
+            }
+
             int j = 2;
-            for (MPERadarLoc radar : MPEDataManager.getInstance().getRadars()) {
+            for (MPERadarLoc radar : radars) {
                 dmPref.getEntries().get(j++).setLabel(radar.getId());
             }
             while (j < dmPref.getEntries().size()) {

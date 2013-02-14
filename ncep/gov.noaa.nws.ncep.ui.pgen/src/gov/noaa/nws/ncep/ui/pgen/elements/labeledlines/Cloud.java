@@ -28,7 +28,7 @@ import java.util.Iterator;
  * @author	B. Yin
  */
 
-@ElementOperations ( {Operation.COPY_MOVE, Operation.EXTRAPOLATE,
+@ElementOperations ( {Operation.COPY_MOVE,  Operation.FLIP, Operation.EXTRAPOLATE,
     Operation.INTERPOLATE} )
     
 public class Cloud extends LabeledLine {

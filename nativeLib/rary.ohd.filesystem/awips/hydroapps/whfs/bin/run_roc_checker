@@ -8,6 +8,8 @@ RUN_FROM_DIR=`dirname $0`
 # set up SOME environment variables for WHFS applications
 # Source set_hydro_env from local bin
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
 export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
 export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
 export DB_NAME=$(get_apps_defaults db_name)

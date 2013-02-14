@@ -24,9 +24,10 @@ package com.raytheon.uf.common.serialization;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 7, 2008				chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 07, 2008             chammack    Initial creation
+ * Sep 14, 2012 1169        djohnson    Added writeObject(OBject).
  * 
  * </pre>
  * 
@@ -42,7 +43,7 @@ public interface ISerializationContext {
      * @param b
      * @throws SerializationException
      */
-    public abstract void writeBool(boolean b) throws SerializationException;
+    void writeBool(boolean b) throws SerializationException;
 
     /**
      * Write a byte
@@ -50,7 +51,7 @@ public interface ISerializationContext {
      * @param b
      * @throws SerializationException
      */
-    public abstract void writeByte(byte b) throws SerializationException;
+    void writeByte(byte b) throws SerializationException;
 
     /**
      * Write a short
@@ -58,7 +59,7 @@ public interface ISerializationContext {
      * @param i16
      * @throws SerializationException
      */
-    public abstract void writeI16(short i16) throws SerializationException;
+    void writeI16(short i16) throws SerializationException;
 
     /**
      * Write an int
@@ -66,7 +67,7 @@ public interface ISerializationContext {
      * @param i32
      * @throws SerializationException
      */
-    public abstract void writeI32(int i32) throws SerializationException;
+    void writeI32(int i32) throws SerializationException;
 
     /**
      * Write a long
@@ -74,7 +75,7 @@ public interface ISerializationContext {
      * @param i64
      * @throws SerializationException
      */
-    public abstract void writeI64(long i64) throws SerializationException;
+    void writeI64(long i64) throws SerializationException;
 
     /**
      * Write a double
@@ -82,7 +83,7 @@ public interface ISerializationContext {
      * @param dub
      * @throws SerializationException
      */
-    public abstract void writeDouble(double dub) throws SerializationException;
+    void writeDouble(double dub) throws SerializationException;
 
     /**
      * Write a double array
@@ -90,7 +91,7 @@ public interface ISerializationContext {
      * @param dub
      * @throws SerializationException
      */
-    public abstract void writeDoubleArray(double[] dubs)
+    void writeDoubleArray(double[] dubs)
             throws SerializationException;
 
     /**
@@ -99,7 +100,7 @@ public interface ISerializationContext {
      * @param flt
      * @throws SerializationException
      */
-    public abstract void writeFloat(float flt) throws SerializationException;
+    void writeFloat(float flt) throws SerializationException;
 
     /**
      * Write a string
@@ -107,7 +108,7 @@ public interface ISerializationContext {
      * @param str
      * @throws SerializationException
      */
-    public abstract void writeString(String str) throws SerializationException;
+    void writeString(String str) throws SerializationException;
 
     /**
      * Write a binary blob
@@ -115,7 +116,7 @@ public interface ISerializationContext {
      * @param bin
      * @throws SerializationException
      */
-    public abstract void writeBinary(byte[] bin) throws SerializationException;
+    void writeBinary(byte[] bin) throws SerializationException;
 
     /**
      * Write a float array
@@ -123,7 +124,7 @@ public interface ISerializationContext {
      * @param floats
      * @throws SerializationException
      */
-    public abstract void writeFloatArray(float[] floats)
+    void writeFloatArray(float[] floats)
             throws SerializationException;
 
     /**
@@ -132,7 +133,7 @@ public interface ISerializationContext {
      * @param messageName
      * @throws SerializationException
      */
-    public abstract void writeMessageStart(String messageName)
+    void writeMessageStart(String messageName)
             throws SerializationException;
 
     /**
@@ -140,6 +141,14 @@ public interface ISerializationContext {
      * 
      * @throws SerializationException
      */
-    public abstract void writeMessageEnd() throws SerializationException;
+    void writeMessageEnd() throws SerializationException;
 
+    /**
+     * Write another object.
+     * 
+     * @param obj
+     *            the object
+     * @throws SerializationException
+     */
+    void writeObject(Object obj) throws SerializationException;
 }

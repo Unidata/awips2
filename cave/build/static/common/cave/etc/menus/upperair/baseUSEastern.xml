@@ -110,7 +110,7 @@
 	        <substitute key="stationId" value="72233"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Wash-Dulles, VA (KLWX)" id="raobWash-Dulles"
+	                menuText="Wash-Dulles, VA (KIAD)" id="raobWash-Dulles"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="72403"/>
 	    </contribute>

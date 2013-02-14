@@ -22,11 +22,8 @@ package com.raytheon.viz.pointdata.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -52,17 +49,19 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
 /**
  * This adapter allows a user to request derived parameters from point data
- * sets. It is important to note that the parameter names differ between grid
- * and point datasets so any derived parameter writer will need to provide
- * execute methods for both data types. An obvious example would be Wind Chill
- * but would easily apply to other derived parameters.
+ * sets. It is important to note that derived parameters for point data is much
+ * different than grid. The primary difference is that while grid is combining
+ * multiple records that represent different parameters, point data is combining
+ * multiple paramters within a single record. As a result point data does not
+ * use the time and space matching functions of derived parameters since they
+ * are guaranteed to match for all parameters within a record.
  * 
  * <pre>
  * 
@@ -146,51 +145,22 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
 
         List<Level> levels = LevelMappingFactory.getInstance()
                 .getLevelMappingForKey(levelKey).getLevels();
-        List<AbstractRequestableLevelNode> nodes = inventory.getNodes(source,
+        List<AbstractRequestableNode> nodes = inventory.getNodes(source,
                 Arrays.asList(parameters), levels);
-        // Now we have the nodes, rig the dependencies
-        List<AbstractRequestableLevelNode> deps = new ArrayList<AbstractRequestableLevelNode>(
-                nodes);
-        Set<PointDataLevelNode> baseNodes = new HashSet<PointDataLevelNode>();
-        Set<String> baseParams = new HashSet<String>();
-        for (int i = 0; i < deps.size(); i++) {
-            AbstractRequestableLevelNode node = deps.get(i);
-            if (node instanceof PointDataLevelNode) {
-                baseNodes.add((PointDataLevelNode) node);
-                baseParams.add(((PointDataLevelNode) node).getParameter());
-            } else {
-                for (Dependency dep : node.getDependencies()) {
-                    deps.add(dep.node);
-                }
-            }
+        PointMetadataContainer pmc = new PointMetadataContainer(queryParams,
+                Arrays.asList(parameters), this);
+        for (AbstractRequestableNode node : nodes) {
+            pmc.prepareRequests(node, AvailabilityContainer.AGNOSTIC_SET);
         }
-        if (Arrays.asList(parameters).contains("dataURI")) {
-            baseParams.add("dataURI");
-        }
-        PointDataContainer pdc = getBaseRecords(baseParams, queryParams);
-        if (pdc == null) {
-            return pdc;
-        }
-        Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache = new HashMap<AbstractRequestableLevelNode, List<AbstractRequestableData>>();
-        for (PointDataLevelNode node : baseNodes) {
-            IDataRecord rec = pdc.getParameterRecord(node.getParameter());
-            cache.put(node, Arrays
-                    .asList((AbstractRequestableData) new PointRequestableData(
-                            rec, pdc.getDescription(node.getParameter())
-                                    .getUnitObject())));
-            if (nodes.contains(node)) {
-                nodes.remove(node);
-            } else if (!Arrays.asList("id", "latitude", "longitude", "dataURI")
-                    .contains(rec.getName())) {
-                pdc.remove(rec.getName());
-            }
-        }
-        LayerProperty lp = new LayerProperty();
-        lp.setEntryQueryParameters(queryParams, false);
         List<AbstractRequestableData> requests = new ArrayList<AbstractRequestableData>();
-        for (AbstractRequestableLevelNode node : nodes) {
 
-            requests.addAll(node.getData(lp, 60000, cache));
+        for (AbstractRequestableNode node : nodes) {
+            requests.addAll(pmc.getData(node,
+                    AvailabilityContainer.AGNOSTIC_SET));
+        }
+        PointDataContainer pdc = pmc.getContainer();
+        if (pdc == null) {
+            return null;
         }
         for (AbstractRequestableData request : requests) {
             String unit = request.getUnit() == null ? null : request.getUnit()
@@ -253,7 +223,7 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
         return type;
     }
 
-    protected PointDataContainer getBaseRecords(Collection<String> baseParams,
+    public PointDataContainer getBaseRecords(Collection<String> baseParams,
             Map<String, RequestConstraint> queryParams) throws VizException {
         String plugin = queryParams.get(PLUGIN_NAME).getConstraintValue();
         return PointDataRequest.requestPointDataAllLevels(null, plugin,

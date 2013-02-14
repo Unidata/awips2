@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DataTypeFilterList>
+	<DataType Name="Grid">
+		<filterID>Data Provider</filterID>
+		<filterID>Data Set</filterID>
+		<filterID>Level</filterID>
+		<filterID>Parameter</filterID>
+	</DataType>
+	<DataType Name="Obs">
+		<filterID>Data Provider</filterID>
+		<filterID>Data Set</filterID>
+	</DataType>
+</DataTypeFilterList>
