@@ -218,13 +218,14 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                 checkedLuminance = true;
                 try {
                     renderOffscreen(image);
-                    renderOnscreen();
                 } catch (VizException e) {
                     // assume we don't support luminance
                     supportsLuminance = false;
                     // Reconstruct image
                     image = constructOffscreenImage(dataType, dimensions,
                             parameters);
+                } finally {
+                    renderOnscreen();
                 }
             }
             return image;
