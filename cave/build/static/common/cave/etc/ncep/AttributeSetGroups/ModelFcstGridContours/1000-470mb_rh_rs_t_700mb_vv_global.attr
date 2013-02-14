@@ -8,8 +8,10 @@
 !
 GLEVEL =  4400:10000!700    !700 !850 !9950
 GVCORD =  SGMA      !PRES   !PRES!PRES!SGMA
+SKIP=
+FILTER=y
 SKIP   =    0/1
-SCALE  =   0         !1      !1   !0
+SCALE  =   0         !3      !3   !0
 GDPFUN =  relh      !omeg   !omeg!tmpc!tmpc
 TYPE   =    f         !c
 CINT   =    0         !1/1    !-1;-2;-3;-5;-7;-9;-11;-13;-15;-17;-19;-21;-23;-25!200;0!200;0
@@ -24,4 +26,3 @@ TITLE  =   1/-2/~ 1000-440 MB RH, TEMP (BL yel,850 red), 700 Omega!0
 COLORS =  2          
 MARKER =  2         
 GRDLBL =  5        
-FILTER =  1

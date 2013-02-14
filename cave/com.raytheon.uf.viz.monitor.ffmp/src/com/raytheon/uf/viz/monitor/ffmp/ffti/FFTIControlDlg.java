@@ -20,20 +20,19 @@
 package com.raytheon.uf.viz.monitor.ffmp.ffti;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -49,43 +48,75 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class FFTIControlDlg extends Dialog {
+/**
+ * Flash Flood Threat Indicator display dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 5, 2012  1353      rferrel      Convert to CaveSWTDialog and made non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
+public class FFTIControlDlg extends CaveSWTDialog {
+
     /**
-     * Dialog shell.
+     * THe CWAs monitor selection buttons.
      */
-    private Shell shell;
+    private Map<String, Button> cwa_list;
 
     /**
-     * The display control.
+     * Adds setting tab items to the FFTI tab folder.
      */
-    private Display display;
-
-    private Hashtable<String, Button> cwa_list;
-
     private Button addSettingBtn;
 
+    /**
+     * Remove setting tab items from the FFTI tab folder.
+     */
     private Button removeSettingBtn;
 
+    /**
+     * The FFTI tab folder.
+     */
     private TabFolder fftiTabFolder;
 
-    private String[] tabTitles = new String[] { "Setting 1", "Setting 2",
+    /**
+     * Setting tab item names.
+     */
+    private final String[] tabTitles = new String[] { "Setting 1", "Setting 2",
             "Setting 3", "Setting 4", "Setting 5" };
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFTIControlDlg.class);
 
-    private boolean disposed = false;
-
+    /**
+     * Constructor to set up non-blocking dialog.
+     * 
+     * @param parent
+     */
     public FFTIControlDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        setText("Flash Flood Threat Indicator (FFTI) Control");
     }
 
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
-        shell.setText("Flash Flood Threat Indicator (FFTI) Control");
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -95,19 +126,11 @@ public class FFTIControlDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return null;
     }
 
+    /**
+     * Set up dialog components.
+     */
     private void initializeComponents() {
         try {
             createCwaControls();
@@ -124,18 +147,14 @@ public class FFTIControlDlg extends Dialog {
 
             updateTabSettings();
 
-            shell.addShellListener(new ShellAdapter() {
-                @Override
-                public void shellClosed(ShellEvent event) {
-                    disposed = true;
-                }
-            });
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "FFTI Can not load...", e);
-            e.printStackTrace();
         }
     }
 
+    /**
+     * Set up selection buttons for the CWAs monitors.
+     */
     private void createCwaControls() {
         GridLayout gl = new GridLayout(10, false);
         Composite cwaComp = new Composite(shell, SWT.NONE);
@@ -143,11 +162,11 @@ public class FFTIControlDlg extends Dialog {
 
         Label cwaLbl = new Label(cwaComp, SWT.NONE);
         cwaLbl.setText("CWAs Monitored: ");
-        cwa_list = new Hashtable<String, Button>();
+        cwa_list = new HashMap<String, Button>();
 
         String siteName = LocalizationManager.getInstance().getCurrentSite()
                 .toUpperCase();
-        // load a runner by finding the primey domain
+        // load a runner by finding the primary domain
         FFMPRunConfigurationManager frcm = FFMPRunConfigurationManager
                 .getInstance();
         FFMPRunXML runner = frcm.getRunner(siteName);
@@ -181,6 +200,9 @@ public class FFTIControlDlg extends Dialog {
         }
     }
 
+    /**
+     * Buttons to add remove tab items from the FFTI tab.
+     */
     private void createTabFolderControls() {
         Composite tabControlComp = new Composite(shell, SWT.NONE);
         tabControlComp.setLayout(new GridLayout(2, false));
@@ -210,6 +232,9 @@ public class FFTIControlDlg extends Dialog {
         });
     }
 
+    /**
+     * Layout the FFTI tab folder.
+     */
     private void createSettingTabFolder() {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         fftiTabFolder = new TabFolder(shell, SWT.NONE);
@@ -218,11 +243,14 @@ public class FFTIControlDlg extends Dialog {
         fftiTabFolder.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                tabSelectedAction();
+                updateTabSettings();
             }
         });
     }
 
+    /**
+     * The bottom save and close buttons.
+     */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite buttonComp = new Composite(shell, SWT.NONE);
@@ -251,19 +279,18 @@ public class FFTIControlDlg extends Dialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                disposed = true;
-                shell.dispose();
+                close();
             }
         });
     }
 
     /**
-     * get the duplicated settings
+     * Get the duplicated settings.
      * 
      * @return duplicate list
      */
-    private HashSet<Integer> getDuplicates() {
-        HashSet<Integer> duplicateLst = new HashSet<Integer>();
+    private Set<Integer> getDuplicates() {
+        Set<Integer> duplicateLst = new HashSet<Integer>();
         for (int i = 0; i < fftiTabFolder.getItemCount(); i++) {
             SettingComp thisItem = (SettingComp) fftiTabFolder.getItem(i)
                     .getControl();
@@ -279,11 +306,19 @@ public class FFTIControlDlg extends Dialog {
                         && (thisItem.getQpeDurHr() == nextItem.getQpeDurHr())
                         && (thisItem.getGuidDurHr() == nextItem.getGuidDurHr())
                         && (thisItem.getQpfDurHr() == nextItem.getQpfDurHr())
-                        && (thisItem.getTotalDurHr() == nextItem.getTotalDurHr())
-                        && (thisItem.getQpeSrc().length > 0 && nextItem.getQpeSrc().length > 0 && thisItem.getQpeSrc()[0].equals(nextItem.getQpeSrc()[0]))
-                        && (thisItem.getQpfSrc().length > 0 && nextItem.getQpfSrc().length > 0 && thisItem.getQpfSrc()[0].equals(nextItem.getQpfSrc()[0]))
-                        && (thisItem.getGuidSrc().length > 0 && nextItem.getGuidSrc().length > 0 && thisItem.getGuidSrc()[0].equals(nextItem.getGuidSrc()[0]))) {
-                        
+                        && (thisItem.getTotalDurHr() == nextItem
+                                .getTotalDurHr())
+                        && (thisItem.getQpeSrc().length > 0
+                                && nextItem.getQpeSrc().length > 0 && thisItem
+                                .getQpeSrc()[0].equals(nextItem.getQpeSrc()[0]))
+                        && (thisItem.getQpfSrc().length > 0
+                                && nextItem.getQpfSrc().length > 0 && thisItem
+                                .getQpfSrc()[0].equals(nextItem.getQpfSrc()[0]))
+                        && (thisItem.getGuidSrc().length > 0
+                                && nextItem.getGuidSrc().length > 0 && thisItem
+                                .getGuidSrc()[0]
+                                .equals(nextItem.getGuidSrc()[0]))) {
+
                     duplicateLst.add(i + 1);
                     duplicateLst.add(j + 1);
                 }
@@ -293,25 +328,23 @@ public class FFTIControlDlg extends Dialog {
         return duplicateLst;
     }
 
+    /**
+     * Save the current settings to the FFTIDataManger.
+     */
     protected void saveAllSettings() {
         // Find duplicates
-        HashSet<Integer> duplicates = getDuplicates();
+        Set<Integer> duplicates = getDuplicates();
         if (duplicates.size() > 0) {
-            String setsStr = "";
-            int i = 0;
-            for (Integer setIndex : duplicates) {
-                setsStr += setIndex;
-                if (i != duplicates.size()-1) {
-                    setsStr = setsStr + "/";
-                } 
-                i++;
+            StringBuilder message = new StringBuilder("Sets ");
+            String separator = "";
+            for (int setIndex : duplicates) {
+                message.append(separator).append(setIndex);
+                separator = "/";
             }
+            message.append(" are duplicated!\nModify the configuration before saving.");
             MessageBox messageBox = new MessageBox(shell, SWT.OK);
             messageBox.setText("Warning: Duplicate Setting(s)!");
-            messageBox
-                    .setMessage("Sets "
-                            + setsStr
-                            + " are duplicated!\nModify the configuration before saving.");
+            messageBox.setMessage(message.toString());
             messageBox.open();
             return;
         }
@@ -322,13 +355,13 @@ public class FFTIControlDlg extends Dialog {
         fdm.clear();
 
         // get the selected CWA list
-        ArrayList<String> selectedCwas = getCWASelectionIDs();
+        List<String> selectedCwas = getCWASelectionIDs();
 
-        fdm.setCwaList(selectedCwas);
+        fdm.setCwaList((ArrayList<String>) selectedCwas);
 
         // get attribute, and sources for each tab
         TabItem[] tabItemArray = fftiTabFolder.getItems();
-        ArrayList<FFTISettingXML> settings = new ArrayList<FFTISettingXML>();
+        List<FFTISettingXML> settings = new ArrayList<FFTISettingXML>();
 
         for (TabItem ti : tabItemArray) {
             SettingComp sc = (SettingComp) ti.getControl();
@@ -365,10 +398,13 @@ public class FFTIControlDlg extends Dialog {
             settings.add(aSetting);
         }
 
-        fdm.setSettings(settings);
+        fdm.setSettings((ArrayList<FFTISettingXML>) settings);
         fdm.saveConfigXml();
     }
 
+    /**
+     * Add a new setting tab in the FFTI tab folder.
+     */
     private void createSettingTabs() {
         FFTIDataManager fftiDataMgr = FFTIDataManager.getInstance();
 
@@ -388,6 +424,11 @@ public class FFTIControlDlg extends Dialog {
         }
     }
 
+    /**
+     * Place horizontal separator in the component.
+     * 
+     * @param parentComp
+     */
     private void addSeparator(Composite parentComp) {
         GridLayout gl = (GridLayout) parentComp.getLayout();
 
@@ -397,6 +438,9 @@ public class FFTIControlDlg extends Dialog {
         sepLbl.setLayoutData(gd);
     }
 
+    /**
+     * Add a new settings tab.
+     */
     private void addSettingTab() {
         // Add tab
         TabItem settingTab = new TabItem(fftiTabFolder, SWT.NONE);
@@ -409,11 +453,10 @@ public class FFTIControlDlg extends Dialog {
         removeSettingBtn.setEnabled(true);
     }
 
+    /**
+     * Dispose of the control in the selected tab and then dispose of the tab.
+     */
     private void removeSettingTab() {
-        /*
-         * Dispose of the control in the selected tab and then dispose of the
-         * tab.
-         */
         int selectedTab = fftiTabFolder.getSelectionIndex();
         fftiTabFolder.getItem(selectedTab).getControl().dispose();
         fftiTabFolder.getItem(selectedTab).dispose();
@@ -425,10 +468,9 @@ public class FFTIControlDlg extends Dialog {
         removeSettingBtn.setEnabled(false);
     }
 
-    private void tabSelectedAction() {
-        updateTabSettings();
-    }
-
+    /**
+     * Update the enable status of tab control buttons.
+     */
     private void updateTabSettings() {
         if (fftiTabFolder.getItemCount() > 1) {
             if (fftiTabFolder.getSelectionIndex() == 0) {
@@ -447,6 +489,9 @@ public class FFTIControlDlg extends Dialog {
         }
     }
 
+    /**
+     * Adjust the names of the FFTI tab folder items.
+     */
     private void renameTabs() {
         TabItem[] tabItemArray = fftiTabFolder.getItems();
 
@@ -455,26 +500,20 @@ public class FFTIControlDlg extends Dialog {
         }
     }
 
-    /*
-     * getCWASelection() return a listed names of CWA button that is on checking
-     * state.
+    /**
+     * Get CWA names whose buttons are selected.
+     * 
+     * @return cwaIds
      */
-    public ArrayList<String> getCWASelectionIDs() {
-        ArrayList<String> cwaIds = new ArrayList<String>();
+    public List<String> getCWASelectionIDs() {
+        List<String> cwaIds = new ArrayList<String>();
         for (Object id : cwa_list.keySet().toArray()) {
             Button cwa_bt = cwa_list.get(id);
             if (cwa_bt.getSelection()) {
-                cwaIds.add((String) id);
+                cwaIds.add(id.toString());
             }
         }
 
         return cwaIds;
-    }
-
-    /**
-     * @return the disposed
-     */
-    public boolean isDisposed() {
-        return disposed;
     }
 }

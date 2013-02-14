@@ -1130,44 +1130,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         if (lineStyle != null && lineStyle != LineStyle.SOLID
                 && lineStyle != LineStyle.DEFAULT) {
             gl.glEnable(GL.GL_LINE_STIPPLE);
-            if (lineStyle == LineStyle.DASHED) {
-                gl.glLineStipple(4, (short) 0xAAAA);
-            } else if (lineStyle == LineStyle.DASHED_LARGE) {
-                gl.glLineStipple(4, (short) 0xEEEE);
-            } else if (lineStyle == LineStyle.DOTTED) {
-                gl.glLineStipple(1, (short) 0xAAAA);
-            } else if (lineStyle == LineStyle.DASH_DOTTED) {
-                gl.glLineStipple(1, (short) 0xE4E4);
-            }
-            // NMAP Task 69 to add line styles from GEMPAK
-            else if (lineStyle == LineStyle.DOTS) {
-                gl.glLineStipple(1, (short) 0x8888);
-            } else if (lineStyle == LineStyle.SHORT_DASHED) {
-                gl.glLineStipple(8, (short) 0xAAAA);
-            } else if (lineStyle == LineStyle.MEDIUM_DASHED) {
-                gl.glLineStipple(3, (short) 0xF8F8);
-            } else if (lineStyle == LineStyle.LONG_DASHED) {
-                gl.glLineStipple(3, (short) 0xFCFC);
-            } else if (lineStyle == LineStyle.LONG_DASH_DOT) {
-                gl.glLineStipple(2, (short) 0xFFE4);
-            } else if (lineStyle == LineStyle.LONG_DASH_SHORT_DASH) {
-                gl.glLineStipple(3, (short) 0xFC38);
-            } else if (lineStyle == LineStyle.LONG_DASH_THREE_DOTS) {
-                // gl.glLineStipple(2, (short) 0xFFAA);
-                // gl.glLineStipple(3, (short) 0xFFAA);
-                gl.glLineStipple(2, (short) 0xFC92);
-            } else if (lineStyle == LineStyle.LONG_DASH_THREE_SHORT_DASHES) {
-                // gl.glLineStipple(5, (short) 0xFFAA);
-                gl.glLineStipple(3, (short) 0xFDB6);
-            } else if (lineStyle == LineStyle.MEDIUM_DASH_DOT) {
-                // GEMPAK appears to have a bug where line type 9 draws as 'long
-                // dash 2 dots'
-                // This line type will draw a MEDIUM DASH DOT
-                // gl.glLineStipple(2, (short) 0xFF24 ); // long dash 2 dots as
-                // drawn by GEMPAK
-                // gl.glLineStipple(2, (short) 0xFF18);
-                gl.glLineStipple(2, (short) 0xFF88);
-            }
+            gl.glLineStipple(lineStyle.getFactor(), lineStyle.getPattern());
         } else {
             gl.glDisable(GL.GL_LINE_STIPPLE);
         }
@@ -1188,6 +1151,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * 
      * @see com.raytheon.viz.IGraphicsTarget#init()
      */
+    @Override
     public void init() {
         makeContextCurrent();
         GLU glu = new GLU();
@@ -1322,6 +1286,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * 
      * @see com.raytheon.viz.core.gl.IGLTarget#makeContextCurrent()
      */
+    @Override
     public boolean makeContextCurrent() {
         return theContext.makeContextCurrent();
     }
@@ -1332,6 +1297,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * Do not call outside of gl package
      * 
      */
+    @Override
     public void releaseContext() {
         theContext.releaseContext();
     }
@@ -1475,6 +1441,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getModelView()
      */
+    @Override
     public double[] getModelView() {
         double[] modelMatrix = new double[16];
         gl.glGetDoublev(GL.GL_MODELVIEW_MATRIX, modelMatrix, 0);
@@ -1486,6 +1453,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getModelView()
      */
+    @Override
     public double[] getProjection() {
         double[] projection = new double[16];
         gl.glGetDoublev(GL.GL_PROJECTION_MATRIX, projection, 0);
@@ -1497,6 +1465,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getViewPort()
      */
+    @Override
     public int[] getViewPort() {
         int[] vp = new int[4];
         gl.glGetIntegerv(GL.GL_VIEWPORT, vp, 0);
@@ -1509,6 +1478,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * @param p
      * @return
      */
+    @Override
     public double[] project(double[] p) {
         double[] window = new double[3];
         if (!this.glu.gluProject(p[0], p[1], p[2], getModelView(), 0,
@@ -1529,6 +1499,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      *            screen coordinate
      * @return pixel value
      */
+    @Override
     public double[] unproject(double[] pos) {
         return this.unproject(pos[0], pos[1], pos[2]);
     }
@@ -1569,6 +1540,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      * 
      * @see com.raytheon.viz.core.gl.IDisplayPane#getBounds()
      */
+    @Override
     public Rectangle getBounds() {
         if (theCanvas != null && theCanvas.isDisposed()) {
             return null;
@@ -1617,7 +1589,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      */
     @Override
     public void setView(IView view) {
-        this.targetView = (IView) view.clone();
+        this.targetView = view.clone();
         this.targetView.setupView(this);
     }
 

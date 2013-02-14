@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.ServiceBackupNotificationManager;
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportConfRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -28,7 +29,7 @@ import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 
 /**
- * TODO Add Description
+ * Exports configuration?
  * 
  * <pre>
  * 
@@ -68,7 +69,7 @@ public class ExportConfRequestHandler extends
 
     @Override
     public AuthorizationResponse authorized(IUser user,
-            ExportConfRequest request) {
-        return SvcBackupUtil.authorizeWithLocalization(user);
+            ExportConfRequest request) throws AuthorizationException {
+        return SvcBackupUtil.authorizeWithLocalization(user, request);
     }
 }

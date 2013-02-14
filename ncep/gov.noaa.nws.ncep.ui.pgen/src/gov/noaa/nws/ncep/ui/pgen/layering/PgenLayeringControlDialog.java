@@ -108,8 +108,15 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
+
+    	if ( shellLocation == null ) {
         Point pt = parent.getLocation();
         shell.setLocation( pt.x + 255,  pt.y + 146 );
+    }
+		else {
+			shell.setLocation(shellLocation);
+		}
+
     }
 
     /**
@@ -257,7 +264,7 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     	for ( Layer lyr : layerList ) {
 	     	
     	    Button nameBtn = new Button( layersComp, SWT.PUSH );
-    	    nameBtn.setText( lyr.getName() );
+    	    nameBtn.setText( lyr.getName().replace("&", "&&") );
     	    setButtonColor( nameBtn, defaultLayerButtonColor );	    
     	    nameBtn.setData( ii );
     	    nameBtn.addSelectionListener( new SelectionAdapter() {
@@ -397,10 +404,10 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     	 */
     	if ( update ) {
     		
-    		layerNameBtns.get( layerInUse ).setText( name );
+    		layerNameBtns.get( layerInUse ).setText( name.replace("&", "&&") );
     	
     	    if ( layerInUse >= 0 ) {    	    
-    		    layerList.get( layerInUse ).setName( name ); 
+    		    layerList.get( layerInUse ).setName( name.replace("&", "&&") ); 
     		    currentLayer.setName( name );
     	    }
     	    
@@ -538,7 +545,7 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     	
     	if ( !newLayer.equals( clayer ) ) {
     		for ( int ii = 0; ii < layerNameBtns.size(); ii++ ) {
-    			if ( layerNameBtns.get(ii).getText().equals( newLayer ) ) {
+    			if ( layerNameBtns.get(ii).getText().replace("&&", "&").equals( newLayer ) ) {
     				which = ii;
     				break;
     			}
@@ -703,7 +710,8 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     	if ( layerNameDlg != null ) layerNameDlg.close();       
         if ( displayDlg != null )   displayDlg.close();
     	
-        shell.dispose();
+        close();
+//        shell.dispose();
 		        
     }
     
@@ -769,4 +777,11 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
          
     }
     
+    /*
+     *  Clean up before close the shell - default is to do nothing. 
+     */
+    protected void exit() { 
+    	exitLayering();
+    }  
+   
 }

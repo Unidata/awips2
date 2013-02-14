@@ -92,12 +92,12 @@ public class IFPServerConfigManager {
      */
     public static IFPServerConfig getServerConfig(String siteID)
             throws GfeConfigurationException {
-        if (configMap.containsKey(siteID)) {
-            return configMap.get(siteID);
-        } else {
+        IFPServerConfig config = configMap.get(siteID);
+        if (config == null) {
             throw new GfeConfigurationException("Site " + siteID
                     + " has no active GFE configuration.");
         }
+        return config;
     }
 
     /**

@@ -87,6 +87,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  * 01/12		TTR463		J. Wu		Creating new activity from existing ones
  * 07/12  		#822        J. Wu    	Synchronize with the presence of PGEN Palette
  * 08/12  		#822        J. Wu    	Make this dialog "APPLICATION_MODAL"
+ * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
  * 
  * </pre>
  * 
@@ -1778,13 +1779,13 @@ public class ProductConfigureDialog extends ProductDialog {
     		}
     		
     	    Button nameBtn = new Button( whichCmp, SWT.PUSH );
-    	    nameBtn.setText( lyr.getName() );
+    	    nameBtn.setText( lyr.getName().replace("&", "&&") );
 	    	setButtonColor( nameBtn, defaultButtonColor );	
     	        	    
     	    nameBtn.setData( ii );
     	    nameBtn.addSelectionListener( new SelectionAdapter() {
     	        public void widgetSelected(SelectionEvent event) {                		    	        	
-                    switchLayer( ((Button)event.widget).getText() );    	        		
+                    switchLayer( ((Button)event.widget).getText().replace("&&", "&") );    	        		
      	        }
     	    });
     	    
@@ -2666,7 +2667,7 @@ public class ProductConfigureDialog extends ProductDialog {
 		         
 		         // Set the color of the layer name buttons.
 		         for ( Button btn : layerNameBtns ) {
-		        	 if ( btn.getText().equals( layerName ) ) {
+		        	 if ( btn.getText().replace("&&", "&").equals( layerName ) ) {
 		        		 setButtonColor( btn, activeButtonColor );
 		        	 }
 		        	 else {

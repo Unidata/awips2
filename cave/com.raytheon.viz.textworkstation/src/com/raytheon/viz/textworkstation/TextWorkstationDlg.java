@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,7 +32,6 @@ import java.util.TimerTask;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -89,13 +89,18 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      on times on two machines being in synch.
  * 26Sep2012    1196        lvenable    Dialog refactor to not block.
  * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
+ * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
  * 
  * </pre>
  * 
  * @author lvenable
  */
 public class TextWorkstationDlg extends CaveSWTDialog implements
-        SelectionListener, ITextEditorCallback, INotificationObserver {
+        ITextEditorCallback, INotificationObserver {
+
+    private final int INIT_BUTTON_CNT = 4;
+
+    private final int MAX_BUTTON_CNT = 8;
 
     private String productToDisplay = null;
 
@@ -125,11 +130,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private Date date;
 
-    private int currentBtnCount = 4;
+    private List<Button> textBtnArray;
 
-    private ArrayList<Button> textBtnArray;
-
-    private ArrayList<TextEditorDialog> textEditorArray;
+    private List<TextEditorDialog> textEditorArray;
 
     private TextEditorDialog wgDlg;
 
@@ -430,19 +433,19 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         textBtnArray = new ArrayList<Button>();
         textEditorArray = new ArrayList<TextEditorDialog>();
 
-        for (int x = 1; x <= 4; ++x) {
+        for (int x = 1; x <= INIT_BUTTON_CNT; ++x) {
             createButtonAndTextEditor(x);
         }
     }
 
     private void addNewWindowButton() {
-        ++currentBtnCount;
-
-        if (currentBtnCount <= 8) {
+        int currentBtnCount = textEditorArray.size();
+        if (currentBtnCount < MAX_BUTTON_CNT) {
+            ++currentBtnCount;
             createButtonAndTextEditor(currentBtnCount);
         }
 
-        if (currentBtnCount == 8) {
+        if (currentBtnCount == MAX_BUTTON_CNT) {
             newWindowMenuItem.setEnabled(false);
         }
 
@@ -462,11 +465,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         });
         textBtnArray.add(textBtn);
 
-        TextEditorDialog teDlg = new TextEditorDialog(shell, btnTitle, false,
-                this, ((Integer) btnNumber).toString(), true, true,
-                CAVE.PERSPECTIVE_INDEPENDENT);
-
-        textEditorArray.add(teDlg);
+        // Make place holder for the edit dialog and only create if requested.
+        textEditorArray.add(null);
     }
 
     private synchronized void createWarngenDisplay() {
@@ -477,15 +477,15 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     }
 
     private void showTextEditor(int editorIndex) {
-        boolean result = textEditorArray.get(editorIndex).isDisposed();
-        if (result) {
+        TextEditorDialog teDlg = textEditorArray.get(editorIndex);
+        if (teDlg == null) {
             // create a new instance
             String btnTitle = "Text " + (editorIndex + 1);
-            TextEditorDialog teDlg = new TextEditorDialog(shell, btnTitle,
-                    false, this, ((Integer) (editorIndex + 1)).toString(),
-                    true, true, CAVE.PERSPECTIVE_INDEPENDENT);
+            teDlg = new TextEditorDialog(shell, btnTitle, false, this,
+                    ((Integer) (editorIndex + 1)).toString(), true, true,
+                    CAVE.PERSPECTIVE_INDEPENDENT);
 
-            textEditorArray.add(editorIndex, teDlg);
+            textEditorArray.set(editorIndex, teDlg);
         }
 
         textEditorArray.get(editorIndex).showDialog();
@@ -500,7 +500,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     private void hideAllTextEditors() {
         Shell myShell;
         for (TextEditorDialog teDlg : textEditorArray) {
-            teDlg.hideDialog();
+            if (teDlg != null) {
+                teDlg.hideDialog();
+            }
         }
         for (int i = 1; i < 9; i++) {
             ITextWorkstationCallback cb = TextDisplayModel.getInstance()
@@ -536,29 +538,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         utcTimeLabel.setText(sdfUTC.format(date));
     }
 
-    public void widgetSelected(SelectionEvent e) {
-        if (e.getSource() == textBtnArray.get(0)) {
-            System.out.println("Text 1 was clicked...");
-        } else if (e.getSource() == textBtnArray.get(1)) {
-            System.out.println("Text 2 was clicked...");
-        } else if (e.getSource() == textBtnArray.get(2)) {
-            System.out.println("Text 3 was clicked...");
-        } else if (e.getSource() == textBtnArray.get(3)) {
-            System.out.println("Text 4 was clicked...");
-        } else if (e.getSource() == textBtnArray.get(4)) {
-            System.out.println("Text 5 was clicked...");
-        }
-    }
-
-    public void widgetDefaultSelected(SelectionEvent e) {
-    }
-
     @Override
     public void restoreText(int teID) {
-        // Pass in "token-1" as teID and use "Text " + ((Integer)
-        // token+1).toString()) as the restored text.
-        textBtnArray.get(teID).setText(
-                "Text " + ((Integer) (teID + 1)).toString());
+        textBtnArray.get(teID).setText("Text " + (teID + 1));
     }
 
     @Override

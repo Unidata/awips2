@@ -4,10 +4,12 @@
     <resourceDefnName>ARTCC</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-pgenProductName=awc_ARTCC.xml
+! The relative path name from localization (ie 'ncep/') or an absolute file name
+pgenStaticProductLocation=ncep/StaticPgenOverlays
+pgenStaticProductName=awc_ARTCC.xml
     </resourceParameters>
-    <filterLabels></filterLabels>
-    <rscImplementation>PgenXmlOverlay</rscImplementation>
+    <filterLabels>AdministrativeBoundaries,PGEN</filterLabels>
+    <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
