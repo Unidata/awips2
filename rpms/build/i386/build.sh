@@ -340,6 +340,8 @@ fi
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
    buildRPM "Installer.ncep-database"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -353,6 +355,14 @@ if [ "${1}" = "-qpid" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+
+   exit 0
+fi
+
+if [ "${1}" = "-gfesuite" ]; then
+   buildRPM "awips2"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
 
    exit 0
 fi

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,6 +33,7 @@ import com.raytheon.edex.plugin.gfe.cache.ifpparms.IFPParmIdCache;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
+import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
@@ -66,9 +67,9 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
 
 /**
  * Activates the GFE server capabilities for a site
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -77,9 +78,11 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * Apr 06, 2012  #457     dgilling    Clear site's ISCSendRecords on
  *                                    site deactivation.
  * Jul 12, 2012  15162    ryu         added check for invalid db at activation
- * 
+ * Dec 11, 2012  14360    ryu         log a clean message in case of
+ *                                    missing configuration (no stack trace).
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -216,7 +219,7 @@ public class GFESiteActivation implements ISiteActivationListener {
     /**
      * Activates a site by reading its server config and generating maps, topo,
      * and text products for the site
-     * 
+     *
      * @param siteID
      */
     @Override
@@ -239,6 +242,13 @@ public class GFESiteActivation implements ISiteActivationListener {
                         "Error validating configuration for " + siteID);
             }
             internalActivateSite(siteID);
+        } catch (GfeMissingConfigurationException e) {
+            sendActivationFailedNotification(siteID);
+            // Stack trace is not printed per requirement for DR14360
+            statusHandler.handle(Priority.PROBLEM, siteID
+                    + " will not be activated: "
+                    + e.getLocalizedMessage());
+            throw e;
         } catch (Exception e) {
             sendActivationFailedNotification(siteID);
             statusHandler.handle(Priority.PROBLEM, siteID
@@ -255,10 +265,10 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /**
      * Activate site routine for internal use.
-     * 
+     *
      * Doesn't update the site list so it is preserved when loading sites at
      * start up
-     * 
+     *
      * @param siteID
      * @throws PluginException
      * @throws GfeException
@@ -481,7 +491,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /**
      * Deactivates a site's GFE services
-     * 
+     *
      * @param siteID
      */
     @Override
@@ -555,7 +565,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /**
      * Returns the currently active GFE sites the server is running
-     * 
+     *
      * @return the active sites
      */
     @Override
@@ -565,7 +575,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.edex.site.ISiteActivationListener#validateConfig()
      */
     @Override
