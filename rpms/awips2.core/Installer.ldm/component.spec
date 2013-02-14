@@ -5,7 +5,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: 6.8.1
-Release: 26
+Release: 27
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
