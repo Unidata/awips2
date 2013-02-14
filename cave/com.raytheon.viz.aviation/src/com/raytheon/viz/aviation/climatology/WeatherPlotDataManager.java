@@ -40,6 +40,9 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.aviation.cachedata.CacheGuidanceRequest;
@@ -65,6 +68,8 @@ import com.raytheon.viz.aviation.xml.WxPlotCfg;
  *                                     only retrieves selected data.
  * 28 FEB 2011  8188       rferrel     Fixed getNam
  * Apr 28, 2011 8065       rferrel     Use cache data
+ * Nov 26, 2012 1298       rferrel     Non-blocking dialog cleanup now use
+ *                                      IUFStatusHandler for error messages.
  * 
  * </pre>
  * 
@@ -73,16 +78,18 @@ import com.raytheon.viz.aviation.xml.WxPlotCfg;
  */
 
 public class WeatherPlotDataManager {
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(WeatherPlotDataManager.class);
 
     /**
      * The types used for each model.
      */
     private final static Map<String, String> modelTypes = new HashMap<String, String>();
     static {
-        modelTypes.put("etamos", "ETA");//
+        modelTypes.put("etamos", "ETA");
         modelTypes.put("etabuf", "ETA");
-        modelTypes.put("gfsmos", "GFS");//
-        modelTypes.put("gfslamp", "LAMP");//
+        modelTypes.put("gfsmos", "GFS");
+        modelTypes.put("gfslamp", "LAMP");
     }
 
     private static WeatherPlotDataManager instance;
@@ -158,7 +165,8 @@ public class WeatherPlotDataManager {
 
             wxPlotCfg = JAXB.unmarshal(path, WxPlotCfg.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to read WxPlotCfg.xml", e);
         }
     }
 
@@ -380,10 +388,10 @@ public class WeatherPlotDataManager {
             TafRecord[] tafs = TafUtil.getLatestTafs(siteId, 99);
             long keyTime = 0;
 
-            List<TafRecord> tlist = Arrays.asList(tafs);
-            Collections.reverse(tlist);
-            tlist.toArray(tafs);
             if (tafs != null) {
+                List<TafRecord> tlist = Arrays.asList(tafs);
+                Collections.reverse(tlist);
+                tlist.toArray(tafs);
                 for (TafRecord taf : tafs) {
                     Map<String, Object> args = new HashMap<String, Object>();
                     args.put("taf", TafUtil.safeFormatTaf(taf, false));
@@ -455,8 +463,7 @@ public class WeatherPlotDataManager {
                 }
             }
         } catch (JepException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } finally {
             if (python != null) {
                 python.dispose();
@@ -543,8 +550,7 @@ public class WeatherPlotDataManager {
                 }
             }
         } catch (JepException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } finally {
             if (python != null) {
                 python.dispose();
@@ -703,7 +709,7 @@ public class WeatherPlotDataManager {
                 }
             }
         } catch (JepException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } finally {
             if (python != null) {
                 python.dispose();
@@ -805,7 +811,7 @@ public class WeatherPlotDataManager {
                 }
             }
         } catch (JepException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } finally {
             if (python != null) {
                 python.dispose();
@@ -1009,10 +1015,7 @@ public class WeatherPlotDataManager {
             result = CatalogQuery.performQuery(fieldName, queryTerms);
             Arrays.sort(result, Collections.reverseOrder());
         } catch (VizException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-            // e);
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
         return result;

@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+   	       
+   	<bean id="statsDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginName" value="stats" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.stats" />
+		<property name="database" value="metadata" />
+	</bean>
+
+	<bean id="statsRegister" factory-bean="dbPluginRegistry" factory-method="register">
+		<constructor-arg value="stats"/>
+		<constructor-arg ref="statsDatabaseProperties"/>
+	</bean>
+
+    <bean id="statsHandler" 
+       class="com.raytheon.uf.edex.stats.handler.StatsHandler"/>
+</beans>

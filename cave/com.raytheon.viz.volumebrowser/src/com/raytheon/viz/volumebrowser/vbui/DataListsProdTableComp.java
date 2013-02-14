@@ -48,8 +48,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -671,10 +671,10 @@ public class DataListsProdTableComp extends Composite implements
                     mContrib.xml.menuText = source.getName();
                 } else {
                     // Attempt a lookup in the grib model table
-                    GridModel model = GribModelLookup.getInstance()
-                            .getModelByName(source.getKey());
-                    if (model != null) {
-                        mContrib.xml.menuText = model.getTitle();
+                    DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
+                            source.getKey());
+                    if (info != null) {
+                        mContrib.xml.menuText = info.getTitle();
                     } else {
                         mContrib.xml.menuText = source.getKey();
                     }

@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -58,6 +59,8 @@ import javax.measure.unit.Unit;
  *  07/11/2011             Greg Hull    ColorBarResource                               
  *  07/28/2011    450      Greg Hull    NcPathManager
  *  05/23/12      785      Q. Zhou      Added getName for legend.
+ *  12/19/2012   #960      Greg Hull    override propertiesChanged() to update colorBar.
+ *  
  * </pre>
  * 
  * @author ghull 
@@ -317,6 +320,12 @@ public class FFGResource extends AbstractNatlCntrsResource<FFGResourceData, MapD
         getDescriptor().getResourceList().remove( cbarRscPair );
     }
 
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
 
 	public void resourceAttrsModified() {
 		// update the colorbarPainter with a possibly new colorbar

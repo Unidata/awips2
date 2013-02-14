@@ -1,8 +1,12 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction.ZoomType;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -19,6 +23,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.input.InputAdapter;
 
 
+/*
+ *   ????????   ????   ????     Created
+ *   11/30/12   #630   ghull    move zoomToZoombox and implement with zoomTo command
+ *
+ */
+
 public class NcZoomHandler extends InputAdapter {
 
     private static final NcZoomHandler instance = new NcZoomHandler();
@@ -34,6 +44,8 @@ public class NcZoomHandler extends InputAdapter {
     private NcZoomToolResourceData ztrd;
 
     private IDisplayPaneContainer container = null;
+
+	private static String zoomToCmdId = "gov.noaa.nws.ncep.viz.ui.actions.zoomTo";
 
     private NcZoomHandler() {
         ztrd = new NcZoomToolResourceData(this);
@@ -115,11 +127,25 @@ public class NcZoomHandler extends InputAdapter {
         }
         
         NCMapEditor ncEditor = (NCMapEditor)container; 
-        IDisplayPane[] zoomPanes = ( ncEditor.arePanesGeoSynced() ? 
-        	container.getDisplayPanes() : ncEditor.getSelectedPanes() );
 
-        for (IDisplayPane pane : zoomPanes ) {
-            zoomToZoombox(pane);
+		ICommandService service = (ICommandService)ncEditor
+						.getSite().getService(ICommandService.class);
+		Command cmd = service.getCommand( zoomToCmdId );
+
+		if( cmd != null ) {
+			try {		        
+				Map<String, String> cmdParams = new HashMap<String, String>();
+				
+				cmdParams.put("zoomType", ZoomType.ZOOMBOX.toString() );		        
+				cmdParams.put("zoomLevel", zoomRect.toString() );
+			
+				ExecutionEvent exec = new ExecutionEvent(cmd, cmdParams, null, null);
+				cmd.executeWithChecks(exec);
+			} 
+			catch (Exception ex) {
+				ex.printStackTrace();
+				System.out.println("Error executing cmd to zoomTo Resource: "+ zoomToCmdId );
+			}
         }
 
         // Remove zoom tool resource from active pane
@@ -130,9 +156,9 @@ public class NcZoomHandler extends InputAdapter {
         // after the zoom is done change back to Pane Mode.
         //
 		String cmdStr = ncEditor.getDefaultTool();        		
-		ICommandService service = (ICommandService) ncEditor.getSite()
+		service = (ICommandService) ncEditor.getSite()
 									   .getService( ICommandService.class );
-		Command cmd = service.getCommand( cmdStr );			
+		cmd = service.getCommand( cmdStr );			
 
 		if ( cmd != null ) {
 			try {
@@ -175,58 +201,6 @@ public class NcZoomHandler extends InputAdapter {
 
         this.zoomRect = new Rectangle(correctedX, correctedY, correctedX2
                 - correctedX, correctedY2 - correctedY);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.IDisplayPane#zoomToZoombox()
-     */
-    public void zoomToZoombox(IDisplayPane pane) {
-
-        if (zoomRect == null) {
-            return;
-        }
-
-        Rectangle curDisplay = pane.getBounds();
-
-        double ratioX = (double) this.zoomRect.width
-                / (double) curDisplay.width;
-        double ratioY = (double) this.zoomRect.height
-                / (double) curDisplay.height;
-
-        double newRatio = 0.0;
-        if (ratioX > ratioY) {
-            newRatio = ratioX;
-        } else {
-            newRatio = ratioY;
-        }
-
-        double wd = (curDisplay.width * newRatio);
-        double ht = (int) (curDisplay.height * newRatio);
-
-        int centerX = this.zoomRect.x + this.zoomRect.width / 2;
-        int centerY = this.zoomRect.y + this.zoomRect.height / 2;
-        IExtent extent = null;
-
-        try {
-            extent = GraphicsFactory.getGraphicsAdapter().constructExtent(
-                    centerX - wd / 2, centerX + wd / 2, centerY - ht / 2,
-                    centerY + ht / 2);
-        } catch (VizException e) {
-            /*
-             * Failed to construct extent with the factory. Default to
-             * PixelExtent type.
-             */
-            extent = new PixelExtent(centerX - wd / 2, centerX + wd / 2,
-                    centerY - ht / 2, centerY + ht / 2);
-        }
-
-        pane.getRenderableDisplay().setExtent(extent);
-        pane.setZoomLevel(pane.getRenderableDisplay().recalcZoomLevel(
-                pane.getRenderableDisplay().getDimensions()));
-
-        pane.refresh(); 
     }
 
 }

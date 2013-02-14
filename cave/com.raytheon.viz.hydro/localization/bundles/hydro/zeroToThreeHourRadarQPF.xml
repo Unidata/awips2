@@ -35,15 +35,15 @@
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
                     </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="gridResourceData" customLegend="${customLegend}" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="${param}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="PROB3HR" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>

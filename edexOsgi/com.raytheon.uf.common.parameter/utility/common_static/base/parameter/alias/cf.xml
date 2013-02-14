@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="cf">
+    <!-- http://cf-pcmdi.llnl.gov/ -->
+	<alias base="AV">atmosphere_absolute_vorticity</alias>
+	<alias base="CDCON">convective_cloud_area_fraction</alias>
+	<alias base="CP">convective_precipitation_amount</alias>
+	<alias base="DpT">dew_point_temperature</alias>
+	<alias base="DpD">dew_point_depression</alias>
+	<alias base="WVDIR">direction_of_wind_wave_velocity</alias>
+	<alias base="SWDIR">direction_of_swell_wave_velocity</alias>
+	<alias base="EPT">pseudo_equivalent_potential_temperature</alias>
+	<alias base="EVP">water_evaporation_amount </alias>
+	<alias base="GH">geopotential_height</alias>
+	<alias base="GeH">altitude</alias>
+	<alias base="HCDC">high_cloud_area_fraction</alias>
+	<alias base="ICETK">sea_ice_thickness</alias>
+	<alias base="MIXR">humidity_mixing_ratio</alias>
+	<alias base="LAPR">air_temperature_lapse_rate</alias>
+	<alias base="LCDC">low_cloud_area_fraction</alias>
+	<alias base="LgSP">large_scale_precipitation_amount</alias>
+	<alias base="LHF">surface_upward_latent_heat_flux</alias>
+	<alias base="WVPER">wind_wave_period</alias>
+	<alias base="SWPER">swell_wave_period</alias>
+	<alias base="MCDC">medium_cloud_area_fraction</alias>
+	<alias base="P">air_pressure</alias>
+	<alias base="PMSL">air_pressure_at_sea_level</alias>
+	<alias base="PoT">air_potential_temperature</alias>
+	<alias base="PR">precipitation_flux</alias>
+	<alias base="PRESA">air_pressure_anomaly</alias>
+	<alias base="PW">atmosphere_water_vapour_content</alias>
+	<alias base="RH">relative_humidity</alias>
+	<alias base="SATD">water_vapour_saturation_deficit</alias>
+	<alias base="SWELL">significant_height_of_swell_waves</alias>
+	<alias base="WVHGT">significant_height_of_wind_waves</alias>
+	<alias base="SnD">surface_snow_thickness</alias>
+	<alias base="SH">specific_humidity</alias>
+	<alias base="SHF">surface_upward_sensible_heat_flux</alias>
+	<alias base="TSOIL">soil_temperature</alias>
+	<alias base="T">air_temperature</alias>
+	<alias base="Ta">air_temperature_anomaly</alias>
+	<alias base="ThP">thunderstorm_probability</alias>
+	<alias base="TCC">cloud_area_fraction </alias>
+	<alias base="TP">precipitation_amount</alias>
+	<alias base="uW">eastward_wind</alias>
+	<alias base="vW">northward_wind</alias>
+	<alias base="VAPP">water_vapour_pressure</alias>
+	<alias base="VWSH">wind_speed_shear</alias>
+	<alias base="PVV">vertical_air_velocity_expressed_as_tendency_of_pressure</alias>
+	<alias base="Vis">visibility_in_air</alias>
+	<alias base="VTMP">virtual_temperature</alias>
+	<alias base="WEASD">surface_snow_amount</alias>
+	<alias base="WMIXE">wind_mixing_energy_flux_into_ocean</alias>
+	<alias base="WD">wind_from_direction</alias>
+	<alias base="WS">wind_speed</alias>
+	<alias base="WGS">wind_speed_of_gust</alias>
+</aliasList>

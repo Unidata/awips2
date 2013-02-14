@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- This schema is used by the WFS service to describe the available columns for 
+     use in selecting Metar records through the WFS.
+     This is the output document format for a metar in WFS.
+ -->
+<xsd:schema version="1.0" targetNamespace="http://metar.edex.uf.raytheon.com"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:metar="http://metar.edex.uf.raytheon.com"
+    xmlns:gml="http://www.opengis.net/gml"
+    elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.opengis.net/gml"
+        schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
+
+    <xsd:element name="metar" type="metar:metar"
+        substitutionGroup="gml:_Feature"/>
+
+    <xsd:complexType name="metar">
+        <xsd:complexContent>
+            <xsd:extension base="gml:AbstractFeatureType">
+                <xsd:sequence>
+                    <xsd:element name="report" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="nominalTime" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="timeObs" type="xsd:dateTime" minOccurs="0"/>
+                    <xsd:element name="reportType" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="correction" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="obsLocation" type="metar:obsLocation" minOccurs="0"/>
+                    <xsd:element name="autoStationType" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="skyKey" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="skyCoverage" type="metar:skyCover" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="vertVisibility" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="skyLayerBase" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="visibility" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="weatherKey" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="weatherCondition" type="metar:weatherCondition" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="seaLevelPress" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="temperature" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="tempFromTenths" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="dewPoint" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="dewPointFromTenths" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="windDir" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="windSpeed" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="windGust" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="altimeterInPa" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="altimeter" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="minTemp24Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="maxTemp24Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="precip1Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="precip3Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="precip6Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="precip24Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="pressChangeChar" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="pressChange3Hour" type="xsd:float" minOccurs="0"/>
+                    <xsd:element name="refHour" type="xsd:dateTime" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="obsLocation">
+        <xsd:sequence>
+            <xsd:element name="location" type="gml:PointType"/>
+        </xsd:sequence>
+        <xsd:attribute name="stationId" type="xsd:string"/>
+        <xsd:attribute name="elevation" type="xsd:int"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="skyCover">
+        <xsd:sequence>
+            <xsd:element name="genus" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="height" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="weatherCondition">
+        <xsd:sequence>
+            <xsd:element name="other" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="obscuration" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="precipitation" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="descriptor" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="intensityProximity" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>
