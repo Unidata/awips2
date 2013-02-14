@@ -26,6 +26,7 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.reference.GroupID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
 import com.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener;
@@ -305,6 +306,13 @@ public interface IReferenceSetManager {
     public void saveGroup(String groupName, List<String> areaNames);
 
     public void deleteGroup(String groupName);
+
+    /**
+     * Force the active ref set to be re-evaluated asynchronously.
+     * 
+     * @param listener
+     */
+    public void evaluateActiveRefSet(IPythonJobListener<?> listener);
 
     /**
      * Force the active ref set to be re-evalutated
