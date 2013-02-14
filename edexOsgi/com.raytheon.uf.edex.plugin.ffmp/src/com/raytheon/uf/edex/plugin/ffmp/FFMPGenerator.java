@@ -19,25 +19,18 @@
  **/
 package com.raytheon.uf.edex.plugin.ffmp;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
@@ -54,6 +47,14 @@ import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
 import com.raytheon.uf.common.dataplugin.ffmp.dao.FFMPDao;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
+import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.StorageProperties;
+import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -75,9 +76,6 @@ import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
-import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -86,6 +84,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.dat.utils.DatMenuUtil;
@@ -111,6 +110,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
  * 02/03/2011   6500       cjeanbap    Fixed NullPointerException.
  * 07/31/2011   578        dhladky     FFTI modifications
  * 01/27/13     1478       D. Hladky   Added creation of full cache records to help read write stress on NAS
+ * 02/01/13     1569        D. Hladky  Added constants, switched to using aggregate records written through pypies
  * </pre>
  * 
  * @author dhladky
@@ -141,8 +141,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     private static final String productType = "ffmp";
 
     /**
-     * The thought was this will eventually be dynamic when We start writing
-     * long time source records to a DAO.  This is the time backward limit for FFTI and cache load data.
+     * The thought was this will eventually be dynamic when front end can support it.
      */
     public static final int SOURCE_CACHE_TIME = 6;
 
@@ -201,13 +200,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     public FFMPTemplates template = null;
 
     private IPathManager pathManager;
-
-    public static String sharePath = AppsDefaults.getInstance().getToken(
-            "apps_dir")
-            + File.separator + "ffmp" + File.separator;
-
-    /** source bins used for finding basin to data correlations **/
-    private HashMap<String, SourceBinList> sourceBins = new HashMap<String, SourceBinList>();
 
     /** thread executor **/
     public Executor processexecutor = null;
@@ -1019,7 +1011,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @return
      */
     public String getAbsoluteSourceFileName(String sourceId) {
-        return "ffmp" + File.separator + "sources" + File.separator + sourceId
+        return productType + File.separator + "sources" + File.separator + sourceId
                 + ".bin";
     }
 
@@ -1044,15 +1036,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @return
      */
     public SourceBinList getSourceBinList(String sourceId) {
-        SourceBinList sbl = null;
-        if (!sourceBins.containsKey(sourceId)) {
-            sbl = readSourceBins(sourceId);
-            sourceBins.put(sourceId, sbl);
-        } else {
-            sbl = sourceBins.get(sourceId);
-        }
-
-        return sbl;
+        return readSourceBins(sourceId);
     }
 
     /**
@@ -1061,7 +1045,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @param sbl
      */
     public void setSourceBinList(SourceBinList sbl) {
-        sourceBins.put(sbl.getSourceId(), sbl);
         writeSourceBins(sbl);
     }
 
@@ -1315,9 +1298,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         || source.getSourceType().equals(
                                 SOURCE_TYPE.GUIDANCE.getSourceType())) {
                     hucs.clear();
-                    hucs.add("ALL");
+                    hucs.add(FFMPRecord.ALL);
                 } else {
-                    hucs.remove("VIRTUAL");
+                    hucs.remove(FFMPRecord.VIRTUAL);
                 }
 
                 // pull from disk if there
@@ -1400,9 +1383,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             source, ffmpRec.getBasinData(huc), huc,
                             ffmpRec.getSiteKey());
                 }
-                // set the name
-                fdc.setFilePath("" + sharePath + ffmpRec.getWfo() + "/"
-                        + sourceSiteDataKey);
+           
                 // cache it temporarily for FFTI use
                 if (source.getSourceType().equals(
                         SOURCE_TYPE.GUIDANCE.getSourceType())) {
@@ -1441,7 +1422,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         }
                     }
                 }
-                // purge it up
+                // check for a purge
                 if (fdc != null) {
                     // this is defensive for if errors get thrown
                     if (backDate == null) {
@@ -1449,11 +1430,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
                     }
 
-                    fdc.purge(backDate);
+                    if (!fdc.isPurged()) {
+                        fdc.purge(backDate);
+                    }
 
                     if (write) {
                         // write it out
-                        writeCacheFiles(fdc);
+                        writeAggregateRecord(fdc, sourceSiteDataKey);
                     }
                 }
             }
@@ -1472,130 +1455,99 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     public FFMPDataContainer loadFFMPDataContainer(String sourceSiteDataKey,
             ArrayList<String> hucs, String siteKey, String wfo, Date backDate) {
 
-        long time = System.currentTimeMillis();
         FFMPDataContainer fdc = null;
         FFMPAggregateRecord record = null;
         boolean populated = false;
 
-        if (checkCacheFile(sourceSiteDataKey, wfo, backDate)) {
-            try {
-                record = readCacheFile(sourceSiteDataKey, wfo, backDate);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR,
-                        "General Error Reading cache file: " + e.getMessage());
-            }
-
-            if (fdc == null && record != null) {
-                // creates a place holder for this source
-                fdc = new FFMPDataContainer(sourceSiteDataKey, hucs, record);
-                populated = true;
-            }
+        try {
+            record = readAggregateRecord(sourceSiteDataKey, wfo);
+        } catch (Exception e) {
+            // this isn't necessarily an error
+            statusHandler.handle(Priority.DEBUG, "Couldn't load source file: "
+                    + sourceSiteDataKey);
         }
 
+        // condition for first time read in
+        if (fdc == null && record != null) {
+            // creates a place holder for this source
+            fdc = new FFMPDataContainer(sourceSiteDataKey, hucs, record);
+            populated = true;
+        }
+
+        // condition for update to fdc while in use
         if (record != null && !populated) {
-            fdc.setCacheData(record);
+            fdc.setAggregateData(record);
         }
-
+        
+        // sometimes a record will sit around for a long time and it will have data going back to the last precip event
+        // this can be an enormous amount of time.  Want to get the data dumped from memory ASAP.
         if (fdc != null) {
-            long time2 = System.currentTimeMillis();
-            statusHandler.handle(Priority.INFO, "Loaded Source files: in "
-                    + (time2 - time) + " ms: source: " + sourceSiteDataKey);
+            fdc.purge(backDate);
         }
 
         return fdc;
     }
 
     /**
-     * Load existing cache file
+     * Load existing aggregate record
      * 
      * @param sourceSiteDataKey
      * @param wfo
      * @return
      * @throws IOException
      */
-    private FFMPAggregateRecord readCacheFile(String sourceSiteDataKey, String wfo,
-            Date backDate) throws IOException {
+    private FFMPAggregateRecord readAggregateRecord(String sourceSiteDataKey,
+            String wfo) throws Exception {
 
-        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + ".bin");
         FFMPAggregateRecord record = null;
-        GZIPInputStream gis = null;
 
-        try {
-            gis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)));
-            DynamicSerializationManager dsm = DynamicSerializationManager
-                    .getManager(SerializationType.Thrift);
-            record = (FFMPAggregateRecord) dsm.deserialize(gis);
-        } catch (SerializationException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Serialization Error Reading cache file: "
-                                    + e.getMessage());
-
-        } catch (IOException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "IO Error Reading cache file: " + e.getMessage());
-        } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "General Error Reading cache file: " + e.getMessage());
-        } catch (Throwable t) {
-            statusHandler.handle(Priority.ERROR,
-                    "Bogus Thrift Error Reading cache file: " + t.getMessage());
-        } finally {
-            if (gis != null) {
-                gis.close();
-            }
-        }
+        File hdf5File = FFMPUtils.getHdf5File(wfo, sourceSiteDataKey);
+        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+        IDataRecord rec = dataStore.retrieve(wfo, sourceSiteDataKey,
+                Request.ALL);
+        byte[] bytes = ((ByteDataRecord) rec).getByteData();
+        record = SerializationUtil.transformFromThrift(
+                FFMPAggregateRecord.class, bytes);
 
         return record;
-
     }
 
     /**
-     * Write cache file
+     * Writes the aggregate FFMP records
      * 
-     * @param sourceSiteDataKey
-     * @param huc
-     * @param wfo
-     * @return
+     * @param fdc
      */
-    public void writeCacheFiles(FFMPDataContainer fdc) {
+    public void writeAggregateRecord(FFMPDataContainer fdc, String sourceSiteDataKey) {
 
-        // Write all huc levels in separate files
-        File fileDir = new File("" + sharePath + config.getCWA());
-        if (!fileDir.exists()) {
-            fileDir.mkdir();
-        }
-
-        WriteFiles writer = new WriteFiles(fdc);
+        WriteAggregateRecord writer = new WriteAggregateRecord(fdc, sourceSiteDataKey);
         writer.run();
     }
 
     /**
-     * Inner class to thread writing of cache files
+     * Inner class to thread writing aggregate records
      * 
      * @author dhladky
      * 
      */
-    private class WriteFiles implements Runnable {
+    private class WriteAggregateRecord implements Runnable {
 
         private FFMPDataContainer fdc;
+        
+        private String sourceSiteDataKey;
 
         public void run() {
             try {
-                long time = System.currentTimeMillis();
                 write();
-                long time2 = System.currentTimeMillis();
-                statusHandler.handle(Priority.INFO, "Wrote cache file: in "
-                        + (time2 - time) + " ms  :" + fdc.getFilePath());
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "WriteFile: removed " + e.getMessage());
+                        "WriteAggregateRecord: removed " + e.getMessage());
             }
         }
 
-        public WriteFiles(FFMPDataContainer fdc) {
+        public WriteAggregateRecord(FFMPDataContainer fdc, String sourceSiteDataKey) {
             this.fdc = fdc;
-            statusHandler.handle(Priority.DEBUG, "Created FileWriter");
+            this.sourceSiteDataKey = sourceSiteDataKey;
+            statusHandler.handle(Priority.DEBUG, "Created Aggregate Record Writer");
         }
 
         /**
@@ -1605,155 +1557,61 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             try {
 
-                File sharePathFile = new File(sharePath + config.getCWA());
-                if (!sharePathFile.exists()) {
-                    sharePathFile.mkdirs();
+                FFMPAggregateRecord aggRecord = null;
+
+                synchronized (fdc) {
+
+                    aggRecord = new FFMPAggregateRecord();
+                    aggRecord.setSourceSiteDataKey(sourceSiteDataKey);
+                    aggRecord.setWfo(config.getCWA());
+                    // times for Guidance basins will be null
+                    aggRecord.setTimes(fdc.getOrderedTimes());
+
+                    for (FFMPBasinData fbd : fdc.getBasinMap().values()) {
+                        fbd.serialize();
+                        aggRecord.addBasinData(fbd);
+                    }
                 }
 
-                String fileName = fdc.getFilePath();
-                // lock for atomic write and read
-                HashMap<String, String> fileNames = new HashMap<String, String>();
-                File lockfile = new File(fileName + ".lock");
-                lockfile.createNewFile();
+                if (aggRecord.getBasinsMap().size() > 0) {
 
-                try {
-
-                    if (lockfile.canWrite()) {
-                        // write the lock if we can even write to anything
-                        FFMPAggregateRecord cacheRecord = null;
-
-                        synchronized (fdc) {
-
-                            cacheRecord = new FFMPAggregateRecord();
-                            // times for Guidance basins will be null
-                            cacheRecord.setTimes(fdc.getOrderedTimes());
-
-                            for (Entry<String, FFMPBasinData> entry : fdc
-                                    .getBasinMap().entrySet()) {
-                                FFMPBasinData fbd = entry.getValue();
-                                fbd.setCache();
-                                cacheRecord.setBasinData(fbd);
-                            }
-                        }
-
-                        if (cacheRecord.getBasinsMap().size() > 0) {
-
-                            String tmpFilePath = fileName + ".tmp";
-                            GZIPOutputStream gos = null;
-
-                            try {
-                                File file = new File(tmpFilePath);
-                                file.createNewFile();
-
-                                if (file.canWrite()) {
-                                    gos = new GZIPOutputStream(new BufferedOutputStream(
-                                            new FileOutputStream(file)));
-                                    DynamicSerializationManager dsm = DynamicSerializationManager
-                                            .getManager(SerializationType.Thrift);
-                                    dsm.serialize(cacheRecord, gos);
-                                    fileNames.put(tmpFilePath, fileName
-                                            + ".bin");
-                                } else {
-                                    statusHandler.handle(
-                                            Priority.WARN,
-                                            "Can not write cache file: "
-                                                    + file.getAbsolutePath());
-                                }
-                            } catch (SerializationException e) {
-                                statusHandler.handle(Priority.ERROR,
-                                        "Serialization Error Writing cache file: "
-                                                + e.getMessage());
-                            } catch (IOException e) {
-                                statusHandler.handle(
-                                        Priority.ERROR,
-                                        "IO Error Writing cache file: "
-                                                + e.getMessage());
-                            } catch (Exception e) {
-                                statusHandler.handle(Priority.ERROR,
-                                        "General Error Writing cache file: "
-                                                + e.getMessage());
-                            } finally {
-                                if (gos != null) {
-                                    gos.close();
-                                }
-                            }
-                        }
-                    }
-
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.ERROR,
-                            "Error writing cache File: " + e.getMessage());
-                } finally {
-                    // rename the files to real path
                     try {
-                        for (String tmpName : fileNames.keySet()) {
-                            File file = new File(tmpName);
-                            if (file.renameTo(new File(fileNames.get(tmpName)))) {
-                                statusHandler.handle(
-                                        Priority.DEBUG,
-                                        "Successful rename: : "
-                                                + fileNames.get(tmpName));
-                            } else {
-                                statusHandler.handle(
-                                        Priority.ERROR,
-                                        "UN-Successful rename: : "
-                                                + fileNames.get(tmpName));
-                            }
-                        }
 
-                        if (lockfile.exists()) {
-                            lockfile.delete();
+                        StorageProperties sp = null;
+                        String compression = PluginRegistry.getInstance()
+                                .getRegisteredObject(productType).getCompression();
+                        if (compression != null) {
+                            sp = new StorageProperties();
+                            sp.setCompression(Compression.valueOf(compression));
                         }
+        
+                        byte[] bytes = SerializationUtil.transformToThrift(aggRecord);
+                        
+                        // NAME | GROUP | array |Dimension | size
+                        IDataRecord rec = new ByteDataRecord(sourceSiteDataKey, config.getCWA(),
+                                bytes, 1, new long[] { bytes.length });
+                        
+                        File hdf5File = FFMPUtils.getHdf5File(config.getCWA(), sourceSiteDataKey);
+                        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+                        // write it, allowing, and in fact encouraging replacing the last one
+                        dataStore.addDataRecord(rec, sp);
+                        dataStore.store(StoreOp.OVERWRITE);
 
                     } catch (Exception e) {
                         statusHandler.handle(
                                 Priority.ERROR,
-                                "IO Error Renaming cache file: "
+                                "General Error Writing aggregate record: "
                                         + e.getMessage());
                     }
                 }
 
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "IO Error writing cache files: " + e.getMessage());
+                        "Error writing aggregate record: " + e.getMessage());
             }
         }
     }
-
-    /**
-     * Load existing cache file
-     * 
-     * @param sourceSiteDataKey
-     * @param wfo
-     * @return
-     */
-    public boolean checkCacheFile(String sourceSiteDataKey, String wfo,
-            Date backDate) {
-
-        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + ".bin");
-
-        String sourceName = sourceSiteDataKey.split("-")[0];
-        SourceXML source = getSourceConfig().getSourceByDisplayName(sourceName);
-        if (source != null) {
-
-            if (source.getSourceType().equals(
-                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                if (file.exists() && file.canRead() && file.canWrite()) {
-                    return true;
-                }
-            } else {
-                if (file.exists() && file.canRead() && file.canWrite()
-                        && (file.lastModified() > backDate.getTime())) {
-                    // System.out.println("File update and exists..."+sourceSiteDataKey);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-
-    }
-
+ 
     @Override
     public synchronized void configChanged(MonitorConfigEvent fce) {
 
@@ -1790,10 +1648,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             ffgCheck = false;
             resetFilters();
-
-            if (sourceBins != null) {
-                sourceBins.clear();
-            }
 
             loadedData.clear();
 
@@ -1922,7 +1776,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @return
      */
     public String getAbsoluteFFTIFileName(String fftiName) {
-        return "ffmp" + File.separator + "ffti" + File.separator + fftiName
+        return productType + File.separator + "ffti" + File.separator + fftiName
                 + ".bin";
     }
 
@@ -1966,5 +1820,5 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     public void setProcessExecutor(Executor processexecutor) {
         this.processexecutor = processexecutor;
     }
-
-}
+    
+  }
