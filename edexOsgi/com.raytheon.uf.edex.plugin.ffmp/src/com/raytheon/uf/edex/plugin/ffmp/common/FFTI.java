@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGap;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
@@ -57,6 +58,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2011            dhladky      Initial creation
  * July 13, 2012           dhladky      Revamped to help memory
+ * 02/01/13     1569        D. Hladky   Added constants
  * 
  * </pre>
  * 
@@ -529,7 +531,6 @@ public class FFTI implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             statusHandler
                     .handle(Priority.ERROR, "failed to transmit FFTI alert. "
                             + attribute.getAttributeName() + " Value: " + value);
@@ -585,7 +586,6 @@ public class FFTI implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             statusHandler
                     .handle(Priority.ERROR, "failed to transmit FFTI alert. "
                             + attribute.getAttributeName() + " Value: " + value);
@@ -662,7 +662,6 @@ public class FFTI implements Runnable {
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "failed to evaluate FFTI. "
                     + e);
-            e.printStackTrace();
         } finally {
             ffmpgen.fftiSources.clear();
             ffmpgen.fftiDone = true;
@@ -813,8 +812,13 @@ public class FFTI implements Runnable {
             accumulator = new FFTIAccum();
         }
 
-        // This will only happen at initial load, update, and duration changes.
-        if (accumulator.isReset() || accumulator.getDuration() != duration) {
+        long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey)
+                * TimeUtil.MILLIS_PER_MINUTE;
+        // This will only happen at initial load, update, duration changes.
+        if (accumulator.isReset()
+                || accumulator.getDuration() != duration
+                || expirationTime < (System.currentTimeMillis() - accumulator
+                        .getLastUpdate())) {
 
             accumulator.setDuration(duration);
             accumulator.setUnit(unit);
@@ -828,18 +832,17 @@ public class FFTI implements Runnable {
             long cur = config.getDate().getTime();
             long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
             Date backDate = new Date(cur - timeBack);
-            long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
-
+           
             FFMPDataContainer fdc = null;
 
             ArrayList<String> hucs = new ArrayList<String>();
-            hucs.add("ALL");
+            hucs.add(FFMPRecord.ALL);
 
             fdc = ffmpgen.getFFMPDataContainer(siteDataKey, hucs, backDate);
 
             if (fdc != null) {
 
-                FFMPBasinData fbd = fdc.getBasinData("ALL");
+                FFMPBasinData fbd = fdc.getBasinData(FFMPRecord.ALL);
 
                 // go over the list of CWAs gathering the pfaf list
                 ArrayList<Long> pfafs = new ArrayList<Long>();
@@ -888,6 +891,7 @@ public class FFTI implements Runnable {
                 ffmpgen.ffmpData.remove(siteDataKey);
             }
             accumulator.setReset(false);
+            accumulator.setLastUpdate(System.currentTimeMillis());
             ffmpgen.writeFFTIData(siteDataKey, accumulator);
         }
 
@@ -925,8 +929,13 @@ public class FFTI implements Runnable {
             values = new FFTIRatioDiff();
         }
 
+        long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey)
+                * TimeUtil.MILLIS_PER_MINUTE;
         // This will only happen at initial load, update, and duration changes.
-        if (values.isReset() || values.getDuration() != duration) {
+        if (values.isReset()
+                || values.getDuration() != duration
+                || expirationTime < (System.currentTimeMillis() - values
+                        .getLastUpdate())) {
 
             values.setDuration(duration);
             values.setUnit(unit);
@@ -934,16 +943,16 @@ public class FFTI implements Runnable {
             long cur = config.getDate().getTime();
             long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
             Date backDate = new Date(cur - timeBack);
-            long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
 
             // make sure we have data
-            Date ffgBackDate = new Date(config.getDate().getTime()
+            Date ffgBackDate = new Date(
+                    config.getDate().getTime()
                     - (TimeUtil.MILLIS_PER_HOUR * FFMPGenerator.FFG_SOURCE_CACHE_TIME));
 
             String primarySource = ffmpgen.fscm.getPrimarySource(ffmpQSource);
             ProductXML product = ffmpgen.fscm.getProduct(primarySource);
             ArrayList<String> hucs = new ArrayList<String>();
-            hucs.add("ALL");
+            hucs.add(FFMPRecord.ALL);
 
             FFMPDataContainer guidContainer = ffmpgen.getFFMPDataContainer(
                     ffgType, hucs, ffgBackDate);
@@ -981,7 +990,7 @@ public class FFTI implements Runnable {
                 // go over the list of CWAs gathering the pfaf list
                 ArrayList<Long> pfafs = new ArrayList<Long>();
                 ArrayList<String> cwaList = fdm.getCwaList();
-                FFMPBasinData fbd = qpeContainer.getBasinData("ALL");
+                FFMPBasinData fbd = qpeContainer.getBasinData(FFMPRecord.ALL);
 
                 for (Long key : fbd.getBasins().keySet()) {
                     for (String cwa : cwaList) {
@@ -1013,7 +1022,7 @@ public class FFTI implements Runnable {
 
                 if (gap != Double.NaN) {
 
-                    ArrayList<Float> qpes = qpeContainer.getBasinData("ALL")
+                    List<Float> qpes = qpeContainer.getBasinData(FFMPRecord.ALL)
                             .getAccumValues(pfafs, backDate, config.getDate(),
                                     expirationTime, false);
 
@@ -1023,7 +1032,7 @@ public class FFTI implements Runnable {
                             primarySource, ffgType, qSiteKey);
                     interpolator.setInterpolationSources(duration);
 
-                    ArrayList<Float> guids = guidContainer.getBasinData("ALL")
+                    List<Float> guids = guidContainer.getBasinData(FFMPRecord.ALL)
                             .getGuidanceValues(pfafs, interpolator,
                                     guidSourceExpiration);
 
@@ -1037,6 +1046,7 @@ public class FFTI implements Runnable {
 
             // replace or insert it
             values.setReset(false);
+            values.setLastUpdate(System.currentTimeMillis());
             ffmpgen.writeFFTIData(siteDataKey, values);
         }
 
