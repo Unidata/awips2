@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
@@ -29,6 +30,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPCacheRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
@@ -64,6 +66,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2009           dhladky     Initial creation
  * Jan 25, 2012 DR 13839  gzhang	  Use paintTime for QPF
+ * Feb 1,  2013 DR 1569   dhladky     Switched to using pypies records instead of files
  * </pre>
  * 
  * @author dhladky
@@ -76,7 +79,7 @@ public class FFMPDataGenerator {
 	private static final IUFStatusHandler statusHandler = UFStatus
 			.getHandler(FFMPDataGenerator.class);
 	
-	private final String ALL = "ALL";
+	private final String ALL = FFMPRecord.ALL;
 	
 	private final String NA = "NA";
 
@@ -412,8 +415,8 @@ public class FFMPDataGenerator {
 					int i = 0;
 
 					for (String guidType : guidBasins.keySet()) {
-						ArrayList<Long> pfafList = new ArrayList<Long>();
-						ArrayList<Long> forcedPfafs = new ArrayList<Long>();
+						List<Long> pfafList = new ArrayList<Long>();
+						List<Long> forcedPfafs = new ArrayList<Long>();
 						guidance = Float.NaN;
 						boolean forced = false;
 						FFFGForceUtil forceUtil = forceUtils.get(guidType);
@@ -596,8 +599,8 @@ public class FFMPDataGenerator {
 					// run over each guidance type
 					int i = 0;
 					for (String guidType : guidBasins.keySet()) {
-						ArrayList<Long> pfafList = new ArrayList<Long>();
-						ArrayList<Long> forcedPfafs = new ArrayList<Long>();
+						List<Long> pfafList = new ArrayList<Long>();
+						List<Long> forcedPfafs = new ArrayList<Long>();
 						guidance = Float.NaN;
 						boolean forced = false;
 						FFFGForceUtil forceUtil = forceUtils.get(guidType);
@@ -743,8 +746,8 @@ public class FFMPDataGenerator {
 	private float getForcedAvg(FFFGForceUtil forceUtil, String domain,
 			FFMPBasin cBasin, String guidType) {
 		FFFGDataMgr fdm = FFFGDataMgr.getInstance();
-		ArrayList<Long> forcedPfafs;
-		ArrayList<Long> pfafList = new ArrayList<Long>();
+		List<Long> forcedPfafs;
+		List<Long> pfafList = new ArrayList<Long>();
 		float guidance = Float.NaN;
 
 		boolean forced = false;
@@ -923,7 +926,7 @@ public class FFMPDataGenerator {
 
 						forceUtil.calculateForcings(pfafs, ft, cBasin);
 
-						ArrayList<Long> forcedPfafs = forceUtil
+						List<Long> forcedPfafs = forceUtil
 								.getForcedPfafList();
 						boolean forced = forceUtil.isForced();
 
@@ -1004,7 +1007,7 @@ public class FFMPDataGenerator {
 
 					FFMPBasinData guidBasin = guidBasins.get(guidType);
 
-					ArrayList<Long> pfafList = new ArrayList<Long>();
+					List<Long> pfafList = new ArrayList<Long>();
 					if ((guidBasin != null)
 							&& (guidBasin.getBasins().size() > 0)) {
 						if (cBasin.getAggregated()) {
@@ -1015,7 +1018,7 @@ public class FFMPDataGenerator {
 						}
 
 						boolean forced = false;
-						ArrayList<Long> forcedPfafs = new ArrayList<Long>();
+						List<Long> forcedPfafs = new ArrayList<Long>();
 						FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
 						if (fdm.isForcingConfigured()) {
@@ -1058,11 +1061,11 @@ public class FFMPDataGenerator {
 					}
 					if (!qpe.isNaN() && (guidance > 0.0f)) {
 
-						ArrayList<Float> qpes = qpeBasin.getAccumValues(pfafs,
+						List<Float> qpes = qpeBasin.getAccumValues(pfafs,
 								monitor.getQpeWindow().getAfterTime(), monitor
 										.getQpeWindow().getBeforeTime(),
 								expirationTime, isRate);
-						ArrayList<Float> guids = null;
+						List<Float> guids = null;
 						if (guidBasin != null) {
 							guids = guidBasin.getGuidanceValues(pfafs, resource
 									.getGuidanceInterpolators().get(guidType),
@@ -1158,7 +1161,7 @@ public class FFMPDataGenerator {
 
 						forceUtil.calculateForcings(pfafs, ft, cBasin);
 
-						ArrayList<Long> forcedPfafs = forceUtil
+						List<Long> forcedPfafs = forceUtil
 								.getForcedPfafList();
 						boolean forced = forceUtil.isForced();
 
