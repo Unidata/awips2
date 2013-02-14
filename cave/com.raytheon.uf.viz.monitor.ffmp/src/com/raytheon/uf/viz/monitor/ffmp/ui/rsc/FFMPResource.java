@@ -151,7 +151,8 @@ import com.vividsolutions.jts.geom.Point;
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
  * 31 July  2012 14517         mpduff      Fix for blanking map on update.
  * 14 Sep 2012   1048         njensen      Code cleanup
- * 
+ * 10 Jan 2013   1475         dhladky      Some cleanup
+ * 27 Jan 2013   1478         dhladky      Changed gap collection to a generic list insted of Arraylist
  * </pre>
  * 
  * @author dhladky
@@ -3940,7 +3941,7 @@ public class FFMPResource extends
      * 
      * @return Array of Gap data
      */
-    public ArrayList<FFMPGap> getGaps() {
+    public List<FFMPGap> getGaps() {
         synchronized (timeOrderedKeys) {
             return FFMPGap.getGaps(getTimeOrderedKeys(), getResourceData()
                     .getPrimarySourceXML().getExpirationMinutes(getSiteKey()),
