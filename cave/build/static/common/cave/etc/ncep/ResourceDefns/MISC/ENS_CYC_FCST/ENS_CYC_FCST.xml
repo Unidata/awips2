@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
+    <resourceDefnName>ENS_CYC_FCST</resourceDefnName>
+    <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>
+pluginName=stormtrack
+reportType=ENSCYC
+legend=ENSCYC
+! the model names below are defined for the default.attr but
+! other attribute sets may override them to display other models
+model01Name=GFSO
+model02Name=NAM
+model03Name=UKX
+model04Name=NGX
+model05Name=AC00
+model06Name=AP01
+model07Name=AP02
+model08Name=AP03
+model09Name=AP04
+model10Name=AP05
+model11Name=AP06
+model12Name=AP07
+model13Name=AP08
+model14Name=AP09
+model15Name=AP10
+model16Name=AP11
+model17Name=AP12
+model18Name=AP13
+model19Name=AP14
+model20Name=AP15
+    </resourceParameters>
+    <filterLabels>Forecast,Hurricane</filterLabels>
+    <rscImplementation>StormTrack</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>360</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>24</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

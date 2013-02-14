@@ -30,81 +30,126 @@ import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitorDisplayThreshDlg;
 
-public class FogMonDispThreshDlg extends MonitorDisplayThreshDlg
-{
+/**
+ * Fog Monitor/Display Threshold Dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Dec 7, 2012  #1351      skorolev    Cleaned up code.
+ * 
+ * </pre>
+ * 
+ * @author skorolev
+ * @version 1.0
+ */
+public class FogMonDispThreshDlg extends MonitorDisplayThreshDlg {
+    /** Display Meteo Table **/
     FogDisplayMeteoTab displayMeteoTab;
+
+    /** Display Wind Table **/
     FogDisplayWindTab displayWindTab;
+
+    /** Monitor Meteo Table **/
     FogMonitorMeteoTab monitorMeteoTab;
-    
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param appName
+     * @param displayType
+     */
     public FogMonDispThreshDlg(Shell parent, CommonConfig.AppName appName,
-            DataUsageKey displayType)
-    {    
+            DataUsageKey displayType) {
         super(parent, appName, displayType);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitorDisplayThreshDlg#createTabItems
+     * ()
+     */
     @Override
-    protected void createTabItems()
-    {
-        if (displayType == DataUsageKey.DISPLAY)
-        {
+    protected void createTabItems() {
+        if (displayType == DataUsageKey.DISPLAY) {
             createDisplayTabs();
-        }
-        else if (displayType == DataUsageKey.MONITOR)
-        {
+        } else if (displayType == DataUsageKey.MONITOR) {
             createMonitorTabs();
         }
     }
-    
-    private void createDisplayTabs()
-    {
+
+    /**
+     * Creates Display Tables.
+     */
+    private void createDisplayTabs() {
 
         TabItem meteoTab = new TabItem(tabFolder, SWT.NONE);
         meteoTab.setText("Meteo");
         displayMeteoTab = new FogDisplayMeteoTab(tabFolder, displayType);
         meteoTab.setControl(displayMeteoTab);
-        
+
         TabItem windTab = new TabItem(tabFolder, SWT.NONE);
         windTab.setText("Wind");
         displayWindTab = new FogDisplayWindTab(tabFolder, displayType);
-        windTab.setControl(displayWindTab);        
+        windTab.setControl(displayWindTab);
     }
-    
-    private void createMonitorTabs()
-    {
+
+    /**
+     * Creates Monitor Tables.
+     */
+    private void createMonitorTabs() {
         TabItem meteoTab = new TabItem(tabFolder, SWT.NONE);
         meteoTab.setText("Meteo");
         monitorMeteoTab = new FogMonitorMeteoTab(tabFolder, displayType);
         meteoTab.setControl(monitorMeteoTab);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitorDisplayThreshDlg#
+     * commitChangeAction()
+     */
     @Override
-    protected void commitChangeAction()
-    {
-        if (displayType == DataUsageKey.DISPLAY)
-        {
+    protected void commitChangeAction() {
+        if (displayType == DataUsageKey.DISPLAY) {
             displayMeteoTab.commitDataToXML();
             displayWindTab.commitDataToXML();
-            
+
             FogMonitor.getInstance().thresholdUpdate(null);
-        }
-        else if (displayType == DataUsageKey.MONITOR)
-        {
+        } else if (displayType == DataUsageKey.MONITOR) {
             monitorMeteoTab.commitDataToXML();
         }
-        
+
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitorDisplayThreshDlg#
+     * getThresholdMgr()
+     */
     @Override
-    protected AbstractThresholdMgr getThresholdMgr()
-    {
+    protected AbstractThresholdMgr getThresholdMgr() {
         FogThresholdMgr ftm = FogThresholdMgr.getInstance();
         return ftm;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitorDisplayThreshDlg#
+     * reloadThresholds()
+     */
     @Override
-    protected void reloadThresholds()
-    {
+    protected void reloadThresholds() {
         displayMeteoTab.reloadData();
-        displayWindTab.reloadData();        
+        displayWindTab.reloadData();
     }
 }

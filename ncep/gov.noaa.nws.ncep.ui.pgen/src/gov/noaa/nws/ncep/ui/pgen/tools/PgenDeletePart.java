@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
@@ -229,6 +230,7 @@ public class PgenDeletePart extends PgenSelectingTool {
             	drawingLayer.removeSelected();
             	lil = null;
       	        mapEditor.refresh();
+      	        PgenUtil.setSelectingMode();
       	        
             	return true;
             	

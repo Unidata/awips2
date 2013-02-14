@@ -1,5 +1,5 @@
 # Product Discipline 0: Meteorological products, Parameter Category 2: Momentum
-0:0:Wind direction (from which blowing):deg true:WDIR:WD
+0:0:Wind direction (from which blowing):deg:WDIR:WD
 1:1:Wind speed:m/s:WIND:WS
 2:2:u-component of wind:m/s:UGRD:uW
 3:3:v-component of wind:m/s:VGRD:vW

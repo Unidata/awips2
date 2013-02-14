@@ -25,6 +25,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -111,6 +113,19 @@ public class ProductDialog extends Dialog {
         // Create and initialize all of the controls and layouts
         initializeComponents();
                 
+        /*
+         * Add a "CLOSE" listenser to the shell to handle the event when the 
+         * user clicks the "X" in the shell window.
+         */
+        Listener[] closeListeners = shell.getListeners( SWT.Close );
+        if ( closeListeners != null && closeListeners.length > 0 ) {
+        	for ( Listener ls : closeListeners ) {
+        		shell.removeListener( SWT.Close, ls );
+        	}
+        }
+        
+        shell.addListener( SWT.Close, new shellCloseListener() );
+        
         // Pack and open
         shell.pack();
         shell.open();
@@ -265,6 +280,33 @@ public class ProductDialog extends Dialog {
     	    PgenSession.getInstance().getPgenPalette().resetPalette( getButtonList( ptyp) ); 
     }
         
+    /*
+     * A listener to handle the event when the user clicks on the "X" on the dialog.
+     */
+    private class shellCloseListener implements Listener {
+    	  public void handleEvent(Event e) {
+    	    switch ( e.type ) {
+    	    case SWT.Close:
+    	       exit();
+        	   break;
+     	    }
+    	 }
+     }  
+
+    /*
+     *  Exit the dialog - default is to close the dialog. 
+     */
+    protected void exit() {
+    	close();
+    }  
+    
+    /*
+     *  Check if need to save changes. 
+     */
+    protected boolean needSaving() {  
+    	return PgenSession.getInstance().getPgenResource().getResourceData().isNeedsSaving();
+    }  
+
    
 }
 

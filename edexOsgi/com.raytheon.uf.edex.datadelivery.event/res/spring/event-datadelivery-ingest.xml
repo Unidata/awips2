@@ -1,0 +1,38 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+    <bean id="notificationHandler" class="com.raytheon.uf.edex.datadelivery.event.handler.NotificationHandler">
+        <constructor-arg type="java.lang.String" value="jms-generic:topic:notify.msg?destinationResolver=#qpidDurableResolver"/>
+    </bean>
+    
+    <!-- verify text product info for site, spawns in separate thread to not delay start up -->
+    <bean id="notificationPurge" class="com.raytheon.uf.edex.datadelivery.event.notification.NotificationPurge" depends-on="ddEventRegister"/>    	
+   	
+   	<bean id="noitfyCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ddNotify-camel"/>
+  	</bean>  
+   
+   	<camelContext id="ddNotify-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<route id="notificationPurgeRoute">
+		    <from uri="timer://notifiyPurge?period=60s" />
+			<doTry>
+				<bean ref="notificationPurge" method="purge"/>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+   
+</beans>

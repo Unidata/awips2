@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>HiResW-ARW-East HiResW-NMM-East</modelNames>
-   <referenceModel>HiResW-ARW-East</referenceModel>
+   <referenceGrid>255001</referenceGrid>
    <nx>350</nx>
    <ny>350</ny>
    <!-- 
