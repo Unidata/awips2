@@ -10,18 +10,13 @@ Export-Package: com.raytheon.uf.common.dataplugin.ffmp,
  com.raytheon.uf.common.dataplugin.ffmp.dao
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.1",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",
- com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.qpf;bundle-version="1.11.9",
  com.raytheon.uf.common.hydro;bundle-version="1.11.11",
  com.raytheon.uf.common.mpe;bundle-version="1.11.11",
  com.raytheon.uf.common.localization;bundle-version="1.11.13",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.site,
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
- com.raytheon.uf.common.cache;bundle-version="1.12.1174"
-Import-Package: com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.datastorage.hdf5
+ com.raytheon.uf.common.cache;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0"

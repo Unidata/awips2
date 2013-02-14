@@ -179,35 +179,23 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
 
             @Override
             public void notifyRemove(ResourcePair rp) throws VizException {
-                AbstractTimeMatcher tm = getTimeMatcher();
-                AbstractVizResource<?, ?> basis = null;
-                if (tm != null) {
-                    basis = tm.getTimeMatchBasis();
-                }
-
                 postRemoveListener(rp.getResource());
 
-                AbstractVizResource<?, ?> newBasis = null;
-                if (tm != null) {
-                    newBasis = tm.getTimeMatchBasis();
-                }
-
-                if (basis != newBasis) {
-                    TimeMatchingJob.scheduleTimeMatch(AbstractDescriptor.this);
-                    if (renderableDisplay != null
-                            && renderableDisplay.getContainer() != null) {
-                        IDisplayPaneContainer container = renderableDisplay.getContainer();
-                        for (IDisplayPane pane : container.getDisplayPanes()) {
-                            if (pane.getDescriptor() != AbstractDescriptor.this) {
-                                TimeMatchingJob.scheduleTimeMatch(pane.getDescriptor());
-                            }
+                TimeMatchingJob.scheduleTimeMatch(AbstractDescriptor.this);
+                if (renderableDisplay != null
+                        && renderableDisplay.getContainer() != null) {
+                    IDisplayPaneContainer container = renderableDisplay
+                            .getContainer();
+                    for (IDisplayPane pane : container.getDisplayPanes()) {
+                        if (pane.getDescriptor() != AbstractDescriptor.this) {
+                            TimeMatchingJob.scheduleTimeMatch(pane
+                                    .getDescriptor());
                         }
                     }
                 }
             }
         });
     }
-
 
     protected void postAddListener(ResourcePair rp) {
         if (rp.getResource() != null && getTimeMatcher() != null) {
@@ -361,14 +349,6 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     @Override
     public void setNumberOfFrames(int frameCount) {
         timeManager.numberOfFrames = frameCount;
-        // This will clear out the times for the basis which should redo time
-        // matching for all resource next time redo is called for this
-        // descriptor
-        if (getTimeMatcher() != null
-                && getTimeMatcher().getTimeMatchBasis() != null) {
-            getTimeMatcher().redoTimeMatching(
-                    getTimeMatcher().getTimeMatchBasis());
-        }
     }
 
     @Override
@@ -381,15 +361,6 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                 restoredTime = frames[frameIndex];
             }
             limitedNumberOfFrames = frameCount;
-            // This will clear out the times for the basis which should redo
-            // time
-            // matching for all resource next time redo is called for this
-            // descriptor
-            if (getTimeMatcher() != null
-                    && getTimeMatcher().getTimeMatchBasis() != null) {
-                getTimeMatcher().redoTimeMatching(
-                        getTimeMatcher().getTimeMatchBasis());
-            }
             return true;
         }
         return false;
@@ -405,15 +376,6 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                 restoredTime = frames[frameIndex];
             }
             limitedNumberOfFrames = Integer.MAX_VALUE;
-            // This will clear out the times for the basis which should redo
-            // time
-            // matching for all resource next time redo is called for this
-            // descriptor
-            if (getTimeMatcher() != null
-                    && getTimeMatcher().getTimeMatchBasis() != null) {
-                getTimeMatcher().redoTimeMatching(
-                        getTimeMatcher().getTimeMatchBasis());
-            }
             return true;
         }
         limitedNumberOfFrames = Integer.MAX_VALUE;
@@ -495,6 +457,18 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
      */
     public void setTimeMatcher(AbstractTimeMatcher timeMatcher) {
         this.timeManager.timeMatcher = timeMatcher;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IDescriptor#redoTimeMatching()
+     */
+    @Override
+    public void redoTimeMatching() throws VizException {
+        if (timeManager.timeMatcher != null) {
+            timeManager.timeMatcher.redoTimeMatching(this);
+        }
     }
 
     @Override
@@ -604,6 +578,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             }
         }
         synchronized (timeManager) {
+            DataTime[] oldTimes = timeManager.frames;
+            int oldIdx = this.frameIndex;
             if (info.setFrames) {
                 if (info.frameTimes != null) {
                     DataTime[] newTimes = Arrays.copyOf(info.frameTimes,
@@ -620,6 +596,14 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                 timeMatchingMap = new ConcurrentHashMap<AbstractVizResource<?, ?>, DataTime[]>(
                         info.timeMap);
             }
+            FramesInfo currInfo = getFramesInfo();
+            FramesInfo oldInfo = new FramesInfo(oldTimes, oldIdx);
+            DataTime oldTime = oldInfo.getCurrentFrame();
+            DataTime currTime = currInfo.getCurrentFrame();
+            if ((oldTime != null && oldTime.equals(currTime) == false)
+                    || (currTime != null && currTime.equals(oldTime) == false)) {
+                notifyFrameChanged(oldTime, currTime);
+            }
         }
     }
 
@@ -630,6 +614,15 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             int idx = frameIndex;
             if (frames != null) {
                 frames = Arrays.copyOf(frames, frames.length);
+                if (idx < 0 || idx >= frames.length) {
+                    // This only happens for 4-panels with shared time managers.
+                    idx = frames.length - 1;
+                }
+            } else {
+                // It should already be -1 already but this is here for
+                // certain 4 panels where the time manager is shared and the
+                // index and frames are out of sync.
+                idx = -1;
             }
             Map<AbstractVizResource<?, ?>, DataTime[]> timeMap = new HashMap<AbstractVizResource<?, ?>, DataTime[]>(
                     timeMatchingMap);
@@ -641,20 +634,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
      * @param frame
      */
     private void setFrameInternal(int frame) {
-        FramesInfo currInfo = getFramesInfo();
-        int frameIndex = currInfo.frameIndex;
         if (frame != frameIndex) {
-            DataTime[] times = currInfo.frameTimes;
-            DataTime oldTime = null, newTime = null;
-            // Get the old and new time
-            if (times != null && frameIndex >= 0 && frameIndex < times.length) {
-                oldTime = times[frameIndex];
-            }
-            if (times != null && frame >= 0 && frame < times.length) {
-                newTime = times[frame];
-            }
             this.frameIndex = frame;
-            notifyFrameChanged(oldTime, newTime);
         }
     }
 

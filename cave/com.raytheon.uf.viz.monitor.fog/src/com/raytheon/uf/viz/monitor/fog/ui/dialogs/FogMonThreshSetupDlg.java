@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.monitor.fog.ui.dialogs;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -33,15 +35,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.monitor.fog.Activator;
 import com.raytheon.uf.viz.monitor.fog.FogMonitor;
 import com.raytheon.uf.viz.monitor.fog.listeners.IFogResourceListener;
@@ -50,89 +55,125 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.ThresholdCanvas.RangeEnum;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.ThresholdData.Threshold;
 import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg;
 import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg.DialogType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
-public class FogMonThreshSetupDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
+/**
+ * Fog Monitor threshold algorithm setting dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 29, 2012 1351       skorolev    Changes for non-blocking dialog.
+ * 
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
+public class FogMonThreshSetupDlg extends CaveSWTDialog {
 
-    /**
-     * The display control.
-     */
-    private Display display;
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FogMonThreshSetupDlg.class);
 
-    /**
-     * Return value when the shell is disposed.
-     */
-    private Boolean returnValue = false;
-
-    /**
-     * Control font.
-     */
+    /** Control font. **/
     private Font controlFont;
 
+    /** Fog Product **/
     private Button fogProductRdo;
 
+    /** VIS (normalized count) **/
     private Button visRdo;
 
+    /** Y_lo boundary **/
     private Button yLoRdo;
 
+    /** R_lo boundary **/
     private Button rLoRdo;
 
+    /** R_hi boundary **/
     private Button rHiRdo;
 
+    /** Y_hi boundary **/
     private Button yHiRdo;
 
+    /** Undo **/
     private Button undoBtn;
 
+    /** Redo **/
     private Button redoBtn;
 
+    /** Threshold Canvas **/
     private ThresholdCanvas threshCanvas;
 
+    /** max Cloud Temperature Threshold Scale **/
     private Scale maxCloudTempScale;
 
+    /** Ice Snow vs Fog Threshold Scale **/
     private Scale iceSnowVsFogScale;
 
+    /** Ice Snow vs Fog Threshold check box **/
     private Button iceSnowVsFogChk;
 
+    /** Cool Fog vs Warm Surface Threshold Scale **/
     private Scale coolFogVsWarmSurfScale;
 
+    /** Cool Fog vs Warm Surface Threshold check box **/
     private Button coolFogVsWarmSurfChk;
 
+    /** daytime Smooth Threshold Scale **/
     private Scale daytimeSmoothScale;
 
+    /** daytime Smooth Threshold check box **/
     private Button daytimeSmoothChk;
 
+    /** adjacency Threshold Scale **/
     private Scale adjacencyThreshScale;
 
+    /** Adjacency Threshold check box **/
     private Button adjacencyThreshChk;
 
+    /** twilight Angle Threshold Scale **/
     private Scale twilightAngleScale;
 
+    /** twilight Angle Threshold check box **/
     private Button twilightAngleChk;
 
+    /** fractal Dimension Scale **/
     private Scale fractalDimScale;
 
+    /** fractal Dimension check box **/
     private Button fractalDimChk;
 
+    /** max Cloud Temperature Threshold image **/
     private Image maxCloudTempImg;
 
+    /** Ice Snow vs Fog Threshold image **/
     private Image iceSnowVsFogImg;
 
+    /** Cool Fog vs Warm Surface Threshold image **/
     private Image coolFogVsWarmSurfImg;
 
+    /** daytime Smooth Threshold image **/
     private Image daytimeSmoothImg;
 
+    /** Adjacency Threshold image **/
     private Image adjacencyThreshImg;
 
+    /** twilight Angle image **/
     private Image twilightAngleImg;
 
+    /** fractal Dimension image **/
     private Image fractalDimImg;
 
+    /** Threshold Data **/
     private ThresholdData thresholdData;
 
-    private HashMap<Scale, Label> scaleLblMap;
+    /** Scale labels map **/
+    private Map<Scale, Label> scaleLblMap;
 
     /** gateway to fog monitor **/
     private FogMonitor fog = null;
@@ -141,7 +182,19 @@ public class FogMonThreshSetupDlg extends Dialog {
     private FogAlgorithmMgr fam = null;
 
     /** Array of fogAlg listeners **/
-    private ArrayList<IFogResourceListener> fogListeners = new ArrayList<IFogResourceListener>();
+    private List<IFogResourceListener> fogListeners = new ArrayList<IFogResourceListener>();
+
+    /** Menu option Open... **/
+    private LoadSaveDeleteSelectDlg openDlg;
+
+    /** Menu option Save as ... **/
+    private LoadSaveDeleteSelectDlg saveDlg;
+
+    /** Menu option Delete... **/
+    private LoadSaveDeleteSelectDlg deleteDlg;
+
+    /** Menu option Select... **/
+    private LoadSaveDeleteSelectDlg selectDlg;
 
     /**
      * Constructor.
@@ -150,42 +203,36 @@ public class FogMonThreshSetupDlg extends Dialog {
      *            Parent shell.
      */
     public FogMonThreshSetupDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
+        setText("Fog Monitor Threshold Setup");
         fam = FogAlgorithmMgr.getInstance();
         fog = FogMonitor.getInstance();
         this.addFogListener(fog);
     }
 
-    /**
-     * Open method used to display the dialog.
+    /*
+     * (non-Javadoc)
      * 
-     * @return True/False.
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("Fog Monitor Threshold Setup");
-
+    @Override
+    protected Layout constructShellLayout() {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 1;
         mainLayout.marginWidth = 1;
         mainLayout.verticalSpacing = 1;
-        shell.setLayout(mainLayout);
+        return mainLayout;
+    }
 
-        // Initialize all of the controls and layouts
-        initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
         controlFont.dispose();
         maxCloudTempImg.dispose();
         iceSnowVsFogImg.dispose();
@@ -194,64 +241,58 @@ public class FogMonThreshSetupDlg extends Dialog {
         adjacencyThreshImg.dispose();
         twilightAngleImg.dispose();
         fractalDimImg.dispose();
-
         this.removeFogAlgListener(fog);
-
-        return returnValue;
     }
 
     /**
-     * Initialize the components on the display.
+     * @param shell
      */
-    private void initializeComponents() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
         scaleLblMap = new HashMap<Scale, Label>();
-
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         createImages();
         thresholdData = new ThresholdData();
-
         createMenu();
-
         createTopRadioControls();
         createThresholdControls();
-
         addSeparator(shell);
         addSeparator(shell);
-
         createScaleControls();
-
         updateDataControls();
     }
 
+    /**
+     * Creates the Menu.
+     */
     private void createMenu() {
         Menu menuBar = new Menu(shell, SWT.BAR);
-
         createFileMenu(menuBar);
-
         shell.setMenuBar(menuBar);
     }
 
     /**
-     * Create the File menu.
+     * Creates the File menu.
      * 
      * @param menuBar
      *            Menu bar.
      */
     private void createFileMenu(Menu menuBar) {
-        // -------------------------------------
-        // Create the file menu
-        // -------------------------------------
         MenuItem fileMenuItem = new MenuItem(menuBar, SWT.CASCADE);
         fileMenuItem.setText("&File");
-
         // Create the File menu item with a File "dropdown" menu
         Menu fileMenu = new Menu(menuBar);
         fileMenuItem.setMenu(fileMenu);
-
         // -------------------------------------------------
         // Create all the items in the File dropdown menu
         // -------------------------------------------------
-
         // Configure menu item
         MenuItem openMI = new MenuItem(fileMenu, SWT.NONE);
         openMI.setText("Open...");
@@ -310,17 +351,19 @@ public class FogMonThreshSetupDlg extends Dialog {
         });
 
         new MenuItem(fileMenu, SWT.SEPARATOR);
-
         // Exit menu item
         MenuItem exitMI = new MenuItem(fileMenu, SWT.NONE);
         exitMI.setText("Exit");
         exitMI.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Creates Top Radio Controls
+     */
     private void createTopRadioControls() {
         Composite radioBtnComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(2, false);
@@ -345,22 +388,23 @@ public class FogMonThreshSetupDlg extends Dialog {
         });
     }
 
+    /**
+     * Creates Threshold Controls
+     */
     private void createThresholdControls() {
         threshCanvas = new ThresholdCanvas(shell);
-
         /*
          * Add the Y_lo/R_lo/R_hi/Y_hi radio buttons.
          */
         Composite loHiComp = new Composite(shell, SWT.NONE);
         loHiComp.setLayout(new GridLayout(4, true));
-        loHiComp
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        loHiComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         yLoRdo = new Button(loHiComp, SWT.RADIO);
         yLoRdo.setText("Y_lo");
         yLoRdo.setSelection(true);
         yLoRdo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        yLoRdo.setBackground(display.getSystemColor(SWT.COLOR_YELLOW));
+        yLoRdo.setBackground(getDisplay().getSystemColor(SWT.COLOR_YELLOW));
         yLoRdo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 threshCanvas.setThresholdRange(ThresholdCanvas.RangeEnum.YLo);
@@ -370,7 +414,7 @@ public class FogMonThreshSetupDlg extends Dialog {
         rLoRdo = new Button(loHiComp, SWT.RADIO);
         rLoRdo.setText("R_lo");
         rLoRdo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        rLoRdo.setBackground(display.getSystemColor(SWT.COLOR_RED));
+        rLoRdo.setBackground(getDisplay().getSystemColor(SWT.COLOR_RED));
         rLoRdo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 threshCanvas.setThresholdRange(ThresholdCanvas.RangeEnum.RLo);
@@ -380,7 +424,7 @@ public class FogMonThreshSetupDlg extends Dialog {
         rHiRdo = new Button(loHiComp, SWT.RADIO);
         rHiRdo.setText("R_hi");
         rHiRdo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        rHiRdo.setBackground(display.getSystemColor(SWT.COLOR_RED));
+        rHiRdo.setBackground(getDisplay().getSystemColor(SWT.COLOR_RED));
         rHiRdo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 threshCanvas.setThresholdRange(ThresholdCanvas.RangeEnum.RHi);
@@ -390,7 +434,7 @@ public class FogMonThreshSetupDlg extends Dialog {
         yHiRdo = new Button(loHiComp, SWT.RADIO);
         yHiRdo.setText("Y_hi");
         yHiRdo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-        yHiRdo.setBackground(display.getSystemColor(SWT.COLOR_YELLOW));
+        yHiRdo.setBackground(getDisplay().getSystemColor(SWT.COLOR_YELLOW));
         yHiRdo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 threshCanvas.setThresholdRange(ThresholdCanvas.RangeEnum.YHi);
@@ -464,12 +508,14 @@ public class FogMonThreshSetupDlg extends Dialog {
         });
     }
 
+    /**
+     * Creates Scale Controls
+     */
     private void createScaleControls() {
         Composite controlComp = new Composite(shell, SWT.NONE);
         controlComp.setLayout(new GridLayout(3, false));
         controlComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
                 false));
-
         /*
          * Create the Maximum Cloud Temperature controls.
          */
@@ -493,17 +539,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         maxCloudTempScale = new Scale(maxCloudTempComp, SWT.HORIZONTAL);
         maxCloudTempScale.setLayoutData(gd);
 
-        // maxCloudTempSpnr = new Spinner(maxCloudTempComp, SWT.BORDER);
-        // maxCloudTempSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-        //        
-        // setupControlsDecimal(maxCloudTempScale, maxCloudTempSpnr, thresh);
-
         Label tmp = new Label(maxCloudTempComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsDecimalLbl(maxCloudTempScale, tmp, thresh);
-
         addSeparator(controlComp);
 
         /*
@@ -529,17 +569,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         iceSnowVsFogScale = new Scale(daytimeIceSnowComp, SWT.HORIZONTAL);
         iceSnowVsFogScale.setLayoutData(gd);
 
-        // iceSnowVsFogSpnr = new Spinner(daytimeIceSnowComp, SWT.BORDER);
-        // iceSnowVsFogSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-        //        
-        // setupControlsDecimal(iceSnowVsFogScale, iceSnowVsFogSpnr, thresh);
-
         tmp = new Label(daytimeIceSnowComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsDecimalLbl(iceSnowVsFogScale, tmp, thresh);
-
         addSeparator(controlComp);
 
         /*
@@ -565,18 +599,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         coolFogVsWarmSurfScale = new Scale(coolFogComp, SWT.HORIZONTAL);
         coolFogVsWarmSurfScale.setLayoutData(gd);
 
-        // coolFogVsWarmSurfSpnr = new Spinner(coolFogComp, SWT.BORDER);
-        // coolFogVsWarmSurfSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-        //        
-        // setupControlsDecimal(coolFogVsWarmSurfScale, coolFogVsWarmSurfSpnr,
-        // thresh);
-
         tmp = new Label(coolFogComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsDecimalLbl(coolFogVsWarmSurfScale, tmp, thresh);
-
         addSeparator(controlComp);
 
         /*
@@ -602,17 +629,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         daytimeSmoothScale = new Scale(daytimeSmoothComp, SWT.HORIZONTAL);
         daytimeSmoothScale.setLayoutData(gd);
 
-        // daytimeSmoothSpnr = new Spinner(daytimeSmoothComp, SWT.BORDER);
-        // daytimeSmoothSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-        //        
-        // setupControlsDecimal(daytimeSmoothScale, daytimeSmoothSpnr, thresh);
-
         tmp = new Label(daytimeSmoothComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsDecimalLbl(daytimeSmoothScale, tmp, thresh);
-
         addSeparator(controlComp);
 
         /*
@@ -638,18 +659,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         adjacencyThreshScale = new Scale(adjacencyThreshComp, SWT.HORIZONTAL);
         adjacencyThreshScale.setLayoutData(gd);
 
-        // adjacencyThreshSpnr = new Spinner(adjacencyThreshComp, SWT.BORDER);
-        // adjacencyThreshSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-        //        
-        // setupControlsInteger(adjacencyThreshScale, adjacencyThreshSpnr,
-        // thresh);
-
         tmp = new Label(adjacencyThreshComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsIntegerLbl(adjacencyThreshScale, tmp, thresh);
-
         addSeparator(controlComp);
 
         /*
@@ -675,17 +689,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         twilightAngleScale = new Scale(twilightAngleComp, SWT.HORIZONTAL);
         twilightAngleScale.setLayoutData(gd);
 
-        // twilightAngleSpnr = new Spinner(twilightAngleComp, SWT.BORDER);
-        // twilightAngleSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-
         tmp = new Label(twilightAngleComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsDecimalLbl(twilightAngleScale, tmp, thresh);
-
-        // setupControlsDecimal(twilightAngleScale, twilightAngleSpnr, thresh);
-
         addSeparator(controlComp);
 
         /*
@@ -711,18 +719,20 @@ public class FogMonThreshSetupDlg extends Dialog {
         fractalDimScale = new Scale(fractalDimComp, SWT.HORIZONTAL);
         fractalDimScale.setLayoutData(gd);
 
-        // fractalDimSpnr = new Spinner(fractalDimComp, SWT.BORDER);
-        // fractalDimSpnr.setLayoutData(new GridData(50, SWT.DEFAULT));
-
         tmp = new Label(fractalDimComp, SWT.RIGHT);
         tmp.setLayoutData(new GridData(50, SWT.DEFAULT));
         tmp.setFont(controlFont);
 
         setupControlsDecimalLbl(fractalDimScale, tmp, thresh);
-
-        // setupControlsDecimal(fractalDimScale, fractalDimSpnr, thresh);
     }
 
+    /**
+     * Sets Controls Decimal Label
+     * 
+     * @param scale
+     * @param label
+     * @param thresh
+     */
     private void setupControlsDecimalLbl(final Scale scale, final Label label,
             ThresholdData.Threshold thresh) {
         scale.setMinimum(0);
@@ -733,19 +743,29 @@ public class FogMonThreshSetupDlg extends Dialog {
             public void widgetSelected(SelectionEvent event) {
                 ThresholdData.Threshold threshold = (ThresholdData.Threshold) label
                         .getData();
-                label.setText(String.format(" %3.1f",
-                        thresholdData.calcSpnrValueFromScale(threshold, scale
-                                .getSelection()) / 10.0));
+                label.setText(String.format(
+                        " %3.1f",
+                        thresholdData.calcSpnrValueFromScale(threshold,
+                                scale.getSelection()) / 10.0));
             }
         });
 
         label.setData(thresh);
-        label.setText(String.format(" %3.1f", thresholdData
-                .calcSpnrValueFromScale(thresh, scale.getSelection()) / 10.0));
+        label.setText(String.format(
+                " %3.1f",
+                thresholdData.calcSpnrValueFromScale(thresh,
+                        scale.getSelection()) / 10.0));
 
         scaleLblMap.put(scale, label);
     }
 
+    /**
+     * Sets Controls Integer Label
+     * 
+     * @param scale
+     * @param label
+     * @param thresh
+     */
     private void setupControlsIntegerLbl(final Scale scale, final Label label,
             ThresholdData.Threshold thresh) {
         scale.setMinimum(0);
@@ -756,70 +776,82 @@ public class FogMonThreshSetupDlg extends Dialog {
             public void widgetSelected(SelectionEvent event) {
                 ThresholdData.Threshold threshold = (ThresholdData.Threshold) label
                         .getData();
-                label.setText(String.format("%3d",
-                        thresholdData.calcSpnrValueFromScale(threshold, scale
-                                .getSelection())));
+                label.setText(String.format(
+                        "%3d",
+                        thresholdData.calcSpnrValueFromScale(threshold,
+                                scale.getSelection())));
             }
         });
-
         label.setData(thresh);
-        label.setText(String.format("%3d", thresholdData
-                .calcSpnrValueFromScale(thresh, scale.getSelection())));
-
+        label.setText(String.format(
+                "%3d",
+                thresholdData.calcSpnrValueFromScale(thresh,
+                        scale.getSelection())));
         scaleLblMap.put(scale, label);
     }
 
+    /**
+     * Creates Scale Spinner Composites
+     * 
+     * @param parentComp
+     * @return
+     */
     private Composite createScaleSpinnerComp(Composite parentComp) {
         Composite comp = new Composite(parentComp, SWT.NONE);
         comp.setLayout(new GridLayout(2, false));
         comp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-
         return comp;
     }
 
+    /**
+     * Adds Separator
+     * 
+     * @param parentComp
+     */
     private void addSeparator(Composite parentComp) {
         GridLayout gl = (GridLayout) parentComp.getLayout();
-
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = gl.numColumns;
         Label sepLbl = new Label(parentComp, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
     }
 
+    /**
+     * Creates Images
+     */
     private void createImages() {
         ImageDescriptor id = Activator.imageDescriptorFromPlugin(
                 Activator.PLUGIN_ID, "images/lenticular.png");
         maxCloudTempImg = id.createImage();
-
         id = Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
                 "images/glacier.png");
         iceSnowVsFogImg = id.createImage();
-
         id = Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
                 "images/MtStHelen.png");
         coolFogVsWarmSurfImg = id.createImage();
-
         id = Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
                 "images/man-made.png");
         daytimeSmoothImg = id.createImage();
-
         id = Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
                 "images/penguin.png");
         adjacencyThreshImg = id.createImage();
-
         id = Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
                 "images/twilight-angle.png");
         twilightAngleImg = id.createImage();
-
         id = Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
                 "images/fractal_dim.png");
         fractalDimImg = id.createImage();
     }
 
+    /**
+     * Formats Label Value
+     * 
+     * @param lbl
+     * @param value
+     */
     private void formatLabelValue(Label lbl, int value) {
         ThresholdData.Threshold threshold = (ThresholdData.Threshold) lbl
                 .getData();
-
         if (threshold == ThresholdData.Threshold.AdjacencyThresh) {
             lbl.setText(String.format("%3d", value));
         } else {
@@ -827,9 +859,11 @@ public class FogMonThreshSetupDlg extends Dialog {
         }
     }
 
+    /**
+     * Updates Data Controls
+     */
     private void updateDataControls() {
         FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
-
         /*
          * Threshold canvas (Fog Product & VIS)
          */
@@ -842,9 +876,7 @@ public class FogMonThreshSetupDlg extends Dialog {
 
         int scaleValInt = Integer.MIN_VALUE;
         int spnrValFromScale = Integer.MIN_VALUE;
-
         Threshold currentThreshold = Threshold.MaxCloudTemp;
-
         /*
          * Maximum Cloud Temperature
          */
@@ -855,7 +887,6 @@ public class FogMonThreshSetupDlg extends Dialog {
         spnrValFromScale = thresholdData.calcSpnrValueFromScale(
                 currentThreshold, maxCloudTempScale.getSelection());
         formatLabelValue(scaleLblMap.get(maxCloudTempScale), spnrValFromScale);
-
         /*
          * Daytime Ice/Snow vs Fog Threshold
          */
@@ -868,7 +899,6 @@ public class FogMonThreshSetupDlg extends Dialog {
         formatLabelValue(scaleLblMap.get(iceSnowVsFogScale), spnrValFromScale);
 
         iceSnowVsFogChk.setSelection(fam.getAlgorithmXML().isIceSnowVsFogOn());
-
         /*
          * Cool Fog vs Warm Surface Threshold
          */
@@ -880,10 +910,8 @@ public class FogMonThreshSetupDlg extends Dialog {
                 currentThreshold, coolFogVsWarmSurfScale.getSelection());
         formatLabelValue(scaleLblMap.get(coolFogVsWarmSurfScale),
                 spnrValFromScale);
-
         coolFogVsWarmSurfChk.setSelection(fam.getAlgorithmXML()
                 .isCoolFogVsWarmSurfaceOn());
-
         /*
          * Daytime Smoothness Threshold
          */
@@ -898,7 +926,6 @@ public class FogMonThreshSetupDlg extends Dialog {
 
         daytimeSmoothChk.setSelection(fam.getAlgorithmXML()
                 .isDaytimeSmoothThreshOn());
-
         /*
          * Adjacency Threshold
          */
@@ -914,7 +941,6 @@ public class FogMonThreshSetupDlg extends Dialog {
 
         adjacencyThreshChk.setSelection(fam.getAlgorithmXML()
                 .isAdjacencyThreshOn());
-
         /*
          * Twilight Angle Threshold
          */
@@ -926,10 +952,8 @@ public class FogMonThreshSetupDlg extends Dialog {
         spnrValFromScale = thresholdData.calcSpnrValueFromScale(
                 currentThreshold, twilightAngleScale.getSelection());
         formatLabelValue(scaleLblMap.get(twilightAngleScale), spnrValFromScale);
-
         twilightAngleChk
                 .setSelection(fam.getAlgorithmXML().isTwilightAngleOn());
-
         /*
          * Fractal Dimension Threshold
          */
@@ -941,15 +965,15 @@ public class FogMonThreshSetupDlg extends Dialog {
         spnrValFromScale = thresholdData.calcSpnrValueFromScale(
                 currentThreshold, fractalDimScale.getSelection());
         formatLabelValue(scaleLblMap.get(fractalDimScale), spnrValFromScale);
-
         fractalDimChk
                 .setSelection(fam.getAlgorithmXML().isFractalDimensionOn());
     }
 
+    /**
+     * Updates Algorithm Data.
+     */
     private void updateAlgorithmData() {
-
         double tmpVal = Double.NaN;
-
         /*
          * Fog Product
          */
@@ -962,7 +986,6 @@ public class FogMonThreshSetupDlg extends Dialog {
                 .setFogProductRHi(fogVals[RangeEnum.RHi.ordinal()]);
         fam.getAlgorithmXML()
                 .setFogProductYHi(fogVals[RangeEnum.YHi.ordinal()]);
-
         /*
          * VIS values.
          */
@@ -971,37 +994,28 @@ public class FogMonThreshSetupDlg extends Dialog {
         fam.getAlgorithmXML().setVisRLo(visVals[RangeEnum.RLo.ordinal()]);
         fam.getAlgorithmXML().setVisRHi(visVals[RangeEnum.RHi.ordinal()]);
         fam.getAlgorithmXML().setVisYHi(visVals[RangeEnum.YHi.ordinal()]);
-
         /*
          * Maximum Cloud Temperature
          */
-        System.out.println("+++ Max cloud scale value = "
-                + maxCloudTempScale.getSelection());
         tmpVal = thresholdData.calcSpnrValueFromScale(Threshold.MaxCloudTemp,
                 maxCloudTempScale.getSelection()) / 10.0;
-        System.out.println("+++ tmp value = " + tmpVal);
         fam.getAlgorithmXML().setMaxCloudTemp(tmpVal);
-
         /*
          * Daytime Ice/Snow vs Fog Threshold
          */
         tmpVal = thresholdData.calcSpnrValueFromScale(Threshold.IceSnowVsFog,
                 iceSnowVsFogScale.getSelection()) / 10.0;
         fam.getAlgorithmXML().setIceSnowVsFog(tmpVal);
-
         fam.getAlgorithmXML().setIceSnowVsFogOn(iceSnowVsFogChk.getSelection());
-
         /*
          * Cool Fog vs Warm Surface Threshold
          */
         tmpVal = thresholdData.calcSpnrValueFromScale(
-                Threshold.CoolFogVsWarmSurf, coolFogVsWarmSurfScale
-                        .getSelection()) / 10.0;
+                Threshold.CoolFogVsWarmSurf,
+                coolFogVsWarmSurfScale.getSelection()) / 10.0;
         fam.getAlgorithmXML().setCoolFogVsWarmSurface(tmpVal);
-
         fam.getAlgorithmXML().setCoolFogVsWarmSurfaceOn(
                 coolFogVsWarmSurfChk.getSelection());
-
         /*
          * Daytime Smoothness Threshold
          */
@@ -1011,7 +1025,6 @@ public class FogMonThreshSetupDlg extends Dialog {
 
         fam.getAlgorithmXML().setDaytimeSmoothThreshOn(
                 daytimeSmoothChk.getSelection());
-
         /*
          * Adjacency Threshold
          */
@@ -1021,105 +1034,140 @@ public class FogMonThreshSetupDlg extends Dialog {
 
         fam.getAlgorithmXML().setAdjacencyThreshOn(
                 adjacencyThreshChk.getSelection());
-
         /*
          * Twilight Angle Threshold
          */
         tmpVal = thresholdData.calcSpnrValueFromScale(Threshold.TwilightAngle,
                 twilightAngleScale.getSelection()) / 10.0;
         fam.getAlgorithmXML().setTwilightAngle(tmpVal);
-
         fam.getAlgorithmXML().setTwilightAngleOn(
                 twilightAngleChk.getSelection());
-
         /*
          * Fractal Dimension Threshold
          */
         tmpVal = thresholdData.calcSpnrValueFromScale(Threshold.FractalDim,
                 fractalDimScale.getSelection()) / 10.0;
         fam.getAlgorithmXML().setFractalDimension(tmpVal);
-
         fam.getAlgorithmXML().setFractalDimensionOn(
                 fractalDimChk.getSelection());
     }
 
+    /**
+     * Open action.
+     */
     private void openAction() {
-        FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.OPEN, fam.getAlgorithmThresholdPath(), fam
-                        .getDefaultAlgorithmFileName());
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (openDlg == null) {
+            FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
+            openDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.OPEN,
+                    fam.getAlgorithmThresholdPath(),
+                    fam.getDefaultAlgorithmFileName());
+            openDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doOpenFile(fileName);
+                    }
+                    openDlg = null;
+                }
+            });
         }
+        openDlg.open();
+    }
 
-        System.out.println("Selected file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out.println("Selected file name = "
-                + fileName.getFile().getName());
-
+    /**
+     * Opens selected file.
+     * 
+     * @param fileName
+     */
+    private void doOpenFile(LocalizationFile fileName) {
+        FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
         fam.loadAlgorithmThreashold(fileName.getFile().getName());
         updateDataControls();
     }
 
+    /**
+     * Save As Action.
+     */
     private void saveAsAction() {
-        updateAlgorithmData();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.SAVE_AS, fam.getAlgorithmThresholdPath(), fam
-                        .getDefaultAlgorithmFileName());
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (saveDlg == null) {
+            saveDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.SAVE_AS,
+                    fam.getAlgorithmThresholdPath(),
+                    fam.getDefaultAlgorithmFileName());
+            saveDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doSaveFileAs(fileName);
+                    }
+                    saveDlg = null;
+                }
+            });
         }
+        saveDlg.open();
+    }
 
-        System.out.println("Selected file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out.println("Selected file name = "
-                + fileName.getFile().getName());
-
+    /**
+     * Saves selected file.
+     * 
+     * @param fileName
+     */
+    private void doSaveFileAs(LocalizationFile fileName) {
+        FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
+        updateAlgorithmData();
         fam.saveAlgorithmXmlAs(fileName.getFile().getName());
     }
 
+    /**
+     * Select Default Algorithm File Action.
+     */
     private void selectDefaultAction() {
-        FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.SELECT_DEFAULT, fam.getAlgorithmThresholdPath(), fam
-                        .getDefaultAlgorithmFileName());
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (selectDlg == null) {
+            FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
+            selectDlg = new LoadSaveDeleteSelectDlg(shell,
+                    DialogType.SELECT_DEFAULT, fam.getAlgorithmThresholdPath(),
+                    fam.getDefaultAlgorithmFileName());
+            selectDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doSelectDefault(fileName);
+                    }
+                    selectDlg = null;
+                }
+            });
         }
+        selectDlg.open();
+    }
 
-        System.out.println("Selected file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out.println("Selected file name = "
-                + fileName.getFile().getName());
-
+    /**
+     * Selects default file.
+     * 
+     * @param fileName
+     */
+    private void doSelectDefault(LocalizationFile fileName) {
+        FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
         fam.setDefaultAlgorithmFileName(fileName.getFile().getName());
     }
 
+    /**
+     * Load Default Algorithm Action.
+     */
     private void loadDefaultAction() {
         FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
         fam.loadDefaultAlgorithmData();
         updateDataControls();
     }
 
+    /**
+     * Notify Action.
+     */
     private void notifyAction() {
-
         Display.getDefault().asyncExec(new Runnable() {
             public void run() {
-                Iterator<IFogResourceListener> iter = fogListeners
-                        .iterator();
-
+                Iterator<IFogResourceListener> iter = fogListeners.iterator();
                 while (iter.hasNext()) {
                     IFogResourceListener listener = (IFogResourceListener) iter
                             .next();
@@ -1129,32 +1177,44 @@ public class FogMonThreshSetupDlg extends Dialog {
         });
     }
 
+    /**
+     * Delete Action.
+     */
     private void deleteAction() {
-        FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.DELETE, fam.getDefaultFileNamePath(), fam
-                        .getDefaultAlgorithmFileName());
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-
-        if (fileName == null) {
-            return;
+        if (deleteDlg == null) {
+            FogAlgorithmMgr fam = FogAlgorithmMgr.getInstance();
+            deleteDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.DELETE,
+                    fam.getDefaultFileNamePath(),
+                    fam.getDefaultAlgorithmFileName());
+            deleteDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doDelete(fileName);
+                    }
+                    deleteDlg = null;
+                }
+            });
         }
+        deleteDlg.open();
+    }
 
-        System.out.println("Selected file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out.println("Selected file name = "
-                + fileName.getFile().getName());
-
+    /**
+     * Deletes current default file.
+     * 
+     * @param fileName
+     */
+    private void doDelete(LocalizationFile fileName) {
         try {
             fileName.delete();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            statusHandler.handle(Priority.ERROR, ex.getMessage());
         }
     }
 
     /**
-     * add a listener
+     * Adds a listener
      * 
      * @param ifogl
      */
@@ -1163,7 +1223,7 @@ public class FogMonThreshSetupDlg extends Dialog {
     }
 
     /**
-     * remove a listener
+     * Removes a listener
      * 
      * @param ifogl
      */
@@ -1172,17 +1232,21 @@ public class FogMonThreshSetupDlg extends Dialog {
     }
 
     /**
+     * Gets Fog listeners.
+     * 
      * @return the fogListeners
      */
-    public ArrayList<IFogResourceListener> getFogListeners() {
+    public List<IFogResourceListener> getFogListeners() {
         return fogListeners;
     }
 
     /**
+     * Sets Fog listeners.
+     * 
      * @param fogListeners
      *            the fogListeners to set
      */
-    public void setFogListeners(ArrayList<IFogResourceListener> fogListeners) {
+    public void setFogListeners(List<IFogResourceListener> fogListeners) {
         this.fogListeners = fogListeners;
     }
 }

@@ -25,7 +25,48 @@
 			</then>
 		</if>
 		<!-- deploy edex plugins -->
-		<antcall target="deploy.feature" />
+		<!-- which feature do we want to deploy? -->
+		<if>
+			<isset property="wa.enabled" />
+			<then>
+				<!--
+					Find the feature associated with
+					Work Assignments.
+				-->
+				<var name="feature.to.find" 
+					value="${wa.edex.feature}" />
+			</then>
+			<else>
+				<!--
+					Find the standard AWIPS II
+					Baseline feature.
+				-->
+				<var name="feature.to.find"
+					value="${edex.feature}" />
+			</else>
+		</if>
+		
+		<var name="feature" value="" />
+		<!-- 
+			find the feature file: we may deploy multiple features
+			if multiple Work Assignment directories have been
+			specified. 
+		-->
+ 		<for list="${basedirectories}" param="directory"
+ 		delimiter=";">
+ 			<sequential>
+ 				<if>
+ 					<available file="@{directory}/${feature.to.find}" />
+ 					<then>
+ 						<var name="feature"
+ 							value="@{directory}/${feature.to.find}" />
+ 						<deploy.feature 
+ 							feature="${feature}" />
+ 					</then>
+ 				</if>
+ 			</sequential>
+ 		</for>
+		
 		<!-- optionally: deploy raytheon python -->
 		<if>
 			<equals arg1="${deploy.python}" arg2="true" />
@@ -42,88 +83,102 @@
 				<antcall target="deploy.localization" />
 			</then>
 		</if>
+
+		<!-- 
+			Search for WA-specific Non-Spring
+			Web Applications to deploy.
+		-->
+		<if>
+			<isset property="wa.enabled" />
+			<then>
+				<for list="${wa.to.deploy}" param="wa"
+				delimiter="${path.separator}">
+					<sequential>
+						<if>
+							<available file="@{wa}/edexOsgi/build.edex/wa-build.xml"
+								type="file" />
+							<then>
+		        				<ant 
+		        					antfile="@{wa}/edexOsgi/build.edex/wa-build.xml" 
+		        					inheritall="true" inheritrefs="true"/>
+							</then>
+						</if>
+					</sequential>
+				</for>
+		    </then>
+		</if>
 	</target>
 	
 	<!-- public -->
 	<!-- Targets specific to the developer deployment. -->
-	<target name="deploy.feature">
-		<!-- prepare to run includegen -->
-		<var name="includes.directory" value="${basedir}/tmp/includes" />
-		<if>
-			<available file="${includes.directory}" type="dir" />
-			<then>
-				<delete verbose="true" includeemptydirs="true">
-					<fileset dir="${includes.directory}" 
-						includes="*/**" />
-				</delete>
-			</then>
-		</if>
-		<mkdir dir="${includes.directory}" />
+	<macrodef name="deploy.feature">
+		<attribute name="feature" />
 		
-		<var name="feature" value="" />
-		<!-- find the feature file -->
-	 	<for list="${basedirectories}" param="directory"
-	 	delimiter=";">
-	 		<sequential>
-	 			<if>
-	 				<available file="@{directory}/${edex.feature}" />
-	 				<then>
-	 					<var name="feature"
-	 						value="@{directory}/${edex.feature}" />
-	 				</then>
-	 			</if>
-	 		</sequential>
-	 	</for>
-		<!-- run includegen -->
-        <echo message="Generating deployment list for feature: ${edex.feature}" />
-		<!--
-			TODO: need to update the includegen ant task to recognize
-			plugin architecture restrictions. Plugins that should only
-			be deployed for a 64-bit system should not be deployed for
-			a 32-bit system, etc.
-		-->
-        <includegen providerfilter="${includegen.filter}" 
-            basedirectories="${basedirectories}" 
-            featurefile="${feature}" 
-            cotsout="${includes.directory}/cots.includes" 
-            plugsout="${includes.directory}/plugins.includes" 
-            coreout="${includes.directory}/core.includes" />
+		<sequential>
+			<!-- prepare to run includegen -->
+			<var name="includes.directory" value="${basedir}/tmp/includes" />
+			<if>
+				<available file="${includes.directory}" type="dir" />
+				<then>
+					<delete verbose="true" includeemptydirs="true">
+						<fileset dir="${includes.directory}" 
+							includes="*/**" />
+					</delete>
+				</then>
+			</if>
+			<mkdir dir="${includes.directory}" />
 		
-		<var name="destination.directory"
-			value="${edex.root.directory}/lib/plugins" />
-		<mkdir dir="${destination.directory}" />
-		<processPlugins
-			includes.file="${includes.directory}/plugins.includes"
-			plugin.type="plugins"
-			plugin.directories="${basedirectories}"
-			destination.directory="${destination.directory}" />
-		<processPlugins
-			includes.file="${includes.directory}/core.includes"
-			plugin.type="core"
-			plugin.directories="${basedirectories}"
-			destination.directory="${destination.directory}" />
+			<!-- run includegen -->
+        	<echo message="Generating deployment list for feature: ${feature}" />
+			<!--
+				TODO: need to update the includegen ant task to recognize
+				plugin architecture restrictions. Plugins that should only
+				be deployed for a 64-bit system should not be deployed for
+				a 32-bit system, etc.
+			-->
+        	<includegen providerfilter="${includegen.filter}" 
+            	basedirectories="${basedirectories}" 
+            	featurefile="${feature}" 
+            	cotsout="${includes.directory}/cots.includes" 
+            	plugsout="${includes.directory}/plugins.includes" 
+            	coreout="${includes.directory}/core.includes" />
 		
-		<var name="destination.directory"
-			value="${edex.root.directory}/lib/dependencies" />
-		<mkdir dir="${destination.directory}" />
-		<processPlugins
-			includes.file="${includes.directory}/cots.includes"
-			plugin.type="cots"
-			plugin.directories="${basedirectories}"
-			destination.directory="${destination.directory}" />
+			<var name="destination.directory"
+				value="${edex.root.directory}/lib/plugins" />
+			<mkdir dir="${destination.directory}" />
+			<processPlugins
+				includes.file="${includes.directory}/plugins.includes"
+				plugin.type="plugins"
+				plugin.directories="${basedirectories}"
+				destination.directory="${destination.directory}" />
+			<processPlugins
+				includes.file="${includes.directory}/core.includes"
+				plugin.type="core"
+				plugin.directories="${basedirectories}"
+				destination.directory="${destination.directory}" />
 		
-		<!-- cleanup the temporary directories -->
-		<if>
-			<available file="${basedir}/tmp"
-				type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset dir="${basedir}"
-						includes="tmp/**" />
-				</delete>
-			</then>
-		</if>
-	</target>
+			<var name="destination.directory"
+				value="${edex.root.directory}/lib/dependencies" />
+			<mkdir dir="${destination.directory}" />
+			<processPlugins
+				includes.file="${includes.directory}/cots.includes"
+				plugin.type="cots"
+				plugin.directories="${basedirectories}"
+				destination.directory="${destination.directory}" />
+		
+			<!-- cleanup the temporary directories -->
+			<if>
+				<available file="${basedir}/tmp"
+					type="dir" />
+				<then>
+					<delete includeemptydirs="true">
+						<fileset dir="${basedir}"
+							includes="tmp/**" />
+					</delete>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
 	
 	<target name="deploy.python">
 		<property name="site-package.directory" 

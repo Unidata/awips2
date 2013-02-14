@@ -4,7 +4,7 @@
    <extension
          point="com.raytheon.uf.viz.core.resource">
       <resource
-            class="gov.noaa.nws.ncep.viz.rsc.pgen.rsc.PgenResource"
+            class="gov.noaa.nws.ncep.viz.rsc.pgen.rsc.PgenDisplayResource"
             name="PGEN"
             recordClass=""
             renderingOrderId="PLOT"
@@ -13,7 +13,7 @@
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
       <nc-resource
-            class="gov.noaa.nws.ncep.viz.rsc.pgen.rsc.PgenResourceData"
+            class="gov.noaa.nws.ncep.viz.rsc.pgen.rsc.PgenDisplayResourceData"
             editDialogClass="gov.noaa.nws.ncep.viz.resources.misc.EditMiscResourceAttrsDialog"
             name="PGEN">
       </nc-resource>
@@ -47,6 +47,14 @@
             paramClass="String"
             paramName="pgenDirectory"
             defaultValue="/home/awp2pgen/activities"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="productName"
+            defaultValue="none"
             paramType="IMPLEMENTATION_PARAM">
       </nc-resourceParameter>
 

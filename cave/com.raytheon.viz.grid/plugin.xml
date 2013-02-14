@@ -23,20 +23,9 @@
    <extension
          point="com.raytheon.uf.viz.core.resource">
       <resource
-            class="com.raytheon.viz.grid.rsc.GridResource"
-            name="Grid"
-            recordClass="com.raytheon.uf.common.dataplugin.grib.GribRecord"
-            renderingOrderId="IMAGE_COUNTRY"
-            resourceType="PLAN_VIEW"/>
-      <resource
-            class="com.raytheon.viz.grid.rsc.GridVectorResource"
-            name="Grid Contours"
-            renderingOrderId="CONTOUR"
-            resourceType="PLAN_VIEW"/>
-      <resource
             class="com.raytheon.viz.grid.rsc.RcmResource"
             name="RcmResource"
-            recordClass="com.raytheon.uf.common.dataplugin.grib.GribRecord"
+            recordClass="com.raytheon.uf.common.dataplugin.grid.GridRecord"
             renderingOrderId="IMAGE_COUNTRY"
             resourceType="PLAN_VIEW">
       </resource>
