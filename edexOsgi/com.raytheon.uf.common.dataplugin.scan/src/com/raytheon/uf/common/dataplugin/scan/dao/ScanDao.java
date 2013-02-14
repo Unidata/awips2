@@ -28,11 +28,14 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.scan.ScanRecord;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.StorageProperties;
+import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
@@ -43,6 +46,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 02/24/09     2027         dhladky    Initial Creation
+ * 02/01/13     1649        D. Hladky   removed XML where not needed, compression
  * 
  * </pre>
  * 
@@ -58,26 +62,40 @@ public class ScanDao extends PluginDao {
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
+        
         ScanRecord scanRec = (ScanRecord) obj;
         String table = null;
+
         if (scanRec.getType().equals(ScanTables.CELL.name())) {
             table = ScanTables.CELL.name();
 
+            StorageProperties sp = null;
+            String compression = PluginRegistry.getInstance()
+                    .getRegisteredObject(scanRec.getPluginName()).getCompression();
+            if (compression != null) {
+                sp = new StorageProperties();
+                sp.setCompression(Compression.valueOf(compression));
+            }
+            
             if (scanRec.getModelData() != null) {
+                
                 byte[] data = DynamicSerializationManager.getManager(
                         SerializationType.Thrift).serialize(
                         scanRec.getTableData());
                 ByteDataRecord bdr = new ByteDataRecord(table + "/model",
                         scanRec.getDataURI(), data);
-                dataStore.addDataRecord(bdr);
+                dataStore.addDataRecord(bdr, sp);
             }
+            
             if (scanRec.getSoundingData() != null) {
+                
+                
                 byte[] data = DynamicSerializationManager.getManager(
                         SerializationType.Thrift).serialize(
                         scanRec.getTableData());
                 ByteDataRecord bdr = new ByteDataRecord(table + "/sounding",
                         scanRec.getDataURI(), data);
-                dataStore.addDataRecord(bdr);
+                dataStore.addDataRecord(bdr, sp);
             }
 
         } else if (scanRec.getType().equals(ScanTables.DMD.name())) {
