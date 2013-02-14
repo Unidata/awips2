@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -95,6 +97,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 28, 2013 1530       djohnson     Test that all allocations are unscheduled for subscription that doesn't fully schedule.
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
+ * Feb 14, 2013 1595       djohnson     Fix expired subscription updates that weren't scheduling retrievals.
  * 
  * </pre>
  * 
@@ -393,6 +396,71 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
             assertThat(subscriptionRetrieval.getStatus(),
                     is(equalTo(RetrievalStatus.UNSCHEDULED)));
         }
+    }
+
+    /**
+     * Redmine #1595: A subscription was created...and then expired. The
+     * subscription was updated by extending the Expiration Date only. The
+     * subscription, however, was never scheduled (e.g., in the Bandwidth
+     * Utilization graph). Data displayed in D2D failed to update. However, the
+     * subscription (and data) did begin updating after editing the subscription
+     * and adding another parameter.
+     */
+    @Test
+    public void expiredSubscriptionUpdatedToNonExpiredIsScheduled()
+            throws Exception {
+
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis() - TimeUtil.MILLIS_PER_DAY);
+        final Date oneHourAgo = new Date(TimeUtil.currentTimeMillis() - TimeUtil.MILLIS_PER_HOUR);
+
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        subscription.setSubscriptionStart(yesterday);
+        subscription.setSubscriptionEnd(oneHourAgo);
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        // Make sure nothing is scheduled when the subscription is expired
+        assertThat(bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(empty()));
+
+        // No longer expired
+        subscription.setSubscriptionEnd(new Date(TimeUtil.currentTimeMillis()
+                + TimeUtil.MILLIS_PER_WEEK));
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(not(empty())));
+    }
+
+    @Test
+    public void subscriptionUpdatedToExpiredHasAllocationsRemoved()
+            throws Exception {
+
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(not(empty())));
+
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_DAY);
+        final Date oneHourAgo = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_HOUR);
+
+        // Updated to expired
+        subscription.setSubscriptionStart(yesterday);
+        subscription.setSubscriptionEnd(oneHourAgo);
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        // Make sure nothing is scheduled when the subscription is expired
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(empty()));
     }
 
     @Test
