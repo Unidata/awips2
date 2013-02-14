@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
@@ -30,6 +31,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
 
 /**
@@ -41,6 +43,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * ------------ ---------- ----------- --------------------------
  * 29 July, 2011 6772          dhladky     Initial creation
  * 29 July, 2012 578           dhladky     memory work
+ * 27 Jan,  2013 1478          dhladky     Changed arraylist to list for times, more constants
  * </pre>
  * 
  * @author dhladky
@@ -96,15 +99,16 @@ public class FFMPInterpolatedGuidanceDelay {
 		qpeContainer = generator.getFFMPDataContainer(qpeSource.getSourceName()
 				+ "-" + siteKey + "-" + siteKey, hucs, backDate);
 	
-		long expirationTime = qpeSource.getExpirationMinutes(siteKey) * 60 * 1000;
-		// determine lag_time
+        long expirationTime = qpeSource.getExpirationMinutes(siteKey)
+                * TimeUtil.MILLIS_PER_MINUTE;
+        // determine lag_time
         long lagTime = (currentRecord.getDataTime().getRefTime().getTime())
-                + (long) (ffgSource.getDurationHour() * 60 * 1000);
+                + (long) (ffgSource.getDurationHour() * TimeUtil.MILLIS_PER_MINUTE);
         // Determine hour fraction.
         int fraction_Hr = (int) (((float) (currentRecord.getDataTime()
                 .getRefTime().getTime() - (lagTime - guidFrequency))) / (float) guidFrequency);
         // Gets the ordered times for QPE
-        ArrayList<Date> orderedTimes = qpeContainer
+        List<Date> orderedTimes = qpeContainer
                 .getOrderedTimes(currentRecord.getDataTime().getRefTime());
 
         // EQUATION: Guid = GuidOld + R i/d (GuidNew - GuidOld)
