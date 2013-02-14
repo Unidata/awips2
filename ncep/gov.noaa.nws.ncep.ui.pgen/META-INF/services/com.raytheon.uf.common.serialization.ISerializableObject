@@ -6,4 +6,5 @@ gov.noaa.nws.ncep.ui.pgen.tca.IslandBreakpointList
 gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpointList
 gov.noaa.nws.ncep.ui.pgen.tca.CoastBreakpointList
 gov.noaa.nws.ncep.ui.pgen.file.Products
-gov.noaa.nws.ncep.ui.pgen.producttypes.ProductTypesgov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData
+gov.noaa.nws.ncep.ui.pgen.producttypes.ProductTypes
+gov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData

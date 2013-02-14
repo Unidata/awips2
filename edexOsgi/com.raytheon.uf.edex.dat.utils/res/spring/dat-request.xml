@@ -5,7 +5,6 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   	
   	<bean id="datMenuUtil" class="com.raytheon.uf.edex.dat.utils.DatMenuUtil" />
-  	<bean id="menuCreationRegistry" class="com.raytheon.uf.common.menus.MenuCreationRegistry" factory-method="getInstance" />	
   	<bean id="datMenus" factory-bean="menuCreationRegistry" factory-method="register">
   		<constructor-arg value="dat"/>
   		<constructor-arg ref="datMenuUtil"/>

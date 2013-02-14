@@ -18,6 +18,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineSegment;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
@@ -180,10 +181,12 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         			drawingLayer.removeGhostLine();
         			drawingLayer.removeSelected();
         			status = ADD_STATUS.START;
+        			mapEditor.refresh();
+
         			break;
+        		default:
+        			PgenUtil.setSelectingMode();
         		}
-      	        
-        		mapEditor.refresh();
       	        
             	return true;
             	

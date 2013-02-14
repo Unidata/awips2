@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <configuration>
-    <model name="RUC236" description="RUC 40km" />
+    <model name="RUC130" description="RUC 13km" />
     
     <!-- <inventoryHint levelType="MB" nLevels="36" /> -->
     <inventoryHint levelType="SFC" nLevels="1" />

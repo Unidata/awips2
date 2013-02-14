@@ -115,6 +115,7 @@ import gov.noaa.nws.ncep.viz.common.SnapUtil;
  * 06/12         #777       Q. Zhou     Added isNewTrack flag on Track to get first time differently
  * 07/12         #663       Q. Zhou     Modified handleMouseDown for preselected DE.  
  * 08/12         #803       Q. Zhou     Fixed Front text of 2 lines. Modified handleMouseDownMove. 
+ * 11/12		 #911		J. Wu   	TTR 652 - prevent invalid GFA polygon when dragging GFA points.
  * </pre>
  * 
  * @author	B. Yin
@@ -383,6 +384,9 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     	 */
     	protected Coordinate oldLoc = null;
     	
+    	protected Coordinate firstDown = null;
+
+    	
     	/**
     	 * the mouse downMove position. Used for crossing the screen border, for single point element.
     	 */
@@ -422,6 +426,10 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         			if ( drawingLayer.getSelectedDE() instanceof SinglePointElement
         					&& drawingLayer.getDistance(drawingLayer.getSelectedDE(), loc) > drawingLayer.getMaxDistToSelect() ) {
         				ptSelected = false;   //prevent SPE from moving when selecting it and then click far away and hold to  move.
+        			}
+        			
+        			if ( !(drawingLayer.getSelectedDE() instanceof SinglePointElement) && !ptSelected ){
+        				firstDown = loc;
         			}
         			
         			return false;
@@ -565,7 +573,6 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
                 	    attrDlg.setAttrForDlg( elSelected );
               		}
 
-                	
                 	if ( elSelected instanceof SinglePointElement &&
                 	     ! (elSelected.getParent() instanceof ContourMinmax ) ) {
  
@@ -703,8 +710,16 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 
         	if (loc != null && inOut == 1) {
         		//make sure the click is close enough to the element
-        		if ( drawingLayer.getDistance(tmpEl, loc) > drawingLayer.getMaxDistToSelect() && !ptSelected ) 
+        		if ( drawingLayer.getDistance(tmpEl, loc) > drawingLayer.getMaxDistToSelect() && !ptSelected ) {
+        		//	if (( firstDown != null && drawingLayer.getDistance(tmpEl, firstDown) > drawingLayer.getMaxDistToSelect() && !ptSelected) ||
+        		//			tmpEl instanceof SinglePointElement ){
+        			if ( firstDown != null && drawingLayer.getDistance(tmpEl, firstDown) < drawingLayer.getMaxDistToSelect() ){
+        				firstDown = null;
+        			}
+        			else {
         			return false;
+        	}
+        		}
         	}
         	else if (loc != null && inOut == 0) {       		
             	inOut = 1;            
@@ -809,7 +824,6 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 
         		}
         		else {
-        			
         			if ( ptSelected ){
 						//Replace the selected point and repaint.
         				ghostEl.removePoint( ptIndex );
@@ -857,6 +871,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 
         				}
         			}
+        			
         			simulate = true;
         			PgenUtil.simulateMouseDown(x, y, button, mapEditor);
         			simulate = false;
@@ -869,7 +884,6 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         		PgenUtil.simulateMouseDown(x, y, button, mapEditor);
         		simulate = false;
         	}
-        	
             return preempt;
          
         }
@@ -882,6 +896,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
+        	firstDown = null;
         	if ( !isResourceEditable() ) return false;
 
         	// Finish the editing
@@ -1003,14 +1018,24 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 			        		editContoursLineNCircle( el, ghostEl.getPoints() );
 			        	}
 			        	else {
-    						// Replace the selected element with this new element
+			        		
+    						/*
+    						 *  Replace the selected element with this new element
+    						 *  Note: for GFA, check if the new point will make the GFA
+    						 *        polygon invalid - J. Wu.
+    						 */
+    						if ( !(newEl instanceof Gfa) || 
+    							 (newEl instanceof Gfa  && ((Gfa) ghostEl).isValid() ) ) {
+   						
     						drawingLayer.replaceElement(el, newEl);
     						
     						// Update the new Element with the new points
     						/*if("CONV_SIGMET".equalsIgnoreCase(newEl.getPgenType() ) ||
     								"NCON_SIGMET".equalsIgnoreCase(newEl.getPgenType())) {	
     							newEl.setPoints( SnapUtil.getSnapWithStation(ghostEl.getPoints(),SnapUtil.VOR_STATION_LIST,10,8) );
-    						} else*/ if("GFA".equalsIgnoreCase(newEl.getPgenType()) && ((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
+    						} else*/ 
+
+    							if("GFA".equalsIgnoreCase(newEl.getPgenType()) && ((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
     							ArrayList<Coordinate> points = ghostEl.getPoints();
     							int nearest = getNearestPtIndex(ghostEl, mapEditor.translateClick(x, y));
     							Coordinate toSnap = ghostEl.getPoints().get(nearest);
@@ -1042,6 +1067,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     						// Collections do not need to reset.
     						if ( !(drawingLayer.getSelectedComp() instanceof DECollection )){
                                 drawingLayer.setSelected(newEl);
+    						}
+    						
     						}
     					}
     					

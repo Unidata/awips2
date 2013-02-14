@@ -11,6 +11,8 @@
  * 06/2009		87/114			L. Lin		Generalize the method processLocation.
  * 07/2009		87/114			L. Lin		Migration to TO11
  * 09/2009		87/114			L. Lin		Add latitude/longitude to location table
+ * 07/2011		87/114			F. J. Yen	Fix the day of the end time when it is 
+ * 											not the same as the day of the start time.
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -339,6 +341,7 @@ public class ConvSigmetParser {
 
         if (theMatcher.find()) {
             Calendar startTime = section.getStartTime();
+            
             String endTimeGroup = Integer.toString(
                     startTime.get(Calendar.DAY_OF_MONTH)).concat(
                     theMatcher.group(1));
@@ -346,8 +349,16 @@ public class ConvSigmetParser {
                 // add a "0" if the day of month less than 10
                 endTimeGroup = "0".concat(endTimeGroup);
             }
-            // get the end time.
-            return TimeTools.findDataTime(endTimeGroup, headers);
+            // Determine the end time.
+            Calendar endTime = TimeTools.findDataTime(endTimeGroup, headers);
+            int startHrMn = startTime.get(Calendar.HOUR_OF_DAY) * 100 +
+            				startTime.get(Calendar.MINUTE);
+            int endHrMn = Integer.parseInt(theMatcher.group(1));
+            if (endHrMn < startHrMn) {
+            	/*   Increment for the next day */
+            	endTime.add(Calendar.DATE,1); 
+            }
+            return endTime;
         } else {
             return null;
         }

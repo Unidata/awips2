@@ -32,12 +32,29 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class AcknowledgmentsDlg extends CaveSWTDialog{
+/**
+ * Dialog to dispaly FFFG Acknowledgments.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Nov 29, 2012 1353       rferrel     Made dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
+public class AcknowledgmentsDlg extends CaveSWTDialog {
 
     /**
      * Create the label object.
      */
-	private Label acknowledgmentsLbl;
+    private Label acknowledgmentsLbl;
 
     /**
      * Constructor.
@@ -46,12 +63,13 @@ public class AcknowledgmentsDlg extends CaveSWTDialog{
      *            Parent shell.
      */
     public AcknowledgmentsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Acknowledgments");
     }
+
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -59,14 +77,14 @@ public class AcknowledgmentsDlg extends CaveSWTDialog{
     @Override
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
-        
+
         // Initialize layout
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 390;
         gd.heightHint = 80;
-        acknowledgmentsLbl=new Label(shell,SWT.None);
+        acknowledgmentsLbl = new Label(shell, SWT.None);
         acknowledgmentsLbl.setLayoutData(gd);
-        
+
         // Add a close button
         Composite centeredComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
@@ -88,20 +106,21 @@ public class AcknowledgmentsDlg extends CaveSWTDialog{
 
         populateDlg();
 
-}
- 
+    }
+
     private void populateDlg() {
-        String acknowledgementsText = "  Special thanks to Lingyan Xin, Tom Filiaggi, Qinglu Lin,\n" +
-        					"  Mike Churma, Arthur Taylor, Xuning Tan, Bei Wang and\n" +
-        					"  others in MDL for their many valuable help for their\n"+
-        					"  many valuable help and suggestions!";
+        String acknowledgementsText = "  Special thanks to Lingyan Xin, Tom Filiaggi, Qinglu Lin,\n"
+                + "  Mike Churma, Arthur Taylor, Xuning Tan, Bei Wang and\n"
+                + "  others in MDL for their many valuable help for their\n"
+                + "  many valuable help and suggestions!";
 
         this.acknowledgmentsLbl.setText(acknowledgementsText);
         this.shell.pack();
     }
+
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
      */
     @Override
@@ -109,4 +128,3 @@ public class AcknowledgmentsDlg extends CaveSWTDialog{
         super.disposed();
     }
 }
-

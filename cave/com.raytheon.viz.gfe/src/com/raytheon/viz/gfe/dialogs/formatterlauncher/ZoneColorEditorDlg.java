@@ -39,10 +39,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorWheelComp;
 
 /**
@@ -53,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorWheelComp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 21 APR 2008  ###        lvenable    Initial creation
+ * 08 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -60,22 +60,8 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorWheelComp;
  * @version 1.0
  * 
  */
-public class ZoneColorEditorDlg extends Dialog implements MouseListener,
+public class ZoneColorEditorDlg extends CaveSWTDialog implements MouseListener,
         MouseMoveListener {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    /**
-     * Return object when the shell is disposed.
-     */
-    private String returnObj = null;
 
     /**
      * Color wheel composite used to select colors.
@@ -182,7 +168,8 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
      *            Array of RGB colors.
      */
     public ZoneColorEditorDlg(Shell parent, List<RGB> colorArray) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.DO_NOT_BLOCK);
 
         this.rgbArray = colorArray;
 
@@ -191,15 +178,8 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
         cellWidth = COLOR_BAR_WIDTH / (double) colorArray.size();
     }
 
-    /**
-     * Setup and open the dialog.
-     * 
-     * @return Return object.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         shell.setText("Zone Color Table Editor");
 
@@ -212,17 +192,6 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
 
         // Initialize all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return returnObj;
     }
 
     /**
@@ -311,7 +280,7 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
             @Override
             public void widgetSelected(SelectionEvent event) {
                 originalRgbArray = rgbArray;
-                shell.dispose();
+                close();
             }
         });
 
@@ -322,10 +291,10 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
         dismissBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                returnObj = null;
+                setReturnValue(null);
                 rgbArray.clear();
                 rgbArray.addAll(originalRgbArray);
-                shell.dispose();
+                close();
             }
         });
     }
@@ -337,10 +306,10 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
      *            Graphics context.
      */
     private void drawCanvas(GC gc) {
-        gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
+        gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
         gc.fillRectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
         gc.drawString("Zone Group Colors", 10, 5, true);
 
         // -------------------------------------------------
@@ -372,8 +341,7 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
             if (currentColor != null) {
                 currentColor.dispose();
             }
-
-            currentColor = new Color(display, rgbArray.get(i));
+            currentColor = new Color(getDisplay(), rgbArray.get(i));
             gc.setBackground(currentColor);
 
             gc.fillRectangle(cellXCoord, COLOR_BAR_Y_COORD,
@@ -473,5 +441,17 @@ public class ZoneColorEditorDlg extends Dialog implements MouseListener,
      *            e Mouse event.
      */
     public void mouseUp(MouseEvent e) {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        if (currentColor != null) {
+            currentColor.dispose();
+        }
     }
 }

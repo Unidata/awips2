@@ -77,11 +77,36 @@ public class LockingFileOutputStream extends FileOutputStream {
 
     @Override
     public void close() throws IOException {
+        close(true);
+    }
+
+    /**
+     * Closes the output stream without unlocking the file. It is the
+     * responsibility of the caller to call {@link #unlock()} when they are done
+     * with the lock.
+     */
+    public void closeWithoutUnlocking() throws IOException {
+        close(false);
+    }
+
+    /**
+     * Closes the stream, flag designates if lock will be released or not. By
+     * default {@link #close()} will unlock the file
+     * 
+     * @param unlock
+     * @throws IOException
+     */
+    private void close(boolean unlock) throws IOException {
         try {
             super.close();
         } finally {
-            FileLocker.unlock(this, file);
+            if (unlock) {
+                unlock();
+            }
         }
     }
 
+    public void unlock() {
+        FileLocker.unlock(this, file);
+    }
 }

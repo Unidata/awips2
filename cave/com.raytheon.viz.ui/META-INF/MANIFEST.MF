@@ -28,10 +28,13 @@ Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.panes,
  com.raytheon.viz.ui.parameter.converters,
  com.raytheon.viz.ui.perspectives,
+ com.raytheon.viz.ui.presenter,
+ com.raytheon.viz.ui.presenter.components,
  com.raytheon.viz.ui.statusline,
  com.raytheon.viz.ui.tools,
  com.raytheon.viz.ui.views,
- com.raytheon.viz.ui.widgets
+ com.raytheon.viz.ui.widgets,
+ com.raytheon.viz.ui.widgets.duallist
 Bundle-Vendor: Raytheon
 Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.message.response
