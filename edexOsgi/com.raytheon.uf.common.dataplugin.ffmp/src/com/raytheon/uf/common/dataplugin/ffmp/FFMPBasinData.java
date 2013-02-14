@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 01/27/13      1478       D. Hladky   Added support for write of aggregate record cache
+ * 01/27/13      1569       D. Hladky   Added support for write of aggregate record cache
  * 
  * </pre>
  * 
@@ -251,7 +252,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param expiration
      * @return
      */
-    public float getAverageMaxValue(ArrayList<Long> pfaf_ids, Date date,
+    public float getAverageMaxValue(List<Long> pfaf_ids, Date date,
             long expiration) {
 
         float tvalue = 0.0f;
@@ -297,7 +298,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param hour
      * @return
      */
-    public float getMaxValue(ArrayList<Long> pfaf_ids, Date date) {
+    public float getMaxValue(List<Long> pfaf_ids, Date date) {
 
         float tvalue = 0.0f;
         for (Long pfaf : pfaf_ids) {
@@ -319,9 +320,9 @@ public class FFMPBasinData implements ISerializableObject {
      * @param sourceName
      * @return
      */
-    public float getAverageGuidanceValue(ArrayList<Long> pfaf_ids,
+    public float getAverageGuidanceValue(List<Long> pfaf_ids,
             FFMPGuidanceInterpolation interpolation, float guidance,
-            ArrayList<Long> forcedPfafs, long expiration) {
+            List<Long> forcedPfafs, long expiration) {
 
         float tvalue = 0.0f;
         float value;
@@ -402,7 +403,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param sourceName
      * @return
      */
-    public float getMaxGuidanceValue(ArrayList<Long> pfaf_ids,
+    public float getMaxGuidanceValue(List<Long> pfaf_ids,
             FFMPGuidanceInterpolation interpolation, long expiration,
             long parentPfaf) {
         float tvalue = Float.NaN;
@@ -456,7 +457,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param afterDate
      * @return
      */
-    public float getAccumMaxValue(ArrayList<Long> pfaf_ids, Date beforeDate,
+    public float getAccumMaxValue(List<Long> pfaf_ids, Date beforeDate,
             Date afterDate, long expirationTime, boolean rate) {
 
         float tvalue = 0.0f;
@@ -484,9 +485,9 @@ public class FFMPBasinData implements ISerializableObject {
      * @param interpolation
      * @return
      */
-    public ArrayList<Float> getGuidanceValues(ArrayList<Long> pfaf_ids,
+    public List<Float> getGuidanceValues(List<Long> pfaf_ids,
             FFMPGuidanceInterpolation interpolation, long expiration) {
-        ArrayList<Float> values = new ArrayList<Float>();
+        List<Float> values = new ArrayList<Float>();
         for (Long pfaf : pfaf_ids) {
             FFMPBasin basin = basins.get(pfaf);
             if (basin != null) {
@@ -515,9 +516,9 @@ public class FFMPBasinData implements ISerializableObject {
      * @param rate
      * @return
      */
-    public ArrayList<Float> getAccumValues(ArrayList<Long> pfaf_ids,
+    public List<Float> getAccumValues(List<Long> pfaf_ids,
             Date beforeDate, Date afterDate, long expirationTime, boolean rate) {
-        ArrayList<Float> values = new ArrayList<Float>();
+        List<Float> values = new ArrayList<Float>();
         for (Long pfaf : pfaf_ids) {
             FFMPBasin basin = basins.get(pfaf);
             if (basin != null) {
@@ -540,22 +541,22 @@ public class FFMPBasinData implements ISerializableObject {
     }
     
     /**
-     * populates data from the cache
+     * deserialize data from the aggregate record
      * 
      * @param times
      */
     public void populate(List<Long> times) {
         for (FFMPBasin basin : basins.values()) {
-            basin.populate(times);
+            basin.deserialize(times);
         }
     }
 
     /**
      * populates the serialized array/objects
      */
-    public void setCache() {
+    public void serialize() {
         for (FFMPBasin basin : basins.values()) {
-            basin.setCache();
+            basin.serialize();
         }
     }
 
