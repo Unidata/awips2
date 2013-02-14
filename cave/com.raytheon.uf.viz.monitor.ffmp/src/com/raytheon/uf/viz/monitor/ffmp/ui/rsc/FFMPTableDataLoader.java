@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 import java.util.Date;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGap;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.ZOOM;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -43,6 +44,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2011            dhladky     Initial creation.
  * Jul 31, 2012 14517      mpduff      Fix for Rapid slider changes
+ * 02/01/13     1569       D. Hladky   Added constants
  * 
  * </pre>
  * 
@@ -123,7 +125,7 @@ public class FFMPTableDataLoader extends Thread {
                             if (resource.lowestCenter == ZOOM.WFO) {
                                 iHuc = resource.getHuc();
                             } else {
-                                iHuc = "ALL";
+                                iHuc = FFMPRecord.ALL;
                             }
                             if (drawable.getTableData(iHuc) != null) {
 //                                System.out.println(" Cache HITTTTTTTTT!!!!!");
@@ -138,7 +140,7 @@ public class FFMPTableDataLoader extends Thread {
                                 if (resource.lowestCenter == ZOOM.WFO) {
                                     iHuc = resource.getHuc();
                                 } else {
-                                    iHuc = "ALL";
+                                    iHuc = FFMPRecord.ALL;
                                 }
 
 //                                System.out
