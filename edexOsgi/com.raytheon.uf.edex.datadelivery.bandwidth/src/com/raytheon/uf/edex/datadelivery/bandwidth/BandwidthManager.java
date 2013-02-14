@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
@@ -101,6 +99,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Feb 14, 2013 1595       djohnson     Check with BandwidthUtil whether or not to reschedule subscriptions on update.
+ * Feb 14, 2013 1596       djohnson     Do not reschedule allocations when a subscription is removed.
  * </pre>
  * 
  * @author dhladky
@@ -560,7 +559,7 @@ abstract class BandwidthManager extends
                 List<BandwidthSubscription> l = bandwidthDao
                         .getBandwidthSubscriptionByRegistryId(event.getId());
                 if (!l.isEmpty()) {
-                    remove(l, true);
+                    remove(l);
                 }
             }
         }
@@ -736,7 +735,7 @@ abstract class BandwidthManager extends
                 // See if the subscription was inactivated or unscheduled..
                 // Need to remove BandwidthReservations for this
                 // subscription.
-                return remove(bandwidthSubscriptions, true);
+                return remove(bandwidthSubscriptions);
             } else {
 
                 // Compare the 'updated' Subscription with the stored
@@ -761,8 +760,7 @@ abstract class BandwidthManager extends
 
                     // OK, have to remove the old Subscriptions and add the new
                     // ones..
-                    List<BandwidthAllocation> unscheduled = remove(
-                            bandwidthSubscriptions, false);
+                    List<BandwidthAllocation> unscheduled = remove(bandwidthSubscriptions);
                     // No need to check anything else since all the
                     // BandwidthSubscription's have been replaced.
                     unscheduled.addAll(schedule(subscription));
@@ -794,10 +792,10 @@ abstract class BandwidthManager extends
                     newCycles.removeAll(commonCycles);
 
                     // Remove the old cycles, add the new ones...
-                    if (oldCycles.size() > 0) {
+                    if (!oldCycles.isEmpty()) {
                         // Create a List of SubscriptionDaos that need to be
                         // removed..
-                        List<BandwidthSubscription> remove = new ArrayList<BandwidthSubscription>();
+                        List<BandwidthSubscription> bandwidthSubscriptionToRemove = new ArrayList<BandwidthSubscription>();
                         BandwidthSubscription bandwidthSubscription = null;
                         Iterator<BandwidthSubscription> itr = bandwidthSubscriptions
                                 .iterator();
@@ -805,11 +803,11 @@ abstract class BandwidthManager extends
                             bandwidthSubscription = itr.next();
                             if (oldCycles.contains(bandwidthSubscription
                                     .getCycle())) {
-                                remove.add(bandwidthSubscription);
+                                bandwidthSubscriptionToRemove.add(bandwidthSubscription);
                                 itr.remove();
                             }
                         }
-                        unscheduled.addAll(remove(remove, true));
+                        unscheduled.addAll(remove(bandwidthSubscriptionToRemove));
                     }
 
                     if (newCycles.size() > 0) {
@@ -846,63 +844,15 @@ abstract class BandwidthManager extends
      * 
      * @param bandwidthSubscriptions
      *            The subscriptionDao's to remove.
-     * @param reschedule
      * @return
      */
     private List<BandwidthAllocation> remove(
-            List<BandwidthSubscription> bandwidthSubscriptions,
-            boolean reschedule) {
+            List<BandwidthSubscription> bandwidthSubscriptions) {
 
         List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
 
-        // If we need to reschedule other bandwidth reservations when we
-        // remove the provided BandwidthSubscription's then we have to retrieve
-        // all the SubscriptionRetrieval records that are scheduled for
-        // the same base time.
-        if (reschedule) {
-
-            // First create a map of base times to subscriptions
-            Multimap<Calendar, BandwidthSubscription> map = ArrayListMultimap
-                    .create();
-
-            for (BandwidthSubscription bandwidthSubscription : bandwidthSubscriptions) {
-
-                Calendar time = bandwidthSubscription.getBaseReferenceTime();
-                map.put(time, bandwidthSubscription);
-            }
-
-            // Now process each time group by dataset..
-            for (Calendar baseTime : map.keySet()) {
-
-                // For each date, get a unique set of provider & dataset name
-                Set<String> providerDataSet = new HashSet<String>();
-                for (BandwidthSubscription bandwidthSubscription : map
-                        .get(baseTime)) {
-                    String key = bandwidthSubscription.getProvider() + "::"
-                            + bandwidthSubscription.getDataSetName();
-                    providerDataSet.add(key);
-                    bandwidthDaoUtil.remove(bandwidthSubscription);
-                }
-
-                // Query for and reschedule any SubscriptionRetrieval
-                // Objects associated with the Queried BandwidthSubscription's
-                for (String providerDataSetName : providerDataSet) {
-                    String[] key = providerDataSetName.split("::");
-                    String provider = key[0];
-                    String dataSetName = key[1];
-                    List<BandwidthSubscription> m = bandwidthDao
-                            .getBandwidthSubscriptions(provider, dataSetName,
-                                    baseTime);
-
-                    unscheduled.addAll(aggregate(m));
-                }
-            }
-
-        } else {
-
-            for (BandwidthSubscription bandwidthSubscription : bandwidthSubscriptions) {
-                bandwidthDaoUtil.remove(bandwidthSubscription);
-            }
+        for (BandwidthSubscription bandwidthSubscription : bandwidthSubscriptions) {
+            bandwidthDaoUtil.remove(bandwidthSubscription);
         }
 
         return unscheduled;
