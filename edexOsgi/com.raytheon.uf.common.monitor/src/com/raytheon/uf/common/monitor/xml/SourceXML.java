@@ -28,6 +28,7 @@ package com.raytheon.uf.common.monitor.xml;
  * ------------ ---------- ----------- --------------------------
  * 29 Jan, 2010 3915         dhladky     Initial creation
  * 18 Apr. 2012 DR 14619	 dhladky     Replace isOverride()
+ * 28 Nov. 2012 DR 14412	 gzhang		 makes unit internal to this class
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -86,8 +87,10 @@ public class SourceXML implements ISerializableObject {
     @XmlElement(name = "interpolatedGuidanceTransition")
     protected boolean interpolatedGuidanceTransition;
 
-    @XmlElement(name = "unit")
+    //@XmlElement(name = "unit") // DR 14412
     protected String unit;
+    
+    public static final String UNIT_TXT = "inches"; // DR 14412
 
     @XmlElement(name = "conversion")
     protected Double conversion = 1.0;
@@ -285,6 +288,8 @@ public class SourceXML implements ISerializableObject {
     }
 
     public String getUnit() {
+    	if( unit == null || unit.isEmpty()) // DR 14412
+    		unit = UNIT_TXT;
         return unit;
     }
 
