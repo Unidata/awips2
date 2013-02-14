@@ -30,13 +30,12 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.datadelivery.actions.BandwidthScheduleGraphAction;
 
 /**
  * 
- * This is a utility class used to get data for the bandwidth graph it extends
- * the Thread class so you can retrieve data on a separate thread to keep the UI
- * thread from being blocked.
+ * This is a utility class used to get data for the bandwidth graph it
+ * implements {@link Runnable} so you can retrieve data on a separate thread to
+ * keep the UI thread from being blocked.
  * 
  * <pre>
  * 
@@ -45,19 +44,20 @@ import com.raytheon.uf.viz.datadelivery.actions.BandwidthScheduleGraphAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 12, 2012   1269     lvenable     Initial creation
+ * Feb 14, 2013 1596       djohnson     Remove sysouts, correct statusHandler class, handle null response.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class GraphDataUtil extends Thread {
+public class GraphDataUtil implements Runnable {
     /** UFStatus handler */
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(BandwidthScheduleGraphAction.class);
+            .getHandler(GraphDataUtil.class);
 
     /** Graph data request object */
-    private GraphDataRequest request;
+    private final GraphDataRequest request = new GraphDataRequest();
 
     /** Graph data response object */
     private GraphDataResponse response;
@@ -79,7 +79,6 @@ public class GraphDataUtil extends Thread {
      *            thread.
      */
     public GraphDataUtil(IDataUpdated dataUpdatedCB) {
-        request = new GraphDataRequest();
         this.dataUpdatedCB = dataUpdatedCB;
     }
 
@@ -99,7 +98,10 @@ public class GraphDataUtil extends Thread {
      */
     public void retrieveData() {
         response = sendRequest(request);
-        graphData = response.getGraphData();
+
+        if (response != null) {
+            graphData = response.getGraphData();
+        }
     }
 
     /**
@@ -155,14 +157,13 @@ public class GraphDataUtil extends Thread {
     /**
      * Thread run method to retrieve the graph data.
      */
+    @Override
     public void run() {
-        System.out.println("Thread - retrieving data...");
         retrieveData();
 
         if (dataUpdatedCB != null) {
             dataUpdatedCB.dataUpdated();
         }
 
-        System.out.println("Thread - DONE retrieving data...");
     }
 }
