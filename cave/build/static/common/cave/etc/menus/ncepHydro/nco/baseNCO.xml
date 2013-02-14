@@ -42,7 +42,7 @@
 			<contribute xsi:type="bundleItem" file="bundles/NOHRSC-SNOW.xml"
 				menuText="Snow Cover Elev" id="snowCoverElev">
 				<substitute key="param" value="sce"/>
-				<substitute key="customLegend" value="Snow Cover elevation (kft)"/>
+				<substitute key="customLegend" value="Snow Cover by elevation (kft)"/>
 				<substitute key="sampleFormat" value="0.00"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/NOHRSC-SNOW.xml"
