@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
@@ -98,6 +99,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jan 28, 2013 1530       djohnson     Test that all allocations are unscheduled for subscription that doesn't fully schedule.
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * Feb 14, 2013 1595       djohnson     Fix expired subscription updates that weren't scheduling retrievals.
+ * Feb 14, 2013 1596       djohnson     Add test duplicating errors deleting multiple subscriptions for the same provider/dataset.
  * 
  * </pre>
  * 
@@ -774,6 +776,85 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         assertEquals("Expected all subscription daos to have been deleted.", 0,
                 subscriptionDaosAfterDelete.size());
+    }
+
+    /**
+     * Test case derived from Redmine #1596: There were 5 or 6 subscriptions
+     * that were deleted simultaneously. All subscriptions were removed from the
+     * Subscription Manager dialog...however, 2 subscriptions remained
+     * 'scheduled' or listed on the Bandwidth Utilization graph. After selecting
+     * the deleted subscription in the Bandwidth Utilization graph, the view
+     * selected subscriptions option was selected. No subscriptions were
+     * displayed, as expected...even though the subscription was listed in the
+     * Bandwidth Utilization graph.
+     */
+    @Test
+    public void testDeletedSubscriptionsToSameProviderDataSetHaveSubscriptionDaosDeletedFromDatabase()
+            throws Exception {
+
+        final int numberOfSubscriptionsWithSameProviderDataSet = 4;
+
+        final Subscription templateSubscription = createSubscriptionThatFillsUpABucket();
+        final Network route = templateSubscription.getRoute();
+        templateSubscription.setDataSetSize(templateSubscription
+                .getDataSetSize()
+                / numberOfSubscriptionsWithSameProviderDataSet);
+
+        templateSubscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+
+        int lastKnownNumberOfBandwidthAllocations = 0;
+        final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
+        for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
+
+            final Subscription currentSubscription = new Subscription(
+                    templateSubscription, "ILookLikeTheOtherGuys-" + i);
+            subscriptions[i] = currentSubscription;
+
+            bandwidthManager.schedule(currentSubscription);
+
+            // Make sure some data is scheduled for retrieval
+            final int currentNumberOfBandwidthAllocations = bandwidthDao
+                    .getBandwidthAllocations(route).size();
+            assertThat(currentNumberOfBandwidthAllocations,
+                    is(greaterThan(lastKnownNumberOfBandwidthAllocations)));
+
+            // Update last known number of bandwidth allocations, so we can
+            // continue verifying more is scheduled
+            lastKnownNumberOfBandwidthAllocations = currentNumberOfBandwidthAllocations;
+        }
+
+        // Schedule two subscription deletions to occur at the same time
+        final CountDownLatch waitForAllThreadsToStartLatch = new CountDownLatch(
+                numberOfSubscriptionsWithSameProviderDataSet);
+        final CountDownLatch deletesFinishedLatch = new CountDownLatch(
+                numberOfSubscriptionsWithSameProviderDataSet);
+
+        for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
+            final int iteration = i;
+            final Thread deleteSubscriptionThread = new Thread() {
+                @Override
+                public void run() {
+                    waitForAllThreadsToStartLatch.countDown();
+                    try {
+                        sendDeletedSubscriptionEvent(subscriptions[iteration]);
+                    } finally {
+                        deletesFinishedLatch.countDown();
+                    }
+                }
+            };
+
+            // Delete the subscription! Each thread will wait to perform the
+            // deletion until all threads are started.
+            deleteSubscriptionThread.start();
+        }
+
+        // Wait for the deletion threads to finish
+        deletesFinishedLatch.await();
+
+        // Better not be any bandwidth subscriptions left, or bandwidth
+        // allocations
+        assertThat(bandwidthDao.getBandwidthSubscriptions(), is(empty()));
+        assertThat(bandwidthDao.getBandwidthAllocations(route), is(empty()));
     }
 
     /**

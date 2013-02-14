@@ -32,6 +32,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  *                                      change the event listener type.
  * Oct 26, 2012 1286       djohnson     Return list of unscheduled allocations.
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 14, 2013 1596       djohnson     Warn log when unable to find a SubscriptionRetrieval.
  * 
  * </pre>
  * 
@@ -135,6 +136,12 @@ public class RetrievalManager {
 
         SubscriptionRetrieval subscriptionRetrieval = bandwidthDao
                 .getSubscriptionRetrieval(eventId);
+
+        if (subscriptionRetrieval == null) {
+            statusHandler.warn("Unable to find SubscriptionRetrieval by id ["
+                    + eventId + "]");
+            return;
+        }
 
         // Update the SubscriptionRetrieval in the database since the Retrievals
         // were completed outside the Bandwidth subsystem.
