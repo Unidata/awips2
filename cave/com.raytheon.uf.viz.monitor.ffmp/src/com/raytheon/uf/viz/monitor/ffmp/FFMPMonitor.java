@@ -91,7 +91,8 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 04/03/10     4494        D. Hladky   Initial release
  * 12/07/12     1353        rferrel     Changes for non-blocking FFMPSplash.
  * 01/10/13     1475        D. Hladky   Cleaned up some logging.
- * 01/27/13     1478        D. Hladky   revamped cache file format, removed duplicate times 
+ * 01/27/13     1478        D. Hladky   revamped cache file format, removed duplicate times
+ * 02/01/13     1569        D. Hladky   updated constants
  * 
  * </pre>
  * 
@@ -538,7 +539,7 @@ public class FFMPMonitor extends ResourceMonitor {
 
                     if (sourceXML.getSourceType().equals(
                             SOURCE_TYPE.GAGE.getSourceType())
-                            && phuc.equals("ALL")) {
+                            && phuc.equals(FFMPRecord.ALL)) {
                         ffmpRec.retrieveVirtualBasinFromDataStore(dataStore,
                                 dataUri, getTemplates(siteKey), ffmpRec
                                         .getDataTime().getRefTime(), basin);
@@ -946,14 +947,12 @@ public class FFMPMonitor extends ResourceMonitor {
         FFMPResourceData frd = resource.getResourceData();
 
         if (loadType == LOADER_TYPE.SECONDARY) {
-            // hucsToLoad.remove("ALL");
-            // hucsToLoad.remove(getConfig().getFFMPConfigData().getLayer());
             timeBack = new Date(resource.getMostRecentTime().getTime()
-                    - (6 * 1000 * 24));
+                    - (6 * TimeUtil.MILLIS_PER_HOUR));
             frd.timeBack = timeBack;
         } else if (loadType == LOADER_TYPE.TERTIARY) {
             hucsToLoad.clear();
-            hucsToLoad.add("ALL");
+            hucsToLoad.add(FFMPRecord.ALL);
             timeBack = new Date(resource.getMostRecentTime().getTime()
                     - (TimeUtil.MILLIS_PER_HOUR * 24));
         }
@@ -1466,7 +1465,7 @@ public class FFMPMonitor extends ResourceMonitor {
             if (basin != null) {
                 fgb = (FFMPGuidanceBasin) basin;
             } else {
-                fgb = new FFMPGuidanceBasin(pfaf, !phuc.equals("ALL"));
+                fgb = new FFMPGuidanceBasin(pfaf, !phuc.equals(FFMPRecord.ALL));
                 basin = fgb;
             }
 
@@ -2391,7 +2390,7 @@ public class FFMPMonitor extends ResourceMonitor {
                     if ((sourceXML != null)
                             && sourceXML.getSourceType().equals(
                                     SOURCE_TYPE.GAGE.getSourceType())
-                            && fhuc.equals("ALL")) {
+                            && fhuc.equals(FFMPRecord.ALL)) {
                         try {
                             curRecord.retrieveVirtualMapFromDataStore(
                                     dataStore, dataUri, getTemplates(fsiteKey),
