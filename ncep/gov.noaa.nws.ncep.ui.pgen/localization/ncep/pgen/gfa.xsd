@@ -27,7 +27,7 @@
             </xs:sequence>
             <xs:attribute name="category" use="required" type="xs:NCName"/>
             <xs:attribute name="format" type="xs:boolean"/>
-            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="name" use="required" type="xs:string"/>
             <xs:attribute name="other" use="required" type="xs:NCName"/>
             <xs:attribute name="outlook" use="required" type="xs:NCName"/>
             <xs:attribute name="smear" use="required" type="xs:NCName"/>
@@ -51,6 +51,7 @@
                 <xs:element maxOccurs="unbounded" ref="value"/>
             </xs:sequence>
             <xs:attribute name="label" use="required"/>
+            <xs:attribute name="type" type="xs:NCName"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="popup">

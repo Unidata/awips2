@@ -1197,4 +1197,11 @@ public class PgenResourceData extends AbstractResourceData
     	return sfile;
     }
     
+    /**
+     * Return the "needSaving" flag.
+     */
+	public boolean isNeedsSaving() {
+		return needsSaving;
+	}
+    
 }

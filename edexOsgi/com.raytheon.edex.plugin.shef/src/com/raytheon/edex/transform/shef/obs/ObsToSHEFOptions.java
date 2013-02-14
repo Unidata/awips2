@@ -179,6 +179,7 @@ public class ObsToSHEFOptions {
 
     public static final String OPT_NO_HR_TRACE = "optNoHourTrace";
     
+    private String cfgFileName=null;
     // private static class PCReset {
     //
     // private final String stationId;
@@ -408,7 +409,11 @@ public class ObsToSHEFOptions {
         initOptions();
         parseCommandLine(cmdLine);
         if (useLocalized) {
-            readConfig(METAR_CFG, optConfigContext);
+        	if (cfgFileName==null){
+        		readConfig(METAR_CFG, optConfigContext);
+        	} else {
+        		readConfig(cfgFileName, optConfigContext);
+        	}
             updateTime = System.currentTimeMillis();
         }
         localized = useLocalized;
@@ -843,7 +848,11 @@ public class ObsToSHEFOptions {
         long cTime = System.currentTimeMillis() - updateTime;
         if (cTime > UPDATE_DELTA) {
             if (loaded && localized) {
-                readConfig(METAR_CFG, optConfigContext);
+            	if (cfgFileName==null) {
+            		readConfig(METAR_CFG, optConfigContext);
+            	} else {
+            		readConfig(cfgFileName, optConfigContext);
+            	}
                 updateTime = System.currentTimeMillis();
             }
         }
@@ -874,7 +883,11 @@ public class ObsToSHEFOptions {
                             if (SITE_CONTEXT.equals(optConfigContext)) {
                                 // Retry from a base context.
                                 optConfigContext = BASE_CONTEXT;
-                                readConfig(METAR_CFG, optConfigContext);
+                                if (cfgFileName==null) {
+                                	readConfig(METAR_CFG, optConfigContext);
+                                }else{
+                                	readConfig(cfgFileName, optConfigContext);
+                                }
                             }
                         }
                     } else {
@@ -973,6 +986,10 @@ public class ObsToSHEFOptions {
         loaded = true;
     }
 
+    public void setCfgFileName(String fileName) {
+    	cfgFileName=fileName;
+    }
+    
     public String toString() {
 
         StringBuilder sb = new StringBuilder();

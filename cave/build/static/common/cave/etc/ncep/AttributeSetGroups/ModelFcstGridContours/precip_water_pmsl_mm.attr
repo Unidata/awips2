@@ -7,8 +7,9 @@
 GLEVEL =  0     !0                !500:1000  !500:1000 !0
 GVCORD =  none  !none             !PRES      !PRES     !none
 SKIP   =    0     !0                !1         !1        !0
+FILTER=y
 SCALE  =   0     !0                !-1        !-1       !0
-GDPFUN =  pwtr  !sm9s(pwtr)       !ldf(hght) !ldf(hght)!sm5s(mul(1e-2,pmsl))
+GDPFUN =  pwtr  !sm9s(pwtr)       !ldf(hght) !ldf(hght)!sm5s(pmsl)
 TYPE   =    c     !c/f              !c
 CINT   =    7;13  !19;25;31;38;44;50!6/460/540    !6/546 !4
 LINE   =    22//2 !32//2/1          !17/5/2       !20/5/2!6//3
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ PRECIPITABLE WATER, PMSL, THICKNESS!0
 COLORS =  2                                            
 MARKER =  2                                           
 GRDLBL =  5                                          
-FILTER =  1

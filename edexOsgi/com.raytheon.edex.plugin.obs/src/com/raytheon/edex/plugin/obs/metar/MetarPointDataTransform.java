@@ -65,115 +65,115 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class MetarPointDataTransform {
 
-    private static final String ALTIMETER = "altimeter";
+	public static final String ALTIMETER = "altimeter";
 
-    private static final String SEA_LEVEL_PRESS = "seaLevelPress";
+    public static final String SEA_LEVEL_PRESS = "seaLevelPress";
 
-    private static final String PRESS_CHANGE3_HOUR = "pressChange3Hour";
+    public static final String PRESS_CHANGE3_HOUR = "pressChange3Hour";
 
-    private static final String PRESS_CHANGE_CHAR = "pressChangeChar";
+    public static final String PRESS_CHANGE_CHAR = "pressChangeChar";
 
     // ALTIMETER, SEA_LEVEL_PRESS, PRESS_CHANGE3_HOUR, PRESS_CHANGE_CHAR,
     // ------------------
-    private static final String PRECIP24_HOUR = "precip24Hour";
+    public static final String PRECIP24_HOUR = "precip24Hour";
 
-    private static final String PRECIP6_HOUR = "precip6Hour";
+    public static final String PRECIP6_HOUR = "precip6Hour";
 
-    private static final String PRECIP3_HOUR = "precip3Hour";
+    public static final String PRECIP3_HOUR = "precip3Hour";
 
-    private static final String PRECIP1_HOUR = "precip1Hour";
+    public static final String PRECIP1_HOUR = "precip1Hour";
 
     // PRECIP24_HOUR, PRECIP6_HOUR, PRECIP3_HOUR, PRECIP1_HOUR
     // ------------------
-    private static final String WIND_GUST = "windGust";
+    public static final String WIND_GUST = "windGust";
 
-    private static final String WIND_SPEED = "windSpeed";
+    public static final String WIND_SPEED = "windSpeed";
 
-    private static final String WIND_DIR_STR = "windDirStr";
+    public static final String WIND_DIR_STR = "windDirStr";
 
     // WIND_GUST, WIND_SPEED, WIND_DIR_STR,
     // ------------------
-    private static final String PK_WND_SPD = "pkwndSpeed";
+    public static final String PK_WND_SPD = "pkwndSpeed";
 
-    private static final String PK_WND_DIR = "pkwndDir";
+    public static final String PK_WND_DIR = "pkwndDir";
 
-    private static final String PK_WND_TIME = "pkwndTime";
+    public static final String PK_WND_TIME = "pkwndTime";
 
     // PK_WND_SPD, PK_WND_DIR, PK_WND_TIME
     // ------------------
-    private static final String TEMPERATURE = "temperature";
+    public static final String TEMPERATURE = "temperature";
 
-    private static final String TEMP_FROM_TENTHS = "tempFromTenths";
+    public static final String TEMP_FROM_TENTHS = "tempFromTenths";
 
-    private static final String DEWPOINT = "dewpoint";
+    public static final String DEWPOINT = "dewpoint";
 
-    private static final String DP_FROM_TENTHS = "dpFromTenths";
+    public static final String DP_FROM_TENTHS = "dpFromTenths";
 
     // TEMPERATURE, TEMP_FROM_TENTHS, DEWPOINT, DP_FROM_TENTHS,
     // ------------------
-    private static final String MAX_TEMP24_HOUR = "maxTemp24Hour";
+    public static final String MAX_TEMP24_HOUR = "maxTemp24Hour";
 
-    private static final String MIN_TEMP24_HOUR = "minTemp24Hour";
+    public static final String MIN_TEMP24_HOUR = "minTemp24Hour";
 
-    private static final String MAX_TEMP6_HOUR = "maxTemp6Hour";
+    public static final String MAX_TEMP6_HOUR = "maxTemp6Hour";
 
-    private static final String MIN_TEMP6_HOUR = "minTemp6Hour";
+    public static final String MIN_TEMP6_HOUR = "minTemp6Hour";
 
     // MAX_TEMP24_HOUR, MIN_TEMP24_HOUR, MAX_TEMP6_HOUR, MIN_TEMP6_HOUR,
     // ------------------
-    private static final String SNOW_DEPTH = "snowDepth";
+    public static final String SNOW_DEPTH = "snowDepth";
 
-    private static final String SNOW_WATER = "snowWater";
+    public static final String SNOW_WATER = "snowWater";
 
-    private static final String SNOWFALL6_HOUR = "snowfall6Hour";
+    public static final String SNOWFALL6_HOUR = "snowfall6Hour";
 
-    private static final String SUNSHINE = "sunshine";
+    public static final String SUNSHINE = "sunshine";
 
     // SNOW_DEPTH, SNOW_WATER, SNOWFALL6_HOUR, SUNSHINE,
     // ------------------
-    private static final String PRES_WEATHER = "presWeather";
+    public static final String PRES_WEATHER = "presWeather";
 
-    private static final String VISIBILITY = "visibility";
+    public static final String VISIBILITY = "visibility";
 
-    private static final String VERT_VISIBILITY = "vertVisibility";
+    public static final String VERT_VISIBILITY = "vertVisibility";
 
     // PRES_WEATHER, VISIBILITY_STR, VISIBILITY, VERT_VISIBILITY,
     // ------------------
-    private static final String STATION_NAME = "stationName";
+    public static final String STATION_NAME = "stationName";
 
-    private static final String STATION_ID = "stationId";
+    public static final String STATION_ID = "stationId";
 
-    private static final String AUTO_STATION_TYPE = "autoStationType";
+    public static final String AUTO_STATION_TYPE = "autoStationType";
 
-    private static final String REPORT_TYPE = "reportType";
+    public static final String REPORT_TYPE = "reportType";
 
-    private static final String TIME_OBS = "timeObs";
+    public static final String TIME_OBS = "timeObs";
 
     // STATION_NAME, STATION_ID, AUTO_STATION_TYPE, REPORT_TYPE, TIME_OBS,
     // ------------------
-    private static final String LONGITUDE = "longitude";
+    public static final String LONGITUDE = "longitude";
 
-    private static final String LATITUDE = "latitude";
+    public static final String LATITUDE = "latitude";
 
-    private static final String ELEVATION = "elevation";
+    public static final String ELEVATION = "elevation";
 
     // LONGITUDE, LATITUDE, ELEVATION,
     // ------------------
-    private static final String RAW_METAR = "rawMETAR";
+    public static final String RAW_METAR = "rawMETAR";
 
-    private static final String CORRECTION = "correction";
+    public static final String CORRECTION = "correction";
 
-    private static final String DATAURI = "dataURI";
+    public static final String DATAURI = "dataURI";
 
     // RAW_METAR, CORRECTION, DATAURI,
     // ------------------
-    private static final String SKY_LAYER_BASE = "skyLayerBase";
+    public static final String SKY_LAYER_BASE = "skyLayerBase";
 
-    private static final String SKY_COVER = "skyCover";
+    public static final String SKY_COVER = "skyCover";
 
-    private static final String SKY_COVER_TYPE = "skyCoverType";
+    public static final String SKY_COVER_TYPE = "skyCoverType";
 
-    private static final String SKY_COVER_GENUS = "skyCoverGenus";
+    public static final String SKY_COVER_GENUS = "skyCoverGenus";
 
     // SKY_LAYER_BASE, SKY_COVER, SKY_COVER_TYPE, SKY_COVER_GENUS,
     // ------------------
@@ -183,7 +183,7 @@ public class MetarPointDataTransform {
      * keep this up to date or risk breaking backwards compatibility
      * 
      */
-    private static final String[] ALL_PARAMS = { ALTIMETER, SEA_LEVEL_PRESS,
+    public static final String[] ALL_PARAMS = { ALTIMETER, SEA_LEVEL_PRESS,
             PRESS_CHANGE3_HOUR, PRESS_CHANGE_CHAR, PRECIP24_HOUR, PRECIP6_HOUR,
             PRECIP3_HOUR, PRECIP1_HOUR, WIND_GUST, WIND_SPEED, WIND_DIR_STR,
             PK_WND_SPD, PK_WND_DIR, PK_WND_TIME, TEMPERATURE, TEMP_FROM_TENTHS,

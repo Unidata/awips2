@@ -22,6 +22,7 @@ package com.raytheon.viz.warngen.text;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 
 /**
@@ -34,6 +35,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2012    15322   jsanchez     Initial creation
+ * Jan  8, 2013    15664   Qinglu Lin   Appended WarningAction to handle()'s parameter list, etc. 
  * 
  * </pre>
  * 
@@ -47,7 +49,7 @@ public class WarningTextHandler {
     private IModifyTextBehavior modifyTextBehavior;
 
     public String handle(String text, AffectedAreas[] affectedAreas,
-            AffectedAreas[] canceledAreas) {
+            AffectedAreas[] canceledAreas, WarningAction action) {
         long t0 = System.currentTimeMillis();
 
         text = text.toUpperCase();
@@ -58,7 +60,7 @@ public class WarningTextHandler {
         }
 
         if (lockingBehavior != null) {
-            text = lockingBehavior.lock(text, affectedAreas, canceledAreas);
+            text = lockingBehavior.lock(text, affectedAreas, canceledAreas, action);
             System.out.println("Locked text...");
         }
 

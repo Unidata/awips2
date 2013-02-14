@@ -655,7 +655,7 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
 		
 		updateTcaElement();
 		
-		String filename = PgenUtil.getWorkingDirectory() + File.separator + generateFilename();
+		String filename = PgenUtil.getPgenActivityTextProdPath() + File.separator + generateFilename();
 		boolean canWrite = PgenUtil.checkFileStatus(filename);
 		if ( ! canWrite ) return false;
 		
@@ -792,33 +792,33 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
 		if ( ! StormAdvisoryNumber.isIntermediate(advno) ) {
 			
 	    	filename = String.format(intTcaFileFormat, basin, stormNum, year, regnum-1, "b" );
-	    	fullname = PgenUtil.getWorkingDirectory() + File.separator + filename;
+	    	fullname = PgenUtil.getPgenActivityTextProdPath() + File.separator + filename;
 	    	if ( fileExists(fullname) ) return fullname;
 	   
 	    	filename = String.format(intTcaFileFormat, basin, stormNum, year, regnum-1, "a" );
-	    	fullname = PgenUtil.getWorkingDirectory() + File.separator + filename;
+	    	fullname = PgenUtil.getPgenActivityTextProdPath() + File.separator + filename;
 	    	if ( fileExists(fullname) ) return fullname;
 	   
 	    	filename = String.format(tcaFileFormat, basin, stormNum, year, regnum-1 );
-	    	fullname = PgenUtil.getWorkingDirectory() + File.separator + filename;
+	    	fullname = PgenUtil.getPgenActivityTextProdPath() + File.separator + filename;
 	    	if ( fileExists(fullname) ) return fullname;
 	   
 	   }
 		else if ( advno.endsWith("a") ) {
 	   
 			filename = String.format(tcaFileFormat, basin, stormNum, year, regnum );
-	    	fullname = PgenUtil.getWorkingDirectory() + File.separator + filename;
+	    	fullname = PgenUtil.getPgenActivityTextProdPath() + File.separator + filename;
 	    	if ( fileExists(fullname) ) return fullname;
 	   
 		}
 		else if ( advno.endsWith("b") ) {
 			
 	    	filename = String.format(intTcaFileFormat, basin, stormNum, year, regnum, "a" );
-	    	fullname = PgenUtil.getWorkingDirectory() + File.separator + filename;
+	    	fullname = PgenUtil.getPgenActivityTextProdPath() + File.separator + filename;
 	    	if ( fileExists(fullname) ) return fullname;
 	   
 	    	filename = String.format(tcaFileFormat, basin, stormNum, year, regnum );
-	    	fullname = PgenUtil.getWorkingDirectory() + File.separator + filename;
+	    	fullname = PgenUtil.getPgenActivityTextProdPath() + File.separator + filename;
 	    	if ( fileExists(fullname) ) return fullname;
 	   
 		}

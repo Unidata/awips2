@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<LocatorDataSource>
-    <sourceName>COUNTYS</sourceName>
-    <sourceType>BOUNDED_AREA</sourceType>
-    <dbName>ncep</dbName>
-    <dbTableName>bounds.countybnds</dbTableName>
-	<dbFieldName>name</dbFieldName> 
-</LocatorDataSource>

@@ -7,8 +7,9 @@
 GLEVEL =  500:1000                  !0    ! 850
 GVCORD =  pres                      !none ! pres
 SKIP   =    1                         ! 0 ! 0/1;-1
+FILTER=y
 SCALE  =   -1                        ! 0
-GDPFUN =  (sub(hght@500,hght@1000)) !sm5s(mul(1e-2,pmsl)) ! kntv(wnd@850%pres)
+GDPFUN =  (sub(hght@500,hght@1000)) !sm5s(pmsl) ! kntv(wnd@850%pres)
 TYPE   =    c ! c ! b
 CINT   =    3                         ! 4
 LINE   =    3/3/2                     ! 20//3
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ MSL PRESSURE, 1000-500mb THICKNESS AND 850mb WIND    (KTS)!0
 COLORS =  2                                  
 MARKER =  2                                 
 GRDLBL =  5                               
-FILTER =  1

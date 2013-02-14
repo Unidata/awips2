@@ -1,16 +1,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-  
-  <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry" factory-method="getInstance"/>
-  
-  <bean id="serializeServer" class="com.raytheon.uf.edex.auth.RemoteRequestServer" factory-method="getInstance">
-		<property name="registry" ref="handlerRegistry"/>
-	</bean>
 
-	<bean id="routeWrapper" class="com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper">
-		<property name="server" ref="serializeServer"/>
-	</bean>    
-  
+    <bean id="serializeServer" class="com.raytheon.uf.edex.auth.RemoteRequestServer"
+        factory-method="getInstance">
+        <property name="registry" ref="handlerRegistry" />
+    </bean>
+
+    <bean id="routeWrapper" class="com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper">
+        <property name="server" ref="serializeServer" />
+    </bean>
+
 </beans>
