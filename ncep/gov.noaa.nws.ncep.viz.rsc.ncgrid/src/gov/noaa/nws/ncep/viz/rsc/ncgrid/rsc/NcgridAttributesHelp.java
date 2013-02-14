@@ -9,7 +9,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
  * ------------ ----------  ----------- --------------------------
  * Nov,22 2010  			 X. Guo     Initial creation for both Ensemble/Grid
  * 12/06/2012   #538         Q. Zhou    Added skip and filter areas and implements. 
- * 
+ * 09/11/2012    #743    Archana        Added tooltip text for CLRBAR
  * @author xguo
  * @version 1
  */
@@ -20,6 +20,58 @@ public class NcgridAttributesHelp {
 		
     	return toolTipText;	
 	}
+    public static String ClrbarToolTipText() {
+    	String toolTipText="\nCLRBAR specifies the characteristics of a color bar associated with "+
+     "contour fill.  The attributes are separated by slashes:\n:"+
+
+           "color / orientation / anchor / x;y / length;width\n"+
+
+     "Color is the color of the labels and the bounding box around the"+
+     "color bar.  If color is negative, the bounding box will not be drawn,"+
+     "and labels will be drawn in colors corresponding to the color bar."+
+     "If the color is 0 or missing, no color bar is drawn.\n"+
+
+     "Orientation specifies a vertical or horizontal orientation of the"+
+     "color bar where 'V' is a vertical bar and 'H' is a horizontal bar."+
+     "The default is 'V'.\n"+
+
+    " Anchor describes the location on the color bar corresponding to"+
+     "the location given in the next parameter. \n Valid inputs are:\n"+
+     "LL, LC, LR, CL, CC, CR, UL, UC, and UR for lower-left, lower-center,"+
+     "lower-right, center-left, centered, center-right, upper-left,"+
+     "upper-center, and upper-right, respectively. \n For example, an 'LL'"+
+     "anchor point, with a x;y of .1,.1, will place the lower-left corner"+
+     "of the color bar at view coordinates .1, .1.  The default anchor"+
+     "point is 'LL'.\n"+
+     " x;y is the position for the anchor point of the color bar in view"+
+     "coordinates.  The default is .005, .05."+
+
+     "Length;width are the length and width of the color bar, normalized to"+
+     "the view coordinates.  The defaults are .5 for the length, and .01 for"+
+     "the width.\n"+
+     "To disable the color bar, set CLRBAR = 0 or leave it blank.  If only"+
+     "contour lines are drawn (CTYPE = C), the CLRBAR variable is not used.\n"+
+
+     "Examples:\n"+
+
+         "CLRBAR = 1\n text and bounding box in color 1;\n"+
+                                        "defaults for the rest of the input;\n"+
+
+         "CLRBAR = 5/V/ /.25;.1/1\ntext and bounding box in color 5;\n"+
+                                        "color bar plotted vertically;\n"+
+                                        "length and width .25 and .1 of the"+
+                                        "view window;\n"+
+                                        "all intervals labeled along left side of the color bar;\n"+
+                                        " color bar anchor point at lower-left;"+
+
+         "CLRBAR = 1//CL/.1;.5/.75;.1\ntext and bounding box in color 1;\n"+
+                                        "length and width .75 and .1 of the view window;\n"+
+                                        "center-left of the color bar positioned at .1;.5 in viewcoordinates;";
+     
+		
+    	return toolTipText;	
+	}
+    
     
     public static String HlsymToolTipText() {
 		String toolTipText="HLSYM defines the characteristics for the HILO symbols specified\n"+

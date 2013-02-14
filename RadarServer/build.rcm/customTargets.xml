@@ -88,6 +88,7 @@
     			</copy>
 				<copy todir="${buildDirectory}/plugins">
 		    	    	<fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.util*/**"/>
+		    	    	<fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.status*/**"/>
 				</copy>
         		<copy todir="${buildDirectory}/features">
                         <fileset dir="${buildDirectory}/../../" includes="com.raytheon.rcm.feature*/**"/>

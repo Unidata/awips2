@@ -20,24 +20,19 @@
 package com.raytheon.edex.plugin.grib;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import ucar.grib.GribChecker;
-import ucar.grib.grib1.Grib1Input;
-import ucar.grib.grib1.Grib1Record;
-import ucar.grib.grib2.Grib2Input;
-import ucar.grib.grib2.Grib2Record;
 import ucar.unidata.io.RandomAccessFile;
 
+import com.raytheon.edex.esb.Headers;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.python.decoder.PythonDecoder;
 
 /**
@@ -48,8 +43,6 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/12/10      4758       bphillip     Initial creation
- * 8/15/12      1064       bphillip     Added code to ensure the destination folders for large file splits are
- *                                      present
  * </pre>
  * 
  * @author njensen
@@ -60,88 +53,19 @@ public class GribDecoder {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribDecoder.class);
 
-    /** The size limit for grib files before an attempt is made to split them */
-    private static final long TEN_MEGABYTES = 10485760;
-
-    /** The directory which split grib 1 files are written to */
-    private static final File LARGE_GRIB1_DIR = new File(
-            System.getProperty("edex.home")
-                    + "/data/manual/grib/grib1LargeSplit/");
-
-    /** The directory which split grib2 files are written to */
-    private static final File LARGE_GRIB2_DIR = new File(
-            System.getProperty("edex.home")
-                    + "/data/manual/grib/grib2LargeSplit/");
-
-    static {
-        /*
-         * Ensure the grib1 split output directory exists 
-         */
-        if (!LARGE_GRIB1_DIR.exists()) {
-            LARGE_GRIB1_DIR.mkdirs();
-        }
-        
-        /*
-         * Ensure the grib2 split output directory exists
-         */
-        if (!LARGE_GRIB2_DIR.exists()) {
-            LARGE_GRIB2_DIR.mkdirs();
-        }
-    }
-
     public GribDecoder() {
 
     }
 
-    public GribRecord[] decode(File file) {
-
-        GribRecord[] records = null;
+    public GridRecord[] decode(File file, Headers headers) {
+        GridRecord[] records = null;
         RandomAccessFile raf = null;
         int edition = 0;
-        List<Long> recordLengths = new ArrayList<Long>();
         try {
             raf = new RandomAccessFile(file.getAbsolutePath(), "r");
             raf.order(RandomAccessFile.BIG_ENDIAN);
             edition = GribChecker.getEdition(raf);
 
-            // If the file is greater than ten megs, split it
-            if (file.length() > TEN_MEGABYTES) {
-                raf.seek(0);
-                if (edition == 1) {
-                    Grib1Input g1i = new Grib1Input(raf);
-                    g1i.scan(false, false);
-                    List<Grib1Record> gribRecords = g1i.getRecords();
-                    for (int i = 0; i < gribRecords.size(); i++) {
-                        recordLengths.add(gribRecords.get(i).getIs()
-                                .getGribLength());
-                    }
-                } else if (edition == 2) {
-                    Grib2Input g2i = new Grib2Input(raf);
-                    try {
-                        g2i.scan(false, false);
-                    } catch (Exception e) {
-                        throw new Exception(
-                                "Error determining grib record count.", e);
-                    }
-                    List<Grib2Record> gribRecords = g2i.getRecords();
-
-                    for (int i = 0; i < gribRecords.size(); i++) {
-                        recordLengths.add(gribRecords.get(i).getIs()
-                                .getGribLength());
-                    }
-                }
-
-                // If there was more than one grib record in this file, we split
-                // the
-                // file up into individual records and send them back through
-                // the
-                // manual ingest endpoint
-                if (recordLengths.size() > 1) {
-                    raf.seek(0);
-                    splitFile(file.getName(), raf, recordLengths, edition);
-                    return new GribRecord[] {};
-                }
-            }
             if (edition == 1) {
                 records = new Grib1Decoder().decode(file.getAbsolutePath());
             } else if (edition == 2) {
@@ -149,13 +73,13 @@ public class GribDecoder {
                 pythonDecoder.setPluginName("grib");
                 pythonDecoder.setPluginFQN("com.raytheon.edex.plugin.grib");
                 pythonDecoder.setModuleName("GribDecoder");
-                pythonDecoder.setRecordClassname(GribRecord.class.toString());
+                pythonDecoder.setRecordClassname(GridRecord.class.toString());
                 pythonDecoder.setCache(true);
                 try {
                     PluginDataObject[] pdos = pythonDecoder.decode(file);
-                    records = new GribRecord[pdos.length];
+                    records = new GridRecord[pdos.length];
                     for (int i = 0; i < pdos.length; i++) {
-                        records[i] = (GribRecord) pdos[i];
+                        records[i] = (GridRecord) pdos[i];
                     }
                 } catch (Exception e) {
                     throw new GribException("Error decoding grib file!", e);
@@ -164,10 +88,28 @@ public class GribDecoder {
                 throw new GribException("Unknown grib version detected ["
                         + edition + "]");
             }
+            String datasetId = (String) headers.get("datasetid");
+            String secondaryId = (String) headers.get("secondaryid");
+            String ensembleId = (String) headers.get("ensembleid");
+            if (secondaryId != null || datasetId != null || ensembleId != null) {
+                for (GridRecord record : records) {
+                    if (datasetId != null) {
+                        record.setDatasetId(datasetId);
+                    }
+                    if (secondaryId != null) {
+                        record.setSecondaryId(secondaryId);
+                    }
+                    if (ensembleId != null) {
+                        record.setEnsembleId(ensembleId);
+                    }
+                    record.setDataURI(null);
+                    record.constructDataURI();
+                }
+            }
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Failed to decode file: ["
                     + file.getAbsolutePath() + "]", e);
-            records = new GribRecord[0];
+            records = new GridRecord[0];
         } finally {
             try {
                 if (raf != null) {
@@ -178,74 +120,6 @@ public class GribDecoder {
                         "Unable to close RandomAccessFile!", e);
             }
         }
-
         return records;
-    }
-
-    /**
-     * Splits a collective file into individual records.
-     * 
-     * @param fileName
-     *            The name of the file being split
-     * @param raf
-     *            The Random Access File object
-     * @param sizes
-     *            The sizes of the individual records inside the collection
-     * @throws IOException
-     */
-    private void splitFile(String fileName, RandomAccessFile raf,
-            List<Long> sizes, int edition) throws IOException {
-        FileOutputStream out = null;
-        byte[] transfer = null;
-        for (int i = 0; i < sizes.size(); i++) {
-            transfer = new byte[(int) sizes.get(i).longValue()];
-            raf.seek(seekRecordStart(raf, raf.length()));
-            raf.read(transfer);
-
-            try {
-                out = new FileOutputStream(System.getProperty("edex.home")
-                        + "/data/manual/grib/grib" + edition + "LargeSplit/" + fileName + "_record_" + (i + 1));
-                out.write(transfer);
-            } finally {
-                if (out != null) {
-                    out.close();
-                }
-            }
-        }
-    }
-
-    /**
-     * Moves the filepointer on the random access file to the beginning of the
-     * next grib record in the file
-     * 
-     * @param raf
-     *            The random access file
-     * @param fileLength
-     *            The total length of the file
-     * @return The index to the next grib record in the collection. -1 is
-     *         returned if there are no more records in the file
-     * @throws IOException
-     */
-    private long seekRecordStart(RandomAccessFile raf, long fileLength)
-            throws IOException {
-        int matches = 0;
-        while (raf.getFilePointer() < fileLength) {
-            char c = (char) raf.readByte();
-            if (c == 'G') {
-                matches = 1;
-            } else if ((c == 'R') && (matches == 1)) {
-                matches = 2;
-            } else if ((c == 'I') && (matches == 2)) {
-                matches = 3;
-            } else if ((c == 'B') && (matches == 3)) {
-                matches = 4;
-                // Subtract 4 because we want the absolute beginning of the grib
-                // file
-                return raf.getFilePointer() - 4;
-            } else {
-                matches = 0;
-            }
-        }
-        return -1;
     }
 }

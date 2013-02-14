@@ -31,9 +31,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -57,7 +58,7 @@ import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Grib model cloud height sounding implementation
+ * Grid model cloud height sounding implementation
  * 
  * <pre>
  * 
@@ -75,6 +76,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class ModelCloudHeightSourceImplementation extends
         AbstractCloudHeightSourceImpl {
+
+    private static final String PARAM_TEMP = "T";
+
+    private static final String PARAM_DEWPOINT = "DpT";
+
+    private static final String PARAM_HEIGHT = "GH";
 
     private Map<DataTime, VerticalSounding[]> soundingMap = new HashMap<DataTime, VerticalSounding[]>();
 
@@ -100,8 +107,7 @@ public class ModelCloudHeightSourceImplementation extends
         for (PluginDataObject pdo : objects) {
             float[] data = (float[]) pdo.getMessageData();
             if (data != null) {
-                Double level = ((GribRecord) pdo).getModelInfo()
-                        .getLevelOneValue();
+                Double level = ((GridRecord) pdo).getLevel().getLevelonevalue();
                 SoundingLayer layer = layerMap.get(level);
                 if (layer == null) {
                     layer = new SoundingLayer();
@@ -110,14 +116,14 @@ public class ModelCloudHeightSourceImplementation extends
                 }
 
                 float val = data[index];
-                String param = ((GribRecord) pdo).getModelInfo()
-                        .getParameterAbbreviation();
+                String param = ((GridRecord) pdo).getParameter()
+                        .getAbbreviation();
 
-                if ("T".equals(param)) {
+                if (PARAM_TEMP.equals(param)) {
                     layer.setTemperature(val);
-                } else if ("GH".equals(param)) {
+                } else if (PARAM_HEIGHT.equals(param)) {
                     layer.setGeoHeight(val);
-                } else if ("DpT".equals(param)) {
+                } else if (PARAM_DEWPOINT.equals(param)) {
                     layer.setDewpoint(val);
                 }
             }
@@ -142,20 +148,21 @@ public class ModelCloudHeightSourceImplementation extends
     @Override
     protected HashMap<String, RequestConstraint> constructMetadataMap() {
         HashMap<String, RequestConstraint> requestMap = new HashMap<String, RequestConstraint>();
-        requestMap.put("pluginName", new RequestConstraint("grib"));
-        requestMap.put("modelInfo.modelName",
+        requestMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                GridConstants.GRID));
+        requestMap.put(GridConstants.DATASET_ID,
                 new RequestConstraint(source.getName()));
 
         RequestConstraint params = new RequestConstraint();
         params.setConstraintType(ConstraintType.IN);
-        params.addToConstraintValueList("T");
-        params.addToConstraintValueList("GH");
-        params.addToConstraintValueList("DpT");
-        requestMap.put("modelInfo.parameterAbbreviation", params);
-        requestMap.put("modelInfo.level.masterLevel.name",
-                new RequestConstraint("MB"));
-        requestMap.put("modelInfo.level.leveltwovalue", new RequestConstraint(
-                Level.getInvalidLevelValueAsString()));
+        params.addToConstraintValueList(PARAM_TEMP);
+        params.addToConstraintValueList(PARAM_HEIGHT);
+        params.addToConstraintValueList(PARAM_DEWPOINT);
+        requestMap.put(GridConstants.PARAMETER_ABBREVIATION, params);
+        requestMap.put(GridConstants.MASTER_LEVEL_NAME, new RequestConstraint(
+                "MB"));
+        requestMap.put(GridConstants.LEVEL_TWO,
+                new RequestConstraint(Level.getInvalidLevelValueAsString()));
         return requestMap;
     }
 
@@ -170,7 +177,7 @@ public class ModelCloudHeightSourceImplementation extends
     protected synchronized VerticalSounding createSoundingInternal(
             Coordinate latLon, final DataTime time,
             final PluginDataObject[] pdos) {
-        GribRecord pdo = (GribRecord) pdos[0];
+        GridRecord pdo = (GridRecord) pdos[0];
 
         final ISpatialObject spatial = pdo.getSpatialObject();
 
@@ -256,7 +263,7 @@ public class ModelCloudHeightSourceImplementation extends
      */
     @Override
     protected long getValidTimeInterval() {
-        GridModel gm = GribModelLookup.getInstance().getModelByName(
+        DatasetInfo gm = DatasetInfoLookup.getInstance().getInfo(
                 source.getName());
         // TODO: Why is Laps null?
         int dt = gm != null ? gm.getDt() : 1;

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NotificationColumns>
+    <column sortAsc="true" sortColumn="true" visible="true" name="User"/>
+    <column sortAsc="true" sortColumn="false" visible="true" name="Message"/>
+    <column sortAsc="true" sortColumn="false" visible="true" name="Time"/>
+    <column sortAsc="true" sortColumn="false" visible="true" name="Priority"/>
+    <column sortAsc="true" sortColumn="false" visible="true" name="Category"/>
+    <messageLoad>
+        <loadAllMessages>false</loadAllMessages>
+        <loadLast>95</loadLast>
+        <numMessages>true</numMessages>
+        <numHours>false</numHours>
+    </messageLoad>
+    <prioritySetting>
+        <color>false</color>
+        <colorNum>false</colorNum>
+        <colorNumName>true</colorNumName>
+        <num>false</num>
+        <numName>false</numName>
+    </prioritySetting>
+    <paginationSetting>20</paginationSetting>
+</NotificationColumns>

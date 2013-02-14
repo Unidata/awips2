@@ -42,6 +42,23 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData.COLUMN_NA
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResource;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * Display FFMP Basin Table Attributes.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 6, 2012            rferrel      Change to non-blocking dialog.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class AttributesDlg extends CaveSWTDialog {
 
     private Button rateChk;
@@ -80,7 +97,7 @@ public class AttributesDlg extends CaveSWTDialog {
 
     public AttributesDlg(Shell parent, FFMPResource resource,
             AttributesDlgData attrData, IAttributeDisplay attributeDisplayCb) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         this.parent = parent;
         this.resource = resource;
         setText("Attributes");
@@ -270,7 +287,7 @@ public class AttributesDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -306,10 +323,10 @@ public class AttributesDlg extends CaveSWTDialog {
             attrData.setColumnVisible(key, chk.getSelection());
             if (key.equalsIgnoreCase("QPF")) {
                 String qpfType = "xxxxxx";
-                for (Button button: qpfRdoBtns) {
+                for (Button button : qpfRdoBtns) {
                     if (button.getSelection()) {
                         qpfType = button.getText();
-                        // split window requires redraw on change 
+                        // split window requires redraw on change
                         updateData = true;
                         break;
                     }

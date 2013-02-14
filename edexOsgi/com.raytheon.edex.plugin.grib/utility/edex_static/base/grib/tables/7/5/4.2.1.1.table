@@ -1,3 +1,8 @@
- # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
+# Product Discipline 1: Hydrologic products, Parameter Category 1: Hydrology probabilities 
 #192-254 Reserved for local use
+192:192:Probability of Freezing Precipitation:%:CPOZP
+193:193:Probability of Frozen Precipitation:%:CPOFP
 194:194:Probability of Excessive Rain:%:PPFFG
+195:195:Probability of Wetting Rain, exceeding in 0.10" in a given time period:%:CWR
+255:255:Missing
+

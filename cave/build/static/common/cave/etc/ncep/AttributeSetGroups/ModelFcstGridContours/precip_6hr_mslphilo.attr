@@ -10,8 +10,9 @@
 GLEVEL =  0                                                                       
 GVCORD =  none                                                                    
 SKIP   =    0                                                                       
+FILTER=y
 SCALE  =   0                                                                       
-GDPFUN =  p06i!sm5s(mul(1e-2,pmsl))                                     
+GDPFUN =  p06i!sm5s(pmsl)                                     
 TYPE   =    f   !c                                                                
 CINT   =        !4                                                     
 LINE   =        !17/1/2                                                  
@@ -25,5 +26,4 @@ TITLE  =   5/-1/~ 6-HR TOTAL PCPN, MSLP!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
 GDATTIM=  f06-last-06

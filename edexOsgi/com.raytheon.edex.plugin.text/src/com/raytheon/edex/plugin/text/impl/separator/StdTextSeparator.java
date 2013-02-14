@@ -100,6 +100,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
                 || ispanId.startsWith("FQGX40") || ispanId.startsWith("FDU")
                 || ispanId.startsWith("UAXX") || ispanId.startsWith("FPCN")
                 || ispanId.startsWith("WWPN20") || ispanId.startsWith("FAUS2")
+                || ispanId.startsWith("FAUS30")
                 || (ispanId.startsWith("TC") && !ispanId.startsWith("TCUS"))) {
             stdFlg = true;
         } else {

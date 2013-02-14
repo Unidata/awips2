@@ -1,0 +1,122 @@
+<project name="tests" basedir="." default="run-tests">
+
+	<target name="env-check">
+		<available file="${basedir}/../javax.mail" property="jenkins.build" />
+	</target>
+
+	<target name="env-developer" depends="env-check" unless="jenkins.build">
+		<property name="build.properties.file" value="developer-build.properties" />
+	</target>
+
+	<target name="env-jenkins" depends="env-check" if="jenkins.build">
+		<property name="build.properties.file" value="jenkins-build.properties" />
+	</target>
+
+	<target name="env-setup" description="Sets up the environment" depends="env-check, env-developer, env-jenkins">
+	    <property file="${build.properties.file}" />
+		<property file="build.properties" />
+		<property file="${BUILD.EDEX.PROPERTIES}" />
+
+		<taskdef resource="net/sf/antcontrib/antlib.xml">
+			<classpath>
+				<fileset file="${ANT.CONTRIB.JAR}" />
+			</classpath>
+		</taskdef>
+
+		<delete dir="${WORKING.DIR}" />
+	</target>
+
+	<target name="classpath-setup-developer" depends="env-setup" unless="jenkins.build">
+        <path id="test.compile.classpath">
+            <dirset dir="${AWIPS2_BASELINE}" includes="**/bin" />
+        	<fileset dir="${AWIPS2_BASELINE}/cots" includes="**/*.jar" excludes="**/ant-*.jar" />
+            <fileset dir="${AWIPS2_BASELINE}/cots/org.junit" includes="**/*.jar" />
+        	<fileset dir="${PROJECTS.DIR}/cots" includes="**/*.jar" />
+            <dirset dir="${PROJECTS.DIR}" includes="**/bin" />
+            <fileset dir="${basedir}/lib" includes="**/*.jar" />
+        </path>
+
+		<path id="test.run.classpath">
+			<!-- Currently nothing else required here -->
+		</path>
+	</target>
+
+	<target name="classpath-setup-jenkins" depends="env-setup" if="jenkins.build">
+		<mkdir dir="${UNZIP.DIR}" />
+
+		<for param="zipFile">
+			<path>
+				<fileset dir="${BUILD.EDEX.DIST.DIR}" includes="*.zip" />
+			</path>
+			<sequential>
+				<unzip dest="${UNZIP.DIR}" src="@{zipFile}" />
+			</sequential>
+		</for>
+
+		<path id="test.compile.classpath">
+			<fileset dir="${UNZIP.DIR}" includes="**/*.jar" excludes="**/ant-*.jar" />
+			<fileset dir="${PROJECTS.DIR}/org.junit" includes="**/*.jar" />
+			<fileset dir="${basedir}/lib" includes="**/*.jar" />
+		</path>
+
+		<!-- Include resource files provided by projects -->
+		<path id="test.run.classpath">
+			<dirset dir="${PROJECTS.DIR}" includes="*/resources"/>
+		</path>
+	</target>
+
+	<target name="classpath-setup" depends="classpath-setup-developer, classpath-setup-jenkins" />
+
+	<target name="compile-tests" depends="classpath-setup" description="Compiles all tests">
+        <delete dir="${TEST.COMPILE.DIR}" />
+        <mkdir dir="${TEST.COMPILE.DIR}" />
+
+		<forEachTestType>
+			<javac srcdir="${basedir}/@{testType}" excludes="${TEST.EXCLUSION.PATTERN}" destdir="${TEST.COMPILE.DIR}" classpathref="test.compile.classpath" debug="on" source="${javacSource}" target="${javacTarget}" />
+		</forEachTestType>
+	</target>
+
+	<target name="run-tests" depends="compile-tests" description="Runs all tests">
+		<delete dir="${TEST.REPORTS.DIR}" />
+		<mkdir dir="${TEST.REPORTS.DIR}" />
+
+		<forEachTestType>
+			<var name="testTypeSourceDir" value="${basedir}/@{testType}" />
+
+			<junit printsummary="yes" haltonfailure="yes"> 
+				<jvmarg value="-Duser.dir=${testTypeSourceDir}" />
+				<classpath>
+                    <!-- Any resources for tests -->
+					<pathelement location="${testTypeSourceDir}" />
+					<pathelement location="${basedir}/resources" />
+					<!-- Referenced jar files -->
+					<path refid="test.compile.classpath" />
+					<path refid="test.run.classpath" />
+					<!-- Compiled tests -->
+					<pathelement location="${TEST.COMPILE.DIR}" />
+				</classpath>
+
+				<formatter type="plain" />
+
+				<batchtest fork="no" todir="${TEST.REPORTS.DIR}">
+					<fileset dir="${basedir}/@{testType}">
+						<include name="${TEST.INCLUSION.PATTERN}" />
+						<exclude name="${TEST.EXCLUSION.PATTERN}"/>
+					</fileset>
+				</batchtest>
+			</junit>
+		</forEachTestType>
+	</target>
+
+	<macrodef name="forEachTestType" description="Loops over all requested test types, and performs the passed in action">
+		<element name="action" implicit="true" />
+		<sequential>
+			<for list="${testTypes}" param="testType">
+				<sequential>
+					<action />
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+
+</project>

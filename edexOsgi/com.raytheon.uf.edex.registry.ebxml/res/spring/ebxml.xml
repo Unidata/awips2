@@ -1,0 +1,140 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="ServiceUrlFactory"
+		class="com.raytheon.uf.edex.registry.ebxml.util.ServiceUrlFactory" />
+	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
+		<constructor-arg ref="lcmServiceImpl" />
+	</bean>
+
+	<bean id="registryDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao" />
+
+	<bean id="auditTrailManager"
+		class="com.raytheon.uf.edex.registry.ebxml.audittrail.AuditTrailManager">
+		<property name="dao" ref="registryDao" />
+	</bean>
+
+	<bean id="pwCallback"
+		class="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
+
+	<bean id="WsSecurity" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+		<constructor-arg>
+			<map>
+				<entry key="action" value="UsernameToken" />
+				<entry key="passwordType" value="PasswordText" />
+				<entry key="passwordCallbackRef">
+					<ref bean="pwCallback" />
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="XACMLPolicyEnforcementPoint"
+		class="com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyEnforcementPoint"
+		factory-method="getInstance" />
+
+	<bean id="XACMLContextHandler"
+		class="com.raytheon.uf.edex.registry.acp.xacml.XACMLContextHandler"
+		factory-method="getInstance">
+		<property name="queryManager" ref="queryServiceImpl" />
+	</bean>
+
+	<bean id="XACMLPolicyAdministrator"
+		class="com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator"
+		factory-method="getInstance" depends-on="DbInit" />
+
+	<bean id="queryServiceUrl" factory-bean="ServiceUrlFactory"
+		factory-method="getServiceAddress">
+		<constructor-arg type="java.lang.String">
+			<value>query</value>
+		</constructor-arg>
+		<constructor-arg type="java.lang.String">
+			<value>10144</value>
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="requestInterceptor"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.RegistryRequestInterceptor" />
+	<bean id="returnInterceptor"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.RegistryRequestReturnInterceptor" />
+
+	<!-- start service -->
+	<bean id="queryServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+		init-method="create">
+		<property name="serviceClass"
+			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager" /> <!-- Interface... -->
+		<property name="address" value="http://0.0.0.0:10144/query" />
+		<property name="serviceBean" ref="queryServiceImpl" /> <!-- Reference concrete implementation -->
+		<property name="inInterceptors">
+			<list>
+				<ref bean="requestInterceptor" />
+				<ref bean="XACMLPolicyEnforcementPoint" />
+			</list>
+		</property>
+		<property name="outInterceptors">
+			<list>
+				<ref bean="returnInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- start service -->
+	<bean id="notificationServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+		init-method="create">
+		<property name="serviceClass"
+			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener" /> <!-- Interface... -->
+		<property name="address" value="http://0.0.0.0:10144/notificationListener" />
+		<property name="serviceBean" ref="notificationServiceImpl" /> <!-- Reference concrete implementation -->
+	</bean>
+
+	<!-- start service -->
+	<bean id="lcmServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+		init-method="create">
+		<property name="serviceClass"
+			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager" /> <!-- Interface... -->
+		<property name="address" value="http://0.0.0.0:10144/lcm" />
+		<property name="serviceBean" ref="lcmServiceImpl" /> <!-- Reference concrete implementation -->
+		<property name="inInterceptors">
+			<list>
+				<ref bean="requestInterceptor" />
+				<ref bean="XACMLPolicyEnforcementPoint" />
+			</list>
+		</property>
+		<property name="outInterceptors">
+			<list>
+				<ref bean="returnInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- start service -->
+	<bean id="validatorServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+		init-method="create">
+		<property name="serviceClass"
+			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator" /> <!-- Interface... -->
+		<property name="address" value="http://0.0.0.0:10144/validator" />
+		<property name="serviceBean" ref="validatorServiceImpl" /> <!-- Reference concrete implementation -->
+	</bean>
+
+	<!-- start service -->
+	<bean id="catalogerServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+		init-method="create">
+		<property name="serviceClass"
+			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger" /> <!-- Interface... -->
+		<property name="address" value="http://0.0.0.0:10144/getServiceAddress" />
+		<property name="serviceBean" ref="catalogerServiceImpl" /> <!-- Reference concrete implementation -->
+	</bean>
+
+	<camelContext id="regRep" xmlns="http://camel.apache.org/schema/spring">
+		<route id="internalSubmit">
+			<from uri="vm:submitRegistryObjects?concurrentConsumers=2" />
+			<bean ref="lcmServiceImpl" method="submitObjectsInternal" />
+		</route>
+	</camelContext>
+
+</beans>

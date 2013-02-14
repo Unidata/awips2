@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+	<Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" saveLayers="false" useFile="false">
+		<Layer name="Default" onOff="true" monoColor="false" filled="false">
+					<Color red="255" green="255" blue="0" alpha="255"/>
+			<DrawableElement>
+				 <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+					<Color red="255" green="255" blue="0" alpha="255"/>
+					<Point Lat="81.508" Lon="-39.837" /> 
+					<Point Lat="49.311" Lon="-129.180" />
+					<Point Lat="39.376" Lon="177.904" />
+					<Point Lat="54.976" Lon="139.962" />
+					<Point Lat="21.648" Lon="139.771" />
+					<Point Lat="-4.492" Lon="-168.883" />
+					<Point Lat="-9.970" Lon="-84.812" />
+					<Point Lat="10.024" Lon="-39.986" />
+				</Line>
+			</DrawableElement>
+		</Layer>
+	</Product>
+</Products>
