@@ -49,6 +49,9 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Rehash of SCAN
@@ -60,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/17/10     2521     D. Hladky   Initial release
+ * 02/01/13     1649      D. Hladky  better logging,
  * 
  * </pre>
  * 
@@ -78,7 +82,10 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
      * 
      */
     private static final long serialVersionUID = 5983810116816447875L;
-
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+    .getHandler(ScanRecord.class);
+   
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
@@ -267,7 +274,7 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
                     SerializationType.Thrift).deserialize(bais);
             setTableData((ScanTableData<?>) o);
         } catch (Throwable e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't load Table data!" + getDataURI());
         }
     }
 
@@ -286,7 +293,7 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
                     SerializationType.Thrift).deserialize(bais);
             setSoundingData((SoundingData) o);
         } catch (Throwable e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't load Sounding data!" + getDataURI());
         }
     }
 
@@ -305,7 +312,7 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
                     SerializationType.Thrift).deserialize(bais);
             setModelData((ModelData) o);
         } catch (Throwable e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't load Model data!" + getDataURI());
         }
     }
 
