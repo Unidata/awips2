@@ -92,6 +92,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Nov 19, 2008            randerso     Initial creation
  * Dec 02, 2009  3237      snaples      Added options for 6/24 hour
  *                                      display filtering.
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -273,7 +276,6 @@ public class MPELegendResource extends
 
                 DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(
                         ColorMapCapability.class).getColorMapParameters());
-                cmap.interpolate = false;
                 cmap.alpha = alpha;
                 IColorMap cm = cmap.getColorMapParams().getColorMap();
 
@@ -377,7 +379,6 @@ public class MPELegendResource extends
             if (rsc.getStatus().equals(ResourceStatus.INITIALIZED)) {
                 cmap = new DrawableColorMap(rsc.getCapability(
                         ColorMapCapability.class).getColorMapParameters());
-                cmap.interpolate = false;
                 cmap.alpha = alpha;
 
                 cmapSize = cmap.getColorMapParams().getColorMap().getSize();
