@@ -23,10 +23,6 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -41,8 +37,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.time.DataTime;
 import com.vividsolutions.jts.geom.Coordinate;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+/**
+ * 
+ * SCAN Model Data
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 02/01/13     1569        D. Hladky   removed XML where not needed, removed SS println's left in code
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ * 
+ */
+
 @DynamicSerialize
 public class ModelData implements ISerializableObject {
 
@@ -159,19 +169,18 @@ public class ModelData implements ISerializableObject {
     public double getValue(String modelName, String prodType, Coordinate coor) {
         double value = -99999.0;
         try {
-        	System.out.println("Freezing level---debug0 getValue "+modelName+" "+prodType+" "+coor+" "+gribMap.size());
+        	//System.out.println("Freezing level---debug0 getValue "+modelName+" "+prodType+" "+coor+" "+gribMap.size());
             Point point = getPoint(modelName, prodType, coor);
             GridRecord gribRec = getRecord(modelName, prodType);
             FloatDataRecord rec = (FloatDataRecord) getRecord(modelName,
                     prodType).getMessageData();
-            System.out.println("Freezing level---debug1 getValue "+rec.getFloatData().length+" "+
-            		gribRec.getSpatialObject().getNx()+","+gribRec.getSpatialObject().getNy()+" "+point);
+            //System.out.println("Freezing level---debug1 getValue "+rec.getFloatData().length+" "+
+            //		gribRec.getSpatialObject().getNx()+","+gribRec.getSpatialObject().getNy()+" "+point);
             value = rec.getFloatData()[(gribRec.getSpatialObject().getNx() * 
             		(gribRec.getSpatialObject().getNy()-point.y)) + point.x];
         } catch (Exception e) {
             logger.error("No Grib value available....." + modelName + " "
                     + prodType);
-            e.printStackTrace();
         }
         return value;
     }

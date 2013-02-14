@@ -147,7 +147,7 @@ public class HucLevelGeometriesFactory {
 
             if (pfafsToGenerate.size() > 0) {
                 Map<Long, Geometry> tmp = null;
-                if ("ALL".equals(huc)) {
+                if (FFMPRecord.ALL.equals(huc)) {
                     tmp = generateSimplifiedGeometry(template, dataKey, cwa,
                             pfafs);
                 } else {
@@ -281,7 +281,7 @@ public class HucLevelGeometriesFactory {
      * @return
      */
     protected String getChildHuc(FFMPTemplates tempate, String huc) {
-        String rval = "ALL";
+        String rval = FFMPRecord.ALL;
         if (huc.startsWith("HUC")) {
             int totalHuc = tempate.getTotalHucLevels();
 
@@ -307,7 +307,7 @@ public class HucLevelGeometriesFactory {
             FFMPTemplates template, String dataKey, String cwa, String huc,
             String childHuc) {
 
-        if ("ALL".equals(childHuc)) {
+        if (FFMPRecord.ALL.equals(childHuc)) {
             return (Map<Long, Collection<Long>>) template.getMap(dataKey, cwa,
                     huc);
         } else if (childHuc.startsWith("HUC")) {
