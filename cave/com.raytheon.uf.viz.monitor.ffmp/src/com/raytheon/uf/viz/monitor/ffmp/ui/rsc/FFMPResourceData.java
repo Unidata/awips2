@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009   2521    dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky   Added constants
  * 
  * </pre>
  * 
@@ -294,7 +295,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 							.getAvailableUris(siteKey, dataKey, sourceName,
 									standAloneTime);
                     getMonitor().processUris(sourceURIs, false, siteKey,
-							sourceName, standAloneTime, "ALL");
+							sourceName, standAloneTime, FFMPRecord.ALL);
                 }
             }
         }
