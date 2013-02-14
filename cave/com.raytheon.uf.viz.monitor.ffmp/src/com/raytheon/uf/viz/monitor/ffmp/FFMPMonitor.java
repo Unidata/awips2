@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.SortedMap;
@@ -26,9 +25,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPCacheRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
@@ -59,7 +58,6 @@ import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.ResourceMonitor;
@@ -93,6 +91,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 01/10/13     1475        D. Hladky   Cleaned up some logging.
  * 01/27/13     1478        D. Hladky   revamped cache file format, removed duplicate times
  * 02/01/13     1569        D. Hladky   updated constants
+ * 02/01/13     1627        D. Hladky   removed unused(useless) db load method
  * 
  * </pre>
  * 
@@ -374,27 +373,6 @@ public class FFMPMonitor extends ResourceMonitor {
     }
 
     /**
-     * Static to make it fast, at least that's the idea.
-     * 
-     * @param uri
-     * @return
-     * @throws VizException
-     */
-    private static FFMPRecord loadRecordFromDatabase(String uri)
-            throws VizException {
-        FFMPRecord ffmpRec = null;
-
-        if (uri != null) {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("pluginName", "ffmp");
-            vals.put("dataURI", uri);
-            ffmpRec = (FFMPRecord) Loader.loadData(vals);
-        }
-
-        return ffmpRec;
-    }
-
-    /**
      * populate a new FFMPRecord
      * 
      * @param sourceName
@@ -432,7 +410,7 @@ public class FFMPMonitor extends ResourceMonitor {
                                             .containsKey(uri)) {
                                 try {
                                     populateFFMPRecord(isProductLoad, siteKey,
-                                            loadRecordFromDatabase(uri),
+                                            new FFMPRecord(uri),
                                             source, phuc);
                                 } catch (Exception e) {
                                     statusHandler.handle(Priority.PROBLEM,
@@ -462,7 +440,7 @@ public class FFMPMonitor extends ResourceMonitor {
 
         try {
             populateFFMPRecord(isProductLoad, siteKey,
-                    loadRecordFromDatabase(uri), source, phuc);
+                    new FFMPRecord(uri), source, phuc);
         } catch (VizException e) {
             statusHandler.handle(Priority.INFO,
                     "FFMP Can't retrieve FFMP URI, " + uri, e);
@@ -1840,10 +1818,8 @@ public class FFMPMonitor extends ResourceMonitor {
         SourceXML source = getSourceConfig().getSource(sourceName);
 
         if (uri != null) {
-            FFMPRecord record = new FFMPRecord(uri);
-
             try {
-                record = populateFFMPRecord(isProductLoad, uri, siteKey,
+                FFMPRecord record = populateFFMPRecord(isProductLoad, uri, siteKey,
                         sourceName, phuc);
                 if ((record != null) && (source != null)) {
                     record.setExpiration(source.getExpirationMinutes(siteKey));
