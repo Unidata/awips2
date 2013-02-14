@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 
 /**
  * Class which opens a LocalizationFile for writing to
@@ -43,6 +44,8 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 public class LocalizationFileOutputStream extends LockingFileOutputStream {
 
+    private LocalizationFile file;
+
     /**
      * @param file
      * @param isAppending
@@ -53,6 +56,25 @@ public class LocalizationFileOutputStream extends LockingFileOutputStream {
     LocalizationFileOutputStream(LocalizationFile file, boolean isAppending)
             throws FileNotFoundException, LocalizationException {
         super(file.getFile(false), isAppending);
+        this.file = file;
     }
 
+    /**
+     * Closes input stream for the {@link LocalizationFile} and calls
+     * {@link LocalizationFile#save()} on the file to ensure contents are
+     * persisted. Calling {@link #close()} does not trigger a save
+     * 
+     * @param save
+     * @throws IOException
+     */
+    public void closeAndSave() throws IOException,
+            LocalizationOpFailedException {
+        try {
+            closeWithoutUnlocking();
+            file.save();
+        } finally {
+            // Make sure we unlock the file
+            unlock();
+        }
+    }
 }

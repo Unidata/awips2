@@ -9,4 +9,28 @@
 198:198:Incremental Prob WS 34 kts or greater:%:PWS34
 199:199:Incremental Prob WS 50 kts or greater:%:PWS50
 200:200:Incremental Prob WS 64 kts or greater:%:PWS64
+201:201:Longitude of V Wind Component of Velocity:degrees:LOVV
+202:202:Latitude of Presure Point:degrees:LAPP
+203:203:Longitude of Presure Point:degrees:LOPP
+204:204:Vertical Eddy Diffusivity Heat exchange:m^2/s:VEDH
+205:205:Covariance between Meridional and Zonal Components of the wind.:m^2/s^2:COVMZ
+206:206:Covariance between Temperature and Zonal Components of the wind.:K*m/s:COVTZ
+207:207:Covariance between Temperature and Meridional Components of the wind.:K*m/s:COVTM
+208:208:Vertical Diffusion Zonal Acceleration:m/s^2:VDFUA
+209:209:Vertical Diffusion Meridional Acceleration:m/s^2:VDFVA
+210:210:Gravity wave drag zonal acceleration:m/s^2:GWDU
+211:211:Gravity wave drag meridional acceleration:m/s^2:GWDV
+212:212:Convective zonal momentum mixing acceleration:m/s^2:CNVU
+213:213:Convective meridional momentum mixing acceleration:m/s^2:CNVV
+214:214:Tendency of vertical velocity:m/s^2:WTEND
+215:215:Omega (Dp/Dt) divide by density:K:OMGALF
+216:216:Convective Gravity wave drag zonal acceleration:m/s^2:CNGWDU
+217:217:Convective Gravity wave drag meridional acceleration:m/s^2:CNGWDV
+218:218:Velocity Point Model Surface::LMV
+219:219:Potential Vorticity (Mass-Weighted):m/s:PVMWW
+220:220:Hourly Maximum of Upward Vertical Vorticity in the lowest 400hPa:m/s:MAXUVV
+221:221:Hourly Maximum of Downward Vertical Vorticity in the lowest 400hPa:m/s:MAXDVV
+222:222:U Component of Hourly Maximum 10m Wind Speed:m/s:MAXUW
+223:223:V Component of Hourly Maximum 10m Wind Speed:m/s:MAXVW
+224:224:Ventilation Rate:m^2/s:VRATE
 255:255:Missing

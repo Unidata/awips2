@@ -37,11 +37,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * The class for VAA text product dialog
@@ -51,13 +53,14 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/10		#165		G. Zhang   	Initial Creation.
+ * 12/12		#889		B. Yin		Made the dialog modal..
  *
  * </pre>
  * 
  * @author	G. Zhang
  */
 
-public class SaveMsgDlg  extends AttrDlg{
+public class SaveMsgDlg  extends CaveJFACEDialog{
 	
 	/**
 	 * singleton instance of this class
@@ -102,6 +105,8 @@ public class SaveMsgDlg  extends AttrDlg{
 	 */
 	SaveMsgDlg(Shell parShell) throws VizException {
 		super(parShell);		
+		this.setShellStyle(SWT.TITLE | SWT.APPLICATION_MODAL | SWT.CLOSE );
+
 	}
 	
 	/**
@@ -140,16 +145,6 @@ public class SaveMsgDlg  extends AttrDlg{
 	}
 	
 	/**
-	 * method overridden from the super class
-	 * for Save/Cancel buttons of this class
-	 */
-	@Override
-	public void enableButtons(){ 			
-		this.getButton(IDialogConstants.CANCEL_ID).setEnabled(true);
-		this.getButton(IDialogConstants.OK_ID).setEnabled(true);	  		
-	}
-	
-	/**
 	 * method listener overridden from the super class
 	 * for Cancel button of this class
 	 */
@@ -168,21 +163,11 @@ public class SaveMsgDlg  extends AttrDlg{
 	@Override
 	public void okPressed() {  
 		
-		try{
-			File f = new File(/*dirLocal*/PgenUtil.getWorkingDirectory()+File.separator+txtSave.getText());						
-			Writer output = new BufferedWriter(new FileWriter(f));
-			try {					      
-				output.write( PgenUtil.wrap( txtInfo.getText(), 51, null, false) );//2010-04-12: 20100407 decided to save txt here
-				output.flush();
-			}catch(Exception ee){
-				System.out.println(ee.getMessage());
-			} finally {  output.close(); }												
-		}catch(Exception e){
-				System.out.println(e.getMessage());
-		}finally{ 				
+		FileTools.writeFile( PgenUtil.getPgenActivityTextProdPath()+File.separator+txtSave.getText(), 
+				PgenUtil.wrap( txtInfo.getText(), 51, null, false));
+
 			setReturnCode(OK);
 			close();
-		}	
 				
 	}
 	
@@ -194,15 +179,6 @@ public class SaveMsgDlg  extends AttrDlg{
 		volAttrDlgInstance = vaDlg;
 	}
 
-	/**
-	 * method from super class
-	 */
-	@Override
-	public void setAttrForDlg(IAttribute ia) {
-		
-		
-	}
-	
 	/**
 	 * method overridden from the super class
 	 * to create the dialog area for this class
@@ -238,7 +214,7 @@ public class SaveMsgDlg  extends AttrDlg{
 	 * 
 	 * @return String: the file name
 	 */
-	private String getFileName(){
+	public String getFileName(){
 		String connector = "_";
 		
 		StringBuilder sb = new StringBuilder();

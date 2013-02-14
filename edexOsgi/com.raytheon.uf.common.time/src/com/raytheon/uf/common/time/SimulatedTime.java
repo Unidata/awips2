@@ -32,9 +32,12 @@ import java.util.TimeZone;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 16, 2008				randerso	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 16, 2008            randerso    Initial creation
+ * Aug 24, 2012 0743       djohnson    Add option to use milliseconds for operations, change to singleton.
+ * Nov 02, 2012 1302       djohnson    Change mistakenly public constructor to private.
  * 
  * </pre>
  * 
@@ -42,7 +45,7 @@ import java.util.TimeZone;
  * @version 1.0
  */
 
-public class SimulatedTime {
+public final class SimulatedTime {
     /**
      * The system global simulated time instance
      */
@@ -95,7 +98,7 @@ public class SimulatedTime {
      * Creates a simulated time that matches real time.
      * 
      */
-    public SimulatedTime() {
+    private SimulatedTime() {
         setRealTime();
     }
 
@@ -111,8 +114,24 @@ public class SimulatedTime {
      * @param isFrozen
      *            true to freeze time
      */
-    public SimulatedTime(Date date, double scale, boolean isFrozen) {
-        setTime(date);
+    private SimulatedTime(Date date, double scale, boolean isFrozen) {
+        this(date.getTime(), scale, isFrozen);
+    }
+
+    /**
+     * Creates a simulated time starting at the specified time with
+     * acceleration/deceleration, optionally frozen.
+     * 
+     * @param millis
+     *            starting time in milliseconds
+     * @param scale
+     *            1.0 for normal time rate, >1.0 for accelerated time < 1.0 for
+     *            decelerated time. If negative time will run backward.
+     * @param isFrozen
+     *            true to freeze time
+     */
+    private SimulatedTime(long millis, double scale, boolean isFrozen) {
+        setTime(millis);
         this.scale = scale;
         this.isFrozen = isFrozen;
     }
@@ -142,11 +161,14 @@ public class SimulatedTime {
      * @return current simulated time
      */
     public Date getTime() {
+        return new Date(getMillis());
+    }
+
+    public long getMillis() {
         if (isFrozen) {
-            return new Date(frozenTime);
+            return frozenTime;
         } else {
-            return new Date(Math.round((now() - baseTime) * scale) + baseTime
-                    + offset);
+            return Math.round((now() - baseTime) * scale) + baseTime + offset;
         }
     }
 
@@ -156,11 +178,20 @@ public class SimulatedTime {
      * @param date
      */
     public void setTime(Date date) {
+        setTime(date.getTime());
+    }
+
+    /**
+     * Set the current simulated time
+     * 
+     * @param millis
+     */
+    public void setTime(long millis) {
         if (isFrozen) {
-            frozenTime = date.getTime();
+            frozenTime = millis;
         } else {
             baseTime = now();
-            offset = date.getTime() - baseTime;
+            offset = millis - baseTime;
         }
     }
 
@@ -206,7 +237,7 @@ public class SimulatedTime {
         }
 
         if (isFrozen) {
-            frozenTime = getTime().getTime();
+            frozenTime = getMillis();
         } else {
             baseTime = now();
             offset = frozenTime - baseTime;

@@ -21,22 +21,24 @@ package com.raytheon.viz.pointdata.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
- * TODO Add Description
+ * A Node representing the Accum derived paramteer method which is used by point
+ * data to generate accumulations over time.
  * 
  * <pre>
  * 
@@ -51,52 +53,62 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
  * @version 1.0
  */
 
-public class PointAccumLevelNode extends AbstractDerivedLevelNode {
+public class PointAccumLevelNode extends AbstractDerivedDataNode {
 
-    private List<AbstractRequestableLevelNode> idNodes;
+    private List<AbstractRequestableNode> idNodes;
 
-    private AbstractRequestableLevelNode timeNode;
+    private AbstractRequestableNode timeNode;
+
+    private String plugin;
 
     public PointAccumLevelNode(PointAccumLevelNode that) {
         super(that);
         this.idNodes = that.idNodes;
         this.timeNode = that.timeNode;
+        this.plugin = that.plugin;
     }
 
     public PointAccumLevelNode(DerivParamDesc desc, DerivParamMethod method,
-            List<AbstractRequestableLevelNode> idNodes,
-            AbstractRequestableLevelNode timeNode) {
+            List<AbstractRequestableNode> idNodes,
+            AbstractRequestableNode timeNode, String plugin) {
         super(PointDataInventory.getStationLevel(), desc, method, null);
         this.idNodes = idNodes;
         this.timeNode = timeNode;
+        this.plugin = plugin;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
     @Override
-    protected List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> rval = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        for (AbstractRequestableNode idNode : idNodes) {
+            rval.put(idNode, availability);
+        }
+        rval.put(timeNode, availability);
+        return rval;
+    }
+
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
         List<AbstractRequestableData> idRequesters = new ArrayList<AbstractRequestableData>(
                 idNodes.size());
-        for (AbstractRequestableLevelNode idNode : idNodes) {
-            idRequesters.add(idNode.getData(property, timeOut, cache).get(0));
+        for (AbstractRequestableNode idNode : idNodes) {
+            AbstractRequestableData idRequester = dependencyData.get(idNode)
+                    .iterator().next();
+            idRequesters.add(idRequester);
         }
+
         AbstractRequestableData rData = new PointAccumRequestableData(
-                idRequesters,
-                timeNode.getData(property, timeOut, cache).get(0), method,
-                property);
+                idRequesters, dependencyData.get(timeNode).iterator().next(),
+                method, plugin);
         rData.setParameter(desc.getAbbreviation());
         rData.setParameterName(desc.getName());
         rData.setUnit(desc.getUnit());
-        return Arrays.asList(rData);
+        return new HashSet<AbstractRequestableData>(Arrays.asList(rData));
     }
 
     /*
@@ -109,30 +121,17 @@ public class PointAccumLevelNode extends AbstractDerivedLevelNode {
     public List<Dependency> getDependencies() {
         List<Dependency> dependencies = new ArrayList<Dependency>();
         dependencies.add(new Dependency(timeNode, 0));
-        for (AbstractRequestableLevelNode idNode : idNodes) {
+        for (AbstractRequestableNode idNode : idNodes) {
             dependencies.add(new Dependency(idNode, 0));
         }
         return dependencies;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * timeQueryInternal(boolean, java.util.Map)
-     */
     @Override
-    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
-        return TIME_AGNOSTIC;
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        return true;
+        return AvailabilityContainer.AGNOSTIC_SET;
     }
 
     public PointAccumLevelNode clone() {

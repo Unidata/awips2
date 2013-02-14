@@ -20,13 +20,14 @@
 	<!-- The generated pattern is that plugins/features are gathered into the   -->
 	<!-- folder ${target.folder}/${projectName}                                 -->
 	<!-- =====================================================================  -->
-	<target name="gather.bin.parts">
-		<!-- Create a utility directory to copy the localization files to. -->
-		<mkdir dir="${target.folder}/../utility" />
-		
-		<copy todir="${target.folder}/../utility" failonerror="false">
-			<fileset dir="${projectLocation}/utility" />
-		</copy>
+	<target name="gather.bin.parts">		
+		<ant antfile="${builder}/../deploy-common/external-rules.xml"
+		inheritAll="false">
+			<property name="plugin._directory"
+				value="${projectLocation}" />
+			<property name="deployment._root" 
+				value="${target.folder}/.." />
+		</ant>
 	</target>
 	
 	<!-- ===================================================================== -->

@@ -3,7 +3,7 @@ package gov.noaa.nws.ncep.viz.gempak.grid.inv;
 import java.util.ArrayList;
 import java.util.HashMap;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -27,6 +27,7 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  * Mar 20, 2012   #606     Greg Hull        update inventory by implementing IAlertObserver
  * May 08, 2012   #606     Greg Hull        Renamed to NcGridInventory. Use NcInventory on Edex 
  * May 16, 2012   #606     Greg Hull        change glevel1 to modelInfo.level.levelonevalue (and glevel2)
+ * Aug 27,2012             Xilin Guo        used new unified grid plugin
  * 
  * </pre>
  * 
@@ -43,13 +44,14 @@ public class NcGridInventory {
 	public static final String ncGridInventoryName = "NcGridInventory";
 	
 	private static final ArrayList<String> inventoryParamNames = new ArrayList<String>(); {
-		inventoryParamNames.add( "pluginName" );
-		inventoryParamNames.add( "modelName" ); // source
-		inventoryParamNames.add( "eventName" ); // 
-		inventoryParamNames.add( "parm" );      
-		inventoryParamNames.add( "vcord" );
-		inventoryParamNames.add( "modelInfo.level.levelonevalue" );
-		inventoryParamNames.add( "modelInfo.level.leveltwovalue" );
+		inventoryParamNames.add( GridConstants.PLUGIN_NAME );
+		inventoryParamNames.add( GridConstants.DATASET_ID ); // source
+		inventoryParamNames.add( GridConstants.SECONDARY_ID ); //
+		inventoryParamNames.add( GridConstants.ENSEMBLE_ID ); //
+		inventoryParamNames.add( GridConstants.PARAMETER_ABBREVIATION );      
+		inventoryParamNames.add( GridConstants.MASTER_LEVEL_NAME );
+		inventoryParamNames.add( GridConstants.LEVEL_ONE );
+		inventoryParamNames.add( GridConstants.LEVEL_TWO );
 	}
 	
 	private boolean isInventoryInited = false;
@@ -79,7 +81,7 @@ public class NcGridInventory {
 			//
 			HashMap<String, RequestConstraint> baseConstraints = 
 									new HashMap<String,RequestConstraint>();
-			baseConstraints.put( "pluginName", new RequestConstraint( "ncgrib" ) );
+			baseConstraints.put( "pluginName", new RequestConstraint( GridConstants.GRID ) );
 			
 			//inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );			
 	    	NcInventoryDefinition invDescr = 

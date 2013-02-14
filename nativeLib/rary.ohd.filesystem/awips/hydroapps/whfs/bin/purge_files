@@ -27,6 +27,8 @@ RUN_FROM_DIR=`dirname $0`
 
 # set up SOME environment variables for WHFS applications
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
 export GAGE_PP_DATA=$(get_apps_defaults gage_pp_data)
 export GAGE_PP_LOG=$(get_apps_defaults gage_pp_log)
 export SSHP_INGEST_XML_DIR=$(get_apps_defaults sshp_ingest_xml_dir)

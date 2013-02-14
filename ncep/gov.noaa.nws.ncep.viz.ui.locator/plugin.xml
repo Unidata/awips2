@@ -21,6 +21,28 @@
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
       <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue="RGB {200,200,200}"
+            ncResourceName="Locator">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="fontName"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue="Times"
+            ncResourceName="Locator">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="fontSize"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="12"
+            ncResourceName="Locator">
+      </nc-resourceParameter>
+         
+      <nc-resourceParameter
             paramClass="String"
             paramName="pos1LocatorSource"
             paramType="EDITABLE_ATTRIBUTE"

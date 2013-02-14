@@ -71,6 +71,7 @@ public class NCMapDescriptor extends MapDescriptor {
     @XmlElement
     private Boolean autoUpdate = false;
 
+    @XmlElement
     private Boolean suspendZoom = false;
 
     public Boolean isAutoUpdate() {

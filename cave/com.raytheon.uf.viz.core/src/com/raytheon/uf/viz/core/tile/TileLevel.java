@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.viz.core.tile;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -31,11 +28,13 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.CRSCache;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -310,19 +309,26 @@ public class TileLevel {
         // Calculate the border in target grid space for the Tile
         Geometry border = null;
         try {
-            double[] UL = new double[] { envTileX, envTileY };
-            double[] UR = new double[] { envTileEndX, envTileY };
-            double[] LR = new double[] { envTileEndX, envTileEndY };
-            double[] LL = new double[] { envTileX, envTileEndY };
-
             // Create tile border based on pixel density tile level 0 should
             // always have threshold of 1.0
-            border = createTileBorder(UL, UR, LR, LL,
-                    Math.max(range.getSpan(0) / 4, 1),
-                    Math.max(range.getSpan(1) / 4, 1),
-                    tileLevel > 0 ? Math.max(pixelDensity, 1.0) : 1.0);
+            double pixelDensity = this.pixelDensity;
+            if (tileLevel == 0 || pixelDensity < 1.0) {
+                pixelDensity = 1.0;
+            }
+            // Convert grid pixel density into CRS pixel density
+            pixelDensity *= (targetGeometry.getEnvelope().getSpan(0) / targetGeometry
+                    .getGridRange().getSpan(0));
+            // Compute border and convert into target grid space from crs
+            border = JTS.transform(EnvelopeIntersection
+                    .createEnvelopeIntersection(tileGridGeom.getEnvelope(),
+                            targetGeometry.getEnvelope(), pixelDensity,
+                            Math.max(range.getSpan(0) / 4, 1),
+                            Math.max(range.getSpan(1) / 4, 1)), targetGeometry
+                    .getGridToCRS(PixelInCell.CELL_CENTER).inverse());
         } catch (TransformException e) {
             // Invalid geometry, don't add a border
+        } catch (FactoryException e) {
+            // Invalid transforms, don't add border
         }
 
         // Create the Tile object
@@ -346,88 +352,4 @@ public class TileLevel {
         }
     }
 
-    private Geometry createTileBorder(double[] UL, double[] UR, double[] LR,
-            double[] LL, int maxHorDivisions, int maxVertDivisions,
-            double threshold) throws TransformException {
-        List<Coordinate> borderPoints = new ArrayList<Coordinate>(
-                maxVertDivisions * 2 + maxHorDivisions * 2);
-        double[] out = new double[2];
-
-        // UL to UR
-        tileCRSToTargetGrid.transform(UL, 0, out, 0, 1);
-        borderPoints.add(new Coordinate(out[0], out[1]));
-        calculateBorder(borderPoints, UL, null, UR, null, maxHorDivisions,
-                threshold);
-
-        // UR to LR
-        tileCRSToTargetGrid.transform(UR, 0, out, 0, 1);
-        borderPoints.add(new Coordinate(out[0], out[1]));
-        calculateBorder(borderPoints, UR, null, LR, null, maxVertDivisions, 1.0);
-
-        // LR to LL
-        tileCRSToTargetGrid.transform(LR, 0, out, 0, 1);
-        borderPoints.add(new Coordinate(out[0], out[1]));
-        calculateBorder(borderPoints, LR, null, LL, null, maxHorDivisions, 1.0);
-
-        // LL to UL
-        tileCRSToTargetGrid.transform(LL, 0, out, 0, 1);
-        borderPoints.add(new Coordinate(out[0], out[1]));
-        calculateBorder(borderPoints, LL, null, UL, null, maxVertDivisions, 1.0);
-
-        // Add start point to complete linear ring
-        tileCRSToTargetGrid.transform(UL, 0, out, 0, 1);
-        borderPoints.add(new Coordinate(out[0], out[1]));
-
-        // Create Geometry and world wrap correct (need to be in lat/lon)
-        return JTS.transform(corrector.correct(JTS.transform(TileSet.gf
-                .createPolygon(TileSet.gf.createLinearRing(borderPoints
-                        .toArray(new Coordinate[borderPoints.size()])), null),
-                targetGridToLatLon)), targetGridToLatLon.inverse());
-    }
-
-    private int calculateBorder(List<Coordinate> borderList, double[] point1,
-            double[] transformedPoint1, double[] point3,
-            double[] transformedPoint3, double maxNumDivs, double threshold)
-            throws TransformException {
-        if (transformedPoint1 == null) {
-            transformedPoint1 = new double[point1.length];
-            tileCRSToTargetGrid.transform(point1, 0, transformedPoint1, 0, 1);
-        }
-        if (transformedPoint3 == null) {
-            transformedPoint3 = new double[point3.length];
-            tileCRSToTargetGrid.transform(point3, 0, transformedPoint3, 0, 1);
-        }
-        if (transformedPoint1 == null || transformedPoint3 == null) {
-            // if the image has some points outside the valid range of the
-            // screen then give up optimizing and assume the max number of
-            // points.
-            return (int) Math.ceil(maxNumDivs);
-        }
-        double[] point2 = { (point1[0] + point3[0]) / 2,
-                (point1[1] + point3[1]) / 2 };
-        double[] transformedPoint2 = new double[point2.length];
-        tileCRSToTargetGrid.transform(point2, 0, transformedPoint2, 0, 1);
-        double[] interp2 = { (transformedPoint1[0] + transformedPoint3[0]) / 2,
-                (transformedPoint1[1] + transformedPoint3[1]) / 2 };
-        double dX = transformedPoint2[0] - interp2[0];
-        double dY = transformedPoint2[1] - interp2[1];
-        double d = Math.hypot(dX, dY);
-        if (d < threshold || maxNumDivs < 1) {
-            return 1;
-        } else {
-            int nd1 = calculateBorder(borderList, point1, transformedPoint1,
-                    point2, transformedPoint2, maxNumDivs / 2, threshold);
-            borderList.add(new Coordinate(transformedPoint2[0],
-                    transformedPoint2[1]));
-            if (nd1 * 2 >= maxNumDivs) {
-                nd1 = (int) Math.ceil(maxNumDivs);
-            }
-            int nd2 = calculateBorder(borderList, point2, transformedPoint2,
-                    point3, transformedPoint3, maxNumDivs / 2, threshold);
-            if (nd2 * 2 >= maxNumDivs) {
-                nd2 = (int) Math.ceil(maxNumDivs);
-            }
-            return (Math.max(nd1, nd2) * 2);
-        }
-    }
 }

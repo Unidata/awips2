@@ -52,7 +52,7 @@ dataRequest.execute();
 #set($reproject = $scriptMetadata.remove("reproject").constraintValue)
 #set($format = $scriptMetadata.remove("format").constraintValue)
 import ${scriptLibrary}
-#if($pluginName == "grib")
+#if($pluginName == "grid")
 dataRequest = ${scriptLibrary}.${scriptLibrary}("${pluginName}")
 #else
 dataRequest = ${scriptLibrary}.${scriptLibrary}()
@@ -77,7 +77,7 @@ dataRequest.addParameter("${key}", "${constraint.constraintValue}")
 #end
 #end
 #end
-#if(${pluginName} == "grib")
+#if(${pluginName} == "grid")
 dataRequest.setScaleFactor(1)
 #end
 dataRequest.setFormat("${format}")
@@ -111,7 +111,7 @@ dataRequest.addParameter("${key}", "${constraint.constraintValue}");
 #end
 #end
 #end
-#if(${pluginName} == "grib")
+#if(${pluginName} == "grid")
 dataRequest.setScaleFactor(1);
 #end
 dataRequest.setFormat("${format}");
