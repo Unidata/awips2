@@ -21,12 +21,11 @@ package com.raytheon.uf.common.dataplugin.maps.dataaccess;
 
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.Geometry;
-
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGeometryTimeAgnosticDatabaseFactory;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
@@ -42,6 +41,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -106,10 +107,10 @@ public class MapsGeometryFactory extends
      * 
      * @see com.raytheon.uf.common.dataaccess.impl.
      * AbstractGeometryTimeAgnosticDatabaseFactory
-     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
+     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IDataRequest)
      */
     @Override
-    protected String assembleGetData(IGeometryRequest request) {
+    protected String assembleGetData(IDataRequest request) {
         return MapsQueryAssembler.assembleGetData(request);
     }
 
@@ -119,10 +120,10 @@ public class MapsGeometryFactory extends
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
      * #assembleGetAvailableLocationNames
-     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
+     * (com.raytheon.uf.common.dataaccess.geom.IDataRequest)
      */
     @Override
-    protected String assembleGetAvailableLocationNames(IGeometryRequest request) {
+    protected String assembleGetAvailableLocationNames(IDataRequest request) {
         return MapsQueryAssembler.assembleGetAvailableLocationNames(request);
     }
 }
