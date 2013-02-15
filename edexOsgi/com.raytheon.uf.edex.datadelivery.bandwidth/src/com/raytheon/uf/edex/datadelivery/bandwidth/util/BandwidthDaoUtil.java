@@ -37,8 +37,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Extract methods from {@link BandwidthUtil}.
  * Dec 11, 2012 1286       djohnson     FULFILLED allocations are not in the retrieval plan either.
+ * Feb 14, 2013 1595       djohnson     Fix not using calendar copies, and backwards max/min operations.
  * 
  * </pre>
  * 
@@ -186,18 +187,16 @@ public class BandwidthDaoUtil {
         } else {
             // If there is a start and end time, then modify the start and
             // end times to 'fit' within the RetrievalPlan times
-            subscriptionStartDate = BandwidthUtil.max(
-                    subscription.getSubscriptionEnd(), planEnd);
-            subscriptionEndDate = BandwidthUtil.min(
-                    subscription.getSubscriptionStart(), planStart);
+            subscriptionStartDate = BandwidthUtil.copy(BandwidthUtil.max(
+                    subscription.getSubscriptionStart(), planStart));
+            subscriptionEndDate = BandwidthUtil.copy(BandwidthUtil.min(
+                    subscription.getSubscriptionEnd(), planEnd));
         }
 
         // Create a Set of Calendars for all the baseReferenceTimes that a
         // Subscription can contain...
-        subscriptionStartDate.set(Calendar.HOUR_OF_DAY, 0);
-        subscriptionStartDate.set(Calendar.MINUTE, 0);
-        subscriptionStartDate.set(Calendar.SECOND, 0);
-        subscriptionStartDate.set(Calendar.MILLISECOND, 0);
+        TimeUtil.minCalendarFields(subscriptionStartDate, Calendar.MILLISECOND,
+                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
 
         outerloop: while (!subscriptionStartDate.after(subscriptionEndDate)) {
 

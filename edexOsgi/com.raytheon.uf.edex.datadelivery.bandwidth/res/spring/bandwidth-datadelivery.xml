@@ -57,6 +57,9 @@
         <property name="subscriptionLatencyCalculator">
             <bean class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SubscriptionValueLatencyCalculator" />
         </property>
+        <property name="subscriptionRescheduleStrategy">
+            <bean class="com.raytheon.uf.edex.datadelivery.bandwidth.util.AlwaysRescheduleSubscriptions" />
+        </property>
     </bean>
     
     <bean id="bandwidthDaoUtil" class="com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil">
