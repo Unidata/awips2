@@ -19,7 +19,14 @@
  **/
 package com.raytheon.uf.common.geospatial;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.projection.ProjectionException;
@@ -43,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 15, 2013            mnash     Initial creation
+ * Feb 15, 2013 1614       bsteffen    Cache LatLonReprojection results.
  * 
  * </pre>
  * 
@@ -54,6 +62,27 @@ public class LatLonReprojection {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LatLonReprojection.class);
+
+    // The cache is an LRU map that holds a soft reference to LatLonWrapper.
+    // Using an LRU map prevents the buildup of empty references and places a
+    // reasonable upper limit on the number of objects to cache. Using soft
+    // references prevents running out of memory and allows all the memory to be
+    // reclaimed if the LatLonReprojection is not used for awhile.
+    private static Map<GeneralGridGeometry, Reference<LatLonWrapper>> cache = new LinkedHashMap<GeneralGridGeometry, Reference<LatLonWrapper>>(
+            64, 0.8f, true) {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected boolean removeEldestEntry(
+                Entry<GeneralGridGeometry, Reference<LatLonWrapper>> eldest) {
+            if (size() > 50) {
+                return true;
+            }
+            return false;
+        }
+
+    };
 
     /**
      * Take a {@link GeneralGridGeometry} and reproject it to lat/lon space
@@ -106,17 +135,60 @@ public class LatLonReprojection {
      * @return
      */
     public static LatLonWrapper getLatLons(GeneralGridGeometry source) {
-        float[] latlons = reproject(source);
-        float[] lats = new float[latlons.length / 2];
-        float[] lons = new float[latlons.length / 2];
-
-        for (int i = 0; i < lats.length; i++) {
-            int index = i * 2;
-            lons[i] = latlons[index];
-            lats[i] = latlons[index + 1];
+        // normalize grid geometry to a GridGeometry2D object since a
+        // GeneralGridGeometry and a GridGeometry2D can produce identical
+        // results but cannot be interchanged as map keys.
+        source = GridGeometry2D.wrap(source);
+        LatLonWrapper wrapper = null;
+        Reference<LatLonWrapper> wrapperRef = null;
+        synchronized (cache) {
+            // There are three paths through this sync block.
+            // 1) The wrapper was in the cache and can be returned.
+            // 2) The wrapperRef was in the cache but it has no wrapper, the
+            // wrapperRef can be used as a lock object for synchronizing this
+            // geometry.
+            // 3) Nothing is in the cache, an empty ref will be placed in the
+            // cache to provide a lock object for this geometry.
+            wrapperRef = cache.get(source);
+            if (wrapperRef != null) {
+                wrapper = wrapperRef.get();
+            } else {
+                wrapperRef = new SoftReference<LatLonWrapper>(null);
+                cache.put(source, wrapperRef);
+            }
         }
+        if (wrapper == null) {
+            // wrapperRef is used to provide fine grained locking on an
+            // individual geometry. Different geometries can run simultaneously.
+            synchronized (wrapperRef) {
+                // If 2 threads manage to block on the same wrapperRef then the
+                // second thread will be able to pull the wrapper out of the
+                // cache and avoid calculation.
+                synchronized (cache) {
+                    wrapperRef = cache.get(source);
+                }
+                if (wrapperRef != null) {
+                    wrapper = wrapperRef.get();
+                }
+                if (wrapper == null) {
+                    float[] latlons = reproject(source);
+                    float[] lats = new float[latlons.length / 2];
+                    float[] lons = new float[latlons.length / 2];
 
-        LatLonWrapper wrapper = new LatLonWrapper(lats, lons);
+                    for (int i = 0; i < lats.length; i++) {
+                        int index = i * 2;
+                        lons[i] = latlons[index];
+                        lats[i] = latlons[index + 1];
+                    }
+
+                    wrapper = new LatLonWrapper(lats, lons);
+                    synchronized (cache) {
+                        cache.put(source, new SoftReference<LatLonWrapper>(
+                                wrapper));
+                    }
+                }
+            }
+        }
         return wrapper;
     }
 }
