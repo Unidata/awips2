@@ -17,13 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataaccess.geom;
-
-import com.raytheon.uf.common.dataaccess.IDataFactory;
+package com.raytheon.uf.common.dataaccess.exception;
 
 /**
- * IDataFactory for any data that is non-gridded, for example points or
- * polygons.
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -31,15 +28,38 @@ import com.raytheon.uf.common.dataaccess.IDataFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 10, 2012            njensen     Initial creation
+ * Feb 15, 2013 1614       bsteffen    Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author bsteffen
  * @version 1.0
  */
 
-public interface IGeometryDataFactory extends
-        IDataFactory<IGeometryRequest, IGeometryData> {
+public class UnsupportedOutputTypeException extends DataAccessException {
 
+    private final String dataType;
+
+    private final String outputType;
+
+    public UnsupportedOutputTypeException(String dataType, String outputType) {
+        super(dataType + " does not support " + outputType + " data");
+        this.dataType = dataType;
+        this.outputType = outputType;
+    }
+
+    /**
+     * @return the dataType
+     */
+    public String getDataType() {
+        return dataType;
+    }
+
+    /**
+     * @return the outputType
+     */
+    public String getOutputType() {
+        return outputType;
+    }
+    
 }
