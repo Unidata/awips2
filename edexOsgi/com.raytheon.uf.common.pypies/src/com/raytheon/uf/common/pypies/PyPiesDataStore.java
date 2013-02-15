@@ -72,6 +72,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Oct 01, 2010            rjpeter     Added logging of requests over 300ms
  * Mon 07, 2013  DR 15294  D. Friedman Stream large requests
  * Feb 11, 2013      1526   njensen    use HttpClient.postDynamicSerialize() for memory efficiency
+ * Feb 12, 2013     #1608  randerso    Added explicit deletes for groups and datasets
+ * 
  * </pre>
  * 
  * @author njensen
@@ -149,13 +151,29 @@ public class PyPiesDataStore implements IDataStore {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#delete(java.lang.String[])
+     * com.raytheon.uf.common.datastorage.IDataStore#deleteDatasets(java.lang
+     * .String[])
      */
     @Override
-    public void delete(final String... location) throws StorageException,
+    public void deleteDatasets(final String... datasets)
+            throws StorageException, FileNotFoundException {
+        DeleteRequest delete = new DeleteRequest();
+        delete.setDatasets(datasets);
+        sendRequest(delete);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.datastorage.IDataStore#deleteGroups(java.lang.
+     * String[])
+     */
+    @Override
+    public void deleteGroups(final String... groups) throws StorageException,
             FileNotFoundException {
         DeleteRequest delete = new DeleteRequest();
-        delete.setLocations(location);
+        delete.setGroups(groups);
         sendRequest(delete);
     }
 
