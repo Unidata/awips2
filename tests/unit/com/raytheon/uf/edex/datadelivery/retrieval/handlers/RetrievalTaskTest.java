@@ -24,11 +24,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
@@ -75,6 +76,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Jan 30, 2013 1543       djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Add test to simulate SBN retrieval task behavior.
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now sent further down the chain.
+ * Feb 15, 2013 1543       djohnson     Class renames.
  * 
  * </pre>
  * 
@@ -84,12 +86,12 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
-       @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RetrievalTaskTest {
     /**
      * Places the plugin data object into a collection for inspection.
      */
-    public static class PlaceInCollectionProcessor implements
+    public class PlaceInCollectionProcessor implements
             IRetrievalPluginDataObjectsProcessor {
         public final List<PluginDataObject> pluginDataObjects = new ArrayList<PluginDataObject>();
 
@@ -98,22 +100,33 @@ public class RetrievalTaskTest {
          */
         @Override
         public void processRetrievedPluginDataObjects(
-                RetrievalPluginDataObjects retrievalPluginDataObjects)
+                RetrievalResponseXml retrievalPluginDataObjects)
                 throws Exception {
-            final List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
+            final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                     .getRetrievalAttributePluginDataObjects();
-            final RetrievalRequestRecord requestRecord = retrievalPluginDataObjects
-                    .getRequestRecord();
+            final RetrievalRequestRecord requestRecord = dao
+                    .getById(retrievalPluginDataObjects.getRequestRecord());
             final Retrieval retrieval = requestRecord.getRetrievalObj();
             final ServiceType serviceType = retrieval.getServiceType();
             final RetrievalAdapter serviceRetrievalAdapter = ServiceTypeFactory
                     .retrieveServiceRetrievalAdapter(serviceType);
+            final Iterator<RetrievalAttribute> attributesIter = retrieval
+                    .getAttributes().iterator();
 
-            for (RetrievalAttributePluginDataObjects pluginDataObjectEntry : retrievalAttributePluginDataObjects) {
-                IRetrievalResponse value = pluginDataObjectEntry
+            for (RetrievalResponseWrapper pluginDataObjectEntry : retrievalAttributePluginDataObjects) {
+
+                if (!attributesIter.hasNext()) {
+                    throw new RuntimeException(
+                            "Did not find a RetrievalAttribute to match the retrieval response!");
+                }
+
+                // Restore the attribute xml prior to processing the response
+                final IRetrievalResponse response = pluginDataObjectEntry
                         .getRetrievalResponse();
+                response.setAttribute(attributesIter.next());
+
                 final Map<String, PluginDataObject[]> processed = serviceRetrievalAdapter
-                        .processResponse(value);
+                        .processResponse(response);
                 for (PluginDataObject[] pdos : processed.values()) {
                     pluginDataObjects.addAll(Arrays.asList(pdos));
                 }
@@ -202,14 +215,10 @@ public class RetrievalTaskTest {
     @Test
     public void retrievalTaskCanStoreDataToDirectoryThatAnotherTaskProcesses()
             throws Exception {
-        RetrievalPluginDataObjects retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
-                .get();
+        dao.create(RetrievalRequestRecordFixture.INSTANCE.get());
 
-        IRetrievalPluginDataObjectsFinder retrievalDataFinder = mock(IRetrievalPluginDataObjectsFinder.class);
-        when(retrievalDataFinder.findRetrievalPluginDataObjects()).thenReturn(
-                retrievalPluginDataObjects).thenReturn(null);
-
-        IRetrievalResponseCompleter retrievalCompleter = mock(IRetrievalResponseCompleter.class);
+        IRetrievalsFinder retrievalDataFinder = new PerformRetrievalsThenReturnFinder(
+                Network.OPSNET, dao);
 
         final File testDirectory = TestUtil
                 .setupTestClassDir(RetrievalTaskTest.class);
@@ -217,15 +226,30 @@ public class RetrievalTaskTest {
                 testDirectory);
 
         RetrievalTask downloadTask = new RetrievalTask(Network.OPSNET,
-                retrievalDataFinder, serializeToDirectory, retrievalCompleter);
+                retrievalDataFinder, serializeToDirectory,
+                mock(IRetrievalResponseCompleter.class), dao);
         RetrievalTask readDownloadsTask = new RetrievalTask(Network.OPSNET,
                 new DeserializeRetrievedDataFromDirectory(testDirectory),
-                retrievedDataProcessor, retrievalCompleter);
+                retrievedDataProcessor, new RetrievalResponseCompleter(
+                        mock(SubscriptionNotifyTask.class), dao), dao);
 
         downloadTask.run();
+
+        final List<RetrievalRequestRecord> all = dao.getAll();
+        for (RetrievalRequestRecord request : all) {
+            assertThat(request.getState(), is(State.RUNNING));
+        }
+
         readDownloadsTask.run();
 
+        final List<RetrievalRequestRecord> allRetrievals = dao.getAll();
+        assertThat(allRetrievals, hasSize(1));
         assertThat(retrievedDataProcessor.pluginDataObjects, hasSize(2));
+
+        for (RetrievalRequestRecord request : allRetrievals) {
+            assertThat(request.getState(), is(State.COMPLETED));
+        }
+
     }
 
     /**
@@ -242,13 +266,13 @@ public class RetrievalTaskTest {
     private void runRetrievalTask() {
         // Create required strategies for finding, processing, and completing
         // retrievals
-        final IRetrievalPluginDataObjectsFinder retrievalDataFinder = new PerformRetrievalPluginDataObjectsFinder(
+        final IRetrievalsFinder retrievalDataFinder = new PerformRetrievalsThenReturnFinder(
                 Network.OPSNET, dao);
         final IRetrievalResponseCompleter retrievalCompleter = new RetrievalResponseCompleter(
                 mock(SubscriptionNotifyTask.class), dao);
 
         new RetrievalTask(Network.OPSNET, retrievalDataFinder,
-                retrievedDataProcessor, retrievalCompleter).run();
+                retrievedDataProcessor, retrievalCompleter, dao).run();
     }
 
     /**

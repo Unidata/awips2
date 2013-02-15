@@ -22,9 +22,12 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import java.io.File;
 import java.io.FileFilter;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import javax.xml.bind.JAXBException;
+
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
 
 /**
  * Deserializes the retrieved data in a directory.
@@ -43,7 +46,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * @version 1.0
  */
 public class DeserializeRetrievedDataFromDirectory implements
-        IRetrievalPluginDataObjectsFinder {
+        IRetrievalsFinder {
 
     private static final FileFilter NO_DIRECTORIES = new FileFilter() {
         @Override
@@ -54,18 +57,28 @@ public class DeserializeRetrievedDataFromDirectory implements
 
     private final File directory;
 
+    private final JAXBManager jaxbManager;
+
     /**
      * @param directory
      */
     public DeserializeRetrievedDataFromDirectory(File directory) {
         this.directory = directory;
+        try {
+            this.jaxbManager = new JAXBManager(
+                    RetrievalResponseXml.class,
+                    OpenDapRetrievalResponse.class, Coverage.class);
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public RetrievalPluginDataObjects findRetrievalPluginDataObjects()
+    public RetrievalResponseXml findRetrievals()
             throws Exception {
 
         final File[] files = directory.listFiles(NO_DIRECTORIES);
@@ -76,9 +89,8 @@ public class DeserializeRetrievedDataFromDirectory implements
 
         final File file = files[0];
         try {
-            return SerializationUtil
-                    .transformFromThrift(RetrievalPluginDataObjects.class,
-                            FileUtil.file2bytes(file));
+            return (RetrievalResponseXml) jaxbManager
+                    .jaxbUnmarshalFromXmlFile(file);
         } finally {
             file.delete();
         }
