@@ -42,6 +42,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 12, 2013 1543       djohnson     Can only test the retrieval response is now not null.
+ * Feb 15, 2013 1543       djohnson     Some renames.
  * 
  * </pre>
  * 
@@ -59,14 +60,14 @@ public class DeserializeRetrievedDataFromDirectoryTest {
     public void deserializesRetrievedDataFromAFileInTheTargetDirectory()
             throws Exception {
 
-        RetrievalPluginDataObjects retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
+        RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
         new SerializeRetrievedDataToDirectory(directory)
                 .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
 
-        final RetrievalPluginDataObjects restored = service
-                .findRetrievalPluginDataObjects();
+        final RetrievalResponseXml restored = service
+                .findRetrievals();
 
         // Just make sure the payload is present
         assertThat(restored.getRetrievalAttributePluginDataObjects().get(0)
@@ -77,13 +78,13 @@ public class DeserializeRetrievedDataFromDirectoryTest {
     public void deletesFileAfterRetrievingFromTheTargetDirectory()
             throws Exception {
 
-        RetrievalPluginDataObjects retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
+        RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
         new SerializeRetrievedDataToDirectory(directory)
                 .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
 
-        service.findRetrievalPluginDataObjects();
+        service.findRetrievals();
 
         assertThat(directory, hasNoFiles());
     }
@@ -93,14 +94,14 @@ public class DeserializeRetrievedDataFromDirectoryTest {
 
         new File(directory, "subDir1").mkdirs();
 
-        service.findRetrievalPluginDataObjects();
+        service.findRetrievals();
     }
 
     @Test
     public void returnsNullWhenNoFileInTheTargetDirectory() throws Exception {
 
-        final RetrievalPluginDataObjects restored = service
-                .findRetrievalPluginDataObjects();
+        final RetrievalResponseXml restored = service
+                .findRetrievals();
 
         assertNull(restored);
     }
