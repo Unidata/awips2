@@ -21,6 +21,10 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
  **/
 
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -36,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2011            dhladky     Initial creation
  * Feb 12, 2013 1543       djohnson    Abstract class now.
+ * Feb 15, 2013 1543       djohnson    Sub-classes must implement payload methods, make JAXBable.
  * 
  * </pre>
  * 
@@ -44,14 +49,13 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @author dhladky
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class RetrievalResponse implements IRetrievalResponse {
 
+    @XmlElement
     @DynamicSerializeElement
     private RetrievalAttribute attribute;
-
-    @DynamicSerializeElement
-    private Object payLoad;
 
     public RetrievalResponse() {
 
@@ -62,20 +66,11 @@ public abstract class RetrievalResponse implements IRetrievalResponse {
     }
 
     @Override
-    public void setPayLoad(Object payLoad) {
-        this.payLoad = payLoad;
-    }
-
-    @Override
-    public Object getPayLoad() {
-        return payLoad;
-    }
-
-    @Override
     public RetrievalAttribute getAttribute() {
         return attribute;
     }
 
+    @Override
     public void setAttribute(RetrievalAttribute attribute) {
         this.attribute = attribute;
     }
