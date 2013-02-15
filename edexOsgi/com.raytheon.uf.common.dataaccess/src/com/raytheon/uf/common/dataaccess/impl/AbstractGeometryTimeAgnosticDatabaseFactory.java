@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.common.dataaccess.impl;
 
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -37,6 +37,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -69,7 +71,7 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * raytheon.uf.common.dataaccess.IDataRequest)
      */
     @Override
-    public DataTime[] getAvailableTimes(IGeometryRequest request)
+    public DataTime[] getAvailableTimes(IDataRequest request)
             throws TimeAgnosticDataException {
         throw new TimeAgnosticDataException(this.buildExceptionMessage(request));
     }
@@ -82,7 +84,8 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * .common.dataaccess.IDataRequest, com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    public IGeometryData[] getData(IGeometryRequest request, DataTime... times) {
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            DataTime... times) {
         return this.getData(request);
     }
 
@@ -94,7 +97,8 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * .common.dataaccess.IDataRequest, com.raytheon.uf.common.time.TimeRange)
      */
     @Override
-    public IGeometryData[] getData(IGeometryRequest request, TimeRange timeRange) {
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            TimeRange timeRange) {
         return this.getData(request);
     }
 
@@ -104,7 +108,7 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * @param request the original request that we are processing
      * @return an array of IGeometryData
      */
-    protected IGeometryData[] getData(IGeometryRequest request) {
+    protected IGeometryData[] getData(IDataRequest request) {
         return super.executeDataQuery(this.assembleGetData(request), request);
     }
 
@@ -117,7 +121,7 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * com.raytheon.uf.common.time.BinOffset)
      */
     @Override
-    public DataTime[] getAvailableTimes(IGeometryRequest request,
+    public DataTime[] getAvailableTimes(IDataRequest request,
             BinOffset binOffset) throws TimeAgnosticDataException {
         throw new TimeAgnosticDataException(this.buildExceptionMessage(request));
     }
@@ -128,7 +132,7 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * @param request the original request that we are processing
      * @return the constructed exception message
      */
-    private String buildExceptionMessage(IGeometryRequest request) {
+    private String buildExceptionMessage(IDataRequest request) {
         StringBuilder stringBuilder = new StringBuilder(
                 "This operation is unsupported for data type: ");
         stringBuilder.append(request.getDatatype());
@@ -142,7 +146,7 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * @param request the original request that we are processing
      * @return the query
      */
-    protected abstract String assembleGetData(IGeometryRequest request);
+    protected abstract String assembleGetData(IDataRequest request);
 
     /**
      * The following methods are no longer applicable to us.
@@ -150,24 +154,24 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * Should we be throwing an exception
      */
     @Override
-    protected String assembleGetTimes(IGeometryRequest request) {
+    protected String assembleGetTimes(IDataRequest request) {
         return null;
     }
 
     @Override
-    protected String assembleGetTimes(IGeometryRequest request,
+    protected String assembleGetTimes(IDataRequest request,
             BinOffset binOffset) {
         return null;
     }
 
     @Override
-    protected String assembleGetData(IGeometryRequest request,
+    protected String assembleGetData(IDataRequest request,
             DataTime... times) {
         return null;
     }
 
     @Override
-    protected String assembleGetData(IGeometryRequest request,
+    protected String assembleGetData(IDataRequest request,
             TimeRange timeRange) {
         return null;
     }
