@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/18/2012   DR 14694    D. Friedman Fixes for static topography generation
  * 05/09/2012   DR 14939    D. Friedman Fix errors in DR 14694
  * 01/14/2013   1469        bkowal      Removed the hdf5 data directory
+ * 02/12/2013   #1608       randerso    Changed to call deleteDatasets
  * 
  * </pre>
  * 
@@ -177,8 +178,10 @@ public class StaticTopoData {
             try {
                 if (!topoFileExists()) {
                     // TODO: This will fail in a clustered server environment
-                    // since
-                    // static topo isn't installed to dx3/4
+                    // since static topo isn't installed to dx3/4
+                    // UPDATE: this doesn't even work in a standalone
+                    // environment now because it can't find the gzipped source
+                    // files since FILE_PREFIX was changed
                     statusHandler.handle(Priority.INFO,
                             "Static Topo file not found. Creating it...");
 
@@ -344,9 +347,7 @@ public class StaticTopoData {
         sTopoDataStore.addDataRecord(attributeSet, sp);
         sTopoDataStore.addDataRecord(westRecord, sp);
         sTopoDataStore.store();
-        sTopoDataStore.delete("pac");
-        sTopoDataStore.delete("attrpac");
-
+        sTopoDataStore.deleteDatasets("pac", "attrpac");
     }
 
     /**
@@ -573,12 +574,13 @@ public class StaticTopoData {
 
         for (int i = 0; i < finalData.length; i++) {
             float v = finalData[i];
-            if (Float.isNaN(v))
+            if (Float.isNaN(v)) {
                 finalData[i] = TOPO_FILL;
-            else if (v == DATA_FILL || (v > -0.5 && v < 0.5))
+            } else if (v == DATA_FILL || (v > -0.5 && v < 0.5)) {
                 finalData[i] = 0.0f;
-            else
+            } else {
                 finalData[i] = v;
+            }
         }
         return finalData;
 
