@@ -23,19 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
+import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
+import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.dataaccess.util.PDOUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.Request.Type;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 
 /**
@@ -49,6 +47,8 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 17, 2013            bsteffen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -57,7 +57,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  */
 
 public abstract class AbstractGridDataPluginFactory extends
-        AbstractDataPluginFactory<IGridRequest, IGridData> {
+        AbstractDataPluginFactory {
 
     /**
      * Executes the provided DbQueryRequest and returns an array of IGridData
@@ -68,7 +68,7 @@ public abstract class AbstractGridDataPluginFactory extends
      *            the db query request to execute
      * @return an array of IGridData
      */
-    protected IGridData[] getData(IGridRequest request,
+    protected IGridData[] getGridData(IDataRequest request,
             DbQueryResponse dbQueryResponse) {
 
         List<IGridData> gridData = new ArrayList<IGridData>();
@@ -85,16 +85,12 @@ public abstract class AbstractGridDataPluginFactory extends
             PluginDataObject pdo = (PluginDataObject) resultMap
                     .get(null);
 
-            IDataRecord dataRecord = getDataRecord(pdo,
-                    request.getStorageRequest());
+            IDataRecord dataRecord = getDataRecord(pdo);
 
             /*
              * Extract the grid geometry.
              */
             GridGeometry2D gridGeometry = getGridGeometry(pdo);
-
-            gridGeometry = trimGridGeometryToRequest(gridGeometry,
-                    request.getStorageRequest());
 
             IGridData defaultGridData = null;
             defaultGridData = this.constructGridDataResponse(request, pdo,
@@ -106,10 +102,17 @@ public abstract class AbstractGridDataPluginFactory extends
         return gridData.toArray(new IGridData[gridData.size()]);
     }
 
-    protected IDataRecord getDataRecord(PluginDataObject pdo,
-            Request storageRequest) {
+    protected IGeometryData[] getGeometryData(IDataRequest request,
+            DbQueryResponse dbQueryResponse) {
+        // Subtypes can optionally support geometry by overriding this, default
+        // is to not support geometry data.
+        throw new UnsupportedOutputTypeException(request.getDatatype(),
+                "geometry");
+    }
+
+    protected IDataRecord getDataRecord(PluginDataObject pdo) {
         try {
-            return PDOUtil.getDataRecord(pdo, "Data", storageRequest);
+            return PDOUtil.getDataRecord(pdo, "Data", Request.ALL);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataRetrievalException(
@@ -136,47 +139,8 @@ public abstract class AbstractGridDataPluginFactory extends
      * @return the IGridData that was constructed
      */
     protected abstract IGridData constructGridDataResponse(
-            IGridRequest request, PluginDataObject pdo,
+            IDataRequest request, PluginDataObject pdo,
             GridGeometry2D gridGeometry, IDataRecord dataRecord);
 
-    /**
-     * Given a full PDO grid geometry and the request used this will determine
-     * the geometry that describes the requested area. For null or ALL this
-     * returns the full geometry, for SLAB requests this will create a subset
-     * geometry describing the slab and for all other types of requests this
-     * returns null.
-     * 
-     * @param gridGeom
-     *            - full dataset geometry
-     * @param storageRequest
-     * @return for null or ALL this returns the full geometry, for SLAB requests
-     *         this will create a subset geometry describing the slab and for
-     *         all other types of requests this returns null.
-     */
-    protected static GridGeometry2D trimGridGeometryToRequest(
-            GridGeometry2D gridGeom,
-            Request storageRequest) {
-        if (storageRequest == null || storageRequest.getType() == Type.ALL) {
-            return gridGeom;
-        } else if (storageRequest.getType() == Type.SLAB) {
-            int[] min = storageRequest.getMinIndexForSlab();
-            int[] max = storageRequest.getMaxIndexForSlab();
-            GridEnvelope2D range = new GridEnvelope2D(min[0], min[1], max[0]
-                    - min[0], max[1] - min[1]);
-            try {
-                Envelope env = gridGeom.gridToWorld(range);
-                return new GridGeometry2D(range, env);
-            } catch (TransformException e) {
-                throw new DataRetrievalException(e);
-            }
-        } else {
-            // point, and line requests can't easily be described by a grid
-            // geometry. Theoretically if there is one point or if the lines are
-            // evenly spaced it might be possible or lines could be described by
-            // a nonlinear geometry, but as of now there are no plans to use the
-            // api for anything this exciting.
-            return null;
-        }
-    }
 
 }

@@ -28,6 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/10/12                      njensen       Initial Creation.
+#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#                                                 to use single request.
 #    
 # 
 #
@@ -58,6 +60,10 @@ class IDataRequest(object):
         return
     
     @abc.abstractmethod
+    def setEnvelope(self, env):
+        return
+    
+    @abc.abstractmethod
     def setLocationNames(self, locationNames):
         return
     
@@ -70,31 +76,17 @@ class IDataRequest(object):
         return
     
     @abc.abstractmethod
-    def getParameters(self):
-        return
-    
-    @abc.abstractmethod
     def getLevels(self):
         return
     
     @abc.abstractmethod
     def getLocationNames(self):
         return
-
-class IGridRequest(IDataRequest):
-    __metaclass__ = abc.ABCMeta
-    
-
-class IGeometryRequest(IDataRequest):
-    __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
     def getEnvelope(self):
         return
-    
-    @abc.abstractmethod
-    def setEnvelope(self, env):
-        return
+
 
 
 class IData(object):
@@ -119,7 +111,6 @@ class IData(object):
 
 
 class IGridData(IData):
-    __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
     def getParameter(self):
@@ -136,7 +127,6 @@ class IGridData(IData):
 
 
 class IGeometryData(IData):
-    #__metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
     def getGeometry(self):
