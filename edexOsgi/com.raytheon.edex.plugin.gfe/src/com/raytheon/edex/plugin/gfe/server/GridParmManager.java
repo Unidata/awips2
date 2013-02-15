@@ -66,6 +66,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.purge.PurgeLogger;
 
 /**
  * Class used to manage grid parms
@@ -248,9 +249,8 @@ public class GridParmManager {
         ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<List<GridUpdateNotification>>();
 
         // process each request
-        for (int r = 0; r < saveRequest.size(); r++) {
+        for (SaveGridRequest req : saveRequest) {
             ServerResponse<?> ssr = null;
-            SaveGridRequest req = saveRequest.get(r);
             GridParm gp = null;
             try {
                 gp = gridParm(req.getParmId());
@@ -960,20 +960,20 @@ public class GridParmManager {
         String type = null;
         int count = 0;
         int desiredVersions = 0;
-        for (int i = 0; i < databases.size(); i++) {
+        for (DatabaseID dbId : databases) {
             // new series?
-            if (!databases.get(i).getSiteId().equals(site)
-                    || !databases.get(i).getDbType().equals(type)
-                    || !databases.get(i).getModelName().equals(model)) {
-                site = databases.get(i).getSiteId();
-                type = databases.get(i).getDbType();
-                model = databases.get(i).getModelName();
+            if (!dbId.getSiteId().equals(site)
+                    || !dbId.getDbType().equals(type)
+                    || !dbId.getModelName().equals(model)) {
+                site = dbId.getSiteId();
+                type = dbId.getDbType();
+                model = dbId.getModelName();
                 count = 0;
 
                 // determine desired number of versions
                 try {
                     desiredVersions = IFPServerConfigManager.getServerConfig(
-                            siteID).desiredDbVersions(databases.get(i));
+                            siteID).desiredDbVersions(dbId);
                 } catch (GfeException e) {
                     logger.error("Error retreiving serverConfig", e);
                 }
@@ -982,9 +982,9 @@ public class GridParmManager {
             // process the id and determine whether it should be purged
             count++;
             if (count > desiredVersions
-                    && !databases.get(i).getModelTime()
-                            .equals(DatabaseID.NO_MODEL_TIME)) {
-                deallocateDb(databases.get(i), true);
+                    && !dbId.getModelTime().equals(DatabaseID.NO_MODEL_TIME)) {
+                deallocateDb(dbId, true);
+                PurgeLogger.logInfo("Purging " + dbId, "gfe");
             }
         }
         createDbNotification(siteID, databases);
@@ -1020,18 +1020,18 @@ public class GridParmManager {
 
         List<DatabaseID> databases = sr.getPayload();
 
-        for (int i = 0; i < databases.size(); i++) {
-            if (databases.get(i).getDbType().equals("D2D")) {
+        for (DatabaseID dbId : databases) {
+            if (dbId.getDbType().equals("D2D")) {
                 continue;
             }
 
-            Date t = purgeTime(databases.get(i));
-            if (t == null) {
+            Date purgeTime = purgeTime(dbId);
+            if (purgeTime == null) {
                 continue;
             }
 
             List<ParmID> parmIds = new ArrayList<ParmID>();
-            ServerResponse<List<ParmID>> ssr = getParmList(databases.get(i));
+            ServerResponse<List<ParmID>> ssr = getParmList(dbId);
             sr.addMessages(ssr);
             if (!ssr.isOkay()) {
                 continue;
@@ -1039,22 +1039,29 @@ public class GridParmManager {
 
             parmIds = ssr.getPayload();
 
-            for (int j = 0; j < parmIds.size(); j++) {
+            int purgedCount = 0;
+            for (ParmID parmId : parmIds) {
                 List<GridUpdateNotification> gridNotify = new ArrayList<GridUpdateNotification>();
                 List<LockNotification> lockNotify = new ArrayList<LockNotification>();
                 GridParm gp = null;
                 try {
-                    gp = gridParm(parmIds.get(j));
+                    gp = gridParm(parmId);
                 } catch (GfeException e) {
-                    sr.addMessage("Error getting parm for: " + parmIds.get(j));
-                    logger.error("Error getting parm for: " + parmIds.get(j), e);
+                    sr.addMessage("Error getting parm for: " + parmId);
+                    logger.error("Error getting parm for: " + parmId, e);
                     continue;
                 }
-                sr.addMessages(gp.timePurge(t, gridNotify, lockNotify, siteID));
+                ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
+                        gridNotify, lockNotify, siteID);
+                sr.addMessages(sr1);
+                purgedCount += sr1.getPayload();
 
                 gridNotifications.addAll(gridNotify);
                 lockNotifications.addAll(lockNotify);
             }
+
+            PurgeLogger.logInfo("Purge " + purgedCount + " items from " + dbId,
+                    "gfe");
         }
 
         return sr;
@@ -1071,7 +1078,7 @@ public class GridParmManager {
         }
 
         if (numHours < 1) {
-            return new Date(0);
+            return null; // don't perform time based purge
         }
 
         // calculate purge time based on present time
@@ -1288,20 +1295,14 @@ public class GridParmManager {
         return sr;
     }
 
-    private static void createDbNotification(String siteID, List<DatabaseID> dbs) {
+    private static void createDbNotification(String siteID,
+            List<DatabaseID> prevInventory) {
         List<DatabaseID> newInventory = getDbInventory(siteID).getPayload();
-        List<DatabaseID> additions = new ArrayList<DatabaseID>();
-        List<DatabaseID> deletions = new ArrayList<DatabaseID>();
-        for (int i = 0; i < newInventory.size(); i++) {
-            if (!dbs.contains(newInventory.get(i))) {
-                additions.add(newInventory.get(i));
-            }
-        }
-        for (int i = 0; i < dbs.size(); i++) {
-            if (!newInventory.contains(dbs.get(i))) {
-                deletions.add(dbs.get(i));
-            }
-        }
+        List<DatabaseID> additions = new ArrayList<DatabaseID>(newInventory);
+        additions.removeAll(prevInventory);
+
+        List<DatabaseID> deletions = new ArrayList<DatabaseID>(prevInventory);
+        deletions.removeAll(newInventory);
 
         createDbNotification(siteID, newInventory, additions, deletions);
     }
@@ -1318,10 +1319,9 @@ public class GridParmManager {
     }
 
     private static void deallocateDb(DatabaseID id, boolean deleteFile) {
-        gfeDao.purgeGFEGrids(id);
         if (deleteFile) {
             try {
-                getDb(id).deleteModelHDF5();
+                getDb(id).deleteDb();
             } catch (GfeException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to purge model database: " + id, e);
