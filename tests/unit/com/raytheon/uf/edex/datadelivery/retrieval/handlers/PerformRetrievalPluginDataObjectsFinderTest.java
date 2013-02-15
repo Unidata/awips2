@@ -42,7 +42,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
- * Test {@link PerformRetrievalPluginDataObjectsFinder}.
+ * Test {@link PerformRetrievalsThenReturnFinder}.
  * 
  * <pre>
  * 
@@ -123,7 +123,7 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
         IRetrievalResponse retrievalResponse = mock(IRetrievalResponse.class);
         when(retrievalResponse.getPayLoad()).thenReturn(null);
 
-        PerformRetrievalPluginDataObjectsFinder.setCompletionStateFromResponse(
+        PerformRetrievalsThenReturnFinder.setCompletionStateFromResponse(
                 retrievalThatDoesNotThrowException, retrievalResponse);
 
         assertThat(retrievalThatDoesNotThrowException.getState(),
@@ -131,7 +131,7 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
     }
 
     private void processRetrieval(RetrievalRequestRecord retrieval) {
-        final PerformRetrievalPluginDataObjectsFinder pluginDataObjectsFinder = new PerformRetrievalPluginDataObjectsFinder(
+        final PerformRetrievalsThenReturnFinder pluginDataObjectsFinder = new PerformRetrievalsThenReturnFinder(
                 Network.OPSNET, MOCK_DAO);
         pluginDataObjectsFinder.process(retrieval);
     }

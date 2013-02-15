@@ -39,6 +39,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 15, 2013 1543       djohnson     Class renames.
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ public class SerializeRetrievedDataToDirectoryTest {
     public void serializesRetrievedDataToAFileInTheTargetDirectory()
             throws SerializationException {
 
-        RetrievalPluginDataObjects retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
+        RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
         service.processRetrievedPluginDataObjects(retrievalPluginDataObjects);
