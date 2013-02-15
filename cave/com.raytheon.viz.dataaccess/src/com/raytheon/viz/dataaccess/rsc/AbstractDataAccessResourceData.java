@@ -22,10 +22,13 @@ package com.raytheon.viz.dataaccess.rsc;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import com.raytheon.uf.common.dataaccess.DataAccessLayer;
 import com.raytheon.uf.common.dataaccess.IData;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
+import com.raytheon.uf.common.dataaccess.impl.DefaultDataRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
@@ -44,6 +47,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -51,8 +56,11 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @version 1.0
  */
 
-public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, X extends IData>
-        extends AbstractResourceData {
+public abstract class AbstractDataAccessResourceData<X extends IData> extends
+        AbstractResourceData {
+
+    @XmlElement
+    private DefaultDataRequest request;
 
     private DataTime[] dataTimes;
 
@@ -76,7 +84,7 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
     @Override
     public AbstractVizResource<?, ?> construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        this.populateTimes(this.getRequest());
+        this.populateTimes(request);
         return this.constructResource(loadProperties, descriptor);
     }
 
@@ -87,7 +95,8 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
      * @param request
      *            the request
      */
-    protected void populateTimes(T request) throws NoDataAvailableException {
+    protected void populateTimes(IDataRequest request)
+            throws NoDataAvailableException {
         dataTimes = null;
         try {
             dataTimes = DataAccessLayer.getAvailableTimes(request);
@@ -97,7 +106,7 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
         } catch (TimeAgnosticDataException e1) {
             // Make sure that time agnostic has data before continuing.
             dataTimes = null;
-            X[] data = retreiveData(request, null);
+            X[] data = retreiveData(request);
             if (data == null || data.length == 0) {
                 throw new NoDataAvailableException(this.getClass());
             }
@@ -114,29 +123,7 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
      *            the class that is requesting the data; will always be a
      *            subclass of AbstractDataAccessResourceData
      */
-    private X[] retreiveData(T request, DataTime dataTime) {
-        X[] data = null;
-        if (dataTime == null && dataTimes == null) {
-            /*
-             * If we were a legitimate resource, we would want to cache time
-             * agnostic data that was retrieved. The cache could be a simple Map
-             * or even the cache provided by GOOG in the guava library.
-             */
-            data = DataAccessLayer.getData(request);
-        } else if (dataTime != null) {
-            /* Just use the latest time since this is a sample / test resource */
-            data = DataAccessLayer.getData(request, dataTime);
-        }
-
-        return data;
-    }
-
-    /**
-     * Retrieves the data access framework request associated with the resource data
-     * 
-     * @return the data access framework request to execute
-     */
-    protected abstract T getRequest();
+    protected abstract X[] retreiveData(IDataRequest request, DataTime... times);
 
     /**
      * Constructs the resource
@@ -147,7 +134,8 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
      * @throws VizException
      */
     protected abstract AbstractVizResource<?, ?> constructResource(
-            LoadProperties loadProperties, IDescriptor descriptor) throws VizException;
+            LoadProperties loadProperties, IDescriptor descriptor)
+            throws VizException;
 
     /*
      * (non-Javadoc)
@@ -187,13 +175,19 @@ public abstract class AbstractDataAccessResourceData<T extends IDataRequest<X>, 
     public X[] getData(DataTime time) {
         if (data.containsKey(time)) {
             return data.get(time);
-        } else {
-            X[] data = retreiveData(getRequest(), time);
+        } else if (time != null) {
+            X[] data = retreiveData(request, time);
             this.data.put(time, data);
             return data;
+        } else if (dataTimes == null) {
+            X[] data = retreiveData(request);
+            this.data.put(time, data);
+            return data;
+        } else {
+            return null;
         }
     }
-    
+
     /**
      * get the dataTimes
      * 

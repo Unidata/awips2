@@ -30,22 +30,18 @@ import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
+import com.raytheon.uf.common.dataaccess.IDataFactory;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.dataaccess.grid.IGridDataFactory;
-import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.time.DataTime;
 
 /**
  * A data factory for getting satellite data from the metadata database. There
@@ -59,6 +55,8 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ---------- ----------- --------------------------
  * Jan 02, 2012            bkowal      Initial creation
  * Jan 22, 2012            bsteffen    Extract common functionality to AbstractGridDataPluginFactory
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -66,7 +64,7 @@ import com.raytheon.uf.common.time.DataTime;
  * @version 1.0
  */
 public class SatelliteGridFactory extends AbstractGridDataPluginFactory
-        implements IGridDataFactory {
+        implements IDataFactory {
 
     private static final String FIELD_PYHSICAL_ELEMENT = "physicalElement";
 
@@ -75,110 +73,8 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
     private static final String[] VALID_IDENTIFIERS = { "source",
             "creatingEntity", FIELD_SECTOR_ID, FIELD_PYHSICAL_ELEMENT };
 
-    private Map<String, GridGeometry2D> sectorGeometryMapCache;
-
     public SatelliteGridFactory() {
-        this.sectorGeometryMapCache = new HashMap<String, GridGeometry2D>();
         SatelliteUnits.register();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataaccess.grid.IGridDataFactory#getGeometry(com
-     * .raytheon.uf.common.dataaccess.grid.IGridRequest)
-     */
-    @Override
-    public GridGeometry2D getGeometry(IGridRequest request) {
-        String satelliteSectorID = this.retrieveSectorID(request);
-
-        if (satelliteSectorID == null) {
-            return null;
-        }
-
-        GridGeometry2D geometry = null;
-
-        /*
-         * Has the Geometry for the sector id already been cached?
-         */
-        synchronized (this.sectorGeometryMapCache) {
-            if (this.sectorGeometryMapCache.containsKey(satelliteSectorID)) {
-                /*
-                 * Return the Geometry from cache.
-                 */
-                geometry = this.sectorGeometryMapCache.get(satelliteSectorID);
-            }
-        }
-
-        if (geometry == null) {
-            /*
-             * Retrieve the Geometry.
-             */
-            IGridData[] records = this.getData(request, new DataTime[] {});
-            if (records.length <= 0) {
-                // No records were found
-                return null;
-            }
-            geometry = records[0].getGridGeometry();
-
-            /*
-             * Cache the Geometry.
-             */
-            synchronized (this.sectorGeometryMapCache) {
-                this.sectorGeometryMapCache.put(satelliteSectorID, geometry);
-            }
-        }
-
-        /*
-         * Return the Geometry.
-         */
-        return trimGridGeometryToRequest(geometry, request.getStorageRequest());
-    }
-
-    /**
-     * Will either extract the satellite sector id from the request if it has
-     * been provided or execute a database query utilizing the information in
-     * the request to retrieve the sector id.
-     * 
-     * @param request
-     *            the original grid request
-     * @return the satellite sector id
-     */
-    private String retrieveSectorID(IGridRequest request) {
-        /*
-         * Determine if the sector id has been included in the request.
-         */
-        if (request.getIdentifiers().containsKey(FIELD_SECTOR_ID)) {
-            return request.getIdentifiers().get(FIELD_SECTOR_ID).toString();
-        }
-
-        /*
-         * First, retrieve the unique sector id(s) associated with the request.
-         * Ideally, there will only be one.
-         */
-        DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
-        dbQueryRequest.setDistinct(Boolean.TRUE);
-        dbQueryRequest.addRequestField(FIELD_SECTOR_ID);
-
-        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
-                dbQueryRequest, request.toString());
-
-        // Check for no results returned?
-
-        /*
-         * Verify that only one sector id has been returned.
-         */
-        if (dbQueryResponse.getResults().size() > 1) {
-            throw new DataRetrievalException(
-                    "The provided request parameters refer to more than one geographical location.");
-        }
-
-        /*
-         * Retrieve the sector id from the results.
-         */
-        return dbQueryResponse.getResults().get(0).get(FIELD_SECTOR_ID)
-                .toString();
     }
 
     @Override
@@ -186,7 +82,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
         return VALID_IDENTIFIERS;
     }
 
-    protected DefaultGridData constructGridDataResponse(IGridRequest request,
+    protected DefaultGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             IDataRecord dataRecord)  {
         if(pdo instanceof SatelliteRecord == false){
@@ -232,7 +128,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
      * technique
      */
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
-            IGridRequest request) {
+            IDataRequest request) {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
         if ((request.getIdentifiers() == null) == false) {
             Iterator<String> identifiersIterator = request.getIdentifiers()
@@ -264,7 +160,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
     }
 
     @Override
-    public String[] getAvailableLocationNames(IGridRequest request) {
+    public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, FIELD_SECTOR_ID);
     }
 
