@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,7 +37,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
+import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
 
 /**
@@ -51,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2013 1543       djohnson     Initial creation
  * Feb 12, 2013 1543       djohnson     Now handles the retrieval responses directly.
+ * Feb 15, 2013 1543       djohnson     Retrieve the retrieval attributes from the database.
  * 
  * </pre>
  * 
@@ -60,10 +64,12 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
 
 public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor {
 
-    private final String generalDestinationUri;
-
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(StoreRetrievedData.class);
+
+    private final String generalDestinationUri;
+
+    private final IRetrievalDao retrievalDao;
 
     /**
      * Constructor.
@@ -71,8 +77,10 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      * @param generalDestinationUri
      *            the destination uri most plugin data will travel through
      */
-    public StoreRetrievedData(String generalDestinationUri) {
+    public StoreRetrievedData(String generalDestinationUri,
+            IRetrievalDao retrievalDao) {
         this.generalDestinationUri = generalDestinationUri;
+        this.retrievalDao = retrievalDao;
     }
 
     /**
@@ -80,22 +88,34 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      */
     @Override
     public void processRetrievedPluginDataObjects(
-            RetrievalPluginDataObjects retrievalPluginDataObjects)
+            RetrievalResponseXml retrievalPluginDataObjects)
             throws Exception {
         Map<String, PluginDataObject[]> pluginDataObjects = Maps.newHashMap();
-        final RetrievalRequestRecord requestRecord = retrievalPluginDataObjects
-                .getRequestRecord();
-        final List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
+        final RetrievalRequestRecord requestRecord = retrievalDao
+                .getById(retrievalPluginDataObjects.getRequestRecord());
+
+        final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                 .getRetrievalAttributePluginDataObjects();
         final Retrieval retrieval = requestRecord.getRetrievalObj();
+        final Iterator<RetrievalAttribute> attributesIter = retrieval
+                .getAttributes().iterator();
         final ServiceType serviceType = retrieval.getServiceType();
         final RetrievalAdapter serviceRetrievalAdapter = ServiceTypeFactory
                 .retrieveServiceRetrievalAdapter(serviceType);
 
-        for (RetrievalAttributePluginDataObjects pluginDataObjectEntry : retrievalAttributePluginDataObjects) {
+        for (RetrievalResponseWrapper pluginDataObjectEntry : retrievalAttributePluginDataObjects) {
+            if (!attributesIter.hasNext()) {
+                statusHandler
+                        .warn("Did not find a RetrievalAttribute to match the retrieval response!  Skipping response...");
+            }
+
+            // Restore the attribute xml prior to processing the response
+            final IRetrievalResponse retrievalResponse = pluginDataObjectEntry
+                    .getRetrievalResponse();
+            retrievalResponse.setAttribute(attributesIter.next());
+
             Map<String, PluginDataObject[]> value = serviceRetrievalAdapter
-                    .processResponse(pluginDataObjectEntry
-                            .getRetrievalResponse());
+                    .processResponse(retrievalResponse);
 
             if (value == null || value.isEmpty()) {
                 continue;
@@ -114,8 +134,7 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
                 pluginDataObjects.put(key, objectsForPlugin);
             }
 
-            final RetrievalAttribute attXML = pluginDataObjectEntry
-                    .getAttributeXml();
+            final RetrievalAttribute attXML = retrievalResponse.getAttribute();
             for (Entry<String, PluginDataObject[]> entry : pluginDataObjects
                     .entrySet()) {
                 final String pluginName = entry.getKey();
@@ -155,8 +174,8 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
         String pluginName = pdos[0].getPluginName();
 
         if (pluginName != null) {
-            RetrievalPersistUtil.routePlugin(generalDestinationUri,
-                    pluginName, pdos);
+            RetrievalPersistUtil.routePlugin(generalDestinationUri, pluginName,
+                    pdos);
         }
 
     }
