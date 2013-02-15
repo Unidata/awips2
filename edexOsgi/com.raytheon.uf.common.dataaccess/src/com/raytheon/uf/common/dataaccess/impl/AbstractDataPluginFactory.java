@@ -24,10 +24,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataaccess.IData;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
+import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -49,6 +50,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 17, 2013            bsteffen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -56,20 +59,20 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1.0
  */
 
-public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D extends IData>
+public abstract class AbstractDataPluginFactory
         extends AbstractDataFactory {
 
     protected static final String FIELD_DATATIME = "dataTime";
 
     protected static final String DBQUERY_PLUGIN_NAME_KEY = "pluginName";
 
-    public DataTime[] getAvailableTimes(R request)
+    public DataTime[] getAvailableTimes(IDataRequest request)
             throws TimeAgnosticDataException {
         return this.getAvailableTimes(request, null);
     }
 
     @SuppressWarnings("unchecked")
-    public DataTime[] getAvailableTimes(R request,
+    public DataTime[] getAvailableTimes(IDataRequest request,
             BinOffset binOffset) throws TimeAgnosticDataException {
         validateRequest(request);
         TimeQueryRequest timeQueryRequest = this.buildTimeQueryRequest(request);
@@ -96,41 +99,47 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
         return dataTimes.toArray(new DataTime[dataTimes.size()]);
     }
 
-    /**
-     * Builds a TimeQueryRequest that will be used to retrieve Data Times.
-     * 
-     * @param request
-     *            the original grid request
-     * @return a TimeQueryRequest to execute
-     */
-    protected TimeQueryRequest buildTimeQueryRequest(R request) {
-        TimeQueryRequest timeQueryRequest = new TimeQueryRequest();
-        timeQueryRequest.setPluginName(request.getDatatype());
-        timeQueryRequest.setQueryTerms(this
-                .buildConstraintsFromRequest(request));
-    
-        return timeQueryRequest;
-    }
-
-    public D[] getData(R request, DataTime... times) {
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            DataTime... times) {
+        validateRequest(request);
         DbQueryRequest dbQueryRequest = this
                 .buildDbQueryRequest(request, times);
-        return this.getData(request, dbQueryRequest);
-    }
-
-    public D[] getData(R request, TimeRange timeRange) {
-        DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request,
-                timeRange);
-        return this.getData(request, dbQueryRequest);
-    }
-
-    protected D[] getData(R request, DbQueryRequest dbQueryRequest) {
         DbQueryResponse dbQueryResponse = executeDbQueryRequest(dbQueryRequest,
                 request.toString());
-        return getData(request, dbQueryResponse);
+        return getGeometryData(request, dbQueryResponse);
     }
 
-    public String[] getAvailableLocationNames(R request, String locationColumn) {
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            TimeRange timeRange) {
+        validateRequest(request);
+        DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request,
+                timeRange);
+        DbQueryResponse dbQueryResponse = executeDbQueryRequest(dbQueryRequest,
+                request.toString());
+        return getGeometryData(request, dbQueryResponse);
+    }
+
+    public IGridData[] getGridData(IDataRequest request, DataTime... times) {
+        validateRequest(request);
+        DbQueryRequest dbQueryRequest = this
+                .buildDbQueryRequest(request, times);
+        DbQueryResponse dbQueryResponse = executeDbQueryRequest(dbQueryRequest,
+                request.toString());
+        return getGridData(request, dbQueryResponse);
+    }
+
+    public IGridData[] getGridData(IDataRequest request, TimeRange timeRange) {
+        validateRequest(request);
+        DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request,
+                timeRange);
+        DbQueryResponse dbQueryResponse = executeDbQueryRequest(dbQueryRequest,
+                request.toString());
+        return getGridData(request, dbQueryResponse);
+    }
+
+    public String[] getAvailableLocationNames(IDataRequest request,
+            String locationColumn) {
+        validateRequest(request);
         DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
         dbQueryRequest.setDistinct(Boolean.TRUE);
         dbQueryRequest.addRequestField(locationColumn);
@@ -142,6 +151,22 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
             locationNames.add(result.get(locationColumn).toString());
         }
         return locationNames.toArray(new String[0]);
+    }
+
+    /**
+     * Builds a TimeQueryRequest that will be used to retrieve Data Times.
+     * 
+     * @param request
+     *            the original grid request
+     * @return a TimeQueryRequest to execute
+     */
+    protected TimeQueryRequest buildTimeQueryRequest(IDataRequest request) {
+        TimeQueryRequest timeQueryRequest = new TimeQueryRequest();
+        timeQueryRequest.setPluginName(request.getDatatype());
+        timeQueryRequest.setQueryTerms(this
+                .buildConstraintsFromRequest(request));
+
+        return timeQueryRequest;
     }
 
     /**
@@ -178,7 +203,8 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
      *            the data times to include in the request (if any)
      * @return a DbQueryRequest to execute
      */
-    protected DbQueryRequest buildDbQueryRequest(R request, DataTime[] dataTimes) {
+    protected DbQueryRequest buildDbQueryRequest(IDataRequest request,
+            DataTime[] dataTimes) {
         DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
         if (dataTimes.length <= 0) {
             return dbQueryRequest;
@@ -207,7 +233,8 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
      *            the time range to include in the request
      * @return a DbQueryRequest to execute
      */
-    protected DbQueryRequest buildDbQueryRequest(R request, TimeRange timeRange) {
+    protected DbQueryRequest buildDbQueryRequest(IDataRequest request,
+            TimeRange timeRange) {
         DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
         /* Add the TimeRange Constraint */
         RequestConstraint requestConstraint = new RequestConstraint();
@@ -215,7 +242,6 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
         String[] dateTimeStrings = new String[] {
                 timeRange.getStart().toString(), timeRange.getEnd().toString() };
         requestConstraint.setBetweenValueList(dateTimeStrings);
-        // TODO what should this do with forecast products?
         dbQueryRequest.addConstraint(FIELD_DATATIME, requestConstraint);
 
         return dbQueryRequest;
@@ -228,7 +254,7 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
      *            the original grid request
      * @return the base DbQueryRequest
      */
-    protected DbQueryRequest buildDbQueryRequest(R request) {
+    protected DbQueryRequest buildDbQueryRequest(IDataRequest request) {
         DbQueryRequest dbQueryRequest = new DbQueryRequest();
         Map<String, RequestConstraint> constraints = this
                 .buildConstraintsFromRequest(request);
@@ -239,9 +265,15 @@ public abstract class AbstractDataPluginFactory<R extends IDataRequest<D>, D ext
         return dbQueryRequest;
     }
 
-    protected abstract Map<String, RequestConstraint> buildConstraintsFromRequest(
-            R request);
+    protected abstract IGridData[] getGridData(IDataRequest request,
+            DbQueryResponse dbQueryResponse);
 
-    protected abstract D[] getData(R request, DbQueryResponse dbQueryResponse);
+    protected abstract IGeometryData[] getGeometryData(IDataRequest request,
+            DbQueryResponse dbQueryResponse);
+
+    protected abstract Map<String, RequestConstraint> buildConstraintsFromRequest(
+            IDataRequest request);
+
+
 
 }

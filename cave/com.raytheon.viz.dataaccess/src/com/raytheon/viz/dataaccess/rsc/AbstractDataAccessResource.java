@@ -40,6 +40,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -47,7 +49,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @version 1.0
  */
 
-public abstract class AbstractDataAccessResource<T extends AbstractDataAccessResourceData<?, ?>>
+public abstract class AbstractDataAccessResource<T extends AbstractDataAccessResourceData<?>>
         extends AbstractVizResource<T, MapDescriptor> {
 
     protected static final String _SPACE_ = " ";
