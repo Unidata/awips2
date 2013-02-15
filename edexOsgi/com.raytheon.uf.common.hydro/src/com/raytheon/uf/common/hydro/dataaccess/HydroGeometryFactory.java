@@ -22,9 +22,9 @@ package com.raytheon.uf.common.hydro.dataaccess;
 import java.sql.Timestamp;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory;
 import com.raytheon.uf.common.dataaccess.impl.FactoryUtil;
 import com.raytheon.uf.common.time.BinOffset;
@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Nov 13, 2012            njensen     Initial creation
  * Jan 30, 2012 1551       bkowal      Refactored
  * Jan 31, 2012 1555       bkowal      Modification based on existing hydro code
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -79,8 +81,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * 
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #getAvailableTimes
-     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * #getAvailableTimes (com.raytheon.uf.common.dataaccess.geom.IDataRequest,
      * com.raytheon.uf.common.time.BinOffset)
      */
     /*
@@ -89,7 +90,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * accessed directly?
      */
     @Override
-    public DataTime[] getAvailableTimes(IGeometryRequest request,
+    public DataTime[] getAvailableTimes(IDataRequest request,
             BinOffset binOffset) throws TimeAgnosticDataException {
         return FactoryUtil.getAvailableTimes(this, request, binOffset);
     }
@@ -131,11 +132,10 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * 
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #assembleGetTimes
-     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
+     * #assembleGetTimes (com.raytheon.uf.common.dataaccess.geom.IDataRequest)
      */
     @Override
-    protected String assembleGetTimes(IGeometryRequest request) {
+    protected String assembleGetTimes(IDataRequest request) {
         return HydroQueryAssembler.assembleGetTimes(request);
     }
 
@@ -144,12 +144,11 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * 
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #assembleGetTimes
-     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * #assembleGetTimes (com.raytheon.uf.common.dataaccess.geom.IDataRequest,
      * com.raytheon.uf.common.time.BinOffset)
      */
     @Override
-    protected String assembleGetTimes(IGeometryRequest request,
+    protected String assembleGetTimes(IDataRequest request,
             BinOffset binOffset) {
         return null;
     }
@@ -159,11 +158,11 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * 
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IDataRequest,
      * com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    protected String assembleGetData(IGeometryRequest request,
+    protected String assembleGetData(IDataRequest request,
             DataTime... times) {
         return HydroQueryAssembler.assembleGetData(request, times);
     }
@@ -173,11 +172,11 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * 
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IGeometryRequest,
+     * #assembleGetData(com.raytheon.uf.common.dataaccess.geom.IDataRequest,
      * com.raytheon.uf.common.time.TimeRange)
      */
     @Override
-    protected String assembleGetData(IGeometryRequest request,
+    protected String assembleGetData(IDataRequest request,
             TimeRange timeRange) {
         return HydroQueryAssembler.assembleGetData(request, timeRange);
     }
@@ -188,10 +187,10 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * @see
      * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
      * #assembleGetAvailableLocationNames
-     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
+     * (com.raytheon.uf.common.dataaccess.geom.IDataRequest)
      */
     @Override
-    protected String assembleGetAvailableLocationNames(IGeometryRequest request) {
+    protected String assembleGetAvailableLocationNames(IDataRequest request) {
         return "select lid from location;";
     }
 }
