@@ -19,17 +19,19 @@
  **/
 package com.raytheon.uf.common.dataaccess.impl;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.sql.Timestamp;
 
+import com.raytheon.uf.common.dataaccess.IDataFactory;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
+import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryDataFactory;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil.QUERY_MODE;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -50,6 +52,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -58,7 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 
 public abstract class AbstractGeometryDatabaseFactory extends
-        AbstractDataFactory implements IGeometryDataFactory {
+        AbstractDataFactory implements IDataFactory {
 
     /*
      * for now, we will assume that we will always be executing sql queries. If
@@ -95,7 +99,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * raytheon.uf.common.dataaccess.IDataRequest)
      */
     @Override
-    public DataTime[] getAvailableTimes(IGeometryRequest request)
+    public DataTime[] getAvailableTimes(IDataRequest request)
             throws TimeAgnosticDataException {
         this.validateRequest(request);
         return this.executeTimeQuery(this.assembleGetTimes(request), request);
@@ -110,7 +114,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * com.raytheon.uf.common.time.BinOffset)
      */
     @Override
-    public DataTime[] getAvailableTimes(IGeometryRequest request,
+    public DataTime[] getAvailableTimes(IDataRequest request,
             BinOffset binOffset) throws TimeAgnosticDataException {
         this.validateRequest(request);
         return this.executeTimeQuery(this.assembleGetTimes(request, binOffset),
@@ -125,7 +129,8 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * .common.dataaccess.IDataRequest, com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    public IGeometryData[] getData(IGeometryRequest request, DataTime... times) {
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            DataTime... times) {
         this.validateRequest(request);
         return this.executeDataQuery(this.assembleGetData(request, times),
                 request);
@@ -139,10 +144,21 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * .common.dataaccess.IDataRequest, com.raytheon.uf.common.time.TimeRange)
      */
     @Override
-    public IGeometryData[] getData(IGeometryRequest request, TimeRange timeRange) {
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            TimeRange timeRange) {
         this.validateRequest(request);
         return this.executeDataQuery(this.assembleGetData(request, timeRange),
                 request);
+    }
+
+    @Override
+    public IGridData[] getGridData(IDataRequest request, DataTime... times) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
+    }
+
+    @Override
+    public IGridData[] getGridData(IDataRequest request, TimeRange timeRange) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
     }
 
     /**
@@ -155,7 +171,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * @return an array of DataTimes
      */
     protected final DataTime[] executeTimeQuery(String query,
-            IGeometryRequest request) {
+            IDataRequest request) {
         List<Object[]> results = this.executeQuery(query, request);
         List<DataTime> dataTimes = new ArrayList<DataTime>();
         for (Object[] objects : results) {
@@ -187,7 +203,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * @return an array of IGeometryData
      */
     protected final IGeometryData[] executeDataQuery(String query,
-            IGeometryRequest request) {
+            IDataRequest request) {
         List<Object[]> results = this.executeQuery(query, request);
         return this.makeGeometries(results, request.getParameters(),
                 request.getIdentifiers());
@@ -203,7 +219,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * @return the raw data retrieved from the database
      */
     protected final List<Object[]> executeQuery(String query,
-            IGeometryRequest request) {
+            IDataRequest request) {
         return DatabaseQueryUtil.executeDatabaseQuery(queryMode, query,
                 this.databaseName, request.getDatatype());
     }
@@ -213,10 +229,10 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * 
      * @see com.raytheon.uf.common.dataaccess.geom.IGeometryDataFactory#
      * getAvailableLocationNames
-     * (com.raytheon.uf.common.dataaccess.geom.IGeometryRequest)
+     * (com.raytheon.uf.common.dataaccess.geom.IDataRequest)
      */
     @Override
-    public String[] getAvailableLocationNames(IGeometryRequest request) {
+    public String[] getAvailableLocationNames(IDataRequest request) {
         this.validateRequest(request);
         List<Object[]> results = this.executeQuery(
                 this.assembleGetAvailableLocationNames(request), request);
@@ -252,7 +268,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      *            the original request that we are processing
      * @return the query
      */
-    protected abstract String assembleGetTimes(IGeometryRequest request);
+    protected abstract String assembleGetTimes(IDataRequest request);
 
     /**
      * Builds a query that will be used to retrieve time from the database based
@@ -264,7 +280,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      *            the BinOffset to apply to the retrieved DataTimes
      * @return the query
      */
-    protected abstract String assembleGetTimes(IGeometryRequest request,
+    protected abstract String assembleGetTimes(IDataRequest request,
             BinOffset binOffset);
 
     /**
@@ -278,7 +294,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      *            manifest as constraints
      * @return the query
      */
-    protected abstract String assembleGetData(IGeometryRequest request,
+    protected abstract String assembleGetData(IDataRequest request,
             DataTime... times);
 
     /**
@@ -292,7 +308,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      *            manifest as a BETWEEN constraint
      * @return the query
      */
-    protected abstract String assembleGetData(IGeometryRequest request,
+    protected abstract String assembleGetData(IDataRequest request,
             TimeRange timeRange);
 
     /**
@@ -304,7 +320,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * @return the query
      */
     protected abstract String assembleGetAvailableLocationNames(
-            IGeometryRequest request);
+            IDataRequest request);
 
     /**
      * Builds the data objects that will be returned by calls to getData() on
@@ -338,9 +354,9 @@ public abstract class AbstractGeometryDatabaseFactory extends
      *            the raw data associated with a single row retrieved from the
      *            database
      * @param paramNames
-     *            the parameters specified in the original IGeometryRequest
+     *            the parameters specified in the original IDataRequest
      * @param attrs
-     *            the identifiers specified in the original IGeometryRequest
+     *            the identifiers specified in the original IDataRequest
      * @return the constructed IGeometryData
      */
     protected abstract IGeometryData makeGeometry(Object[] data,
@@ -358,9 +374,9 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * @param locationName
      *            the provided Location
      * @param attributes
-     *            the identifiers specified in the original IGeometryRequest
+     *            the identifiers specified in the original IDataRequest
      * @param paramNames
-     *            the parameters specified in the original IGeometryRequest
+     *            the parameters specified in the original IDataRequest
      * @return the constructed DefaultGeometryData
      */
     protected DefaultGeometryData buildGeometryData(DataTime time, Level level,
@@ -382,7 +398,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * @param locationName
      *            the provided Location
      * @param attributes
-     *            identifiers specified in the original IGeometryRequest
+     *            identifiers specified in the original IDataRequest
      * @param dataIndex
      *            a numerical index indicating where user-specified parameters
      *            may start in the provided row of raw data
@@ -391,7 +407,7 @@ public abstract class AbstractGeometryDatabaseFactory extends
      *            user-specified parameters are extracted from it and added to
      *            the DefaultGeometryData using the addData method
      * @param paramNames
-     *            the parameters specified in the original IGeometryRequest
+     *            the parameters specified in the original IDataRequest
      * @return the constructed DefaultGeometryData
      */
     protected DefaultGeometryData buildGeometryData(DataTime time, Level level,
