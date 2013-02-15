@@ -43,6 +43,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 10/26/2012   DR 15479  Qinglu Lin   Added removeDuplicateCoordinate().
  * 12/06/2012   DR 15559  Qinglu Lin   Added computeSlope(), computeCoordinate(), 
  *                                     and adjustPolygon().
+ * Feb 15, 2013    1624   jsanchez     Fix NullPointerException in removeDuplicateCoordinate.
  * 
  * </pre>
  * 
@@ -127,6 +128,10 @@ public class WarngenUIState {
      * warningPolygon. History 10-26-2012 Qinglu Lin DR15479 Created.
      */
     private static Polygon removeDuplicateCoordinate(Polygon polygon) {
+        if (polygon == null) {
+            return null;
+        }
+
         Coordinate[] verts = polygon.getCoordinates();
         Set<Coordinate> coords = new LinkedHashSet<Coordinate>();
         for (Coordinate c : verts)
