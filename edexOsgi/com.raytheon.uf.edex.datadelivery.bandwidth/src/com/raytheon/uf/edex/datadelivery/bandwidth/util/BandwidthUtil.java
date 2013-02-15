@@ -25,6 +25,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  *                                     use availability delay to determine which starting hours to schedule.
  * Nov 09, 2012 1286       djohnson    Separate DAO utility methods from general utility.
  * Dec 11, 2012 1403       djohnson    No longer valid to run without bandwidth management.
+ * Feb 14, 2013 1595       djohnson    Use subscription rescheduling strategy.
  * 
  * </pre>
  * 
@@ -35,7 +36,7 @@ public class BandwidthUtil {
     public static final long BYTES_PER_KILOBYTE = 1024;
 
     public static final long DEFAULT_IDENTIFIER = -1L;
-    
+
     public static final int[] MONTHS_OF_YEAR = { Calendar.JANUARY,
             Calendar.FEBRUARY, Calendar.MARCH, Calendar.APRIL, Calendar.MAY,
             Calendar.JUNE, Calendar.JULY, Calendar.AUGUST, Calendar.SEPTEMBER,
@@ -50,6 +51,8 @@ public class BandwidthUtil {
     private IDataSetAvailablityCalculator dataSetAvailabilityCalculator;
 
     private ISubscriptionLatencyCalculator subscriptionLatencyCalculator;
+
+    private ISubscriptionRescheduleStrategy subscriptionRescheduleStrategy;
 
     private BandwidthUtil() {
     };
@@ -149,6 +152,15 @@ public class BandwidthUtil {
     public void setSubscriptionLatencyCalculator(
             ISubscriptionLatencyCalculator subscriptionLatencyCalculator) {
         this.subscriptionLatencyCalculator = subscriptionLatencyCalculator;
+    }
+
+    /**
+     * @param subscriptionRescheduleStrategy
+     *            the subscriptionRescheduleStrategy to set
+     */
+    public void setSubscriptionRescheduleStrategy(
+            ISubscriptionRescheduleStrategy subscriptionRescheduleStrategy) {
+        this.subscriptionRescheduleStrategy = subscriptionRescheduleStrategy;
     }
 
     /**
@@ -276,5 +288,20 @@ public class BandwidthUtil {
      */
     public static long convertBytesToKilobytes(long bytes) {
         return bytes / BandwidthUtil.BYTES_PER_KILOBYTE;
+    }
+
+    /**
+     * Check whether a subscription should be rescheduled on an update.
+     * 
+     * @param subscription
+     *            the subscription
+     * @param old
+     *            the old version
+     * @return true if the subscription should be rescheduled
+     */
+    public static boolean subscriptionRequiresReschedule(
+            Subscription subscription, Subscription old) {
+        return instance.subscriptionRescheduleStrategy
+                .subscriptionRequiresReschedule(subscription, old);
     }
 }
