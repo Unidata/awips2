@@ -40,6 +40,8 @@ import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -75,7 +77,7 @@ public abstract class AbstractDataFactory {
      * @param request
      *            the request to validate
      */
-    public void validateRequest(IDataRequest<?> request) {
+    public void validateRequest(IDataRequest request) {
         String[] required = getRequiredIdentifiers();
         Collection<String> missing = Collections.emptySet();
         Collection<String> invalid = Collections.emptySet();
@@ -99,4 +101,5 @@ public abstract class AbstractDataFactory {
                     invalid);
         }
     }
+
 }

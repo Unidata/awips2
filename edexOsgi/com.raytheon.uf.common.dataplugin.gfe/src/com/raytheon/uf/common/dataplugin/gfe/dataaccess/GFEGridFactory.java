@@ -28,10 +28,10 @@ import java.util.Set;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
+import com.raytheon.uf.common.dataaccess.IDataFactory;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.dataaccess.grid.IGridDataFactory;
-import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
@@ -49,7 +49,6 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -65,6 +64,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 4, 2013            bsteffen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -73,7 +74,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  */
 
 public class GFEGridFactory extends AbstractGridDataPluginFactory implements
-        IGridDataFactory {
+        IDataFactory {
 
     private static final String[] VALID_IDENTIFIERS = { GFEDataAccessUtil.MODEL_NAME,
             GFEDataAccessUtil.MODEL_TIME, GFEDataAccessUtil.SITE_ID };
@@ -84,7 +85,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     @Override
-    protected IGridData constructGridDataResponse(IGridRequest request,
+    protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             IDataRecord dataRecord) {
         GFERecord gfeRecord = asGFERecord(pdo);
@@ -114,7 +115,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
 
     @Override
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
-            IGridRequest request) {
+            IDataRequest request) {
         HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
 
         Map<String, String> parmIdComponents = new HashMap<String, String>();
@@ -182,12 +183,14 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
             }
         }
 
+        constraints.put(GFEDataAccessUtil.PARM_ID,
+                GFEDataAccessUtil.createParmIdConstraint(parmIdComponents));
+
         return constraints;
     }
 
     @Override
-    protected IDataRecord getDataRecord(PluginDataObject pdo,
-            Request storageRequest) {
+    protected IDataRecord getDataRecord(PluginDataObject pdo) {
         GFERecord gfeRecord = asGFERecord(pdo);
 
         try {
@@ -226,20 +229,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     @Override
-    public GridGeometry2D getGeometry(IGridRequest request) {
-        DbQueryRequest dbRequest = buildDbQueryRequest(request);
-        dbRequest.setLimit(1);
-        DbQueryResponse dbResonse = executeDbQueryRequest(dbRequest,
-                request.toString());
-        for (Map<String, Object> resultMap : dbResonse.getResults()) {
-            GFERecord gfeRecord = asGFERecord(resultMap.get(null));
-            return getGridGeometry(gfeRecord);
-        }
-        return null;
-    }
-
-    @Override
-    public String[] getAvailableLocationNames(IGridRequest request) {
+    public String[] getAvailableLocationNames(IDataRequest request) {
         DbQueryRequest dbRequest = buildDbQueryRequest(request);
         dbRequest.addRequestField(GFEDataAccessUtil.DB_ID);
         dbRequest.setDistinct(true);
