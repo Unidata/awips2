@@ -137,6 +137,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     while loc is null.
  * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.
  * Feb 12, 2013   1600     jsanchez    Correctly set the StormTrackData's motion direction for a CAN and EXP.
+ * Feb 15, 2013   1607     jsanchez    Added two variables corEventTime and corCreateTime.
  * 
  * </pre>
  * 
@@ -586,9 +587,14 @@ public class TemplateRunner {
                 context.put("start", oldWarn.getIssueTime().getTime());
                 if (oldWarn.getAct().equals("NEW")) {
                     context.put("now", new Date(wwaMNDTime));
+                    // original warning's 'now' time used in MND header
+                    context.put("corCreateTime", new Date(wwaMNDTime));
                 } else
                     context.put("now", simulatedTime);
                 context.put("event", oldWarn.getIssueTime().getTime());
+                // original warning's 'event' time, which should match the storm
+                // track
+                context.put("corEventTime", eventTime);
 
                 String message = oldWarn.getRawmessage();
                 if (!stormTrackState.originalTrack) {
