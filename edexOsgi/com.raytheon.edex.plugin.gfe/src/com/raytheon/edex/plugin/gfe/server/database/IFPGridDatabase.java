@@ -24,12 +24,11 @@ import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
@@ -114,6 +113,10 @@ import com.vividsolutions.jts.io.WKTReader;
 public class IFPGridDatabase extends GridDatabase {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IFPGridDatabase.class);
+
+    // separate logger for GFE performance logging
+    private static final IUFStatusHandler gfePerformanceLogger = UFStatus
+            .getNamedHandler("GFEPerformanceLogger");
 
     protected static final String GRID_PARM_INFO = "GridParmInfo";
 
@@ -816,6 +819,7 @@ public class IFPGridDatabase extends GridDatabase {
             return sr;
         }
 
+        long t0 = System.currentTimeMillis();
         records = consolidateWithExisting(id, records);
         // Figure out where the grids fit into the current inventory
         List<TimeRange> timeInfo = getGridInventory(id).getPayload();
@@ -838,6 +842,9 @@ public class IFPGridDatabase extends GridDatabase {
                 gridsToRemove.add(new GFERecord(id, time));
             }
         }
+        long t1 = System.currentTimeMillis();
+        gfePerformanceLogger.debug("Consolidating grids took " + (t1 - t0)
+                + " ms");
 
         if (!gridsToRemove.isEmpty()) {
             for (GFERecord toRemove : gridsToRemove) {
@@ -845,9 +852,12 @@ public class IFPGridDatabase extends GridDatabase {
                 removeFromHDF5(toRemove);
             }
         }
+        long t2 = System.currentTimeMillis();
+        gfePerformanceLogger.debug("Removing " + gridsToRemove.size()
+                + " existing grids took " + (t2 - t1) + " ms");
 
         boolean hdf5SaveSuccess = false;
-        GFERecord[] failedGrids = null;
+        List<GFERecord> failedGrids = Collections.emptyList();
 
         try {
             failedGrids = saveGridsToHdf5(records);
@@ -858,24 +868,19 @@ public class IFPGridDatabase extends GridDatabase {
         }
 
         // Save off the individual failures (if any), and then save what we can
-        if ((failedGrids != null) && (failedGrids.length > 0)) {
-            for (GFERecord gfeRecord : failedGrids) {
-                sr.addMessage("Failed to save grid to HDF5: " + gfeRecord);
-            }
+        for (GFERecord gfeRecord : failedGrids) {
+            sr.addMessage("Failed to save grid to HDF5: " + gfeRecord);
         }
+        long t3 = System.currentTimeMillis();
+        gfePerformanceLogger
+                .debug("Saving " + records.size() + " " + id.getParmName()
+                        + " grids to hdf5 took " + (t3 - t2) + " ms");
 
         if (hdf5SaveSuccess) {
+            records.removeAll(failedGrids);
 
-            GFERecord[] gridsToStore = records.toArray(new GFERecord[records
-                    .size()]);
-            if ((failedGrids != null) && (failedGrids.length > 0)) {
-                Set<GFERecord> workingSet = new HashSet<GFERecord>(records);
-                workingSet.removeAll(Arrays.asList(failedGrids));
-                gridsToStore = workingSet.toArray(new GFERecord[workingSet
-                        .size()]);
-            }
             try {
-                failedGrids = saveGridToDb(gridsToStore);
+                failedGrids = saveGridToDb(records);
                 for (GFERecord rec : failedGrids) {
                     // already logged at a lower level
                     String msg = "Error saving grid " + rec.toString();
@@ -892,6 +897,10 @@ public class IFPGridDatabase extends GridDatabase {
                 sr.addMessage(msg);
             }
         }
+        long t4 = System.currentTimeMillis();
+        gfePerformanceLogger.debug("Saving " + records.size() + " "
+                + id.getParmName() + " grids to database took " + (t4 - t3)
+                + " ms");
 
         sr.addNotifications(new GridUpdateNotification(id, originalTimeRange,
                 histories, requesterId, id.getDbId().getSiteId()));
@@ -1726,7 +1735,7 @@ public class IFPGridDatabase extends GridDatabase {
         return dataAttributes;
     }
 
-    public GFERecord[] saveGridsToHdf5(List<GFERecord> dataObjects)
+    public List<GFERecord> saveGridsToHdf5(List<GFERecord> dataObjects)
             throws GfeException {
         return saveGridsToHdf5(dataObjects, null);
     }
@@ -1741,7 +1750,7 @@ public class IFPGridDatabase extends GridDatabase {
      *             If errors occur during the interaction with the HDF5
      *             repository
      */
-    public GFERecord[] saveGridsToHdf5(List<GFERecord> dataObjects,
+    public List<GFERecord> saveGridsToHdf5(List<GFERecord> dataObjects,
             ParmStorageInfo parmStorageInfo) throws GfeException {
         List<GFERecord> failedGrids = new ArrayList<GFERecord>();
         try {
@@ -1837,7 +1846,11 @@ public class IFPGridDatabase extends GridDatabase {
                     }
                 }
 
+                long t0 = System.currentTimeMillis();
                 StorageStatus ss = dataStore.store(StoreOp.REPLACE);
+                long t1 = System.currentTimeMillis();
+                gfePerformanceLogger.debug("Storing " + entry.getValue().size()
+                        + " records to hdf5 took " + (t1 - t0) + " ms");
                 StorageException[] exceptions = ss.getExceptions();
                 if ((exceptions != null) && (exceptions.length > 0)) {
                     // Describe the errors, then
@@ -1866,7 +1879,7 @@ public class IFPGridDatabase extends GridDatabase {
         } catch (StorageException e) {
             throw new GfeException("Error storing to HDF5", e);
         }
-        return failedGrids.toArray(new GFERecord[failedGrids.size()]);
+        return failedGrids;
     }
 
     /**
@@ -2088,16 +2101,16 @@ public class IFPGridDatabase extends GridDatabase {
     }
 
     /**
-     * Saves a single GFERecord to the database
+     * Saves GFERecords to the database
      * 
-     * @param record
-     *            The GFERecord(s) to be saved
+     * @param records
+     *            The GFERecords to be saved
      * @param requestorId
      *            The workstationID of the requestor
      * @return failed grids
      * @throws DataAccessLayerException
      */
-    public GFERecord[] saveGridToDb(GFERecord... record)
+    public List<GFERecord> saveGridToDb(List<GFERecord> records)
             throws DataAccessLayerException {
         GFEDao dao = null;
         try {
@@ -2106,7 +2119,7 @@ public class IFPGridDatabase extends GridDatabase {
             throw new DataAccessLayerException("Unable to get gfe dao", e1);
         }
         try {
-            return dao.saveOrUpdate(record);
+            return dao.saveOrUpdate(records);
         } catch (DataAccessException e) {
             throw new DataAccessLayerException(
                     "Error saving GFE grid to database", e);
@@ -2386,6 +2399,78 @@ public class IFPGridDatabase extends GridDatabase {
      */
     @Override
     public void deleteDb() {
-        // Auto-generated method stub
+        DatabaseID id = getDbId();
+        try {
+            GFEDao gfeDao = new GFEDao();
+            gfeDao.purgeGFEGrids(id);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to delete model database: " + id, e);
+        }
+
+        this.deleteModelHDF5();
     }
+
+    /**
+     * Removes a record from the PostGres database
+     * 
+     * @param record
+     *            The record to remove
+     */
+    private void removeFromDb(GFERecord record) {
+        GFEDao dao = null;
+        try {
+            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
+        } catch (PluginException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e);
+        }
+        dao.delete(record);
+        statusHandler.handle(Priority.DEBUG, "Deleted: " + record
+                + " from database");
+    }
+
+    /**
+     * Removes a record from the HDF5 repository. If the record does not exist
+     * in the HDF5, the operation is ignored
+     * 
+     * @param record
+     *            The record to remove
+     */
+    private void removeFromHDF5(GFERecord record) {
+        File hdf5File = GfeUtil.getHdf5File(gfeBaseDataDir, record.getParmId(),
+                record.getDataTime().getValidPeriod());
+
+        /*
+         * Remove the grid from HDF5
+         */
+        String groupName = GfeUtil.getHDF5Group(record.getParmId(),
+                record.getTimeRange());
+
+        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+
+        try {
+            dataStore.delete(groupName);
+            statusHandler.handle(Priority.DEBUG, "Deleted: " + groupName
+                    + " from " + hdf5File.getName());
+
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error deleting hdf5 record " + record.toString(), e);
+        }
+    }
+
+    private void deleteModelHDF5() {
+        File hdf5File = GfeUtil.getHdf5Dir(GridDatabase.gfeBaseDataDir, dbId);
+        IDataStore ds = DataStoreFactory.getDataStore(hdf5File);
+        try {
+            ds.deleteFiles(null);
+        } catch (Exception e) {
+            statusHandler.handle(
+                    Priority.PROBLEM,
+                    "Error deleting GFE model data from hdf5 for "
+                            + dbId.toString(), e);
+
+        }
+    }
+
 }
