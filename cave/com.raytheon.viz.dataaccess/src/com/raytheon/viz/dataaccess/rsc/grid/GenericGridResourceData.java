@@ -21,14 +21,15 @@ package com.raytheon.viz.dataaccess.rsc.grid;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.dataaccess.DataAccessLayer;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.common.dataaccess.impl.DefaultGridRequest;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
 
 /**
@@ -42,6 +43,8 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2013            bkowal       Initial creation
  * Jan 31, 2013 #1555     bkowal       Refactor
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -51,9 +54,7 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class GenericGridResourceData extends
-        AbstractDataAccessResourceData<DefaultGridRequest, IGridData> {
-    @XmlElement
-    private DefaultGridRequest request;
+        AbstractDataAccessResourceData<IGridData> {
 
     /*
      * (non-Javadoc)
@@ -69,15 +70,9 @@ public class GenericGridResourceData extends
         return new GenericGridResource(this, loadProperties);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData#getRequest
-     * ()
-     */
     @Override
-    protected DefaultGridRequest getRequest() {
-        return this.request;
+    protected IGridData[] retreiveData(IDataRequest request, DataTime... times) {
+        return DataAccessLayer.getGridData(request, times);
     }
+
 }

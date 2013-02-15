@@ -6,7 +6,6 @@
 	
 	<bean factory-bean="dataAccessRegistry" factory-method="register">
 		<constructor-arg value="grid"/>
-		<constructor-arg value="com.raytheon.uf.common.dataaccess.grid.IGridRequest"/>
 		<constructor-arg ref="gridDataAccessFactory"/>
 	</bean>	
 	
