@@ -20,12 +20,15 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
+import javax.xml.bind.JAXBException;
+
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
 
 /**
  * Serializes the retrieved data to a directory.
@@ -37,6 +40,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Feb 15, 2013 1543       djohnson     Serialize data out as XML.
  * 
  * </pre>
  * 
@@ -46,6 +50,8 @@ import com.raytheon.uf.common.util.FileUtil;
 public class SerializeRetrievedDataToDirectory implements
         IRetrievalPluginDataObjectsProcessor {
 
+    private final JAXBManager jaxbManager;
+
     private final File targetDirectory;
 
     /**
@@ -53,6 +59,12 @@ public class SerializeRetrievedDataToDirectory implements
      */
     public SerializeRetrievedDataToDirectory(File directory) {
         this.targetDirectory = directory;
+        try {
+            this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
+                    OpenDapRetrievalResponse.class, Coverage.class);
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
     }
 
     /**
@@ -60,13 +72,17 @@ public class SerializeRetrievedDataToDirectory implements
      */
     @Override
     public void processRetrievedPluginDataObjects(
-            RetrievalPluginDataObjects retrievalPluginDataObjects)
+            RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException {
+        retrievalPluginDataObjects.prepareForSerialization();
+
         try {
-            FileUtil.bytes2File(SerializationUtil
-                    .transformToThrift(retrievalPluginDataObjects), new File(
-                    targetDirectory, UUID.randomUUID().toString()));
-        } catch (IOException e) {
+            final File output = new File(targetDirectory, UUID.randomUUID()
+                    .toString());
+            final String xml = jaxbManager
+                    .marshalToXml(retrievalPluginDataObjects);
+            FileUtil.bytes2File(xml.getBytes(), output);
+        } catch (Exception e) {
             throw new SerializationException(e);
         }
     }
