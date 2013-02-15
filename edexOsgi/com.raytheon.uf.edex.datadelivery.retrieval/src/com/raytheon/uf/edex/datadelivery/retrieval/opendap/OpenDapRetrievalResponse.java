@@ -19,9 +19,17 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
+
+import dods.dap.DataDDS;
 
 /**
  * {@link RetrievalResponse} for OpenDAP.
@@ -33,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2013 1543       djohnson     Initial creation
+ * Feb 15, 2013 1543       djohnson     Only allow DataDDS payloads.
  * 
  * </pre>
  * 
@@ -40,7 +49,13 @@ import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
  * @version 1.0
  */
 @DynamicSerializeTypeAdapter(factory = OpenDapRetrievalResponseSerializer.class)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 public class OpenDapRetrievalResponse extends RetrievalResponse {
+
+    @XmlElement
+    @XmlJavaTypeAdapter(value = OpenDapRetrievalResponseSerializer.class)
+    private DataDDS payload;
 
     /**
      * Constructor.
@@ -58,4 +73,24 @@ public class OpenDapRetrievalResponse extends RetrievalResponse {
         super(attribute);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPayLoad(Object payload) {
+        if (payload != null && (!(payload instanceof DataDDS))) {
+            throw new IllegalArgumentException(
+                    "Payload must be a DataDDS instance, not "
+                            + payload.getClass().getName());
+        }
+        this.payload = DataDDS.class.cast(payload);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DataDDS getPayLoad() {
+        return payload;
+    }
 }
