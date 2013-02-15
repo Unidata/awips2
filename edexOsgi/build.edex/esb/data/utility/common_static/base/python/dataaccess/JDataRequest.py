@@ -28,6 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/17/12                      njensen       Initial Creation.
+#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#                                                 to use single request.
 #    
 # 
 #
@@ -60,9 +62,19 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
         for i in xrange(len(args)):
             levels[i] = Level(str(args[i]))
         self.jobj.setLevels(levels)
-    
-    def getLocationNames(self):        
-        return self.jobj.getLocationNames()
+        
+    def setEnvelope(self, env):
+        from com.vividsolutions.jts.geom import Envelope        
+        bounds = env.bounds        
+        jenv = Envelope(bounds[0], bounds[2], bounds[1], bounds[3])
+        self.jobj.setEnvelope(bounds)
+
+    def setLocationNames(self, *args):
+        from java.lang import String as JavaString
+        locs = jep.jarray(len(args), JavaString)
+        for i in xrange(len(args)):
+            locs[i] = JavaString(str(args[i]))
+        self.jobj.setLocationNames(locs)    
     
     def getDatatype(self):
         return self.jobj.getDatatype()
@@ -87,12 +99,16 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
             levels.append(str(lev))
         return levels
     
-    def setLocationNames(self, *args):
-        from java.lang import String as JavaString
-        locs = jep.jarray(len(args), JavaString)
-        for i in xrange(len(args)):
-            locs[i] = str(args[i])
-        self.jobj.setLocationNames(locs)   
+    def getEnvelope(self):
+        env = None
+        jenv = self.jobj.getEnvelope()        
+        if jenv:
+            from com.vividsolutions.jts.geom import GeometryFactory
+            env = shapely.wkt.loads(GeometryFactory().toGeometry(jenv).toText())
+        return env 
+    
+    def getLocationNames(self):        
+        return self.jobj.getLocationNames()
     
     def toJavaObj(self):
         return self.jobj
