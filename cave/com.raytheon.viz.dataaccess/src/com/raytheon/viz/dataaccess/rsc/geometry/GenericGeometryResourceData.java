@@ -21,14 +21,15 @@ package com.raytheon.viz.dataaccess.rsc.geometry;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.dataaccess.DataAccessLayer;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
+import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryRequest;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
 
 /**
@@ -41,6 +42,8 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -50,9 +53,7 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class GenericGeometryResourceData extends
-        AbstractDataAccessResourceData<DefaultGeometryRequest, IGeometryData> {
-    @XmlElement
-    private DefaultGeometryRequest request;
+        AbstractDataAccessResourceData<IGeometryData> {
 
     /**
      * Constructor
@@ -74,15 +75,9 @@ public class GenericGeometryResourceData extends
         return new GenericGeometryResource(this, loadProperties);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData#getRequest
-     * ()
-     */
     @Override
-    protected DefaultGeometryRequest getRequest() {
-        return this.request;
+    protected IGeometryData[] retreiveData(IDataRequest request,
+            DataTime... times) {
+        return DataAccessLayer.getGeometryData(request, times);
     }
 }

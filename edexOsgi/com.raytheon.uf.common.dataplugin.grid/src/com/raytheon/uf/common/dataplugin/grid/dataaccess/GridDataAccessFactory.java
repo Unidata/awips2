@@ -32,10 +32,10 @@ import javax.measure.unit.Unit;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.dataaccess.IDataFactory;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.dataaccess.grid.IGridDataFactory;
-import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
@@ -46,13 +46,9 @@ import com.raytheon.uf.common.dataplugin.grid.dataquery.GridQueryAssembler;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.util.mapping.Mapper;
 
@@ -66,6 +62,8 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 17, 2013            bsteffen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -74,7 +72,7 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  */
 
 public class GridDataAccessFactory extends AbstractGridDataPluginFactory
-        implements IGridDataFactory {
+        implements IDataFactory {
 
     private static final String NAMESPACE = "namespace";
 
@@ -88,40 +86,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     }
 
     @Override
-    public GridGeometry2D getGeometry(IGridRequest request) {
-        Object locationId = null;
-        DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request);
-        dbQueryRequest.setDistinct(Boolean.TRUE);
-        dbQueryRequest.addRequestField(GridConstants.LOCATION_ID);
-
-        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
-                dbQueryRequest, request.toString());
-
-        if (dbQueryResponse.getResults().isEmpty()) {
-            return null;
-        }
-
-        if (dbQueryResponse.getResults().size() > 1) {
-            throw new DataRetrievalException(
-                    "The provided request parameters refer to more than one geographical location.");
-        }
-
-        locationId = dbQueryResponse.getResults().get(0)
-                .get(GridConstants.LOCATION_ID);
-        GridCoverage cov = GridCoverageLookup.getInstance().getCoverage(
-                Integer.parseInt(locationId.toString()));
-        if (cov != null) {
-            return trimGridGeometryToRequest(cov.getGridGeometry(),
-                    request.getStorageRequest());
-        } else {
-            return null;
-        }
-    }
-
-
-    @Override
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
-            IGridRequest request) {
+            IDataRequest request) {
         Map<String, RequestConstraint> result = new HashMap<String, RequestConstraint>();
 
         Map<String, Object> identifiers = request.getIdentifiers();
@@ -219,7 +185,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     }
 
     @Override
-    protected IGridData constructGridDataResponse(IGridRequest request,
+    protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             IDataRecord dataRecord) {
         if (pdo instanceof GridRecord == false) {
@@ -305,7 +271,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     }
 
     @Override
-    public String[] getAvailableLocationNames(IGridRequest request) {
+    public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, GridConstants.DATASET_ID);
     }
 
