@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
@@ -47,9 +45,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
  * Base class for GFE grid databases. This class maintains the location of the
@@ -115,54 +111,6 @@ public abstract class GridDatabase {
      */
     protected GridDatabase(DatabaseID dbId) {
         this.dbId = dbId;
-    }
-
-    /**
-     * Removes a record from the PostGres database
-     * 
-     * @param record
-     *            The record to remove
-     */
-    public void removeFromDb(GFERecord record) {
-        GFEDao dao = null;
-        try {
-            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e);
-        }
-        dao.delete(record);
-        statusHandler.handle(Priority.DEBUG, "Deleted: " + record
-                + " from database");
-    }
-
-    /**
-     * Removes a record from the HDF5 repository. If the record does not exist
-     * in the HDF5, the operation is ignored
-     * 
-     * @param record
-     *            The record to remove
-     */
-    public void removeFromHDF5(GFERecord record) {
-        File hdf5File = GfeUtil.getHdf5File(gfeBaseDataDir, record.getParmId(),
-                record.getDataTime().getValidPeriod());
-
-        /*
-         * Remove the grid from HDF5
-         */
-        String groupName = GfeUtil.getHDF5Group(record.getParmId(),
-                record.getTimeRange());
-
-        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
-
-        try {
-            dataStore.delete(groupName);
-            statusHandler.handle(Priority.DEBUG, "Deleted: " + groupName
-                    + " from " + hdf5File.getName());
-
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error deleting hdf5 record " + record.toString(), e);
-        }
     }
 
     public FloatDataRecord retrieveFromHDF5(ParmID parmId, TimeRange time)
@@ -453,20 +401,6 @@ public abstract class GridDatabase {
 
     public DatabaseID getDbId() {
         return dbId;
-    }
-
-    public void deleteModelHDF5() {
-        File hdf5File = GfeUtil.getHdf5Dir(GridDatabase.gfeBaseDataDir, dbId);
-        IDataStore ds = DataStoreFactory.getDataStore(hdf5File);
-        try {
-            ds.deleteFiles(null);
-        } catch (Exception e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Error deleting GFE model data from hdf5 for "
-                            + dbId.toString(), e);
-
-        }
     }
 
     /**
