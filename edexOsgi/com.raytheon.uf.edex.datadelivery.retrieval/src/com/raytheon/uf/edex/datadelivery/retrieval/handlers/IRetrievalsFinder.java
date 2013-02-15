@@ -21,7 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 
 /**
- * Responsible for finding the {@link RetrievalPluginDataObjects} that should be
+ * Responsible for finding the {@link RetrievalResponseXml} that should be
  * processed.
  * 
  * <pre>
@@ -37,13 +37,13 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
  * @author djohnson
  * @version 1.0
  */
-public interface IRetrievalPluginDataObjectsFinder {
+public interface IRetrievalsFinder {
     /**
-     * Finds the {@link RetrievalPluginDataObjects} that should be processed.
+     * Finds the {@link RetrievalResponseXml} that should be processed.
      * 
-     * @return the {@link RetrievalPluginDataObjects}
+     * @return the {@link RetrievalResponseXml}
      * @throws Exception
      */
-    RetrievalPluginDataObjects findRetrievalPluginDataObjects()
+    RetrievalResponseXml findRetrievals()
             throws Exception;
 }
