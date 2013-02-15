@@ -109,6 +109,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     adding it to the inventory
  * 12/06/12     #1394      rjpeter     Optimized D2D grid access.
  * 01/21/12     #1504      randerso    Back ported change to use ParameterMapper into 13.1.2
+ * 02/10/13     #1603      randerso    Eliminated unnecessary conversion from lists to arrays
+ * 02/12/13     #1608      randerso    Changed to use explicit deletes for groups and datasets
  * 
  * </pre>
  * 
@@ -459,7 +461,7 @@ public class GFEDao extends DefaultPluginDao {
             String[] groupsToDelete = entry.getValue().getSecond();
 
             try {
-                dataStore.delete(groupsToDelete);
+                dataStore.deleteGroups(groupsToDelete);
 
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                     statusHandler.handle(Priority.DEBUG,
@@ -1074,7 +1076,8 @@ public class GFEDao extends DefaultPluginDao {
         try {
             IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
                     .getGridParmHdf5File(GridDatabase.gfeBaseDataDir, dbId));
-            ds.delete("/GridParmInfo/" + parmAndLevel);
+            ds.deleteDatasets("/GridParmInfo/" + parmAndLevel,
+                    "/GridParmStorageInfo/" + parmAndLevel);
         } catch (Exception e1) {
             throw new DataAccessLayerException("Error deleting data from HDF5",
                     e1);
