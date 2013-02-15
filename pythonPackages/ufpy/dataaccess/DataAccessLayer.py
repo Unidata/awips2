@@ -28,6 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/10/12                      njensen       Initial Creation.
+#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#                                                 to use single request.
 #    
 # 
 #
@@ -47,20 +49,20 @@ else:
 def getAvailableTimes(request):
     return router.getAvailableTimes(request)
 
-def getData(request, times):
-    return router.getData(request, times)
+def getGridData(request, times):
+    return router.getGridData(request, times)
 
-def getLatLonCoords(gridRequest):
-    return router.getLatLonCoords(gridRequest)
+def getGeometryData(request, times):
+    return router.getGeometryData(request, times)
+
+def getLatLonCoords(gridData):
+    return router.getLatLonCoords(gridData)
 
 def getAvailableLocationNames(request):
     return router.getAvailableLocationNames(request)
 
-def newGeometryRequest():
-    return router.newGeometryRequest()
-     
-def newGridRequest():
-    return router.newGridRequest()
+def newDataRequest():
+    return router.newDataRequest()
 
 
 
