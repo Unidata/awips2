@@ -30,21 +30,23 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/10/12                      njensen       Initial Creation.
+#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#                                                 to use single request.
 #    
 # 
 #
 
-from ufpy.dataaccess import IGeometryRequest, IGridRequest
+from ufpy.dataaccess import IDataRequest
 
 from com.raytheon.uf.common.dataaccess import DataAccessLayer as JavaDataAccessLayer
-from com.raytheon.uf.common.dataaccess.impl import DefaultGridRequest, DefaultGeometryRequest
+from com.raytheon.uf.common.dataaccess.impl import DefaultDataRequest
 from com.raytheon.uf.common.time import DataTime as JavaDataTime
 from com.raytheon.uf.common.geospatial import LatLonReprojection
 from com.raytheon.uf.common.python import PythonNumpyFloatArray
 
 import jep
 import DataTime
-import JGeometryData, JGridData, JGridRequest, JGeometryRequest
+import JGeometryData, JGridData, JDataRequest
 
 
 def getAvailableTimes(request):
@@ -55,31 +57,41 @@ def getAvailableTimes(request):
     return times
 
 
-def getData(request, times):
+def getGridData(request, times):
     if type(times) is list:
         # presuming list of DataTimes
         jtimes = jep.jarray(len(times), JavaDataTime)
         for i in xrange(len(times)):
             jtimes[i] = times[i].toJavaObj()    
-        javaData = JavaDataAccessLayer.getData(request.toJavaObj(), jtimes)
+        javaData = JavaDataAccessLayer.getGridData(request.toJavaObj(), jtimes)
     else:
         # presuming TimeRange
-        javaData = JavaDataAccessLayer.getData(request.toJavaObj(), times.toJavaObj())        
-    wrapper = None
-    if isinstance(request, IGeometryRequest):
-        wrapper = JGeometryData.JGeometryData
-    elif isinstance(request, IGridRequest):
-        wrapper = JGridData.JGridData
+        javaData = JavaDataAccessLayer.getGridData(request.toJavaObj(), times.toJavaObj())        
     data = []
     for jd in javaData:
-        data.append(wrapper(jd))
+        data.append(JGridData.JGridData(jd))
     return data
 
-def getLatLonCoords(gridRequest):
+def getGeometryData(request, times):
+    if type(times) is list:
+        # presuming list of DataTimes
+        jtimes = jep.jarray(len(times), JavaDataTime)
+        for i in xrange(len(times)):
+            jtimes[i] = times[i].toJavaObj()    
+        javaData = JavaDataAccessLayer.getGeometryData(request.toJavaObj(), jtimes)
+    else:
+        # presuming TimeRange
+        javaData = JavaDataAccessLayer.getGeometryData(request.toJavaObj(), times.toJavaObj())        
+    data = []
+    for jd in javaData:
+        data.append(JGeometryData.JGeometryData(jd))
+    return data
+
+def getLatLonCoords(gridData):
     '''
         @return: a tuple where the first element is a numpy array of lons, and the second element is a numpy array of lats
     '''
-    gridGeometry = JavaDataAccessLayer.getGridGeometry(gridRequest.toJavaObj())
+    gridGeometry = gridData.toJavaObj().getGridGeometry()
     if gridGeometry is None :
         return None
     latlons = LatLonReprojection.getLatLons(gridGeometry)
@@ -92,9 +104,6 @@ def getLatLonCoords(gridRequest):
 def getAvailableLocationNames(request):
     return JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj())
 
-def newGeometryRequest():
-    return JGeometryRequest.JGeometryRequest(DefaultGeometryRequest())
-    
-def newGridRequest():        
-    return JGridRequest.JGridRequest(DefaultGridRequest())
+def newDataRequest():
+    return JDataRequest.JDataRequest(DefaultDataRequest())
 
