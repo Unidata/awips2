@@ -27,12 +27,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
+import com.raytheon.uf.common.serialization.adapters.JTSEnvelopeAdapter;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * 
- * An abstract request for requesting data through the Data Access Framework.
+ * An default request for requesting data through the Data Access Framework.
  * 
  * <pre>
  * 
@@ -41,6 +44,8 @@ import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 6, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -49,7 +54,7 @@ import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractDataRequest {
+public class DefaultDataRequest implements IDataRequest {
 
     @XmlElement
     protected String datatype;
@@ -57,14 +62,17 @@ public abstract class AbstractDataRequest {
     @XmlJavaTypeAdapter(value = XmlGenericMapAdapter.class)
     protected Map<String, Object> identifiers;
 
-    @XmlElement
+    @XmlElement(name = "parameter")
     protected String[] parameters;
 
-    @XmlElement
+    @XmlElement(name = "level")
     protected Level[] levels;
 
     @XmlElement(name = "locationName")
     protected String[] locationNames;
+    
+    @XmlJavaTypeAdapter(value = JTSEnvelopeAdapter.class)
+    protected Envelope envelope;
 
     public void setDatatype(String datatype) {
         this.datatype = datatype;
@@ -84,6 +92,15 @@ public abstract class AbstractDataRequest {
     public void setLevels(Level... levels) {
         this.levels = levels;
     }
+    
+    public void setLocationNames(String... locationNames) {
+        this.locationNames = locationNames;
+
+    }
+
+    public void setEnvelope(Envelope env) {
+        this.envelope = env;
+    }
 
     public String getDatatype() {
         return datatype;
@@ -101,13 +118,13 @@ public abstract class AbstractDataRequest {
         return levels;
     }
 
-    public void setLocationNames(String... locationNames) {
-        this.locationNames = locationNames;
-
-    }
-
     public String[] getLocationNames() {
         return locationNames;
     }
+    
+    public Envelope getEnvelope() {
+        return envelope;
+    }
+
 
 }

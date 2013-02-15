@@ -11,7 +11,6 @@
 	<bean factory-bean="dataAccessRegistry" factory-method="register" 
 	depends-on="satellitePluginName, satelliteDataFactory">
 		<constructor-arg ref="satellitePluginName"/>
-		<constructor-arg value="com.raytheon.uf.common.dataaccess.grid.IGridRequest"/>
 		<constructor-arg ref="satelliteDataFactory"/>
 	</bean>	
 	
