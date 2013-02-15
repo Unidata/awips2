@@ -30,11 +30,10 @@ import java.util.Set;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.FactoryException;
 
+import com.raytheon.uf.common.dataaccess.IDataFactory;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
-import com.raytheon.uf.common.dataaccess.exception.IncompatibleRequestException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.dataaccess.grid.IGridDataFactory;
-import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
@@ -49,11 +48,8 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfo;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
@@ -73,6 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 23, 2013            bsteffen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -80,7 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class RadarGridFactory extends AbstractGridDataPluginFactory implements
-        IGridDataFactory {
+        IDataFactory {
 
     private static final String PRODUCT_CODE = "productCode";
 
@@ -106,43 +104,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     @Override
-    public GridGeometry2D getGeometry(IGridRequest request) {
-        // Radial will almost always throw an exception for radial data since
-        // every volume scan starts at a different angle. Raster will work as
-        // long as only one product is requested.
-        GridGeometry2D gridGeom = null;
-        DbQueryRequest dbRequest = buildDbQueryRequest(request);
-        DbQueryResponse dbResonse = executeDbQueryRequest(dbRequest,
-                request.toString());
-        for (Map<String, Object> resultMap : dbResonse.getResults()) {
-
-            if ((resultMap.get(null) instanceof RadarRecord) == false) {
-                throw new DataRetrievalException(
-                        "The PluginDataObject objects returned by the DbQueryRequest are not of type PluginDataObject as expected.");
-            }
-
-            RadarRecord radarRecod = (RadarRecord) resultMap.get(null);
-            if (radarRecod.getFormat().equals(RADIAL_FORMAT)) {
-                // TODO need angle data but avoid requesting the rest? Or at
-                // least cache it?
-                getDataRecord(radarRecod, request.getStorageRequest());
-            }
-            GridGeometry2D potentialGridGeom = getGridGeometry(radarRecod);
-            if (gridGeom == null) {
-                gridGeom = potentialGridGeom;
-            } else if (!gridGeom.equals(potentialGridGeom)) {
-                // It would have been nice to throw this before requesting all
-                // the data
-                throw new IncompatibleRequestException(
-                        "Multiple radar geometries match the given request().");
-            }
-        }
-        return gridGeom;
-
-    }
-
-    @Override
-    protected IGridData constructGridDataResponse(IGridRequest request,
+    protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             IDataRecord dataRecord) {
         RadarRecord radarRecord = asRadarRecord(pdo);
@@ -226,8 +188,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     @Override
-    protected IDataRecord getDataRecord(PluginDataObject pdo,
-            Request storageRequest) {
+    protected IDataRecord getDataRecord(PluginDataObject pdo) {
         RadarRecord radarRecord = asRadarRecord(pdo);
         try {
             RadarDataRetriever.populateRadarRecord(PDOUtil.getDataStore(pdo),
@@ -244,7 +205,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
 
     @Override
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
-            IGridRequest request) {
+            IDataRequest request) {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
         if (request.getParameters() != null) {
             Set<Integer> codes = new HashSet<Integer>();
@@ -338,7 +299,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     @Override
-    public String[] getAvailableLocationNames(IGridRequest request) {
+    public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, ICAO);
     }
 
@@ -353,6 +314,8 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Jan 25, 2013            bsteffen     Initial creation
+     * Feb 14, 2013 1614       bsteffen    refactor data access framework to use
+*                                          single request.
      * 
      * </pre>
      * 
