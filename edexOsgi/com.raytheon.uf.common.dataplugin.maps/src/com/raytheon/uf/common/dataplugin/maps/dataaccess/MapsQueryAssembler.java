@@ -21,12 +21,12 @@ package com.raytheon.uf.common.dataplugin.maps.dataaccess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
 
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataplugin.maps.dataaccess.util.MapsQueryUtil;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -41,6 +41,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2013            bkowal     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -104,7 +106,7 @@ public class MapsQueryAssembler {
      *            the name of the identifier to extract
      * @return the identifier
      */
-    public static String extractIdentifier(IGeometryRequest request,
+    public static String extractIdentifier(IDataRequest request,
             String identifierName) {
         return request.getIdentifiers().get(identifierName).toString();
     }
@@ -116,7 +118,7 @@ public class MapsQueryAssembler {
      *            the original request that we are processing
      * @return the table identifier
      */
-    public static String extractTable(IGeometryRequest request) {
+    public static String extractTable(IDataRequest request) {
         return extractIdentifier(request, REQUIRED_IDENTIFIERS.IDENTIFIER_TABLE);
     }
 
@@ -127,7 +129,7 @@ public class MapsQueryAssembler {
      *            the original request that we are processing
      * @return the geometry identifier
      */
-    public static String extractGeomField(IGeometryRequest request) {
+    public static String extractGeomField(IDataRequest request) {
         return extractIdentifier(request,
                 REQUIRED_IDENTIFIERS.IDENTIFIER_GEOM_FIELD);
     }
@@ -139,7 +141,7 @@ public class MapsQueryAssembler {
      *            the original request that we are processing
      * @return the query
      */
-    public static String assembleGetData(IGeometryRequest request) {
+    public static String assembleGetData(IDataRequest request) {
         return assembleQuery(request, Boolean.FALSE);
     }
 
@@ -151,7 +153,7 @@ public class MapsQueryAssembler {
      * @return the query
      */
     public static String assembleGetAvailableLocationNames(
-            IGeometryRequest request) {
+IDataRequest request) {
         return assembleQuery(request, Boolean.TRUE);
     }
 
@@ -165,7 +167,7 @@ public class MapsQueryAssembler {
      *            location information
      * @return the query
      */
-    private static String assembleQuery(IGeometryRequest request,
+    private static String assembleQuery(IDataRequest request,
             boolean locationQuery) {
         Envelope envelope = request.getEnvelope();
         String table = extractTable(request);
