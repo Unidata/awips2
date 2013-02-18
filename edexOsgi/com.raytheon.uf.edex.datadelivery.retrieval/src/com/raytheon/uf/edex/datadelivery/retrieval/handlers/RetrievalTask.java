@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
 
 /**
  * Inner class to process individual retrievals.
@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * Aug 22, 2012 0743       djohnson     Continue processing retrievals until there are no more.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Jan 30, 2013 1543       djohnson     Constrain to the network retrievals are pulled for.
+ * Feb 15, 2013 1543       djohnson     Using xml for retrievals now.
  * 
  * </pre>
  * 
@@ -56,16 +57,20 @@ public class RetrievalTask implements Runnable {
 
     private final IRetrievalResponseCompleter retrievalCompleter;
 
-    private final IRetrievalPluginDataObjectsFinder retrievalDataFinder;
+    private final IRetrievalsFinder retrievalDataFinder;
+
+    private final IRetrievalDao retrievalDao;
 
     public RetrievalTask(Network network,
-            IRetrievalPluginDataObjectsFinder retrievalDataFinder,
+            IRetrievalsFinder retrievalDataFinder,
             IRetrievalPluginDataObjectsProcessor retrievedDataProcessor,
-            IRetrievalResponseCompleter retrievalCompleter) {
+            IRetrievalResponseCompleter retrievalCompleter,
+            IRetrievalDao retrievalDao) {
         this.network = network;
         this.retrievalDataFinder = retrievalDataFinder;
         this.retrievedDataProcessor = retrievedDataProcessor;
         this.retrievalCompleter = retrievalCompleter;
+        this.retrievalDao = retrievalDao;
     }
 
     @Override
@@ -78,8 +83,8 @@ public class RetrievalTask implements Runnable {
                 RetrievalRequestRecord request = null;
                 try {
 
-                    RetrievalPluginDataObjects retrievalPluginDataObject = retrievalDataFinder
-                            .findRetrievalPluginDataObjects();
+                    RetrievalResponseXml retrievalPluginDataObject = retrievalDataFinder
+                            .findRetrievals();
                     // This forces the return from the while loop once there are
                     // no more retrievals to process
                     if (retrievalPluginDataObject == null) {
@@ -88,8 +93,9 @@ public class RetrievalTask implements Runnable {
                         return;
                     }
 
-                    request = retrievalPluginDataObject.getRequestRecord();
-                    success = (request.getState() == State.COMPLETED);
+                    request = retrievalDao.getById(retrievalPluginDataObject
+                            .getRequestRecord());
+                    success = retrievalPluginDataObject.isSuccess();
                     retrievedDataProcessor
                             .processRetrievedPluginDataObjects(retrievalPluginDataObject);
                 } catch (Exception e) {
