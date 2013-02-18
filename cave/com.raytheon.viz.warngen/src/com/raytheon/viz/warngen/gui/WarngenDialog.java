@@ -133,6 +133,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
  *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
  *                                       and removed it from updateListSelected().
+ *  Feb 18, 2013 #1633       rferrel     Changed checkFollowupSelection to use SimulatedTime.
  * 
  * </pre>
  * 
@@ -1112,7 +1113,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
 
         if (timeRange != null
-                && timeRange.contains(Calendar.getInstance().getTime()) == false) {
+                && timeRange.contains(SimulatedTime.getSystemTime().getTime()) == false) {
             // The action is no longer available in the follow up/update list
             statusHandler.handle(Priority.PROBLEM,
                     "Follow up product has nothing to follow up.");
