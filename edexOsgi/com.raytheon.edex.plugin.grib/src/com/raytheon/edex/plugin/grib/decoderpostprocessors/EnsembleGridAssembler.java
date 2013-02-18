@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -283,6 +284,8 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         } catch (PluginException e) {
             throw new GribException("Error storing assembled grid to HDF5", e);
         }
+        EDEXUtil.getMessageProducer().sendAsync("notificationAggregation",
+                new String[] { assembledRecord.getDataURI() });
         assembledRecord.setMessageData(null);
         return assembledRecord;
 
