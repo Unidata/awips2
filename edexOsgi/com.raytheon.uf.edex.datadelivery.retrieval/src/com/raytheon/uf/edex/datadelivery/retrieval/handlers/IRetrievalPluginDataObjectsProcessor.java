@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
- * Processes {@link RetrievalPluginDataObjects} that were generated from a
+ * Processes {@link RetrievalResponseXml} that were generated from a
  * retrieval.
  * 
  * <pre>
@@ -51,6 +51,6 @@ public interface IRetrievalPluginDataObjectsProcessor {
      *             on error with serialization
      */
     void processRetrievedPluginDataObjects(
-            RetrievalPluginDataObjects retrievalPluginDataObjects)
+            RetrievalResponseXml retrievalPluginDataObjects)
             throws Exception;
 }
