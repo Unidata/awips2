@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
@@ -41,19 +45,19 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @author djohnson
  * @version 1.0
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RetrievalAttributePluginDataObjects {
+public class RetrievalResponseWrapper {
 
-    @DynamicSerializeElement
-    private RetrievalAttribute attributeXml;
-
+    @XmlAnyElement(lax = true)
     @DynamicSerializeElement
     private IRetrievalResponse retrievalResponse;
 
     /**
      * Constructor.
      */
-    public RetrievalAttributePluginDataObjects() {
+    public RetrievalResponseWrapper() {
     }
 
     /**
@@ -62,25 +66,8 @@ public class RetrievalAttributePluginDataObjects {
      * @param attributeXml
      * @param response
      */
-    public RetrievalAttributePluginDataObjects(RetrievalAttribute attributeXml,
-            IRetrievalResponse response) {
-        this.attributeXml = attributeXml;
+    public RetrievalResponseWrapper(IRetrievalResponse response) {
         this.retrievalResponse = response;
-    }
-
-    /**
-     * @return the attributeXml
-     */
-    public RetrievalAttribute getAttributeXml() {
-        return attributeXml;
-    }
-
-    /**
-     * @param attributeXml
-     *            the attributeXml to set
-     */
-    public void setAttributeXml(RetrievalAttribute attributeXml) {
-        this.attributeXml = attributeXml;
     }
 
     /**

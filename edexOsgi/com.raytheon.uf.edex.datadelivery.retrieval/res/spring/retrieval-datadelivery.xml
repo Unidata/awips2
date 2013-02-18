@@ -30,7 +30,7 @@
         <constructor-arg value="OPSNET" />
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalPluginDataObjectsFinder">
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
                 <constructor-arg value="OPSNET" />
                 <constructor-arg ref="retrievalDao" />
             </bean>
@@ -39,6 +39,7 @@
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.StoreRetrievedData">
                 <constructor-arg value="directvm:dataDeliveryNotify" />
+                <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -48,6 +49,7 @@
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
+        <constructor-arg ref="retrievalDao" />
     </bean>
     
     <!-- 
@@ -60,7 +62,7 @@
         <constructor-arg value="OPSNET" />
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalPluginDataObjectsFinder">
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
                 <constructor-arg value="OPSNET" />
                 <constructor-arg ref="retrievalDao" />
             </bean>
@@ -75,6 +77,7 @@
             <util:constant
                 static-field="com.raytheon.uf.edex.datadelivery.retrieval.handlers.IRetrievalResponseCompleter.NULL" />
         </constructor-arg>
+        <constructor-arg ref="retrievalDao" />
     </bean>
     -->
 
@@ -91,6 +94,7 @@
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.StoreRetrievedData">
                 <constructor-arg value="directvm:dataDeliveryNotify" />
+                <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -100,6 +104,7 @@
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
+        <constructor-arg ref="retrievalDao" />
     </bean>
 
     <bean id="scheduledExecutorService" class="java.util.concurrent.Executors"
