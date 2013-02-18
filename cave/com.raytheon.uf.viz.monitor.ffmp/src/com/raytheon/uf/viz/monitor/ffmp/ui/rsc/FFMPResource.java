@@ -77,10 +77,13 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -156,6 +159,7 @@ import com.vividsolutions.jts.geom.Point;
  * 10 Jan 2013   1475         dhladky      Some cleanup
  * 27 Jan 2013   1478         dhladky      Changed gap collection to a generic list instead of Arraylist
  * 02/01/13     1569        D. Hladky   Added constants
+ * 10 Feb 2013   1584         mpduff       Add performance logging.
  * </pre>
  * 
  * @author dhladky
@@ -167,8 +171,16 @@ public class FFMPResource extends
         IResourceDataChanged, IFFMPResourceListener, FFMPListener,
         FFMPLoadListener {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    /** Status handler */
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPResource.class);
+
+    /** Performance log statement prefix */
+    private final String prefix = "FFMP Resource:";
+
+    /** Performance logger */
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler(prefix);
 
     /**
      * The zoom level for an aggregate view.
@@ -224,7 +236,7 @@ public class FFMPResource extends
     private IShadedShape streamShadedShape = null;
 
     /** always the same vertexes, one for each CWA **/
-    private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
+    private final FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
 
     /** Basin shaded shape **/
     protected ConcurrentHashMap<DataTime, FFMPDrawable> drawables = new ConcurrentHashMap<DataTime, FFMPDrawable>();
@@ -257,6 +269,7 @@ public class FFMPResource extends
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (mouseButton == 3) {
                 if (isStreamFollow()) {
+                    perfLog.log("Basin Trace Draw Init");
                     traceClick(getResourceContainer().translateClick(x, y));
                     return true;
                 }
@@ -414,9 +427,13 @@ public class FFMPResource extends
         dataTimes = new ArrayList<DataTime>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
-
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         if (type.equals(ChangeType.DATA_UPDATE)) {
             FFFGDataMgr.getUpdatedInstance();
             PluginDataObject[] pdos = (PluginDataObject[]) object;
@@ -494,6 +511,11 @@ public class FFMPResource extends
         }
 
         refresh();
+
+        if (type.equals(ChangeType.DATA_UPDATE)) {
+            timer.stop();
+            perfLog.logDuration("Load Time", timer.getElapsedTime());
+        }
     }
 
     /**
@@ -522,6 +544,9 @@ public class FFMPResource extends
         issueRefresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void hucChanged() {
 
@@ -533,6 +558,7 @@ public class FFMPResource extends
             dirty();
             issueRefresh();
         }
+        perfLog.log("HUC Change complete");
     }
 
     @Override
@@ -1117,6 +1143,7 @@ public class FFMPResource extends
         // DR 14522: use Display.getDefault().asyncExec() for GUI thread.
         org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable() {
 
+            @Override
             public void run() {
 
                 if (/* this. */font == null) {
@@ -1403,7 +1430,7 @@ public class FFMPResource extends
             }
 
             // draw stream trace?
-            if (getShowStream() && isStreamFollow()) {
+            if (isShowStream() && isStreamFollow()) {
                 paintUpAndDownStream(aTarget, paintProps, isShaded);
             }
 
@@ -1465,11 +1492,11 @@ public class FFMPResource extends
                     .getColor();
         }
 
-        if (getShowStream() && (streamShadedShape != null)
+        if (isShowStream() && (streamShadedShape != null)
                 && streamShadedShape.isDrawable() && isShaded) {
             target.drawShadedShape(streamShadedShape, paintProps.getAlpha());
         }
-        if (getShowStream() && (streamOutlineShape != null)
+        if (isShowStream() && (streamOutlineShape != null)
                 && streamOutlineShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             target.drawWireframeShape(streamOutlineShape, basinTraceColor,
@@ -1808,7 +1835,6 @@ public class FFMPResource extends
             if (!stream.equals(FFMPRecord.CLICK_TYPE.TREND)) {
                 nextStreamPfaf = newPfaf;
                 dirty();
-
             }
         } else {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
@@ -1976,6 +2002,7 @@ public class FFMPResource extends
     /**
      * close our dialog(s)
      */
+    @Override
     public void closeDialog() {
         monitor.closeDialog(this);
     }
@@ -1989,6 +2016,7 @@ public class FFMPResource extends
     /**
      * set the query runner
      */
+    @Override
     public void setQuery(boolean isQuery) {
         this.isQuery = isQuery;
     }
@@ -1996,6 +2024,7 @@ public class FFMPResource extends
     /**
      * clear them
      */
+    @Override
     public void clear() {
         if (drawables != null) {
             for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
@@ -2009,6 +2038,7 @@ public class FFMPResource extends
     /**
      * Set them all for re-rendering
      */
+    @Override
     public void dirty() {
         if (drawables != null) {
             for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
@@ -2055,6 +2085,7 @@ public class FFMPResource extends
      * 
      * @param paintTime
      */
+    @Override
     public void setPaintTime(DataTime paintTime) {
         this.paintTime = paintTime;
     }
@@ -2070,7 +2101,7 @@ public class FFMPResource extends
     private void drawSquare(PixelCoverage pc, IGraphicsTarget target)
             throws VizException {
 
-    	//target.drawLine(lines)
+        // target.drawLine(lines)
         target.drawLine(pc.getLl().x, pc.getLl().y, 0.0, pc.getUl().x, pc
                 .getUl().y, 0.0, getCapability(ColorableCapability.class)
                 .getColor(), getCapability(OutlineCapability.class)
@@ -2283,6 +2314,7 @@ public class FFMPResource extends
     /**
      * Clear the worst case hash
      */
+    @Override
     public void clearWorstCase() {
         for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
             entry.getValue().worstCaseHash.clear();
@@ -2370,10 +2402,10 @@ public class FFMPResource extends
     private class FFMPDataRetrievalJob extends Job {
         private static final int QUEUE_LIMIT = 1;
 
-        private HucLevelGeometriesFactory hucGeomFactory = HucLevelGeometriesFactory
+        private final HucLevelGeometriesFactory hucGeomFactory = HucLevelGeometriesFactory
                 .getInstance();
 
-        private ArrayBlockingQueue<Request> requestQueue = new ArrayBlockingQueue<Request>(
+        private final ArrayBlockingQueue<Request> requestQueue = new ArrayBlockingQueue<Request>(
                 QUEUE_LIMIT);
 
         public FFMPDataRetrievalJob() {
@@ -2955,7 +2987,7 @@ public class FFMPResource extends
 
                 streamOutlineShape = localWireframeShape;
                 streamShadedShape = localShadedShape;
-
+                perfLog.log("Basin Trace Shapes Complete");
             }
         }
 
@@ -3034,7 +3066,8 @@ public class FFMPResource extends
 
     @Override
     public void hucChanged(FFMPHUCChangeEvent fhce) {
-
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         setHuc((String) fhce.getSource());
         centeredAggregationKey = null;
         centeredAggregatePfafList = null;
@@ -3050,6 +3083,8 @@ public class FFMPResource extends
         }
 
         updateDialog();
+        timer.stop();
+        perfLog.logDuration("HUC Update complete", timer.getElapsedTime());
     }
 
     @Override
@@ -3201,8 +3236,13 @@ public class FFMPResource extends
         this.isLinkToFrame = isLinkToFrame;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public FFMPGraphData getGraphData(String pfafString) throws VizException {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         FfmpTableConfig tableConfig = FfmpTableConfig.getInstance();
         String ffgGraphType = tableConfig.getTableConfigData(getSiteKey())
                 .getFfgGraphType();
@@ -3468,14 +3508,23 @@ public class FFMPResource extends
                 }
             }
         }
+        timer.stop();
+        perfLog.logDuration("Graph Data processing", timer.getElapsedTime());
 
         return fgd;
     }
 
-    public boolean getShowStream() {
+    /**
+     * @return showStream
+     */
+    public boolean isShowStream() {
         return showStream;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setBasinToggle(boolean val) {
         showBasin = val;
         refresh();
@@ -3501,6 +3550,10 @@ public class FFMPResource extends
         refresh();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setStreamToggle(boolean val) {
         showStream = val;
         refresh();
@@ -3547,8 +3600,8 @@ public class FFMPResource extends
 
         synchronized (tableTime) {
             Date recentTime = getMostRecentTime();
-            long time = new Double(recentTime.getTime() - (TimeUtil.MILLIS_PER_HOUR)
-                    * getTime()).longValue();
+            long time = new Double(recentTime.getTime()
+                    - (TimeUtil.MILLIS_PER_HOUR) * getTime()).longValue();
             Date date = new Date();
             date.setTime(time);
             this.tableTime = date;
@@ -3779,6 +3832,7 @@ public class FFMPResource extends
     /**
      * update the data in the dialog
      */
+    @Override
     public void updateDialog() {
         if (basinTableDlg != null) {
             monitor.fireMonitorEvent(basinTableDlg.getClass().getName());
@@ -3879,6 +3933,10 @@ public class FFMPResource extends
         return isWorstCase;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isAutoRefresh() {
         return isAutoRefresh;
     }
@@ -4007,7 +4065,8 @@ public class FFMPResource extends
 
             this.qpeSourceExpiration = monitor.getSourceConfig()
                     .getSource(resourceData.getPrimarySource())
-                    .getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
+                    .getExpirationMinutes(getSiteKey())
+                    * TimeUtil.MILLIS_PER_MINUTE;
         }
         return qpeSourceExpiration;
     }
@@ -4030,7 +4089,8 @@ public class FFMPResource extends
                 source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(getResourceData().sourceName);
             }
-            qpfSourceExpiration = source.getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
+            qpfSourceExpiration = source.getExpirationMinutes(getSiteKey())
+                    * TimeUtil.MILLIS_PER_MINUTE;
         }
         return qpfSourceExpiration;
     }
@@ -4053,12 +4113,14 @@ public class FFMPResource extends
                 SourceXML source = getProduct().getGuidanceSourcesByType(
                         guidSrc).get(0);
                 guidSourceExpiration = source
-                        .getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
+                        .getExpirationMinutes(getSiteKey())
+                        * TimeUtil.MILLIS_PER_MINUTE;
 
             } else {
                 guidSourceExpiration = monitor.getSourceConfig()
                         .getSource(resourceData.getPrimarySource())
-                        .getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
+                        .getExpirationMinutes(getSiteKey())
+                        * TimeUtil.MILLIS_PER_MINUTE;
             }
         }
 
