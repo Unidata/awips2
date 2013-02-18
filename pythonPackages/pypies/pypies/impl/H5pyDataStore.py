@@ -214,7 +214,12 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     def __calculateChunk(self, nDims, dataType, storeOp, maxDims):
         if nDims == 1:
-            chunk = [DEFAULT_CHUNK_SIZE]
+            if dataType != vlen_str_type:
+                sizeOfEntry = numpy.dtype(dataType).itemsize
+                chunkSize = int(FILESYSTEM_BLOCK_SIZE / sizeOfEntry)
+                chunk = [chunkSize]
+            else:
+                chunk = [DEFAULT_CHUNK_SIZE]
         elif nDims == 2:
             if storeOp != 'APPEND':
                 chunk = [DEFAULT_CHUNK_SIZE] * 2
