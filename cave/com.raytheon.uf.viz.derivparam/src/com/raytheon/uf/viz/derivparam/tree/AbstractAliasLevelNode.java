@@ -117,7 +117,8 @@ public abstract class AbstractAliasLevelNode extends AbstractDerivedDataNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> times, AvailabilityContainer container) {
+            Set<TimeAndSpace> times, AvailabilityContainer container)
+            throws VizException {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         result.put(sourceNode, times);
         return result;
