@@ -474,7 +474,9 @@ IDS|DDPLUS	^(S[MIN]V[DCE]..|SSV[DX]..) (.{4}) (..)(..)(..)
 # VHVD29 KWNB 022340 /pMOBP29
 IDS|DDPLUS	^(SXUS2[0123]) KWNB (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/maritime/(\2:yyyy)(\2:mm)\2/\3/\1_KWNB_\2\3\4_(seq).%Y%m%d%H
-
+# DR 15778 - Added RER pattern
+IDS|DDPLUS	^(SXUS..) (.{4}) (..)(..)(..) /pRER
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # SHEF 
 IDS|DDPLUS	^(SO.{4}) (.{4}) (..)(..)(..)
