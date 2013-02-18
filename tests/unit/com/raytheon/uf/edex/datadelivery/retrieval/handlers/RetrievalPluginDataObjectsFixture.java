@@ -31,7 +31,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestB
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapRetrievalAdapter;
 
 /**
- * Fixture for {@link RetrievalPluginDataObjects} instances.
+ * Fixture for {@link RetrievalResponseXml} instances.
  * 
  * <pre>
  * 
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapRetrievalA
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 12, 2013 1543       djohnson     No longer set plugin data objects themselves, just retrieval attributes.
+ * Feb 15, 2013 1543       djohnson     Class renames.
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapRetrievalA
  */
 
 public class RetrievalPluginDataObjectsFixture extends
-        AbstractFixture<RetrievalPluginDataObjects> {
+        AbstractFixture<RetrievalResponseXml> {
 
     public static final RetrievalPluginDataObjectsFixture INSTANCE = new RetrievalPluginDataObjectsFixture();
 
@@ -64,16 +65,15 @@ public class RetrievalPluginDataObjectsFixture extends
      * {@inheritDoc}
      */
     @Override
-    public RetrievalPluginDataObjects get(long seedValue) {
+    public RetrievalResponseXml get(long seedValue) {
         RetrievalRequestRecord requestRecord = RetrievalRequestRecordFixture.INSTANCE
                 .get(seedValue);
-        List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = new ArrayList<RetrievalAttributePluginDataObjects>();
+        List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = new ArrayList<RetrievalResponseWrapper>();
         try {
             for (final RetrievalAttribute attribute : requestRecord
                     .getRetrievalObj().getAttributes()) {
                 retrievalAttributePluginDataObjects
-                        .add(new RetrievalAttributePluginDataObjects(
-                                attribute,
+                        .add(new RetrievalResponseWrapper(
                                 new MockOpenDapRetrievalAdapter()
                                         .performRequest(new IRetrievalRequestBuilder() {
                                             @Override
@@ -102,8 +102,8 @@ public class RetrievalPluginDataObjectsFixture extends
             throw new RuntimeException(e);
         }
 
-        final RetrievalPluginDataObjects retrievalPluginDataObjects = new RetrievalPluginDataObjects(
-                requestRecord, retrievalAttributePluginDataObjects);
+        final RetrievalResponseXml retrievalPluginDataObjects = new RetrievalResponseXml(
+                requestRecord.getId(), retrievalAttributePluginDataObjects);
         return retrievalPluginDataObjects;
     }
 }

@@ -23,6 +23,10 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -42,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * May 09, 2012            rjpeter     Initial creation
  * Feb 11, 2013 1543       djohnson    Override equals/hashCode to remove Hibernate warning.
+ * Feb 15, 2013 1543       djohnson    Add JAXB annotations.
  * 
  * </pre>
  * 
@@ -50,6 +55,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Embeddable
 @DynamicSerialize
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 public class RetrievalRequestRecordPK implements
         IPersistableDataObject<RetrievalRequestRecordPK>,
         Serializable, ISerializableObject {
@@ -58,10 +65,12 @@ public class RetrievalRequestRecordPK implements
 
     @Column
     @DynamicSerializeElement
+    @XmlAttribute
     private String subscriptionName;
 
     @Column
     @DynamicSerializeElement
+    @XmlAttribute
     private int index;
 
     // TODO: Subscription only unique per owner
