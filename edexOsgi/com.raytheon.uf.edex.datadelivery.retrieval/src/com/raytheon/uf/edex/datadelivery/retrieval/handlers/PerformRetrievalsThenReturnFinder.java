@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Expose process() for testing.
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now passed further down the chain.
+ * Feb 15, 2013 1543       djohnson     Retrieval responses are now xml.
  * 
  * </pre>
  * 
@@ -60,11 +61,11 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @version 1.0
  */
 
-public class PerformRetrievalPluginDataObjectsFinder implements
-        IRetrievalPluginDataObjectsFinder {
+public class PerformRetrievalsThenReturnFinder implements
+        IRetrievalsFinder {
 
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PerformRetrievalPluginDataObjectsFinder.class);
+            .getHandler(PerformRetrievalsThenReturnFinder.class);
 
     private final Network network;
 
@@ -75,7 +76,7 @@ public class PerformRetrievalPluginDataObjectsFinder implements
      * 
      * @param network
      */
-    public PerformRetrievalPluginDataObjectsFinder(Network network,
+    public PerformRetrievalsThenReturnFinder(Network network,
             IRetrievalDao retrievalDao) {
         this.network = network;
         this.retrievalDao = retrievalDao;
@@ -85,9 +86,9 @@ public class PerformRetrievalPluginDataObjectsFinder implements
      * {@inheritDoc}
      */
     @Override
-    public RetrievalPluginDataObjects findRetrievalPluginDataObjects()
+    public RetrievalResponseXml findRetrievals()
             throws Exception {
-        RetrievalPluginDataObjects retVal = null;
+        RetrievalResponseXml retVal = null;
 
         ITimer timer = TimeUtil.getTimer();
         try {
@@ -133,9 +134,9 @@ public class PerformRetrievalPluginDataObjectsFinder implements
      * The actual work gets done here.
      */
     @VisibleForTesting
-    RetrievalPluginDataObjects process(RetrievalRequestRecord requestRecord) {
+    RetrievalResponseXml process(RetrievalRequestRecord requestRecord) {
         requestRecord.setState(State.FAILED);
-        List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects = new ArrayList<RetrievalAttributePluginDataObjects>();
+        List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = new ArrayList<RetrievalResponseWrapper>();
 
         try {
             Retrieval retrieval = requestRecord.getRetrievalObj();
@@ -170,8 +171,8 @@ public class PerformRetrievalPluginDataObjectsFinder implements
                         setCompletionStateFromResponse(requestRecord, response);
 
                         retrievalAttributePluginDataObjects
-                                .add(new RetrievalAttributePluginDataObjects(
-                                        attXML, response));
+                                .add(new RetrievalResponseWrapper(
+                                        response));
                     } else {
                         throw new IllegalStateException("No PDO's to store: "
                                 + serviceType + " original: "
@@ -188,8 +189,11 @@ public class PerformRetrievalPluginDataObjectsFinder implements
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
         }
-        RetrievalPluginDataObjects retrievalPluginDataObject = new RetrievalPluginDataObjects(
-                requestRecord, retrievalAttributePluginDataObjects);
+        RetrievalResponseXml retrievalPluginDataObject = new RetrievalResponseXml(
+                requestRecord.getId(), retrievalAttributePluginDataObjects);
+        retrievalPluginDataObject
+                .setSuccess(requestRecord.getState() == State.COMPLETED);
+
         return retrievalPluginDataObject;
     }
 
@@ -203,8 +207,8 @@ public class PerformRetrievalPluginDataObjectsFinder implements
      *            the response
      */
     @VisibleForTesting
-    static void setCompletionStateFromResponse(RetrievalRequestRecord requestRecord,
-            IRetrievalResponse response) {
+    static void setCompletionStateFromResponse(
+            RetrievalRequestRecord requestRecord, IRetrievalResponse response) {
         final State completionState = response.getPayLoad() == null ? State.FAILED
                 : State.COMPLETED;
         requestRecord.setState(completionState);
