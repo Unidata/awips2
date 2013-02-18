@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.serialization.IDeserializationContext;
 import com.raytheon.uf.common.serialization.ISerializationContext;
@@ -37,13 +39,15 @@ import dods.dap.DataDDS;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2013 1543       djohnson     Initial creation
+ * Feb 15, 2013 1543       djohnson     Also can be used as JAXB adapter for DataDDS.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class OpenDapRetrievalResponseSerializer implements
+public class OpenDapRetrievalResponseSerializer extends
+        XmlAdapter<byte[], DataDDS> implements
         ISerializationTypeAdapter<OpenDapRetrievalResponse> {
 
     /**
@@ -53,8 +57,11 @@ public class OpenDapRetrievalResponseSerializer implements
     public void serialize(ISerializationContext serializer,
             OpenDapRetrievalResponse object) throws SerializationException {
         serializer.writeObject(object.getAttribute());
-        serializer.writeBinary(DodsUtils
-                .convertDataDdsToByteArray((DataDDS) object.getPayLoad()));
+        try {
+            serializer.writeBinary(marshal(object.getPayLoad()));
+        } catch (Exception e) {
+            throw new SerializationException(e);
+        }
     }
 
     /**
@@ -65,8 +72,29 @@ public class OpenDapRetrievalResponseSerializer implements
             IDeserializationContext deserializer) throws SerializationException {
         OpenDapRetrievalResponse response = new OpenDapRetrievalResponse();
         response.setAttribute((RetrievalAttribute) deserializer.readObject());
-        response.setPayLoad(DodsUtils.restoreDataDdsFromByteArray(deserializer
-                .readBinary()));
+        try {
+            response.setPayLoad(unmarshal(deserializer.readBinary()));
+        } catch (Exception e) {
+            throw new SerializationException(e);
+        }
         return response;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DataDDS unmarshal(byte[] v)
+            throws Exception {
+        return DodsUtils.restoreDataDdsFromByteArray(v);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public byte[] marshal(DataDDS v)
+            throws Exception {
+        return DodsUtils.convertDataDdsToByteArray(v);
     }
 }
