@@ -19,12 +19,15 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverageFixture;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -43,6 +46,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapServiceFac
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
+ * Feb 15, 2013 1543       djohnson     Set coverage on retrieval attributes.
  * 
  * </pre>
  * 
@@ -90,10 +94,16 @@ public class RetrievalRequestRecordFixture extends
         rec.setState(RetrievalRequestRecord.State.PENDING);
 
         try {
-            rec.setRetrieval(SerializationUtil
-                    .transformToThrift(new MockOpenDapServiceFactory(provider)
-                            .getRetrievalGenerator().buildRetrieval(bundle)
-                            .iterator().next()));
+            final Retrieval retrieval = new MockOpenDapServiceFactory(provider)
+                    .getRetrievalGenerator().buildRetrieval(bundle).iterator()
+                    .next();
+
+            for (RetrievalAttribute attribute : retrieval.getAttributes()) {
+                attribute.setCoverage(GriddedCoverageFixture.INSTANCE
+                        .get(seedValue));
+            }
+
+            rec.setRetrieval(SerializationUtil.transformToThrift(retrieval));
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
