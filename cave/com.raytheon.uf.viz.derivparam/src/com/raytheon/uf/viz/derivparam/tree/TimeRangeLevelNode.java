@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 8, 2010            bsteffen     Initial creation
+ * Feb 13, 2013 1621      bsteffen     update getDataDependency to correctly handle sources with time ranges.
  * 
  * </pre>
  * 
@@ -137,27 +138,65 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
         return goodAvail;
     }
 
+    /**
+     * The only data dependency for this node will be the sourceNode and the
+     * times needed will contain the TimeAndSpace objects for which the source
+     * node must provide data to fill the desired time range for each
+     * TimeAndSpace in availability
+     * 
+     * 
+     * @param availability
+     *            a set of TimeAndSpace for which data is needed
+     * @param availabilityContainer
+     *            an availability container used for querying the actual
+     *            availability of the sourceNode
+     * @return a map which only has one entry for the sourceNode, containing all
+     *         the times needed to expand each TimeAndSpace in availability to
+     *         include the correct range.
+     */
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
             Set<TimeAndSpace> availability,
-            AvailabilityContainer availabilityContainer) {
+            AvailabilityContainer availabilityContainer) throws VizException {
+        // neededAvailability will contain all of the TimeAndSpace needed to
+        // construct
+        // the TimeAndSpace requested in availability.
+        Set<TimeAndSpace> neededAvailability = new HashSet<TimeAndSpace>();
+        for (TimeAndSpace ast : availability) {
+            // For every TimeAndSpace in availability, calculate what is needed
+            // to fill the range.
+            Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
+            neededAvailability.addAll(needed);
+        }
+        // Get the actual TimeAndSpace where the source is available.
+        Set<TimeAndSpace> sourceAvailability = availabilityContainer
+                .getAvailability(sourceNode);
+
         TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
         matcher.setIgnoreRange(true);
-        Set<TimeAndSpace> sourceAvailability = new HashSet<TimeAndSpace>();
-        for (TimeAndSpace ast : availability) {
-            Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
-            sourceAvailability.addAll(needed);
-        }
+        // use a matcher to match the needed TimeAndSpace to what the source
+        // really has, this is necessary because precip parameters sometimes
+        // have a range on the time and sometimes don't so there is no way to
+        // correctly populate it in calculateNeededAvailability
+        Map<TimeAndSpace, MatchResult> matchResults = matcher.match(
+                neededAvailability, sourceAvailability);
+
+        neededAvailability = TimeAndSpaceMatcher.getAll2(matchResults);
+
+        // The only dependency is the source node that this time range is
+        // gathering.
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
-        result.put(sourceNode, sourceAvailability);
+        result.put(sourceNode, neededAvailability);
         return result;
     }
 
-    @Override
-    public boolean isConstant() {
-        return super.isConstant();
-    }
-
+    /**
+     * For a given TimeAndSpace calculate all times needed to fill the time
+     * range required by startTime, endTime, and dt.
+     * 
+     * @param ast
+     * @return
+     */
     private Set<TimeAndSpace> calculateNeededAvailability(TimeAndSpace ast) {
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
         int start = dt;
