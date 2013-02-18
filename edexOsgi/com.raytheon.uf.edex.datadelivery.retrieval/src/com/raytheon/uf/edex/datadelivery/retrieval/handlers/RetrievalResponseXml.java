@@ -21,9 +21,16 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 
 /**
  * Associates plugin data objects with a retrieval.
@@ -41,19 +48,27 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * @author djohnson
  * @version 1.0
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RetrievalPluginDataObjects {
+public class RetrievalResponseXml {
 
+    @XmlElement
     @DynamicSerializeElement
-    private RetrievalRequestRecord requestRecord;
+    private RetrievalRequestRecordPK requestRecord;
 
+    @XmlElements(@XmlElement(name = "retrievalResponseWrapper"))
     @DynamicSerializeElement
-    private List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects;
+    private List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects;
+
+    @XmlAttribute
+    @DynamicSerializeElement
+    private boolean success;
 
     /**
      * Constructor.
      */
-    public RetrievalPluginDataObjects() {
+    public RetrievalResponseXml() {
     }
 
     /**
@@ -62,9 +77,8 @@ public class RetrievalPluginDataObjects {
      * @param requestRecord
      * @param retrievalAttributePluginDataObjects
      */
-    public RetrievalPluginDataObjects(
-            RetrievalRequestRecord requestRecord,
-            List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects) {
+    public RetrievalResponseXml(RetrievalRequestRecordPK requestRecord,
+            List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects) {
         this.requestRecord = requestRecord;
         this.retrievalAttributePluginDataObjects = retrievalAttributePluginDataObjects;
     }
@@ -72,7 +86,7 @@ public class RetrievalPluginDataObjects {
     /**
      * @return the requestRecord
      */
-    public RetrievalRequestRecord getRequestRecord() {
+    public RetrievalRequestRecordPK getRequestRecord() {
         return requestRecord;
     }
 
@@ -80,14 +94,14 @@ public class RetrievalPluginDataObjects {
      * @param requestRecord
      *            the requestRecord to set
      */
-    public void setRequestRecord(RetrievalRequestRecord requestRecord) {
+    public void setRequestRecord(RetrievalRequestRecordPK requestRecord) {
         this.requestRecord = requestRecord;
     }
 
     /**
      * @return the retrievalAttributePluginDataObjects
      */
-    public List<RetrievalAttributePluginDataObjects> getRetrievalAttributePluginDataObjects() {
+    public List<RetrievalResponseWrapper> getRetrievalAttributePluginDataObjects() {
         return retrievalAttributePluginDataObjects;
     }
 
@@ -96,7 +110,33 @@ public class RetrievalPluginDataObjects {
      *            the retrievalAttributePluginDataObjects to set
      */
     public void setRetrievalAttributePluginDataObjects(
-            List<RetrievalAttributePluginDataObjects> retrievalAttributePluginDataObjects) {
+            List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects) {
         this.retrievalAttributePluginDataObjects = retrievalAttributePluginDataObjects;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isSuccess() {
+        return success;
+    }
+
+    /**
+     * 
+     * @param successful
+     */
+    public void setSuccess(boolean successful) {
+        this.success = successful;
+    }
+
+    /**
+     * Prepares the object for serialization.
+     */
+    public void prepareForSerialization() {
+        for (RetrievalResponseWrapper attribute : getRetrievalAttributePluginDataObjects()) {
+            // Null out the attribute since we can retrieve it from the database
+            // on the receiving side
+            attribute.getRetrievalResponse().setAttribute(null);
+        }
     }
 }
