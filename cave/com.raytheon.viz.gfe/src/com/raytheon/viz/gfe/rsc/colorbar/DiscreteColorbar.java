@@ -95,6 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 10, 2013     15548  ryu         Update colorbar when new discrete colormap is selected
  * Jan 23, 2013     #1524  randerso    Fix missing discrete color bar and error when clicking 
  *                                     on discrete color bar when no grid exists
+ * Feb 12, 2013     15719  jdynina     Fixed out of bounds error in calcGridColorTable  
  * 
  * </pre>
  * 
@@ -341,7 +342,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
         for (int i = 0; i < grid.getXdim(); i++) {
             for (int j = 0; j < grid.getYdim(); j++) {
                 if (dspMask.getAsBoolean(i, j)) {
-                    cArray[grid.get(i, j)] = true;
+                    cArray[0xFF & grid.get(i, j)] = true;
                 }
             }
         }
