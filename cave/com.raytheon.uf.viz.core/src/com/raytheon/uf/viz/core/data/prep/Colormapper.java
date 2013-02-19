@@ -34,7 +34,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import com.raytheon.edex.colormap.ColorMapManager;
+import com.raytheon.uf.common.colormap.ColorMapUtils;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 13, 2010            mschenke     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
  * 
  * </pre>
  * 
@@ -101,15 +102,15 @@ public class Colormapper {
             cmapedData[i] = findColorIndex(index, logFactor, colorMapSz);
         }
 
-        IndexColorModel cm = ColorMapManager.buildColorModel(parameters
+        IndexColorModel cm = ColorMapUtils.buildColorModel(parameters
                 .getColorMap());
-
+        
         DataBufferByte byteArray = new DataBufferByte(cmapedData, width
                 * height);
 
         MultiPixelPackedSampleModel sample = new MultiPixelPackedSampleModel(
                 DataBuffer.TYPE_BYTE, width, height,
-                ColorMapManager.NUMBER_BITS);
+                ColorMapUtils.COLOR_MODEL_NUMBER_BITS);
         WritableRaster writeRaster = Raster.createWritableRaster(sample,
                 byteArray, new Point(0, 0));
 

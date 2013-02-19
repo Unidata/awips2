@@ -18,8 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Import-Package: com.raytheon.edex.scriptfactory,
- com.raytheon.uf.common.colormap,
+Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
