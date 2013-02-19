@@ -1,0 +1,132 @@
+   1 The GlueGen source code is mostly licensed under the New BSD 2-clause license,
+   3 however it contains other licensed material as well.
+   4 
+   5 Below you find a detailed list of licenses used in this project.
+   6 
+   7 +++
+   8 
+   9 The content of folder 'make/lib' contains build-time only 
+  10 Java binaries (JAR) to ease the build setup.
+  11 Each JAR file has it's corresponding LICENSE file containing the 
+  12 source location and license text. None of these binaries are contained in any way 
+  13 by the generated and deployed GlueGen binaries.
+  14 
+  15 +++
+  16 
+  17 L.1) The GlueGen source tree contains code from the JogAmp Community
+  18      which is covered by the Simplified BSD 2-clause license:
+  19 
+  20    Copyright 2010 JogAmp Community. All rights reserved.
+  21   
+  22    Redistribution and use in source and binary forms, with or without modification, are
+  23    permitted provided that the following conditions are met:
+  24    
+  25       1. Redistributions of source code must retain the above copyright notice, this list of
+  26          conditions and the following disclaimer.
+  27    
+  28       2. Redistributions in binary form must reproduce the above copyright notice, this list
+  29          of conditions and the following disclaimer in the documentation and/or other materials
+  30          provided with the distribution.
+  31    
+  32    THIS SOFTWARE IS PROVIDED BY JogAmp Community ``AS IS'' AND ANY EXPRESS OR IMPLIED
+  33    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+  34    FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JogAmp Community OR
+  35    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  36    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  37    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  38    ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  39    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+  40    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  41    
+  42    The views and conclusions contained in the software and documentation are those of the
+  43    authors and should not be interpreted as representing official policies, either expressed
+  44    or implied, of JogAmp Community.
+  45 
+  46    You can address the JogAmp Community via:
+  47        Web                http://jogamp.org/
+  48        Forum/Mailinglist  http://jogamp.762907.n3.nabble.com/
+  49        Chatrooms
+  50          IRC              irc.freenode.net #jogamp 
+  51          Jabber           conference.jabber.org room: jogamp (deprecated!)
+  52        Repository         http://jogamp.org/git/
+  53        Email              mediastream _at_ jogamp _dot_ org
+  54 
+  55 
+  56 L.2) The GlueGen source tree contains code from Sun Microsystems, Inc. 
+  57      which is covered by the New BSD 3-clause license:
+  58 
+  59    Copyright (c) 2003-2005 Sun Microsystems, Inc. All Rights Reserved.
+  60  
+  61    Redistribution and use in source and binary forms, with or without
+  62    modification, are permitted provided that the following conditions are
+  63    met:
+  64    
+  65    - Redistribution of source code must retain the above copyright
+  66      notice, this list of conditions and the following disclaimer.
+  67    
+  68    - Redistribution in binary form must reproduce the above copyright
+  69      notice, this list of conditions and the following disclaimer in the
+  70      documentation and/or other materials provided with the distribution.
+  71    
+  72    Neither the name of Sun Microsystems, Inc. or the names of
+  73    contributors may be used to endorse or promote products derived from
+  74    this software without specific prior written permission.
+  75    
+  76    This software is provided "AS IS," without a warranty of any kind. ALL
+  77    EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES,
+  78    INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A
+  79    PARTICULAR PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN
+  80    MICROSYSTEMS, INC. ("SUN") AND ITS LICENSORS SHALL NOT BE LIABLE FOR
+  81    ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  82    DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES. IN NO EVENT WILL SUN OR
+  83    ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR
+  84    DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE
+  85    DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY,
+  86    ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF
+  87    SUN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+  88    
+  89    You acknowledge that this software is not designed or intended for use
+  90    in the design, construction, operation or maintenance of any nuclear
+  91    facility.
+  92 
+  93 L.3) The GlueGen source tree contains CGRAM http://www.antlr.org/grammar/cgram/,
+  94      a ANSI-C parser implementation using ANTLR, which is being used 
+  95      in the compile time part only.
+  96      It is covered by the Original BSD 4-clause license:
+  97 
+  98     Copyright (c) 1998-2000, Non, Inc. 
+  99     All rights reserved.
+ 100 
+ 101     Redistribution and use in source and binary forms, with or without
+ 102     modification, are permitted provided that the following conditions are met:
+ 103 
+ 104         Redistributions of source code must retain the above copyright
+ 105         notice, this list of conditions, and the following disclaimer.
+ 106 
+ 107         Redistributions in binary form must reproduce the above copyright
+ 108         notice, this list of conditions, and the following disclaimer in
+ 109         the documentation and/or other materials provided with the
+ 110         distribution.
+ 111 
+ 112         All advertising materials mentioning features or use of this
+ 113         software must display the following acknowledgement:  
+ 114 
+ 115             This product includes software developed by Non, Inc. and
+ 116             its contributors.
+ 117 
+ 118         Neither name of the company nor the names of its contributors
+ 119         may be used to endorse or promote products derived from this
+ 120         software without specific prior written permission.
+ 121 
+ 122     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+ 123     IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ 124     THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ 125     PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COMPANY OR CONTRIBUTORS BE
+ 126     LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ 127     CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ 128     SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ 129     INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ 130     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ 131     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ 132     POSSIBILITY OF SUCH DAMAGE.
+ 133 
