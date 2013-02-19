@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import java.io.File;
 
 import com.raytheon.edex.meteoLib.Controller;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.GridUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -69,8 +69,8 @@ public class ContoursToGrid extends GraphToGrid {
 	
 //	private final static Logger logger = Logger.getLogger( ContoursToGrid.class );
 
-    private static float smallestContourValue = Util.GRID_FILL_VALUE - 1;
-    private static float largestContourValue = Util.GRID_FILL_VALUE + 1;
+    private static float smallestContourValue = GridUtil.GRID_FILL_VALUE - 1;
+    private static float largestContourValue = GridUtil.GRID_FILL_VALUE + 1;
 	
     /** Factory */
 	private GeometryFactory	geometryFactory	= new GeometryFactory();

@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 5, 2012  #1351      skorolev    Cleaned code
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 

@@ -69,7 +69,7 @@ private:
 	bool sessionTransacted;
 	bool isConnected;
 	int listSize;
-	com_raytheon_edex_msg_DataURINotificationMessage * mess;
+	com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage * mess;
 	SubscriptionManager * subman;
 	vector<string>::iterator myStringIterator;
 	std::string brokerURI;

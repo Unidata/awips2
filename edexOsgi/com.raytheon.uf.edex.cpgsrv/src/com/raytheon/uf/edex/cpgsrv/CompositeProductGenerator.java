@@ -24,12 +24,12 @@ import java.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.urifilter.IURIFilter;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.monitor.cpg.MonitorStateConfigurationManager;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 30NOV2012    1372       dhladky    Added statistics.
  * 02/05/2013   1580       mpduff     EventBus refactor.
  * 02/12/2013   1615       bgonzale   Changed ProcessEvent pluginName to dataType.
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 
