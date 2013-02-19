@@ -60,10 +60,10 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.meteoLib.Controller;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -1123,8 +1123,8 @@ public class ContourSupport {
             }
         }
 
-        Util.flipVert(adjustedUw, szY, szX);
-        Util.flipVert(adjustedVw, szY, szX);
+        ArraysUtil.flipVert(adjustedUw, szY, szX);
+        ArraysUtil.flipVert(adjustedVw, szY, szX);
 
         int arrSz = Math.max(10 * adjustedUw.length, uW.length);
         uW = null;

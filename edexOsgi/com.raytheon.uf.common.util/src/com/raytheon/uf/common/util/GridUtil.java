@@ -32,6 +32,7 @@ import java.util.ArrayList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2011            njensen     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved GRID_FILL_VALUE from edex.common Util
  * 
  * </pre>
  * 
@@ -40,6 +41,13 @@ import java.util.ArrayList;
  */
 
 public class GridUtil {
+    
+    
+    /**
+     * Moved from edex common util to clean up dependencies. Still need to
+     * figure out method for handling fill values and update
+     */
+    public static final float GRID_FILL_VALUE = -999999f;
 
     /**
      * Bresenham's algorithm to determine closest points along a line on a grid.

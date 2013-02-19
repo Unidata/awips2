@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
 /**
  * Provides a dispatcher for CPG services
@@ -39,6 +39,7 @@ import com.raytheon.edex.msg.DataURINotificationMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 5, 2010            chammack     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 

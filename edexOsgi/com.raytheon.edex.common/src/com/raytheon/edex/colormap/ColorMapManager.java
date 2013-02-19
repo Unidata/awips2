@@ -31,6 +31,7 @@ import com.raytheon.edex.exception.ColorTableException;
 import com.raytheon.uf.common.colormap.CMapFilenameFilter;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.ColorMapUtils;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -52,6 +53,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jul 26, 2007            njensen     Initial creation
  * Aug 20, 2008			   dglazesk    JiBX replaced with JaXB
  * Aug 20, 2008			   dglazesk	   Updated for the new ColorMap interface
+ * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
  * 
  * </pre>
  * 
@@ -61,9 +63,9 @@ public class ColorMapManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ColorMapManager.class);
 
-    public static final int NUMBER_BITS = 8;
+    public static final int NUMBER_BITS = ColorMapUtils.COLOR_MODEL_NUMBER_BITS;
 
-    public static final float MAX_VALUE = 255.0f;
+    public static final float MAX_VALUE = ColorMapUtils.MAX_VALUE;
 
     private static ColorMapManager instance;
 
@@ -154,28 +156,14 @@ public class ColorMapManager {
     }
 
     /**
-     * Builds a color model from a color map
+     * Call {@link ColorMapUtils#buildColorModel(IColorMap)}
      * 
      * @param aColorMap
      * @return
      */
+    @Deprecated
     public static IndexColorModel buildColorModel(IColorMap aColorMap) {
-        int size = aColorMap.getSize();
-        byte[] red = new byte[size];
-        byte[] green = new byte[size];
-        byte[] blue = new byte[size];
-        byte[] alpha = new byte[size];
-
-        List<Color> colors = aColorMap.getColors();
-        for (int i = 0; i < size; ++i) {
-            Color color = colors.get(i);
-            red[i] = (byte) (color.getRed() * MAX_VALUE);
-            green[i] = (byte) (color.getGreen() * MAX_VALUE);
-            blue[i] = (byte) (color.getBlue() * MAX_VALUE);
-            alpha[i] = (byte) (color.getAlpha() * MAX_VALUE);
-        }
-
-        return new IndexColorModel(NUMBER_BITS, size, red, green, blue, alpha);
+        return ColorMapUtils.buildColorModel(aColorMap);
     }
 
 }
