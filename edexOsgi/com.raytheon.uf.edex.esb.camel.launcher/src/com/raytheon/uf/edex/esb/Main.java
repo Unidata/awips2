@@ -48,6 +48,7 @@ import java.util.StringTokenizer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008            chammack     Initial creation
+ * Feb 15, 2013 1638       mschenke    Removed reference to unused "stop" method
  * </pre>
  * 
  * @author chammack
@@ -76,14 +77,14 @@ public class Main {
 
         if (args.length != 1) {
             valid = false;
-        } else if (!argList.contains("start") && !argList.contains("stop")) {
+        } else if (!argList.contains("start")) {
             valid = false;
         }
 
         if (!valid) {
             System.out.println("Invalid or missing arguments.");
             System.out.println("Usage: edex [operation]");
-            System.out.println("       where operation is start or stop.");
+            System.out.println("       where operation is start.");
             System.exit(0);
         }
 
@@ -147,9 +148,6 @@ public class Main {
                 }
 
                 Method m = c.getMethod("start", new Class<?>[0]);
-                m.invoke(null, new Object[0]);
-            } else if (args[0].equals("stop")) {
-                Method m = c.getMethod("stop", new Class<?>[0]);
                 m.invoke(null, new Object[0]);
             }
             System.exit(0);
@@ -266,8 +264,8 @@ public class Main {
                         url = jarConnection.getJarFileURL();
                         URI baseURI = new URI(url.toString()).resolve("..");
                         edexHome = new File(baseURI).getCanonicalFile();
-                        System.setProperty(SYSTEM_PROPERTY, edexHome
-                                .getAbsolutePath());
+                        System.setProperty(SYSTEM_PROPERTY,
+                                edexHome.getAbsolutePath());
                     } catch (Exception ignored) {
                     }
                 }
