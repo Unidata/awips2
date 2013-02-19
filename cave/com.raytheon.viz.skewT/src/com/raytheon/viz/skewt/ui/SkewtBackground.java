@@ -30,8 +30,8 @@ import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.edex.util.Equations;
-import com.raytheon.edex.util.UAPoint;
+import com.raytheon.uf.common.sounding.util.Equations;
+import com.raytheon.uf.common.sounding.util.UAPoint;
 import com.raytheon.uf.common.sounding.WxMath;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -52,6 +52,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 14Jan2007   #682        ebabin     Update for sampling bug. 
  * 28Sept2008  #1529       dhladky    separate and improve.
+ * Feb 15, 2013 1638       mschenke    Moved Equations/UAPoint from edex.common util
+ *                                     to common.sounding
  * 
  * </pre>
  * 
