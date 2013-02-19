@@ -19,14 +19,16 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
-import java.io.File;
-
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
+import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
 /**
- * The {@link BandwidthContextFactory} implementation for integration tests.
+ * An NCF {@link IBandwidthManager} that runs as an integration test, outside of
+ * the EDEX container.
  * 
  * <pre>
  * 
@@ -34,45 +36,40 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 24, 2012 1286       djohnson     Initial creation
- * Feb 20, 2013 1543       djohnson     Pass additional super-class constructor arguments.
+ * Feb 18, 2013 1543       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class IntegrationTestBandwidthContextFactory extends
-        EdexBandwidthContextFactory {
+
+public class IntegrationTestNcfBandwidthManager extends BandwidthManager {
+
+    static final String[] INTEGRATION_TEST_SPRING_FILES = new String[] {
+            "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml",
+            TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_XML),
+            TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_NCF_XML) };
 
     /**
-     * Constructor, intentionally package-private.
+     * Constructor.
      * 
+     * @param dbInit
      * @param bandwidthDao
-     *            the bandwidthDao
+     * @param retrievalManager
+     * @param bandwidthDaoUtil
      */
-    IntegrationTestBandwidthContextFactory(IBandwidthDao bandwidthDao,
-            IEdexBandwidthManagerCreator bandwidthManagerCreator) {
-        super(bandwidthDao, new IntegrationTestBandwidthInitializer(),
-                bandwidthManagerCreator);
+    public IntegrationTestNcfBandwidthManager(IBandwidthDbInit dbInit,
+            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
+            BandwidthDaoUtil bandwidthDaoUtil) {
+        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public IBandwidthDbInit getBandwidthDbInit() {
-        return new IntegrationTestDbInit();
-    }
-
-    /**
-     * Get the integration test bandwidth map config file.
-     * 
-     * @return the file
-     */
-    public static File getIntegrationTestBandwidthMapConfigFile() {
-        return new IntegrationTestBandwidthContextFactory((IBandwidthDao) null,
-                (IEdexBandwidthManagerCreator) null)
-                .getBandwidthMapConfigFile();
+    protected String[] getSpringFilesForNewInstance() {
+        return INTEGRATION_TEST_SPRING_FILES;
     }
 }
