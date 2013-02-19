@@ -187,14 +187,21 @@
 		<include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-ncf.*</exclude>
 	</mode>
     <!-- Eventually these two modes will either become the production versions,
          or the existing registry server will be migrated to one or the other. -->
     <mode name="ncfRegistry">
-        <includeMode>registry</includeMode>
+        <include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-wfo.*</exclude>
     </mode>
     <mode name="wfoRegistry">
-        <includeMode>registry</includeMode>
+        <include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-ncf.*</exclude>
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
     </mode>
