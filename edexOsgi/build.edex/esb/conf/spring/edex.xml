@@ -177,11 +177,7 @@
 	<bean id="pluginRegistry" class="com.raytheon.uf.edex.core.dataplugin.PluginRegistry" factory-method="getInstance"/>	
 	<bean id="dbPluginRegistry" class="com.raytheon.uf.edex.database.DatabasePluginRegistry" factory-method="getInstance"/>
 	
-	<bean id="siteAwareRegistry" class="com.raytheon.uf.edex.site.SiteAwareRegistry" factory-method="getInstance">
-	    <property name="routeId" value="siteActivationRoute"/>
-	</bean>
-	
-	  <bean id="commonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+	<bean id="commonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
 		<property name="pluginFQN" value="com.raytheon.uf.edex.database" />
 		<property name="database" value="metadata" />
 		<property name="forceCheck" value="true" />
@@ -218,9 +214,6 @@
 
 	<bean id="edexLocalizationObserver" class="com.raytheon.edex.utility.EDEXLocalizationNotificationObserver" factory-method="getInstance"/>
 
-	<bean id="siteActivateNotifyFilter"
-		class="com.raytheon.uf.common.site.notify.SiteActivateNotifyFilter" />
-	<bean id="siteActivationMonitor" class="com.raytheon.uf.edex.site.SiteActivationMonitor" factory-method="getInstance"/>
     <!--
     ** Lets deploy some Enterprise Integration Patterns inside the ActiveMQ Message Broker
     ** For more details see
@@ -247,28 +240,6 @@
 			<from uri="vm:edex.alarmAlertNotification" />
 			<bean ref="serializationUtil" method="transformToThrift" />
 			<to uri="jms-generic:topic:edex.alarms.msg?deliveryPersistent=false" />
-		</route>
-
-        <route id="siteActivationRoute">
-        	<from uri="jms-generic:topic:siteActivation" />
-			<doTry>
-			    <bean ref="serializationUtil" method="transformFromThrift"/>
-				<bean ref="siteAwareRegistry" method="handleMessage" />
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:siteActivation?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
-				</doCatch>
-			</doTry>
-        </route>
-        
-        <route id="siteActivateNotify">
-			<from uri="vm:edex.siteActivateNotification?size=5000" />
-			<filter>
-				<method bean="siteActivateNotifyFilter" method="isSiteActivateNotification" />
-				<bean ref="siteActivationMonitor" method="handleNotification"/>
-				<bean ref="serializationUtil" method="transformToThrift" />
-				<to uri="jms-generic:topic:edex.alerts.siteActivate" />
-			</filter>
 		</route>
 
         <!-- Route to periodically close any unused jms resources that have been pooled -->

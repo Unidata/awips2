@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.site.handlers;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.site.notify.ClusterActivationNotification;
-import com.raytheon.uf.common.site.notify.SendSiteActivationNotifications;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.requests.ActivateSiteRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -30,6 +29,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.site.SiteActivationMonitor;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
+import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
 
 /**
  * Activate Site Handler
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2011            randerso     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved site activation notifier class into edex.site
  * 
  * </pre>
  * 

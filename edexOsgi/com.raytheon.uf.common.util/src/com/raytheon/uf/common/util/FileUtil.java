@@ -53,6 +53,7 @@ import java.util.zip.GZIPOutputStream;
  * Jul 06, 2012        798 jkorman     Added more robust {@link #copyFile}. Added methods
  *                                     to create temporary directories and files.
  * 02/15/2013        #1597 randerso    Fixed error when copying empty files
+ * Feb 15, 2013 1638       mschenke    Moved EOL field from edex.common Util
  * 
  * </pre>
  * 
@@ -69,6 +70,11 @@ public class FileUtil {
 
     public final static String fileSeparatorRegex = "[/\\\\]";
 
+    /**
+     * Easy reference to system-dependent end of line
+     */
+    public static final String EOL = System.getProperty("line.separator");
+    
     /**
      * Joins one or more path components into a single path string. Path
      * components are separated by the operating system dependent
