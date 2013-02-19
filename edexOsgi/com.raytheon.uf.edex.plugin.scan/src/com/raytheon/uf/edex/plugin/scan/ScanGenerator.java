@@ -26,9 +26,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.scan.ScanRecord;
 import com.raytheon.uf.common.dataplugin.scan.dao.ScanDao;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
