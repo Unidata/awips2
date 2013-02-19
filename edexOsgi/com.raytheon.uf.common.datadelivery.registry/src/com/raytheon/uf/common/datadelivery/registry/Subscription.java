@@ -54,6 +54,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Dec 12, 2012 1433        bgonzale    Refactored Subscription copy ctor into two ctors.
  * Jan 03, 2013 1441        djohnson    Default to no group.
  * Jan 25, 2013 1528        djohnson    Subscription priority is now an enum.
+ * Feb 20, 2013 1543        djohnson    Route is now a slot.
  * 
  * </pre>
  * 
@@ -150,6 +151,9 @@ public class Subscription implements ISerializableObject, Serializable {
 
     /** Owner slot */
     public static final String OWNER_SLOT = "owner";
+
+    /** Route slot */
+    public static final String ROUTE_SLOT = "route";
 
     /**
      * Constructor.
@@ -329,6 +333,7 @@ public class Subscription implements ISerializableObject, Serializable {
 
     @XmlAttribute
     @DynamicSerializeElement
+    @SlotAttribute(Subscription.ROUTE_SLOT)
     private Network route = Network.OPSNET;
 
     @XmlAttribute
