@@ -100,6 +100,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Feb 14, 2013 1595       djohnson     Check with BandwidthUtil whether or not to reschedule subscriptions on update.
  * Feb 14, 2013 1596       djohnson     Do not reschedule allocations when a subscription is removed.
+ * Feb 20, 2013 1543       djohnson     Add try/catch blocks during the shutdown process.
  * </pre>
  * 
  * @author dhladky
@@ -1464,10 +1465,30 @@ abstract class BandwidthManager extends
      */
     @VisibleForTesting
     void shutdown() {
-        EventBus.unregister(this);
-        BandwidthEventBus.unregister(this);
-        retrievalManager.shutdown();
-        scheduler.shutdownNow();
+        try {
+            EventBus.unregister(this);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN,
+                    "Unable to unregister from the EventBus.", e);
+        }
+        try {
+            BandwidthEventBus.unregister(this);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN,
+                    "Unable to unregister from the BandwidthEventBus.", e);
+        }
+        try {
+            retrievalManager.shutdown();
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN,
+                    "Unable to shutdown the retrievalManager.", e);
+        }
+        try {
+            scheduler.shutdownNow();
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN,
+                    "Unable to shutdown the scheduler.", e);
+        }
     }
 
     /**
