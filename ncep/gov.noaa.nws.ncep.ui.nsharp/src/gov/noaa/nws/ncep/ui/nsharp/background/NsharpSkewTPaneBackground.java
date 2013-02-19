@@ -40,8 +40,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.edex.util.Equations;
-import com.raytheon.edex.util.UAPoint;
+import com.raytheon.uf.common.sounding.util.Equations;
+import com.raytheon.uf.common.sounding.util.UAPoint;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;

@@ -18,7 +18,7 @@ import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
 
 //import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.edex.util.UnitConv;
+import com.raytheon.uf.common.units.UnitConv;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.dataquery.GridQueryAssembler;
 import com.raytheon.uf.common.dataplugin.grid.datastorage.GridDataRetriever; 

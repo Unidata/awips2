@@ -7,8 +7,7 @@ Bundle-Activator: com.raytheon.uf.viz.aviation.advisory.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Require-Bundle: com.raytheon.uf.viz.core
-Import-Package: com.raytheon.edex.scriptfactory,
- com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.core,
