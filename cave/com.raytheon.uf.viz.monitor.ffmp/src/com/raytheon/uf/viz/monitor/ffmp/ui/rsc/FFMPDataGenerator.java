@@ -27,7 +27,6 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPCacheRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
@@ -67,6 +66,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Jul 20, 2009           dhladky     Initial creation
  * Jan 25, 2012 DR 13839  gzhang	  Use paintTime for QPF
  * Feb 1,  2013 DR 1569   dhladky     Switched to using pypies records instead of files
+ * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * </pre>
  * 
  * @author dhladky
@@ -112,17 +112,17 @@ public class FFMPDataGenerator {
 
 	FFMPBasinData virtualBasin = null;
 
-	FFMPCacheRecord rateRecord = null;
+	FFMPRecord rateRecord = null;
 
-	FFMPCacheRecord qpeRecord = null;
+	FFMPRecord qpeRecord = null;
 
-	FFMPCacheRecord qpfRecord = null;
+	FFMPRecord qpfRecord = null;
 
-	HashMap<String, FFMPCacheRecord> guidRecords = null;
+	HashMap<String, FFMPRecord> guidRecords = null;
 
-	FFMPCacheRecord virtualRecord = null;
+	FFMPRecord virtualRecord = null;
 
-	FFMPCacheRecord baseRec = null;
+	FFMPRecord baseRec = null;
 
 	// Date time = null;
 
