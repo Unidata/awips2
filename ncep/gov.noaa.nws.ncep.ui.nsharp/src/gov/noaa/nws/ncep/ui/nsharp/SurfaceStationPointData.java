@@ -28,7 +28,6 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -97,8 +96,7 @@ public class SurfaceStationPointData {
 		}
 	}
 	
-	private static List<PointData>  stationIdQuery(double lat,double lon)
-	throws DataAccessLayerException {
+	private static List<PointData>  stationIdQuery(double lat,double lon) {
 		String query1,query2;
 		QueryResultRow[] stnResults = null;
 		double corr = 0.2;
@@ -193,14 +191,9 @@ public class SurfaceStationPointData {
 		if (co.x > 180.0 || co.x < -180.0 || co.y > 90.0 || co.y < -90.0)
 			return null;// Check for invalid Coordinate
 
-		try {
-			latitude = co.y;
-			longitude =  co.x;
-			pointList = stationIdQuery(latitude , longitude);
-		} catch (DataAccessLayerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}//Retrieve all points within the envelope
+		latitude = co.y;
+		longitude =  co.x;
+		pointList = stationIdQuery(latitude , longitude);
 		if (pointList == null || pointList.size() ==0 ) 
 			return null;
 		int index = getNearestPointStnIndex();

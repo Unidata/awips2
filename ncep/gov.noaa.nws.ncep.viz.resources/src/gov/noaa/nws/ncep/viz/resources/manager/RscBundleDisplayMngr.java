@@ -26,7 +26,6 @@ import java.util.Vector;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.geotools.coverage.grid.ImageGeometry;
-import org.hibernate.ejb.AvailableSettings;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
