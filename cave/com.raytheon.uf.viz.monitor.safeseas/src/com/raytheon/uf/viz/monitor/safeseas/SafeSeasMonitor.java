@@ -31,7 +31,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.urifilter.URIFilter;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
@@ -82,6 +82,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 15, 2012 14510      zhao        Modified processing at startup
  * Oct 26, 2012 1280       skorolev    Clean code and made changes for non-blocking dialog
  * Oct 30, 2012 1297       skorolev    Changed HashMap to Map
+ * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * 
  * </pre>
  * 
@@ -147,12 +148,12 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
 
     /** Pattern for SAFESEAS **/
     private final Pattern ssPattern = Pattern
-            .compile(URIFilter.uriSeperator + OBS + URIFilter.uriSeperator
-                    + wildCard + URIFilter.uriSeperator + wildCard
-                    + URIFilter.uriSeperator + cwa + URIFilter.uriSeperator
-                    + wildCard + URIFilter.uriSeperator + wildCard
-                    + URIFilter.uriSeperator + wildCard
-                    + URIFilter.uriSeperator + "ss");
+            .compile(DataURI.SEPARATOR + OBS + DataURI.SEPARATOR
+                    + wildCard + DataURI.SEPARATOR + wildCard
+                    + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR
+                    + wildCard + DataURI.SEPARATOR + wildCard
+                    + DataURI.SEPARATOR + wildCard
+                    + DataURI.SEPARATOR + "ss");
 
     /**
      * Private constructor, singleton

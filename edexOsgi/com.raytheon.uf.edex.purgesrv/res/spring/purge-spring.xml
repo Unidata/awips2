@@ -25,11 +25,11 @@
         <constructor-arg ref="purgeDatabaseProperties"/>
     </bean>
 
-	<bean id="purgeOutgoing" class="com.raytheon.uf.edex.dissemination.PurgeOutgoing" >
+	<bean id="purgeOutgoing" class="com.raytheon.uf.edex.purgesrv.PurgeOutgoing" >
 		<property name="outgoingDirectory" value="${edex.home}/data/outgoing"/>
 	</bean>
 	
-	<bean id="purgeLogs" class="com.raytheon.uf.edex.log.PurgeLogs" >
+	<bean id="purgeLogs" class="com.raytheon.uf.edex.purgesrv.PurgeLogs" >
 		<property name="logDirectory" value="${edex.home}/logs"/>
 	</bean>
 

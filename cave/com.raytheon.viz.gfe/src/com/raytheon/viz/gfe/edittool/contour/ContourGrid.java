@@ -22,8 +22,8 @@ package com.raytheon.viz.gfe.edittool.contour;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.viz.core.contours.util.ContourContainer;
 import com.raytheon.viz.core.contours.util.FortConBuf;
 import com.raytheon.viz.core.contours.util.FortConConfig;
@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 29, 2009            randerso     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved GRID_FILL_VALUE from edex.common Util into GridUtil
  * 
  * </pre>
  * 
@@ -66,8 +67,8 @@ public class ContourGrid {
         }
 
         FortConConfig config = new FortConConfig();
-        config.badlo = Util.GRID_FILL_VALUE - 1;
-        config.badhi = Util.GRID_FILL_VALUE + 1;
+        config.badlo = GridUtil.GRID_FILL_VALUE - 1;
+        config.badhi = GridUtil.GRID_FILL_VALUE + 1;
         config.xOffset = 0;
         config.yOffset = 0;
         config.labelSpacingLine = 1;

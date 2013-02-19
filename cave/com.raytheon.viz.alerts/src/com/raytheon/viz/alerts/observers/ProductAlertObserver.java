@@ -34,8 +34,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
-import com.raytheon.edex.msg.PracticeDataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.PracticeDataURINotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -69,6 +69,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * 05/08/08     1127        randerso    Changed to implement INotificationObserver
  * 10/06/08     1433        chammack    Updated to use VizStatus
  * 01/14/2013   1442        rferrel     Filter out simulated time "future" alerts.
+ * Feb 15, 2013 1638        mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * </pre>
  * 
  * @author bphillip

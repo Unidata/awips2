@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
 import com.raytheon.uf.common.dataplugin.ffmp.dao.FFMPDao;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -112,6 +112,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
  * 01/27/13     1478       D. Hladky   Added creation of full cache records to help read write stress on NAS
  * 02/01/13     1569        D. Hladky  Added constants, switched to using aggregate records written through pypies
  * 02/20/13     1635       D. Hladky   Added some finally methods to increase dead lock safety.  Reduced wait times for threads.
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * </pre>
  * 
  * @author dhladky
