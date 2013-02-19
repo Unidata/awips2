@@ -8,10 +8,10 @@
 
 
 
-const char* com_raytheon_edex_msg_DataURINotificationMessage::ascii_fingerprint = "ACE4F644F0FDD289DDC4EE5B83BC13C0";
-const uint8_t com_raytheon_edex_msg_DataURINotificationMessage::binary_fingerprint[16] = {0xAC,0xE4,0xF6,0x44,0xF0,0xFD,0xD2,0x89,0xDD,0xC4,0xEE,0x5B,0x83,0xBC,0x13,0xC0};
+const char* com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage::ascii_fingerprint = "ACE4F644F0FDD289DDC4EE5B83BC13C0";
+const uint8_t com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage::binary_fingerprint[16] = {0xAC,0xE4,0xF6,0x44,0xF0,0xFD,0xD2,0x89,0xDD,0xC4,0xEE,0x5B,0x83,0xBC,0x13,0xC0};
 
-uint32_t com_raytheon_edex_msg_DataURINotificationMessage::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -63,9 +63,9 @@ uint32_t com_raytheon_edex_msg_DataURINotificationMessage::read(::apache::thrift
   return xfer;
 }
 
-uint32_t com_raytheon_edex_msg_DataURINotificationMessage::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("com_raytheon_edex_msg_DataURINotificationMessage");
+  xfer += oprot->writeStructBegin("com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage");
   xfer += oprot->writeFieldBegin("dataURIs", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->dataURIs.size()));

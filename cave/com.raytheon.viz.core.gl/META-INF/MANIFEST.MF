@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.viz.core.gl;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.core.gl.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: net.sf.ehcache
 Eclipse-BuddyPolicy: ext, registered
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

@@ -48,6 +48,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Jan 22, 2013 1484       mpduff      Add HOURS_PER_WEEK.
  * Jan 22, 2013 1519       djohnson    Add MINUTES_PER_DAY.
  * Feb 26, 2013 1597       randerso    Add SECONDS_PER_HOUR.
+ * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil
  * 
  * </pre>
  * 
@@ -392,6 +393,20 @@ public final class TimeUtil {
             calendar.set(field, calendar.getActualMaximum(field));
         }
         return calendar;
+    }
+
+    /**
+     * Returns UNIX time for a Date, this is time in seconds instead of millis
+     * 
+     * @param date
+     * @return
+     */
+    public static long getUnixTime(Date date) {
+        if (date == null) {
+            return 0;
+        } else {
+            return date.getTime() / 1000l;
+        }
     }
 
     /**

@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.urifilter.URIFilter;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -72,6 +72,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * May 15, 2012 14510      zhao        Modified processing at startup
  * Oct 26, 2012 1280       skorolev    Clean code and made changes for non-blocking ZoneTableDlg
  * Nov. 1, 2012 1297       skorolev    Changed HashMap to Map and clean code
+ * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * 
  * </pre>
  * 
@@ -116,11 +117,11 @@ public class SnowMonitor extends ObsMonitor {
     private final List<ISnowResourceListener> snowResources = new ArrayList<ISnowResourceListener>();
 
     /** Pattern for SNOW **/
-    private final Pattern snowPattern = Pattern.compile(URIFilter.uriSeperator
-            + OBS + URIFilter.uriSeperator + wildCard + URIFilter.uriSeperator
-            + wildCard + URIFilter.uriSeperator + cwa + URIFilter.uriSeperator
-            + wildCard + URIFilter.uriSeperator + wildCard
-            + URIFilter.uriSeperator + wildCard + URIFilter.uriSeperator
+    private final Pattern snowPattern = Pattern.compile(DataURI.SEPARATOR
+            + OBS + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
+            + wildCard + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR
+            + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
             + "snow");
 
     /**
