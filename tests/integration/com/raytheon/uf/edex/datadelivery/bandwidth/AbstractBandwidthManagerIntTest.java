@@ -19,6 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -39,6 +44,7 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.PropertiesUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -55,6 +61,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Dec 11, 2012 1286       djohnson     Use a synchronous event bus for tests.
  * Dec 11, 2012 1403       djohnson     No longer valid to run without bandwidth management.
  * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
+ * Feb 20, 2013 1543       djohnson     Delegate to sub-classes for which route to create subscriptions for.
  * 
  * </pre>
  * 
@@ -118,7 +125,8 @@ public abstract class AbstractBandwidthManagerIntTest {
         bandwidthDao = IBandwidthDao.class
                 .cast(context.getBean("bandwidthDao"));
 
-        fullBucketSize = retrievalManager.getPlan(Network.OPSNET)
+        fullBucketSize = retrievalManager
+                .getPlan(getRouteToUseForSubscription())
                 .getBucket(TimeUtil.currentTimeMillis()).getBucketSize();
         halfBucketSize = fullBucketSize / 2;
         thirdBucketSizeInBytes = fullBucketSize / 3;
@@ -186,6 +194,41 @@ public abstract class AbstractBandwidthManagerIntTest {
                 .get(subscriptionSeed++);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));
+        subscription.setRoute(getRouteToUseForSubscription());
+
         return subscription;
+    }
+
+    /**
+     * Retrieve the {@link Network} that subscriptions should be created for.
+     * 
+     * @return the {@link Network}
+     */
+    protected abstract Network getRouteToUseForSubscription();
+
+    /**
+     * Verify the bandwidth manager has a retrieval plan configured for the
+     * specified route.
+     * 
+     * @param route
+     */
+    protected void verifyRetrievalPlanExistsForRoute(Network route) {
+        final RetrievalPlan retrievalPlan = EdexBandwidthContextFactory
+                .getInstance().retrievalManager.getPlan(route);
+
+        assertThat(retrievalPlan, is(notNullValue(RetrievalPlan.class)));
+    }
+
+    /**
+     * Verify the bandwidth manager does not have a retrieval plan configured
+     * for the specified route.
+     * 
+     * @param route
+     */
+    protected void verifyRetrievalPlanDoesNotExistForRoute(Network route) {
+        final RetrievalPlan retrievalPlan = EdexBandwidthContextFactory
+                .getInstance().retrievalManager.getPlan(route);
+
+        assertThat(retrievalPlan, is(nullValue(RetrievalPlan.class)));
     }
 }
