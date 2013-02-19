@@ -35,7 +35,6 @@ import java.util.zip.Inflater;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
-import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.edex.util.satellite.SatellitePosition;
 import com.raytheon.edex.util.satellite.SatelliteUnit;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -74,6 +74,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 06/27/2012    798        jkorman     Using SatelliteMessageData to "carry" the decoded image.
  * 01/03/2013  15294        D. Friedman Start with File instead of byte[] to
  *                                      reduce memory usage.
+ * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util into ArraysUtil
+ *
  * </pre>
  * 
  * @author bphillip
@@ -288,14 +290,14 @@ public class SatelliteDecoder extends AbstractDecoder {
                 // TODO: Can these numbers be an enum or constants?
                 switch (scanMode) {
                 case 1:
-                    Util.flipHoriz(tempBytes, ny, nx);
+                    ArraysUtil.flipHoriz(tempBytes, ny, nx);
                     break;
                 case 2:
-                    Util.flipVert(tempBytes, ny, nx);
+                    ArraysUtil.flipVert(tempBytes, ny, nx);
                     break;
                 case 3:
-                    Util.flipVert(tempBytes, ny, nx);
-                    Util.flipVert(tempBytes, ny, nx);
+                    ArraysUtil.flipVert(tempBytes, ny, nx);
+                    ArraysUtil.flipVert(tempBytes, ny, nx);
                     break;
                 default:
                     break;

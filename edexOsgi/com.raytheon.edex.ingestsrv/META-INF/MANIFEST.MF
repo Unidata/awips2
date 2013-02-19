@@ -10,6 +10,5 @@ Require-Bundle: com.raytheon.edex.common,
  org.springframework;bundle-version="2.5.6"
 Export-Package: com.raytheon.edex.services
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.message.response,
- com.raytheon.uf.edex.core,
+Import-Package: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database.plugin

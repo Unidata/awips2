@@ -30,9 +30,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.topo.ITopoQuery;
+import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.topo.TopoQuery;
 
 /**
  * 
@@ -45,6 +44,8 @@ import com.raytheon.uf.viz.core.topo.TopoQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2011            bsteffen     Initial creation
+ * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
+ *                                     and moved into common
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
             // If stationElevation is not set, set it to the topo value.
             if (profileList.getStationElevation() == NcSoundingProfile.MISSING) {
                 if (surfaceElevation == NcSoundingProfile.MISSING) {
-                    ITopoQuery topoQuery = TopoQuery.getInstance();
+                    TopoQuery topoQuery = TopoQuery.getInstance();
                     if (topoQuery != null) {
                         surfaceElevation = (float) topoQuery
                                 .getHeight(coordinate);
