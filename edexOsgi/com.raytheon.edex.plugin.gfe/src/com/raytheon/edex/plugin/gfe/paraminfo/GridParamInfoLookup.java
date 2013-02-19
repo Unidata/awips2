@@ -181,7 +181,7 @@ public class GridParamInfoLookup {
             try {
                 GridParamInfo paramInfo = (GridParamInfo) um.unmarshal(file
                         .getFile());
-                String key = file.getName().replace(".xml", "");
+                String key = file.getFile().getName().replace(".xml", "");
                 if (!modelParamMap.containsKey(key)) {
                     modelParamMap.put(key, paramInfo);
                 }
@@ -196,7 +196,7 @@ public class GridParamInfoLookup {
                 LocalizationLevel.SITE), "grib" + IPathManager.SEPARATOR
                 + "parameterInfo", new String[] { ".xml" }, true, true);
         for (LocalizationFile file : files) {
-            String name = file.getName().replace(".xml", "");
+            String name = file.getFile().getName().replace(".xml", "");
             // Do not override grid files.
             if (modelParamMap.get(name) != null) {
                 continue;
