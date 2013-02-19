@@ -196,7 +196,7 @@ public class D2DParmIdCache {
     public List<ParmID> getParmIDs(DatabaseID dbId) {
         List<ParmID> parms = Collections.emptyList();
         synchronized (parmIds) {
-            if (parmIds.containsKey(dbId.toString())) {
+            if (parmIds.containsKey(dbId)) {
                 parms = new ArrayList<ParmID>(parmIds.get(dbId));
             }
         }
@@ -255,7 +255,7 @@ public class D2DParmIdCache {
 
         synchronized (this.parmIds) {
             for (DatabaseID dbId : dbsToRemove) {
-                this.parmIds.remove(dbId.toString());
+                this.parmIds.remove(dbId);
                 if (UFStatus.getHandler().isPriorityEnabled(Priority.DEBUG)) {
                     statusHandler.handle(Priority.DEBUG,
                             "D2dParmIdCache Removed " + dbId);
