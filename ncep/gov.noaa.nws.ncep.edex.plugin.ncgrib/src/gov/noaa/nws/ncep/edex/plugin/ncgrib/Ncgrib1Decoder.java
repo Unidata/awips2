@@ -82,6 +82,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
@@ -684,13 +685,13 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         case 0:
             break;
         case 64:
-            Util.flipHoriz(data, ny, nx);
+            ArraysUtil.flipHoriz(data, ny, nx);
             break;
         case 128:
-            Util.flipVert(data, ny, nx);
+            ArraysUtil.flipVert(data, ny, nx);
             break;
         case 192:
-            Util.rotate180(data, ny, nx);
+            ArraysUtil.rotate180(data, ny, nx);
             break;
         }
     }

@@ -33,7 +33,7 @@ except:
   fastbinary = None
 
 
-class com_raytheon_edex_msg_DataURINotificationMessage:
+class com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage:
   """
   Attributes:
    - dataURIs
@@ -88,7 +88,7 @@ class com_raytheon_edex_msg_DataURINotificationMessage:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('com_raytheon_edex_msg_DataURINotificationMessage')
+    oprot.writeStructBegin('com_raytheon_uf_common_dataplugin_message_DataURINotificationMessage')
     if self.dataURIs != None:
       oprot.writeFieldBegin('dataURIs', TType.LIST, 1)
       oprot.writeListBegin(TType.STRING, len(self.dataURIs))

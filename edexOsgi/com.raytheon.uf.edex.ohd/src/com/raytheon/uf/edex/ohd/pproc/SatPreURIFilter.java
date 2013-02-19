@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.ohd.pproc;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
 /**
  * TODO Add Description
@@ -31,6 +31,7 @@ import com.raytheon.edex.msg.DataURINotificationMessage;
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            snaples     Initial creation
  * Feb 12, 2010  4635      snaples     Updated to match more generically.
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 

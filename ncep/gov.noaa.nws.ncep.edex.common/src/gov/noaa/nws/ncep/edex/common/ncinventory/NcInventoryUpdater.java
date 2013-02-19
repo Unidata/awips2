@@ -23,12 +23,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.uengine.tasks.query.MetadataCatalogQuery;
 import com.raytheon.edex.uengine.tasks.query.TableQuery;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
