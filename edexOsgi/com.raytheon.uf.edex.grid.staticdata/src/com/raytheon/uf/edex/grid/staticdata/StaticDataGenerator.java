@@ -32,12 +32,12 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.measure.unit.SI;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
 import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010            rjpeter     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 
