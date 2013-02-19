@@ -22,7 +22,6 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -231,15 +230,9 @@ public class SeekInfo {
 //			LocatorDataSourceMngr.getInstance().getCitiesLocatorDataSource( );		
 //		CitiesDataSource cpd = new CitiesDataSource();	
 		
-		java.util.List<SeekPointData> list = null;		
+		java.util.List<SeekPointData> list = null;
 		
-		try{
-			
-			list = nameIdQuery(coord.y, coord.x, getStnDbTbl(stnType)[1]);
-			
-		}catch (DataAccessLayerException e) {
-			System.out.println("___________ SeekInfo: getPtsData(): Error: "+e.getMessage());
-		}		
+		list = nameIdQuery(coord.y, coord.x, getStnDbTbl(stnType)[1]);
 
 		return list.toArray(new SeekPointData[]{});
 		
@@ -254,8 +247,7 @@ public class SeekInfo {
 	 * @return:			a list of the LocatorPointData relative to the point and station.
 	 * @throws DataAccessLayerException
 	 */
-	public static List<SeekPointData>  nameIdQuery(double lat,double lon, String stnType)
-										throws DataAccessLayerException {
+	public static List<SeekPointData>  nameIdQuery(double lat,double lon, String stnType) {
 		
 		/* island has only three field */
 		boolean isIsland = "ISLAND".equalsIgnoreCase(stnType);
