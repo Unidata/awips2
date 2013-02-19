@@ -19,15 +19,16 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
-import com.raytheon.uf.common.util.JarUtil;
+import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
 /**
- * {@link IBandwidthManager} implementation that runs in EDEX. Intentionally
- * package-private to hide implementation details.
+ * A WFO {@link IBandwidthManager} that runs as an integration test, outside of
+ * the EDEX container.
  * 
  * <pre>
  * 
@@ -43,12 +44,12 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * @version 1.0
  */
 
-class EdexBandwidthManager extends BandwidthManager {
+public class IntegrationTestWfoBandwidthManager extends BandwidthManager {
 
-    private static final String[] EDEX_BANDWIDTH_MANAGER_FILES = new String[] {
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
-            JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml") };
+    static final String[] INTEGRATION_TEST_SPRING_FILES = new String[] {
+            "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml",
+            TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_XML),
+            TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML) };
 
     /**
      * Constructor.
@@ -58,14 +59,17 @@ class EdexBandwidthManager extends BandwidthManager {
      * @param retrievalManager
      * @param bandwidthDaoUtil
      */
-    public EdexBandwidthManager(IBandwidthDbInit dbInit,
+    public IntegrationTestWfoBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String[] getSpringFilesForNewInstance() {
-        return EDEX_BANDWIDTH_MANAGER_FILES;
+        return INTEGRATION_TEST_SPRING_FILES;
     }
 }
