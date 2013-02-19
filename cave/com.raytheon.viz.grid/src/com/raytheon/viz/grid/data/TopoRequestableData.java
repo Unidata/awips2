@@ -34,8 +34,8 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.topo.TopoQuery;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.util.SliceUtil;
 
@@ -49,6 +49,8 @@ import com.raytheon.viz.grid.util.SliceUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 15, 2010            rjpeter     Initial creation
+ * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
+ *                                     and moved into common
  * 
  * </pre>
  * 
