@@ -24,10 +24,14 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.UUID;
 
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
@@ -60,6 +64,9 @@ public class TextFormatter extends AbstractGfeTask {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextFormatter.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     private TextProductFinishListener listener;
 
@@ -113,10 +120,14 @@ public class TextFormatter extends AbstractGfeTask {
 
             argMap.put("logFile", getLogFile().getAbsolutePath());
             script = FormatterScriptFactory.buildFormatterScript();
-            long t0 = System.currentTimeMillis();
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
             forecast = (String) script.execute(argMap);
-            long t1 = System.currentTimeMillis();
-            System.out.println("Total text formatter time: " + (t1 - t0));
+            timer.stop();
+            String productName = (String) argMap
+                    .get(ArgDictConstants.FORECAST_LIST);
+            perfLog.logDuration("Text Formatter " + productName,
+                    timer.getElapsedTime());
 
             state = ConfigData.productStateEnum.Finished;
         } catch (Throwable t) {

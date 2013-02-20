@@ -31,10 +31,14 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyConstants;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.BaseGfePyController;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -47,6 +51,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008             njensen      Initial creation
  * Jan 8, 2013  1486       dgilling     Support changes to BaseGfePyController.
+ * 02/12/2013        #1597 randerso    Added logging to support GFE Performance metrics
+ * 
  * </pre>
  * 
  * @author njensen
@@ -56,6 +62,9 @@ import com.raytheon.viz.gfe.core.DataManager;
 public class ProcedureController extends BaseGfePyController {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProcedureController.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     private LocalizationFile proceduresDir;
 
@@ -120,6 +129,9 @@ public class ProcedureController extends BaseGfePyController {
      */
     public Object executeProcedure(String procedureName,
             Map<String, Object> args) throws JepException {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         if (!isInstantiated(procedureName)) {
             instantiatePythonScript(procedureName);
         }
@@ -131,7 +143,12 @@ public class ProcedureController extends BaseGfePyController {
                 + procedureName);
 
         internalExecute("runProcedure", INTERFACE, args);
-        return getExecutionResult();
+        Object result = getExecutionResult();
+
+        timer.stop();
+        perfLog.logDuration("Running procedure " + procedureName,
+                timer.getElapsedTime());
+        return result;
     }
 
     @Override
