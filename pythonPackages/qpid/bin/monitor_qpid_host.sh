@@ -108,6 +108,22 @@ function captureQpidStat() {
   numQpidConnections=$( qpid-stat -c | wc -l )
   (( numQpidConnections-=3 )) 
   echo -e "Total Number of QPID Connections: ${numQpidConnections}" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+  if [[ ${numQpidConnections} -ge 450 && ${numQpidConnections} -le 485 ]] ; then
+	echo -e "\tNOTE:  Sending Major ITO to NCF because number of connections is between 450 and 485" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
+	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
+		opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between 450-485: Please check system health" severity=Major msg_grp=AWIPS
+	else
+		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+	fi
+  elif [[ ${numQpidConnections} -gt 485 ]] ; then
+	echo -e "\tNOTE:  Sending CRITIAL ITO to NCF because number of connections is > 485" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
+	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
+		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is > 485 -- Take IMMEDIATE action to prevent system failure" severity=Critical msg_grp=AWIPS
+	else
+		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+	fi
+  fi
+	  
   echo >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
 
   for cmdArg in "-b" "-c" "-s" "-e" "-q -Smsg" 
