@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
+ * 02/10/13    #1603       randerso    Returned number of records purged from timePurge
  * 
  * </pre>
  * 
