@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:util="http://www.springframework.org/schema/util" xmlns:amq="http://activemq.apache.org/schema/core"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <bean id="bandwidthAllocationDao"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthAllocationDao">
@@ -14,12 +12,12 @@
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthSubscriptionDao">
         <property name="sessionFactory" ref="metadataSessionFactory" />
     </bean>
-    
+
     <bean id="subscriptionRetrievalDao"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.SubscriptionRetrievalDao">
         <property name="sessionFactory" ref="metadataSessionFactory" />
     </bean>
-    
+
     <bean id="bandwidthDataSetUpdateDao"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthDataSetUpdateDao">
         <property name="sessionFactory" ref="metadataSessionFactory" />
