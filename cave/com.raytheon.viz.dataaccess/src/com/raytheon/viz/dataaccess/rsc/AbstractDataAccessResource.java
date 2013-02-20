@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Jan 31, 2013            bkowal     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
+ * Feb 19, 2013 1552       mpduff     Handle empty legend text.
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
 
     protected static final String _SPACE_ = " ";
 
-    private String genericLegendText;
+    private String genericLegendText = StringUtils.EMPTY;
 
     /**
      * Constructor
@@ -77,6 +78,9 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         DataTime[] timesToLoad = descriptor.getFramesInfo().getTimeMap()
@@ -92,6 +96,9 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void remove(DataTime dataTime) {
         ;// for now never remove anything from dataTimes since there are no
@@ -132,7 +139,10 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
      *            the request-type specific legend text
      */
     private final String buildLegendText(String genericLegendText) {
-        StringBuilder stringBuilder = new StringBuilder(genericLegendText);
+        StringBuilder stringBuilder = new StringBuilder();
+        if (genericLegendText != null) {
+            stringBuilder.append(genericLegendText);
+        }
         stringBuilder.append(this.padWithSeparator(this
                 .buildLegendTextInternal()));
         return stringBuilder.toString();

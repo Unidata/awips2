@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.junit.Ignore;
 
+import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
+
 /**
  * Implementation of {@link IJaxbableClassesLocator} that returns a static list
  * of classes.
@@ -86,7 +88,10 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.ServiceConfig.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.UnitLookup.class,
-                com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class };
+                com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class,
+                com.raytheon.uf.common.monitor.xml.FFMPSourceConfigXML.class,
+                com.raytheon.uf.common.monitor.xml.FFMPRunConfigXML.class,
+                FFMPTemplateXML.class };
 
         JAXB_CLASSES = Arrays.asList(array);
     }
