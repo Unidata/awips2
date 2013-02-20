@@ -17,7 +17,14 @@
       <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz</programArgs>
       <vmArgs>-Xincgc -Xmx1024M -Dosgi.instance.area.readOnly=true 
 -Dosgi.hook.configurators.exclude=org.eclipse.core.runtime.internal.adaptor.EclipseLogHook,org.eclipse.core.runtime.internal.adaptor.EclipseErrorHandler 
--XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass -Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=128m -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme -Dawips.mode=pypies -Dqpid.dest_syntax=BURL -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dlog4j.configuration=log4j-viz-core.xml</vmArgs>
+-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass 
+-Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=128m 
+-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme 
+-Dawips.mode=pypies -Dqpid.dest_syntax=BURL 
+-Dcom.sun.management.jmxremote 
+-Dcom.sun.management.jmxremote.authenticate=false 
+-Dcom.sun.management.jmxremote.ssl=false 
+-Dlog4j.configuration=log4j-viz-core-developer.xml</vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8</vmArgsWin>
    </launcherArgs>
 
@@ -35,9 +42,11 @@
       </win>
    </launcher>
 
+
    <vm>
       <windows include="true">jdk1.6.0</windows>
    </vm>
+
 
    <plugins>
    </plugins>
