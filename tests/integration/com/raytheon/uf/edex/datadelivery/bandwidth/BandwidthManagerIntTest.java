@@ -110,8 +110,10 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_XML })
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
@@ -991,6 +993,14 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
             allocations.addAll(bucket.getRequests());
         }
         return allocations;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Network getRouteToUseForSubscription() {
+        return Network.OPSNET;
     }
 
 }
