@@ -81,6 +81,10 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 07/12/12     15162      ryu         added check for invalid db
  * 10/10/12     #1260      randerso    Added exception handling for domain not 
  *                                     overlapping the dataset
+ * 02/10/13     #1603      randerso    General code cleanup, improved purge logging,
+ *                                     fixed a purge inefficiency,
+ *                                     fixed error which caused D2D purging to remove 
+ *                                     smartInit hdf5 data
  * 
  * </pre>
  * 
