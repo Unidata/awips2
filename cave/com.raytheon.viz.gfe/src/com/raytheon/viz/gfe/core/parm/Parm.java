@@ -176,6 +176,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/02/2012   #346       dgilling    Create a disposed flag to help ensure
  *                                     no interaction with Parms after dispose
  *                                     is called.
+ * 02/13/13     #1597      randerso    Removed debug logging to improve performance
  * </pre>
  * 
  * @author chammack
@@ -293,11 +294,7 @@ public abstract class Parm implements Comparable<Parm> {
                 if (req != null) {
                     this.setName("Interpolating "
                             + req.parm.getParmID().getParmName() + "...");
-                    System.out.println("Starting interpolatation for "
-                            + req.parm + " on job " + this);
                     req.parm.doInterpolation(false);
-                    System.out.println("Finished interpolatation for "
-                            + req.parm + " on job " + this);
                     this.schedule();
                 }
                 return Status.OK_STATUS;
@@ -1969,10 +1966,10 @@ public abstract class Parm implements Comparable<Parm> {
         for (i = 0; i < this.undoBuffers.size(); i++) {
             UndoBuffer undoBuffer = this.undoBuffers.get(i);
 
-            String msg = "Undoing " + getParmID() + " tr="
-                    + undoBuffer.getUndoTimeRange();
-            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
-                    + msg));
+            // String msg = "Undoing " + getParmID() + " tr="
+            // + undoBuffer.getUndoTimeRange();
+            // statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+            // + msg));
 
             baffectedTR[i] = undoBuffer.getUndoTimeRange();
             bgridCopies[i] = new ArrayList<IGridData>();
@@ -4287,23 +4284,6 @@ public abstract class Parm implements Comparable<Parm> {
         // We will do the real work in a job for ASYNC mode
         else {
             InterpolateJob.request(this);
-            // Job job = new Job("Interpolating...") {
-            //
-            // @Override
-            // protected IStatus run(IProgressMonitor monitor) {
-            // try {
-            // doInterpolation(false);
-            // return Status.OK_STATUS;
-            // } catch (GFEOperationFailedException e) {
-            // return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-            // "Interpolation failed", e);
-            // }
-            // }
-            //
-            // };
-            // job.setSystem(false);
-            // job.schedule();
-
         }
         return true;
     }
