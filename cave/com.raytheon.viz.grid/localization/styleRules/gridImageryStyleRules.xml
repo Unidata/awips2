@@ -1719,7 +1719,7 @@
 			<parameter>MpV</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<displayUnits label="PVU">K/hPa/s</displayUnits>
+			<displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
 			<range scale="LOG" mirror="true" adaptive="true" />
 			<defaultColormap>Grid/gridded data</defaultColormap>
 		</imageStyle>
