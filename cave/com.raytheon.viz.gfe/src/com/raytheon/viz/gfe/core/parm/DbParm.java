@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -50,14 +51,19 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.GfeClientConfig;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 
@@ -74,6 +80,8 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 02/23/12     #346       dgilling    Implement a dispose method.
  * 03/01/12     #346       dgilling    Re-order dispose method.
  * 01/21/12     #1504      randerso    Cleaned up old debug logging to improve performance
+ * 02/12/13     #1597      randerso    Made save threshold a configurable value. Added detailed
+ *                                     logging for save performance
  * 
  * </pre>
  * 
@@ -85,8 +93,8 @@ public class DbParm extends Parm {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbParm.class);
 
-    // save if we accumulate more than 16 MB
-    private static final long MAX_SAVE_SIZE = 16 * 1024 * 1024;
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     public DbParm(ParmID parmID, GridParmInfo gridInfo, boolean mutable,
             boolean displayable, DataManager dataMgr) throws GFEServerException {
@@ -475,6 +483,8 @@ public class DbParm extends Parm {
             return true;
         }
 
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         ServerResponse<List<LockTable>> sr;
         try {
             sr = this.dataManager.getClient().requestLockChange(lreq);
@@ -483,7 +493,12 @@ public class DbParm extends Parm {
                     "Error requesting lock change", e);
             return false;
         }
+        timer.stop();
+        perfLog.logDuration("Server lock change for " + this.getParmID() + " "
+                + lreq.size() + " time rangess", timer.getElapsedTime());
 
+        timer.reset();
+        timer.start();
         List<LockTable> lockTableList = sr.getPayload();
         for (LockTable lt : lockTableList) {
             // it is for our parm
@@ -499,6 +514,8 @@ public class DbParm extends Parm {
                 }
             }
         }
+        timer.stop();
+        perfLog.logDuration("Processing lock tables", timer.getElapsedTime());
         for (ServerMsg msg : sr.getMessages()) {
             statusHandler.error(msg.getMessage());
         }
@@ -509,23 +526,24 @@ public class DbParm extends Parm {
     @Override
     protected boolean saveParameterSubClass(List<TimeRange> trs) {
 
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         List<TimeRange> myLocks = lockTable.lockedByMe();
         if (myLocks.isEmpty()) {
+            timer.stop();
+            perfLog.logDuration("Saving " + getParmID().getParmName() + ": "
+                    + " no grids to save ", timer.getElapsedTime());
             return true;
         }
 
         // FIXME: Purge functionality
         purgeUndoGrids();
 
-        // assemble the save grid request and lock requests
-        // List<IGridData> gridsSaved = new ArrayList<IGridData>();
-        List<SaveGridRequest> sgr = new ArrayList<SaveGridRequest>();
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
-        List<TimeRange> pendingUnlocks = new ArrayList<TimeRange>();
-
+        // compute grid size in bytes
         GridLocation gloc = this.getGridInfo().getGridLoc();
+        GridType gridType = this.getGridInfo().getGridType();
         int gridSize = gloc.getNx() * gloc.getNy();
-        switch (this.getGridInfo().getGridType()) {
+        switch (gridType) {
         case SCALAR:
             gridSize *= 4; // 4 bytes per grid cell
             break;
@@ -538,7 +556,15 @@ public class DbParm extends Parm {
             // ignoring size of keys for now
         }
 
+        // assemble the save grid request and lock requests
+        List<SaveGridRequest> sgr = new ArrayList<SaveGridRequest>();
+        List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<TimeRange> pendingUnlocks = new ArrayList<TimeRange>();
+
         boolean success = true;
+        int gridCount = 0;
+        int totalGrids = 0;
+        long totalSize = 0;
         long size = 0;
         for (int i = 0; i < trs.size(); i++) {
             // ensure we have a lock for the time period
@@ -582,10 +608,10 @@ public class DbParm extends Parm {
                 record.setGridHistory(data.getHistory());
                 record.setMessageData(data.getGridSlice());
                 records.add(record);
+                gridCount += (gridType.equals(GridType.VECTOR) ? 2 : 1);
                 size += gridSize;
 
-                if (size > MAX_SAVE_SIZE) {
-                    // time range being saved in this chunk
+                if (size > GfeClientConfig.getInstance().getGridSaveThreshold()) {
                     TimeRange tr = new TimeRange(saveTime.getStart(), data
                             .getGridTime().getEnd());
                     sgr.add(new SaveGridRequest(getParmID(), tr, records,
@@ -602,8 +628,12 @@ public class DbParm extends Parm {
                         allSaved = false;
                     }
 
+                    totalGrids += gridCount;
+                    totalSize += size;
+
                     pendingUnlocks.clear();
                     sgr.clear();
+                    gridCount = 0;
                     records.clear();
                     size = 0;
                     saveTime.setStart(tr.getEnd());
@@ -633,6 +663,9 @@ public class DbParm extends Parm {
             } else {
                 success = false;
             }
+
+            totalSize += size;
+            totalGrids += gridCount;
             pendingUnlocks.clear();
         }
 
@@ -649,6 +682,11 @@ public class DbParm extends Parm {
         if (success) {
             purgeUndoGrids();
         }
+
+        timer.stop();
+        perfLog.logDuration("Save Grids " + getParmID().getParmName() + ": "
+                + totalGrids + " grids (" + totalSize + " bytes) ",
+                timer.getElapsedTime());
 
         return success;
     }
