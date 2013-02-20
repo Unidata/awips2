@@ -19,15 +19,14 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
-import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
 /**
- * An {@link IBandwidthManager} that runs as an integration test, outside of the
- * EDEX container.
+ * Creates {@link IntegrationTestNcfBandwidthManager} instances.
  * 
  * <pre>
  * 
@@ -35,39 +34,24 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 30, 2012 1286       djohnson     Initial creation
+ * Feb 20, 2013 1543       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
-public class IntegrationTestBandwidthManager extends BandwidthManager {
-
-    static final String[] INTEGRATION_TEST_SPRING_FILES = new String[] {
-            "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml",
-        TestUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml") };
-
-    /**
-     * Constructor.
-     * 
-     * @param dbInit
-     * @param bandwidthDao
-     * @param retrievalManager
-     * @param bandwidthDaoUtil
-     */
-    public IntegrationTestBandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
-        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
-    }
+public class IntegrationTestNcfBandwidthManagerCreator implements
+        IEdexBandwidthManagerCreator {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected String[] getSpringFilesForNewInstance() {
-        return INTEGRATION_TEST_SPRING_FILES;
+    public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
+            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
+            BandwidthDaoUtil bandwidthDaoUtil) {
+        return new IntegrationTestNcfBandwidthManager(dbInit, bandwidthDao,
+                retrievalManager, bandwidthDaoUtil);
     }
 }
