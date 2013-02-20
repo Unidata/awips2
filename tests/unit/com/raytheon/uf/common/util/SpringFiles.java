@@ -52,5 +52,13 @@ public class SpringFiles {
 
     public static final String BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML = "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml";
 
+    public static final String BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_NCF_XML = "/bandwidth/bandwidth-datadelivery-integrationtest-ncf-impl.xml";
+
+    public static final String BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML = "/bandwidth/bandwidth-datadelivery-integrationtest-wfo-impl.xml";
+
     public static final String BANDWIDTH_DATADELIVERY_XML = "/spring/bandwidth-datadelivery.xml";
+    
+    public static final String BANDWIDTH_DATADELIVERY_NCF_XML = "/spring/bandwidth-datadelivery-ncf.xml";
+
+    public static final String BANDWIDTH_DATADELIVERY_WFO_XML = "/spring/bandwidth-datadelivery-wfo.xml";
 }
