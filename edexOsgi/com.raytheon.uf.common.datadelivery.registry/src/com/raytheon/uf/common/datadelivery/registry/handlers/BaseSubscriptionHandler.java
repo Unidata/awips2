@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionDataSetNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Sep 18, 2012 1169       djohnson     Initial creation
  * Oct 03, 2012 1241       djohnson     More query methods.
  * Oct 10, 2012 0726       djohnson     Add {@link #getActive()}.
+ * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
  * 
  * </pre>
  * 
@@ -155,4 +158,32 @@ abstract class BaseSubscriptionHandler<T extends Subscription, QUERY extends Sub
 
         return response.getResults();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<T> getActiveForRoute(Network route)
+            throws RegistryHandlerException {
+        return getActiveForRoutes(route);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<T> getActiveForRoutes(Network... routes)
+            throws RegistryHandlerException {
+        SubscriptionFilterableQuery<T> query = getQuery();
+        query.setActive(true);
+        query.setRoutes(Arrays.asList(routes));
+
+        RegistryQueryResponse<T> response = RegistryManager
+                .getRegistyObjects(query);
+
+        checkResponse(response, "getActiveForRoutes");
+
+        return response.getResults();
+    }
+
 }
