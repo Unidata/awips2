@@ -63,12 +63,14 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 7, 2008			   Eric Babin   Initial Creation
+ * Mar  7, 2008			   Eric Babin  Initial Creation
  * Oct 27, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
  * Oct 25, 2012 1287       rferrel     Code changes for non-blocking PublishDialog.
  * Nov 30, 2012 15575      ryu         Added variable replacement for SelectedStart,
  *                                     SelectedEnd, and home
  * Nov 13, 2012 1298       rferrel     Code changes for non-blocking UserEntryDialog.
+ * Jan  9, 2013	15635	   jdynina	   Allowed to mix and match entry dialogs. Changed order
+ * 									   of dialogs to match A1 displaying entry fields first.
  *
  * </pre>
  *
@@ -153,7 +155,9 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
         for (int idx : idxs) {
             try {
-                Boolean run = true;
+                Boolean run = false;
+                List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition>();
+                int start = 0;
 
                 String name = scriptsList.getItem(idx);
                 String cmd = scriptDict.get(name);
@@ -215,14 +219,51 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // {startTime}
                 // {endTime}
 
+
+                // The user is prompted for a named variable, same as the
+                // user-supplied variables above, but for non-standard
+                // variables.
+                int entryIdx = cmd.indexOf("{entry:");
+                if (entryIdx >= 0) {
+                	run = true; 
+                    int endEntryIdx = cmd.indexOf("}", entryIdx);
+                    String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
+                            .split(":");
+                    String [] configFile = new String [] { entry[2] };
+                    
+                    // The dialog being opened is modal to the parent dialog.
+                    // This will prevent the launching of another dialog until
+                    // the modal dialog is closed.
+
+                    // Keep this a blocking dialog so the loop will only display
+                    // one dialog at a time.
+                    fieldDefs
+                    	    .add(new FieldDefinition(
+                    	    		(Object) entry[1],
+                    	    		entry[1],
+                    	    		FieldType.ALPHANUMERIC,
+                    	    		(Object) entry[2],
+                    	    		Arrays.asList(Arrays
+                    	    				.asList(configFile)
+                    	    				.toArray(
+                    	    						new Object[configFile.length])),
+                    	            (float) 1.0, (int) 3));
+                    
+                    if (start == 0) {
+                        start = entryIdx;
+                    } else if ((start > 0) && (start > entryIdx)) {
+                    	start = entryIdx;
+                    }
+                }             
+                
                 // The user is prompted for a list of radio button values.
                 // {entryButtons: <name of variable>: <list of values separated
-                // by
-                // commas>}
+                // by commas>}
                 int count = cmd.split("entryButtons").length - 1;
                 if (count > 0) {
-                    int entryIdx = 0, i = 0, start = 0;
-                    List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition>();
+                    entryIdx = 0;
+                    int i = 0;
+                    run = true;
 
                     while (entryIdx != -1) {
                         entryIdx = cmd.indexOf("{entryButtons:", entryIdx);
@@ -243,32 +284,13 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                                                     .toArray(
                                                             new Object[fields.length])),
                                             (float) 1.0, (int) 3));
-                            if (i == 0) {
+                            if (start == 0) {
                                 start = entryIdx;
+                            }  else if ((start > 0) && (start > entryIdx) && (i == 0)) {
+                            	start = entryIdx;
                             }
                             entryIdx = endEntryIdx + 1;
                             i++;
-                        }
-
-                        if (entryIdx == -1) {
-                            ValuesDialog buttonDlg = new ValuesDialog(name,
-                                    fieldDefs, dataManager);
-                            if (buttonDlg.open() > 0) {
-                                run = false;
-                                continue;
-                            }
-
-                            Map<Object, Object> map = buttonDlg.getValues();
-                            String returnMsg = "";
-
-                            for (Map.Entry<Object, Object> entry : map
-                                    .entrySet()) {
-                                returnMsg = returnMsg
-                                        + entry.getValue().toString() + " ";
-                            }
-
-                            start = start - 3;
-                            cmd = cmd.substring(0, start) + returnMsg;
                         }
                     }
                 }
@@ -279,8 +301,9 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // commas>}
                 count = cmd.split("entryChecks").length - 1;
                 if (count > 0) {
-                    int entryIdx = 0, i = 0, start = 0;
-                    List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition>();
+                    entryIdx = 0; 
+                    int i = 0;
+                    run = true;
 
                     while (entryIdx != -1) {
                         entryIdx = cmd.indexOf("{entryChecks:", entryIdx);
@@ -301,68 +324,38 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                                                     .toArray(
                                                             new Object[fields.length])),
                                             (float) 1.0, (int) 3));
-                            if (i == 0) {
+                            if (start == 0) {
                                 start = entryIdx;
+                            } else if ((start > 0) && (start > entryIdx) && (i == 0)) {
+                            	start = entryIdx;
                             }
                             entryIdx = endEntryIdx + 1;
                             i++;
                         }
-
-                        if (entryIdx == -1) {
-                            ValuesDialog buttonDlg = new ValuesDialog(name,
-                                    fieldDefs, dataManager);
-                            if (buttonDlg.open() > 0) {
-                                run = false;
-                                continue;
-                            }
-
-                            Map<Object, Object> map = buttonDlg.getValues();
-                            String returnMsg = "";
-
-                            for (Map.Entry<Object, Object> entry : map
-                                    .entrySet()) {
-                                returnMsg = returnMsg
-                                        + entry.getValue().toString() + " ";
-                            }
-
-                            start = start - 3;
-                            cmd = cmd.substring(0, start) + returnMsg;
-                        }
                     }
                 }
 
-                // The user is prompted for a named variable, same as the
-                // user-supplied variables above, but for non-standard
-                // variables.
-                int entryIdx = cmd.indexOf("{entry:");
-                if (entryIdx >= 0) {
-                    int endEntryIdx = cmd.indexOf("}", entryIdx);
-                    String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
-                            .split(":");
-                    String configFile = entry[2];
-                    // The dialog being opened is modal to the parent dialog.
-                    // This will prevent the launching of another dialog until
-                    // the modal dialog is closed.
-
-                    // Keep this a blocking dialog so the loop will only display
-                    // one dialog at a time.
-                    UserEntryDialog entryDlg = new UserEntryDialog(
-                            this.getShell(), entry[1] + " Entry", entry[1]
-                                    + ":", entry[2]);
-                    Object returnMsg = entryDlg.open();
-                    if (returnMsg == null) {
-                        // cancel pressed
-                        run = false;
-                        continue;
-                    }
-                    configFile = returnMsg.toString();
-
-                    cmd = cmd.substring(0, entryIdx) + configFile
-                            + cmd.substring(endEntryIdx + 1);
-                }
-
+                // Open the script dialog to allow the user to make selections;
+                // then run the script using dialog selections as script arguments
                 if (run) {
-                    TaskManager.getInstance().createScriptTask(name, cmd);
+                	ValuesDialog scriptDlg = new ValuesDialog(name,
+                                        fieldDefs, dataManager);
+                    
+                    int dlgOpen = scriptDlg.open();
+
+                    if (dlgOpen <= 0) {
+                    	Map<Object, Object> map = scriptDlg.getValues();
+                        String returnMsg = "";
+                        
+                    	for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                        	returnMsg = returnMsg + entry.getValue().toString() + " ";
+                        }
+                    	
+                    	start = start - 3;
+                        cmd = cmd.substring(0, start) + returnMsg;
+                        
+                    	TaskManager.getInstance().createScriptTask(name, cmd);
+                    }
                 }
 
             } catch (Exception e) {
