@@ -350,6 +350,14 @@
 		<constructor-arg ref="CheckPermissionsRequestHandler" />
 	</bean>
 	
+	<bean id="CleanupSvcBuLogRequestHandler"
+		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest" />
+		<constructor-arg ref="CleanupSvcBuLogRequestHandler" />
+	</bean>
+	
 	<bean id="NcCheckRequestHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.NcCheckRequestHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
@@ -489,6 +497,8 @@
 			uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}" />
 		<endpoint id="gfeLogPurgeCron"
 			uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.logs.cron}" />
+		<endpoint id="svcbuLogPurgeCron"
+			uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}" />
 
 		<route id="exportDigitalData">
 			<from uri="exportDigitalDataCron" />
@@ -520,6 +530,22 @@
 			<from uri="jms-generic:queue:purgeGfeLogWork" />
 			<doTry>
 				<bean ref="logPurger" method="purge" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+		
+		<route id="purgeSvcbuLogs">
+			<from uri="svcbuLogPurgeCron" />
+			<to uri="jms-generic:queue:purgeSvcbuLogWork" />
+		</route>
+		<route id="purgeSvcbuLogWork">
+			<from uri="jms-generic:queue:purgeSvcbuLogWork" />
+			<doTry>
+				<bean ref="CleanupSvcBuLogRequestHandler" method="svcbuLogCleanupCron" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
