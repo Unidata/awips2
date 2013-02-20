@@ -106,7 +106,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 1, 2008		#1053	randerso	Initial creation
- * 2/14/2013         #1506   mnash       Move QueryScript to use new Python concurrency implementation
+ * 02/14/2013        #1506  mnash       Move QueryScript to use new Python concurrency implementation
+ * 02/12/2013        #1597  randerso    Improved error message for exceptions evaluating queries
  * 
  * </pre>
  * 
@@ -1787,7 +1788,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 }
             } catch (JepException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error evaluating query", e);
+                        "Error evaluating query \"" + active.getQuery()
+                                + "\" for " + active.getId().getName(), e);
             }
         }
 
@@ -1810,6 +1812,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                         "Unable to finish QueryScript job", e);
             }
 
+            @Override
             public void jobFinished(ReferenceData result) {
                 getActiveRefSet();
                 if (!result.getGrid().equals(getActiveRefSet().getGrid())) {
