@@ -307,7 +307,10 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 28Nov2012   14842	    M.Gamazaychikov	Re-wrote processPopup method
  * 13Dec2012   1353         rferrel     Change to make edit cancel message not
  *                                       dispaly the red had kill job message.
- * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method
+ * 31Dec2012   15651	    M.Gamazaychikov	Added an argument to re-factored PrintDisplay.print
+ * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method.
+ * 31JAN2013   14247        D. Friedman Make spell check dialog child of editor window.
+ * 31JAN2013   15580        D. Friedman Prevent errors when window is disposed.
  * </pre>
  * 
  * @author lvenable
@@ -4191,7 +4194,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void printAllText() {
         FontData fontData = textEditor.getFont().getFontData()[0];
-        PrintDisplay.print(textEditor.getText(), fontData, statusHandler);
+        PrintDisplay.print(textEditor.getText(), fontData, charWrapCol, statusHandler);
     }
 
     /**
@@ -4214,7 +4217,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
-            PrintDisplay.print(textEditor.getSelectionText(), fontData, 
+            PrintDisplay.print(textEditor.getSelectionText(), fontData, charWrapCol,
                     statusHandler);
             textEditor.setText(tmpText);
             textEditor.setSelection(point);
@@ -5831,7 +5834,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Displays the spell checker dialog to initiate spell checking.
      */
     private void checkSpelling() {
-        SpellCheckDlg spellCheckDlg = new SpellCheckDlg(getParent(),
+        SpellCheckDlg spellCheckDlg = new SpellCheckDlg(shell,
                 textEditor, StatusConstants.CATEGORY_WORKSTATION,
                 StatusConstants.SUBCATEGORY_CONNECTIVITY);
         spellCheckDlg.open();
@@ -6837,6 +6840,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     @Override
     protected void disposed() {
+        textEditor.setFont(shell.getFont());
+        headerTF.setFont(shell.getFont());
+
         if (smlFont != null) {
             smlFont.dispose();
         }
