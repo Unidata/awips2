@@ -80,6 +80,7 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * 06/24/2009   1876       njensen     Publish updates inventory
  * 02/23/2012   1876       dgilling    Implement missing clearUndoParmList
  *                                     function.
+ * 02/13/2013   #1597      randerso    Added logging to support GFE Performance metrics
  * 
  * </pre>
  * 
@@ -386,6 +387,7 @@ public class ParmOp {
      */
     public void interpolateSelected(InterpMode interpMode,
             InterpState interpState, int interval, int duration) {
+        statusHandler.debug("Interpolation started");
         Parm[] allParms = this.dataManager.getParmManager().getAllParms();
         for (Parm parm : allParms) {
             if (parm.getParmState().isSelected() && parm.isMutable()) {
