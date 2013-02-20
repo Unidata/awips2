@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 22, 2012 1286       djohnson     Initial creation
  * Nov 20, 2012 1286       djohnson     Add tests for proposeSchedule methods.
  * Dec 06, 2012 1397       djohnson     Add tests for getting bandwidth graph data.
+ * Feb 20, 2013 1543       djohnson     Use WFO bandwidth manager.
  * 
  * </pre>
  * 
@@ -85,8 +86,10 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_XML })
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
@@ -632,5 +635,13 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
         assertEquals("The wrong subscription name was returned as unscheduled",
                 subscription.getName(), unscheduledSubscriptions.iterator()
                         .next());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Network getRouteToUseForSubscription() {
+        return Network.OPSNET;
     }
 }
