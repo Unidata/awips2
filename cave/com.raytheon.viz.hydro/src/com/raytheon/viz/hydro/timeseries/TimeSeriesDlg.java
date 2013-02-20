@@ -117,7 +117,8 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 08 Aug 2012   657       mpduff      Fix error when selecting a TS while no selection has been made 
  *                                     in the Station List.
  * 27 Sep 2012 15302       wkwock      TimeSeries start mode should depends on token timeseries_mode
- *                                     despite start up in CAVE or standalone.               
+ *                                     despite start up in CAVE or standalone.
+ * 30 Jan 2013 15264       wkwock      Fix the missing group_definition.cfg file crash           
  * </pre>
  * 
  * @author lvenable
@@ -604,15 +605,15 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         this.standaloneMode = true;
         // Ensure That The Group Configuration File Exists.
-        if (!groupConfigFile.exists()) {
+        if (groupConfigFile==null || !groupConfigFile.exists()) {
         	// if it does not, check localization for the file
             IPathManager pm = PathManagerFactory.getPathManager();
             groupConfigFile = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
         	
-            if (!groupConfigFile.exists()) {
+            if (groupConfigFile==null || !groupConfigFile.exists()) {
 	            statusHandler.handle(Priority.PROBLEM,
 	                    "Unable to locate group configuration file - "
-								+ groupConfigFile.getAbsolutePath());
+								+ HydroConstants.GROUP_DEFINITION);
 	            this.groupConfigFilePath = null;
             } else {
             	this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
