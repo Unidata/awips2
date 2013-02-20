@@ -29,11 +29,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -51,6 +54,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2010            randerso     Initial creation
+ * Jan 25, 2013 DR 15649   D. Friedman Clone capabilities in get/put.
+ *                                     Stored preferences in a sub-directory
+ *                                     and observe changes.
  * 
  * </pre>
  * 
@@ -64,7 +70,9 @@ public class MapStylePreferenceStore implements ISerializableObject {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MapStylePreferenceStore.class);
 
-    private static final String MAPSTYLE_FILENAME = "mapstylepreferences.xml";
+    private static final String MAPSTYLE_FILENAME = "mapStyles/mapstylepreferences.xml";
+
+    private static final String OLD_MAPSTYLE_FILENAME = "mapstylepreferences.xml";
 
     private static class MapStylePreferenceKey {
         private String perspective;
@@ -166,21 +174,72 @@ public class MapStylePreferenceStore implements ISerializableObject {
 
     private Map<MapStylePreferenceKey, Capabilities> preferences;
 
+    @XmlTransient
+    LocalizationFile siteLf, userLf;
+
+    @XmlTransient
+    boolean needToLoad = true;
+
     public static MapStylePreferenceStore load() {
+        MapStylePreferenceStore store = new MapStylePreferenceStore();
+        store.loadFiles();
+        return store;
+    }
+
+    private synchronized void loadFiles() {
+        if (needToLoad)
+            needToLoad = false;
+        else
+            return;
+
         IPathManager pathMgr = PathManagerFactory.getPathManager();
 
-        LocalizationFile siteLf = pathMgr.getLocalizationFile(pathMgr
-                .getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.SITE), MAPSTYLE_FILENAME);
+        if (siteLf == null) {
+            siteLf = pathMgr.getLocalizationFile(pathMgr
+                    .getContext(LocalizationType.CAVE_STATIC,
+                            LocalizationLevel.SITE), MAPSTYLE_FILENAME);
 
-        LocalizationFile userLf = pathMgr.getLocalizationFile(pathMgr
-                .getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.USER), MAPSTYLE_FILENAME);
+            userLf = pathMgr.getLocalizationFile(pathMgr
+                    .getContext(LocalizationType.CAVE_STATIC,
+                            LocalizationLevel.USER), MAPSTYLE_FILENAME);
 
-        MapStylePreferenceStore store = new MapStylePreferenceStore();
+            ILocalizationFileObserver obs = new ILocalizationFileObserver() {
+                @Override
+                public void fileUpdated(FileUpdatedMessage message) {
+                    synchronized (MapStylePreferenceStore.this) {
+                        needToLoad = true;
+                    }
+                }
+            };
+
+            siteLf.addFileUpdatedObserver(obs);
+            userLf.addFileUpdatedObserver(obs);
+
+            /* DR 15649 for OB 13.3.1: If the map style preferences are in the
+             * old location, move it to the correct place.  This code can be
+             * removed in the future.
+             */
+            if (! userLf.exists()) {
+                LocalizationFile oldUserLf = pathMgr.getLocalizationFile(pathMgr
+                        .getContext(LocalizationType.CAVE_STATIC,
+                                LocalizationLevel.USER), OLD_MAPSTYLE_FILENAME);
+
+                if (oldUserLf.exists()) {
+                    try {
+                        userLf.write(oldUserLf.read());
+                        oldUserLf.delete();
+                        statusHandler.handle(Priority.INFO, "Moved user map style preferences to new location");
+                    } catch (LocalizationException e) {
+                        statusHandler.handle(Priority.PROBLEM, "Unable to move map style preferences", e);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
         if (siteLf.exists()) {
             try {
-                store.combinedPreferences = ((MapStylePreferenceStore) SerializationUtil
+                combinedPreferences = ((MapStylePreferenceStore) SerializationUtil
                         .jaxbUnmarshalFromXmlFile(siteLf.getFile())).preferences;
             } catch (SerializationException e) {
                 statusHandler
@@ -189,18 +248,18 @@ public class MapStylePreferenceStore implements ISerializableObject {
                                 e);
             }
         } else {
-            store.combinedPreferences = new HashMap<MapStylePreferenceKey, Capabilities>();
+            combinedPreferences = new HashMap<MapStylePreferenceKey, Capabilities>();
         }
 
         if (userLf.exists()) {
             try {
-                store.preferences = ((MapStylePreferenceStore) SerializationUtil
+                preferences = ((MapStylePreferenceStore) SerializationUtil
                         .jaxbUnmarshalFromXmlFile(userLf.getFile())).preferences;
 
                 // merge user into site
-                for (Entry<MapStylePreferenceKey, Capabilities> entry : store.preferences
+                for (Entry<MapStylePreferenceKey, Capabilities> entry : preferences
                         .entrySet()) {
-                    store.combinedPreferences.put(entry.getKey(),
+                    combinedPreferences.put(entry.getKey(),
                             entry.getValue());
                 }
 
@@ -211,30 +270,33 @@ public class MapStylePreferenceStore implements ISerializableObject {
                                 e);
             }
         } else {
-            store.preferences = new HashMap<MapStylePreferenceKey, Capabilities>();
+            preferences = new HashMap<MapStylePreferenceKey, Capabilities>();
         }
-
-        return store;
     }
 
     private MapStylePreferenceStore() {
     }
 
-    public Capabilities get(String perspective, String mapName) {
+    public synchronized Capabilities get(String perspective, String mapName) {
         MapStylePreferenceKey key = new MapStylePreferenceKey(perspective,
                 mapName);
+
+        loadFiles();
 
         Capabilities value = combinedPreferences.get(key);
         if (value == null) {
             value = new Capabilities();
-        }
+        } else
+            value = value.clone();
         return value;
     }
 
-    public Capabilities put(String perspective, String mapName,
+    public synchronized Capabilities put(String perspective, String mapName,
             Capabilities value) {
         MapStylePreferenceKey key = new MapStylePreferenceKey(perspective,
                 mapName);
+
+        value = value.clone();
 
         Capabilities oldValue = combinedPreferences.put(key, value);
         preferences.put(key, value);
