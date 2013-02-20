@@ -13,6 +13,7 @@ function setupEnv() {
   nasHost=nas1
   nasVolName=dataFXA  # This is so we can change it for new nas! 
   lsofCommand="lsof -Pns -p"
+  platformName=$( hostname | cut -f2 -d'-')
 
   if [[ ${logDirectory}/${logName} -ot ${logDirectory}/$( basename $0 .sh ).$(date --date='1 day ago' +%A).log ]]
   then
@@ -100,6 +101,11 @@ function runlsof() {
 function captureQpidStat() {
 
   local returnCode=0
+  local qpidConnLimit=500
+
+  case "${platformName}" in
+    [a-z][a-z][a-z]n    )   qpidConnLimit=1000 ; echo -e "\tNOTE:  Setting Max qpidd connection to 1000 due to NCEP site" >>  ${logDirectory}/${nowTimeDate}-qpid-stat.out ;; 
+  esac
 
   echo -ne "\n| START " >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
   echoDate >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
@@ -108,6 +114,22 @@ function captureQpidStat() {
   numQpidConnections=$( qpid-stat -c | wc -l )
   (( numQpidConnections-=3 )) 
   echo -e "Total Number of QPID Connections: ${numQpidConnections}" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+  if [[ ${numQpidConnections} -ge $(( qpidConnLimit - 50 )) && ${numQpidConnections} -le $(( qpidConnLimit - 15 )) ]] ; then
+	echo -e "\tNOTE:  Sending Major ITO to NCF because number of connections is between 450 and 485" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
+	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
+		opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between 450-485: Please check system health" severity=Major msg_grp=AWIPS
+	else
+		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+	fi
+  elif [[ ${numQpidConnections} -gt $(( qpidConnLimit - 15 )) ]] ; then
+	echo -e "\tNOTE:  Sending CRITIAL ITO to NCF because number of connections is > 485" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
+	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
+		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is > 485 -- Take IMMEDIATE action to prevent system failure" severity=Critical msg_grp=AWIPS
+	else
+		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+	fi
+  fi
+	  
   echo >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
 
   for cmdArg in "-b" "-c" "-s" "-e" "-q -Smsg" 
