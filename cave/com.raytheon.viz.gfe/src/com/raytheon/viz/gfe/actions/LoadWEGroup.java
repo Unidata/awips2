@@ -24,7 +24,12 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.IWEGroupManager;
 
@@ -37,7 +42,8 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 9, 2008				chammack	Initial creation
- * Apr 9, 2009  1288        rjpeter     Removed explicit refresh of SpatialDisplayManager.
+ * Apr 9, 2009       #1288  rjpeter     Removed explicit refresh of SpatialDisplayManager.
+ * Feb 12, 2013      #1597  randerso    Code cleanup and logging for GFE performance metrics
  * </pre>
  * 
  * @author chammack
@@ -45,24 +51,31 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  */
 
 public class LoadWEGroup extends AbstractHandler {
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
+
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
 
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         String name = event.getParameter("name");
 
-        if (name == null)
+        if (name == null) {
             return null;
+        }
 
-        IWEGroupManager weGroupMgr = DataManager.getCurrentInstance()
-                .getWEGroupManager();
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
+        IWEGroupManager weGroupMgr = dm.getWEGroupManager();
+        IParmManager parmMgr = dm.getParmManager();
 
-        IParmManager parmMgr = DataManager.getCurrentInstance()
-                .getParmManager();
         ParmID[] parms = parmMgr.getAllAvailableParms();
-
         ParmID[] pidsToLoad = weGroupMgr.getParmIDs(name, parms);
 
         parmMgr.setDisplayedParms(pidsToLoad);
+
+        timer.stop();
+        perfLog.logDuration("Load WE Group " + name, timer.getElapsedTime());
 
         return null;
     }
