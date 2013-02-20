@@ -69,6 +69,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * 05/04/12     #574       dgilling    Update class to better match AWIPS1.
  * 01/14/13     #1469      bkowal      The hdf5 data directory is no longer included
  *                                     in the gfeBaseDataDir.
+ * 02/10/13     #1603      randerso    Moved removeFromDb, removeFromHDF5 and deleteModelHDF5
+ *                                     methods down to IFPGridDatabase
  * 
  * </pre>
  * 

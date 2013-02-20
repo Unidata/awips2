@@ -173,10 +173,10 @@ public abstract class BaseGfePyController extends PythonScriptController {
     public void garbageCollect() {
         try {
             jep.eval("import gc");
-            jep.eval("gc.collect()");
+            jep.eval("gcResult = gc.collect()");
         } catch (JepException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error garbage collecting GFE python interpreter", e);
         }
-}
+    }
 }
