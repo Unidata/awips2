@@ -42,6 +42,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 26, 2012            bsteffen     Initial creation
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -128,7 +131,6 @@ public class GeneralCanvasRenderingExtension extends
         newColorMap.alpha = colorMap.alpha;
         newColorMap.brightness = colorMap.brightness;
         newColorMap.contrast = colorMap.contrast;
-        newColorMap.interpolate = colorMap.interpolate;
         double x1 = colorMap.extent.getMinX();
         double y1 = colorMap.extent.getMinY();
         double x2 = colorMap.extent.getMaxX();
