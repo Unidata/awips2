@@ -984,7 +984,7 @@ PVU |1e5| 0.0 | 4 | | |..|8000F0FF| |16| \
      <parameter>MpV</parameter>
   </paramLevelMatches>
   <contourStyle>
-  	 <displayUnits label="PVU">K/hPa/s</displayUnits>
+  	 <displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
      <contourLabeling labelSpacing="4">
      <values>-1 -.5 -.1 0 1 1.5 2 3 4 5 6 8 10 12 15 20</values>
      </contourLabeling>
