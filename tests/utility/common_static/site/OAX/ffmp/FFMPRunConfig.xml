@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FFMPRunConfig xmlns:ns2="group">
+	<runner>
+		<!-- Source Ingest Config's, used by URI Filters  -->
+		<sourceIngestConfig name="FFG0124hr" uriSubLocation="3">
+			<dataKey>KKRF</dataKey>
+			<dataKey>KMSR</dataKey>
+		</sourceIngestConfig>
+		<sourceIngestConfig name="FFG0324hr" uriSubLocation="3">
+			<dataKey>KKRF</dataKey>
+			<dataKey>KMSR</dataKey>
+		</sourceIngestConfig>
+		<sourceIngestConfig name="FFG0624hr" uriSubLocation="3">
+			<dataKey>KKRF</dataKey>
+			<dataKey>KMSR</dataKey>
+		</sourceIngestConfig>
+		<sourceIngestConfig name="QPFSCAN" uriSubLocation="3">
+			<dataKey>koax</dataKey>
+			<dataKey>kdmx</dataKey>
+			<dataKey>kuex</dataKey>
+		</sourceIngestConfig>
+		<sourceIngestConfig name="DHR" uriSubLocation="3">
+			<dataKey>koax</dataKey>
+			<dataKey>kdmx</dataKey>
+			<dataKey>kuex</dataKey>
+		</sourceIngestConfig>
+		<sourceIngestConfig name="DPR" uriSubLocation="3">
+			<dataKey>kdmx</dataKey>
+		</sourceIngestConfig>
+		<!--  Product definitions to be run against  -->
+		<product name="DHR" key="koax"/>
+		<product name="DHR" key="kuex"/>
+		<product name="DHR" key="kdmx"/>
+		<product name="DPR" key="kdmx"/>
+		<product name="DHRMOSAIC" key="hpe"/>
+		<product name="BDHRMOSAIC" key="bhpe"/>
+		<!--  domains to be used  -->
+		<domain primary="true" cwa="OAX"/>
+		<domain primary="false" cwa="GID"/>
+		<domain primary="false" cwa="DMX"/>
+	</runner>
+</FFMPRunConfig>
