@@ -69,7 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 7, 2008					Eric Babin Initial Creation
+ * Mar 7, 2008			   Eric Babin  Initial Creation
+ * 02/12/2013       #1597  randerso    Modified TaskOutputDialog to support GFE Performance metrics
  * 
  * </pre>
  * 
@@ -445,8 +446,9 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
             logText.setText(getLogFileContents());
 
             Composite timeComp = new Composite(comp, SWT.NONE);
-            GridLayout layout = new GridLayout(2, true);
+            GridLayout layout = new GridLayout(2, false);
             layout.marginWidth = 0;
+            layout.verticalSpacing = 0;
             timeComp.setLayout(layout);
             layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
             timeComp.setLayoutData(layoutData);
@@ -454,32 +456,61 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
             SimpleDateFormat sdf = new SimpleDateFormat(
                     "EEE MMM d HH:mm:ss yyyy");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            Text startText = new Text(timeComp, SWT.BORDER | SWT.READ_ONLY
-                    | SWT.WRAP);
+
+            Composite startComp = new Composite(timeComp, SWT.NONE);
+            layout = new GridLayout(2, false);
+            layout.marginWidth = 0;
+            layout.verticalSpacing = 0;
+            startComp.setLayout(layout);
+            layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+            startComp.setLayoutData(layoutData);
+
+            Label label = new Label(startComp, SWT.NONE);
             Date date;
-            String s;
             if (task.getStartedTime() == null) {
-                s = "Queue Time: ";
+                label.setText("Queue Time:");
                 date = task.getQueuedTime();
             } else {
-                s = "Start Time: ";
+                label.setText("Start Time:");
                 date = task.getStartedTime();
             }
-            startText.setText(s + sdf.format(date));
-            layoutData = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+
+            Text startText = new Text(startComp, SWT.BORDER | SWT.READ_ONLY);
+            startText.setText(sdf.format(date));
+            layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             startText.setLayoutData(layoutData);
 
+            Composite elapsedComp = new Composite(timeComp, SWT.NONE);
+            layout = new GridLayout(2, false);
+            layout.marginWidth = 0;
+            layout.verticalSpacing = 0;
+            elapsedComp.setLayout(layout);
+            layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+            elapsedComp.setLayoutData(layoutData);
             if (task.getFinishedTime() != null) {
-                Text endText = new Text(timeComp, SWT.BORDER | SWT.READ_ONLY
-                        | SWT.WRAP);
+                label = new Label(elapsedComp, SWT.RIGHT);
+                layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+                label.setText("Elapsed:");
+                label.setLayoutData(layoutData);
+
+                long delta = task.getFinishedTime().getTime()
+                        - task.getStartedTime().getTime();
+                Text elapsedText = new Text(elapsedComp, SWT.BORDER
+                        | SWT.READ_ONLY);
+                elapsedText.setText(delta + " ms");
+                layoutData = new GridData(SWT.RIGHT, SWT.DEFAULT, false, false);
+                elapsedText.setLayoutData(layoutData);
+
+                label = new Label(startComp, SWT.NONE);
                 if (task.getStatus() == TaskStatus.FINISHED) {
-                    s = "End Time: ";
+                    label.setText("End Time:");
                 } else {
-                    s = "Canceled Time: ";
+                    label.setText("Canceled Time:");
                 }
-                s += sdf.format(task.getFinishedTime());
-                endText.setText(s);
-                layoutData = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+
+                Text endText = new Text(startComp, SWT.BORDER | SWT.READ_ONLY);
+                endText.setText(sdf.format(task.getFinishedTime()));
+                layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
                 endText.setLayoutData(layoutData);
             }
 
