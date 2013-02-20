@@ -97,6 +97,7 @@ public class NsharpResourceHandler {
 	private int dtYOrig = NsharpConstants.DATA_TIMELINE_Y_ORIG;
 	private int dtWidth = NsharpConstants.DATA_TIMELINE_WIDTH;
 	private String paneConfigurationName;
+	private int numTimeLinePerPage=1;
 	/* Hodograph Modes - definition is based on definitions in globals_xw.h of BigNsharp  */
 	private static final int HODO_NORMAL	=		0;
 	//private static int HODO_EFFECTIVE=		1; not used in BigNsharp source code
@@ -324,8 +325,6 @@ public class NsharpResourceHandler {
 					break;
 			}
 		}
-		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
-		curStnIdPage = totalStnIdPage/numTimeLinePerPage + 1;
 		setCurSndProfileProp();
 		setCurrentSoundingLayerInfo();
 		resetData();
@@ -353,8 +352,6 @@ public class NsharpResourceHandler {
 					break;
 			}
 		}
-		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
-		curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage + 1;
 		setCurSndProfileProp();
 		setCurrentSoundingLayerInfo();
 		resetData();	 			
@@ -1579,21 +1576,7 @@ public class NsharpResourceHandler {
 		}
 
 		//set total time line group and stn id list page  number
-		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
-		//fix bug, when numTimeLinePerPage ==0 case
-		if(numTimeLinePerPage <= 0) {
-			numTimeLinePerPage = 1;
-			totalTimeLinePage = timeLineStateList.size();
-			curTimeLinePage = currentTimeLineStateListIndex;
-			totalStnIdPage = stnStateList.size();
-			curStnIdPage= currentStnStateListIndex;
-		}
-		else{
-			totalTimeLinePage = timeLineStateList.size()/numTimeLinePerPage + 1; 
-			curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage + 1; 
-			totalStnIdPage = stnStateList.size()/numTimeLinePerPage + 1;
-			curStnIdPage= currentStnStateListIndex/numTimeLinePerPage + 1; 
-		}
+		calculateTimeStnBoxData();
 		
 		
 		/* Chin: TBD: do we need these code?
@@ -1607,7 +1590,9 @@ public class NsharpResourceHandler {
 		}*/
 		//set data time to descriptor
 		//this is necessary for looping	
-        if (( skewtPaneRsc.getDescriptor().getFramesInfo().getFrameCount() == 0)&& !getTimeMatcher) {
+		// starting 13.2.1, this line is changed by Raytheon
+		if (( skewtPaneRsc.getDescriptor().getFramesInfo().getFrameCount() == 0)&& !getTimeMatcher) {
+       //was this line before 13.2.1 if (( skewtPaneRsc.getDescriptor().getTimeMatcher() == null ||  skewtPaneRsc.getDescriptor().getTimeMatcher().getTimeMatchBasis() == null)&& !getTimeMatcher) {
             //DataTime[] dataTimes = new DataTime[dataTimelineList.size()];
         	//Chin Note: we just have to do this once and set dataTimes size bigger than 1. 
         	//Nsharp handles changing frame itself. It just need system to send change frame notice. 
@@ -1650,7 +1635,6 @@ public class NsharpResourceHandler {
 
 
 	public void handleUserClickOnStationId(Coordinate c) {
-		int numStnIdPerPage = (cnYOrig-dtNextPageEnd)/charHeight;
 		//first to find if it is for change to next page, or change sorting
 		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage+"gap="+(cnYOrig-dtNextPageEnd));
 		int index =((int)(c.y - dtYOrig))/ charHeight;
@@ -1672,7 +1656,7 @@ public class NsharpResourceHandler {
 		}
 		// recalculate index for time line
 		index =((int)(c.y - dtNextPageEnd))/ charHeight +
-		 			(curStnIdPage-1)* numStnIdPerPage ;	
+		 			(curStnIdPage-1)* numTimeLinePerPage ;	
 		
 		if( index  < this.stnStateList.size() ){
 			switch(stnStateList.get(index).getStnState()){
@@ -1696,7 +1680,6 @@ public class NsharpResourceHandler {
 	}
 	
 	public void handleUserClickOnTimeLine(Coordinate c) {
-		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
 		//first to find if it is for change to next/prev page
 		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage+"gap="+(cnYOrig-dtNextPageEnd));
 		int index =((int)(c.y - dtYOrig))/ charHeight;
@@ -1833,7 +1816,6 @@ public class NsharpResourceHandler {
 				break;
 			}
 			
-			int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
 			curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage + 1;
 			setCurSndProfileProp();
  			setCurrentSoundingLayerInfo();
@@ -1935,8 +1917,7 @@ public class NsharpResourceHandler {
  			}
  			previousTimeLineStateListIndex = currentTimeLineStateListIndex;
  			currentTimeLineStateListIndex = targetIndex;
- 			int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
- 			curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage + 1;
+  			curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage + 1;
  			setCurSndProfileProp();
  			setCurrentSoundingLayerInfo();
  			resetData();
@@ -2000,7 +1981,6 @@ public class NsharpResourceHandler {
  						break;
  				}
  			}
- 			int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
  			curStnIdPage = currentStnStateListIndex/numTimeLinePerPage + 1;
  			setCurSndProfileProp();
  			setCurrentSoundingLayerInfo();
@@ -2744,7 +2724,8 @@ public class NsharpResourceHandler {
 				if(insetPaneRsc!=null)
 					insetPaneRsc.createInsetWireFrameShapes();
 				if(skewtPaneRsc!=null)
-					skewtPaneRsc.handleResize();
+					//CHIN:::fix edit zoom issue   skewtPaneRsc.handleResize();
+					skewtPaneRsc.createRscWireFrameShapes();
 			}
 		}
 		catch(Exception e)  {
@@ -2813,7 +2794,8 @@ public class NsharpResourceHandler {
 		nsharpNative.populateSndgData(soundingLys);
 		//get storm motion wind data after populate sounding from NsharpLib		
 		skewtPaneRsc.setSoundingLys(soundingLys);
-		skewtPaneRsc.handleResize();
+		//CHIN:::fix edit zoom issue   skewtPaneRsc.handleResize();
+		skewtPaneRsc.createRscWireFrameShapes();
 		if(hodoPaneRsc!=null){
 			hodoPaneRsc.setSoundingLys(soundingLys);
 			hodoPaneRsc.createRscHodoWindShapeAll();
@@ -2851,11 +2833,9 @@ public class NsharpResourceHandler {
 		nsharpNative.populateSndgData(soundingLys);
 		//get storm motion wind data after populate sounding from NsharpLib		
 		skewtPaneRsc.setSoundingLys(soundingLys);
-		skewtPaneRsc.handleResize();
-		//skewtPaneRsc.createRscPressTempCurveShapeAll();	
-		//skewtPaneRsc.createRscwetBulbTraceShape();
-		//skewtPaneRsc.createRscVTempTraceShape();
-		//skewtPaneRsc.createParcelShapes(parcelList);
+		//CHIN:::fix edit zoom issue   skewtPaneRsc.handleResize();
+		skewtPaneRsc.createRscWireFrameShapes();
+		
 		if(hodoPaneRsc!=null){
 			hodoPaneRsc.setSoundingLys(soundingLys);
 			hodoPaneRsc.createRscHodoWindShapeAll();
@@ -2911,7 +2891,8 @@ public class NsharpResourceHandler {
 		}
 		if(skewtPaneRsc!=null){
 			skewtPaneRsc.setSoundingLys(soundingLys);
-			skewtPaneRsc.handleResize();
+			//CHIN:::fix edit zoom issue   skewtPaneRsc.handleResize();
+			skewtPaneRsc.createRscWireFrameShapes();
 		}
 		if(hodoPaneRsc!=null){
 			hodoPaneRsc.setSoundingLys(soundingLys);
@@ -2951,7 +2932,8 @@ public class NsharpResourceHandler {
 		}
 		if(skewtPaneRsc!=null){
 			skewtPaneRsc.setSoundingLys(soundingLys);
-			skewtPaneRsc.handleResize();
+			//CHIN:::fix edit zoom issue   skewtPaneRsc.handleResize();
+			skewtPaneRsc.createRscWireFrameShapes();
 		}
 		if(hodoPaneRsc!=null){
 			hodoPaneRsc.setSoundingLys(soundingLys);
@@ -3205,18 +3187,7 @@ public class NsharpResourceHandler {
 		this.dtWidth = dtWidth;
 		this.cnYOrig = cnYOrig;
 		this.dtNextPageEnd = dtNextPage_end;
-		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
-		if(numTimeLinePerPage<=0)
-			numTimeLinePerPage=1;
-		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage);
-		totalTimeLinePage = timeLineStateList.size()/numTimeLinePerPage ;
-		if(timeLineStateList.size()%numTimeLinePerPage != 0)
-			totalTimeLinePage= totalTimeLinePage+1;
-		curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage+1;
-		totalStnIdPage = stnStateList.size()/numTimeLinePerPage;
-		if(stnStateList.size()%numTimeLinePerPage != 0)
-			totalStnIdPage++;
-		curStnIdPage= currentStnStateListIndex/numTimeLinePerPage + 1; //NEW CODE
+		calculateTimeStnBoxData();
 	}
 
 	/*public void setCharHeight(int charHeight) {
@@ -3233,5 +3204,20 @@ public class NsharpResourceHandler {
 		return paneConfigurationName;
 	}
 
+	private void calculateTimeStnBoxData(){
+		//set total time line group and stn id list page  number
+		numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
+		if(numTimeLinePerPage<=0)
+			numTimeLinePerPage=1;
+		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage);
+		totalTimeLinePage = timeLineStateList.size()/numTimeLinePerPage ;
+		if(timeLineStateList.size()%numTimeLinePerPage != 0)
+			totalTimeLinePage= totalTimeLinePage+1;
+		curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage+1;
+		totalStnIdPage = stnStateList.size()/numTimeLinePerPage;
+		if(stnStateList.size()%numTimeLinePerPage != 0)
+			totalStnIdPage++;
+		curStnIdPage= currentStnStateListIndex/numTimeLinePerPage + 1;
+	}
 }
 
