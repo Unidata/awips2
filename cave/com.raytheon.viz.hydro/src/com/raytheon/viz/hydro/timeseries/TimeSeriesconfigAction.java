@@ -11,6 +11,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.viz.hydrocommon.HydroConstants;
+
 /**
  * Action for Time Series Configuration Plug-in
  * 
@@ -19,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jan 24, 2011	7797		bkowal	    Initial creation.
+ * Jan 30, 2013 15264       wkwock      Get the correct group_definition.cfg file.
  * 
  * </pre>
  * 
@@ -27,10 +32,6 @@ import org.eclipse.ui.PlatformUI;
  */
 public class TimeSeriesconfigAction extends AbstractHandler {
     private TimeSeriesDlg timeSeriesDialog;
-
-    private static final String ENV_WHFS_CONFIG_DIR = "whfs_config_dir";
-
-    private static final String GROUP_DEFINITION_FILE_NAME = "group_definition.cfg";
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -52,13 +53,8 @@ public class TimeSeriesconfigAction extends AbstractHandler {
     }
 
     protected static File locateGroupDefinitionFile() {
-        String configDir = System
-                .getenv(TimeSeriesconfigAction.ENV_WHFS_CONFIG_DIR);
-        if (!configDir.endsWith("/")) {
-            configDir = configDir + "/";
-        }
-        File file = new File(configDir
-                + TimeSeriesconfigAction.GROUP_DEFINITION_FILE_NAME);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        File file = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
 
         return file;
     }
