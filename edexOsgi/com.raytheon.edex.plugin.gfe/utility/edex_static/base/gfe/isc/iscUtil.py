@@ -28,7 +28,6 @@ from datetime import datetime
 from time import gmtime,strftime
 from java.io import File
 from com.raytheon.uf.common.time import TimeRange
-from com.raytheon.uf.common.dataplugin.gfe import RemapGrid
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridLocation
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfig
@@ -48,6 +47,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
+#    02/19/13        1637          randerso       Removed unused import
 #    
 # 
 #
