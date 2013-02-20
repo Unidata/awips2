@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
 
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
  * Nov 13, 2012            njensen     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
+ * Feb 19, 2012 1552       mpduff      Implement IDataFactory.
  * 
  * </pre>
  * 
@@ -49,7 +51,7 @@ import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
  * @version 1.0
  */
 
-public abstract class AbstractDataFactory {
+public abstract class AbstractDataFactory implements IDataFactory {
 
     /**
      * Returns the identifiers that must be set on a request for the request to
@@ -57,7 +59,7 @@ public abstract class AbstractDataFactory {
      * 
      * @return the required identifiers
      */
-    public String[] getRequiredIdentifiers(){
+    public String[] getRequiredIdentifiers() {
         return null;
     }
 
@@ -97,8 +99,8 @@ public abstract class AbstractDataFactory {
         }
 
         if (!missing.isEmpty() || !invalid.isEmpty()) {
-            throw new InvalidIdentifiersException(request.getDatatype(), missing,
-                    invalid);
+            throw new InvalidIdentifiersException(request.getDatatype(),
+                    missing, invalid);
         }
     }
 
