@@ -52,6 +52,7 @@ import java.util.zip.GZIPOutputStream;
  * Jun 28, 2012 0819       djohnson    Add write method.
  * Jul 06, 2012        798 jkorman     Added more robust {@link #copyFile}. Added methods
  *                                     to create temporary directories and files.
+ * 02/15/2013        #1597 randerso    Fixed error when copying empty files
  * 
  * </pre>
  * 
@@ -619,7 +620,7 @@ public class FileUtil {
     public static boolean isValidFilename(String fileName) {
         return VALID_FILENAME.matcher(fileName).matches();
     }
-    
+
     /**
      * Write the contents of an input stream to a file.
      * 
@@ -656,14 +657,15 @@ public class FileUtil {
      *             An error occurred while copying the data.
      * @throws IllegalArgumentException
      *             The position is less than zero or greater than the length of
-     *             the source file or either of the source, target files are null.
+     *             the source file or either of the source, target files are
+     *             null.
      */
     public static boolean copyFile(File source, File target, int position)
             throws IOException {
         boolean status = false;
         if (source != null) {
             if (target != null) {
-                if ((position >= 0) && (position < source.length())) {
+                if ((position >= 0) && (position <= source.length())) {
 
                     FileInputStream fis = null;
                     FileOutputStream fos = null;
@@ -717,7 +719,8 @@ public class FileUtil {
                     throw new IllegalArgumentException(msg);
                 }
             } else {
-                throw new IllegalArgumentException("target file reference is null");
+                throw new IllegalArgumentException(
+                        "target file reference is null");
             }
         } else {
             throw new IllegalArgumentException("source file reference is null");
