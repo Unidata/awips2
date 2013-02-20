@@ -58,6 +58,20 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
 /* TODO: Log PRR messages for requests the mgr sent? (RPSHandler::handlePRR)
  */
 
+/**
+ * Manages current RPS lists and requests for changes to RPS lists. 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2009-04-22   #1693      D. Friedman Initial checkin
+ * ...
+ * 2013-01-31   DR 15458   D. Friedman Explicitly handle UNSPECIFIED_VCP.
+ * </pre>
+ * 
+ */
 public class RPSListManager extends RadarEventAdapter {
 
     // All RPS list requests will use this for the sequence number.
@@ -149,7 +163,7 @@ public class RPSListManager extends RadarEventAdapter {
         RadarStatus status = radarServer.getStatusManager().getRadarStatus(
                 radarID);
         int opMode;
-        int vcp;
+        int currentVCP;
         int[] gsmCuts;
         try {
             byte[] msg = status.getCurrentGSM();
@@ -157,7 +171,7 @@ public class RPSListManager extends RadarEventAdapter {
                 return "Not connected or no status information received yet";
             GSM gsm = GSM.decode(msg);
             opMode = gsm.opMode;
-            vcp = gsm.vcp;
+            currentVCP = gsm.vcp;
             gsmCuts = gsm.cuts;
         } catch (RuntimeException e) {
             Log.errorf("Error reading GSM: %s", e);
@@ -165,23 +179,22 @@ public class RPSListManager extends RadarEventAdapter {
             return "Error getting radar status";
         }
         
-        int[] cuts = ElevationInfo.getInstance().getScanElevations(radarID, vcp);
+        int[] cuts = ElevationInfo.getInstance().getScanElevations(radarID, currentVCP);
         if (cuts == null && Util.getRadarType(rc) == RadarType.WSR)
             cuts = gsmCuts;
 
-        // TODO: INVALID_VCP
-        if (list.getVcp() > 0 && list.getVcp() != vcp) {
+        if (list.getVcp() != RpsList.UNSPECIFIED_VCP && list.getVcp() != currentVCP) {
             if (store)
                 return null; // TODO: Should warn instead.
             else
                 return String.format("RPS list for VCP %d.  Current VCP is %d",
-                        list.getVcp(), vcp);
+                        list.getVcp(), currentVCP);
         }
 
         list = (RpsList) list.clone();
-        list.setVcp(vcp);
+        list.setVcp(currentVCP);
 
-        list = getMergedRpsListForRadar(rc, opMode, vcp, cuts, list);
+        list = getMergedRpsListForRadar(rc, opMode, currentVCP, cuts, list);
         if (list != null) {
             // TODO: Should persist this
             currentRpsLists.put(rc.getRadarID(), (RpsList) list.clone());
