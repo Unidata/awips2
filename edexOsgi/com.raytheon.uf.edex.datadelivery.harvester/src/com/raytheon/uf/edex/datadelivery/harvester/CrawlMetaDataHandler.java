@@ -17,6 +17,7 @@ import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Utils;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IProviderHandler;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -43,7 +44,6 @@ import com.raytheon.uf.edex.datadelivery.retrieval.LinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Harvest MetaData
@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Sept 12,2012   1038      dhladky     Reconfigured config.
  * Oct 03, 2012   1241      djohnson    Use registry handler.
  * Nov 09, 2012   1263      dhladky     Changed to Site Level
+ * Feb 05, 2013   1580      mpduff      EventBus refactor.
  * 
  * </pre>
  * 
@@ -209,8 +210,7 @@ public class CrawlMetaDataHandler {
         List<Throwable> errors = communicationStrategy.getErrors();
 
         for (Throwable throwable : errors) {
-            EventBus.getInstance().publish(
-                    new HarvesterEvent(throwable.getMessage()));
+            EventBus.publish(new HarvesterEvent(throwable.getMessage()));
         }
     }
 

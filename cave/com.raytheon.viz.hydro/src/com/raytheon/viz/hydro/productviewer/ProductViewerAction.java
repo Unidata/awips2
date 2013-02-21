@@ -26,6 +26,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.hydrocommon.HydroDisplayManager;
+
 /**
  * Action for Product Viewer Dialog.
  * 
@@ -36,6 +38,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial creation.
+ * 02/07/2013   1578        rferrel     Changes for non-blocking ProductViewerDlg.
  * 
  * </pre>
  * 
@@ -43,14 +46,30 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class ProductViewerAction extends AbstractHandler {
+    /** Instance of the dialog. */
+    ProductViewerDlg dialog;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        ProductViewerDlg productViewerDlg = new ProductViewerDlg(shell);
-        productViewerDlg.open();
+        String currentLid = HydroDisplayManager.getInstance().getCurrentLid();
 
+        if (dialog == null) {
+
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new ProductViewerDlg(shell);
+        }
+        dialog.open();
+        if (currentLid != null) {
+            dialog.setLid(currentLid);
+        }
         return null;
     }
 

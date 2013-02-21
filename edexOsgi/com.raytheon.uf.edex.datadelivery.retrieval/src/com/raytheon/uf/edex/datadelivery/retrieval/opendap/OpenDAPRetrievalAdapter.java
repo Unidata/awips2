@@ -21,12 +21,15 @@ package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
  **/
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalEvent;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
@@ -34,7 +37,6 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
 import com.raytheon.uf.edex.datadelivery.retrieval.response.OpenDAPTranslator;
 import com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.ConnectionUtil;
-import com.raytheon.uf.edex.event.EventBus;
 
 import dods.dap.DConnect;
 import dods.dap.DataDDS;
@@ -50,6 +52,8 @@ import dods.dap.DataDDS;
  * Jan 07, 2011            dhladky     Initial creation
  * Jun 28, 2012 819        djohnson    Use utility class for DConnect.
  * Jul 25, 2012 955        djohnson    Make package-private.
+ * Feb 05, 2013 1580       mpduff      EventBus refactor.
+ * Feb 12, 2013 1543       djohnson    The payload can just be an arbitrary object, implementations can define an array if required.
  * 
  * </pre>
  * 
@@ -63,8 +67,7 @@ class OpenDAPRetrievalAdapter extends RetrievalAdapter {
             .getHandler(OpenDAPRetrievalAdapter.class);
 
     @Override
-    public OpenDAPRequestBuilder createRequestMessage(
-            RetrievalAttribute attXML) {
+    public OpenDAPRequestBuilder createRequestMessage(RetrievalAttribute attXML) {
 
         OpenDAPRequestBuilder reqBuilder = new OpenDAPRequestBuilder(this,
                 attXML);
@@ -73,7 +76,8 @@ class OpenDAPRetrievalAdapter extends RetrievalAdapter {
     }
 
     @Override
-    public RetrievalResponse performRequest(IRetrievalRequestBuilder request) {
+    public RetrievalResponse performRequest(
+            IRetrievalRequestBuilder request) {
 
         DataDDS data = null;
 
@@ -82,45 +86,56 @@ class OpenDAPRetrievalAdapter extends RetrievalAdapter {
             data = connect.getData(null);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-            EventBus.getInstance().publish(new RetrievalEvent(e.getMessage()));
+            EventBus.publish(new RetrievalEvent(e.getMessage()));
         }
 
-        RetrievalResponse pr = new RetrievalResponse(request.getAttribute());
-        pr.setPayLoad(new Object[] { data });
+        RetrievalResponse pr = new OpenDapRetrievalResponse(
+                request.getAttribute());
+        pr.setPayLoad(data);
 
         return pr;
     }
+
     @Override
-    public HashMap<String, PluginDataObject[]> processResponse(
+    public Map<String, PluginDataObject[]> processResponse(
             IRetrievalResponse response) throws TranslationException {
-        HashMap<String, PluginDataObject[]> map = new HashMap<String, PluginDataObject[]>();
+        Map<String, PluginDataObject[]> map = new HashMap<String, PluginDataObject[]>();
 
         OpenDAPTranslator translator;
         try {
-            translator = new OpenDAPTranslator(response.getAttribute());
+            translator = getOpenDapTranslator(response.getAttribute());
         } catch (InstantiationException e) {
             throw new TranslationException(
                     "Unable to instantiate a required class!", e);
         }
 
-            if (response.getPayLoad() != null
-                    && response.getPayLoad().length > 0) {
-                for (Object obj : response.getPayLoad()) {
-                    PluginDataObject[] pdos = null;
+        final DataDDS payload;
+        try {
+            payload = DataDDS.class.cast(response.getPayLoad());
+        } catch (ClassCastException e) {
+            throw new TranslationException(e);
+        }
 
-                    if (obj instanceof DataDDS) {
-                        pdos = translator.asPluginDataObjects((DataDDS) obj);
-                    }
+        if (payload != null) {
+            PluginDataObject[] pdos = translator.asPluginDataObjects(payload);
 
-                    if (pdos != null && pdos.length > 0) {
-                        String pluginName = pdos[0].getPluginName();
-                        // TODO Need to check if pluginName already exists
-                        map.put(pluginName, pdos);
-                    }
-                }
+            if (!CollectionUtil.isNullOrEmpty(pdos)) {
+                String pluginName = pdos[0].getPluginName();
+                map.put(pluginName,
+                        CollectionUtil.combine(PluginDataObject.class,
+                                map.get(pluginName), pdos));
             }
-
+        }
 
         return map;
+    }
+
+    /**
+     * @param attribute
+     * @return
+     */
+    OpenDAPTranslator getOpenDapTranslator(RetrievalAttribute attribute)
+            throws InstantiationException {
+        return new OpenDAPTranslator(attribute);
     }
 }

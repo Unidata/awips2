@@ -73,7 +73,10 @@ public class ChangeTimeProvider extends AbstractSourceProvider {
      */
     @Override
     public Map<String, Boolean> getCurrentState() {
-        MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
+        return getCurrentState(MPEDisplayManager.getCurrent());
+    }
+
+    public Map<String, Boolean> getCurrentState(MPEDisplayManager mgr) {
         if (mgr == null) {
             sourceMap.put(MENU_ENABLED[0], false);
             sourceMap.put(MENU_ENABLED[1], false);
@@ -85,7 +88,7 @@ public class ChangeTimeProvider extends AbstractSourceProvider {
             sourceMap.put(MENU_ENABLED[1], false);
         } else {
             Date firstDate = dmMgr.getEarliestDate();
-            Date curDate = mgr.getCurrentDate();
+            Date curDate = mgr.getCurrentEditDate();
             Date latestDate = dmMgr.getLatestDate();
             boolean enabled = false;
             if (curDate != null && firstDate != null
@@ -113,7 +116,7 @@ public class ChangeTimeProvider extends AbstractSourceProvider {
         return MENU_ENABLED;
     }
 
-    public static void update() {
+    public static void update(MPEDisplayManager displayMgr) {
         IWorkbenchWindow window = VizWorkbenchManager.getInstance()
                 .getCurrentWindow();
         if (window != null) {
@@ -122,7 +125,7 @@ public class ChangeTimeProvider extends AbstractSourceProvider {
             ChangeTimeProvider provider = (ChangeTimeProvider) service
                     .getSourceProvider(MENU_ENABLED[0]);
             provider.fireSourceChanged(ISources.ACTIVE_WORKBENCH_WINDOW,
-                    provider.getCurrentState());
+                    provider.getCurrentState(displayMgr));
         }
     }
 }

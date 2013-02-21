@@ -30,20 +30,6 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="com.raytheon.viz.volumebrowser.originalVolumeBrowser"
-            name="Volume Browser">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="com.raytheon.viz.volumebrowser.ui.OriginalVolumeBrowserAction"
-            commandId="com.raytheon.viz.volumebrowser.originalVolumeBrowser">
-      </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
             id="com.raytheon.viz.volumebrowser.volumeBrowserRef"
             name="Volume Browser">
       </command>
