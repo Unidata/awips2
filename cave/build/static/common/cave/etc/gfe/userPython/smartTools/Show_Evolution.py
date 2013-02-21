@@ -32,6 +32,13 @@
 #   2005/07/29 - Version 0.1 - updated grid database structure
 #   2006/11/06 - Version 1.0 - no changes - just part of BOIVerify upgrade
 #   2007/10/25 - Version 2.0 - no changes - just part of BOIVerify upgrade
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    1/30/13         15536         ryu            Made necessary changes to get tool to run
+#
 # ----------------------------------------------------------------------------
 ToolType = "numeric"
 WeatherElementEdited = "None"
@@ -75,10 +82,11 @@ class Tool (SmartScript.SmartScript):
       processVarList=ProcessVariableList.ProcessVariableList(
          "Pick Model",VList,varReturn)
       status=processVarList.status()
-      if status != "Ok":
+      if status.lower() != "ok":
          self.docancel=1
          return
       self.modelName=varReturn["Model:"]
+      
       #
       #  Remove any current VER grids from gridManager
       #
@@ -86,7 +94,7 @@ class Tool (SmartScript.SmartScript):
       parmList = self._dbss.getParmManager().getDisplayedParms()
       for parm in parmList:
           pid=parm.getParmID()
-          pmodel = pid.getDbID().getModelId()
+          pmodel = pid.getDbId().getModelId()
           name=pid.getParmName()
           level=pid.getParmLevel()
           if pmodel == "Ver":
@@ -102,7 +110,7 @@ class Tool (SmartScript.SmartScript):
    def execute(self,WEname,GridTimeRange):
       "Show history of grids over time"
       self.VU.logMsg("   executing for time:%s"%GridTimeRange)
-      mutableModel=self.mutableID().model()
+      mutableModel=self.mutableID().modelName()
       tomorrow=time.time()+86400
       parm=WEname
       self.VU.logMsg("   running for parm:%s"%parm)
@@ -111,7 +119,7 @@ class Tool (SmartScript.SmartScript):
       #  Get the color table and range for the parm
       #
       (self.parmUnits,self.parmPrecision,self.parmMinval,self.parmMaxval,
-       self.parmColorTable,self.parmDisplayMinval,
+       self.parmRateFlag,self.parmColorTable,self.parmDisplayMinval,
        self.parmDisplayMaxval)=self.getParmInfo(mutableModel,WEname)
       #
       #  Get start/end of current timerange and get verification
@@ -124,6 +132,7 @@ class Tool (SmartScript.SmartScript):
       #  Loop over verification model records
       #
       for rec in recs:
+         rec = int(rec)
          self.VU.logMsg("rec=%d"%rec)
          #
          #  read grid - clip to min/max for this parm
@@ -159,16 +168,19 @@ class Tool (SmartScript.SmartScript):
                    self.parmMaxval,self.parmUnits)
 
          self.setActiveElement("Ver",parmname,"SFC",GridTimeRange,
-                   self.parmColorTable,(self.parmDisplayMinval,
-                   self.parmDisplayMaxval),0)
+                   self.parmColorTable,(float(self.parmDisplayMinval),
+                   float(self.parmDisplayMaxval)),0)
       return
-   #==================================================================
-   #
-   #  getParmInfo - get information on a parm (units, precision, minval,
-   #                maxval, colortablename, displayminval, displaymaxval)
-   #                from the database specified
-   #
+
    def getParmInfo(self,mutableModel,parm):
+      units="units"
+      precision=0
+      minval=0
+      maxval=100
+      rateflag=0
+      colorTable="Gridded Data"
+      displayMinval=0
+      displayMaxval=100
       parm=self.getParm(mutableModel,parm,"SFC")
       if parm is not None:
          parmInfo = parm.getGridInfo()
@@ -176,15 +188,11 @@ class Tool (SmartScript.SmartScript):
          precision=parmInfo.getPrecision()
          minval=parmInfo.getMinValue()
          maxval=parmInfo.getMaxValue()
-
-         colorTable="Gridded Data"
-         displayMinval=0
-         displayMaxval=100
+         rateflag=parmInfo.isRateParm()
          from com.raytheon.viz.gfe.rsc import DiscreteDisplayUtil
          ctInfo = DiscreteDisplayUtil.buildColorMapParameters(parm)
          if ctInfo is not None:
-            colorTable = ctInfo.getColorMapName()
-            displayMinval = ctInfo.getColorMapMin()
-            displayMaxVal = ctInfo.getColorMapMax()
-                                      
-      return(units,precision,minval,maxval,colorTable,displayMinval,displayMaxval)
+             colorTable = ctInfo.getColorMapName()
+             displayMinval = ctInfo.getColorMapMin()
+             displayMaxval = ctInfo.getColorMapMax()
+      return(units,precision,minval,maxval,rateflag,colorTable,displayMinval,displayMaxval)
