@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<definitions
+  targetNamespace="urn:your:urn:goes:here"
+  xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:bindings="urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:bindings:4.0"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl"
+  >
+  <documentation>
+    $Header: /cvsroot/ebxmlrr/ebxmlrr-spec/misc/4.0/services/NotificationListenerServices.wsdl,v 1.5 2004/12/24 21:36:34 farrukh_najmi Exp $
+    Author: Matt MacKenzie, Farrukh Najmi
+    This is the the informative SOAP binding in WSDL for the OASIS ebXML Registry NotificationListener that
+    listens for registry events.
+  </documentation>
+  <import location="NotificationListenerBindings.wsdl" namespace="urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:bindings:4.0"/>
+  <service name="NotificationListenerSOAPService">
+    <port binding="bindings:NotificationListenerSoapBinding" name="NotificationListenerPort">
+      <soap:address location="http://your.server.com/soap"/>
+    </port>
+  </service>
+</definitions>

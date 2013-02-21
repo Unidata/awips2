@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,11 +37,11 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Implementation of a colormap
- * 
+ *
  * <pre>
- * 
+ *
  *  SOFTWARE HISTORY
- * 
+ *
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  Feb 5, 2007              chammack    Initial Creation.
@@ -49,9 +49,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *  Aug 20, 2008			 bclement	 Added JaXB annotations and color class
  *  Aug 20, 2008			 dglazesk	 Added some interface pieces to make this more
  *                                       usable
- * 
+ *  Jan 10, 2013 15648       ryu         Added removeDuplicates() method.
+ *
  * </pre>
- * 
+ *
  * @author chammack
  * @version 1
  */
@@ -80,8 +81,8 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
     }
 
     /**
-     * 
-     * 
+     *
+     *
      */
     public ColorMap(String name, float[] red, float[] green, float[] blue) {
         this.colors = new ArrayList<Color>();
@@ -96,7 +97,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /**
      * Creates a ColorMap using name and the list of colors in map.
-     * 
+     *
      * @param name
      *            Name for the new ColorMap
      * @param map
@@ -111,7 +112,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /**
      * Do not instantiate directly, use GLTarget methods
-     * 
+     *
      * @param name
      * @param red
      * @param green
@@ -138,7 +139,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.colormap.IColorMap#getBlue()
      */
     public float[] getBlue() {
@@ -152,7 +153,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.colormap.IColorMap#getGreen()
      */
     public float[] getGreen() {
@@ -166,7 +167,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.colormap.IColorMap#getRed()
      */
     public float[] getRed() {
@@ -180,7 +181,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.colormap.IColorMap#getSize()
      */
     public int getSize() {
@@ -189,7 +190,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.colormap.IColorMap#getAlpha()
      */
     public float[] getAlpha() {
@@ -203,7 +204,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /**
      * Return the buffer representation of the colormap
-     * 
+     *
      * @return the colorMap buffer
      */
     public synchronized Buffer getColorMap() {
@@ -232,7 +233,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.edex.colormap.IColorMap#getName()
      */
     public String getName() {
@@ -245,7 +246,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
@@ -328,7 +329,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
      * wavelength to the maximum wavelength. If the reverse flag is set, then a
      * reverse spectrum is generated. The red, green, and blue indexes are
      * returned through the calling arguments.
-     * 
+     *
      * @param numOfColors
      * @param minWaveLength
      * @param maxWaveLength
@@ -409,4 +410,20 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         return new Color((float) r, (float) g, (float) b);
     }
 
+    /**
+     * Removes duplicate entries.
+     */
+    public void removeDuplicates() {
+        List<Color> colors = new ArrayList<Color>();
+        Color current = null;
+        for (Color color: this.colors) {
+            if (!color.equals(current)) {
+              	colors.add(color);
+              	current = color;
+            }
+        }
+
+        this.colors = colors;
+        changed = true;
+    }
 }

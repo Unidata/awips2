@@ -8,8 +8,9 @@
 GLEVEL =  500:1000!500:1000!0!30:0
 GVCORD =  pres!pres!none!pdly
 SKIP   =    0!0!0!0/1;2
+FILTER=y
 SCALE  =   -1!-1!0
-GDPFUN =  ldf(hght) !ldf(hght) !sm9s(mul(1e-2,pmsl))!kntv(wnd)
+GDPFUN =  ldf(hght) !ldf(hght) !sm9s(pmsl)!kntv(wnd)
 TYPE   =    c!c!c!b
 CINT   =    3/0/540 !3/546/999        !4
 LINE   =    23/3/2  !23/3/2          !23/1/2
@@ -23,4 +24,3 @@ TITLE  =   23/-1/~ PMSL, 1000-500 MB THICKNESS, BL WIND   =!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  no

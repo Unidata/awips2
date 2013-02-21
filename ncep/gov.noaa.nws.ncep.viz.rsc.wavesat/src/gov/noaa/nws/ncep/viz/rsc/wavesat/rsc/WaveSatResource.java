@@ -27,6 +27,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.viz.pointdata.PointDataRequest;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -50,7 +51,9 @@ import javax.measure.unit.Unit;
  * ------------ ---------- ----------- --------------------------
  *  09/21/2011    #248     Greg Hull    Initial creation. 
  *  02/16/2012    #555     S. Gurung    Added call to setPopulated(true) in queryData().
- *  05/23/2012    #785     Q. Zhou      Added getName for legend.
+ *  05/23/2012    #785     Q. Zhou      Added getName for legend
+ *  12/19/2012    #960     Greg Hull    override propertiesChanged() to update colorBar.
+ *
  * </pre>
  * 
  * @author ghull 
@@ -664,6 +667,14 @@ public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceDa
 		return new FrameData(frameTime,timeInt);
 	}	
 	
+	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
+
 	@Override
 	public String getName() {
 		String legendString = super.getName();

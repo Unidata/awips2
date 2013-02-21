@@ -22,10 +22,12 @@ package com.raytheon.uf.common.localization.msgs;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Defines the delete localization response
@@ -47,19 +49,40 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @DynamicSerialize
 public class DeleteUtilityResponse extends AbstractUtilityResponse {
 
+    @XmlAttribute
+    @DynamicSerializeElement
+    private long timeStamp;
+
     public DeleteUtilityResponse() {
 
     }
 
     public DeleteUtilityResponse(LocalizationContext context, String errorText,
-            String fileName) {
+            String fileName, long timeStamp) {
         super(context, fileName, errorText);
+        this.timeStamp = timeStamp;
+    }
+
+    /**
+     * @return the timeStamp
+     */
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    /**
+     * @param timeStamp
+     *            the timeStamp to set
+     */
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.edex.msg.utility.AbstractUtilityResponse#getFormattedErrorMessage()
+     * @see com.raytheon.edex.msg.utility.AbstractUtilityResponse#
+     * getFormattedErrorMessage()
      */
     @Override
     public String getFormattedErrorMessage() {

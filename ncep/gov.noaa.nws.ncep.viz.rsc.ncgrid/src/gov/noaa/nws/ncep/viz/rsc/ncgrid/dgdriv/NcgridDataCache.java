@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 /**
  * This is the grid data cache for diagnostic.
@@ -83,6 +84,21 @@ public class NcgridDataCache {
 		dataURI.put(key, dataUri);
 	}
 	
+	/*
+	 * get gempak parameter from dataURI
+	 */
+	public String getGempakParam ( String dataUri ) {
+		String parm = null;
+		
+		for ( Entry<String, String> e : dataURI.entrySet() ) {
+			if ( e.getValue().equals(dataURI)){
+				String[] parmList = e.getKey().split("\\|");
+				parm = parmList[2];
+				break;
+			}
+		}
+		return parm;
+	}
 	/*
 	 * Get grid data
 	 */

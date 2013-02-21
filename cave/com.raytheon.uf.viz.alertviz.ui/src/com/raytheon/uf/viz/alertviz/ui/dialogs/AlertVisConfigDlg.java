@@ -91,6 +91,8 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 08 Sep 2012   13528     Xiaochuan   Confirmation message is not necessary when
  * 									   close. Add setNewConfig and run in common
  * 									   setting group to perform the updating.
+ * 20 Dec 2012	 13746	   Xiaochuan   Add setNewConfig in omitMenuItem.addSelectionListener
+ * 									   to send notify for the changing.	
  * 									   
  * </pre>
  * 
@@ -738,6 +740,8 @@ public class AlertVisConfigDlg extends Dialog implements
                                 }
                                 setSourceColor(s, item);
                                 sourcesList.update();
+                                setNewConfig();
+                                
                             } catch (Exception e) {
                                 Container
                                         .logInternal(

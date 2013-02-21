@@ -29,9 +29,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.edex.util.MathUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -45,6 +49,7 @@ import com.raytheon.viz.ui.widgets.LabeledScale;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Feb 26, 2008					Eric Babin Initial Creation
+ * Oct 30, 2012 1298       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -53,7 +58,10 @@ import com.raytheon.viz.ui.widgets.LabeledScale;
  */
 
 public class TimeShiftDialog extends CaveJFACEDialog {
-    private static final int SECONDS_PER_HOUR = 3600;
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TimeShiftDialog.class);
+
+    private final int SECONDS_PER_HOUR = 3600;
 
     private Composite top;
 
@@ -69,15 +77,22 @@ public class TimeShiftDialog extends CaveJFACEDialog {
 
     public TimeShiftDialog(Shell parent, DataManager dataManager) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataManager = dataManager;
     }
 
     @Override
     protected Control createDialogArea(Composite parent) {
         top = (Composite) super.createDialogArea(parent);
-
-        initializeComponents();
+        Parm[] parms = this.dataManager.getParmManager().getSelectedParms();
+        if (parms == null || parms.length == 0) {
+            Label label = new Label(top, SWT.CENTER);
+            GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+            label.setLayoutData(gd);
+            label.setText("No Grids selected.");
+        } else {
+            initializeComponents();
+        }
 
         return top;
     }
@@ -167,14 +182,18 @@ public class TimeShiftDialog extends CaveJFACEDialog {
      */
     @Override
     protected void okPressed() {
-        // Tell the dataManager about the time shift
-        // LogStream.logUse("Time Shift", selection, self.__secondsToShift)
-        int secondsToShift = (int) formatter.getScaledValue(intervalScale
-                .getSelection())
-                * SECONDS_PER_HOUR;
-        this.dataManager.getParmOp().timeShift(secondsToShift,
-                copyButton.getSelection());
-
+        if (formatter != null) {
+            // Tell the dataManager about the time shift
+            int secondsToShift = (int) formatter.getScaledValue(intervalScale
+                    .getSelection()) * SECONDS_PER_HOUR;
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.handle(Priority.DEBUG,
+                        "Time Shift " + copyButton.getSelection() + " "
+                                + secondsToShift);
+            }
+            this.dataManager.getParmOp().timeShift(secondsToShift,
+                    copyButton.getSelection());
+        }
         super.okPressed();
     }
 
@@ -202,25 +221,11 @@ public class TimeShiftDialog extends CaveJFACEDialog {
         }
 
         /**
-         * @return the offset
-         */
-        public int getOffset() {
-            return offset;
-        }
-
-        /**
          * @param offset
          *            the offset to set
          */
         public void setOffset(int offset) {
             this.offset = offset;
-        }
-
-        /**
-         * @return the scale
-         */
-        public int getScale() {
-            return scale;
         }
 
         /**

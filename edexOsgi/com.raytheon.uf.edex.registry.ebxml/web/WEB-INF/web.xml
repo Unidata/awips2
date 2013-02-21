@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+<web-app id="web-app_1" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+	<display-name>Data Delivery</display-name>
+
+	<servlet>
+		<description><![CDATA[Add users to the registry]]></description>
+		<display-name>AddRegistryParty</display-name>
+		<servlet-name>AddRegistryParty</servlet-name>
+		<servlet-class>com.raytheon.uf.edex.registry.ebxml.web.AddRegistryParty
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<description><![CDATA[Modify existing users in the registry]]></description>
+		<display-name>ModifyRegistryParty</display-name>
+		<servlet-name>ModifyRegistryParty</servlet-name>
+		<servlet-class>com.raytheon.uf.edex.registry.ebxml.web.ModifyRegistryParty
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<description><![CDATA[Delete users from the registry]]></description>
+		<display-name>DeleteRegistryParty</display-name>
+		<servlet-name>DeleteRegistryParty</servlet-name>
+		<servlet-class>com.raytheon.uf.edex.registry.ebxml.web.DeleteRegistryParty
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+        <display-name>DWR Servlet</display-name>
+		<servlet-name>dwr-invoker</servlet-name>
+		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>dwr-invoker</servlet-name>
+		<url-pattern>/dwr/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>AddRegistryParty</servlet-name>
+		<url-pattern>/AddRegistryParty</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ModifyRegistryParty</servlet-name>
+		<url-pattern>/ModifyRegistryParty</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DeleteRegistryParty</servlet-name>
+		<url-pattern>/DeleteRegistryParty</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>/RegistryUserMenu.html</welcome-file>
+	</welcome-file-list>
+</web-app>

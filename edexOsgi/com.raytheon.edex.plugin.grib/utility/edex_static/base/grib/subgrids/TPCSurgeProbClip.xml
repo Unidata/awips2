@@ -20,9 +20,10 @@
     -->
 <subGridDef>
    <modelNames>TPCSurgeProb</modelNames>
-   <referenceModel>TPCSurgeProb</referenceModel>
+   <referenceGrid>374</referenceGrid>
    <nx>1300</nx>
    <ny>1200</ny>
+   <shiftWest>false</shiftWest>
    <!-- 
    <centerLatitude>46.0</centerLatitude>
    <centerLongitude>-95.5</centerLongitude>
