@@ -21,9 +21,9 @@ package com.raytheon.uf.edex.datadelivery.service.verify;
 
 import com.raytheon.uf.common.datadelivery.event.INotifiableEvent;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationAction;
 import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationResponse;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Implementation of {@link IVerificationAction} that sends an
@@ -37,14 +37,14 @@ import com.raytheon.uf.edex.event.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 07, 2012 1104       djohnson     Initial creation
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class NotifyFailedVerification implements
-        IVerificationAction {
+class NotifyFailedVerification implements IVerificationAction {
 
     /**
      * {@inheritDoc}
@@ -52,9 +52,8 @@ class NotifyFailedVerification implements
     @Override
     public void verificationPerformed(Subscription subscription,
             IVerificationResponse response) {
-        EventBus.getInstance().publish(
-                new SubscriptionVerificationFailedEvent(subscription, response
-                        .getNotificationMessage()));
+        EventBus.publish(new SubscriptionVerificationFailedEvent(subscription,
+                response.getNotificationMessage()));
     }
 
 }

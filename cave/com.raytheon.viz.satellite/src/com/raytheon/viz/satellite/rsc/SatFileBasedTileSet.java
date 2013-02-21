@@ -83,7 +83,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
 
     public SatFileBasedTileSet(PluginDataObject pdo, String dataset,
             AbstractTileSet sharedGeometryTileset) throws VizException {
-        super(HDF5Util.findHDF5Location(pdo).getAbsolutePath(), pdo
+        super(HDF5Util.findHDF5Location(pdo).getPath(), pdo
                 .getDataURI(), dataset, sharedGeometryTileset);
         this.pdo = pdo;
     }
@@ -91,7 +91,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
     public SatFileBasedTileSet(PluginDataObject pdo, String dataset,
             int levels, int tileSize, GridGeometry2D gridGeometry,
             AbstractVizResource<?, ?> rsc, String viewType) throws VizException {
-        super(HDF5Util.findHDF5Location(pdo).getAbsolutePath(), pdo
+        super(HDF5Util.findHDF5Location(pdo).getPath(), pdo
                 .getDataURI(), dataset, levels, tileSize, gridGeometry, rsc,
                 viewType);
         this.pdo = pdo;
@@ -101,7 +101,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
             int levels, int tileSize, GridGeometry2D gridGeometry,
             AbstractVizResource<?, ?> rsc, PixelInCell pixelOrientation,
             String viewType) throws VizException {
-        super(HDF5Util.findHDF5Location(pdo).getAbsolutePath(), pdo
+        super(HDF5Util.findHDF5Location(pdo).getPath(), pdo
                 .getDataURI(), dataset, levels, tileSize, gridGeometry, rsc,
                 pixelOrientation, viewType);
         this.pdo = pdo;

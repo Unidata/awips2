@@ -325,13 +325,13 @@ public class GridParm {
      *            The grid update notifications
      * @param lockNotifications
      *            The lock notifications
-     * @return The server response
+     * @return The server response containing number of records purged
      */
-    public ServerResponse<?> timePurge(Date purgeTime,
+    public ServerResponse<Integer> timePurge(Date purgeTime,
             List<GridUpdateNotification> gridNotifications,
             List<LockNotification> lockNotifications, String siteID) {
 
-        ServerResponse<?> sr = new ServerResponse<String>();
+        ServerResponse<Integer> sr = new ServerResponse<Integer>();
         lockNotifications.clear();
         gridNotifications.clear();
 
@@ -425,6 +425,7 @@ public class GridParm {
             gridNotifications.add(new GridUpdateNotification(id, purge.get(i),
                     histories, wsId, siteID));
         }
+        sr.setPayload(new Integer(purge.size()));
         return sr;
 
     }

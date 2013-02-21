@@ -20,14 +20,10 @@
 package com.raytheon.viz.mpe.ui.dialogs;
 
 import java.awt.Rectangle;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -53,27 +49,16 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.colormap.Color;
-import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
-import com.raytheon.uf.common.mpe.util.XmrgFile;
-import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
-import com.raytheon.viz.hydrocommon.util.MPEColors;
-import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
-import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
+import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -91,8 +76,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class Display7x7Dialog extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(Display7x7Dialog.class);
 
     private Label gageID;
 
@@ -128,8 +111,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private static Rectangle extent;
 
-    private static XmrgResource xmrgRsc;
-
+    private MPEFieldResource resource;
+    
     private static MPEGageData selectedGage;
 
     private static MPEGageData workingGage;
@@ -142,27 +125,15 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private short[][] xmGrid;
 
-    private DataMappingPreferences dmPref;
-
-    private ColorMap colorMap;
-
     private ColorMapParameters parameters;
 
-    private String[] displayType;
-
-    private String[] dispTypeName;
-
-    private DisplayFieldData[] dfDataMap;
-
-    private final HashMap<String, Integer> dispMap = new HashMap<String, Integer>();
+    private DisplayFieldData[] displayTypes = MPEDisplayManager.mpe_qpe_fields;
 
     private Combo prodSetCbo;
 
     private Font font;
 
     private Composite comp2;
-
-    private XmrgFile xmFile;
 
     private Composite compG;
 
@@ -172,18 +143,11 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private Composite gridComp;
 
-    private boolean first = true;
-
     private MPEGageData gData;
 
     private Button setMissing;
 
-    private static final String APPLICATION_NAME = "hmapmpe";
-
-    private static final List<NamedColorUseSet> pColorSetGroup = MPEColors
-            .build_mpe_colors();
-
-    private static DisplayFieldData oldFieldData = DisplayFieldData.mMosaic;
+    private DisplayFieldData selectedFieldData;
 
     private static boolean oldManedit = false;
 
@@ -211,7 +175,6 @@ public class Display7x7Dialog extends CaveSWTDialog {
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
 
-        int i = 0;
         undoEn = false;
 
         if (gData != null) {
@@ -233,28 +196,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
         width = 7;
         extent = new Rectangle(xOrig, yOrig, ht, width);
 
-        xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                .getDisplayedResource();
-        xmFile = xmrgRsc.getXmrgFile();
-
         populateGrid();
-
-        displayType = MPEDisplayManager.mpe_qpe_fields;
-        dispTypeName = new String[displayType.length];
-        dfDataMap = new DisplayFieldData[displayType.length];
-        i = 0;
-        for (i = 0; i < displayType.length; i++) {
-            for (DisplayFieldData d : DisplayFieldData.values()) {
-                if (displayType[i].equalsIgnoreCase(d.name())) {
-                    dispTypeName[i] = d.toString();
-                    dispMap.put(displayType[i], i);
-                    dfDataMap[i] = d;
-                    break;
-                } else {
-                    continue;
-                }
-            }
-        }
 
         createProductListComp();
         createGageGridComp();
@@ -275,21 +217,18 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 MPEGageData gd = x.next();
                 MPEDataManager.getInstance().addEditedGage(gd);
             }
-            MPEDisplayManager.getCurrent().setDataSaved(false);
         }
         if (!badGage.isEmpty() && !editGage.isEmpty()) {
             for (int i = 0; i < badGage.size(); i++) {
                 String gd = badGage.get(i);
                 MPEDataManager.getInstance().addBadGage(gd);
             }
-            MPEDisplayManager.getCurrent().setDataSaved(false);
         }
         if (!notBadGage.isEmpty() && !editGage.isEmpty()) {
             for (int i = 0; i < notBadGage.size(); i++) {
                 String gd = notBadGage.get(i);
                 MPEDataManager.getInstance().removeBadGage(gd);
             }
-            MPEDisplayManager.getCurrent().setDataSaved(false);
         }
         if ((!notBadGage.isEmpty() || !badGage.isEmpty())
                 && !editGage.isEmpty()) {
@@ -310,27 +249,39 @@ public class Display7x7Dialog extends CaveSWTDialog {
      * 
      */
     private void populateGrid() {
+        resource = MPEDisplayManager.getCurrent().getDisplayedFieldResource();
+        if (resource == null) {
+            return;
+        }
+        parameters = resource.getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
+
         short[][] data = new short[7][7];
-        if (xmFile != null) {
-            Rectangle rect = xmFile.getHrapExtent();
+        if (resource != null) {
+            Rectangle rect = resource.getHrapExtent();
 
             if (rect == null) {
                 return;
             }
 
-            short[] xmData = xmFile.getData();
-            for (int i = 0; i < 7; ++i) {
-                for (int j = 0; j < 7; ++j) {
-                    short val = -999;
-                    int tmpJ = extent.x - rect.x + j;
-                    int tmpI = rect.height - 1
-                            - (extent.y + extent.height - 1 - rect.y) + i;
-                    if (tmpI >= 0 && tmpJ >= 0 && tmpI < rect.height
-                            && tmpJ < rect.width) {
-                        val = xmData[tmpI * rect.width + tmpJ];
+            try {
+                short[] xmData = resource.getData();
+                for (int i = 0; i < 7; ++i) {
+                    for (int j = 0; j < 7; ++j) {
+                        short val = -999;
+                        int tmpJ = extent.x - rect.x + j;
+                        int tmpI = rect.height - 1
+                                - (extent.y + extent.height - 1 - rect.y) + i;
+                        if (tmpI >= 0 && tmpJ >= 0 && tmpI < rect.height
+                                && tmpJ < rect.width) {
+                            val = xmData[tmpI * rect.width + tmpJ];
+                        }
+                        data[i][j] = val;
                     }
-                    data[i][j] = val;
                 }
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error getting displayed MPE field data", e);
             }
         }
         xmGrid = data;
@@ -362,26 +313,25 @@ public class Display7x7Dialog extends CaveSWTDialog {
         int selector = 0;
         DisplayFieldData dstype = MPEDisplayManager.getCurrent()
                 .getDisplayFieldType();
-        oldFieldData = dstype;
-        if ((dstype != null) && dispMap.containsKey(dstype.name())) {
-            selector = dispMap.get(dstype.name());
+        selectedFieldData = dstype;
+        for (; selector < displayTypes.length; ++selector) {
+            if (displayTypes[selector] == dstype) {
+                break;
+            }
         }
+        String[] displayTypeNames = new String[displayTypes.length];
+        for (int i = 0; i < displayTypes.length; ++i) {
+            displayTypeNames[i] = displayTypes[i].toString();
+        }
+
         prodSetCbo.setTextLimit(35);
         prodSetCbo.setLayoutData(gd);
-        prodSetCbo.setItems(dispTypeName);
+        prodSetCbo.setItems(displayTypeNames);
         prodSetCbo.select(selector);
         prodSetCbo.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
-                updateGridField(dfDataMap[prodSetCbo.getSelectionIndex()]);
+                updateGridField(displayTypes[prodSetCbo.getSelectionIndex()]);
             }
         });
     }
@@ -479,15 +429,16 @@ public class Display7x7Dialog extends CaveSWTDialog {
                     gageVal = String.format("%.2f", workingGage.getGval())
                             + " in.";
                     if (workingGage.getGval() == 0) {
-                    	scaleVal = (0);
-                    	scaleValLab = String.format("%4.2f", 0.0);
+                        scaleVal = (0);
+                        scaleValLab = String.format("%4.2f", 0.0);
                     } else {
-                    	scaleVal = ((int) (100 * workingGage.getGval() - 0.01));
-						if (scaleVal == 0) {
-							scaleValLab = String.format("%4.2f", 0.0);
-						} else {
-							scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
-						}
+                        scaleVal = ((int) (100 * workingGage.getGval() - 0.01));
+                        if (scaleVal == 0) {
+                            scaleValLab = String.format("%4.2f", 0.0);
+                        } else {
+                            scaleValLab = String.format("%4.2f",
+                                    (scaleVal / 100.0f));
+                        }
                     }
                 }
             }
@@ -696,7 +647,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
     private void create7x7GridComp() {
         comp2 = new Composite(compG, SWT.NONE);
         comp2.setLayout(new GridLayout(1, true));
-        loadColors();
+        parameters = resource.getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
         gridComp = new Composite(comp2, SWT.NONE);
         GridLayout layout = new GridLayout(7, true);
         gridComp.setLayout(layout);
@@ -809,39 +761,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
         return composite;
     }
 
-    private void loadColors() {
-        if ((oldFieldData != dfDataMap[prodSetCbo.getSelectionIndex()])
-                || first) {
-            List<Colorvalue> colorSet = MPEDisplayManager.getCurrent()
-                    .getGageColorMap();
-            colorMap = new ColorMap(colorSet.size());
-            colorMap.setName(dfDataMap[prodSetCbo.getSelectionIndex()]
-                    .getCv_use());
-            dmPref = new DataMappingPreferences();
-            int i = 0;
-            for (Colorvalue cv : colorSet) {
-                RGB rgb = RGBColors.getRGBColor(cv.getColorname()
-                        .getColorName());
-                colorMap.setColor(i, new Color(rgb.red / 255f,
-                        rgb.green / 255f, rgb.blue / 255f));
-
-                DataMappingEntry entry = new DataMappingEntry();
-                entry.setPixelValue((double) i);
-                entry.setDisplayValue(cv.getId().getThresholdValue());
-                dmPref.addEntry(entry);
-
-                i++;
-            }
-            if (parameters == null) {
-                parameters = xmrgRsc.getCapability(ColorMapCapability.class)
-                        .getColorMapParameters();
-            }
-            first = false;
-        }
-    }
-
-    private RGB setColor(double val) {
-        double value = val;
+    private RGB setColor(float val) {
+        float value = val;
 
         if (value == -999.0 || value == -9.0) {
             value = -9999.0f;
@@ -850,29 +771,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
             value = -8888.0f;
         }
 
-        int i = 0;
-        RGB gageColor = null;
-        for (DataMappingEntry entry : dmPref.getEntries()) {
-            if (value <= entry.getDisplayValue()) {
-
-                if (i <= 2) {
-                    gageColor = ColorMapParameters.colorToRGB(colorMap
-                            .getColors().get(i));
-                } else {
-                    gageColor = ColorMapParameters.colorToRGB(colorMap
-                            .getColors().get(i - 1));
-                }
-
-                break;
-            }
-            i++;
-        }
-        if (gageColor == null) {
-            i = dmPref.getEntries().size();
-            gageColor = ColorMapParameters.colorToRGB(colorMap.getColors().get(
-                    i - 1));
-        }
-        return gageColor;
+        Color color = parameters.getColorByValue(value);
+        return new RGB((int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
     }
 
     public void updateGageData(MPEGageData data) {
@@ -993,116 +894,17 @@ public class Display7x7Dialog extends CaveSWTDialog {
         if (gageVal.equalsIgnoreCase("missing")) {
             setMissing.setEnabled(false);
         }
-        updateGridField(dfDataMap[prodSetCbo.getSelectionIndex()]);
+        updateGridField(displayTypes[prodSetCbo.getSelectionIndex()]);
     }
 
     private void updateGridField(DisplayFieldData fieldType) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        SimpleDateFormat sxf = new SimpleDateFormat("MMddyyyyHH");
-        sxf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        AppsDefaults appsDefaults = AppsDefaults.getInstance();
-
-        switch (fieldType) {
-        case avgrMosaic:
-        case bMosaic:
-        case gageOnly:
-        case Height:
-        case Index:
-        case lMosaic:
-        case Locbias:
-        case Locspan:
-        case satPre:
-        case lsatPre:
-        case maxrMosaic:
-        case mlMosaic:
-        case mMosaic:
-        case p3lMosaic:
-        case localField1:
-        case localField2:
-        case localField3:
-        case rfcbMosaic:
-        case rfcmMosaic:
-        case rMosaic:
-        case sgMosaic:
-        case srgMosaic:
-        case srMosaic:
-        case qmosaic:
-        case lqmosaic:
-        case mlqmosaic: {
-            String cv_use = fieldType.getCv_use();
-            String dirname = appsDefaults.getToken(fieldType.getDirToken());
-            String fname = FileUtil.join(
-                    dirname,
-                    cv_use
-                            + sdf.format(MPEDisplayManager.getCurrent()
-                                    .getCurrentDate()) + "z");
-
-            load_field(fname);
-            break;
+        MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
+        if (selectedFieldData != fieldType) {
+            selectedFieldData = fieldType;
+            mgr.displayFieldData(fieldType);
+            populateGrid();
+            gridComp.notifyListeners(SWT.Paint, new Event());
         }
-
-        case Xmrg: {
-            String cv_use = fieldType.getCv_use();
-            String dirname = appsDefaults.getToken(fieldType.getDirToken());
-            String fname = FileUtil.join(
-                    dirname,
-                    cv_use.toLowerCase()
-                            + sxf.format(MPEDisplayManager.getCurrent()
-                                    .getCurrentDate()) + "z");
-            load_field(fname);
-            break;
-        }
-
-        case rfcMosaic:
-            String cv_use = fieldType.getCv_use();
-            String dirname = appsDefaults.getToken(fieldType.getDirToken());
-            String fname = FileUtil.join(
-                    dirname,
-                    cv_use
-                            + "01+"
-                            + sdf.format(MPEDisplayManager.getCurrent()
-                                    .getCurrentDate()) + "z");
-
-            load_field(fname);
-            break;
-
-        default:
-            statusHandler.handle(Priority.PROBLEM,
-                    "In routine display_mpe_data: Unrecognized MPE field type: "
-                            + fieldType.name());
-            break;
-        }
-
-    }
-
-    private void load_field(String fname) {
-
-        String user_id = System.getProperty("user.name");
-        String app_name = APPLICATION_NAME;
-
-        DisplayFieldData fieldType = dfDataMap[prodSetCbo.getSelectionIndex()];
-
-        if (oldFieldData != fieldType) {
-            List<Colorvalue> pColorSet = GetColorValues.get_colorvalues(
-                    user_id, app_name, fieldType.getCv_use(),
-                    fieldType.getCv_duration(), "E", pColorSetGroup);
-
-            xmFile = new XmrgFile(fname);
-            xmrgRsc = new XmrgResource(MPEDisplayManager.getCurrent(),
-                    fieldType, xmFile, pColorSet);
-            loadColors();
-            oldFieldData = fieldType;
-
-            try {
-                xmFile.load();
-            } catch (IOException e) {
-                System.out.println("XMRG File not found " + fname);
-            }
-        }
-        populateGrid();
-
-        gridComp.notifyListeners(SWT.Paint, new Event());
     }
 
     /**

@@ -18,31 +18,9 @@
 						<not>
 							<equals arg1="${index}" arg2="1" />
 						</not>
-						<then>											
-							<if>							
-								<!-- TODO: we need our own ant plugin so this
-								becomes unnecessary [SPECIAL CASE]. -->
-								<equals arg1="@{plugin.type}" arg2="cots" />
-								<then>
-									<propertyregex property="plugin.name"
-									override="true"
-									input="@{line}"
-									regexp="(.+)/(.+)"
-									select="\1"
-									casesensitive="true" />
-								</then>
-								<else>
-									<propertyregex property="plugin.name"
-									override="true"
-									input="@{line}"
-									regexp="(.+)/component-deploy.xml"
-									select="\1"
-									casesensitive="true" />
-								</else>
-							</if>
-							
+						<then>
 							<deployPlugins
-								plugin.name="${plugin.name}"
+								plugin.name="@{line}"
 								original.pattern="@{line}"
 								plugin.type="@{plugin.type}"
 								plugin.directories="@{plugin.directories}" 
