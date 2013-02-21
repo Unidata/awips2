@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 7, 2010            mschenke     Initial creation
  * Jan 29, 2013  15723    Qinglu Lin   Called warngenLayer.initRemovedGids() in move() and in run() of 
  *                                     AddVertexAction, DeleteVertextAction and MoveElementAction inner classes.
+ * Jan 30, 2013  15439    Qinglu Lin   Code were added to prevent nullPointException from occurring
+ *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
  * 
  * </pre>
  * 
@@ -374,17 +376,19 @@ public class WarngenUIManager extends InputAdapter {
             break;
         }
         case SINGLE_POINT: {
-            PolygonUtil.truncate(c2, 2);
-            if (warngenLayer.isModifiedVertexNeedsToBeUpdated()) {
-                int i = StormTrackUIManager.getCoordinateIndex(warngenLayer,
-                        state.getWarningPolygon().getCoordinates(), c2);
-                if (i != -1) {
-                    this.movePointIndex = i;
+            if (c2 != null) {
+                PolygonUtil.truncate(c2, 2);
+                if (warngenLayer.isModifiedVertexNeedsToBeUpdated()) {
+                    int i = StormTrackUIManager.getCoordinateIndex(warngenLayer,
+                            state.getWarningPolygon().getCoordinates(), c2);
+                    if (i != -1) {
+                        this.movePointIndex = i;
+                    }
+                    warngenLayer.setModifiedVertexNeedsToBeUpdated(false);
                 }
-                warngenLayer.setModifiedVertexNeedsToBeUpdated(false);
+                movePointIndex = warngenLayer.translatePolygonVertex(
+                        this.movePointIndex, c2, false);
             }
-            movePointIndex = warngenLayer.translatePolygonVertex(
-                    this.movePointIndex, c2, false);
             break;
         }
         }
