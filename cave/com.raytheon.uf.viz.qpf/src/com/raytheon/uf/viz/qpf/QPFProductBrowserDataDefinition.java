@@ -56,7 +56,7 @@ public class QPFProductBrowserDataDefinition extends
     public QPFProductBrowserDataDefinition() {
         productName = "qpf";
         displayName = "QPF";
-        order = new String[] { "pluginName", "icao", "fieldName" };
+        order = new String[] { "icao", "fieldName" };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -76,7 +76,8 @@ public class QPFProductBrowserDataDefinition extends
         if ("fieldName".equals(param)) {
             for (int i = 0; i < parameters.length; i++) {
                 labels.add(new ProductBrowserLabel(DATA_TYPE.valueOf(
-                        parameters[i]).getFieldName(), parameters[i]));
+                        parameters[i]).getFieldName()
+                        + " (" + parameters[i] + ")", parameters[i]));
             }
             Collections.sort(labels);
         } else {
@@ -95,7 +96,6 @@ public class QPFProductBrowserDataDefinition extends
      */
     @Override
     public Map<ResourceType, List<DisplayType>> getDisplayTypes() {
-        // TODO Auto-generated method stub
         Map<ResourceType, List<DisplayType>> type = new HashMap<ResourceType, List<DisplayType>>();
         List<DisplayType> types = new ArrayList<DisplayType>();
         types.add(DisplayType.CONTOUR);

@@ -16,7 +16,6 @@ import java.util.List;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
@@ -48,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/10		#165		G. Zhang	add support for VAA.
  * 10/10        #289       Archana    Added logic to handle the delete key    
  * 07/12		#610		B. Yin		Make the multi-select work for GFA.
+ * 12/12		#908		B. Yin		Do not change to selecting mode. 
  * </pre>
  * 
  * @author	B. Yin
@@ -144,8 +144,8 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 					drawingLayer.removeSelected();
 					mapEditor.refresh();
 
-
-					PgenUtil.setSelectingMode();
+				//  Keep in multi-selecting mode	
+				//	PgenUtil.setSelectingMode();
 				}
 				return false;
 

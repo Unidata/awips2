@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
@@ -136,8 +135,8 @@ public abstract class AbstractXyRenderableDisplay extends
     }
 
     @Override
-    public void clear(IDisplayPane parentPane) {
-        super.clear(parentPane);
+    public void clear() {
+        super.clear();
         IWorkbenchPage page = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
         page.closeEditor(getEditor(), false);

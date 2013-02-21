@@ -9,7 +9,8 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.31",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.11.31",
  com.raytheon.uf.common.auth;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.31",
- com.raytheon.uf.common.status;bundle-version="1.11.31"
+ com.raytheon.uf.common.status;bundle-version="1.11.31",
+ com.raytheon.uf.common.comm;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.auth,
  com.raytheon.uf.edex.auth.authentication,
  com.raytheon.uf.edex.auth.req,

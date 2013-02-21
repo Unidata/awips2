@@ -41,6 +41,10 @@
 			<xsl:call-template name="GetUntilTimeT"/>
 		</xsl:variable>
 
+		<xsl:variable name="outlookEndTime">
+			<xsl:call-template name="GetOutlookEndTimeT"/>
+		</xsl:variable>
+		
 		<xsl:variable name="issueTime">
 			<xsl:call-template name="GetIssueTimeT"/>
 		</xsl:variable>
@@ -95,7 +99,7 @@
 		<xsl:if test="$numOutlooks > 0">
 	        <xsl:call-template name="TangoOutlook">
 	            <xsl:with-param name="outlookStart" select="$untilTime"/>
-	            <xsl:with-param name="outlookEnd" select="$untilTime"/>
+	            <xsl:with-param name="outlookEnd" select="$outlookEndTime"/>
 	            <xsl:with-param name="numTURB" select="$numOutlookTURB"/>
 	            <xsl:with-param name="numSFC_WND" select="$numOutlookSFC_WND"/>
 	            <xsl:with-param name="numLLWS" select="$numOutlookLLWS"/>
@@ -131,6 +135,15 @@
 		<xsl:variable name="temp">
 			<xsl:for-each select="//Gfa[(@hazard='TURB' or @hazard='SFC_WND' or @hazard='LLWS') and contains(@fcstHr,'-')][last()]">
 				<xsl:value-of select="@untilTime"/>
+			</xsl:for-each>
+		</xsl:variable>
+		<xsl:value-of select="$temp"/>
+	</xsl:template>
+	
+	<xsl:template name="GetOutlookEndTimeT">
+		<xsl:variable name="temp">
+			<xsl:for-each select="//Gfa[(@hazard='TURB' or @hazard='SFC_WND' or @hazard='LLWS') and contains(@fcstHr,'-')][last()]">
+				<xsl:value-of select="@outlookEndTime"/>
 			</xsl:for-each>
 		</xsl:variable>
 		<xsl:value-of select="$temp"/>
@@ -370,7 +383,8 @@
                     <xsl:value-of select="$newline"/><xsl:value-of select="$fromLineStatement"/><xsl:text> </xsl:text><xsl:value-of select="normalize-space(@textVor)"/></xsl:element>
                 
                 <!-- Frequency & Severity line -->
-                <xsl:variable name="airTag"><xsl:value-of select="concat(@tag,@desk)"/></xsl:variable>
+                <!--  <xsl:variable name="airTag"><xsl:value-of select="concat(@tag,@desk)"/></xsl:variable> -->
+                <xsl:variable name="airTag"><xsl:value-of select="@airmetTag"/></xsl:variable>
 
                 <xsl:if test="not( contains(@issueType, 'CAN' )) and string-length($freqSevStatement) > 1">
                     <xsl:element name="line">
@@ -459,7 +473,7 @@
             <xsl:if test="string-length($hazard) > 1 and contains($hazard, 'TURB')">
                 <xsl:text> </xsl:text>
                    <xsl:choose>
-                		<xsl:when test="$hazard = 'TURB'">MOD TURBL</xsl:when>
+                		<xsl:when test="$hazard = 'TURB'">MOD TURB</xsl:when>
 	                	<xsl:otherwise><xsl:value-of select="$hazard"/></xsl:otherwise>
             	</xsl:choose>        
             </xsl:if>

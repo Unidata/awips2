@@ -25,11 +25,17 @@ import java.util.List;
 import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 /**
- * TODO Add Description
+ * AbstractRequestableData is the base metadata class for derived parameters. It
+ * represents a single data value for a given source/parameter/level/time/space
+ * combination. As well as representing the metadata it also provides a
+ * getDataValue method which should return a dataValue that can be used in
+ * derived parameters to calculate other parameters.
  * 
  * <pre>
  * 
@@ -56,7 +62,9 @@ public abstract class AbstractRequestableData {
 
     protected Level level;
 
-    protected DataTime dataTime;
+    protected DataTime dataTime = TimeAndSpace.TIME_AGNOSTIC;
+
+    protected ISpatialObject space = TimeAndSpace.SPACE_AGNOSTIC;
 
     public AbstractRequestableData() {
 
@@ -69,6 +77,7 @@ public abstract class AbstractRequestableData {
         this.unit = that.unit;
         this.level = that.level;
         this.dataTime = that.dataTime;
+        this.space = that.space;
     }
 
     // Object can be a plugin specific argument that will be passed through the
@@ -153,6 +162,14 @@ public abstract class AbstractRequestableData {
         this.level = level;
     }
 
+    public ISpatialObject getSpace() {
+        return space;
+    }
+
+    public void setSpace(ISpatialObject space) {
+        this.space = space;
+    }
+
     /**
      * @return the dataTime
      */
@@ -166,6 +183,10 @@ public abstract class AbstractRequestableData {
      */
     public void setDataTime(DataTime dataTime) {
         this.dataTime = dataTime;
+    }
+
+    public TimeAndSpace getTimeAndSpace() {
+        return new TimeAndSpace(dataTime, space);
     }
 
     public List<AbstractRequestableData> getDependencies() {

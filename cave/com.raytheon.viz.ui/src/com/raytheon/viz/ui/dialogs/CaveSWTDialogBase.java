@@ -413,7 +413,7 @@ public abstract class CaveSWTDialogBase extends Dialog {
      * Returns if the dialog is disposed, a null dialog will not mean it is
      * disposed as it may not have been opened yet.
      * 
-     * @return
+     * @return boolean
      */
     public final boolean isDisposed() {
         return (shell != null && shell.isDisposed());

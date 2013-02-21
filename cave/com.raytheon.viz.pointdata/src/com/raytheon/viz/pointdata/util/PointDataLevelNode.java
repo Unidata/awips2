@@ -19,24 +19,21 @@
  **/
 package com.raytheon.viz.pointdata.util;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 
 /**
- * TODO Add Description
+ * A BaseDataNode for PointData types so that they can be used within derived
+ * parameters.
  * 
  * <pre>
  * 
@@ -51,7 +48,7 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
  * @version 1.0
  */
 
-public class PointDataLevelNode extends AbstractRequestableLevelNode {
+public class PointDataLevelNode extends AbstractBaseDataNode {
 
     private String parameter;
 
@@ -72,101 +69,19 @@ public class PointDataLevelNode extends AbstractRequestableLevelNode {
         return parameter;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
     @Override
-    protected List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        return cache.remove(this);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataQueryInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
-    @Override
-    protected DbQueryRequest getDataQueryInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        throw new UnsupportedOperationException(
-                "PointData nodes do not support returning data query");
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * processQueryResults
-     * (com.raytheon.uf.common.dataquery.responses.DbQueryResponse)
-     */
-    @Override
-    protected List<AbstractRequestableData> processDataQueryResults(
-            DbQueryResponse queryResponse) throws VizException {
-        throw new UnsupportedOperationException(
-                "PointData nodes do not support processing data query");
-    }
-
-    @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
-            throws VizException {
-        throw new UnsupportedOperationException(
-                "PointData nodes do not support returning time query");
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDependencies()
-     */
-    @Override
-    public List<Dependency> getDependencies() {
-        return Collections.emptyList();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * timeQueryInternal(boolean, java.util.Map)
-     */
-    @Override
-    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
-            throws VizException {
-        return TIME_AGNOSTIC;
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        return true;
-    }
-
-    @Override
-    public Map<String, RequestConstraint> getRequestConstraintMap() {
+    public DbQueryRequest getDataRequest(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability) {
         return null;
     }
 
     @Override
-    public boolean hasRequestConstraints() {
-        return false;
+    public Set<AbstractRequestableData> getData(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability, Object response)
+            throws VizException {
+        return null;
     }
 
     /*
@@ -209,4 +124,17 @@ public class PointDataLevelNode extends AbstractRequestableLevelNode {
     public PointDataLevelNode clone() {
         return new PointDataLevelNode(this);
     }
+
+    @Override
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
+        return null;
+    }
+
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response) {
+        return AvailabilityContainer.AGNOSTIC_SET;
+    }
+
 }

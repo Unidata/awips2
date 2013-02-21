@@ -335,3 +335,4 @@ com.raytheon.uf.common.dataplugin.shef.tables.Zoneinfo
 com.raytheon.uf.common.dataplugin.shef.tables.ZoneinfoId
 com.raytheon.uf.common.dataplugin.shef.tables.Zonenum
 com.raytheon.uf.common.dataplugin.shef.tables.ZonenumId
+com.raytheon.edex.transform.shef.MetarToShefFilter

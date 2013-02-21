@@ -22,11 +22,10 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -55,6 +54,23 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResource;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * Display FFMP Basin Trend Graph.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 6, 2012  1353       rferrel     Code clean up for non-blocking dialog.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class BasinTrendDlg extends CaveSWTDialog {
     /**
      * Main composite.
@@ -125,12 +141,12 @@ public class BasinTrendDlg extends CaveSWTDialog {
     /**
      * QPFSCAN radio button.
      */
-    private ArrayList<Button> qpfRdos = new ArrayList<Button>();
+    private List<Button> qpfRdos = new ArrayList<Button>();
 
     /**
      * RFCFFG radio button.
      */
-    private ArrayList<Button> ffgRdos = new ArrayList<Button>();
+    private List<Button> ffgRdos = new ArrayList<Button>();
 
     /**
      * Background color for controls and graph.
@@ -176,11 +192,11 @@ public class BasinTrendDlg extends CaveSWTDialog {
     /**
      * Arrays of buttons for time durations, under-lay, and plots.
      */
-    private ArrayList<Button> timeDurationButtons;
+    private List<Button> timeDurationButtons;
 
-    private ArrayList<Button> underlayButtons;
+    private List<Button> underlayButtons;
 
-    private ArrayList<Button> plotButtons;
+    private List<Button> plotButtons;
 
     /**
      * Ratio item label.
@@ -215,7 +231,7 @@ public class BasinTrendDlg extends CaveSWTDialog {
 
     private FFMPResource resource;
 
-    private final ArrayList<ISourceUpdate> sourceListeners = new ArrayList<ISourceUpdate>();
+    private final List<ISourceUpdate> sourceListeners = new ArrayList<ISourceUpdate>();
 
     /**
      * Constructor.
@@ -236,23 +252,17 @@ public class BasinTrendDlg extends CaveSWTDialog {
         this.resource = resource;
         this.graphData = graphData;
 
-        // try {
-        // this.graphData = resource.getGraphData(pfaf);
-        // } catch (VizException e) {
-        // e.printStackTrace();
-        // }
         this.pfaf = pfaf;
         this.vgb = vgb;
         this.currentDate = date;
 
         this.graphData.setDisplayDate(date);
-
-        // Print the graph data
-        // this.graphData.printGraphData();
     }
 
-    /**
-     * Create the layout for the shell.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
     protected Layout constructShellLayout() {
@@ -265,8 +275,12 @@ public class BasinTrendDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /**
-     * Initialize the components on the display.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
@@ -290,22 +304,6 @@ public class BasinTrendDlg extends CaveSWTDialog {
          * Set the Basin Trend graphing parameters.
          */
         updateGraph();
-        // setBasinTrendGraphParms();
-
-        shell.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                largeLabelFont.dispose();
-                medLabelFont.dispose();
-                smallLabelFont.dispose();
-                bgColor.dispose();
-                rateColor.dispose();
-                qpeColor.dispose();
-                qpfColor.dispose();
-                guidColor.dispose();
-                vgbColor.dispose();
-            }
-        });
     }
 
     /**
@@ -349,11 +347,6 @@ public class BasinTrendDlg extends CaveSWTDialog {
 
         colorName = ffmpCfg.getBasinTrendPlotColorName("VGB");
         vgbColor = new Color(getDisplay(), new RGB(135, 206, 235));
-
-        /*
-         * Get reverse X Axis flag.
-         */
-        // reverseXAxis = ffmpCfg.getFFMPConfigData().getReverseXAxis();
     }
 
     /**
@@ -584,7 +577,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
                 .getTableConfigData(resource.getSiteKey());
         // FfmpTableConfig tableConf = FfmpTableConfig.getInstance();
         String columnName = ffmpTableCfgData.getTableColumnAttr(
-                ffmpTableCfgData.getTableColumnKeys()[3]).getColumnNameWithSpace();
+                ffmpTableCfgData.getTableColumnKeys()[3])
+                .getColumnNameWithSpace();
         String qpfType = columnName.substring(0, columnName.indexOf(" "));
 
         int i = 0;
@@ -804,10 +798,23 @@ public class BasinTrendDlg extends CaveSWTDialog {
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
-        // FFMPConfig.getInstance().getFFMPConfigData().setReverseXAxis(false);
         sourceListeners.clear();
+        largeLabelFont.dispose();
+        medLabelFont.dispose();
+        smallLabelFont.dispose();
+        bgColor.dispose();
+        rateColor.dispose();
+        qpeColor.dispose();
+        qpfColor.dispose();
+        guidColor.dispose();
+        vgbColor.dispose();
     }
 
     /**
@@ -958,14 +965,10 @@ public class BasinTrendDlg extends CaveSWTDialog {
 
                 updatePlotSelection(plotBtn, false);
             }
-
-            // TODO : moved code outside of loop
-            // updateColorLegend();
-            // updateGraph();
         }
-        
+
         if (guidSrc != null) {
-            for (Button ffg: ffgRdos) {
+            for (Button ffg : ffgRdos) {
                 if (ffg.getText().equalsIgnoreCase(guidSrc)) {
                     ffg.setSelection(true);
                 } else {
@@ -1164,7 +1167,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
      * Set the basin trend graph parameters from the configuration.
      */
     private void setBasinTrendGraphParms() {
-        FFMPConfigBasinXML configBasin = FFMPConfig.getInstance().getFFMPConfigData();
+        FFMPConfigBasinXML configBasin = FFMPConfig.getInstance()
+                .getFFMPConfigData();
         /*
          * Time duration
          */
@@ -1187,7 +1191,7 @@ public class BasinTrendDlg extends CaveSWTDialog {
         }
         if ((underlay == Underlays.DIFF) || (underlay == Underlays.RATIO)) {
             String guidSource = null;
-            for (Button ffg: ffgRdos) {
+            for (Button ffg : ffgRdos) {
                 if (ffg.getSelection()) {
                     guidSource = ffg.getText();
                 }
@@ -1196,7 +1200,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
                 guidSource = ffgRdos.get(0).getText();
             }
             if (guidSource != null) {
-                configBasin.setUnderlay(underlay.getUnderlayName() + "," + guidSource);
+                configBasin.setUnderlay(underlay.getUnderlayName() + ","
+                        + guidSource);
             } else {
                 configBasin.setUnderlay(underlay.getUnderlayName());
             }

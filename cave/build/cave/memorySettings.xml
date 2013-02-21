@@ -127,7 +127,7 @@
 				</max-memory>
 			
 				<max-perm>
-					<value>DEFAULT</value>
+					<value>256m</value>
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>

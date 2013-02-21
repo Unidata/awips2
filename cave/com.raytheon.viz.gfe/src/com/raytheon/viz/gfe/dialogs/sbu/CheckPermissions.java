@@ -58,7 +58,8 @@ public class CheckPermissions {
     public static boolean getAuthorization() {
         boolean authorized = false;
         IUser user = UserController.getUserObject();
-        CheckPermissionsRequest request = new CheckPermissionsRequest(user);
+        CheckPermissionsRequest request = new CheckPermissionsRequest();
+        request.setUser(user);
         try {
             ServerResponse<String> obj = (ServerResponse<String>) ThriftClient
                     .sendRequest(request);
@@ -68,7 +69,7 @@ public class CheckPermissions {
                 authorized = false;
             }
         } catch (VizException e) {
-            statusHandler.error("Error checking permissions for: " + user);
+            statusHandler.error("Error checking permissions for: " + user, e);
             authorized = false;
         }
         return authorized;

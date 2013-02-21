@@ -144,8 +144,15 @@
         	
         	<mkdir dir="${builder}/postBuild/${edex.root.directory}/data" />
         	<copy todir="${builder}/postBuild/${edex.root.directory}/data">
-        		<fileset dir="${build.output.directory}">
+        		<fileset dir="${build.output.directory}/data">
         			<include name="utility/**" />
+        		</fileset>
+        	</copy>
+        	
+        	<mkdir dir="${builder}/postBuild/${edex.root.directory}/conf" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}/conf">
+        		<fileset dir="${build.output.directory}/conf">
+        			<include name="resources/**" />
         		</fileset>
         	</copy>
         	
