@@ -1163,9 +1163,9 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 2
   <contourStyle>
      <displayUnits>mb</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
-     <contourLabeling labelSpacing="4" labelFormat="#"
-        labelTrimLeft="1" maxMinTrimLeft="1"
-		minMaxLabelFormat="#" minLabel="L" maxLabel="H">
+     <contourLabeling labelSpacing="4" labelFormat="0000"
+        labelTrimLeft="2" maxMinTrimLeft="1"
+		minMaxLabelFormat="0000" minLabel="L" maxLabel="H">
         <increment>4</increment>
      </contourLabeling>
   </contourStyle>
