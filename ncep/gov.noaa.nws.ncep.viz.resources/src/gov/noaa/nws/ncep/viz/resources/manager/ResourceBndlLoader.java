@@ -1,12 +1,17 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
+import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider.ZoomLevelStrings;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.ui.display.PaneID;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
 
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
@@ -19,6 +24,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -59,6 +65,8 @@ import com.raytheon.viz.ui.UiPlugin;
  *                                        argument.
  * 04/24/12     #629        B. Hebbard    [TTR 356] if loadSelectedPaneOnly, don't clear out
  *                                        other panes
+ * 11/25/12     #630        Greg Hull     Resource defined areas.
+ *
  * </pre>
  * 
  * @version 1
@@ -72,12 +80,14 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 			setRbdBundle( theRbdBundle);
 			setMapEditor( theMapEditor );
 		}
+		
 		/**
 		 * @param rbdBundle the rbdBundle to set
 		 */
 		public void setRbdBundle(RbdBundle rbdBundle) {
 			this.rbdBundle = rbdBundle;
 		}
+		
 		/**
 		 * @return the rbdBundle
 		 */
@@ -204,6 +214,7 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         		editor.setHideShow(false); //init to false, means rsc on
         		
         		IDisplayPane displayPanes[] = editor.getDisplayPanes();
+        		IDisplayPane seldPane = null;
         		
         		if( loadSelectedPaneOnly ) {
         			
@@ -235,6 +246,10 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         		    	IDisplayPane displayPane = editor.getDisplayPane( paneid ); 
         		    	AbstractRenderableDisplay mapDisp = rbdBndl.getDisplayPane( paneid );
 
+        		    	if( seldPane == null ) {
+        		    		seldPane = displayPane;
+        		    	}
+        		    	
         		    	// if the editor was just created and there was an error, close the editor.
         		    	// TODO: if there is an error, prompt if the user wishes to continue.
         		    	if( loadResourceBundleDefn( displayPane, 
@@ -249,6 +264,8 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 
         		editor.refresh();
         		editor.refreshGUIElements();
+
+        		NmapUiUtils.bringToTop( editor );        		
         	}
 			catch ( VizException vizex ) {
 	    		VizApp.runAsync(
@@ -295,7 +312,6 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 
     	ResourceList rscList = descr.getResourceList();
 		   	
-
 		//Add PGEN resource back
 		if ( !pane.getRenderableDisplay().getDescriptor().getResourceList().isEmpty() ){
 			rscList.addAll( pane.getRenderableDisplay().getDescriptor().getResourceList());
@@ -303,7 +319,34 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 
     	rscList.instantiateResources( descr, true );
 
+    	// TODO : change the resource-capable (ie Satellite) resourceData objects to be able
+    	// to query for the gridCoverage before the resource object is created. We should
+    	// be able to query the mcidas_area_names/mcidas_spatial tables knowing just the info
+    	// in the resourceData object.
+    	//       But until then resourceData objects just return dummy coverages and 
+    	// we will need to reproject the mapDisplay after the resource is loaded
+    	// if the area is to be set from a resource-defined area, we need
+    	//    	
     	pane.setRenderableDisplay( mapDisplay );
+    	
+//    	NCDisplayPane ncPane = (NCDisplayPane)pane;
+    	
+    	PredefinedArea initArea = mapDisplay.getInitialArea();
+    	
+    	if( initArea.getAreaSource() == AreaSource.RESOURCE_DEFINED ) {
+    		
+    		if( initArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
+    			
+    	        mapDisplay.setExtent( new PixelExtent( pane.getBounds() ) );
+    	        ((NCMapDescriptor)descr).setSuspendZoom( true );
+//    	        ZoomUtil.suspendZoom( mapDisplay.getContainer() ) ;    		
+    		}
+    		else if( initArea.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
+    			
+    		}
+    	}
+    	
+    	pane.setZoomLevel( mapDisplay.getZoomLevel() );
     	pane.resize();
     	pane.refresh();
 

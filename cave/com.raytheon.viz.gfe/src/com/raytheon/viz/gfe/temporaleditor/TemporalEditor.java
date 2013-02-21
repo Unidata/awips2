@@ -37,11 +37,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.PreferenceConstants;
@@ -53,12 +51,11 @@ import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IGridVisibilityChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
+import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.TEOverlayModeChangedMsg;
 import com.raytheon.viz.gfe.core.msgs.TEweModeChangedMsg;
-import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.gridmanager.GridManager;
-import com.raytheon.viz.gfe.temporaleditor.dialogs.MoveWeatherElementDialog;
 
 /**
  * TemporalEditor widget containing a TemporalEditorBar for each displayed
@@ -70,6 +67,7 @@ import com.raytheon.viz.gfe.temporaleditor.dialogs.MoveWeatherElementDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009 2159       rjpeter      Initial creation
+ * Nov 14, 2012 1298       rferrel     Remove no longer used reference to MoveWeatherElementDialog.
  * </pre>
  * 
  * @author rjpeter
@@ -439,21 +437,6 @@ public class TemporalEditor extends Composite implements IMessageClient {
         return barList;
     }
 
-    /**
-     * 
-     * @param parm
-     * @param sourceBar
-     */
-    public void createMoveParmDialog(Parm parm,
-            AbstractTemporalEditorBar sourceBar) {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        MoveWeatherElementDialog dialog = new MoveWeatherElementDialog(shell,
-                this, parm, sourceBar, getCombinableBars(parm, sourceBar));
-        dialog.setBlockOnOpen(true);
-        dialog.open();
-    }
-
     public StatisticsMode getMode() {
         return statMode;
     }
@@ -530,8 +513,8 @@ public class TemporalEditor extends Composite implements IMessageClient {
             break;
         }
 
-        final ArrayList<Parm> parmsToRemove = new ArrayList<Parm>(parmToTEBar
-                .keySet());
+        final ArrayList<Parm> parmsToRemove = new ArrayList<Parm>(
+                parmToTEBar.keySet());
         parmsToRemove.removeAll(parmsToAdd);
 
         VizApp.runAsync(new Runnable() {
@@ -651,8 +634,8 @@ public class TemporalEditor extends Composite implements IMessageClient {
                 break;
             case ALL_NOISC:
                 for (Parm parmAdd : additions) {
-                    if (!parmAdd.getParmID().getDbId().getModelName().equals(
-                            "ISC")) {
+                    if (!parmAdd.getParmID().getDbId().getModelName()
+                            .equals("ISC")) {
                         addParm(parmAdd);
                     }
                 }
@@ -680,8 +663,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
         @Override
         public void propertyChange(PropertyChangeEvent event) {
             String id = event.getProperty();
-            if (id
-                    .equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE)) {
+            if (id.equals(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE)) {
                 statMode = StatisticsMode
                         .valueOf(GFEPreference
                                 .getPreference(PreferenceConstants.GFE_TEMPORAL_EDITOR_STATISTICS_MODE));

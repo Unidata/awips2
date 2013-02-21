@@ -1,0 +1,53 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+   	
+   	<bean id="ddRetrievalDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginFQN" value="com.raytheon.uf.edex.datadelivery.retrieval" />
+		<property name="database" value="metadata" />
+	</bean>
+	<bean factory-bean="dbPluginRegistry" factory-method="register">
+		<constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval"/>
+		<constructor-arg ref="ddRetrievalDatabaseProperties"/>
+	</bean>
+    
+    <bean id="subNotifyTask" class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionNotifyTask" />
+    
+    <bean id="retrievalTask" class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
+        <!-- route to send most retrieved records to -->
+        <constructor-arg value="directvm:dataDeliveryNotify"/>
+        <constructor-arg ref="subNotifyTask"/>
+    </bean>
+
+    <bean id="scheduledExecutorService" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
+        <constructor-arg value="3"/>
+    </bean>
+
+    <bean id="retrievalHandler" class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalHandler">
+        <constructor-arg ref="scheduledExecutorService" />
+        <constructor-arg ref="retrievalTask"/>
+        <constructor-arg ref="subNotifyTask"/>
+    </bean>
+   
+    <camelContext id="dataDeliveryNotify-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <!-- Wake retrieval threads if were not running -->
+        <route id="notifyRetrieval">
+            <!-- If data delivery clustered, move this to topic -->
+            <from uri="directvm:notifyRetrieval"/>
+            <bean ref="retrievalHandler" method="notify"/>
+        </route>
+
+        <route id="dataDeliveryNotify">
+        	<from uri="directvm:dataDeliveryNotify"/>
+            <bean ref="toDataURI" method="toDataURI"/>
+            <to uri="vm:stageNotification"/> 
+        </route>
+	</camelContext>
+
+</beans>

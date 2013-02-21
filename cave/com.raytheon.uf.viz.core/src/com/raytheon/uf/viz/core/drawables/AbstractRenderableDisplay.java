@@ -39,7 +39,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.GraphicsFactory;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -247,6 +246,7 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
         this.descriptor = (AbstractDescriptor) desc;
         this.descriptor.getResourceList().addPostAddListener(this.listener);
         this.descriptor.getResourceList().addPostRemoveListener(this.listener);
+        this.descriptor.setRenderableDisplay(this);
 
         customizeResourceList(this.descriptor.getResourceList());
     }
@@ -478,7 +478,7 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     }
 
     @Override
-    public void clear(IDisplayPane parentPane) {
+    public void clear() {
 
     }
 
@@ -562,7 +562,6 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     @Override
     public void setContainer(IDisplayPaneContainer container) {
         this.container = container;
-        this.descriptor.setRenderableDisplay(this);
     }
 
     @Override

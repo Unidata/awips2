@@ -187,13 +187,16 @@ class ThriftSerializationContext:
 #                result = adapters.fieldAdapterRegistry[structname][fieldName].deserialize(self)
 #            else:
             result = self._deserializeType(fieldType)
-            members = inspect.getmembers(obj, inspect.ismethod)
             lookingFor = "set" + fieldName[0].upper() + fieldName[1:]
-            for f in members:       
-                if f[0] == lookingFor:
-                    f[1](result)
-                    break
-            else:
+
+            try:
+                setMethod = getattr(obj, lookingFor)
+
+                if callable(setMethod):
+                    setMethod(result)
+                else:
+                    raise dynamicserialize.SerializationException("Couldn't find setter method " + lookingFor)
+            except:
                 raise dynamicserialize.SerializationException("Couldn't find setter method " + lookingFor)
         
         self.protocol.readFieldEnd()
@@ -206,7 +209,7 @@ class ThriftSerializationContext:
         if size:
             if listType not in primitiveSupport:
                 m = self.typeDeserializationMethod[listType]
-                result = [m() for n in range(size)]
+                result = [m() for n in xrange(size)]
             else:
                 result = self.listDeserializationMethod[listType](size)
         self.protocol.readListEnd()
@@ -215,7 +218,7 @@ class ThriftSerializationContext:
     def _deserializeMap(self):
         keyType, valueType, size = self.protocol.readMapBegin()
         result = {}        
-        for n in range(size):
+        for n in xrange(size):
             # can't go off the type, due to java generics limitations dynamic serialize is
             # serializing keys and values as void
             key = self.typeDeserializationMethod[TType.STRUCT]()
@@ -227,7 +230,7 @@ class ThriftSerializationContext:
     def _deserializeSet(self):
         setType, setSize = self.protocol.readSetBegin()        
         result = set([])
-        for n in range(setSize):
+        for n in xrange(setSize):
             result.add(self.typeDeserializationMethod[TType.STRUCT]())
         self.protocol.readSetEnd()
         return result

@@ -69,6 +69,7 @@
 		<property name="hibernate.generate_statistics">false</property>
 		
 		<property name="hibernate.cache.use_second_level_cache">false</property>
+		<property name="hibernate.jdbc.use_streams_for_binary">false</property>
 		<property name="cache.use_query_cache">false</property>
 
 	</session-factory>
