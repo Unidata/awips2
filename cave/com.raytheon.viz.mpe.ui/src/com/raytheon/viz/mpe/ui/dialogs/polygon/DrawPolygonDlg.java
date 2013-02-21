@@ -20,6 +20,7 @@
 package com.raytheon.viz.mpe.ui.dialogs.polygon;
 
 import java.awt.Point;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -40,6 +41,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
 import com.raytheon.viz.mpe.ui.rsc.MPEPolygonResource;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -68,11 +70,6 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     private static final String SUBSTITUTE_VALUE_TEXT = "Select Field To Substitute";
 
     private static final String MAKE_PERSISTENT = "Make Persistent";
-
-    /**
-     * The operation buttons
-     */
-    private Button setBtn, raiseBtn, lowerBtn, scaleBtn, snowBtn, subBtn;
 
     /**
      * Bold Font.
@@ -193,14 +190,15 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         getSubChecks(subGroup);
 
         // Create Substitute button
-        subBtn = new Button(subGroup, SWT.PUSH);
+        final Button subBtn = new Button(subGroup, SWT.PUSH);
+        subBtn.setData(PolygonEditAction.SUB);
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false, 2, 1);
         subBtn.setText("Substitute");
         subBtn.setLayoutData(gd);
         subBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                processDrawPrecipValue(event.getSource());
+                processDrawPrecipValue(subBtn);
             }
         });
     }
@@ -286,60 +284,23 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         Composite comp = new Composite(groupComp, SWT.NONE);
         comp.setLayout(new GridLayout(5, false));
 
-        GridData gd = new GridData(60, SWT.DEFAULT);
-        setBtn = new Button(comp, SWT.PUSH);
-        setBtn.setText("Set");
-        setBtn.setLayoutData(gd);
-        setBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                processDrawPrecipValue(event.getSource());
-            }
-        });
+        PolygonEditAction[] editBtns = new PolygonEditAction[] {
+                PolygonEditAction.SET, PolygonEditAction.RAISE,
+                PolygonEditAction.LOWER, PolygonEditAction.SCALE,
+                PolygonEditAction.SNOW };
 
-        gd = new GridData(60, SWT.DEFAULT);
-        raiseBtn = new Button(comp, SWT.PUSH);
-        raiseBtn.setText("Raise");
-        raiseBtn.setLayoutData(gd);
-        raiseBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                processDrawPrecipValue(event.getSource());
-            }
-        });
-
-        gd = new GridData(60, SWT.DEFAULT);
-        lowerBtn = new Button(comp, SWT.PUSH);
-        lowerBtn.setText("Lower");
-        lowerBtn.setLayoutData(gd);
-        lowerBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                processDrawPrecipValue(event.getSource());
-            }
-        });
-
-        gd = new GridData(60, SWT.DEFAULT);
-        scaleBtn = new Button(comp, SWT.PUSH);
-        scaleBtn.setText("Scale");
-        scaleBtn.setLayoutData(gd);
-        scaleBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                processDrawPrecipValue(event.getSource());
-            }
-        });
-
-        gd = new GridData(60, SWT.DEFAULT);
-        snowBtn = new Button(comp, SWT.PUSH);
-        snowBtn.setText("Snow");
-        snowBtn.setLayoutData(gd);
-        snowBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                processDrawPrecipValue(event.getSource());
-            }
-        });
+        for (PolygonEditAction action : editBtns) {
+            Button editBtn = new Button(comp, SWT.PUSH);
+            editBtn.setText(action.toPrettyName());
+            editBtn.setData(action);
+            editBtn.setLayoutData(new GridData(60, SWT.DEFAULT));
+            editBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent event) {
+                    processDrawPrecipValue((Button) event.getSource());
+                }
+            });
+        }
     }
 
     /**
@@ -747,54 +708,39 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      * @param btnSource
      *            Source object
      */
-    private void processDrawPrecipValue(Object btnSource) {
-        RubberPolyData polyData = new RubberPolyData();
+    private void processDrawPrecipValue(Button editBtn) {
         MPEDisplayManager dispMgr = MPEDisplayManager.getInstance(resource
                 .getDescriptor().getRenderableDisplay());
-        if (dispMgr != null) {
-            polyData.setDrawSource(dispMgr.getDisplayFieldType());
-        }
-
-        for (Point p : points) {
-            polyData.addHrapPoint(p);
-        }
-
-        /* Read the value on the slider bar. */
-        polyData.setPrecipValue(precipSpinner.getSelection());
-
-        polyData.setPersistent(persistentChk.getSelection());
-
-        /*
-         * Based on the source of this event, set the polygon action.
-         */
-        if (btnSource == snowBtn) {
-            polyData.setSnow_flag(true);
-        } else if (btnSource == setBtn) {
-            polyData.setSet_flag(true);
-        } else if (btnSource == raiseBtn) {
-            polyData.setRaise_flag(true);
-        } else if (btnSource == lowerBtn) {
-            polyData.setLower_flag(true);
-        } else if (btnSource == scaleBtn) {
-            polyData.setScale_flag(true);
-        } else if (btnSource == subBtn) {
-            polyData.setSub_flag(true);
-            if (subType != null) {
-                polyData.setSubDrawSource(subType);
-            }
-        }
-
         Cursor prevCursor = shell.getCursor();
-        /* Apply the polygon and save it to the Polygon file. */
-        shell.setCursor(waitCursor);
+        try {
+            /* Apply the polygon and save it to the Polygon file. */
+            shell.setCursor(waitCursor);
 
-        PolygonDataManager.getInstance().addPolygon(polyData);
-        PrecipPolyUtils.writeDrawPrecipData(polyData, true);
-        MPEDisplayManager.getCurrent().setDataSaved(false);
-        shell.setCursor(prevCursor);
+            // Divide precipSpinner selection by 100 since we have 2 decimal
+            // digits when created. This give actual precip value
+            double precipValue = precipSpinner.getSelection() / 100.0;
+            Point[] editPoints = points.toArray(new Point[0]);
+            PolygonEditAction action = (PolygonEditAction) editBtn.getData();
+            boolean persistent = persistentChk.getSelection();
+            DisplayFieldData subType = null;
+            if (action == PolygonEditAction.SUB) {
+                subType = this.subType;
+            }
 
-        resource.clearPolygons();
-        resource.issueRefresh();
+            DisplayFieldData displayedField = dispMgr.getDisplayFieldType();
+            Date editDate = dispMgr.getCurrentEditDate();
+
+            RubberPolyData newEdit = new RubberPolyData(action, subType,
+                    precipValue, editPoints, true, persistent);
+
+            List<RubberPolyData> polygonEdits = PolygonEditManager
+                    .getPolygonEdits(displayedField, editDate);
+            polygonEdits.add(newEdit);
+            PolygonEditManager.writePolygonEdits(displayedField, editDate,
+                    polygonEdits);
+        } finally {
+            shell.setCursor(prevCursor);
+        }
     }
 
     /**

@@ -292,7 +292,7 @@
                      mnemonic="A"
                      style="radio">
                   <parameter
-                        name="Missing"
+                        name="org.eclipse.ui.commands.radioStateParameter"
                         value="MissingAll">
                   </parameter>
                </command>
@@ -302,7 +302,7 @@
                      mnemonic="R"
                      style="radio">
                   <parameter
-                        name="Missing"
+                        name="org.eclipse.ui.commands.radioStateParameter"
                         value="MissingReported">
                   </parameter>
                </command>
@@ -312,7 +312,7 @@
                      mnemonic="N"
                      style="radio">
                   <parameter
-                        name="Missing"
+                        name="org.eclipse.ui.commands.radioStateParameter"
                         value="MissingNone">
                   </parameter>
                </command>
@@ -924,10 +924,14 @@
             id="com.raytheon.viz.mpe.ui.actions.toggleGageMissing"
             name="Show Missing">
          <commandParameter
-               id="Missing"
-               name="Missing"
+               id="org.eclipse.ui.commands.radioStateParameter"
+               name="State"
                optional="false">
          </commandParameter>
+         <state
+               class="org.eclipse.ui.handlers.RadioState:MissingNone"
+               id="org.eclipse.ui.commands.radioState">
+         </state>
       </command>
       <command
             id="com.raytheon.viz.mpe.ui.actions.toggleGageColor"
@@ -937,12 +941,10 @@
                name="State"
                optional="false">
          </commandParameter>
-         <!--
          <state
-               class="org.eclipse.ui.handlers.RadioState:Contrast"
+               class="org.eclipse.ui.handlers.RadioState:Solid"
                id="org.eclipse.ui.commands.radioState">
          </state>
-         -->
       </command>
       <command
             id="com.raytheon.viz.mpe.ui.actions.saveBestEstimate"
@@ -1234,7 +1236,7 @@
             </activeWhen>
       </handler>
       <handler
-            class="com.raytheon.viz.mpe.ui.actions.SaveBestEstimate"
+            class="com.raytheon.viz.mpe.ui.actions.SaveBestEstimateHandler"
             commandId="com.raytheon.viz.mpe.ui.actions.saveBestEstimate">
             <activeWhen>
                <reference
@@ -1404,8 +1406,8 @@
     <extension
           point="com.raytheon.uf.viz.core.resource">
        <resource
-             class="com.raytheon.viz.mpe.ui.rsc.XmrgResource"
-             name="XMRG"
+             class="com.raytheon.viz.mpe.ui.rsc.MPEFieldResource"
+             name="MPEFieldResource"
              renderingOrderId="IMAGE_REGION"
              resourceType="PLAN_VIEW">
        </resource>
@@ -1485,12 +1487,6 @@
        <resource
              class="com.raytheon.viz.mpe.ui.rsc.RadarCoverageResource"
              name="Radar Coverage"
-             renderingOrderId="IMAGE_REGION"
-             resourceType="PLAN_VIEW">
-       </resource>
-       <resource
-             class="com.raytheon.viz.mpe.ui.rsc.TimeLapseResource"
-             name="Time Lapse Resource"
              renderingOrderId="IMAGE_REGION"
              resourceType="PLAN_VIEW">
        </resource>

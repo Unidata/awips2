@@ -24,7 +24,7 @@ import java.util.Map;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
  * 
@@ -66,13 +66,13 @@ public class RetrievalAgentManager {
      * @param path
      */
     public RetrievalAgentManager(final Object notifier,
-            final Map<String, RetrievalAgent<?>> agents) {
+            final Map<String, RetrievalAgent<?>> agents,
+            IRetrievalDao retrievalDao) {
         this.notifier = notifier;
         this.agents = agents;
 
         // set all Running state retrievals to pending
-        RetrievalDao dao = new RetrievalDao();
-        dao.resetRunningRetrievalsToPending();
+        retrievalDao.resetRunningRetrievalsToPending();
     }
 
     public void start() {

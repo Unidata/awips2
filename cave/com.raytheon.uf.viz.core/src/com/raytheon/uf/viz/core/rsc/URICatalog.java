@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 12, 2007            chammack    Initial Creation.
+ * Jan 14, 2013 1442       rferrel     Added query method.
  * 
  * </pre>
  * 
@@ -69,6 +70,8 @@ public class URICatalog extends DecisionTree<List<IURIRefreshCallback>> {
     private RebuildSchedulerJob rebuildSchedulerJob;
 
     protected Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> queuedRCMap = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
+
+    private Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> queryRCMap = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
 
     /**
      * Singleton accessor
@@ -193,14 +196,29 @@ public class URICatalog extends DecisionTree<List<IURIRefreshCallback>> {
             do {
                 workingTime = time;
                 Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> runRCList = null;
+                Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> runQueryList = null;
                 synchronized (URICatalog.this) {
-                    runRCList = queuedRCMap;
-                    queuedRCMap = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
-                }
+                    if (queuedRCMap.size() > 0) {
+                        runRCList = queuedRCMap;
+                        queuedRCMap = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
+                    }
 
-                catalogAndQueryDataURIsInternal(runRCList, monitor);
+                    if (queryRCMap.size() > 0) {
+                        runQueryList = queryRCMap;
+                        queryRCMap = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
+                    }
+
+                }
+                
+                if (runRCList != null) {
+                    catalogAndQueryDataURIsInternal(runRCList, monitor);
+                }
+                
+                if (runQueryList != null) {
+                    doQuery(runQueryList, monitor);
+                }
             } while (!monitor.isCanceled() && workingTime != time
-                    && queuedRCMap.size() > 0);
+                    && (queuedRCMap.size() > 0 || queryRCMap.size() > 0));
             return Status.OK_STATUS;
         }
     }
@@ -245,40 +263,24 @@ public class URICatalog extends DecisionTree<List<IURIRefreshCallback>> {
         try {
             for (Map.Entry<Map<String, RequestConstraint>, List<IURIRefreshCallback>> entry : rcMap
                     .entrySet()) {
+                Map<String, RequestConstraint> map = entry.getKey();
+                List<IURIRefreshCallback> runnable = entry.getValue();
                 if (monitor.isCanceled()) {
                     // If we are cancelled add our runnables back into the queue
                     // instead of requesting times
                     synchronized (this) {
                         List<IURIRefreshCallback> runnables = queuedRCMap
-                                .get(entry.getKey());
+                                .get(map);
                         if (runnables == null) {
-                            queuedRCMap.put(entry.getKey(), entry.getValue());
+                            queuedRCMap.put(map, runnable);
                         } else {
-                            runnables.addAll(entry.getValue());
+                            runnables.addAll(runnable);
                         }
                     }
                     continue;
                 }
-                Map<String, RequestConstraint> map = entry.getKey();
-                DataTime[] dt = DataCubeContainer.performTimeQuery(map, true);
-                DataTime newDataTime = null;
-                if (dt != null && dt.length > 0) {
-                    newDataTime = dt[dt.length - 1];
-                }
+                doCallbacks(map, runnable);
 
-                List<IURIRefreshCallback> runnable = entry.getValue();
-
-                final DataTime dataTime = newDataTime;
-                if (runnable != null) {
-
-                    Iterator<IURIRefreshCallback> iterator = runnable
-                            .iterator();
-
-                    while (iterator.hasNext()) {
-                        final IURIRefreshCallback r = iterator.next();
-                        r.updateTime(dataTime);
-                    }
-                }
                 for (Map<String, RequestConstraint> updateMap : DataCubeContainer
                         .getBaseUpdateConstraints(map)) {
                     insert(updateMap, rcMap.get(map));
@@ -297,6 +299,76 @@ public class URICatalog extends DecisionTree<List<IURIRefreshCallback>> {
 
     }
 
+    private void doCallbacks(Map<String, RequestConstraint> map,
+            List<IURIRefreshCallback> runnable) throws VizException {
+        DataTime[] dt = DataCubeContainer.performTimeQuery(map, true);
+        DataTime newDataTime = null;
+        if (dt != null && dt.length > 0) {
+            newDataTime = dt[dt.length - 1];
+        }
+
+        final DataTime dataTime = newDataTime;
+        if (runnable != null) {
+
+            Iterator<IURIRefreshCallback> iterator = runnable.iterator();
+
+            while (iterator.hasNext()) {
+                final IURIRefreshCallback r = iterator.next();
+                r.updateTime(dataTime);
+            }
+        }
+    }
+
+    /**
+     * Perform query using the existing constraints in map.
+     * 
+     * @param map
+     */
+    public void query(Map<String, RequestConstraint> map) {
+        synchronized (this) {
+            List<List<IURIRefreshCallback>> runableList = searchTreeUsingContraints(map);
+            List<IURIRefreshCallback> runnables = queryRCMap.get(map);
+            if (runnables == null) {
+                runnables = new ArrayList<URICatalog.IURIRefreshCallback>();
+                queryRCMap.put(map, runnables);
+            }
+
+            for (List<IURIRefreshCallback> runnable : runableList) {
+                runnables.addAll(runnable);
+            }
+            rebuildSchedulerJob.schedule();
+        }
+    }
+
+    private void doQuery(
+            Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> queryMap,
+            IProgressMonitor monitor) {
+        try {
+            for (Map.Entry<Map<String, RequestConstraint>, List<IURIRefreshCallback>> entry : queryMap
+                    .entrySet()) {
+                Map<String, RequestConstraint> map = entry.getKey();
+                List<IURIRefreshCallback> runnable = entry.getValue();
+                if (monitor.isCanceled()) {
+                    // If we are cancelled add our runnables back into the queue
+                    // instead of requesting times
+                    synchronized (this) {
+                        List<IURIRefreshCallback> runnables = queryRCMap
+                                .get(map);
+                        if (runnables == null) {
+                            queryRCMap.put(map, runnable);
+                        } else {
+                            runnables.addAll(runnable);
+                        }
+                    }
+                    continue;
+                }
+                doCallbacks(map, runnable);
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
     private void insert(Map<String, RequestConstraint> map,
             List<IURIRefreshCallback> runnables) throws VizException {
         insertCriteria(map, runnables, false);
@@ -306,7 +378,5 @@ public class URICatalog extends DecisionTree<List<IURIRefreshCallback>> {
 
         /** check and update most recent time */
         public abstract void updateTime(DataTime time);
-
     }
-
 }

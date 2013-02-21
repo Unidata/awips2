@@ -295,7 +295,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             }
             GridRecord record = data.getGridSource();
             area = record.getLocation();
-            String file = HDF5Util.findHDF5Location(record).getAbsolutePath();
+            String file = HDF5Util.findHDF5Location(record).getPath();
             if (file != null) {
                 List<GridRequestableData> list = fileMap.get(file);
                 if (list == null) {
