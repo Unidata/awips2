@@ -35,6 +35,7 @@ import com.raytheon.uf.common.stats.StatisticsEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 8, 2013             mpduff      Initial creation
+ * Feb 19, 2013  1635      dhladky     Safety from null
  * 
  * </pre>
  * 
@@ -106,8 +107,9 @@ public class StatsCollector {
      */
     public void setStop(String key) {
         StatisticsEvent event = statsDataMap.remove(key);
-        event.finalizeEvent();
-
-        EventBus.publish(event);
+        if (event != null) {
+            event.finalizeEvent();
+            EventBus.publish(event);
+        }
     }
 }
