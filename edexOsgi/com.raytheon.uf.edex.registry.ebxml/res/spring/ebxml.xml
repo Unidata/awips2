@@ -53,7 +53,7 @@
 			<value>query</value>
 		</constructor-arg>
 		<constructor-arg type="java.lang.String">
-			<value>10144</value>
+			<value>${EBXML_QUERY_SERVICE_SOAP_PORT}</value>
 		</constructor-arg>
 	</bean>
 
@@ -68,7 +68,7 @@
 		init-method="create">
 		<property name="serviceClass"
 			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager" /> <!-- Interface... -->
-		<property name="address" value="http://0.0.0.0:10144/query" />
+		<property name="address" value="http://0.0.0.0:${EBXML_QUERY_SERVICE_SOAP_PORT}/query" />
 		<property name="serviceBean" ref="queryServiceImpl" /> <!-- Reference concrete implementation -->
 		<property name="inInterceptors">
 			<list>
@@ -88,7 +88,7 @@
 		init-method="create">
 		<property name="serviceClass"
 			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener" /> <!-- Interface... -->
-		<property name="address" value="http://0.0.0.0:10144/notificationListener" />
+		<property name="address" value="http://0.0.0.0:${EBXML_QUERY_SERVICE_SOAP_PORT}/notificationListener" />
 		<property name="serviceBean" ref="notificationServiceImpl" /> <!-- Reference concrete implementation -->
 	</bean>
 
@@ -97,7 +97,7 @@
 		init-method="create">
 		<property name="serviceClass"
 			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager" /> <!-- Interface... -->
-		<property name="address" value="http://0.0.0.0:10144/lcm" />
+		<property name="address" value="http://0.0.0.0:${EBXML_QUERY_SERVICE_SOAP_PORT}/lcm" />
 		<property name="serviceBean" ref="lcmServiceImpl" /> <!-- Reference concrete implementation -->
 		<property name="inInterceptors">
 			<list>
@@ -117,7 +117,7 @@
 		init-method="create">
 		<property name="serviceClass"
 			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator" /> <!-- Interface... -->
-		<property name="address" value="http://0.0.0.0:10144/validator" />
+		<property name="address" value="http://0.0.0.0:${EBXML_QUERY_SERVICE_SOAP_PORT}/validator" />
 		<property name="serviceBean" ref="validatorServiceImpl" /> <!-- Reference concrete implementation -->
 	</bean>
 
@@ -126,7 +126,7 @@
 		init-method="create">
 		<property name="serviceClass"
 			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger" /> <!-- Interface... -->
-		<property name="address" value="http://0.0.0.0:10144/getServiceAddress" />
+		<property name="address" value="http://0.0.0.0:${EBXML_QUERY_SERVICE_SOAP_PORT}/getServiceAddress" />
 		<property name="serviceBean" ref="catalogerServiceImpl" /> <!-- Reference concrete implementation -->
 	</bean>
 

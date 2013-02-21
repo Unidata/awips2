@@ -81,7 +81,8 @@ public abstract class AbstractDbPlotInfoRetriever extends
             HashMap<String, RequestConstraint> metadataMap) throws VizException {
         DbQuery dq = getQueryObject(metadataMap);
         List<PlotInfo> info = runStationQuery(dq);
-        listener.resourceChanged(ChangeType.DATA_UPDATE, info.toArray());
+        listener.resourceChanged(ChangeType.DATA_UPDATE,
+                info.toArray(new PlotInfo[0]));
     }
 
     protected List<PlotInfo> runStationQuery(DbQuery dq) throws VizException {

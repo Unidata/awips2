@@ -31,7 +31,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
 
@@ -52,20 +52,20 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * @author dhladky
  * @version 1.0
  */
-
 public class RetrievalGenerationHandler implements IGenerateRetrieval {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalGenerationHandler.class);
 
-    public RetrievalGenerationHandler() {
+    private final IRetrievalDao retrievalDao;
 
+    public RetrievalGenerationHandler(IRetrievalDao retrievalDao) {
+        this.retrievalDao = retrievalDao;
     }
 
     @Override
     public List<String> generateRetrieval(List<SubscriptionBundle> bundles) {
 
         if (bundles != null) {
-            RetrievalDao dao = new RetrievalDao();
             ArrayList<String> names = new ArrayList<String>(bundles.size());
 
             for (SubscriptionBundle bundle : bundles) {
@@ -139,7 +139,7 @@ public class RetrievalGenerationHandler implements IGenerateRetrieval {
 
                     try {
                         long t1 = System.currentTimeMillis();
-                        dao.persistAll(requestRecords);
+                        retrievalDao.persistAll(requestRecords);
                         statusHandler.info("Time to persist requests to db ["
                                 + (System.currentTimeMillis() - t1) + "] ms");
                         names.add(subscriptionName);
