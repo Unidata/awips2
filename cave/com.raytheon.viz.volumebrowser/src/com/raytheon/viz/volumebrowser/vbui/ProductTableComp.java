@@ -88,7 +88,7 @@ import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 import com.raytheon.viz.skewt.SkewtDisplay;
 import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.BundleProductLoader;
+import com.raytheon.viz.ui.MenuLoader;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -114,7 +114,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Jun 8, 2009  #2161      lvenable     Initial creation
  * Mar 27, 2012 #14506     Qinglu Lin   For cross section plot along a line of 
  *                                      latitude, swap xStart and xEnd.
- * 
+ * Jan 25, 2013 #15529     kshresth     Fixed cross section "Unhandled event loop exception"
+ *                                      when loading contours and Image combo
  * </pre>
  * 
  * @author lvenable
@@ -900,6 +901,8 @@ public class ProductTableComp extends Composite {
             CrossSectionDescriptor csDesc = csDisplay.getDescriptor();
             csDesc.setRenderableDisplay(csDisplay);
 
+            selectNewTableItem();
+            
             IDataCatalogEntry catalogEntry = getSelectedData().get(0)
                     .getCatalogEntry();
             VBMenuBarItemsMgr.SpaceTimeMenu currentSpaceTime = dialogSettings
@@ -1078,7 +1081,7 @@ public class ProductTableComp extends Composite {
 
             Bundle b = new Bundle();
             b.setDisplays(new AbstractRenderableDisplay[] { display });
-            Job j = new BundleProductLoader(editor, b);
+            Job j = new MenuLoader(b, editor);
             j.schedule();
         }
     }
