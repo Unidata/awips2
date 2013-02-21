@@ -38,6 +38,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMet
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2011    191        dhladky     Initial creation
+ * Feb 07, 2013 1543       djohnson     Allow overriding of methods for mocking in tests.
+ * Feb 12, 2013 1543       djohnson     Pass the exception as the cause for instantiation exceptions.
  * 
  * </pre>
  * 
@@ -51,7 +53,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
 
     protected RetrievalAttribute attXML;
 
-    private AbstractMetadataAdapter metadataAdapter;
+    protected AbstractMetadataAdapter metadataAdapter;
 
     /**
      * Used by all translators
@@ -66,12 +68,30 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
             PluginFactory factory = PluginFactory.getInstance();
             String clazz = factory.getPluginRecordClassName(getAttribute()
                     .getPlugin());
-            setPdoClass(clazz);
-            metadataAdapter = AbstractMetadataAdapter.getMetadataAdapter(
-                    getPdoClass(), attXML);
+            configureFromPdoClassName(clazz);
         } catch (Exception e) {
             throw new InstantiationException(e.toString());
         }
+    }
+
+    RetrievalTranslator(RetrievalAttribute attXML, String className)
+            throws InstantiationException {
+        this.attXML = attXML;
+        try {
+            configureFromPdoClassName(className);
+        } catch (Exception e) {
+            InstantiationException ie = new InstantiationException();
+            ie.initCause(e);
+            throw ie;
+        }
+    }
+
+    protected void configureFromPdoClassName(String className)
+            throws InstantiationException, ClassNotFoundException {
+        setPdoClass(className);
+        metadataAdapter = AbstractMetadataAdapter.getMetadataAdapter(
+                getPdoClass(), attXML);
+
     }
 
     @Override

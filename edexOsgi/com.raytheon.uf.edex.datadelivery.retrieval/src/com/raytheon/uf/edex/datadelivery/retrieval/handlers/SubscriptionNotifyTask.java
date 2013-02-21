@@ -18,16 +18,15 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * 
@@ -42,6 +41,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Aug 9, 2012  1022       djohnson     No longer extends Thread, simplify {@link SubscriptionDelay}.
  * Oct 10, 2012 0726       djohnson     Use the subRetrievalKey for notifying the retrieval manager.
  * Nov 25, 2012  1268      dhladky      Added additional fields to process subscription tracking
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -71,8 +71,7 @@ public class SubscriptionNotifyTask implements Runnable {
 
         SubscriptionDelay(String subName, String owner, String plugin,
                 SubscriptionType subscriptionType, Network network,
-                String provider,
-                Long subRetrievalKey, long delayedUntilMillis) {
+                String provider, Long subRetrievalKey, long delayedUntilMillis) {
             this.subName = subName;
             this.owner = owner;
             this.plugin = plugin;
@@ -173,8 +172,6 @@ public class SubscriptionNotifyTask implements Runnable {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionNotifyTask.class);
 
-    private static final EventBus eventBus = EventBus.getInstance();
-
     /**
      * Creates a SubscriptionDelay delayed for 11 seconds.
      * 
@@ -190,10 +187,9 @@ public class SubscriptionNotifyTask implements Runnable {
         // 11 seconds from start time
         return new SubscriptionDelay(record.getId().getSubscriptionName(),
                 record.getOwner(), record.getPlugin(),
- record
-.getSubscriptionType(), record.getNetwork(),
-                record.getProvider(),
-                record.getSubRetrievalKey(), startTime + 11000);
+                record.getSubscriptionType(), record.getNetwork(),
+                record.getProvider(), record.getSubRetrievalKey(),
+                startTime + 11000);
     }
 
     // set written to by other threads
@@ -205,6 +201,12 @@ public class SubscriptionNotifyTask implements Runnable {
 
     private final DelayQueue<SubscriptionDelay> subscriptionQueue = new DelayQueue<SubscriptionDelay>();
 
+    private final IRetrievalDao dao;
+
+    public SubscriptionNotifyTask(IRetrievalDao dao) {
+        this.dao = dao;
+    }
+
     public void checkNotify(RetrievalRequestRecord record) {
         SubscriptionDelay subDelay = createSubscriptionDelay(record,
                 System.currentTimeMillis());
@@ -213,8 +215,6 @@ public class SubscriptionNotifyTask implements Runnable {
 
     @Override
     public void run() {
-        RetrievalDao dao = null;
-
         statusHandler.info("SubscriptionNotifyTask() - Running...");
         try {
             SubscriptionDelay nextSub = subscriptionQueue.peek();
@@ -245,10 +245,6 @@ public class SubscriptionNotifyTask implements Runnable {
 
             SubscriptionDelay subToCheck = subscriptionQueue.poll();
             while (subToCheck != null) {
-                if (dao == null) {
-                    dao = new RetrievalDao();
-                }
-
                 Map<RetrievalRequestRecord.State, Integer> stateCounts = dao
                         .getSubscriptionStateCounts(subToCheck.subName);
                 Integer numPending = stateCounts
@@ -291,11 +287,10 @@ public class SubscriptionNotifyTask implements Runnable {
                         try {
                             sb.append("Failed parameters: ");
                             for (RetrievalRequestRecord failedRec : failedRecs) {
-                                Retrieval retrieval = SerializationUtil
-                                        .transformFromThrift(Retrieval.class,
-                                                failedRec.getRetrieval());
+                                Retrieval retrieval = failedRec
+                                        .getRetrievalObj();
                                 for (RetrievalAttribute att : retrieval
-                                        .getAttribute()) {
+                                        .getAttributes()) {
                                     sb.append(att.getParameter().getName()
                                             + ", ");
                                 }
@@ -319,8 +314,8 @@ public class SubscriptionNotifyTask implements Runnable {
                     } else {
                         event.setNumFailed(numFailed);
                     }
-                    eventBus.publish(event);
-                    eventBus.publish(retrievalManagerNotifyEvent);
+                    EventBus.publish(event);
+                    EventBus.publish(retrievalManagerNotifyEvent);
                     dao.removeSubscription(subToCheck.subName);
                 }
 

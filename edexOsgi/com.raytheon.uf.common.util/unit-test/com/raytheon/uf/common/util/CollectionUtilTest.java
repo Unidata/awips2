@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.common.util;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -39,6 +43,7 @@ import org.junit.Test;
  * ------------ ---------- ----------- --------------------------
  * Jul 13, 2012 740        djohnson     Initial creation
  * Jul 26, 2012 955        djohnson     Add isNullOrEmpty for {@link Collection}s.
+ * Feb 12, 2013 1543       djohnson     Test combining of arrays.
  * 
  * </pre>
  * 
@@ -79,5 +84,72 @@ public class CollectionUtilTest {
     @Test
     public void testIsNullOrEmptyReturnsFalseForNonEmptyCollection() {
         assertFalse(CollectionUtil.isNullOrEmpty(Arrays.asList("not empty")));
+    }
+
+    @Test
+    public void twoAndThreeElementArraysCanBeCombinedIntoFiveElementArray() {
+        Object[] objArray1 = new Object[] { new Object(), new Object(),
+                new Object() };
+        Object[] objArray2 = new Object[] { new Object(), new Object() };
+
+        Object[] combined = CollectionUtil.combine(Object.class, objArray1,
+                objArray2);
+        assertThat(combined.length, is(5));
+
+        for (int i = 0; i < objArray1.length; i++) {
+            assertThat(combined[i], is(sameInstance(objArray1[i])));
+        }
+
+        for (int i = 0; i < objArray2.length; i++) {
+            assertThat(combined[i + 3], is(sameInstance(objArray2[i])));
+        }
+    }
+
+    @Test
+    public void twoEmptyArraysCanBeCombinedIntoEmptyArray() {
+        Object[] objArray1 = new Object[0];
+        Object[] objArray2 = new Object[0];
+
+        Object[] combined = CollectionUtil.combine(Object.class, objArray1,
+                objArray2);
+        assertThat(combined.length, is(0));
+    }
+
+    @Test
+    public void nullFirstArrayCanBeCombinedWithValidArray() {
+        Object[] objArray1 = null;
+        Object[] objArray2 = new Object[] { new Object(), new Object() };
+
+        Object[] combined = CollectionUtil.combine(Object.class, objArray1,
+                objArray2);
+        assertThat(combined.length, is(2));
+
+        for (int i = 0; i < objArray2.length; i++) {
+            assertThat(combined[i], is(sameInstance(objArray2[i])));
+        }
+    }
+
+    @Test
+    public void nullSecondArrayCanBeCombinedWithValidArray() {
+        Object[] objArray1 = new Object[] { new Object(), new Object() };
+        Object[] objArray2 = null;
+
+        Object[] combined = CollectionUtil.combine(Object.class, objArray1,
+                objArray2);
+        assertThat(combined.length, is(2));
+
+        for (int i = 0; i < objArray1.length; i++) {
+            assertThat(combined[i], is(sameInstance(objArray1[i])));
+        }
+    }
+
+    @Test
+    public void twoNullArraysCanBeCombinedToReturnNull() {
+        Object[] objArray1 = null;
+        Object[] objArray2 = null;
+
+        Object[] combined = CollectionUtil.combine(Object.class, objArray1,
+                objArray2);
+        assertThat(combined, is(nullValue()));
     }
 }

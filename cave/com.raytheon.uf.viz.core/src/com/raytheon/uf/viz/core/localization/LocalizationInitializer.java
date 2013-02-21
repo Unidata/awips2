@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2009            mschenke     Initial creation
  * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
+ * Jan 14, 2013 1469      bkowal       Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -126,7 +127,6 @@ public class LocalizationInitializer {
         VizApp.setHttpServer(resp.getHttpServer());
         VizApp.setJmsServer(resp.getJmsServer());
         VizApp.setPypiesServer(resp.getPypiesServer());
-        VizApp.setServerDataDir(resp.getServerDataDir());
         VizServers.getInstance().setServerLocations(resp.getServerLocations());
     }
 }

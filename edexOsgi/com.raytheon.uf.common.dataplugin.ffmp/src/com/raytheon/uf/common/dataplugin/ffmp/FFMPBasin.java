@@ -61,29 +61,25 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     protected boolean aggregated = false;
 
     /** object used in calculations 
-     *  not serialized
+     *  not serialized!
      **/
     @Transient
     protected TreeMap<Date, Float> values;
     
     /** object used for serialization **/
     @DynamicSerializeElement
-    public float[] cacheValues;
+    public float[] serializedValues;
+
+    public void setSerializedValues(float[] serializedValues) {
+        this.serializedValues = serializedValues;
+    }
 
     /**
      * Get the float array of serialized values
      * @return
      */
-    public float[] getCacheValues() {
-        return cacheValues;
-    }
-
-    /**
-     * Set the serialized array of cache values
-     * @param cacheValues
-     */
-    public void setCacheValues(float[] cacheValues) {
-        this.cacheValues = cacheValues;
+    public float[] getSerializedValues() {
+        return serializedValues;
     }
 
     /**
@@ -337,8 +333,8 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      * 
      * @param values
      */
-    public void setValues(TreeMap<Date, Float> cvalues) {
-        this.values = cvalues;
+    public void setValues(TreeMap<Date, Float> values) {
+        this.values = values;
     }
 
     /**
@@ -374,18 +370,18 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     }
     
     /**
-     * Populates the values from the cache
+     * Populates the map from the serialized values
      * 
      * @param times
      */
-    public void populate(List<Long> times) {
+    public void deserialize(List<Long> times) {
         // safe to avoid Array Index Exceptions / shouldn't happen but.....
 
-        if (cacheValues != null && (times.size() == cacheValues.length)) {
+        if (serializedValues != null && (times.size() == serializedValues.length)) {
 
             int i = 0;
             for (Long time : times) {
-                values.put(new Date(time), cacheValues[i]);
+                values.put(new Date(time), serializedValues[i]);
                 i++;
             }
             //System.out.println("populated :"+i+" pfaf : "+pfaf);
@@ -395,13 +391,13 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     /**
      * populates the serialized array
      */
-    public void setCache() {
+    public void serialize() {
         
-        cacheValues = new float[values.size()];
+        serializedValues = new float[values.size()];
         int i = 0;
         
         for (Date date: values.descendingKeySet()) {
-            cacheValues[i] = values.get(date);
+            serializedValues[i] = values.get(date);
             i++;
         }
         //System.out.println("wrote :"+i+" pfaf : "+pfaf);
