@@ -160,6 +160,7 @@ import com.vividsolutions.jts.geom.Point;
  * 02/01/13     1569        D. Hladky   Added constants
  * 10 Feb 2013   1584         mpduff       Add performance logging.
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
+ * Feb 20, 2013    1635   dhladky      Fixed multiple guidance display
  * </pre>
  * 
  * @author dhladky
@@ -475,7 +476,7 @@ public class FFMPResource extends
                         } else {
                             while (!loader.isDone) {
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(10);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -487,7 +488,7 @@ public class FFMPResource extends
 
                         while (!loader.isDone) {
                             try {
-                                Thread.sleep(1000);
+                                Thread.sleep(10);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -708,7 +709,7 @@ public class FFMPResource extends
                     value = getGuidanceRecord().getBasinData(FFMPRecord.ALL)
                             .getMaxGuidanceValue(pfafs,
                                     getGuidanceInterpolation(getFFGName()),
-                                    getGuidSourceExpiration(), fips);
+                                    getGuidSourceExpiration(getFFGName()), fips);
                     break;
                 }
                 case QPE: {
@@ -803,6 +804,7 @@ public class FFMPResource extends
     private float forceValue(List<Long> pfafs, FFMPBasin basin,
             float unforcedValue) {
         float value = unforcedValue;
+        String ffgType = getFFGName();
 
         if (forceUtil == null) {
             forceUtil = new FFFGForceUtil(this, getFFGName());
@@ -821,15 +823,15 @@ public class FFMPResource extends
                 // Recalculate the guidance using the forced value(s)
                 value = guidRecord.getBasinData(FFMPRecord.ALL)
                         .getAverageGuidanceValue(pfafList,
-                                this.getGuidanceInterpolation(getFFGName()),
+                                this.getGuidanceInterpolation(ffgType),
                                 new Float(value), forcedPfafs,
-                                getGuidSourceExpiration());
+                                getGuidSourceExpiration(ffgType));
             } else if (forcedPfafs.size() > 0) {
                 value = guidRecord.getBasinData(FFMPRecord.ALL)
                         .getAverageGuidanceValue(pfafList,
-                                this.getGuidanceInterpolation(getFFGName()),
+                                this.getGuidanceInterpolation(ffgType),
                                 Float.NaN, forcedPfafs,
-                                getGuidSourceExpiration());
+                                getGuidSourceExpiration(ffgType));
             }
         }
 
@@ -1870,6 +1872,7 @@ public class FFMPResource extends
         float qpe = 0.0f;
         float guid = 0.0f;
         float diff = Float.NaN;
+        String ffgType = getFFGName();
 
         try {
             if (aggregate) {
@@ -1886,8 +1889,8 @@ public class FFMPResource extends
                         guids = getGuidanceRecord()
                                 .getBasinData(FFMPRecord.ALL)
                                 .getGuidanceValues(pfafs,
-                                        getGuidanceInterpolation(getFFGName()),
-                                        getGuidSourceExpiration());
+                                        getGuidanceInterpolation(ffgType),
+                                        getGuidSourceExpiration(ffgType));
                     }
                     if ((qpes != null) && (guids != null)) {
                         diff = FFMPUtils.getMaxDiffValue(qpes, guids);
@@ -1908,7 +1911,7 @@ public class FFMPResource extends
                         guid = getGuidanceValue(
                                 (FFMPGuidanceBasin) getGuidanceRecord()
                                         .getBasinData(getHuc()).get(key),
-                                recentTime, getFFGName());
+                                recentTime, ffgType);
 
                         diff = FFMPUtils.getDiffValue(qpe, guid);
                     }
@@ -1924,7 +1927,7 @@ public class FFMPResource extends
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
                                     .getBasinData(FFMPRecord.ALL).get(key),
-                            recentTime, getFFGName());
+                            recentTime, ffgType);
                     guid = forceValue(pfafs,
                             getBasin(key, getField(), recentTime, aggregate),
                             guid);
@@ -1932,7 +1935,7 @@ public class FFMPResource extends
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Error caculating Diff", e);
         }
         return diff;
     }
@@ -1950,6 +1953,7 @@ public class FFMPResource extends
         float qpe = 0.0f;
         float guid = 0.0f;
         float ratio = Float.NaN;
+        String ffgType = getFFGName();
 
         try {
             if (aggregate) {
@@ -1966,8 +1970,8 @@ public class FFMPResource extends
                         guids = getGuidanceRecord()
                                 .getBasinData(FFMPRecord.ALL)
                                 .getGuidanceValues(pfafs,
-                                        getGuidanceInterpolation(getFFGName()),
-                                        getGuidSourceExpiration());
+                                        getGuidanceInterpolation(ffgType),
+                                        getGuidSourceExpiration(ffgType));
                     }
                     if ((qpes != null) && (guids != null)) {
                         ratio = FFMPUtils.getMaxRatioValue(qpes, guids);
@@ -1987,7 +1991,7 @@ public class FFMPResource extends
                         guid = getGuidanceValue(
                                 (FFMPGuidanceBasin) getGuidanceRecord()
                                         .getBasinData(getHuc()).get(key),
-                                recentTime, getFFGName());
+                                recentTime, ffgType);
                         ratio = FFMPUtils.getRatioValue(qpe, guid);
                     }
                 }
@@ -2001,12 +2005,12 @@ public class FFMPResource extends
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
                                     .getBasinData(FFMPRecord.ALL).get(key),
-                            recentTime, getFFGName());
+                            recentTime, ffgType);
                     ratio = FFMPUtils.getRatioValue(qpe, guid);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Error caculating Ratio", e);
         }
         return ratio;
     }
@@ -3426,14 +3430,14 @@ public class FFMPResource extends
             for (SourceXML ffgSource : getProduct().getGuidanceSourcesByType(
                     ffgGraphType)) {
                 if (guidBasin.getValue(ffgSource.getSourceName(),
-                        guidanceInterpolator, getGuidSourceExpiration()) != null) {
+                        guidanceInterpolator, getGuidSourceExpiration(ffgGraphType)) != null) {
 
                     double time = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             FFMPGuiUtils.getHourDisplacement(mostRecentRefTime,
                                     ffgSource.getDurationHour()));
                     fgd.setGuid(time, (double) guidBasin.getValue(
                             ffgSource.getSourceName(), guidanceInterpolator,
-                            getGuidSourceExpiration()));
+                            getGuidSourceExpiration(ffgGraphType)));
                     guidTimes.add(time);
                 }
             }
@@ -3503,13 +3507,13 @@ public class FFMPResource extends
                                     guidanceInterpolator
                                             .getInterpolationOffset(),
                                     guidanceInterpolator,
-                                    getGuidSourceExpiration());
+                                    getGuidSourceExpiration(ffgGraphType));
                         } else {
                             if (guidanceInterpolator.getSource1() != null) {
                                 guidancev = guidBasin.getValue(
                                         guidanceInterpolator.getSource1(),
                                         guidanceInterpolator,
-                                        getGuidSourceExpiration());
+                                        getGuidSourceExpiration(ffgGraphType));
                             }
                         }
 
@@ -3934,12 +3938,12 @@ public class FFMPResource extends
                             getGuidanceInterpolation(guidType)
                                     .getInterpolationOffset(),
                             getGuidanceInterpolation(guidType),
-                            getGuidSourceExpiration());
+                            getGuidSourceExpiration(guidType));
                 } else {
                     dvalue = basin.getValue(getGuidanceInterpolation(guidType)
                             .getStandardSource(),
                             getGuidanceInterpolation(guidType),
-                            getGuidSourceExpiration());
+                            getGuidSourceExpiration(guidType));
                 }
 
                 if (dvalue == FFMPUtils.MISSING) {
@@ -3948,7 +3952,7 @@ public class FFMPResource extends
             } else {
                 dvalue = basin.getValue(getPrimarySource(), recentTime,
                         getGuidanceInterpolation(guidType),
-                        getGuidSourceExpiration());
+                        getGuidSourceExpiration(guidType));
             }
         }
 
@@ -4125,18 +4129,12 @@ public class FFMPResource extends
      * 
      * @return
      */
-    public long getGuidSourceExpiration() {
+    public long getGuidSourceExpiration(String guidType) {
         if (guidSourceExpiration == 0l) {
             if (getProduct() != null) {
 
-                String guidSrc = FFMPConfig.getInstance().getFFMPConfigData()
-                        .getIncludedGuids();
-                if (guidSrc.contains(",")) {
-                    String[] parts = guidSrc.split(",");
-                    guidSrc = parts[0];
-                }
                 SourceXML source = getProduct().getGuidanceSourcesByType(
-                        guidSrc).get(0);
+                        guidType).get(0);
                 guidSourceExpiration = source
                         .getExpirationMinutes(getSiteKey())
                         * TimeUtil.MILLIS_PER_MINUTE;
