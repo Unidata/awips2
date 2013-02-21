@@ -125,6 +125,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * 
  * May 16, 2011 9356        djingtao    When timeseries is disposed, launch a new timesereis after double click
  *                                      or right click to select TimeSeries
+ * Jan 30, 2013 15646       wkwock      Fix middle button drag map incorrect
  * 
  * </pre>
  * 
@@ -1583,9 +1584,6 @@ public class MultiPointResource extends
          */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
-            if (mouseButton == 2) {
-                return true;
-            }
             return false;
         }
 
