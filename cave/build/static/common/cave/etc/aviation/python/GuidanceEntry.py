@@ -35,6 +35,7 @@ _Logger = logging.getLogger(Avn.CATEGORY)
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/22/09                      njensen       Initial Creation.
+#    02/13/2013      1549          rferrel        Change to properly display grid data.
 #    
 # 
 #
@@ -307,6 +308,7 @@ def tafgen(siteObjs, model, format='short', routine = False, highlightFlightCat=
         return tafWithHeader
         
 def __makeHeader(model, data):
+    #print '__makeHeader data: ', data
     if data and data['itime'] and data['itime']['value']:
         date = time.strftime('%m/%d/%y %H%M UTC', time.gmtime(data['itime']['value']))
     else:
@@ -460,12 +462,12 @@ def gridgenRetrieve(siteID):
     d = (requestTime, data)
     o['data'] = d
     obj = pickle.dumps(o)
-#    print 'return gridgenRetrieve - siteID, data', siteID, d
+    #print 'return gridgenRetrieve - siteID, data', siteID, d
     return obj
 
 def gridgen(siteObjs, format='short', routine=False, highlightFlightCat=True):
     siteObjs = JUtil.javaStringListToPylist(siteObjs)
-#    print 'GuidanceEntry:gridgen format, highlightFlightCat:', format, highlightFlightCat
+    #print 'GuidanceEntry:gridgen format, highlightFlightCat:', format, highlightFlightCat
     currentTime = time.gmtime()
     requestTime = time.mktime((currentTime[0], currentTime[1], currentTime[2], currentTime[3],
                                0, 0, currentTime[6], currentTime[7], currentTime[8])) - time.timezone
@@ -496,9 +498,12 @@ def gridgen(siteObjs, format='short', routine=False, highlightFlightCat=True):
             o = pickle.loads(siteObj)
             siteID = o['siteID']
             cacheRequestTime, data = o['data']
+            if data is not None :
+                data = data.values()[0]
+                
             if not firstSiteID:
                 firstSiteID = siteID
-#            print 'gridgen siteID, cacheRequestTime, data: ', cacheRequestTime, data
+            #print 'gridgen siteID, cacheRequestTime, data: ', siteID, cacheRequestTime, data
             if cacheRequestTime != requestTime:
                 cacheList.append('++Cache out of date :%s' % siteID)
             if data:

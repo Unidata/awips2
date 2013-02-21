@@ -128,11 +128,12 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
  *                                       and in updateListSelected().
  *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
- *                                       to true in boxSelected().                                      
+ *                                       to true in boxSelected().
  *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
  *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
  *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
  *                                       and removed it from updateListSelected().
+ *  Feb 18, 2013 #1633       rferrel     Changed checkFollowupSelection to use SimulatedTime.
  * 
  * </pre>
  * 
@@ -149,6 +150,17 @@ public class WarngenDialog extends CaveSWTDialog implements
     private static final int BULLET_HEIGHT = 230;
 
     private static final int FONT_HEIGHT = 9;
+
+    static {
+        // Ensure TemplateRunner gets initialized for use
+        new Job("Template Runner Initialization") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                TemplateRunner.initialize();
+                return Status.OK_STATUS;
+            }
+        }.schedule();
+    }
 
     private String result;
 
@@ -1101,7 +1113,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
 
         if (timeRange != null
-                && timeRange.contains(Calendar.getInstance().getTime()) == false) {
+                && timeRange.contains(SimulatedTime.getSystemTime().getTime()) == false) {
             // The action is no longer available in the follow up/update list
             statusHandler.handle(Priority.PROBLEM,
                     "Follow up product has nothing to follow up.");
@@ -1455,7 +1467,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .equalsIgnoreCase(lastAreaSource);
 
         try {
-            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon, true);
+            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon);
         } catch (VizException e1) {
             statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }

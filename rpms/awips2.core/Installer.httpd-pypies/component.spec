@@ -8,7 +8,7 @@ Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.2.3
 # This Is Officially Release: 22%{?dist}
-Release: 29%{?dist}
+Release: 30%{?dist}
 URL: http://httpd.apache.org/
 Prefix: /awips2/httpd_pypies
 Source0: http://www.apache.org/dist/httpd/httpd-%{version}.tar.gz
