@@ -29,7 +29,7 @@ import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 
 /**
- * TODO Add Description
+ * Query for text products based on desired desired criteria.
  * 
  * <pre>
  * 
@@ -39,6 +39,7 @@ import com.raytheon.uf.common.message.Property;
  * Nov 3, 2008            jkorman     Initial creation
  * 28May2010               cjeanbap    Added operational functionality.
  * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
+ * 29Jan2013    1496      rferrel     Added methods clearProductIds and clone.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class TextDBQuery {
     private String queryNnnXxx = null;
 
     private String queryFullDataRead = null;
-    
+
     private String queryOperationalMode = null;
 
     // Text product to save.
@@ -88,6 +89,34 @@ public class TextDBQuery {
      */
     public TextDBQuery(IQueryTransport transport) {
         queryTransport = transport;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    public TextDBQuery clone() {
+        TextDBQuery tdq = new TextDBQuery(queryTransport);
+        tdq.queryViewName = this.queryViewName;
+        tdq.queryOpName = this.queryOpName;
+        tdq.querySubObName = this.querySubObName;
+        tdq.queryTimeFormatName = this.queryTimeFormatName;
+        tdq.queryTimeFormat = this.queryTimeFormat;
+        tdq.queryAfosCmd = this.queryAfosCmd;
+        tdq.queryWmoId = this.queryWmoId;
+        tdq.querySite = this.querySite;
+        tdq.queryHour = this.queryHour;
+        tdq.queryHdrTime = this.queryHdrTime;
+        tdq.queryBBB = this.queryBBB;
+        tdq.queryNnnXxx = this.queryNnnXxx;
+        tdq.queryFullDataRead = this.queryFullDataRead;
+        tdq.queryOperationalMode = this.queryOperationalMode;
+        tdq.queryProduct = this.queryProduct;
+        if (productIds != null) {
+            tdq.productIds = new ArrayList<String>(productIds);
+        }
+        return tdq;
     }
 
     /**
@@ -185,6 +214,16 @@ public class TextDBQuery {
             productIds = new ArrayList<String>();
         }
         productIds.add(productId);
+    }
+
+    /**
+     * Remove current productIds. This enables the reuse of query when only the
+     * productIds change. This allows a Job to break up a large product id list
+     * into chunks so it can check back with the UI thread to continue or cancel
+     * doing more queries.
+     */
+    public void clearProductIds() {
+        productIds = null;
     }
 
     /**
@@ -310,15 +349,16 @@ public class TextDBQuery {
     public void setQueryFullDataRead(String queryFullDataRead) {
         this.queryFullDataRead = queryFullDataRead;
     }
-    
+
     public String getQueryOperationalModeFlag() {
         return queryOperationalMode;
     }
-    
+
     /**
      * Set the current mode of CAVE, operational/test or practice.
      * 
-     * @param operationalMode true or false as a string representation.
+     * @param operationalMode
+     *            true or false as a string representation.
      */
     public void setQueryOperationalMode(String operationalMode) {
         this.queryOperationalMode = operationalMode;

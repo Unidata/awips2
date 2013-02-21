@@ -28,20 +28,22 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/13/11                      njensen       Initial Creation.
-#    
+#    01/17/13        1490          bkowal        The logging tcp port is now configurable
 # 
 #
 
 
 import logging, os, ConfigParser
 import logging.handlers, logging.config
+import pypies.config.pypiesConfigurationManager
 
 class LogConfig:
     
     def __init__(self):
-        cfgLoc = self.__getConfigLocation()        
-        if cfgLoc:
-            scp = self.__loadConfig(cfgLoc)
+	pypiesConfigurationManager = pypies.config.pypiesConfigurationManager.PypiesConfigurationManager()
+
+        if pypiesConfigurationManager.hasConfigurationBeenLoaded():
+            self.__configure(pypiesConfigurationManager)
             self.pypiesLogger = logging.getLogger('root')
             self.minutesLogger = logging.getLogger('minute')
             self.hoursLogger = logging.getLogger('hourly')
@@ -49,27 +51,18 @@ class LogConfig:
             self.pypiesLogger = self.__getDefaultLogger()
             self.minutesLogger = self.pypiesLogger
             self.hoursLogger = self.pypiesLogger
-
-    def __getConfigLocation(self):        
-        configLoc = '/awips2/pypies/conf/pypies.cfg'
-        if not os.path.exists(configLoc):
-            print "Unable to find pypies.cfg at ", configLoc
-            configLoc = None
-        else:
-            print "Found pypies.cfg at ", configLoc        
-        return configLoc
+            self.loggingPort = logging.handlers.DEFAULT_TCP_LOGGING_PORT
     
-    def __loadConfig(self, configLoc):
-        scp = ConfigParser.SafeConfigParser()
-        if not configLoc:
-            raise RuntimeError("No pypies.cfg found")
-        else:
-            print "using", configLoc, "for logging config"
-        scp.read(configLoc)
+    def __configure(self, configurationManager):
+        scp = configurationManager.getConfiguration()
+        print "using", configurationManager.getConfigurationLocation(), "for logging config"
+
         logFileDir = scp.get('handler_pypiesHandler', 'logFileDir')
         if not os.path.exists(logFileDir):
             os.makedirs(logFileDir)
-        logging.config.fileConfig(configLoc)    
+        logging.config.fileConfig(configurationManager.getConfigurationLocation())
+        
+        self.loggingPort = int(scp.get('tcp_logger', 'logging_port'))    
     
     def __getDefaultLogger(self):
         import logging, logging.handlers
@@ -91,5 +84,7 @@ class LogConfig:
     
     def getHoursLogger(self):
         return self.hoursLogger
-
+    
+    def getLoggingPort(self):
+        return self.loggingPort
 

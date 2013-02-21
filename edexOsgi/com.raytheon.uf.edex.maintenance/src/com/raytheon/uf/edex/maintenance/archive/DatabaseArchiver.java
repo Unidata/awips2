@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            rjpeter     Initial creation
+ * Jan 18, 2013 1469       bkowal      Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -228,8 +229,7 @@ public class DatabaseArchiver implements IPluginArchiver {
 
                 for (String dataStoreFile : datastoreFilesToArchive) {
                     IDataStore ds = DataStoreFactory.getDataStore(new File(
-                            FileUtil.join(PluginDao.HDF5_DIR, pluginName,
-                                    dataStoreFile)));
+                            FileUtil.join(pluginName, dataStoreFile)));
                     int pathSep = dataStoreFile.lastIndexOf(File.separatorChar);
                     String outputDir = (pathSep > 0 ? FileUtil.join(
                             archivePath, pluginName,

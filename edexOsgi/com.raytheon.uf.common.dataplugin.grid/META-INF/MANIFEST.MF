@@ -39,4 +39,5 @@ Require-Bundle: javax.measure,
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataaccess;bundle-version="1.0.0"

@@ -23,7 +23,6 @@ import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
@@ -40,7 +39,6 @@ import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
@@ -55,6 +53,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -89,7 +88,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class DPAResource extends
-        AbstractVizResource<XmrgResourceData, MapDescriptor> implements
+        AbstractVizResource<GenericResourceData, MapDescriptor> implements
         IMpeResource {
 
     private static final String MISSING_DATA = "Missing Data";
@@ -298,7 +297,7 @@ public class DPAResource extends
                 Date dtg = RadarDataManager
                         .getInstance()
                         .getLatestObstimeDpaRadar(radId,
-                                MPEDisplayManager.getCurrent().getCurrentDate());
+                                MPEDisplayManager.getCurrent().getCurrentEditDate());
                 // if available == 0
 
                 // available = radar availability flag array read from
@@ -461,7 +460,7 @@ public class DPAResource extends
                 screenExtent.getMinY() + 50);
         target.drawStrings(mainString);
 
-        Date date = MPEDisplayManager.getCurrent().getCurrentDate();
+        Date date = MPEDisplayManager.getCurrent().getCurrentEditDate();
         if (date.equals(lastDate) == false) {
             // Check for ignored Radar
             ignored = RadarDataManager.getInstance()
@@ -494,36 +493,6 @@ public class DPAResource extends
             contourDisplay.dispose();
             contourDisplay = null;
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
-    @Override
-    public String inspect(ReferencedCoordinate coord) throws VizException {
-        Map<String, Object> Values = interrogate(coord);
-        if (Values == null) {
-            return "NO DATA";
-        } else {
-            return Values.get("Value").toString();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
-    @Override
-    public Map<String, Object> interrogate(ReferencedCoordinate coord)
-            throws VizException {
-        return null;
     }
 
     /**

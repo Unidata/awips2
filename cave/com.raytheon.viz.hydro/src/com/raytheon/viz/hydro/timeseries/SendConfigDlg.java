@@ -41,7 +41,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.hydro.CaveHydroSWTDialog;
 
 /**
- * TODO Add Description
+ * Dialog add remove distribution directories.
  * 
  * <pre>
  * 
@@ -50,6 +50,7 @@ import com.raytheon.viz.hydro.CaveHydroSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2011            mpduff     Initial creation
+ * Feb 06, 2013 1578       rferrel     Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -64,18 +65,25 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
      */
     private Font font;
 
+    /** Manager for handling the shef xml data. */
     private ShefIssueMgr shefIssueMgr;
 
+    /** Distribute product check box. */
     private Button distChk;
 
+    /** Internal directory check box. */
     private Button directoryChk;
 
+    /** Button to bring up dialog to add a directory . */
     private Button addBtn;
 
+    /** Button to remove selectted directory. */
     private Button removeBtn;
 
+    /** Button to remove all directories in the list. */
     private Button removeAllBtn;
 
+    /** List to display the directories. */
     private List directoryList;
 
     /**
@@ -105,12 +113,20 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         initializeComponents();
     }
 
+    /**
+     * Setup layout of dialog.
+     */
     private void initializeComponents() {
         createDistributionGroup();
         createDirectoryGroup();
         createBottomButtons();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -122,7 +138,8 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
     }
 
     private void createDistributionGroup() {
-        String defSelection = AppsDefaults.getInstance().getToken("timeseries_dist_shef", "OFF");
+        String defSelection = AppsDefaults.getInstance().getToken(
+                "timeseries_dist_shef", "OFF");
         boolean selected = true;
         if (defSelection.equalsIgnoreCase("OFF")) {
             selected = false;
@@ -193,16 +210,16 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                System.out.println("Add Pressed");
                 DirectoryDialog fd = new DirectoryDialog(shell, SWT.OPEN);
                 String dir = fd.open();
-                System.out.println("Selected " + dir);
-                directoryList.add(dir);
-                String[] items = directoryList.getItems();
-                java.util.Arrays.sort(items);
-                directoryList.removeAll();
-                for (String s : items) {
-                    directoryList.add(s);
+                if (dir != null) {
+                    directoryList.add(dir);
+                    String[] items = directoryList.getItems();
+                    java.util.Arrays.sort(items);
+                    directoryList.removeAll();
+                    for (String s : items) {
+                        directoryList.add(s);
+                    }
                 }
             }
         });
@@ -236,6 +253,9 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         });
     }
 
+    /**
+     * Layout the button at the bottom of the dialog.
+     */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(3, true));
@@ -275,7 +295,7 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -305,10 +325,13 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
                 this.directoryList.add(dir);
             }
         }
-        
+
         activateDirectoryWidgets();
     }
 
+    /**
+     * Save the changes based on dialog selections.
+     */
     private void applyChanges() {
         ShefIssueXML xml = this.shefIssueMgr.getShefIssueXml();
         if (xml == null) {
@@ -340,6 +363,9 @@ public class SendConfigDlg extends CaveHydroSWTDialog {
         }
     }
 
+    /**
+     * Set enable status of directory widgets.
+     */
     private void activateDirectoryWidgets() {
         boolean activate = directoryChk.getSelection();
 
