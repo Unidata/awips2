@@ -60,7 +60,7 @@ export DATA_ARCHIVE_ROOT=/tmp/sbn
 # $1 == instance token
 startEDEX() {
    pidfile=${EDEX_INSTALL}/bin/${1}.pid
-   CAMELPROCESS=`ps -ef | grep "edex.dev.mode"|grep -c "edex.run.mode=${1} " `
+   CAMELPROCESS=`ps -ef | grep "aw.site.identifier"|grep -c "edex.run.mode=${1} " `
    if [ $CAMELPROCESS -eq 1 ]; then
       echo "WARNING: EDEX ${1} instance already running, not starting another instance"
       return 1
