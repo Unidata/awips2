@@ -6,7 +6,7 @@
       <resource
             class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResource"
             name="ModelFcstGridContours"
-            recordClass="gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord"
+            recordClass="com.raytheon.uf.common.dataplugin.grid.GridRecord"
             renderingOrderId="CONTOUR"
             resourceType="PLAN_VIEW"/>
       <!--resource
@@ -183,6 +183,15 @@
                   
       <nc-resourceParameter
             paramClass="String"
+            paramName="CLRBAR"
+            attributeName="clrbar"
+            defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceParameter>
+                  
+      <nc-resourceParameter
+            paramClass="String"
             paramName="TYPE"
             attributeName="type"
             defaultValue="c"
@@ -345,6 +354,15 @@
       
        <nc-resourceParameter
             paramClass="String"
+            paramName="CLRBAR"
+            attributeName="clrbar"
+            defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceParameter>
+      
+       <nc-resourceParameter
+            paramClass="String"
             paramName="ensembleComponentWeights"
             defaultValue=""
             paramType="EDITABLE_ATTRIBUTE"
@@ -356,14 +374,25 @@
              paramClass="String"
              paramName="GDFILE"
              paramType="REQUEST_CONSTRAINT"
-             constraintName="modelName">
+             constraintName="info.datasetId">
        </nc-resourceParameter>
 
        <nc-resourceParameter
              ncResourceName="ModelFcstGridContours"
              paramClass="String"
+             defaultValue="%"
              paramName="eventName"
-             paramType="REQUEST_CONSTRAINT">
+             paramType="REQUEST_CONSTRAINT"
+             constraintName="info.secondaryId">
+       </nc-resourceParameter>
+     
+      <nc-resourceParameter
+             ncResourceName="ModelFcstGridContours"
+             paramClass="String"
+             defaultValue="%"
+             paramName="ensembleMember"
+             paramType="REQUEST_CONSTRAINT"
+             constraintName="info.ensembleId">
        </nc-resourceParameter>
       
        <nc-resourceParameter
@@ -378,7 +407,7 @@
              paramClass="String"
              paramName="primaryModel"
              paramType="REQUEST_CONSTRAINT"
-             constraintName="modelName">
+             constraintName="info.datasetId">
        </nc-resourceParameter>      
    </extension>
 
@@ -405,4 +434,15 @@
             category="gov.noaa.nws.ncep.viz.common.nceppreferences">
       </page> 
    </extension>
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="GempakGridUnits"
+             recursive="false"
+             value="ncep/GempakGridUnits"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
 </plugin>   

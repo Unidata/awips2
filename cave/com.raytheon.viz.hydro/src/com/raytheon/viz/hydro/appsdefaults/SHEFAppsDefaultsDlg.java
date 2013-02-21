@@ -41,6 +41,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -53,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2011            mpduff     Initial creation
+ * Dec 07, 2012 1353       rferrel     Make non-blocking dialog.
  * 
  * </pre>
  * 
@@ -61,6 +65,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SHEFAppsDefaultsDlg.class);
+
     private final String CONFIG_FILE_NAME = "hydro" + File.separatorChar
             + "shefGadTokens.xml";
 
@@ -83,7 +90,7 @@ public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public SHEFAppsDefaultsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("SHEF Apps_defaults Settings");
         populateTokenList();
     }
@@ -166,13 +173,14 @@ public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
         if (file != null) {
             configPath = file.getAbsolutePath();
             try {
-                SHEFAppsDefaultsXML xml = (SHEFAppsDefaultsXML) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(configPath);
-                for (String token: xml.getTokenList()) {
+                SHEFAppsDefaultsXML xml = SerializationUtil
+                        .jaxbUnmarshalFromXmlFile(SHEFAppsDefaultsXML.class,
+                                configPath);
+                for (String token : xml.getTokenList()) {
                     tokenList.add(token);
                 }
             } catch (SerializationException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
             }
         } else {
             MessageBox messageBox = new MessageBox(this.getParent(), SWT.ERROR);
@@ -189,9 +197,6 @@ public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
      */
     @Override
     protected void disposed() {
-        super.disposed();
-        if (font.isDisposed() == false) {
-            font.dispose();
-        }
+        font.dispose();
     }
 }

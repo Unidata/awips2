@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonDispThreshDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19 2009  3963       dhladky    Initial creation.
+ * Dec  6 2012  #1351      skorolev   Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -48,24 +49,16 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonDispThreshDlg;
 public class FogThresholdAlertVisConfigAction extends AbstractHandler {
 
     private FogMonDispThreshDlg fogMonitorDlg;
-    
+
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        
-        System.out.println("Activating/Action the FOG Alrt Vis Config...");
-        
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        
-        if (fogMonitorDlg == null)
-        {
-            fogMonitorDlg = new FogMonDispThreshDlg(shell, CommonConfig.AppName.FOG, DataUsageKey.MONITOR);
-            fogMonitorDlg.open();
-            fogMonitorDlg = null;
+        if (fogMonitorDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            fogMonitorDlg = new FogMonDispThreshDlg(shell,
+                    CommonConfig.AppName.FOG, DataUsageKey.MONITOR);
         }
-       
-        // figure out what to do here in the future
+        fogMonitorDlg.open();
         return null;
     }
-
 }
-

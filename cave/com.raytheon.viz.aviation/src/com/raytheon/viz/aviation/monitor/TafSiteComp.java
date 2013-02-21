@@ -91,7 +91,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  *                                      Viewer when a METAR changes alert status.
  * 04/26/2012   14717       zhao        Indicator labels turn gray when Metar is outdated
  * 20JUL2012    14570       gzhang/zhao Add data structure for highlighting correct time groups in TAF viewer
- * 
+ * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
  * </pre>
  * 
  * @author lvenable
@@ -300,7 +300,7 @@ public class TafSiteComp {
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
 
         GridData gd = new GridData();
-        gd.widthHint = 70;
+//        gd.widthHint = 70;	// DR 15606
         gd.minimumWidth = 70;
         siteIdBtn = new Button(parent, SWT.PUSH);
         configMgr.setDefaultFontAndColors(siteIdBtn, "WWWW", gd);
@@ -449,7 +449,7 @@ public class TafSiteComp {
 
         GridData gd = new GridData();
         gd.minimumWidth = btnMinWidth;
-        gd.widthHint = btnMinWidth;
+//        gd.widthHint = btnMinWidth;	// DR 15606
         amdBtn = new Button(btnStatusComp, SWT.PUSH);
         configMgr.setDefaultFontAndColors(amdBtn, "Amd", gd);
         amdBtn.addSelectionListener(new SelectionAdapter() {
@@ -466,7 +466,7 @@ public class TafSiteComp {
 
         gd = new GridData();
         gd.minimumWidth = btnMinWidth;
-        gd.widthHint = btnMinWidth;
+//        gd.widthHint = btnMinWidth;	// DR 15606
         rtdBtn = new Button(btnStatusComp, SWT.PUSH);
         configMgr.setDefaultFontAndColors(rtdBtn, "Rtd", gd);
         rtdBtn.addSelectionListener(new SelectionAdapter() {
@@ -483,7 +483,7 @@ public class TafSiteComp {
 
         gd = new GridData();
         gd.minimumWidth = btnMinWidth;
-        gd.widthHint = btnMinWidth;
+//        gd.widthHint = btnMinWidth;	// DR 15606
         corBtn = new Button(btnStatusComp, SWT.PUSH);
         configMgr.setDefaultFontAndColors(corBtn, "Cor", gd);
         corBtn.addSelectionListener(new SelectionAdapter() {

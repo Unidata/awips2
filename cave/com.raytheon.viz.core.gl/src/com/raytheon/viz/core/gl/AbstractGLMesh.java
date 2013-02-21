@@ -419,7 +419,7 @@ public abstract class AbstractGLMesh implements IMesh {
         try {
             latLonToTargetGrid.transform(in, 0, out, 0, 1);
         } catch (TransformException e) {
-            return null;
+            return new double[] { Double.NaN, Double.NaN, Double.NaN };
         }
         return out;
     }

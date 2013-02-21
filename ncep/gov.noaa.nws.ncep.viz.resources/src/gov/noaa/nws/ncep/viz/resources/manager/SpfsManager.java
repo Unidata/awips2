@@ -134,7 +134,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 				}
 				else {
 					try {
-						RbdBundle rbd = RbdBundle.unmarshalRBD( lFile.getFile(), null );
+						RbdBundle rbd = RbdBundle.getRbd( lFile.getFile() );
 
 						rbd.setLocalizationFile( lFile );
 						addRbd( dirs[2], dirs[3], rbd );
@@ -724,7 +724,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 				System.out.println("xml file found in non-SPF directory? "+ chgFile );
 			} 
 			else {
-					RbdBundle rbd = RbdBundle.unmarshalRBD( lFile.getFile(), null );
+					RbdBundle rbd = RbdBundle.getRbd( lFile.getFile() );
 					//System.out.println("Add Rbd name is " + rbd.rbdName );
 					rbd.setLocalizationFile( lFile );
 					addRbd( dirsf[2], dirsf[3], rbd );

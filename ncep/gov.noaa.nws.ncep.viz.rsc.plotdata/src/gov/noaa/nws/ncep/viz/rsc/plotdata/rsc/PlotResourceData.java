@@ -1,14 +1,14 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterMngr;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,12 +16,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
 
 /**
@@ -51,6 +48,8 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * 11/01/2011    #482      ghull       added plotDensity, comment out unimplemented plugins
  * 04/09/2012    #615      sgurung     Added conditionalFilterName and conditionalFilter
  * 02/05/2012    #606      ghull       rm reportType as member variable
+ * 11/04/2012    #944      ghull       rm FcsPlotResource
+ * 12/19/2012    #947      ghull       save ConditionalFilter object to the RBD.
  *                           
  * </pre>
  * 
@@ -74,10 +73,6 @@ INatlCntrsResourceData {
 	
 	@XmlElement
 	protected String spiFile = null;
-
-	// The name of the plotModel is the name of the resource prm file.
-//	@XmlElement
-//	protected String plotModelName = null;
 
 	// if the plotModel has not been edited then these values will be from the 
 	// plotModelName. Otherwise this will contain the edited plotModel values.
@@ -117,8 +112,6 @@ INatlCntrsResourceData {
     
     private static ArrayList<String> sfcPlugins = new ArrayList<String>();
     
-    private static ArrayList<String> fcstPlugins = new ArrayList<String>();
-
     static {
         pluginNames.add("obs");
         pluginNames.add("sfcobs");
@@ -157,18 +150,6 @@ INatlCntrsResourceData {
         sfcPlugins.add("bufrmosNAM");
         sfcPlugins.add("bufrmosHPC");
         sfcPlugins.add("bufrmosMRF");
-    
-        fcstPlugins.add("bufrmosLAMP");
-        fcstPlugins.add("bufrmosAVN");
-        fcstPlugins.add("bufrmosETA");
-        fcstPlugins.add("bufrmosGFS");
-        fcstPlugins.add("bufrmosNAM");
-        fcstPlugins.add("bufrmosHPC");
-        fcstPlugins.add("bufrmosMRF");
-        fcstPlugins.add("ncgrib");
-        fcstPlugins.add("modelsounding");
-        fcstPlugins.add("nctaf");
-        fcstPlugins.add("ncpafm");
     }
 
     // taf is an exception to the rule that forecast resources have cycle times.
@@ -212,22 +193,12 @@ INatlCntrsResourceData {
 		String pluginName = this.metadataMap.get("pluginName").getConstraintValue();
 		
         if (pluginNames.contains(pluginName)) {
-        	if( pluginName.equals("ncgrib") ) {
-        		return new ModelGridPlotResource(this, loadProperties );
-        	}        	
-        	else if( pluginName.equals("nctaf") ) {
-        		return new TafPlotResource(this, loadProperties);
-        	}
-        	else if( fcstPlugins.contains( pluginName)) {
-        		return new FcstPlotResource(this, loadProperties);
-        	}
-        	else {
         		return new PlotResource2(this, loadProperties);
         	}
-		}
-		else 
+		else {
 			System.out.println("Plugin "+ pluginName + " not supported by PlotResource2");
 			return null; //new PlotResource( this, loadProperties );
+	}
 	}
 		
 	public String getLegendString() {
@@ -249,13 +220,6 @@ INatlCntrsResourceData {
 	public void setSpiFile(String spiFile) {
 		this.spiFile = spiFile;
 	}
-
-//	public String getPlotModelName() {
-//		return (plotModel != null ? plotModel.getName() : null ); //plotModelName;
-//	}
-//	public void setPlotModelName(String name) {
-//		this.plotModelName = name;
-//	}
 
 	public void setPlotModel( PlotModel pm ) {
 		plotModel = pm;    
@@ -319,32 +283,14 @@ INatlCntrsResourceData {
 		return sfcPlugins.contains( getPluginName() );
 	}    
     
-//    public String getConditionalFilterName() {
-//		return conditionalFilterName;
-//	}
-//
-//	public void setConditionalFilterName(String name) {
-//		this.conditionalFilterName = name;
-//	}
-
     public ConditionalFilter getConditionalFilter( ) {
 // Note that now the conditionalFilter is set directly from either the refd xml file or from 
 // the xml in the RBD.
     	// if the conditionalFilter has not been set yet (from xml file
 		// or from the conditionalFilterName attribute) then get it from the manager
 		if( conditionalFilter == null ) {			
-//			conditionalFilter = ConditionalFilterMngr.getInstance().getConditionalFilter( getPluginName(), getConditionalFilterName() );
-//			
-//			if( conditionalFilter == null ) {
-//				System.out.println("Unable to find ConditionalFilter for plugin '"+getPluginName()+
-//						            "' for '"+ getConditionalFilterName() +"'.");
 				conditionalFilter = ConditionalFilterMngr.getInstance().getDefaultConditionalFilter( getPluginName() );
-//				conditionalFilter.setName( getConditionalFilterName() );
-//				conditionalFilter.setPlugin( getPluginName() );
-//				conditionalFilter.setDescription( "" );
-//				conditionalFilter.getConditionalFilterElements();
 				return conditionalFilter;
-//			}
 		}
 		return new ConditionalFilter( conditionalFilter );
 	}

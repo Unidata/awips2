@@ -29,6 +29,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  *
  * 12/10/2011   #561        Greg Hull   make this a real nc resource
+ * 12/14/1212   #903        Greg Hull   fontSize attribute, and color
  * 
  * </pre>
  * 
@@ -36,17 +37,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  * 
  */
-
 public class LocatorResource extends AbstractVizResource<LocatorResourceData, IMapDescriptor> 
 				implements INatlCntrsResource, PropertyChangeListener  {
 
 	private LocatorResourceData locRscData;
 	
-	protected RGB color = new RGB(255, 255, 255);
-	
 	protected Coordinate currCoor = null;
-	
-	private File fontFile = PathManagerFactory.getPathManager().getStaticFile("fonts" + File.separator + "VeraMono.ttf");
 	
 	private IFont font = null;
 	
@@ -67,9 +63,6 @@ public class LocatorResource extends AbstractVizResource<LocatorResourceData, IM
 	
 	@Override
 	protected void initInternal( IGraphicsTarget target ) throws VizException {
-    	
-		font = target.initializeFont( fontFile, 12.0f, null );
-		
 		CoorBean.getInstance().addPropertyChangeListener( this );
 
 		LocatorDataSourceMngr dataSourceMngr = LocatorDataSourceMngr.getInstance();
@@ -102,6 +95,15 @@ public class LocatorResource extends AbstractVizResource<LocatorResourceData, IM
 																	throws VizException {
 		currTarget = target;
 		currPaintProps = paintProps;
+
+		if( font == null ) {
+			font = target.initializeFont( locRscData.getFontName(), 
+					1.0f*locRscData.getFontSize(), null );//IFont.Style.BOLD );
+			if( font == null ) {
+				font = target.initializeFont( target.getDefaultFont().getFontName(), 
+						1.0f*locRscData.getFontSize(), null );
+			}
+		}
 		drawLocatorInfo();
 	}
 	
@@ -135,11 +137,11 @@ public class LocatorResource extends AbstractVizResource<LocatorResourceData, IM
 			
 			if (textBounds.getHeight() > maxHeight) {
 				if( locLabelStr !=null && ( !locLabelStr.isEmpty()) )	
-					maxHeight = currTarget.getStringBounds(null,"J_/").getHeight();//textBounds.getHeight();
+					maxHeight = currTarget.getStringBounds(font,"J_/").getHeight();//textBounds.getHeight();
 		    }
 			
 			currTarget.drawString( font, locLabelStr, x0, y0, 0, IGraphicsTarget.TextStyle.BLANKED, 
-					color, HorizontalAlignment.LEFT, 0.0 );
+					locRscData.getColor(), HorizontalAlignment.LEFT, 0.0 );
 			y0 -= (maxHeight * r);			
 		}
 
@@ -205,6 +207,12 @@ public class LocatorResource extends AbstractVizResource<LocatorResourceData, IM
 	public void resourceAttrsModified() {
 		try {
 			getDisplayAttributes();
+
+			if( font != null ) {
+				font.dispose();
+				font = null;
+			}
+
 		} catch (VizException e) {
 			System.out.println( e.getMessage() );
 		}

@@ -861,10 +861,11 @@ class ProxyTemplate
         Bit active_,
         const Uuid& clusterId_,
         const cluster::StoreState& storeState_,
-        const Uuid& shutdownId_
+        const Uuid& shutdownId_,
+        const Str16& firstConfig_
     )
     {
-        cluster::InitialStatus initialStatus(version_, active_, clusterId_, storeState_, shutdownId_);
+        cluster::InitialStatus initialStatus(version_, active_, clusterId_, storeState_, shutdownId_, firstConfig_);
         return functor(initialStatus);
     }
     
@@ -876,9 +877,13 @@ class ProxyTemplate
     }
     
     
-    R clusterConfigChange(const Vbin16& current_)
+    R clusterConfigChange(
+        const Vbin16& members_,
+        const Vbin16& joined_,
+        const Vbin16& left_
+    )
     {
-        cluster::ConfigChange configChange(current_);
+        cluster::ConfigChange configChange(members_, joined_, left_);
         return functor(configChange);
     }
     
@@ -900,6 +905,20 @@ class ProxyTemplate
     }
     
     
+    R clusterTimerWakeup(const Str16& name_)
+    {
+        cluster::TimerWakeup timerWakeup(name_);
+        return functor(timerWakeup);
+    }
+    
+    
+    R clusterTimerDrop(const Str16& name_)
+    {
+        cluster::TimerDrop timerDrop(name_);
+        return functor(timerDrop);
+    }
+    
+    
     R clusterShutdown(const Uuid& shutdownId_)
     {
         cluster::Shutdown shutdown(shutdownId_);
@@ -907,9 +926,26 @@ class ProxyTemplate
     }
     
     
-    R clusterConnectionAnnounce(Uint32 ssf_)
+    R clusterDeliverToQueue(
+        const Str16& queue_,
+        const Vbin32& message_
+    )
     {
-        cluster-connection::Announce announce(ssf_);
+        cluster::DeliverToQueue deliverToQueue(queue_, message_);
+        return functor(deliverToQueue);
+    }
+    
+    
+    R clusterConnectionAnnounce(
+        const Str16& managementId_,
+        Uint32 ssf_,
+        const Str16& authid_,
+        Bit nodict_,
+        const Str32& username_,
+        const Str32& initialFrames_
+    )
+    {
+        cluster-connection::Announce announce(managementId_, ssf_, authid_, nodict_, username_, initialFrames_);
         return functor(announce);
     }
     
@@ -932,6 +968,20 @@ class ProxyTemplate
     {
         cluster-connection::Abort abort;
         return functor(abort);
+    }
+    
+    
+    R clusterConnectionShadowSetUser(const Str16& userId_)
+    {
+        cluster-connection::ShadowSetUser shadowSetUser(userId_);
+        return functor(shadowSetUser);
+    }
+    
+    
+    R clusterConnectionShadowPrepare(const Str16& managementId_)
+    {
+        cluster-connection::ShadowPrepare shadowPrepare(managementId_);
+        return functor(shadowPrepare);
     }
     
     
@@ -1047,12 +1097,13 @@ class ProxyTemplate
     R clusterConnectionShadowReady(
         Uint64 memberId_,
         Uint64 connectionId_,
+        const Str16& managementId_,
         const Str8& userName_,
         const Str32& fragment_,
         Uint32 sendMax_
     )
     {
-        cluster-connection::ShadowReady shadowReady(memberId_, connectionId_, userName_, fragment_, sendMax_);
+        cluster-connection::ShadowReady shadowReady(memberId_, connectionId_, managementId_, userName_, fragment_, sendMax_);
         return functor(shadowReady);
     }
     
@@ -1113,6 +1164,27 @@ class ProxyTemplate
     {
         cluster-connection::AddQueueListener addQueueListener(queue_, consumer_);
         return functor(addQueueListener);
+    }
+    
+    
+    R clusterConnectionManagementSetupState(
+        Uint64 objectNum_,
+        Uint16 bootSequence_,
+        const Uuid& brokerId_,
+        const Str32& vendor_,
+        const Str32& product_,
+        const Str32& instance_
+    )
+    {
+        cluster-connection::ManagementSetupState managementSetupState(objectNum_, bootSequence_, brokerId_, vendor_, product_, instance_);
+        return functor(managementSetupState);
+    }
+    
+    
+    R clusterConnectionConfig(const Str32& encoded_)
+    {
+        cluster-connection::Config config(encoded_);
+        return functor(config);
     }
   private:
     F functor;

@@ -44,9 +44,8 @@ UVI,nwx.uvi,UVI
 
 -- load nwx.datatypegrouplist table
 
----AWIPS2 currently does not support Observed Data products
---Observed Data,nwx.observeddata
 copy nwx.datatypegrouplist (datatypegroupname,datatypegrouptablename) FROM stdin with delimiter as ',' ;
+Observed Data,nwx.observeddataproducts
 88D Radar Text,nwx.radartext88d
 Canadian Products,nwx.canadianproducts
 Public Products,nwx.publicproducts
@@ -65,6 +64,16 @@ HPC Heat Index,nwx.hpcheatindex
 CPC Products,nwx.cpcproducts
 Volcano Products,nwx.volcanoproducts
 Fire Weather Products,nwx.fireweatherproducts
+\.
+
+--load nwx.observeddataproducts table
+copy nwx.observeddataproducts (productname,producttablename,producttype) FROM stdin with delimiter as ',' ;
+Surface Hourlies,nwx.sfstns,hrly
+Sounding Data,nwx.snstns,snd
+Synoptic Data,nwx.lsfstns,syn
+Agriculture Obs,nwx.ago,AGO
+TAFs Decoded,nwx.tafstn,taf
+RADAT,nwx.fzl,FZL
 \.
 
 --load nwx.fireweatherproducts table

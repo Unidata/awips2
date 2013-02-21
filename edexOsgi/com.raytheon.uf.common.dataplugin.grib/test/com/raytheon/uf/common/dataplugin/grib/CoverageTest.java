@@ -21,10 +21,10 @@ package com.raytheon.uf.common.dataplugin.grib;
 
 import org.opengis.metadata.spatial.PixelOrientation;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.Corner;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.Corner;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -103,7 +103,7 @@ public class CoverageTest {
             ll = MapUtil.gridCoordinateToLatLon(c, orient, cov);
             System.out.println("grid cell: " + c + " lonLat: " + ll);
 
-        } catch (GribException e) {
+        } catch (GridCoverageException e) {
             e.printStackTrace();
         }
     }
