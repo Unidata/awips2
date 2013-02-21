@@ -83,6 +83,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 07/09/10      3914       D. Hladky   Localization work
  * 12/13/10      7484       D. Hladky   Service Backup
  * 02/01/13      1569       D.Hladky    Constants
+ * 02/20/13      1635       D. Hladky   Constants
  * 
  * </pre>
  * 
@@ -568,7 +569,7 @@ public class FFMPTemplates {
                     "FFMPTemplate: Starting site template process " + dataKey
                             + ":" + cwa + ":" + huc);
             // special handling for VGB's
-            if (huc.equals("VIRTUAL")) {
+            if (huc.equals(FFMPRecord.VIRTUAL)) {
                 getVirtualGageBasins(dataKey, cwa);
             } else {
                 getMap(dataKey, cwa, huc);
