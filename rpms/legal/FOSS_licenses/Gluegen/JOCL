@@ -1,0 +1,64 @@
+   1
+   2 JOCL is licensed under the simplified BSD license.
+   3 
+   4    Copyright 2009 - 2010 JogAmp Community. All rights reserved.
+   5 
+   6    Redistribution and use in source and binary forms, with or without modification, are
+   7    permitted provided that the following conditions are met:
+   8  
+   9       1. Redistributions of source code must retain the above copyright notice, this list of
+  10          conditions and the following disclaimer.
+  11  
+  12       2. Redistributions in binary form must reproduce the above copyright notice, this list
+  13          of conditions and the following disclaimer in the documentation and/or other materials
+  14          provided with the distribution.
+  15  
+  16    THIS SOFTWARE IS PROVIDED BY JogAmp Community ``AS IS'' AND ANY EXPRESS OR IMPLIED
+  17    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+  18    FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JogAmp Community OR
+  19    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  20    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  21    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  22    ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  23    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+  24    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  25  
+  26    The views and conclusions contained in the software and documentation are those of the
+  27    authors and should not be interpreted as representing official policies, either expressed
+  28    or implied, of JogAmp Community.
+  29 
+  30    You can address the JogAmp Community via:
+  31        Web                http://jogamp.org/
+  32        Forum/Mailinglist  http://jogamp.762907.n3.nabble.com/
+  33        Chatrooms
+  34          IRC              irc.freenode.net #jogamp 
+  35          Jabber           conference.jabber.org room: jogamp (deprecated!)
+  36        Repository         http://github.com/mbien/jocl
+  37        Email              mediastream _at_ jogamp _dot_ org
+  38        JOCL project lead  Michael Bien, michael-bien.com, mbien _at_ fh-landshut _dot_ de
+  39 
+  40 
+  41  JOCL uses header files from Khronos, reflecting OpenCL and OpenGL, for code generation with GlueGen.
+  42 
+  43      http://www.khronos.org/legal/license/
+  44 
+  45    Copyright (c) 2007-2010 The Khronos Group Inc.
+  46     
+  47    Permission is hereby granted, free of charge, to any person obtaining a
+  48    copy of this software and/or associated documentation files (the
+  49    "Materials"), to deal in the Materials without restriction, including
+  50    without limitation the rights to use, copy, modify, merge, publish,
+  51    distribute, sublicense, and/or sell copies of the Materials, and to
+  52    permit persons to whom the Materials are furnished to do so, subject to
+  53    the following conditions:
+  54     
+  55    The above copyright notice and this permission notice shall be included
+  56    in all copies or substantial portions of the Materials.
+  57     
+  58    THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  59    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  60    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  61    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  62    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  63    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  64    MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.

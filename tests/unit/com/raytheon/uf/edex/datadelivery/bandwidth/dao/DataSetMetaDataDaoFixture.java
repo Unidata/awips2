@@ -41,13 +41,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  */
 
 public class DataSetMetaDataDaoFixture extends
-        AbstractFixture<DataSetMetaDataDao> {
+        AbstractFixture<BandwidthDataSetUpdate> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public DataSetMetaDataDao get(long seedValue) {
+    public BandwidthDataSetUpdate get(long seedValue) {
         return BandwidthUtil
                 .newDataSetMetaDataDao(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                         .get(seedValue));

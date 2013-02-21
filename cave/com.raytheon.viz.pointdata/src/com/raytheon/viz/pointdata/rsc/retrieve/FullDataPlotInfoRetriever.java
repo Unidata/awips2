@@ -133,7 +133,7 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
                     result.add(info);
                 }
                 listener.resourceChanged(ChangeType.DATA_UPDATE,
-                        result.toArray());
+                        result.toArray(new PlotInfo[0]));
                 return Status.OK_STATUS;
             }
 

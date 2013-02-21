@@ -20,7 +20,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.adapters;
  * further licensing information.
  **/
 
-import java.util.HashMap;
+import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -59,7 +59,7 @@ public abstract class RetrievalAdapter implements IRetrievalAdapter {
             IRetrievalRequestBuilder request);
 
     @Override
-    public abstract HashMap<String, PluginDataObject[]> processResponse(
+    public abstract Map<String, PluginDataObject[]> processResponse(
             IRetrievalResponse response) throws TranslationException;
 
     /**
