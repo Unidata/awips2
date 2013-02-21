@@ -1,0 +1,3 @@
+<pluginRouteList>
+	<pluginRoute name="grid" value="directvm:persistIndexAlert" />
+</pluginRouteList>

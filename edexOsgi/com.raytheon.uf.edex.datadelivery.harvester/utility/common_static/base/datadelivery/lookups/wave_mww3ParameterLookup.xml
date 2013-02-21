@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <parameterConfig AWIPS="WD" GrADs="wdirsfc"/>
+    <parameterConfig AWIPS="WVDIR" GrADs="wvdirsfc"/>
+    <parameterConfig AWIPS="WS" GrADs="windsfc"/>
+    <parameterConfig AWIPS="WVPER" GrADs="wvpersfc"/>
+    <parameterConfig AWIPS="vW" GrADs="vgrdsfc"/>
+    <parameterConfig AWIPS="WVHGT" GrADs="wvhgtsfc"/>
+    <parameterConfig AWIPS="PERPW" GrADs="perpwsfc"/>
+    <parameterConfig AWIPS="HTSGW" GrADs="htsgwsfc"/>
+    <parameterConfig AWIPS="swell_2" GrADs="swell_2"/>
+    <parameterConfig AWIPS="swper_2" GrADs="swper_2"/>
+    <parameterConfig AWIPS="uW" GrADs="ugrdsfc"/>
+    <parameterConfig AWIPS="swell_1" GrADs="swell_1"/>
+    <parameterConfig AWIPS="swper_1" GrADs="swper_1"/>
+    <parameterConfig AWIPS="swdir_1" GrADs="swdir_1"/>
+    <parameterConfig AWIPS="swdir_2" GrADs="swdir_2"/>
+    <parameterConfig AWIPS="DIRPW" GrADs="dirpwsfc"/>
+</ParameterLookup>

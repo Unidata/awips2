@@ -6,7 +6,7 @@ Bundle-Version: 1.12.1174.qualifier
 Eclipse-BuddyPolicy: registered, ext, global
 Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Bundle-Vendor: Raytheon
-Require-Bundle: javax.measure, 
+Require-Bundle: javax.measure,
  javax.persistence,
  org.apache.commons.lang,
  org.apache.commons.logging,
@@ -14,10 +14,11 @@ Require-Bundle: javax.measure,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.common.status
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.dataplugin.level.request,
- com.raytheon.uf.common.dataplugin.level.xml
+ com.raytheon.uf.common.dataplugin.level.mapping,
+ com.raytheon.uf.common.dataplugin.level.request
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.comm,
  org.hibernate.annotations

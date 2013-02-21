@@ -40,7 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class NcSoundingQuery {
 	public static int counter = 1;
 	public static String NCGRIB_PLUGIN_NAME = "ncgrib";
-	public static String GRIB_PLUGIN_NAME = "grib";
+	public static String GRIB_PLUGIN_NAME = "grid";
 	public static long convertRefTimeStr(String refTimeStr) {
 		int year, mon, date, hr;
 		int index = refTimeStr.indexOf('-');

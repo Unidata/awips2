@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: com.raytheon.uf.common.registry.event
+Bundle-SymbolicName: com.raytheon.uf.common.registry.event
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.registry.event
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.event;bundle-version="1.0.0",
+ com.raytheon.uf.common.stats;bundle-version="1.0.0"

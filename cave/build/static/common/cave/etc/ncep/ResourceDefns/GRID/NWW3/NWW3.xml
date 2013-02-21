@@ -6,8 +6,7 @@
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=nww3
-pluginName=ncgrib
-eventName=%
+pluginName=grid
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>

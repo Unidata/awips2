@@ -24,19 +24,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * Abstract class to generate 6hr records
@@ -63,12 +62,12 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
     protected static final int SECONDS_IN_6_HRS = 21600;
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
         // Post process the data if this is a Total Precipitation grid
 
-        GribRecord[] newRecords = generate6hrPrecipGrids(record);
-        GribRecord[] retVal = new GribRecord[newRecords.length + 1];
+        GridRecord[] newRecords = generate6hrPrecipGrids(record);
+        GridRecord[] retVal = new GridRecord[newRecords.length + 1];
         retVal[0] = record;
         for (int i = 1; i < retVal.length; i++) {
             retVal[i] = newRecords[i - 1];
@@ -77,7 +76,7 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
 
     }
 
-    protected abstract GribRecord[] generate6hrPrecipGrids(GribRecord record)
+    protected abstract GridRecord[] generate6hrPrecipGrids(GridRecord record)
             throws GribException;
 
     /**
@@ -93,10 +92,10 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
      * @return The generated 6hr precipitation grid
      * @throws GribException
      */
-    protected List<GribRecord> generate6hrPrecip(GribRecord record,
-            List<GribRecord> precipInventory, List<Integer> precip6hrInventory)
+    protected List<GridRecord> generate6hrPrecip(GridRecord record,
+            List<GridRecord> precipInventory, List<Integer> precip6hrInventory)
             throws GribException {
-        List<GribRecord> tp6hrRecords = new ArrayList<GribRecord>();
+        List<GridRecord> tp6hrRecords = new ArrayList<GridRecord>();
         int currentFcstTime = record.getDataTime().getFcstTime();
 
         // If this is the first grid (the 6 hr grid), the 6hr precip
@@ -107,7 +106,7 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
         // If this is not the first grid, generate the new grid using the
         // previous grid
         else {
-            for (GribRecord rec : precipInventory) {
+            for (GridRecord rec : precipInventory) {
                 if (rec.getDataTime().getFcstTime() == currentFcstTime
                         - SECONDS_IN_6_HRS) {
                     tp6hrRecords.add(calculate6hrPrecip(rec, record));
@@ -128,19 +127,19 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
      * @return The generated 6hr precipitation grid
      * @throws GribException
      */
-    protected GribRecord calculate6hrPrecip(GribRecord inventoryRecord,
-            GribRecord currentRecord) throws GribException {
+    protected GridRecord calculate6hrPrecip(GridRecord inventoryRecord,
+            GridRecord currentRecord) throws GribException {
 
         // Clone the current record and set the ID to 0 so Hibernate will
         // recognize it as a new record
-        GribRecord tp6hrRecord = new GribRecord(currentRecord);
+        GridRecord tp6hrRecord = new GridRecord(currentRecord);
         tp6hrRecord.setId(0);
         if (currentRecord.getMessageData() == null) {
-            GribDao dao = null;
+            GridDao dao = null;
             try {
-                dao = new GribDao();
+                dao = new GridDao();
                 currentRecord.setMessageData(((FloatDataRecord) dao
-                        .getHDF5Data(currentRecord, 0)[0]).getFloatData());
+                        .getHDF5Data(currentRecord, -1)[0]).getFloatData());
             } catch (PluginException e) {
                 throw new GribException("Error populating grib data!", e);
             }
@@ -155,26 +154,19 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
         tp6hrRecord.setMessageData(newData);
 
         // Assign the new parameter abbreviation and cache it if necessary
-        tp6hrRecord.getModelInfo().setParameterAbbreviation("TP6hr");
-        tp6hrRecord.getModelInfo().generateId();
-        try {
-            GribModel model = GribModelCache.getInstance().getModel(
-                    tp6hrRecord.getModelInfo());
-            tp6hrRecord.setModelInfo(model);
-        } catch (DataAccessLayerException e) {
-            throw new GribException("Unable to get model info from the cache!",
-                    e);
-        }
-
+        Parameter param = new Parameter("TP6hr", "Precip Accum 6 hr",
+                currentRecord.getParameter().getUnit());
+        tp6hrRecord.setParameter(param);
+        tp6hrRecord.getInfo().setId(null);
         // Change the data time to include the 6-hr time range
         modifyDataTime(tp6hrRecord);
 
         // Calculate the new data values
         if (inventoryRecord != null) {
             if (inventoryRecord.getMessageData() == null) {
-                GribDao dao = null;
+                GridDao dao = null;
                 try {
-                    dao = new GribDao();
+                    dao = new GridDao();
                     inventoryRecord
                             .setMessageData(((FloatDataRecord) dao.getHDF5Data(
                                     inventoryRecord, 0)[0]).getFloatData());
@@ -206,7 +198,7 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
      * @param record
      *            The record to modify the datatime for
      */
-    protected void modifyDataTime(GribRecord record) {
+    protected void modifyDataTime(GridRecord record) {
 
         Calendar refTime = record.getDataTime().getRefTimeAsCalendar();
         int fcstTime = record.getDataTime().getFcstTime();
@@ -226,7 +218,7 @@ public abstract class SixHrPrecipGridProcessor implements IDecoderPostProcessor 
         record.setDataTime(newDataTime);
         record.setDataURI(null);
         try {
-            record.setPluginName("grib");
+            record.setPluginName(GridConstants.GRID);
             record.constructDataURI();
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,

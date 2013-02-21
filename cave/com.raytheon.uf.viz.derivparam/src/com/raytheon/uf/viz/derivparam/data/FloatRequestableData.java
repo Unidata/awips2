@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.viz.derivparam.data;
 
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+
 /**
- * TODO Add Description
+ * RequestableData object for a single constant float value.
  * 
  * <pre>
  * 
@@ -41,6 +43,8 @@ public class FloatRequestableData extends AbstractRequestableData {
 
     public FloatRequestableData(Float value) {
         this.value = value;
+        this.dataTime = TimeAndSpace.TIME_AGNOSTIC;
+        this.space = TimeAndSpace.SPACE_AGNOSTIC;
     }
 
     public Float getDataValue() {
