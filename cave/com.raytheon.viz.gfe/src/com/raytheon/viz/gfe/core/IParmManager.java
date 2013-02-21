@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe.core;
 
-import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -551,6 +550,4 @@ public interface IParmManager extends IParmInventoryChangedListener,
     public JobPool getNotificationPool();
 
     public VCModuleJobPool getVCModulePool();
-
-    public abstract List<Date> calcStepTimes(List<Parm> parms, TimeRange dspTR);
 }

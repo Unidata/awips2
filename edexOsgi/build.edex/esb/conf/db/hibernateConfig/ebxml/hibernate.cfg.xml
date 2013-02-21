@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<hibernate-configuration>
+	<session-factory>
+
+		<!-- JDBC Properties -->
+
+		<property name="connection.driver_class">
+			org.postgresql.Driver
+		</property>
+		<property name="dialect">
+			org.hibernate.dialect.PostgreSQLDialect
+		</property>
+		<property name="connection.url">
+			jdbc:postgresql://${db.addr}:${db.port}/ebxml
+		</property>
+		<property name="connection.username">awips</property>
+		<property name="connection.password">awips</property>
+		<property name="connection.release_mode">
+			after_transaction
+		</property>
+		<property name="jdbc.batch_size">100</property>
+
+
+		<!-- Optional Hibernate Configuration Properties -->
+		<!-- Write all SQL statements to console -->
+		<property name="hibernate.show_sql">false</property>
+
+		<!-- Pretty print the SQL in the log and console -->
+		<property name="hibenate.format_sql">false</property>
+
+		<!-- If turned on, Hibernate will generate comments inside the SQL, for easier debugging, defaults to false -->
+		<property name="hibernate.use_sql_comments">false</property>
+
+	     <!--  Use c3p0 connection pooling -->
+	    <property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+
+		<!-- c3p0 Connection Pool Properties -->
+		<!-- Additional properties may be added to c3p0.properties -->
+		<property name="hibernate.c3p0.idle_test_period">60</property>
+		<property name="hibernate.c3p0.timeout">1800</property>
+		<property name="hibernate.c3p0.max_statements">10</property>
+		<property name="hibernate.c3p0.acquire_increment">5</property>
+		<property name="hibernate.c3p0.min_size">${db.metadata.pool.min}</property>
+		<property name="hibernate.c3p0.max_size">${db.metadata.pool.max}</property>
+
+		<property name="hibernate.generate_statistics">true</property>
+		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+		<property name="hibernate.current_session_context_class">thread</property>
+		<property name="net.sf.ehcache.configurationResourceName">ebxmlRegistryCache.xml</property>
+		<property name="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property>
+		<property name="hibernate.cache.use_second_level_cache">true</property>
+		<property name="hibernate.cache.use_query_cache">true</property>
+		<property name="hibernate.cache.jbc.query.localonly">true</property>
+
+	</session-factory>
+</hibernate-configuration>

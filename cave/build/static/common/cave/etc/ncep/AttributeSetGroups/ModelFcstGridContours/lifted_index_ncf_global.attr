@@ -7,6 +7,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0/1
+FILTER=y
 SCALE  =   0
 GDPFUN =  sm5s(lft4)      !sm5s(lft4) !sm5s(lft4) !kntv(wnd@9950%sgma)
 TYPE   =    c               !c          !c          !b
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ Best LIFTED INDEX AND BL WIND (KTS)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

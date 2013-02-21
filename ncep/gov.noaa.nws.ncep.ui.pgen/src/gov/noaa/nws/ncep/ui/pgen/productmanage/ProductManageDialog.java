@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 06/12  		TTR253      J. Wu 		made layer check boxes to stay de-selected 
  *                                      unless the user selects them. 
  * 06/12		TTR559		B. Yin		Link the layer name to Outlook type
+ * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
  * 
  * </pre>
  *
@@ -688,7 +689,7 @@ public class ProductManageDialog extends ProductDialog {
     	for ( Layer lyr : layerList ) {
 	     	
     	    Button nameBtn = new Button( layersComp, SWT.PUSH );
-    	    nameBtn.setText( lyr.getName() );
+    	    nameBtn.setText( lyr.getName().replace("&", "&&") );
     	    setButtonColor( nameBtn, defaultButtonColor );	    
     	    nameBtn.setData( ii );
     	    nameBtn.addSelectionListener( new SelectionAdapter() {
@@ -1262,10 +1263,11 @@ public class ProductManageDialog extends ProductDialog {
     	/*
     	 *  Remind the user to save.
     	 */
+   	    if ( needSaving() ) {
    	    MessageDialog confirmDlg = new MessageDialog( 
         		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
         		"Confirm Exit from Product Management", null, 
-        		"Do you need to save the changes?",
+   	    			"Do you want to save the changes?",
         		MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0 );
         
     	confirmDlg.open();
@@ -1286,6 +1288,8 @@ public class ProductManageDialog extends ProductDialog {
             if ( file_dlg != null )  file_dlg.open();
   		    
         }
+        
+   	    }
         
     	/*
     	 *  Exit and reset to "Default" product with a "Default" Layer.
@@ -2163,6 +2167,13 @@ public class ProductManageDialog extends ProductDialog {
     	PgenUtil.setSelectingMode();
     	super.close();
     }
+         
+    /*
+     *  Clean up before close the shell - default is to do nothing. 
+     */
+    protected void exit() { 
+    	exitProductManage();
+    }  
          
 }
 

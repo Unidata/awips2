@@ -1,0 +1,19 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- Need to set up connect between cave and edex 
+	1) The possible combinations to populate drop downs etc
+	2) Bucketizing so that Cave requests data in 15 minute buckets, 
+	you would need to do the aggregation (still undecided on if this is a cave or edex feature).
+	-->
+	
+	<bean id="aggregatedStatsHandler" class="com.raytheon.uf.edex.stats.handler.AggregatedStatsHandler"/>   
+    <bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.stats.AggregatedStatsRequest"/>
+  	  <constructor-arg ref="aggregatedStatsHandler"/>
+    </bean>
+</beans>

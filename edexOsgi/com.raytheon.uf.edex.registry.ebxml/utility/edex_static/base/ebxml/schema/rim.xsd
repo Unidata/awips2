@@ -1,0 +1,1076 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<schema targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0"
+  xmlns="http://www.w3.org/2001/XMLSchema" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0"
+  xmlns:xml="http://www.w3.org/XML/1998/namespace"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+  xmlns:wsa="http://www.w3.org/2005/08/addressing"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema  http://www.w3.org/2001/XMLSchema.xsd"
+  >
+  
+  <annotation>
+    <documentation xml:lang="en">The schema for OASIS ebXML Registry Information Model</documentation>
+  </annotation>
+  <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+  <import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.w3.org/1999/xlink.xsd"/>
+  <import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2006/03/addressing/ws-addr.xsd"/>
+  
+  <!-- Begin information model mapping from ebRIM. -->
+  <!-- Define Data Types -->
+  <simpleType name="objectReferenceType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a reference to a RegistryObjectType instance.
+        It is used by reference attributes within ebRIM.
+      </documentation>
+    </annotation>
+    <restriction base="string"/>
+  </simpleType>
+  <simpleType name="String4">
+    <restriction base="string">
+      <maxLength value="4"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="String8">
+    <restriction base="string">
+      <maxLength value="8"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="String16">
+    <restriction base="string">
+      <maxLength value="16"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="String32">
+    <restriction base="string">
+      <maxLength value="32"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="ShortText">
+    <restriction base="string">
+      <maxLength value="64"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="LongText">
+    <restriction base="string">
+      <maxLength value="256"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="FreeFormText">
+    <restriction base="string">
+      <maxLength value="1024"/>
+    </restriction>
+  </simpleType>
+        
+  <complexType name="InternationalStringType">
+    <annotation>
+      <documentation xml:lang="en">
+        A type that is used throughout the schema whenever a textual value needs to be represented in multiple local languages. 
+        It has a sequence of LocalizedString instances, where each String is specific to a particular locale. 
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="LocalizedString" type="tns:LocalizedStringType" minOccurs="0" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  
+  <complexType name="LocalizedStringType">
+    <annotation>
+      <documentation xml:lang="en">
+        This type allows the definition of a string value using the specified local language and character set. 
+        It is used within the InternationalStringType as the type of the LocalizedString sub-element.
+      </documentation>
+    </annotation>
+    <attribute ref="xml:lang" use="optional" default="en-US"/> 
+    <attribute name="value" type="tns:FreeFormText" use="required"/>
+  </complexType>
+  
+  <complexType name="SlotType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents an extensible attribute that may be dynamically added to any ExtensibleObjectType instance.
+        It is an important extensibility mechanism with ebRIM. 
+        A SlotType instance contains a name and a value. The value may be of any type.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <sequence>
+          <element name="SlotValue" type="tns:ValueType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+        <attribute name="name" type="tns:LongText" use="required"/>
+        <attribute name="type" type="tns:LongText" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ValueType" abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        Abstract base type for all types of slot values.
+      </documentation>
+    </annotation>
+  </complexType>
+
+  <complexType name="StringValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a String value.
+        This type is the most commonly used to specify slot values.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="tns:LongText" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="DateTimeValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a dateTime value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="dateTime" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="DurationValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a duration value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="duration" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="IntegerValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a integer value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="integer" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="BooleanValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a boolean value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="boolean" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="FloatValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a float value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="float" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="InternationalStringValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a InternationalString value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="tns:InternationalStringType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="VocabularyTermType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a term within a controlled vocabulary.
+      </documentation>
+    </annotation>
+    <attribute name="vocabulary" type="string" use="optional"/>
+    <attribute name="term" type="string" use="required"/>
+  </complexType>
+
+  <complexType name="VocabularyTermValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a InternationalString value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Value" type="tns:VocabularyTermType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="CollectionValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a collection of elements where each element is a ValueType.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Element" type="tns:ValueType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <!--collectionType value MUST reference a ClassificationNode in the canonical CollectionType scheme-->
+        <attribute name="collectionType" type="tns:objectReferenceType" use="optional" default="urn:oasis:names:tc:ebxml-regrep:CollectionType:Bag" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="EntryType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a map entry that has a ValueType as key and a ValueType as value. Collection values can be represneted by a CollectionValueType value.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="EntryKey" type="tns:ValueType" minOccurs="1" maxOccurs="1"/>
+      <element name="EntryValue" type="tns:ValueType" minOccurs="0" maxOccurs="1"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="MapType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a map that has a collection of entries (key/value pairs) where each entry is represented by EntryType instances
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="Entry" type="tns:EntryType" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="MapValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a Map value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Map" type="tns:MapType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="SlotValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for a Slot value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <element name="Slot" type="tns:SlotType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="AnyValueType">
+    <annotation>
+      <documentation xml:lang="en">
+        A specialized ValueType that may be used as a container for any well-formed XML element value in any namespace.
+        Use this to specify an XML element as the value for a Slot.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ValueType">
+        <sequence>
+          <any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="ExtensibleObjectType" abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        Common base type for all types need to support extensibility via slots.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="Slot" type="tns:SlotType" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="IdentifiableType" abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        Common base type for all types that have unique identity and support extensibility via slots.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <attribute name="id" type="string" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>  
+
+  <complexType name="ObjectRefType">
+    <annotation>
+      <documentation xml:lang="en">
+          Represents a reference to a RegistryObjectType instance.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <attribute name="id" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="ObjectRef" type="tns:ObjectRefType" />
+  <complexType name="DynamicObjectRefType">
+    <annotation>
+      <documentation xml:lang="en">
+          Represents a dynamic reference to a RegistryObjectType instance.
+          target of reference is determined by the result of the Query
+          sub-element.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ObjectRefType">
+        <sequence>
+          <element name="Query" type="tns:QueryType" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="ObjectRefListType">
+    <annotation>
+      <documentation xml:lang="en">
+        A list of ObjectRefType instances.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="ObjectRef" type="tns:ObjectRefType" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="ObjectRefList" type="tns:ObjectRefListType"/>  
+  
+  <complexType name="RegistryObjectType">
+    <annotation>
+      <documentation xml:lang="en">
+        This type is the common base type for all query-able metadata elements in ebRIM.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:IdentifiableType">
+        <sequence>
+          <element name="Name" type="tns:InternationalStringType" minOccurs="0" maxOccurs="1"/>
+          <element name="Description" type="tns:InternationalStringType" minOccurs="0" maxOccurs="1"/>
+          <element name="VersionInfo" type="tns:VersionInfoType" minOccurs="0" maxOccurs="1"/>
+          <element name="Classification" type="tns:ClassificationType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="ExternalIdentifier" type="tns:ExternalIdentifierType" minOccurs="0" maxOccurs="unbounded" />
+          <element name="ExternalLink" type="tns:ExternalLinkType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="lid" type="string" use="optional"/>
+        <attribute name="objectType" type="tns:objectReferenceType" use="optional"/>
+        <attribute name="owner" type="string" use="optional"/>
+        <attribute name="status" type="tns:objectReferenceType" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <element name="RegistryObject" type="tns:RegistryObjectType"/>
+  
+  <complexType name="IdentifiableListType">
+    <annotation>
+      <documentation xml:lang="en">
+        A List of IdentifiableType instances.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="Identifiable" type="tns:IdentifiableType" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="IdentifiableList" type="tns:IdentifiableListType"/>
+    
+  <complexType name="RegistryObjectListType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a list of RegistryObjectType instances.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element ref="tns:RegistryObject"  minOccurs="0" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <element name="RegistryObjectList" type="tns:RegistryObjectListType"/>
+  
+  <complexType name="AssociationType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents an association or relationship between two RegistryObjects.
+        The sourceObject is id of the sourceObject in association
+        The targetObject is id of the targetObject in association
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="type" type="tns:objectReferenceType" use="required"/>
+        <attribute name="sourceObject" type="tns:objectReferenceType" use="required"/>
+        <attribute name="targetObject" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="ActionType">
+    <annotation>
+      <documentation>Represents an action on a set of affected RegistryObjects within an AuditableEvent.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <sequence>
+          <!-- List of all objects affected by this event-->
+          <element name="AffectedObjects" type="tns:RegistryObjectListType" minOccurs="0" maxOccurs="1"/>
+          <element name="AffectedObjectRefs" type="tns:ObjectRefListType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+        <attribute name="eventType" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="AuditableEventType">
+    <annotation>
+      <documentation xml:lang="en">An Event that forms an audit trail in ebXML Registry.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <!-- List of all actions within this event -->
+          <element name="Action" type="tns:ActionType" minOccurs="1" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="timestamp" type="dateTime" use="required"/>
+        <attribute name="user" type="string" use="required"/>
+        <attribute name="requestId" type="string" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="ClassificationType">
+    <annotation>
+      <documentation xml:lang="en">
+          Represents a classification of its parent object within specified value in a ClassificationScheme.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="classificationScheme" type="tns:objectReferenceType" use="optional"/>
+        <attribute name="classifiedObject" type="tns:objectReferenceType" use="optional"/>
+        <attribute name="classificationNode" type="tns:objectReferenceType" use="optional"/>
+        <attribute name="nodeRepresentation" type="tns:LongText" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="TaxonomyElementType" abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+          Common base type for ClassificationScheme and ClassificationNode
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="ClassificationNode" type="tns:ClassificationNodeType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>  
+  <complexType name="ClassificationNodeType">
+    <annotation>
+      <documentation xml:lang="en">
+          Represents a value in a ClassificationScheme
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:TaxonomyElementType">
+        <attribute name="parent" type="tns:objectReferenceType" use="optional"/>
+        <attribute name="path" type="string" use="optional"/>        
+        <attribute name="code" type="tns:LongText" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ClassificationSchemeType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a taxonomy or classification scheme.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:TaxonomyElementType">
+        <attribute name="isInternal" type="boolean" use="required"/>
+        <attribute name="nodeType" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ExternalIdentifierType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a client specified identifier using specified ClassificationScheme as identification taxonomy.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="registryObject" type="tns:objectReferenceType" use="optional"/>
+        <attribute name="identificationScheme" type="tns:objectReferenceType" use="required"/>
+        <attribute name="value" type="tns:LongText" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ExternalLinkType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a link to any external content not managed by an ebXML RegRep.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="ExternalRef" type="tns:SimpleLinkType" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+        <attribute name="registryObject" type="tns:objectReferenceType" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="SimpleLinkType">
+    <annotation>
+      <documentation xml:lang="en">
+      Incorporates the attributes defined for use in simple XLink 
+      elements. The xlink:role attribute should be included to 
+      indicate the WSDL version of the target document (e.g. 
+      xlink:role="http://www.w3.org/2005/08/wsdl").
+      </documentation>
+    </annotation>
+    <attributeGroup ref="xlink:simpleAttrs"/>
+  </complexType>
+  
+  <complexType name="ExtrinsicObjectType">
+    <annotation>
+      <documentation xml:lang="en">
+        Metadata data type capable of having repository content associated with it as a repository item.
+        Often used as base type for extended types defines by profiles of ebXML RegRep.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="ContentVersionInfo" type="tns:VersionInfoType" minOccurs="0" maxOccurs="1"/>
+          <choice minOccurs="0" maxOccurs="1">
+            <element name="RepositoryItemRef" type="tns:SimpleLinkType"/>
+            <element name="RepositoryItem" type="base64Binary" xmime:expectedContentTypes="*/*">
+              <annotation>
+                <!--appinfo xmime:expectedContentTypes="*/*"/-->  
+                </annotation>
+              </element>          
+          </choice>          
+        </sequence>
+        <attribute name="mimeType" type="tns:LongText" use="optional" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="CommentType">
+    <annotation>
+      <documentation xml:lang="en">
+        Models the familiar “PostIt attached to papers” metaphor.
+        Used to attach comments to Register during registration procedures, may be used to comment on any RegistryObject.
+        Implemented as a sub-type of ExtrinsicObjectType.
+        If comment is small it is specified in description field.
+        If comment is large or needs formatting, images etc. then it is specified in the RepositoryItem as a document.
+        Adding a comment to a RegistryObject done by defining a “HasComment” Association with an ExtrinsicObject with objectType “Comment”.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtrinsicObjectType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="PartyType" abstract="true">
+    <annotation>
+      <documentation xml:lang="en">Represents a Party such as Person or Organization.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="PostalAddress" type="tns:PostalAddressType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="TelephoneNumber" type="tns:TelephoneNumberType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="EmailAddress" type="tns:EmailAddressType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="OrganizationType">
+    <annotation>
+      <documentation xml:lang="en">Represents an organizational entity in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:PartyType">
+        <sequence>
+          <element name="Organization" type="tns:OrganizationType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="primaryContact" type="tns:objectReferenceType" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="PersonType">
+    <annotation>
+      <documentation xml:lang="en">Represents a Person in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:PartyType">
+        <sequence>
+          <!-- 
+          PersonName is optional because it is not needed in SAML Profile 
+          when an external IdentityProvider is used.
+          -->
+          <element name="PersonName" type="tns:PersonNameType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="PersonNameType">
+    <annotation>
+      <documentation xml:lang="en">Represents the name of a Person in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+      <attribute name="firstName" type="tns:ShortText" use="optional"/>
+      <attribute name="middleName" type="tns:ShortText" use="optional"/>
+      <attribute name="lastName" type="tns:ShortText" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="EmailAddressType">
+    <annotation>
+      <documentation xml:lang="en">Represents an email address in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">    
+        <attribute name="address" type="tns:ShortText" use="required"/>
+        <attribute name="type" type="tns:objectReferenceType" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="PostalAddressType">
+    <annotation>
+      <documentation xml:lang="en">Represents a postal address in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">    
+        <attribute name="city" type="tns:ShortText" use="optional"/>
+        <attribute name="country" type="tns:ShortText" use="optional"/>
+        <attribute name="postalCode" type="tns:ShortText" use="optional"/>
+        <attribute name="stateOrProvince" type="tns:ShortText" use="optional"/>
+        <attribute name="street" type="tns:ShortText" use="optional"/>
+        <attribute name="streetNumber" type="tns:String32" use="optional"/>
+        <attribute name="type" type="tns:objectReferenceType" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="VersionInfoType">
+    <annotation>
+      <documentation xml:lang="en">Represents information about the version of the object it is describing.</documentation>
+    </annotation>
+    <attribute name="versionName" type="string" use="optional"/>
+    <attribute name="userVersionName" type="string" use="optional"/>
+  </complexType>
+  
+  <complexType name="RegistryPackageType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a collection of objects in ebRIM.
+        Also serves a similar role as folder in file-folder metaphor.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element ref="tns:RegistryObjectList" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="RoleType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a role that may be assigned to subjects.
+        A role may have any number of context slots to support Contextual Role Based Access Control (CRBAC).
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="type" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ServiceType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a service in ebRIM.
+        Matches service as defined in WSDL 2.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="ServiceEndpoint" type="tns:ServiceEndpointType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="serviceInterface" type="tns:objectReferenceType" use="optional" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ServiceEndpointType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a service endpoint in ebRIM.
+        Matches endpoint as defined in WSDL 2.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="address" type="anyURI" use="optional" />
+        <attribute name="serviceBinding" type="tns:objectReferenceType" use="optional" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ServiceBindingType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a service binding in ebRIM.
+        Matches binding as defined in WSDL 2.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="serviceInterface" type="tns:objectReferenceType" use="optional" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="ServiceInterfaceType">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a service interface in ebRIM.
+        Matches interface as defined in WSDL 2.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="TelephoneNumberType">
+    <annotation>
+      <documentation xml:lang="en">Represents a telephone number in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">    
+        <attribute name="areaCode" type="tns:String8" use="optional"/>
+        <attribute name="countryCode" type="tns:String8" use="optional"/>
+        <attribute name="extension" type="tns:String8" use="optional"/>
+        <attribute name="number" type="tns:String16" use="optional"/>
+        <attribute name="type" type="tns:objectReferenceType" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="RegistryType">
+    <annotation>
+      <documentation xml:lang="en">Represents an ebXML RegRep server in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="baseURL" type="anyURI" use="required"/>
+        <attribute name="operator" type="tns:objectReferenceType" use="required"/>
+        <attribute name="specificationVersion" type="string" use="required"/>
+        <attribute default="P1D" name="replicationSyncLatency" type="duration" use="optional"/>
+        <attribute default="PT0S" name="catalogingLatency" type="duration" use="optional"/>
+        <attribute name="conformanceProfile" use="optional" default="RegistryLite">
+          <simpleType>
+            <restriction base="NCName">
+              <enumeration value="RegistryFull"/>
+              <enumeration value="RegistryLite"/>
+            </restriction>
+          </simpleType>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="FederationType">
+    <annotation>
+      <documentation xml:lang="en">Represents a federation of a group of ebXML RegRep servers in ebRIM.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <attribute name="replicationSyncLatency" type="duration" use="optional" default="P1D"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="QueryDefinitionType">
+    <annotation>
+      <documentation xml:lang="en">
+      Represents the definition of a query in ebRIM.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="Parameter" type="tns:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="QueryExpression" type="tns:QueryExpressionType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>  
+  
+  <complexType name="ParameterType">
+    <annotation>
+      <documentation>
+        Represents a parameter for a parameterized query or,
+        an AttributeDef for an ObjectType ClassificationNode.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <sequence>
+          <element name="Name" type="tns:InternationalStringType" minOccurs="1" maxOccurs="1"/>
+          <element name="Description" type="tns:InternationalStringType" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+    
+        <!--The parameterName must match the name in the stored parameterized query-->
+        <attribute name="parameterName" type="string" use="required"/>
+        <attribute name="dataType" type="string" use="required" />
+        <attribute name="defaultValue" type="string" use="optional"/>
+        <attribute name="minOccurs" type="nonNegativeInteger" default="1"/>
+        <attribute name="maxOccurs" type="nonNegativeInteger" default="1"/>
+      </extension>
+    </complexContent>
+  </complexType>
+      
+  <complexType name="QueryType">
+    <annotation>
+      <documentation xml:lang="en">
+      Represents invocation of a parameterized query.      
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <!--
+        References a QueryDefinition. 
+        Note that reference may be static or dynamic.
+        -->
+        <attribute name="queryDefinition" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="QueryExpressionType" abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        Represents a query expression in a specified query language that MAY be used by the server to invoke a query.
+        The QueryExpressionType is the abstract root of a type hierarchy for more specialized sub-types.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">    
+        <attribute name="queryLanguage" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="StringQueryExpressionType">
+    <annotation>
+      <documentation xml:lang="en">
+      A QueryExpression whose value sub-element is of type string and contains plain text.
+      Use this for SQL and EJBQL Queries.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:QueryExpressionType">
+        <sequence>
+          <element name="Value" type="string" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="XMLQueryExpressionType">
+    <annotation>
+      <documentation xml:lang="en">
+      A QueryExpression whose value sub-element is an XML element.
+      Use this for XQuery.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:QueryExpressionType">
+        <sequence>
+          <any namespace="##other" processContents="lax" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="NotificationType">
+    <annotation>
+      <documentation>Represents a Notification of registry events.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="Event" type="tns:AuditableEventType" minOccurs="1" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="subscription" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+  Following added as wsdl/1.1/NotificationListenerInterfaces.wsdl did not seem to work with message/part specifying only a type.
+  -->
+  <element name="Notification" type="tns:NotificationType"/>
+    
+  <complexType name="SubscriptionType">
+    <annotation>
+      <documentation xml:lang="en">Represents a Subscription for specified server Events.</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+          <element name="DeliveryInfo" type="tns:DeliveryInfoType" minOccurs="0" maxOccurs="unbounded" />
+          <element name="Selector" type="tns:QueryType" minOccurs="1" maxOccurs="1" />
+        </sequence>
+        <attribute name="startTime" type="dateTime" use="optional"/>
+        <attribute name="endTime" type="dateTime" use="optional"/>
+        <attribute name="notificationInterval" type="duration" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="DeliveryInfoType">
+    <annotation>
+      <documentation xml:lang="en">
+        Contains the information needed by the server to deliver notifications for the subscription. 
+        It includes the reference to the endpoint where notifications should be delivered.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:ExtensibleObjectType">
+        <sequence>          
+          <element name="NotifyTo" type="wsa:EndpointReferenceType" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+        <attribute name="notificationOption" type="tns:objectReferenceType" default="urn:oasis:names:tc:ebxml-regrep:NotificationOptionType:ObjectRefs"  />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="WorkflowActionType">
+    <annotation>
+      <documentation xml:lang="en">Represents a workflow action for registration procedures feature set</documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:RegistryObjectType">
+        <sequence>
+        </sequence>
+        <attribute name="actionType" type="tns:objectReferenceType" use="required"/>
+        <attribute name="targetObject" type="tns:objectReferenceType" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+</schema>

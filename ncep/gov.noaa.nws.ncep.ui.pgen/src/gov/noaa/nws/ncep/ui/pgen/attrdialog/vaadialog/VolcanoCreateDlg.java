@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/10		#165		G. Zhang   	Initial Creation.
  *
  * 04/11		#?			B. Yin			Re-factor IAttribute
+ * 11/12		#884		B. Yin 		Set selecting mode after creation
  * </pre> 
  * @author	G. Zhang
  */
@@ -537,6 +538,7 @@ public class VolcanoCreateDlg extends AttrDlg implements ISinglePoint{
 	public void cancelPressed() {
 		setReturnCode(CANCEL);
 		close();
+		PgenUtil.setSelectingMode();
 	}
 	
 	/**

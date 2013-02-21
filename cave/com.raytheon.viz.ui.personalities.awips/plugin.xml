@@ -78,6 +78,30 @@
                   name="afterNewGroup"
                   visible="true">
             </separator>
+            <separator
+                  name="group1"
+                  visible="true">
+            </separator>
+            <separator
+                  name="group2"
+                  visible="true">
+            </separator>
+            <separator
+                  name="group3"
+                  visible="true">
+            </separator>
+            <separator
+                  name="group4"
+                  visible="true">
+            </separator>
+            <separator
+                  name="group5"
+                  visible="true">
+            </separator>
+            <separator
+                  name="importExportSeparator"
+                  visible="true">
+            </separator>
             <menu
                   id="import"
                   label="Import">

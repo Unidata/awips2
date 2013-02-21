@@ -8,6 +8,7 @@
 GLEVEL =  0!0:4700
 GVCORD =  none!none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  sm9s(quo(mul(quo(pwtr;25.4),relh@4700:10000%sgma),100))//pcp!pcp!pcp
 TYPE   =    c        !c !c
@@ -23,4 +24,3 @@ TITLE  =   1/-2/~ PCPN POTENTIAL (PW X (1000-470 MB RH)) INCHES OF PW!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

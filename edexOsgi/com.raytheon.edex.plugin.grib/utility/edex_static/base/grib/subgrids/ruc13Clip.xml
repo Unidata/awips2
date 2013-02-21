@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>RUC130</modelNames>
-   <referenceModel>RUC130</referenceModel>
+   <referenceGrid>130</referenceGrid>
    <nx>175</nx>
    <ny>175</ny>
    <!-- 

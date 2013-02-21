@@ -47,8 +47,6 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.site.notify.SendSiteActivationNotifications;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
@@ -418,25 +416,24 @@ public class GFESiteActivation implements ISiteActivationListener {
                         boolean clearTime = false;
                         try {
                             GFEDao dao = new GFEDao();
-                            GribModelLookup modelLookup = GribModelLookup
-                                    .getInstance();
                             List<String> d2dModels = configRef.getD2dModels();
                             List<List<String>> idsByVersion = new ArrayList<List<String>>(
                                     5);
                             for (String d2dModelName : d2dModels) {
-                                GridModel model = modelLookup
-                                        .getModelByName(d2dModelName);
+
                                 String gfeModel = configRef
                                         .gfeModelNameMapping(d2dModelName);
 
-                                if ((model != null) && (gfeModel != null)) {
+                                if ((d2dModelName != null)
+                                        && (gfeModel != null)) {
                                     int versions = configRef
                                             .desiredDbVersions(new DatabaseID(
                                                     siteID, DataType.GRID, "",
                                                     gfeModel));
                                     List<DatabaseID> dbIds = dao
-                                            .getD2DDatabaseIdsFromDb(model,
-                                                    gfeModel, siteID, versions);
+                                            .getD2DDatabaseIdsFromDb(
+                                                    d2dModelName, gfeModel,
+                                                    siteID, versions);
 
                                     while (versions > idsByVersion.size()) {
                                         idsByVersion.add(new ArrayList<String>(
