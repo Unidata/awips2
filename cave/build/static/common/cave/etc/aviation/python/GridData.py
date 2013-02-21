@@ -142,7 +142,7 @@
 #       	Title:             AvnFPS: Lack of customization in QC check
 #       
 #
-import logging, os, time, ConfigParser
+import logging, os, time, ConfigParser, sys
 import Avn, AvnLib, AvnParser
 import PointDataView, GfeValues
 
@@ -157,7 +157,7 @@ _Keys = ['Temp', 'DwptT', 'WDir', 'WSpd', 'WGust', 'Obvis', 'Vsby', \
     'Ints2', 'Prob2', 'PTyp3', 'Ints3', 'Prob3']
 _NumHours = 36
 
-Parameters = ['Sky', 'T', 'Td', 'Wind', 'WindGust', 'PoP', 'Wx', 'WindGust']
+Parameters = ['Sky', 'T', 'Td', 'Wind', 'WindGust', 'PoP', 'Wx']
 
 Translate = { 'Sky':'Sky', 'Temp':'T', 'DwptT':'Td', 'WDir':'WindDir', 'WSpd':'WindSpd', 'WGust':'WindGust',
              'PoP1h':'PoP', 'Obvis':'Wx', 'PoP':'PoP', 'Tstm':'Wx', 'Tint':'Wx', 'PTyp1':'Wx', 'Prob1':'Wx', 'Ints1':'Wx',
@@ -294,7 +294,6 @@ def _cvt(itime, d):
 def _getData(pdc, firstTime):    
     organizedData = {}
     data = []
-    pdc = None
     if pdc is not None :
         for i in range(pdc.getCurrentSz()):
             jpdv = pdc.readRandom(i)
@@ -499,11 +498,14 @@ def retrieveData(siteID, timeSeconds):
     from com.raytheon.viz.aviation.guidance import GuidanceUtil
     from com.raytheon.uf.viz.core.localization import LocalizationManager
     
+    #timerStart = time.clock()
+    #print 'GridData retrieveData, siteID %s, timeSeconds %d' % (siteID, timeSeconds)
     config = AvnParser.getTafSiteCfg(siteID)
     lat = config['geography']['lat']
     lon = config['geography']['lon']
     gfeSiteId = LocalizationManager.getInstance().getCurrentSite()
-        
+    #print '\tgfeSiteId: %s, lat %s, lon %s' % (gfeSiteId, lat, lon)
+    
     task = GetPointDataRequest()
     task.setSiteID(gfeSiteId);
     c = Coordinate(float(lon), float(lat))
@@ -516,8 +518,13 @@ def retrieveData(siteID, timeSeconds):
     task.setDatabaseID(db)
     pdc = GuidanceUtil.getGFEPointData(task)
     data = _getData(pdc, timeSeconds * 1000)
+    #print '\tdata: ', data
+    #timerEnd = time.clock()
+    #print '\ttime: ', timerEnd - timerStart
+                     
     if data is None :
-    	_Logger.info('Data not available for %s', siteID)
+        _Logger.info('Data not available for %s', siteID)
+    #sys.stdout.flush()
     return data
 
 

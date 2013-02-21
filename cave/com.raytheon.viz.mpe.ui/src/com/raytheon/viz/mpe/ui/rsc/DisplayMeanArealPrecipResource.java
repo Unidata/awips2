@@ -26,23 +26,16 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
 import javax.measure.converter.UnitConverter;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.colormap.Color;
-import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
@@ -64,13 +57,12 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil.GeoAreaLineSegs;
+import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -98,10 +90,6 @@ public class DisplayMeanArealPrecipResource extends
 
     MPEDisplayManager displayMgr = null;
 
-    private ColorMapParameters parameters = new ColorMapParameters();
-
-    private List<Colorvalue> colorSet;
-
     private String area_type = "";
 
     private int xor = 0;
@@ -111,6 +99,10 @@ public class DisplayMeanArealPrecipResource extends
     private int max_columns = 0;
 
     private int max_rows = 0;
+
+    private int accumInterval;
+
+    private DisplayFieldData displayField;
 
     private IFont font = null;
 
@@ -136,20 +128,14 @@ public class DisplayMeanArealPrecipResource extends
     }
 
     public DisplayMeanArealPrecipResource(MPEDisplayManager displayMgr,
-            String boundary_type, List<Colorvalue> colorSet) {
+            String boundary_type, DisplayFieldData displayField,
+            int accumInterval) {
         super(new DisplayMeanArealPrecipResourceData(), new LoadProperties());
         this.displayMgr = displayMgr;
-        this.colorSet = colorSet;
-        area_type = boundary_type;
-        loadData();
-
+        this.area_type = boundary_type;
+        this.displayField = displayField;
+        this.accumInterval = accumInterval;
     }
-
-    ColorMap colorMap;
-
-    DataMappingPreferences dmPref = new DataMappingPreferences();
-
-    RGB color;
 
     IGraphicsTarget target;
 
@@ -213,7 +199,8 @@ public class DisplayMeanArealPrecipResource extends
     private void compute_mean_areal_precip(FloatBuffer fbuf,
             ArrayList<GeoAreaLineSegs> meanAreaNodes, int xor, int yor,
             int max_columns, int max_rows) {
-
+        ColorMapParameters parameters = getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
         float cur_max;
         float cur_min;
         int col;
@@ -394,7 +381,8 @@ public class DisplayMeanArealPrecipResource extends
         }
 
         if (ids == true || vals == true) {
-
+            ColorMapParameters parameters = getCapability(
+                    ColorMapCapability.class).getColorMapParameters();
             for (GeoAreaLineSegs pMeanPrecip : meanAreaNodes) {
 
                 /* Using the MPE Lat/Lon Grid, draw the point. */
@@ -472,62 +460,23 @@ public class DisplayMeanArealPrecipResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        this.target = target;
+        getCapability(ColorMapCapability.class)
+                .setColorMapParameters(
+                        MPEDisplayManager.createColorMap(displayField
+                                .getCv_use(), accumInterval,
+                                MPEFieldResourceData
+                                        .getDataUnitsForField(displayField),
+                                MPEFieldResourceData
+                                        .getDisplayUnitsForField(displayField)));
+
+        loadData();
     }
 
     private void loadData() {
-
         min_coverage = Float.parseFloat(appsDefaults
                 .getToken(min_coverage_token));
-        colorMap = new ColorMap(colorSet.size());
-        colorMap.setName(displayMgr.getDisplayFieldType().getCv_use());
-        dmPref = new DataMappingPreferences();
-        int i = 0;
-        for (Colorvalue cv : colorSet) {
-            RGB rgb = RGBColors.getRGBColor(cv.getColorname().getColorName());
-            colorMap.setColor(i, new Color(rgb.red / 255f, rgb.green / 255f,
-                    rgb.blue / 255f));
-
-            DataMappingEntry entry = new DataMappingEntry();
-            entry.setPixelValue((double) i);
-            entry.setDisplayValue(cv.getId().getThresholdValue());
-            dmPref.addEntry(entry);
-
-            i++;
-        }
-        DataMappingEntry entry = new DataMappingEntry();
-        entry.setPixelValue((double) (i - 1));
-        entry.setDisplayValue(Double.MAX_VALUE);
-        dmPref.addEntry(entry);
-
-        dmPref.getEntries().get(0).setLabel("");
-        dmPref.getEntries().get(1).setLabel("");
-
-        ColorMapCapability cmc = getCapability(ColorMapCapability.class);
-
-        parameters = cmc.getColorMapParameters();
-        if (parameters == null) {
-            parameters = new ColorMapParameters();
-            cmc.setColorMapParameters(parameters);
-        }
-        parameters.setColorMap(colorMap);
-        parameters.setDataMapping(dmPref);
-
-        Unit<?> displayUnit = Unit.ONE;
-        Unit<?> dataUnit = Unit.ONE;
-
-        displayUnit = NonSI.INCH;
-        dataUnit = SI.MILLIMETER.divide(100);
-        parameters.setFormatString("0.00");
-
-        parameters.setDisplayUnit(displayUnit);
-        parameters.setImageUnit(dmPref.getImageUnit(displayUnit));
-        parameters.setDataUnit(dataUnit);
-
-        parameters.setColorMapMax(parameters.getColorMap().getSize() - 1);
-        parameters.setColorMapMin(0);
-        parameters.setDataMax(parameters.getColorMap().getSize() - 1);
-        parameters.setDataMin(0);
+        ColorMapParameters parameters = getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
         cvt = parameters.getDataToImageConverter();
 
         this.readData();
@@ -562,10 +511,7 @@ public class DisplayMeanArealPrecipResource extends
      */
     @Override
     public String getName() {
-
-        String otherDisp = MPEDisplayManager.getCurrent().getOtherDispType()
-                .toString();
-        return otherDisp;
+        return DisplayFieldData.multiHour.toString();
     }
 
     /**
@@ -637,7 +583,7 @@ public class DisplayMeanArealPrecipResource extends
         String dtform = "";
         String use = "";
         Calendar cal1 = Calendar.getInstance((TimeZone.getTimeZone("GMT")));
-        cal1.setTime(displayMgr.getCurrentDate());
+        cal1.setTime(displayMgr.getCurrentEditDate());
 
         if (cv_use.equals("XMRG")) {
             dtform = sxf.format(cal1.getTime());
@@ -665,7 +611,7 @@ public class DisplayMeanArealPrecipResource extends
 
         xmrg = null;
 
-        int numhours = displayMgr.getAccum_interval();
+        int numhours = accumInterval;
         int secsPerHr = 3600;
         buf = FloatBuffer.allocate(datasz);
         buf2 = FloatBuffer.allocate(buf.capacity());

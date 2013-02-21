@@ -1,6 +1,7 @@
 package com.raytheon.uf.edex.registry.ebxml.services.util;
 
 import com.raytheon.uf.common.event.Event;
+import com.raytheon.uf.common.util.session.SessionContextFactory;
 import com.raytheon.uf.common.util.session.SessionManager;
 
 /**
@@ -15,6 +16,7 @@ import com.raytheon.uf.common.util.session.SessionManager;
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jspinks     Initial creation
  * Sep 27, 2012 1187       djohnson    Split implementation between {@link SessionManager} and {@link RegistrySessionContext}.
+ * Feb 07, 2013 1543       djohnson    Use SessionContextFactory instead of context class directly.
  * 
  * </pre>
  * 
@@ -24,10 +26,32 @@ import com.raytheon.uf.common.util.session.SessionManager;
 public class RegistrySessionManager {
 
     /**
+     * {@link SessionContextFactory} for {@link RegistrySessionContext}
+     * instances.
+     */
+    private static final SessionContextFactory<RegistrySessionContext> REGISTRY_SESSION_CONTEXT_FACTORY = new SessionContextFactory<RegistrySessionContext>() {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public RegistrySessionContext getSessionContext() {
+            return new RegistrySessionContext();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<RegistrySessionContext> getSessionContextClass() {
+            return RegistrySessionContext.class;
+        }
+    };
+
+    /**
      * Opens a Hibernate transaction and binds it to a thread
      */
     public static void openSession() {
-        SessionManager.openSession(RegistrySessionContext.class);
+        SessionManager.openSession(REGISTRY_SESSION_CONTEXT_FACTORY);
     }
 
     /**
@@ -36,7 +60,7 @@ public class RegistrySessionManager {
      * processing.
      */
     public static void closeSession() {
-        SessionManager.closeSession(RegistrySessionContext.class);
+        SessionManager.closeSession(REGISTRY_SESSION_CONTEXT_FACTORY);
     }
 
     /**
@@ -51,10 +75,9 @@ public class RegistrySessionManager {
      * @throws IllegalStateException
      *             If an attempt is made to add an event to an inactive Session.
      */
-    public static void postEvent(Event event)
-            throws IllegalStateException {
+    public static void postEvent(Event event) throws IllegalStateException {
         RegistrySessionContext ctx = SessionManager
-                .getSessionContext(RegistrySessionContext.class);
+                .getSessionContext(REGISTRY_SESSION_CONTEXT_FACTORY);
         ctx.postEvent(event);
     }
 }

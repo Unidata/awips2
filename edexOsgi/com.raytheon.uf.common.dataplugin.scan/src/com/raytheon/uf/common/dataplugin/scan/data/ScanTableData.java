@@ -25,11 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -45,14 +40,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
+ * 02/01/13     1569       D. Hladky   removed XML where not needed
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  * 
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public abstract class ScanTableData<T extends ScanTableDataRow> implements
         ISerializableObject, Serializable {
@@ -63,31 +58,24 @@ public abstract class ScanTableData<T extends ScanTableDataRow> implements
     private static final long serialVersionUID = 1L;
 
     @DynamicSerializeElement
-    @XmlElement
     public ScanTables tableName = null;
 
     @DynamicSerializeElement
-    @XmlElement
     public Integer vcp = null;
 
     @DynamicSerializeElement
-    @XmlElement
     public Double trueAngle = null;
 
     @DynamicSerializeElement
-    @XmlElement
     public Boolean lastElevationAngle;
 
     @DynamicSerializeElement
-    @XmlElement
     public Date volScanTime = null;
 
     @DynamicSerializeElement
-    @XmlElement
     public ConcurrentHashMap<String, T> tableData = null;
 
     @DynamicSerializeElement
-    @XmlElement
     public List<String> featureIds = null;
 
     public SCANConfig config = null;

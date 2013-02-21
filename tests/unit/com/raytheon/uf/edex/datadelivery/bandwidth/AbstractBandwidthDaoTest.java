@@ -43,9 +43,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocationFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -91,7 +91,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get();
         alloc1.setNetwork(Network.OPSNET);
 
-        dao.store(alloc1.getSubscriptionDao());
+        dao.store(alloc1.getBandwidthSubscription());
         dao.store(alloc1);
 
         assertEquals(1, dao.getBandwidthAllocations(Network.OPSNET).size());
@@ -103,7 +103,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get();
         alloc1.setNetwork(Network.SBN);
 
-        dao.store(alloc1.getSubscriptionDao());
+        dao.store(alloc1.getBandwidthSubscription());
         dao.store(alloc1);
 
         assertTrue(
@@ -117,7 +117,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get();
         alloc1.setNetwork(Network.OPSNET);
 
-        dao.store(alloc1.getSubscriptionDao());
+        dao.store(alloc1.getBandwidthSubscription());
         dao.store(alloc1);
 
         assertNotSame("Should have returned clones of the originals", alloc1,
@@ -131,13 +131,13 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         SubscriptionRetrieval ret2 = SubscriptionRetrievalFixture.INSTANCE
                 .get(2);
 
-        dao.store(ret1.getSubscriptionDao());
-        dao.store(ret2.getSubscriptionDao());
+        dao.store(ret1.getBandwidthSubscription());
+        dao.store(ret2.getBandwidthSubscription());
         dao.store(ret1);
         dao.store(ret2);
 
         List<BandwidthAllocation> results = dao.getBandwidthAllocations(ret2
-                .getSubscriptionDao().getId());
+                .getBandwidthSubscription().getId());
         assertEquals("Should have only returned one object!", 1, results.size());
         final BandwidthAllocation result = results.iterator().next();
         assertNotSame(ret2, result);
@@ -153,8 +153,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
         ret2.setStatus(RetrievalStatus.PROCESSING);
 
-        dao.store(ret1.getSubscriptionDao());
-        dao.store(ret2.getSubscriptionDao());
+        dao.store(ret1.getBandwidthSubscription());
+        dao.store(ret2.getBandwidthSubscription());
         dao.store(ret1);
         dao.store(ret2);
 
@@ -172,13 +172,13 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(1);
         OpenDapGriddedDataSetMetaData metaData2 = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                 .get(2);
-        DataSetMetaDataDao metaDataDao = dao.newDataSetMetaDataDao(metaData);
-        dao.newDataSetMetaDataDao(metaData2);
+        BandwidthDataSetUpdate metaDataDao = dao.newBandwidthDataSetUpdate(metaData);
+        dao.newBandwidthDataSetUpdate(metaData2);
 
-        final List<DataSetMetaDataDao> results = dao.getDataSetMetaDataDao(
+        final List<BandwidthDataSetUpdate> results = dao.getBandwidthDataSetUpdate(
                 metaData.getProviderName(), metaData.getDataSetName());
         assertEquals(1, results.size());
-        final DataSetMetaDataDao result = results.iterator().next();
+        final BandwidthDataSetUpdate result = results.iterator().next();
         assertEquals(metaData.getDataSetName(), result.getDataSetName());
         assertNotSame(metaDataDao, result);
     }
@@ -191,17 +191,17 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(1);
         metaData2.setDate(new ImmutableDate(metaData.getDate().getTime()
                 + TimeUtil.MILLIS_PER_YEAR));
-        DataSetMetaDataDao metaDataDao = dao.newDataSetMetaDataDao(metaData);
-        dao.newDataSetMetaDataDao(metaData2);
+        BandwidthDataSetUpdate metaDataDao = dao.newBandwidthDataSetUpdate(metaData);
+        dao.newBandwidthDataSetUpdate(metaData2);
 
         final ImmutableDate date1 = metaData.getDate();
         Calendar cal = Calendar.getInstance();
         cal.setTime(date1);
 
-        final List<DataSetMetaDataDao> results = dao.getDataSetMetaDataDao(
+        final List<BandwidthDataSetUpdate> results = dao.getBandwidthDataSetUpdate(
                 metaData.getProviderName(), metaData.getDataSetName(), cal);
         assertEquals(1, results.size());
-        final DataSetMetaDataDao result = results.iterator().next();
+        final BandwidthDataSetUpdate result = results.iterator().next();
         assertEquals(metaData.getDataSetName(), result.getDataSetName());
         assertNotSame(metaDataDao, result);
     }
@@ -225,8 +225,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         alloc2.setStatus(RetrievalStatus.DEFERRED);
         alloc2.setEndTime(after);
 
-        dao.store(alloc1.getSubscriptionDao());
-        dao.store(alloc2.getSubscriptionDao());
+        dao.store(alloc1.getBandwidthSubscription());
+        dao.store(alloc2.getBandwidthSubscription());
         dao.store(alloc1);
         dao.store(alloc2);
 
@@ -255,8 +255,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         alloc2.setStatus(RetrievalStatus.FULFILLED);
         alloc2.setEndTime(now);
 
-        dao.store(alloc1.getSubscriptionDao());
-        dao.store(alloc2.getSubscriptionDao());
+        dao.store(alloc1.getBandwidthSubscription());
+        dao.store(alloc2.getBandwidthSubscription());
         dao.store(alloc1);
         dao.store(alloc2);
 
@@ -285,8 +285,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         alloc2.setStatus(RetrievalStatus.DEFERRED);
         alloc2.setEndTime(now);
 
-        dao.store(alloc1.getSubscriptionDao());
-        dao.store(alloc2.getSubscriptionDao());
+        dao.store(alloc1.getBandwidthSubscription());
+        dao.store(alloc2.getBandwidthSubscription());
         dao.store(alloc1);
         dao.store(alloc2);
 
@@ -304,15 +304,15 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
             throws SerializationException {
         final Calendar now = BandwidthUtil.now();
         // Identical except for their identifier fields
-        SubscriptionDao entity1 = dao.newSubscriptionDao(
+        BandwidthSubscription entity1 = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(), now);
-        SubscriptionDao entity2 = dao.newSubscriptionDao(
+        BandwidthSubscription entity2 = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(), now);
 
         assertFalse("The two objects should not have the same id!",
                 entity1.getId() == entity2.getId());
 
-        final SubscriptionDao result = dao.getSubscriptionDao(entity2.getId());
+        final BandwidthSubscription result = dao.getBandwidthSubscription(entity2.getId());
         assertEquals("Should have returned the entity with the correct id!",
                 entity2.getId(), result.getId());
         assertNotSame(entity2, result);
@@ -323,14 +323,14 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
             throws SerializationException {
         final Calendar now = BandwidthUtil.now();
         // Identical except for their base reference times and ids
-        dao.newSubscriptionDao(SubscriptionFixture.INSTANCE.get(), now);
+        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(), now);
 
         final Calendar later = BandwidthUtil.now();
         later.add(Calendar.HOUR, 1);
-        SubscriptionDao entity2 = dao.newSubscriptionDao(
+        BandwidthSubscription entity2 = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(), later);
 
-        final SubscriptionDao result = dao.getSubscriptionDao(
+        final BandwidthSubscription result = dao.getBandwidthSubscription(
                 entity2.getRegistryId(), later);
         assertEquals(
                 "Should have returned the entity with the correct registryId!",
@@ -346,8 +346,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         SubscriptionRetrieval entity2 = SubscriptionRetrievalFixture.INSTANCE
                 .get(1);
 
-        dao.store(entity1.getSubscriptionDao());
-        dao.store(entity2.getSubscriptionDao());
+        dao.store(entity1.getBandwidthSubscription());
+        dao.store(entity2.getBandwidthSubscription());
         dao.store(Arrays.asList(entity1, entity2));
 
         final SubscriptionRetrieval result = dao
@@ -369,9 +369,9 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         SubscriptionRetrieval entity3 = SubscriptionRetrievalFixture.INSTANCE
                 .get(2);
 
-        dao.store(entity1.getSubscriptionDao());
-        dao.store(entity2.getSubscriptionDao());
-        dao.store(entity3.getSubscriptionDao());
+        dao.store(entity1.getBandwidthSubscription());
+        dao.store(entity2.getBandwidthSubscription());
+        dao.store(entity3.getBandwidthSubscription());
         dao.store(Arrays.asList(entity1, entity2, entity3));
 
         final Subscription subscription = entity1.getSubscription();
@@ -407,9 +407,9 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
 
         // Still have to persist the actual subscription daos
-        final SubscriptionDao subDao1 = entity1.getSubscriptionDao();
-        final SubscriptionDao subDao2 = entity2.getSubscriptionDao();
-        final SubscriptionDao subDao3 = entity3.getSubscriptionDao();
+        final BandwidthSubscription subDao1 = entity1.getBandwidthSubscription();
+        final BandwidthSubscription subDao2 = entity2.getBandwidthSubscription();
+        final BandwidthSubscription subDao3 = entity3.getBandwidthSubscription();
 
         // Give each a unique time
         final Calendar one = BandwidthUtil.now();
@@ -423,11 +423,11 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
 
         // This persists the subscription dao objects and sets them on the
         // retrievals
-        entity1.setSubscriptionDao(dao.newSubscriptionDao(
+        entity1.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao1.getSubscription(), subDao1.getBaseReferenceTime()));
-        entity2.setSubscriptionDao(dao.newSubscriptionDao(
+        entity2.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao2.getSubscription(), subDao2.getBaseReferenceTime()));
-        entity3.setSubscriptionDao(dao.newSubscriptionDao(
+        entity3.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao3.getSubscription(), subDao3.getBaseReferenceTime()));
 
         dao.store(Arrays.asList(entity1, entity2, entity3));
@@ -450,18 +450,18 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 subscription.getDataSetName(),
                 resultSubscription.getDataSetName());
         TestUtil.assertCalEquals("Wrong base reference time found.", one,
-                result.getSubscriptionDao().getBaseReferenceTime());
+                result.getBandwidthSubscription().getBaseReferenceTime());
     }
 
     @Test
     public void testGetSubscriptionsReturnsClones()
             throws SerializationException {
-        SubscriptionDao entity = dao.newSubscriptionDao(
+        BandwidthSubscription entity = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
 
-        List<SubscriptionDao> results = dao.getSubscriptions();
+        List<BandwidthSubscription> results = dao.getBandwidthSubscriptions();
         assertEquals(1, results.size());
-        SubscriptionDao result = results.iterator().next();
+        BandwidthSubscription result = results.iterator().next();
         assertNotSame(entity, result);
     }
 
@@ -475,17 +475,17 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         three.add(Calendar.HOUR, 1);
 
         // Three entities all the same except for base reference time
-        dao.newSubscriptionDao(SubscriptionFixture.INSTANCE.get(), one);
-        dao.newSubscriptionDao(SubscriptionFixture.INSTANCE.get(), two);
-        SubscriptionDao entity3 = dao.newSubscriptionDao(
+        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(), one);
+        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(), two);
+        BandwidthSubscription entity3 = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(), three);
         // One with same base reference time but different provider/dataset
-        dao.newSubscriptionDao(SubscriptionFixture.INSTANCE.get(2), three);
+        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(2), three);
 
-        List<SubscriptionDao> results = dao.getSubscriptions(
+        List<BandwidthSubscription> results = dao.getBandwidthSubscriptions(
                 entity3.getProvider(), entity3.getDataSetName(), three);
         assertEquals(1, results.size());
-        SubscriptionDao result = results.iterator().next();
+        BandwidthSubscription result = results.iterator().next();
         assertEquals("Incorrect provider", entity3.getProvider(),
                 result.getProvider());
         assertEquals("Incorrect provider", entity3.getDataSetName(),
@@ -508,22 +508,22 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
 
         // Still have to persist the actual subscription daos
-        final SubscriptionDao subDao1 = entity1.getSubscriptionDao();
-        final SubscriptionDao subDao2 = entity2.getSubscriptionDao();
-        final SubscriptionDao subDao3 = entity3.getSubscriptionDao();
+        final BandwidthSubscription subDao1 = entity1.getBandwidthSubscription();
+        final BandwidthSubscription subDao2 = entity2.getBandwidthSubscription();
+        final BandwidthSubscription subDao3 = entity3.getBandwidthSubscription();
 
         // This persists the subscription dao objects and sets them on the
         // retrievals
-        entity1.setSubscriptionDao(dao.newSubscriptionDao(
+        entity1.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao1.getSubscription(), subDao1.getBaseReferenceTime()));
-        entity2.setSubscriptionDao(dao.newSubscriptionDao(
+        entity2.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao2.getSubscription(), subDao2.getBaseReferenceTime()));
-        entity3.setSubscriptionDao(dao.newSubscriptionDao(
+        entity3.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao3.getSubscription(), subDao3.getBaseReferenceTime()));
 
         dao.store(Arrays.asList(entity1, entity2, entity3));
         final List<SubscriptionRetrieval> results = dao
-                .querySubscriptionRetrievals(entity2.getSubscriptionDao()
+                .querySubscriptionRetrievals(entity2.getBandwidthSubscription()
                         .getId());
         assertEquals(
                 "Should have returned one entity for the subscriptionDao id!",
@@ -547,22 +547,22 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
 
         // Still have to persist the actual subscription daos
-        final SubscriptionDao subDao1 = entity1.getSubscriptionDao();
-        final SubscriptionDao subDao2 = entity2.getSubscriptionDao();
-        final SubscriptionDao subDao3 = entity3.getSubscriptionDao();
+        final BandwidthSubscription subDao1 = entity1.getBandwidthSubscription();
+        final BandwidthSubscription subDao2 = entity2.getBandwidthSubscription();
+        final BandwidthSubscription subDao3 = entity3.getBandwidthSubscription();
 
         // This persists the subscription dao objects and sets them on the
         // retrievals
-        entity1.setSubscriptionDao(dao.newSubscriptionDao(
+        entity1.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao1.getSubscription(), subDao1.getBaseReferenceTime()));
-        entity2.setSubscriptionDao(dao.newSubscriptionDao(
+        entity2.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao2.getSubscription(), subDao2.getBaseReferenceTime()));
-        entity3.setSubscriptionDao(dao.newSubscriptionDao(
+        entity3.setBandwidthSubscription(dao.newBandwidthSubscription(
                 subDao3.getSubscription(), subDao3.getBaseReferenceTime()));
 
         dao.store(Arrays.asList(entity1, entity2, entity3));
         final List<SubscriptionRetrieval> results = dao
-                .querySubscriptionRetrievals(entity2.getSubscriptionDao());
+                .querySubscriptionRetrievals(entity2.getBandwidthSubscription());
         assertEquals(
                 "Should have returned one entity for the subscriptionDao!", 1,
                 results.size());
@@ -575,20 +575,20 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     @Test
     public void testRemoveSubscriptionDao() throws SerializationException {
         final Calendar now = BandwidthUtil.now();
-        dao.newSubscriptionDao(SubscriptionFixture.INSTANCE.get(1), now);
-        final SubscriptionDao entity2 = dao.newSubscriptionDao(
+        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(1), now);
+        final BandwidthSubscription entity2 = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(2), now);
-        dao.newSubscriptionDao(SubscriptionFixture.INSTANCE.get(3), now);
+        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(3), now);
 
         assertEquals("Incorrect number of entities found!", 3, dao
-                .getSubscriptions().size());
+                .getBandwidthSubscriptions().size());
 
         dao.remove(entity2);
 
-        final List<SubscriptionDao> subscriptions = dao.getSubscriptions();
+        final List<BandwidthSubscription> subscriptions = dao.getBandwidthSubscriptions();
         assertEquals("Incorrect number of entities found!", 2,
                 subscriptions.size());
-        for (SubscriptionDao subscription : subscriptions) {
+        for (BandwidthSubscription subscription : subscriptions) {
             assertFalse(
                     "Should not have found the entity with the removed entity's id",
                     subscription.getId() == entity2.getId());
@@ -614,7 +614,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get();
         assertEquals("The id should not have been set!",
                 BandwidthUtil.DEFAULT_IDENTIFIER, entity.getId());
-        dao.store(entity.getSubscriptionDao());
+        dao.store(entity.getBandwidthSubscription());
         dao.store(Arrays.asList(entity));
         assertFalse("The id should have been set!",
                 BandwidthUtil.DEFAULT_IDENTIFIER == entity.getId());
@@ -629,7 +629,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         entity.setAgentType("someAgentType");
         dao.store(entity);
         entity.setEstimatedSize(estimatedSize);
-        dao.update(entity);
+        dao.createOrUpdate(entity);
 
         assertEquals("Expected the entity to have been updated!", 25L, dao
                 .getBandwidthAllocations(entity.getNetwork()).iterator().next()
@@ -640,14 +640,14 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     public void testUpdateSubscriptionDao() throws SerializationException {
         final long estimatedSize = 25L;
 
-        SubscriptionDao entity = dao.newSubscriptionDao(
+        BandwidthSubscription entity = dao.newBandwidthSubscription(
                 SubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
 
         entity.setEstimatedSize(estimatedSize);
         dao.update(entity);
 
         assertEquals("Expected the entity to have been updated!", 25L, dao
-                .getSubscriptions().iterator().next().getEstimatedSize());
+                .getBandwidthSubscriptions().iterator().next().getEstimatedSize());
     }
 
     @Test
@@ -656,7 +656,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
 
         SubscriptionRetrieval entity = SubscriptionRetrievalFixture.INSTANCE
                 .get();
-        dao.store(entity.getSubscriptionDao());
+        dao.store(entity.getBandwidthSubscription());
         dao.store(entity);
         entity.setEstimatedSize(estimatedSize);
         dao.update(entity);
