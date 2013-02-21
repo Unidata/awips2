@@ -19,26 +19,12 @@
  **/
 package com.raytheon.viz.grid.inv;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.library.DerivParamField;
 import com.raytheon.uf.viz.derivparam.tree.AbstractCubeLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
-import com.raytheon.viz.grid.data.RadarRequestableData;
 
 /**
  * 
@@ -65,78 +51,14 @@ import com.raytheon.viz.grid.data.RadarRequestableData;
  * @version 1.0
  */
 public class RadarCubeLevelNode extends AbstractCubeLevelNode {
-    private String paramAbbrev = null;
 
     public RadarCubeLevelNode(AbstractCubeLevelNode that) {
         super(that);
     }
 
     public RadarCubeLevelNode(
-            List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> levels,
+            List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> levels,
             String modelName, DerivParamField field) {
         super(levels, modelName);
-        paramAbbrev = field.getParam();
-    }
-
-    protected List<AbstractRequestableData> wrapRawRecord(List<Object> objs)
-            throws VizException {
-        List<AbstractRequestableData> gribResults = new ArrayList<AbstractRequestableData>(
-                objs.size());
-        for (Object obj : objs) {
-            AbstractRequestableData record = new RadarRequestableData(
-                    (RadarRecord) obj, paramAbbrev);
-            gribResults.add(record);
-        }
-        return gribResults;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.derivparam.tree.AbstractCubeLevelNode#mergedTimeQuery
-     * (java.util.List, boolean)
-     */
-    @Override
-    protected Set<DataTime> mergedTimeQuery(
-            List<Map<String, RequestConstraint>> requests, boolean latestOnly)
-            throws VizException {
-        // Make sure we have data on at least two levels
-        Map<DataTime, Double> single = new HashMap<DataTime, Double>();
-        Set<DataTime> results = new HashSet<DataTime>();
-        for (Map<String, RequestConstraint> mergeMap : requests) {
-            DbQueryRequest request = new DbQueryRequest();
-            request.setConstraints(mergeMap);
-            String field = "dataTime";
-            String levelField = "primaryElevationAngle";
-            request.addFields(new String[] { field, levelField });
-
-            DbQueryResponse response = (DbQueryResponse) ThriftClient
-                    .sendRequest(request);
-            if (response.getResults() == null) {
-                continue;
-            }
-            for (Map<String, Object> map : response.getResults()) {
-                DataTime time = (DataTime) map.get(field);
-                Double level = (Double) map.get(levelField);
-                if (results.contains(time)) {
-                    continue;
-                }
-                if (!single.containsKey(time)) {
-                    single.put(time, level);
-                } else if (!level.equals(single.get(time))) {
-                    single.remove(time);
-                    results.add(time);
-                }
-            }
-        }
-        return results;
-    }
-
-    @Override
-    protected void filter(
-            Map<String, RequestConstraint> baseRequestConstraints,
-            Map<String, RequestConstraint> requestContraintsToFilter) {
-        // do nothing, no filtering necessary for radar
     }
 }

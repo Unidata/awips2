@@ -14,6 +14,7 @@ import static java.lang.Math.atan2;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 
@@ -38,6 +39,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/09		#280		B. Yin   	Move methods from action tools
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 02/12                    S. Gurung   Moved isSnapADC() and getNumOfCompassPts() to SigmeInfo. 
+ * 11/12		#?			J. Wu   	handle Gfa text box location
  * </pre>
  * 
  * @author	B. Yin
@@ -65,6 +67,17 @@ public class PgenToolUtils {
 				DrawableElement de = it.next();
 				de.setPointsOnly( extrapPoints( de.getPoints(), dir,  dist, adc ) );
 			}
+			
+			/*
+			 * Move the Gfa text box as well.
+			 */
+			if ( adc instanceof Gfa ) {
+				ArrayList<Coordinate>  pts = new ArrayList<Coordinate>();
+				pts.add( ((Gfa)adc).getGfaTextCoordinate() );
+				ArrayList<Coordinate> expPts = extrapPoints( pts, dir,  dist, adc );
+				((Gfa)newEl).setGfaTextCoordinate( expPts.get(0) );
+			}
+			
 		}  
 		
 		return newEl;

@@ -8,8 +8,9 @@
 GLEVEL =  9950!9950!9950!0   !9950
 GVCORD =  sgma!sgma!sgma!none!sgma
 SKIP   =    0/1
+FILTER=y
 SCALE  =   0
-GDPFUN =  tmpc!tmpc!tmpc!sm5s(mul(1e-2,pmsl)) ! kntv(wnd@9950%sgma)
+GDPFUN =  tmpc!tmpc!tmpc!sm5s(pmsl) ! kntv(wnd@9950%sgma)
 TYPE   =    c/f !c   !c   !c          ! b
 CINT   =    3/-99/0!3/3/18!3/21/99!4
 LINE   =    27/1/2!2/1/2!16/1/2!19//3
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ PMSL, BL TEMPERATURE (C), WIND    (KTS)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

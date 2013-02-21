@@ -37,6 +37,7 @@ package com.raytheon.uf.edex.cpgsrv;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06Feb2009    1981       dhladky     Creation.
+ * 30Nov2012    1372       dhladky     Added latency timing stats
  *
  * @author dhladky
  * @version 1.0
@@ -56,4 +57,7 @@ public interface ICompositeProductGenerator {
     public void setProductTime(URIGenerateMessage genMessage);
 
     public DataTime getProductTime();
+
+    public void log(URIGenerateMessage message);
+
 }

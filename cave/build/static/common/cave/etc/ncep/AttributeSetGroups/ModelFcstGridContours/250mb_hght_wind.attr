@@ -10,7 +10,7 @@
 GLEVEL=250
 GVCORD=pres
 SKIP=2/2
-FILTER=1.0
+FILTER=y
 SCALE=0                             !-1
 GDPFUN=knts((mag(wnd)))              !sm5s(hght)  !kntv(wnd)
 TYPE=c/f                           !c           !b

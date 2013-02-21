@@ -13,16 +13,20 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core;bundle-version="1.11.17",
  gov.noaa.nws.ncep.ui.pgen,
  org.apache.log4j;bundle-version="1.0.0",
- gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: SIB
 Import-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.obs.metar,
+ com.raytheon.uf.common.pointdata,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.drawables,
  com.raytheon.uf.viz.core.exception,
  com.raytheon.uf.viz.core.map,
  com.raytheon.uf.viz.core.rsc,
+ com.raytheon.viz.pointdata,
  com.raytheon.viz.ui.jobs,
  com.vividsolutions.jts.geom,
  gov.noaa.nws.ncep.viz.common.ui,

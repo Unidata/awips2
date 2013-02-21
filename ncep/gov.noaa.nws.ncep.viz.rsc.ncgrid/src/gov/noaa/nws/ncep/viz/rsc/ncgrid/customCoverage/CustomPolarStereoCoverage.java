@@ -1,7 +1,5 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;

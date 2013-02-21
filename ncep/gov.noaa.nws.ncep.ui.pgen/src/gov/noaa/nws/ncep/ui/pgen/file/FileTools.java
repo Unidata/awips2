@@ -22,6 +22,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 import java.io.File;
+import java.io.FileWriter;
 
 /**
  * Define a file tool for reading/writing PGEN products using JAXB.
@@ -40,6 +41,7 @@ import java.io.File;
  * 01/11					J. Wu   	Added validation against "Product.xsd" before
  * 										marshalling and creating non-existing dirs.
  * 07/11        #450        G. Hull     NcPathManager
+ * 12/12		?			B. Yin		Set read/write permission to all users when creating PGEN files.
  *
  * </pre>
  * 
@@ -84,6 +86,8 @@ public class FileTools {
   			File checkDir = new File( fdir );
   		    if ( !(checkDir.exists() && checkDir.isDirectory() ) ) {
   		    	checkDir.mkdirs();	 
+  		    	checkDir.setReadable(true, false);
+  		    	checkDir.setWritable(true, false);
    		    }			
   	    }
 		
@@ -91,6 +95,11 @@ public class FileTools {
 		try {
 
 			SerializationUtil.jaxbMarshalToXmlFile(products, fileName);
+			File xmlf = new File( fileName );
+			if ( xmlf.exists() ){
+  		    	xmlf.setReadable(true, false);
+  		    	xmlf.setWritable(true, false);
+			}
 
 		} catch (SerializationException e) {
 //			log.error("SerializationException thrown", e);
@@ -177,6 +186,38 @@ public class FileTools {
 		}
         
 		return valid;
+	}
+	
+	/**
+	 * Writes contents to a file that path points to.
+	 * @param path
+	 * @param contents
+	 */
+	public static void writeFile( String path, String contents ){
+		File outf = new File( path );
+		File parent = outf.getParentFile();
+		
+		if ( parent != null && !parent.exists() ){
+			parent.mkdirs();
+			parent.setReadable(true, false);
+			parent.setWritable(true, false);
+		}
+		else if ( parent != null && parent.exists() && !parent.canWrite()){
+			parent.setWritable(true, false);
+		}
+		
+		try {
+			FileWriter fw = new FileWriter(outf);
+			fw.write( contents );
+			fw.close();
+			
+			outf.setReadable(true, false);
+			outf.setWritable(true, false);
+		}
+		catch (Exception e) {
+			System.out.println("[PGEN] Problem writing file "+ outf.getAbsolutePath());
+		}
+
 	}
 	
 }

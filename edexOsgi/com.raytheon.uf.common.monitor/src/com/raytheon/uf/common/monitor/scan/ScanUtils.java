@@ -40,7 +40,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.binlightning.dao.BinLightningDao;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter;
@@ -57,6 +56,7 @@ import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -295,13 +295,13 @@ public class ScanUtils {
 
     public static String SEVERE_THUNDERSTORM_PHENSIG = "SV.W";
 
-    private static Map<String, String> tableStdResLevels = new HashMap<String,String>();
-    
-//    private static String standardResolutionLevel = null;
+    private static Map<String, String> tableStdResLevels = new HashMap<String, String>();
 
-    private static Map<String, String> tableHighResLevels = new HashMap<String,String>();
+    // private static String standardResolutionLevel = null;
 
-//    private static String highResolutionLevel = null;
+    private static Map<String, String> tableHighResLevels = new HashMap<String, String>();
+
+    // private static String highResolutionLevel = null;
 
     private static String prevTable = "";
 
@@ -316,7 +316,7 @@ public class ScanUtils {
         BinLightningRecord lightRec = null;
         try {
             lightRec = new BinLightningRecord(uri);
-            BinLightningDao ld = (BinLightningDao) PluginFactory.getInstance()
+            PluginDao ld = (PluginDao) PluginFactory.getInstance()
                     .getPluginDao(lightRec.getPluginName());
             lightRec = (BinLightningRecord) ld.getMetadata(uri);
             IDataStore dataStore = ld.getDataStore(lightRec);
@@ -630,7 +630,7 @@ public class ScanUtils {
         return outputGrid;
 
     }
-    
+
     public static short[] reSizeGridMax(short[] inputGrid, int outputGridSize,
             int nx, int ny) {
 
@@ -647,8 +647,9 @@ public class ScanUtils {
                         for (int x = 0; x < 4; x++) {
                             for (int y = 0; y < 4; y++) {
                                 // average the grid values
-                                mxValue = (short) Math.max(inputGrid[(SCAN_GRID_DIM_1KM * (i * 4 + x))
-                                        + (j * 4 + y)], mxValue);
+                                mxValue = (short) Math
+                                        .max(inputGrid[(SCAN_GRID_DIM_1KM * (i * 4 + x))
+                                                + (j * 4 + y)], mxValue);
                             }
                         }
                         outputGrid[(SCAN_GRID_DIM * i) + j] = mxValue;
@@ -668,8 +669,9 @@ public class ScanUtils {
                         for (int x = 0; x < 2; x++) {
                             for (int y = 0; y < 2; y++) {
                                 // average the grid values
-                                mxValue = (short) Math.max(inputGrid[(SCAN_GRID_DIM_2KM * (i * 2 + x))
-                                        + (j * 2 + y)], mxValue);
+                                mxValue = (short) Math
+                                        .max(inputGrid[(SCAN_GRID_DIM_2KM * (i * 2 + x))
+                                                + (j * 2 + y)], mxValue);
                             }
                         }
                         outputGrid[(SCAN_GRID_DIM * i) + j] = mxValue;
@@ -681,7 +683,7 @@ public class ScanUtils {
         return outputGrid;
 
     }
-    
+
     /**
      * Converts the raw bytes array into DBZ short arrays
      * 
@@ -700,7 +702,8 @@ public class ScanUtils {
      * @param radRec
      * @return
      */
-    public static short[] convertToGrid(RadarRecord radRec, int gridSize, boolean max) {
+    public static short[] convertToGrid(RadarRecord radRec, int gridSize,
+            boolean max) {
 
         short[] grid = null;
 
@@ -735,7 +738,7 @@ public class ScanUtils {
                             radRec, irow, icol);
                 }
             }
-            
+
             if ((radRec.getNumBins() * radRec.getNumRadials()) != gridSize) {
                 if (max)
                     grid = ScanUtils.reSizeGridMax(ogrid, gridSize,
@@ -1613,12 +1616,12 @@ public class ScanUtils {
 
             // hail cap check
             if (rValue > hailCap) {
-                return (float)(MM_TO_INCH * hailCap);
+                return (float) (MM_TO_INCH * hailCap);
             }
         } else {
-        	return (float) rValue;
+            return (float) rValue;
         }
-        
+
         return (float) (MM_TO_INCH * rValue);
     }
 
@@ -1845,7 +1848,7 @@ public class ScanUtils {
      */
     public static String getStandardResolutionLevel(String tablename) {
         String resLevel = tableStdResLevels.get(tablename);
-        if(resLevel == null) {
+        if (resLevel == null) {
             setResolutionLevels(tablename);
             resLevel = tableStdResLevels.get(tablename);
         }
@@ -1861,7 +1864,7 @@ public class ScanUtils {
      */
     public static String getHighResolutionLevel(String tablename) {
         String resLevel = tableHighResLevels.get(tablename);
-        if(resLevel == null) {
+        if (resLevel == null) {
             setResolutionLevels(tablename);
             resLevel = tableHighResLevels.get(tablename);
         }

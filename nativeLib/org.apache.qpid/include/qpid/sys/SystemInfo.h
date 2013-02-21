@@ -24,6 +24,7 @@
 #include "qpid/sys/IntegerTypes.h"
 #include "qpid/Address.h"
 #include "qpid/CommonImportExport.h"
+#include <vector>
 
 namespace qpid {
 namespace sys {
@@ -40,10 +41,10 @@ namespace SystemInfo {
     QPID_COMMON_EXTERN long concurrency();
 
     /**
-     * Get the local host name and set it in the specified TcpAddress.
+     * Get the local host name and set it in the specified.
      * Returns false if it can't be obtained and sets errno to any error value.
      */
-    QPID_COMMON_EXTERN bool getLocalHostname (TcpAddress &address);
+    QPID_COMMON_EXTERN bool getLocalHostname (Address &address);
 
     QPID_COMMON_EXTERN void getLocalIpAddresses (uint16_t port, std::vector<Address> &addrList);
 
