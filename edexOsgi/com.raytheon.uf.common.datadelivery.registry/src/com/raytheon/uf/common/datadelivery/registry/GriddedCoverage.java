@@ -54,7 +54,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 31, 2011    191      dhladky     Initial creation
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012   1259      bsteffen    Switch Data Delivery from LatLon to referenced envelopes.
- *
+ * Feb 15, 2013 1543       djohnson     Remove constructor accepting a Coverage.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -71,10 +72,6 @@ public class GriddedCoverage extends Coverage implements Serializable {
     private static final long serialVersionUID = 1458544578457L;
 
     public GriddedCoverage() {
-
-    }
-
-    public GriddedCoverage(Coverage v) {
 
     }
 

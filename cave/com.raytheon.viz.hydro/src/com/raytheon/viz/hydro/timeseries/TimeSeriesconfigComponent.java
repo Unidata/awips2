@@ -19,13 +19,15 @@
  **/
 package com.raytheon.viz.hydro.timeseries;
 
+import java.io.File;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
- * TODO Add Description
+ * Class to create a stand alone Time Series Dialog.
  * 
  * <pre>
  * 
@@ -34,6 +36,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
+ * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -41,7 +44,11 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class TimeSeriesconfigComponent extends AbstractCAVEComponent {
+public class TimeSeriesconfigComponent extends AbstractCAVEDialogComponent {
+
+    private static final String ENV_WHFS_CONFIG_DIR = "whfs_config_dir";
+
+    private static final String GROUP_DEFINITION_FILE_NAME = "group_definition.cfg";
 
     /*
      * (non-Javadoc)
@@ -54,11 +61,9 @@ public class TimeSeriesconfigComponent extends AbstractCAVEComponent {
     protected void startInternal(String componentName) throws Exception {
         TimeSeriesDlg timeSeriesDialog = new TimeSeriesDlg(new Shell(
                 Display.getCurrent()),
-                TimeSeriesconfigAction.locateGroupDefinitionFile());
+                TimeSeriesconfigComponent.locateGroupDefinitionFile());
         timeSeriesDialog.open();
-        if (timeSeriesDialog != null && timeSeriesDialog.isOpen()) {
-            timeSeriesDialog.disposeDialogTS();
-        }
+        blockUntilClosed(timeSeriesDialog);
     }
 
     /*
@@ -71,6 +76,22 @@ public class TimeSeriesconfigComponent extends AbstractCAVEComponent {
     @Override
     protected int getRuntimeModes() {
         return ALERT_VIZ;
+    }
+
+    protected static File locateGroupDefinitionFile() {
+        String configDir = System
+                .getenv(TimeSeriesconfigComponent.ENV_WHFS_CONFIG_DIR);
+        if (configDir == null) {
+            configDir = "";
+        }
+
+        if (!configDir.endsWith("/")) {
+            configDir = configDir + "/";
+        }
+        File file = new File(configDir
+                + TimeSeriesconfigComponent.GROUP_DEFINITION_FILE_NAME);
+
+        return file;
     }
 
 }

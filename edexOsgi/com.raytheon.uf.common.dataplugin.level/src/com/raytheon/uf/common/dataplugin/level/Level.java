@@ -20,6 +20,8 @@
 package com.raytheon.uf.common.dataplugin.level;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -57,6 +59,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 03, 2009            rjpeter     Initial creation.
+ * Dec 20, 2012           njensen   Added Level(String)
  * </pre>
  * 
  * @author rjpeter
@@ -79,6 +82,9 @@ public class Level extends PersistableDataObject implements ISerializableObject 
     public static final String INVALID_VALUE_AS_STRING = "" + INVALID_VALUE;
 
     private static final long serialVersionUID = 1L;
+
+    private static final Pattern PATTERN = Pattern
+            .compile("([0-9]*)((_([0-9]*))??([a-zA-Z]+))");
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LEVEL_GENERATOR")
@@ -110,6 +116,33 @@ public class Level extends PersistableDataObject implements ISerializableObject 
     private transient int hashCode;
 
     private transient boolean dirtyFlag = true;
+
+    /**
+     * Constructor
+     */
+    public Level() {
+
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param level
+     */
+    public Level(String level) {
+        Matcher m = PATTERN.matcher(level);
+        if (m.matches()) {
+            String levelOne = m.group(1);
+            String levelTwo = m.group(4);
+            String name = m.group(5);
+
+            levelonevalue = Double.parseDouble(levelOne);
+            if (levelTwo != null) {
+                leveltwovalue = Double.parseDouble(levelTwo);
+            }
+            masterLevel = new MasterLevel(name);
+        }
+    }
 
     public long getId() {
         return id;

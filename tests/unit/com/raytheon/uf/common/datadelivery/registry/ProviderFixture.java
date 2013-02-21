@@ -36,8 +36,9 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 5, 2012  1102      djohnson     Initial creation
- * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
+ * Sep 05, 2012 1102       djohnson     Initial creation
+ * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 30, 2013 1543       djohnson     Add connection data.
  * 
  * </pre>
  * 
@@ -63,8 +64,7 @@ public class ProviderFixture extends AbstractFixture<Provider> {
         Random random = new Random(seedValue);
 
         Provider provider = new Provider();
-        // TODO: ConnectionFixture
-        // provider.setConnection(ConnectionFixture.INSTANCE.get(seedValue));
+        provider.setConnection(ConnectionFixture.INSTANCE.get(seedValue));
         provider.setErrorResponsePattern("error");
         provider.setName("providerName" + seedValue);
         // TODO: ProjectionFixture
