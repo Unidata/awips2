@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation 
  * 17Jun2008    1157       MW Fegan    Added interaction with GHG Configuration.
+ * 28 NOV 2012  1353       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -115,13 +116,18 @@ public class GhgFontDlg extends CaveSWTDialog {
     private GhgConfigData config = null;
 
     /**
+     * Currently selected font.
+     */
+    private GhgConfigData.GhgFontSizeEnum font;
+
+    /**
      * Constructor.
      * 
      * @param parent
      *            Parent Shell.
      */
     public GhgFontDlg(Shell parent, GhgConfigData config) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("GHG Font Dialog");
 
         this.config = config;
@@ -144,8 +150,6 @@ public class GhgFontDlg extends CaveSWTDialog {
         mediumFont.dispose();
         largeFont.dispose();
         xLargeFont.dispose();
-
-        setReturnValue(returnFontData);
     }
 
     @Override
@@ -168,7 +172,6 @@ public class GhgFontDlg extends CaveSWTDialog {
         Label topLabel = new Label(shell, SWT.NONE);
         topLabel.setText("Choose font size for GHG Monitor");
 
-        // GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group fontGroup = new Group(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         fontGroup.setLayout(gl);
@@ -263,7 +266,7 @@ public class GhgFontDlg extends CaveSWTDialog {
      *            the size of the newly selected font
      */
     private void updateFontSelection(GhgConfigData.GhgFontSizeEnum font) {
-        config.setCurrentFont(font);
+        this.font = font;
         switch (font) {
         case X_SMALL_FONT:
             returnFontData = xSmallFont.getFontData()[0];
@@ -304,7 +307,12 @@ public class GhgFontDlg extends CaveSWTDialog {
         applyFontBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                if (returnFontData != null) {
+                    config.setCurrentFont(font);
+                }
+
+                setReturnValue(returnFontData);
+                close();
             }
         });
 
@@ -316,7 +324,7 @@ public class GhgFontDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 returnFontData = null;
-                shell.dispose();
+                close();
             }
         });
     }

@@ -277,3 +277,4 @@ gov.noaa.nws.ncep.edex.common.metparameters.ProbableSkyCoverage
 gov.noaa.nws.ncep.edex.common.metparameters.ReportTimeInHourMins
 gov.noaa.nws.ncep.edex.common.metparameters.ProbablePresentWeather
 gov.noaa.nws.ncep.edex.common.metparameters.LowLevelWindShear
+gov.noaa.nws.ncep.edex.common.metparameters.WxPresent

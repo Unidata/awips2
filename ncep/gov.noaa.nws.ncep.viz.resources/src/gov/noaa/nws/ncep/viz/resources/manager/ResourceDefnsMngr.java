@@ -71,6 +71,10 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 05/27/12      #606       Greg Hull    get a list of inventoryDefinitions from Edex and save the alias in the ResourceDefn.
  * 06/05/12      #816       Greg Hull    return RD comparator. Change method to get RDs by
  *                                       category to return RD instead of type name. 
+ * 11/2012		 #885		T. Lee		 processed unmapped satellite projection                                
+ * 11/15/12      #950       Greg Hull    don't fail if an empty list of inventorys is returned
+ * 12/16/12      #957       Greg Hull    change getAttrSetsForResource to return AttributeSets list
+ * 12/18/12      #957       Greg Hull    patch the bug when deleting a localization file.
  *
  * </pre>
  * 
@@ -258,8 +262,15 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 	    List<NcInventoryDefinition>  errList = new ArrayList<NcInventoryDefinition>();
 	    
 	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
-	    	
-	    	NcInventoryDefinition invDefn = rd.createNcInventoryDefinition();
+	    	NcInventoryDefinition invDefn = null;
+	    	try {
+	    		invDefn = rd.createNcInventoryDefinition();
+	    	}
+	    	catch ( VizException e ) {
+				out.println("Error creating ResourceDefn from file: "+rd.getLocalizationFile().getName() );
+				out.println(" --->"+e.getMessage() );
+				badRscDefnsList.add( e );				
+	    	}
 	    	
 			if( invDefnsMap.containsKey( invDefn ) ) {
 				rd.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
@@ -702,15 +713,14 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 			if( rslts instanceof String ) {
 				throw new VizException( rslts.toString() );
 			}
-			else if( !(rslts instanceof ArrayList<?>) ) {
+			if( !(rslts instanceof ArrayList<?>) ) {
 				out.println("Inventory Directory Directory Error: expecting NcInventoryDefinition[] return." );
 				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
 			}
 			else if( ((ArrayList<?>)rslts).isEmpty() ) {
-				out.println("Inventory Directory Request Error: No Inventories initialized.???" );
-				//			throw new VizException( "Inventory Directory Request Error: No Inventories initialized." );
+				out.println("Inventory Directory Request Warning: No Inventories initialized.???" );
 			}
-			if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
+			else if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
 				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
 			}
 
@@ -719,7 +729,6 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 			
 			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
 			
-
 			for( NcInventoryDefinition invDefn : invDefnsList ) {
 				invDefnsMap.put( invDefn, invDefn );
 			}
@@ -1179,14 +1188,20 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 		else if( subTypeGenParams.length == 2 ) {
 			
 			String subType = rscName.getRscGroup();
-			if( !subType.endsWith( "km" ) ) {
-				out.println("Sanity check : SubType "+subType +" is expected to end with 'km'");
-			}
+			//if( !subType.endsWith( "km" ) ) {
+			//	out.println("Sanity check : SubType "+subType +" is expected to end with 'km'");
+			//}
 
 			int indx = subType.lastIndexOf( '_' );
 			if( indx != -1 ) {
 				String paramVal1 = subType.substring(0, indx);
 				String paramVal2 = subType.substring(indx+1, subType.length()-2); // NOTE; "km"
+
+				try {
+					int ok = Integer.parseInt(paramVal2);
+				} catch (NumberFormatException e ) {
+					paramVal2 = "0";
+				}
 
 				String subtypeGenParam = subTypeGenParams[0];
 				paramsMap.put( subTypeGenParams[0], paramVal1 );
@@ -1588,8 +1603,9 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
     }
     
     
-    public String[] getAttrSetsForResource( ResourceName rscName, boolean matchGroup ) {    
+    public List<AttributeSet> getAttrSetsForResource( ResourceName rscName, boolean matchGroup ) {    
        	ResourceDefinition rscDefn = getResourceDefinition( rscName.getRscType() );
+       	List<AttributeSet> asList = new ArrayList<AttributeSet>();
        	
     	if( rscDefn == null ) {
     		return null;
@@ -1598,9 +1614,13 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
     	if( rscDefn.applyAttrSetGroups( ) ) {
        		AttrSetGroup asg = getAttrSetGroupForResource( rscName );
        		if( asg != null ) {
-       			return asg.getAttrSetNames().toArray( new String[0] );
+       			for( String asName : asg.getAttrSetNames() ) {       				 
+       				AttributeSet as = getAttrSet( rscDefn, asg.getAttrSetGroupName(), asName );
+       				if( as != null ){
+       					asList.add( as );
+       				}
+       			}
        		}
-       		return new String[0];
        	}
     	else {
     		// if there is supposed to be a generated group but there is none
@@ -1608,14 +1628,20 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
     		if( matchGroup &&
     			rscName.getRscGroup().isEmpty() &&
     		   !rscDefn.getSubTypeGenerator().isEmpty() ) {
-    			return new String[0];
     		}
     		else {
-    			return getAvailAttrSets( rscDefn ).toArray( new String[0] );
+    			for( String asName : getAvailAttrSets( rscDefn ) ) {       				 
+       				AttributeSet as = getAttrSet( rscDefn, asName );
+       				if( as != null ){
+       					asList.add( as );
+       				}
     		}
     	}
     }
 
+    	return asList;
+    }
+    
     public List<ResourceName> getAllSelectableResourceNamesForResourcDefn(
     								ResourceDefinition rscDefn ) throws VizException {
 		List<ResourceName> rscNamesList = new ArrayList<ResourceName>();
@@ -1659,8 +1685,8 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 			if( asgList.isEmpty() ) {
 				rscName.setRscGroup( "" );
 
-				for( String attrSet : getAttrSetsForResource(rscName, false ) ) {
-					rscName.setRscAttrSetName( attrSet );
+				for( AttributeSet attrSet : getAttrSetsForResource(rscName, false ) ) {
+					rscName.setRscAttrSetName( attrSet.getName() );
 					rscNamesList.add( new ResourceName( rscName ) );
 				}					
 			}
@@ -1669,8 +1695,8 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 
 					rscName.setRscGroup( rscGroup );
 
-					for( String attrSet : getAttrSetsForResource(rscName, false ) ) {
-						rscName.setRscAttrSetName( attrSet );
+					for( AttributeSet attrSet : getAttrSetsForResource( rscName, false ) ) {
+						rscName.setRscAttrSetName( attrSet.getName() );
 						rscNamesList.add( new ResourceName( rscName ) );
 					}
 				}
@@ -1708,6 +1734,7 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 //    		int rscIndx = rscDefn.getDefinitionIndex();
     		
         	lFile.delete();
+//        	PathManagerFactory.getPathManager().
 
         	rscDefn.dispose();
         	
@@ -1720,19 +1747,34 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
         		// sanity check 
         		if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
         			out.println("??? a User-level file still exists??");
+        		
+                	lFile = NcPathManager.getInstance().getStaticLocalizationFile( lFileName );
+                	
+                	Thread.sleep(1000);
+					
+            		// It would be nice to know why this happens sometimes but for now this seems to 
+                	// fix the problem.
+                	if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
+                		throw new VizException("Error Removing Localization File: getStaticLocalizationFile returned a User level File.");
+        		}
         		}
         		
-        		try {
-        			readResourceDefn( lFile );//, rscIndx );        	
-        		}
-        		catch( VizException e ) {
-        			throw e;
+        		if( lFile != null ) {
+
+        			readResourceDefn( lFile ); // can throw VizException	        			
         		}        		
         	}
 
     	} catch( LocalizationOpFailedException e ) {
     		throw new VizException( e );
     	}
+    	catch (InterruptedException e) {
+    		throw new VizException( e );
+		}
+		catch( VizException e ) {
+			throw e;
+		}     
+
     	
     	return false;
     }
@@ -1818,10 +1860,9 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
     	LocalizationFile lFile = asg.getLocalizationFile();
     	
     	if( lFile == null ) {
-    		throw new VizException("Can't find LocalizationFile for AttrSetGroup" );
+    		throw new VizException("Error Removing AttrSetGroup: LFile is null" );
     	}
-    	
-    	if( lFile.getContext().getLocalizationLevel() != LocalizationLevel.USER ) {
+    	else if( lFile.getContext().getLocalizationLevel() != LocalizationLevel.USER ) {
     		throw new VizException( "Can't Remove Base or Site Level Attribute Set Groups.");
     	}
 
@@ -1837,12 +1878,22 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
     		
     		// 
     		if( lFile == null ) {
+        		throw new VizException("Can't find a Base or Superceding AttrSetGroup" );
 //    			rscDefn.removeAttrSetGroup( asgName );
     		}
-    		else {
-        		// sanity check 
+
+    		// sanity check (is failing)
         		if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
-        			out.println("??? a User-level file still exists??");
+    			out.println("??? a User-level ASG file still exists??");
+    			
+            	try { Thread.sleep(1000); } catch (InterruptedException e) { }
+				
+            	// TODO : Find out why this is happening and put in a better fix....
+        		lFile = NcPathManager.getInstance().getStaticLocalizationFile( lFileName );
+        		
+        		if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
+        			throw new VizException("Error Removing Attr Set Group: Still finding a User-level file?");
+        		}
         		}
         		
     			File asgFile = lFile.getFile();
@@ -1898,8 +1949,6 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 
     				attrSetGroupsMap.put( asg.getMapKey(), asg );
     			}
-    		}
-
     	} catch (LocalizationOpFailedException e) {
 			throw new VizException( e.getMessage() );
 		}    			
@@ -2027,6 +2076,15 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
         		// sanity check 
         		if( asLclFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
         			out.println("??? a User-level file still exists??");
+
+        			try { Thread.sleep(1000); } catch (InterruptedException e) { }
+    				
+                	// TODO : Find out why this is happening and put in a better fix....
+        			asLclFile = NcPathManager.getInstance().getStaticLocalizationFile( lFileName );
+            		
+            		if( asLclFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
+            			throw new VizException("Error Removing Attr Set: Still finding a User-level file?");
+            		}
         		}
         		
     			String rscImpl = asLclFile.getFile().getParentFile().getName();
@@ -2144,6 +2202,7 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 					lFile.getFile().getAbsolutePath() );
 
 			lFile.save();
+
 
 			resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
 

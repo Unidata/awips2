@@ -22,7 +22,6 @@ package com.raytheon.viz.gfe.core;
 import java.util.Date;
 
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -71,8 +70,7 @@ public interface ISpatialDisplayManager {
     public void setSpatialEditorTime(Date date);
 
     /**
-     * Activate a certain parm on the spatial editor. This will also disable all
-     * other parms
+     * Activate the specified parm for the display manager.
      * 
      * @param parmToActivate
      *            the parm to activate
@@ -197,28 +195,6 @@ public interface ISpatialDisplayManager {
             ISpatialEditorTimeChangedListener listener);
 
     /**
-     * NOTE: This only works for continuous colormaps--otherwise returns null
-     * 
-     * @param p
-     *            the parm to check
-     * @return the color map parameters
-     */
-    public ColorMapParameters getColorMapParameters(Parm p)
-            throws GFEOperationFailedException;
-
-    /**
-     * NOTE: This only works for continuous colormaps--otherwise returns null
-     * 
-     * @param p
-     *            the parm to check
-     * @param descriptor
-     *            TODO
-     * @return the color map parameters
-     */
-    public ColorMapParameters getColorMapParameters(Parm p,
-            IDescriptor descriptor) throws GFEOperationFailedException;
-
-    /**
      * Add an edit tool to the display
      * 
      * @param editTool
@@ -245,14 +221,6 @@ public interface ISpatialDisplayManager {
      * @return the parms currently shown on screen
      */
     public Parm[] getCurrentlyEnabledParms();
-
-    /**
-     * Return the area of the screen (if any) that the colorbar is currently
-     * occupying.
-     * 
-     * @return the colorbar coverage, or null if no colorbar displayed.
-     */
-    public PixelExtent getColorbarExtent();
 
     /**
      * Return the GFE System Resource

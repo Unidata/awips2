@@ -7,6 +7,7 @@
 ## EDITED BY EVAN BOOKBINDER 2-24-2012  ##
 ## EDITED BY PHIL KURIMSKI   2-28-2012  ##
 ## EDITED BY MIKE REGA       5-02-2012 DR 14885 MND blank line ##
+##           Qinglu Lin     12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
 #################################### SET SOME VARs ###################################
 #set ($hycType = "")
 #set ($floodReason = "")
@@ -112,7 +113,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if (${hycType} != "")
 <L>${hycType}</L> IN ##
 #end
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
  ${expcanHLTag}...
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
@@ -120,7 +121,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if (${hycType} != "")
 <L>${hycType}</L> IN ##
 #end
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
  ${expcanHLTag}...
 #end
 ############################
@@ -197,7 +198,7 @@ THIS IS A TEST MESSAGE.##
 FOR <L>${hycType}</L> ##
 #end
 REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)...
+#headlineLocList(${areas} true true true false true)...
 
 ################################################
 #################################

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup xmlns:ns2="com.raytheon.uf.common.datadelivery.registry" xmlns:ns4="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:ns3="group" xmlns:ns9="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0" xmlns:ns5="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:ns6="http://www.w3.org/1999/xlink" xmlns:ns10="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:ns7="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:ns8="http://www.w3.org/2005/08/addressing">
+    <parameterConfig AWIPS="water_u" GrADs="water_u"/>
+    <parameterConfig AWIPS="tau" GrADs="tau"/>
+    <parameterConfig AWIPS="surf_atm_press" GrADs="surf_atm_press"/>
+    <parameterConfig AWIPS="surf_temp_flux" GrADs="surf_temp_flux"/>
+    <parameterConfig AWIPS="surf_salt_flux" GrADs="surf_salt_flux"/>
+    <parameterConfig AWIPS="surf_solar_flux" GrADs="surf_solar_flux"/>
+    <parameterConfig AWIPS="surf_roughness" GrADs="surf_roughness"/>
+    <parameterConfig AWIPS="swsgx" GrADs="swsgx"/>
+    <parameterConfig AWIPS="swsgy" GrADs="swsgy"/>
+    <parameterConfig AWIPS="surf_el" GrADs="surf_el"/>
+    <parameterConfig AWIPS="water_v" GrADs="water_v"/>
+    <parameterConfig AWIPS="water_temp" GrADs="water_temp"/>
+    <parameterConfig AWIPS="salinity" GrADs="salinity"/>
+</ParameterLookup>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>3600</fcst>
+    <fcst>7200</fcst>
+    <fcst>10800</fcst>
+    <fcst>14400</fcst>
+    <fcst>18000</fcst>
+    <fcst>21600</fcst>
+    <fcst>25200</fcst>
+    <fcst>28800</fcst>
+    <fcst>32400</fcst>
+    <fcst>36000</fcst>
+    <fcst>39600</fcst>
+    <fcst>43200</fcst>
+    <fcst>46800</fcst>
+    <fcst>50400</fcst>
+    <fcst>54000</fcst>
+    <fcst>57600</fcst>
+    <fcst>61200</fcst>
+    <fcst>64800</fcst>
+    <fcst>68400</fcst>
+    <fcst>72000</fcst>
+    <fcst>75600</fcst>
+    <fcst>79200</fcst>
+    <fcst>82800</fcst>
+    <fcst>86400</fcst>
+    <fcst>90000</fcst>
+    <fcst>93600</fcst>
+    <fcst>97200</fcst>
+    <fcst>100800</fcst>
+    <fcst>104400</fcst>
+    <fcst>108000</fcst>
+    <fcst>111600</fcst>
+    <fcst>115200</fcst>
+    <fcst>122400</fcst>
+    <fcst>126000</fcst>
+    <fcst>129600</fcst>
+    <fcst>133200</fcst>
+    <fcst>136800</fcst>
+    <fcst>140400</fcst>
+    <fcst>144000</fcst>
+    <fcst>147600</fcst>
+    <fcst>151200</fcst>
+    <fcst>154800</fcst>
+    <fcst>158400</fcst>
+    <fcst>162000</fcst>
+    <fcst>165600</fcst>
+    <fcst>169200</fcst>
+    <fcst>172800</fcst>
+    <fcst>188800</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wvhgt</short_name>
+    <long_name>Significant height of wind waves</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>heightWindWaves</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>50.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wvdir</short_name>
+    <long_name>direction of wind waves (from which)</long_name>
+    <units>degree true</units>
+    <udunits>degree_True</udunits>
+    <uiname>dirWindWaves</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wvper</short_name>
+    <long_name>mean period of wind waves</long_name>
+    <units>s</units>
+    <udunits>seconds</udunits>
+    <uiname>meanPeriodWindWaves</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/second</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+</gridParamInfo>

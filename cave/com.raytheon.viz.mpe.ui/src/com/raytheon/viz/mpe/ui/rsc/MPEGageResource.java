@@ -93,6 +93,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Aug 8, 2012   15271	  snaples      Updated hourly slot
  * Aug 17, 2012  15271    snaples      Added check to add only PP gages
  * Sep 5, 2012   15079    snaples      Added constant for Milli to inches conversion factor
+ * Feb 12, 2013  15773    snaples      Updated addPoints to display PC gages when token is set to use PC data.
  * 
  * </pre>
  * 
@@ -133,6 +134,9 @@ public class MPEGageResource extends AbstractMPEInputResource {
     private IWireframeShape gageTriangles;
 
     private MPEFontFactory fontFactory;
+    
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
+
 
     /**
      * @param resourceData
@@ -444,12 +448,19 @@ public class MPEGageResource extends AbstractMPEInputResource {
     private void addPoints(List<MPEGageData> gages) {
         dataMap = new Hashtable<Coordinate, MPEGageData>();
         strTree = new STRtree();
+        /* read process PC token from .Apps_defaults */
+        String processpc = appsDefaults.getToken("mpe_process_PC");
+        boolean process_PC = false;
+        if (processpc.equalsIgnoreCase("ON")) {
+            process_PC = true;
+        } 
 
         if (!gages.isEmpty()) {
             for (ListIterator<MPEGageData> it = gages.listIterator(); it
                     .hasNext();) {
                 MPEGageData gageData = it.next();
-                if (!gageData.getPe().equalsIgnoreCase("PP")) {
+                // DR15773 Use PC gages only when token set to ON.
+                if ((gageData.getPe().equalsIgnoreCase("PC")) && (process_PC == false)) {
                     continue;
                 }
                 Coordinate latLon = gageData.getLatLon();

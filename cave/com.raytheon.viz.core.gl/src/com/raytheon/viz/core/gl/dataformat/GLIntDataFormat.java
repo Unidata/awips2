@@ -63,6 +63,28 @@ public class GLIntDataFormat extends AbstractGLColorMapDataFormat {
         return GL.GL_UNSIGNED_INT;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMin()
+     */
+    @Override
+    public double getDataFormatMin() {
+        return Integer.MIN_VALUE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMax()
+     */
+    @Override
+    public double getDataFormatMax() {
+        return Integer.MAX_VALUE;
+    }
+
     @Override
     public IntBuffer getCopybackBuffer(GLColorMapData data) {
         int width = data.getDimensionSize(0);
