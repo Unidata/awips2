@@ -22,6 +22,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 
 import java.awt.Color;
 import java.io.BufferedWriter;
@@ -35,6 +36,7 @@ import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -78,7 +80,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 01/12		#597		S. Gurung	Removed Snapping for ConvSigmet
  * 02/12        #597        S. Gurung   Removed snapping for NonConvSigmet. Moved snap functionalities to SnapUtil from SigmetInfo.
  * 03/12        #611        S. Gurung   Fixed ability to change SIGMET type (from Area to Line/Isolated and back and forth)
- *  
+ * 11/12		#873		B. Yin		Pass sigmet type "CONV_SIGMET" for snapping.
  * </pre>
  * 
  * @author	gzhang
@@ -123,10 +125,13 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	private Spinner spiSeq = null;
 	private Text txtInfo = null;// for VOR-text and element-selected synchronization
 	private String relatedState = "";
-	
+	private static Font txtfont; 
 		
 	protected SigmetCommAttrDlg(Shell parShell) throws VizException {
 		super(parShell);		
+		if ( txtfont == null ) {
+			txtfont = new Font(parShell.getDisplay(),"Courier",12, SWT.NORMAL);
+		}
 	}
 	
 	public static SigmetCommAttrDlg getInstance( Shell parShell){		
@@ -465,6 +470,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 			        
 				        int style = SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.READ_ONLY;
 				       txtInfo = new Text( top2, style );
+				       txtInfo.setFont( txtfont);
 				       attrControlMap.put("editableAttrFromLine", txtInfo);
 				       GridData gData = new GridData(600,48);
 				       gData.horizontalSpan = 8;
@@ -518,8 +524,8 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 			ArrayList<Coordinate> p = SigmetInfo.getSnapWithStation(Arrays.asList(coors), SigmetInfo.VOR_STATION_LIST, 10, 16); 
 			return SigmetInfo.getVORText(p.toArray(new Coordinate[]{}), vorConnector, lineType, 6, true);
 		}  */  	
-		if("OUTL_SIGMET".equals(pgenType)) {
-			return SnapUtil.getVORText(coors, vorConnector, lineType, 6, isSnapped, true, false, "OUTL_SIGMET");
+		if("OUTL_SIGMET".equals(pgenType) || "CONV_SIGMET".equals(pgenType) ||"NCON_SIGMET".equals(pgenType) ) {
+			return SnapUtil.getVORText(coors, vorConnector, lineType, 6, isSnapped, true, false, pgenType);
 		} 
 		return SnapUtil.getVORText(coors, vorConnector, lineType, 6, isSnapped);
     }
@@ -661,23 +667,16 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 			
 			@Override
 			public void okPressed() {
-				try{
-					File f = new File(/*dirLocal*/PgenUtil.getWorkingDirectory()+File.separator+txtSave.getText());						
-					Writer output = new BufferedWriter(new FileWriter(f));
-				    try {
 				      
-				    	output.write( txtInfo.getText() );
-				    	output.flush();
-				    }catch(Exception ee){System.out.println(ee.getMessage());} finally {  output.close(); }												
-				}catch(Exception e){
-					System.out.println(e.getMessage());
-				}finally{ 				
+				FileTools.writeFile(PgenUtil.getPgenActivityTextProdPath()+File.separator+txtSave.getText(), 
+						txtInfo.getText());
+
 					setReturnCode(OK);
 					close();
 					SigmetCommAttrDlg.this.drawingLayer.removeSelected();
 			    	SigmetCommAttrDlg.this.close();
 					PgenUtil.setSelectingMode();
-				}				
+
 			}
 	
 			@Override
@@ -698,6 +697,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 		        this.getShell().setText("SIGMET Save");	        
 		        
 			    txtInfo = new Text( top, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.WRAP);
+			    txtInfo.setFont(txtfont);
 			    GridData gData = new GridData(512,300);
 			    gData.horizontalSpan = 3;
 			    txtInfo.setLayoutData( gData );	    

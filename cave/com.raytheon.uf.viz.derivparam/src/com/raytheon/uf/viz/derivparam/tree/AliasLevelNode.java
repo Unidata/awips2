@@ -19,15 +19,15 @@
  **/
 package com.raytheon.uf.viz.derivparam.tree;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.AliasRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -56,20 +56,19 @@ public class AliasLevelNode extends AbstractAliasLevelNode {
         super(that);
     }
 
-    public AliasLevelNode(AbstractRequestableLevelNode sourceNode,
+    public AliasLevelNode(AbstractRequestableNode sourceNode,
             DerivParamDesc desc, DerivParamMethod method, String modelName,
             Level level) {
         super(sourceNode, desc, method, modelName, level);
     }
 
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        List<AbstractRequestableData> origs = sourceNode.getData(property,
-                timeOut, cache);
-        List<AbstractRequestableData> results = new ArrayList<AbstractRequestableData>(
+        Set<AbstractRequestableData> origs = dependencyData.get(sourceNode);
+        Set<AbstractRequestableData> results = new HashSet<AbstractRequestableData>(
                 origs.size());
         for (AbstractRequestableData orig : origs) {
             AbstractRequestableData result = new AliasRequestableData(orig);

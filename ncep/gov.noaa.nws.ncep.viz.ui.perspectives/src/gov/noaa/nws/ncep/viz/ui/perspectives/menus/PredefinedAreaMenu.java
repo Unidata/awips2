@@ -1,7 +1,14 @@
 package gov.noaa.nws.ncep.viz.ui.perspectives.menus;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.PredefinedAreasMngr;
+import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +19,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 
 /**
  * Create the Menu Items for the Predefined Area menu
@@ -27,6 +37,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
  *                                        (instead of ContributionItem); fixes
  *                                        menu items disappearing (after first
  *                                        menu use) in OB12.4
+ * 11/28/12       630        G. Hull      add areaType parameter to the command                                    
  * 
  * </pre>
  * 
@@ -34,6 +45,8 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
  * @version 1
  */
 public class PredefinedAreaMenu extends CompoundContributionItem {
+	
+	private static String commandId = "gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea";
     /*
      * (non-Javadoc)
      * 
@@ -42,25 +55,29 @@ public class PredefinedAreaMenu extends CompoundContributionItem {
      */
     @Override
     protected IContributionItem[] getContributionItems() {
-        String predefinedAreas[] = PredefinedAreasMngr
-                .getAvailPredefinedAreas();
 
         List<IContributionItem> items = new ArrayList<IContributionItem>();
+        Map<String, String> cmdParams = new HashMap<String, String>();
+
+		cmdParams.put("areaName", "xxx"); // 2 command parameters to be filled in below
+        cmdParams.put("areaType", AreaSource.PREDEFINED_AREA.toString() );
+            	    	
+        String predefinedAreas[] = PredefinedAreasMngr.getAvailPredefinedAreas();
+        
         for (String areaName : predefinedAreas) {
-            Map<String, String> parms = new HashMap<String, String>();
-            parms.put("areaName", areaName);
+			
+        	cmdParams.put("areaName", areaName );
+			
             CommandContributionItem item = new CommandContributionItem(
                     new CommandContributionItemParameter(
-                            PlatformUI.getWorkbench(),
-                            null,
-                            "gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea",
-                            parms, null, null, null, areaName, null, null,
+                            PlatformUI.getWorkbench(), null,
+                            commandId,
+                            cmdParams, null, null, null, areaName, null, null,
                             CommandContributionItem.STYLE_PUSH, null, true));
 
             items.add(item);
         }
         return items.toArray(new IContributionItem[0]);
     }
-
 }
 

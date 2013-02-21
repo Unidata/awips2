@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 0 Transitional//EN">
+<html>
+<head>
+	<style type="text/css">
+		a {font-weight:bold;}
+		td {width:270px;}
+		input{width:200px;}
+		table {border:0;}
+		select {width:200px;} 
+	</style>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" type="text/css" media="screen, projection" href="dataDelivery.css"/>
+    <script type="text/javascript" src='/registryEbxml/dwr/engine.js'></script>
+    <script type="text/javascript" src='/registryEbxml/dwr/util.js'></script>
+    <script type='text/javascript' src='/registryEbxml/dwr/interface/RegistryWeb.js'></script>
+    <script type='text/javascript' src='/registryEbxml/dataDeliveryUtil.js'></script>
+    <script type='text/javascript' src='/registryEbxml/validateForm.js'></script>
+  <title>Data Delivery Registry Admin: Add New User</title>
+</head>
+
+<body onLoad="populateFormData('User')">
+
+<span id="titleSpan" style="font-weight:bold; font-size:20pt"></span>
+<p>
+<a href="javascript:javascript:history.go(-1)">Back</a>
+<br>
+<a href="RegistryOrganizationMenu.html">Organization Search</a>
+<a href="RegistryUserMenu.html">User Search</a>
+<hr width="500" align="left"/>
+<button id="deletePartyButton" onclick="deleteParty()">Delete User</button> 
+<button id="modifyPartyButton" onclick="goToModifyUser()">Modify User</button>
+<h4>User Information</h4>
+<table>
+	<tr>
+		<td>User ID</td>  
+		<td><input id="idText" type="text"/></td>
+	</tr>
+ 	<tr>
+ 		<td>First Name</td>
+ 		<td><input id="firstNameText" type="text"/></td>
+ 	</tr>
+ 	<tr>
+ 		<td>Middle Name</td>
+ 		<td><input id="middleNameText" type="text"/></td>
+ 	</tr>
+ 	<tr>
+ 		<td>Last Name</td>
+ 		<td><input id="lastNameText" type="text"/></td>
+ 	</tr>
+ 	<tr>
+ 		<td>Organization</td>
+ 		<td><select id="userOrgSelect"></td> 
+ 	</tr>
+ 	<tr>
+ 		<td>Role</td>
+ 		<td><select id="userRoleSelect"></td>
+ 	</tr>
+ 	
+	<tr>
+		<td><hr width="100" align="left"/></td>
+		<td></td>
+	<tr>
+	<tr>
+		<td><b>Address</b></td>
+		<td><input type="checkbox" onclick="populateOrgAddress()" id="useOrgAddressCheck" name="addressCheck" value="addressCheck" ><span id="useOrgAddressSpan"><i>Use Organization Address</i></span></input></td>
+	</tr>
+	<tr>
+		<td>Address Type</td>
+		<td><select id="addressTypeSelect"></select></td>
+	</tr>
+	<tr>
+		<td>Address 1</td>
+		<td><input id="streetAddress1Text" type="text"/></td>
+	</tr>
+	<tr>
+		<td>Address 2</td>
+		<td><input id="streetAddress2Text" type="text"/></td>
+	</tr>
+	<tr>
+		<td>City</td>
+		<td><input id="cityText" type="text"/></td>
+	</tr>
+	<tr>
+		<td>State/Province</td>
+		<td><select id="stateSelect"\></td>
+	</tr>
+	<tr>
+		<td>Country</td>
+		<td><select id="countrySelect" onchange="populateStates('stateSelect')"\></td> 
+	</tr>
+	<tr>
+		<td>Postal Code</td>
+		<td><input id="postalCodeText" type="text"/></td>
+	</tr>
+	<tr>
+		<td><hr width="100" align="left"/></td>
+		<td></td>
+	<tr>
+	<tr>
+		<td><b>Telephone</b></td>
+		<td><input type="checkbox" onclick="populateOrgPhone()" id="useOrgPhoneCheck" name="phoneCheck" value="phoneCheck" ><span id="useOrgPhoneSpan"><i>Use Organization Telephone</i></span></input></td>
+	</tr>
+	<tr>
+		<td>Telephone Type</td>
+		<td><select id="telephoneTypeSelect"></select></td>
+	</tr>
+	<tr>
+		<td>Telephone Number</td>
+		<td>(<input id="areaCodeText" type="text" maxlength=3 style='width: 28px;'/>)
+		<input id="phone1Text" type="text" maxlength=3 style='width: 28px;'/>-
+		<input id="phone2Text" type="text" maxlength=4 style='width: 36px;'/>
+		Ext:<input id="extensionText" type="text" maxlength=8 style='width: 70px;'/>
+		</td>
+	</tr>
+	<tr>
+		<td><hr width="100" align="left"/></td>
+		<td></td>
+	<tr>
+	<tr>
+		<td><b>Email</b></td>
+		<td><input type="checkbox" onclick="populateOrgEmail()" id="useOrgEmailCheck" name="emailCheck" value="emailCheck" ><span id="useOrgEmailSpan"><i>Use Organization Email</i></span></input></td>
+	</tr>
+	<tr>
+		<td>Email Type</td>
+		<td><select id="emailTypeSelect"></select></td>
+	</tr>
+	<tr>
+		<td>Email Address</td>
+		<td><input id="emailText" type="text" style='width: 260px;'/>
+	</tr>
+	<tr>
+		<td><hr width="100" align="left"/></td>
+		<td></td>
+	<tr>
+</table>
+<p>
+<button id="userActionButton" type="button" onclick="partyAction()"/>
+</body>
+
+
+<script language="JavaScript">
+
+	/*
+	 * The user currently be looked at by this page.  Null if none
+	 */
+	self.userId = getUserId();
+	
+	RegistryWeb.getOrganizationNames("",function(organizations){
+		clearComboBox("userOrgSelect")
+		addOptionToList("userOrgSelect","","");
+		var orgs = splitArray(organizations);
+		for(var i = 0; i < orgs.length; i++){
+			addOptionToList("userOrgSelect",orgs[i],orgs[i]);
+		}
+	});
+	
+	RegistryWeb.getRoleTypes(function(roles){
+		var roleTypes = splitArray(roles);
+		addOptionToList("userRoleSelect","", "");
+		for(var i = 0; i < roleTypes.length;i++){
+			addOptionToList("userRoleSelect",roleTypes[i],roleTypes[i]);
+		}
+	});
+	
+	/* 
+	 * The current mode of the page.  Valid modes are 'add', 'modify', and 'view'
+	 * The add mode is used when adding a new user to the registry
+	 * The modify mode is used when modifying a user in the registry
+	 * The view mode is used when viewing a user in the registry
+	 */
+	self.mode=getMode()
+	
+	/*
+	 *  This function redirects the browser to the registry user interface in the modify mode
+	 */
+	function goToModifyUser(){
+		window.location="RegistryUserInterface.html?id="+self.userId+"&mode=modify"
+	}
+	
+	function populateOrgAddress(){
+		var fields=['addressTypeSelect','streetAddress1Text','streetAddress2Text','cityText',
+						'stateSelect','countrySelect','postalCodeText'];
+	    if (document.getElementById("useOrgAddressCheck").checked){
+			var org = getComboValue("userOrgSelect");
+			RegistryWeb.getPartyDetails(org,function(orgString){
+				var tokens = orgString.split("_____");
+				for(var i = 0; i < tokens.length; i++){
+					var subTokens = tokens[i].split("===");
+					if(fields.indexOf(subTokens[0])!=-1){
+						setElementValue(subTokens[0],subTokens[1]);
+					}		
+				}
+		 	});
+	 	} else{
+	 		for(var i = 0; i < fields.length;i++){
+	 			setElementValue(fields[i],"");
+	 		}
+	 	}
+	
+	}
+	
+	function populateOrgPhone(){
+		var fields=['telephoneTypeSelect','areaCodeText','phone1Text','phone2Text',
+				'extensionText'];
+	    if (document.getElementById("useOrgPhoneCheck").checked){
+			var org = getComboValue("userOrgSelect");
+			RegistryWeb.getPartyDetails(org,function(orgString){
+				var tokens = orgString.split("_____");
+				for(var i = 0; i < tokens.length; i++){
+					var subTokens = tokens[i].split("===");
+					if(fields.indexOf(subTokens[0])!=-1){
+						setElementValue(subTokens[0],subTokens[1]);
+					}		
+				}
+		 	});
+	 	} else{
+	 		for(var i = 0; i < fields.length;i++){
+	 			setElementValue(fields[i],"");
+	 		}
+	 	}
+	}
+	
+	function populateOrgEmail(){
+		var fields=['emailTypeSelect','emailText'];
+	    if (document.getElementById("useOrgEmailCheck").checked){
+			var org = getComboValue("userOrgSelect");
+			RegistryWeb.getPartyDetails(org,function(orgString){
+				var tokens = orgString.split("_____");
+				for(var i = 0; i < tokens.length; i++){
+					var subTokens = tokens[i].split("===");
+					if(fields.indexOf(subTokens[0])!=-1){
+						setElementValue(subTokens[0],subTokens[1]);
+					}		
+				}
+		 	});
+	 	} else{
+	 		for(var i = 0; i < fields.length;i++){
+	 			setElementValue(fields[i],"");
+	 		}
+	 	}
+	}
+	
+</script>
+</html>

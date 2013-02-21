@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.GridDBConstants;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.EnsembleComponentData.EnsComp;
 
 import java.text.NumberFormat;
@@ -267,8 +268,8 @@ public class EnsembleSelectComposite extends Composite {
 		ArrayList<Date> availCycleTimesList = new ArrayList<Date>();
 		
 		HashMap<String,RequestConstraint> constraintMap = new HashMap<String,RequestConstraint>();
-		constraintMap.put( "pluginName", new RequestConstraint( "ncgrib", ConstraintType.EQUALS) );
-		constraintMap.put( "modelInfo.modelName", 
+		constraintMap.put( GridDBConstants.PLUGIN_NAME, new RequestConstraint( GridDBConstants.GRID_TBL_NAME, ConstraintType.EQUALS) );
+		constraintMap.put( GridDBConstants.MODEL_NAME_QUERY, 
         		new RequestConstraint( modelName, ConstraintType.EQUALS ) );
 		
 		LayerProperty property = new LayerProperty();

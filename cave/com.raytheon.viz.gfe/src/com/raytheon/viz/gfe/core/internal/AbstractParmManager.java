@@ -2103,31 +2103,4 @@ public abstract class AbstractParmManager implements IParmManager {
         return vcModulePool;
     }
 
-    // Now construct the step times.
-    // All startTimes are included.
-    // EndTimes which are contained in another TR are included.
-    @Override
-    public List<Date> calcStepTimes(List<Parm> parms, TimeRange dspTR) {
-        SortedSet<Date> dateSet = new TreeSet<Date>();
-
-        for (Parm pi : parms) {
-            IGridData[] inv = pi.getGridInventory();
-            for (IGridData grid : inv) {
-                dateSet.add(grid.getGridTime().getStart());
-
-                if (!dateSet.contains(grid.getGridTime().getEnd())) {
-                    for (Parm pk : parms) {
-                        if (pi != pk
-                                && pi.overlappingGrid(grid.getGridTime()
-                                        .getEnd()) != null) {
-                            dateSet.add(grid.getGridTime().getEnd());
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        return new ArrayList<Date>(dateSet);
-    }
 }
