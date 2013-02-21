@@ -150,6 +150,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-qpid"
 
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-aviation-shared"
