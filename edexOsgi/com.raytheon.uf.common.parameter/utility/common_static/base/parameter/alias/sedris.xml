@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="sedris">
+    <!-- http://www.sedris.org/ -->
+	<alias base="AV">WIND_ABSOLUTE_VORTICITY</alias>
+	<alias base="CFRZR">FREEZING_RAIN_PRESENT</alias>
+	<alias base="CWAT">CLOUD_LIQUID_WATER_CONTENT</alias>
+	<alias base="CDCON">CONVECTIVE_CLOUD_LAYER</alias>
+	<alias base="CP">CONVECTIVE_PRECIPITATION_DENSITY</alias>
+	<alias base="DpT">DEW_POINT_TEMPERATURE</alias>
+	<alias base="DpD">DEW_POINT_DEPRESSION</alias>
+	<alias base="WVDIR">WIND_WAVE_DIRECTION</alias>
+	<alias base="SWDIR">MEAN_SWELL_WAVE_DIRECTION</alias>
+	<alias base="EPT">EQUIV_POTENTIAL_TEMPERATURE</alias>
+	<alias base="GH">GEOPOTENTIAL_ALTITUDE</alias>
+	<alias base="HIdx">TEMPERATURE_HEAT_INDEX</alias>
+	<alias base="HCDC">HIGH_CLOUD_COVERAGE</alias>
+	<alias base="ICETK">ICE_LAYER_THICKNESS</alias>
+	<alias base="MIXR">MIXING_RATIO</alias>
+	<alias base="LAPR">TEMPERATURE_LAPSE_RATE</alias>
+	<alias base="LCDC">LOW_CLOUD_COVERAGE</alias>
+	<alias base="LgSP">LARGE_SCALE_PRECIPITATION</alias>
+	<alias base="LHF">LATENT_HEAT_FLUX</alias>
+	<alias base="MnT">MINIMUM_AIR_TEMPERATURE</alias>
+	<alias base="WVPER">MEAN_WIND_WAVE_PERIOD</alias>
+	<alias base="SWPER">MEAN_SWELL_WAVE_PERIOD</alias>
+	<alias base="MCDC">MIDDLE_CLOUD_COVERAGE</alias>
+	<alias base="MxT">MAXIMUM_AIR_TEMPERATURE</alias>
+	<alias base="P">ATM_PRESSURE</alias>
+	<alias base="PMSL">ATM_PRESSURE_REDUCED_MSL</alias>
+	<alias base="PoT">POTENTIAL_AIR_TEMPERATURE</alias>
+	<alias base="PR">PRECIPITATION_RATE</alias>
+	<alias base="DIRPW">PRIMARY_WAVE_DIRECTION</alias>
+	<alias base="PERPW">MEAN_PRIMARY_WAVE_PERIOD</alias>
+	<alias base="PVORT">WIND_POTENTIAL_VORTICITY</alias>
+	<alias base="PEVAP">EVAPORATION_POTENTIAL</alias>
+	<alias base="PW">PRECIPITABLE_WATER</alias>
+	<alias base="RH">RELATIVE_HUMIDITY</alias>
+	<alias base="DIRSW">SECONDARY_WAVE_DIRECTION</alias>
+	<alias base="PERSW">MEAN_SECONDARY_WAVE_PERIOD</alias>
+	<alias base="SWELL">SIFNIF_SWELL_WAVE_HEIGHT</alias>
+	<alias base="WVHGT">SIFNIF_WIND_WAVE_HEIGHT</alias>
+	<alias base="SCP">SNOW_GROUND_COVER_FRACTION</alias>
+	<alias base="SnD">SNOW_ONLY_DEPTH</alias>
+	<alias base="SH">SPECIFIC_HUMIDITY</alias>
+	<alias base="SHF">SENSIBLE_HEAT_FLUX</alias>
+	<alias base="TSOIL">SOIL_TEMPERATURE</alias>
+	<alias base="Heli">STORM_RELATIVE_HELICITY</alias>
+	<alias base="T">AIR_TEMPERATURE</alias>
+	<alias base="ThP">THUNDERSTORM_PROBABILITY</alias>
+	<alias base="TCC">TOTAL_CLOUD_COVERAGE</alias>
+	<alias base="TP">ACCUM_PRECIP</alias>
+	<alias base="TP3hr">ACCUM_PRECIP_3_HOUR</alias>
+	<alias base="TP6hr">ACCUM_PRECIP_6_HOUR</alias>
+	<alias base="TP24hr">ACCUM_PRECIP_24_HOUR</alias>
+	<alias base="uW">WIND_SPEED_U</alias>
+	<alias base="vW">WIND_SPEED_V</alias>
+	<alias base="VWSH">WIND_SHEAR_VERTICAL</alias>
+	<alias base="PVV">WIND_OMEGA</alias>
+	<alias base="Vis">VISIBILITY_DISTANCE</alias>
+	<alias base="VPT">VIRTUAL_POTENTIAL_TEMPERATURE</alias>
+	<alias base="VTMP">VIRTUAL_AIR_TEMPERATURE</alias>
+	<alias base="WEASD">SNOW_ACCUM_DEPTH_EQUIVALENT</alias>
+	<alias base="WD">WIND_DIRECTION</alias>
+	<alias base="WS">WIND_SPEED</alias>
+	<alias base="WGS">WIND_GUST_SPEED</alias>
+</aliasList>

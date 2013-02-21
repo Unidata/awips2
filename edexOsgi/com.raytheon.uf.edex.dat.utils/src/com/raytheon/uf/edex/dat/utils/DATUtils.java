@@ -25,11 +25,10 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasin;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -97,12 +96,12 @@ public class DATUtils {
      * @param uri
      * @return
      */
-    public static GribRecord getGribRecord(String uri) throws PluginException {
+    public static GridRecord getGridRecord(String uri) throws PluginException {
 
-        GribRecord gr = new GribRecord(uri);
-        GribDao gd = (GribDao) PluginFactory.getInstance().getPluginDao(
+        GridRecord gr = new GridRecord(uri);
+        PluginDao gd = PluginFactory.getInstance().getPluginDao(
                 gr.getPluginName());
-        gr = (GribRecord) gd.getMetadata(uri);
+        gr = (GridRecord) gd.getMetadata(uri);
 
         if (gr != null) {
 
@@ -264,30 +263,30 @@ public class DATUtils {
      * @param param
      * @return
      */
-    public static GribRecord getMostRecentGribRecord(int interval, String sql,
+    public static GridRecord getMostRecentGridRecord(int interval, String sql,
             SCANModelParameterXML param) {
 
-        GribRecord rec = null;
+        GridRecord rec = null;
 
         try {
             ScanDataCache cache = ScanDataCache.getInstance();
             Object[] obs = dbRequest(sql);
-            GribRecord newRec = null;
+            GridRecord newRec = null;
 
             if (obs != null && obs.length > 0) {
                 String uri = (String) obs[0];
-                newRec = getGribRecord(uri);
+                newRec = getGridRecord(uri);
             }
 
             if (cache.getModelData().isType(param.getModelName(),
                     param.getParameterName())) {
-                GribRecord oldRec = cache.getModelData().getGribRecord(
+                GridRecord oldRec = cache.getModelData().getGridRecord(
                         param.getModelName(), param.getParameterName());
 
                 if (newRec != null) {
                     if (newRec.getDataTime().getRefTime()
                             .after(oldRec.getDataTime().getRefTime())) {
-                        cache.getModelData().setGribRecord(
+                        cache.getModelData().setGridRecord(
                                 param.getModelName(), param.getParameterName(),
                                 newRec);
                         rec = newRec;
@@ -299,7 +298,7 @@ public class DATUtils {
                 }
             } else {
                 if (newRec != null) {
-                    cache.getModelData().setGribRecord(param.getModelName(),
+                    cache.getModelData().setGridRecord(param.getModelName(),
                             param.getParameterName(), newRec);
                     rec = newRec;
                 }

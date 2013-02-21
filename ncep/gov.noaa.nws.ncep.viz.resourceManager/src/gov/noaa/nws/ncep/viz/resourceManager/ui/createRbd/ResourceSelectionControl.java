@@ -4,6 +4,7 @@ import static java.lang.System.out;
 import gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
+import gov.noaa.nws.ncep.viz.resources.manager.AttributeSet;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -74,6 +75,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 06/06/2012     #816       Greg Hull   Alphabetize lists. Change content of listViewer to ResourceDefinitions
  * 08/26/2012     #          Greg Hull   allow for disabling resources
  * 08/29/2012     #860       Greg Hull   show latest time with attr sets
+ * 12/17/2012     #957       Greg Hull   change content of attrSetListViewer from String to to AttributeSet 
  *
  * </pre>
  * 
@@ -96,8 +98,6 @@ public class ResourceSelectionControl extends Composite {
 	
 	private Boolean isPgenMode = false;
 
-	private Boolean onlyShowAvailableData = true;
-	
 	// this list must stay in sync with the cycleTimeCombo.
 	private ArrayList<DataTime> cycleTimes = new ArrayList<DataTime>();
 		
@@ -130,6 +130,8 @@ public class ResourceSelectionControl extends Composite {
 	private final static int rscListViewerHeight = 220;
 	
 	private Boolean showLatestTimes = false;
+	private Boolean onlyShowResourcesWithData = false;
+	
 	private Integer maxLengthOfSelectableAttrSets = 0; // used in justifying the times in the attrSetsList
 	
     public interface IResourceSelectedListener {
@@ -146,6 +148,7 @@ public class ResourceSelectionControl extends Composite {
         super(parent, SWT.SHADOW_NONE );
         
         showLatestTimes = NmapCommon.getNcepPreferenceStore().getBoolean( NcepGeneralPreferencesPage.ShowLatestResourceTimes );
+        onlyShowResourcesWithData = false; //NmapCommon.getNcepPreferenceStore().getBoolean( NcepGeneralPreferencesPage.OnlyShowResourcesWithData );
 
         rscDefnsMngr = ResourceDefnsMngr.getInstance();
         
@@ -500,18 +503,18 @@ public class ResourceSelectionControl extends Composite {
 				
 				// if an attrSetGroup is selected, return the attrSets in the group
 				if( !seldResourceName.getRscType().isEmpty() ) {
-					String[] attrSets = rscDefnsMngr.getAttrSetsForResource( seldResourceName,
-                                                    true );
+					List<AttributeSet> attrSets = rscDefnsMngr.getAttrSetsForResource( 
+							seldResourceName, true );
 					
 					maxLengthOfSelectableAttrSets = 0;
 					
-					for( String as : attrSets ) {
-						if( as != null && as.length() > maxLengthOfSelectableAttrSets ) {
-							maxLengthOfSelectableAttrSets = as.length();
+					for( AttributeSet as : attrSets ) {
+						if( as != null && as.getName().length() > maxLengthOfSelectableAttrSets ) {
+							maxLengthOfSelectableAttrSets = as.getName().length();
 				}
 					}
 
-					return attrSets;
+					return attrSets.toArray( new AttributeSet[0] );
 				}
 
 				return new String[]{};
@@ -526,24 +529,27 @@ public class ResourceSelectionControl extends Composite {
     	rscAttrSetLViewer.setComparator( new ViewerComparator() {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
-            	if( ((String)e1).equals("default") ||
-            		((String)e1).equals("standard")	) {
+            	AttributeSet a1 = (AttributeSet) e1;
+            	AttributeSet a2 = (AttributeSet) e2;
+            	
+            	if( a1.getName().equals("default") ||
+            		a1.getName().equals("standard")	) {
             		return -1;
             	}
-            	else if( ((String)e2).equals("default") ||
-                		 ((String)e2).equals("standard")	) {
+            	else if( a2.getName().equals("default") ||
+                		 a2.getName().equals("standard")	) {
                 	return 1;
                 }
             	else {
             		// super calls getText which can trigger a bunch of inventory queries in some cases
-            		return ((String)e1).compareTo( (String)e2 ); //super.compare(viewer, e1, e2);
+            		return (a1.getName().compareTo( a2.getName() ) ); //super.compare(viewer, e1, e2);
             	}
             }
     	});
 
         rscAttrSetLViewer.setLabelProvider( new LabelProvider() {
 	    	public String getText( Object element ) {
-	    		String attrSetName = (String)element;
+	    		String attrSetName = ((AttributeSet)element).getName();
 	    		
 	    		if( attrSetName.endsWith(".attr") ) {
 	    			attrSetName = attrSetName.substring(0, attrSetName.length()-5);
@@ -555,8 +561,13 @@ public class ResourceSelectionControl extends Composite {
 	    		ResourceDefinition rscDefn = rscDefnsMngr.getResourceDefinition( 
 	    				rscName.getRscType() );
 
+	    		if( rscDefn == null ) {
+	    			return "";
+	    		}
 	    		// 
-	    		if( !showLatestTimes || rscDefn.isForecast() ) {
+	    		if( !showLatestTimes || 
+//	    			!onlyShowResourcesWithData || 
+	    			 rscDefn.isForecast() ) {
 	    			return attrSetName;
 	    		}
 	    		
@@ -568,8 +579,8 @@ public class ResourceSelectionControl extends Composite {
 				// TODO : If the inventory doesn't pan out then we could either 
 				//   implement this in another thread and accept the delay or add a
 				// 'Check Availability' button.
-	    		
-	    		if( rscName.isValid() && rscDefn != null &&
+	    		//
+	    		if( rscName.isValid() && 
 	    			rscDefn.usesInventory() &&
 		    		rscDefn.getInventoryEnabled() ) {
 	    		
@@ -699,7 +710,7 @@ public class ResourceSelectionControl extends Composite {
             public void selectionChanged(SelectionChangedEvent event) {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection(); 
             	
-            	seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
+            	seldResourceName.setRscAttrSetName( ((AttributeSet)seld_elem.getFirstElement()).getName() );
             	
             	updateCycleTimes();
             	
@@ -971,7 +982,7 @@ public class ResourceSelectionControl extends Composite {
 			rscAttrSetLViewer.getList().select(0);
 			StructuredSelection seld_elem = (StructuredSelection)rscAttrSetLViewer.getSelection();
 			
-			seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
+			seldResourceName.setRscAttrSetName( ((AttributeSet)seld_elem.getFirstElement()).getName() );
 		}		
 		
 		updateCycleTimes();
@@ -999,7 +1010,7 @@ public class ResourceSelectionControl extends Composite {
 		
 		// 
 		if( enableSelections ) { 
-			if( onlyShowAvailableData ) {
+//			if( onlyShowResourcesWithData ) {
 				try {
 // this call will query just for the inventory params needed to instantiate the resource 
 // (ie imageType, productCode...) and not the actual dataTimes.					
@@ -1033,7 +1044,7 @@ public class ResourceSelectionControl extends Composite {
 					availMsg = "Error getting latest time.";
 					enableSelections = false;
 				}
-			}
+//			}
 		}
 		
 		if( enableSelections ) {
@@ -1188,7 +1199,7 @@ public class ResourceSelectionControl extends Composite {
             		} catch (VizException e) {
             			throw new VizException(e);
             		}
-            		String[] gridCycleTimes = GempakGrid.getGridCycleTimes(dataLocation);
+            		String[] gridCycleTimes = GempakGrid.getGridCycleTimes(dataLocation,rscParams.get("GDFILE").toLowerCase());
             		for (String gct : gridCycleTimes) {
             			String gct2DataTimeFormat = "20" + gct.substring(0, 2)
             			+ "-" + gct.substring(2, 4) + "-"

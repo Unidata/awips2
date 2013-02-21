@@ -21,12 +21,12 @@ package com.raytheon.uf.edex.auth;
 
 import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.resp.AuthServerErrorResponse;
+import com.raytheon.uf.common.serialization.ExceptionWrapper;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.serialization.comm.RequestWrapper;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
-import com.raytheon.uf.common.serialization.comm.util.ExceptionWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.SizeUtil;

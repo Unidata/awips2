@@ -127,6 +127,12 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       but lock immediate cause, implemented in individual template.
  *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
  *                                       and in updateListSelected().
+ *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
+ *                                       to true in boxSelected().                                      
+ *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
+ *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
+ *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
+ *                                       and removed it from updateListSelected().
  * 
  * </pre>
  * 
@@ -1246,7 +1252,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     private void boxSelected() {
         boxEditable = !polygonLocked;
-        trackEditable = false;
+        trackEditable = true;
         warngenLayer.getStormTrackState().editable = trackEditable;
         warngenLayer.setBoxEditable(boxEditable);
         warngenLayer.issueRefresh();
@@ -1515,7 +1521,6 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     public void updateListSelected() {
         warngenLayer.setOldWarningPolygon(null);
-        setPolygonLocked(false);
         if (updateListCbo.getSelectionIndex() >= 0) {
             AbstractWarningRecord oldWarning = null;
             FollowupData data = (FollowupData) updateListCbo
@@ -1570,6 +1575,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
             warngenLayer.setWarningAction(action);
+            warngenLayer.initRemovedGids();
             if (action == WarningAction.CON) {
                 oldWarning = conSelected(data);
             } else if (action == WarningAction.COR) {
@@ -1825,6 +1831,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param selected
      */
     private AbstractWarningRecord conSelected(FollowupData data) {
+        setPolygonLocked(false);
         CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
                 .getLocalizedSite());
         AbstractWarningRecord newWarn = null;
@@ -1873,6 +1880,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // Special case - allows for Correction of Followups
         if (!allowsNewProduct) {
             newWarn = conSelected(data);
+            setPolygonLocked(true);
         } else {
             CurrentWarnings cw = CurrentWarnings.getInstance(warngenLayer
                     .getLocalizedSite());
@@ -1982,6 +1990,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param selected
      */
     private AbstractWarningRecord newSelected(FollowupData data) {
+        setPolygonLocked(false);
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
                 data.getEtn(), data.getPhen() + "." + data.getSig());

@@ -25,22 +25,7 @@
 			menuText="Convective SIGMET" id="ConvSigmet">
 			<dataURI>/convsigmet/%</dataURI>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/BufrNcwf.xml" menuText="NCWF" id="NCWF">
-			<dataURI>/bufrncwf/%</dataURI>
-		</contribute>
-		<contribute xsi:type="subMenu" menuText="CCFP">
-			<contribute xsi:type="bundleItem" file="bundles/Ccfp.xml" menuText="2 Hour" id="CCFP2HOUR">
-					<dataURI>/ccfp/%</dataURI>
-					<substitute key="validDuration" value="7200"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/Ccfp.xml" menuText="4 Hour" id="CCFP4HOUR">
-					<dataURI>/ccfp/%</dataURI>
-					<substitute key="validDuration" value="14400"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/Ccfp.xml" menuText="6 Hour" id="CCFP6HOUR">
-					<dataURI>/ccfp/%</dataURI>
-					<substitute key="validDuration" value="21600"/>
-			</contribute>		</contribute>
+
 		<contribute xsi:type="separator" id="separator1"/>
 		
 		<contribute xsi:type="titleItem" titleText="------ Icing Products ------" />

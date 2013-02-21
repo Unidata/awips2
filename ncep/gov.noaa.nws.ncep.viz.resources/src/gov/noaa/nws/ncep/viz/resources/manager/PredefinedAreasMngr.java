@@ -8,11 +8,12 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -21,7 +22,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
 
 /**
@@ -35,6 +35,9 @@ import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
  * ------------	----------	-----------	--------------------------
  * 07/28/11       #450      Greg Hull    Created / broke out from NmapResourceUtils. Use NcPathManager
  * 07/10/12       #646      Greg Hull    createPredefinedArea
+ * 11/14/12       #630      Greg Hull    implement ILocalizationFileObserver
+ * 11/18/12       #630      Greg Hull   
+ * 
  * </pre>
  * 
  * @author 
@@ -86,7 +89,6 @@ public class PredefinedAreasMngr {
 			}
 		}
 
-//		TreeMap<String> 
 		ArrayList<String> lAreaNamesList = new ArrayList<String>( predefinedAreasMap.keySet() );
 		String lAreaNames[] = lAreaNamesList.toArray( new String[0] );
 		   		
@@ -108,10 +110,6 @@ public class PredefinedAreasMngr {
    		return areaNamesVect.toArray(new String[0]);
    	}
 
-//	static public File getPredefinedAreaFile( String predefinedArea ) {
-//		
-//	}
-	
 //	// it might be nice create a class specifically to store the predefined 
 //	// area but for now this will just be the Display (we need the zoomLevel and
 //	// mapCenter as well as the gridGeometry)
@@ -137,19 +135,21 @@ public class PredefinedAreasMngr {
    	   					"Error unmarshaling PredefinedArea: "+areaName );
    	   			throw ve;
 			}
+			if( ((PredefinedArea)xmlObj).getAreaName().isEmpty() ) {
+				VizException ve = new VizException( 
+   	   					"Error unmarshaling PredefinedArea: " +areaName  );
+				throw ve;
+			}
+			
+			// just want to keep one instance of the observer. 
+			lFile.removeFileUpdatedObserver( localizationObserver );
+			lFile.addFileUpdatedObserver( localizationObserver );
+			
 			return (PredefinedArea)xmlObj;
 			
 		} catch (SerializationException e) {
 			throw new VizException( e );
 		}
-	}
-	
-	public static PredefinedArea createPredefinedArea( 
-			NCMapRenderableDisplay display ) throws VizException {
-		PredefinedArea pArea = new PredefinedArea();
-		pArea.setPredefinedArea( display );
-		
-		return clonePredefinedArea( pArea );
 	}
 	
 	public static PredefinedArea clonePredefinedArea( PredefinedArea pArea ) throws VizException { 
@@ -179,4 +179,51 @@ public class PredefinedAreasMngr {
 			throw  new VizException( e ); 
 		}
 	}
+	
+//	public static Boolean areAreasEqual( PredefinedArea p1, PredefinedArea p2 ) {
+//		if( Math.abs( p1.getZoomLevel() - p2.getZoomLevel() ) > .00001 ) {
+//			return false;
+//		}
+//		if( p1.getMapCenter().length != p2.getMapCenter().length ) {
+//			return false;
+//		}
+//		
+//		for( int i=0 ; i<p1.getMapCenter().length ; i++ ) {
+//			if( Math.abs( p1.getMapCenter()[i]-p2.getMapCenter()[i] ) > .00001 ) {
+//				return false;
+//			}			
+//		}
+//		
+//		return p1.getGridGeometry().equals( p2.getGridGeometry() );
+//	}
+
+	private static ILocalizationFileObserver localizationObserver = new ILocalizationFileObserver() {
+		@Override
+		public void fileUpdated( FileUpdatedMessage fumsg) {
+			// just force the map to be recreated next time
+			if( predefinedAreasMap != null ) {
+				predefinedAreasMap.clear();
+				predefinedAreasMap = null;
+			}
+			//		String fName = fumsg.getFileName();
+			//		LocalizationFile lFile;
+			//		
+			//		// if the file had been deleted 
+			//		if( fumsg.getChangeType() == FileChangeType.DELETED ) {
+			//			predefinedAreasMap.remove( fName );
+			//			// if reverted. (ie DELETED and there is a lower level file available)
+			//			lFile = NcPathManager.getInstance().getStaticLocalizationFile( fumsg.getFileName() );
+			//		}
+			//		else {
+			//		// get the ADDED, UPDATED file  
+			//			lFile = NcPathManager.getInstance().getLocalizationFile( 
+			//							fumsg.getContext(), fumsg.getFileName() );
+			//		}
+			//
+			//		// update the map with the new file 
+			//		if( lFile != null ) {
+			//			predefinedAreasMap.put( fName, lFile );			
+			//		}
+		}
+	};
 }

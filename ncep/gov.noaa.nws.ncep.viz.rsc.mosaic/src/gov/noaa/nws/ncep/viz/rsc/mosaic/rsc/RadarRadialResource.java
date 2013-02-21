@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
@@ -54,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03-04-2011              G. Zhang     Initial creation
+ * 12/19/2012     #960     Greg Hull   override propertiesChanged() to update colorBar.
  * 
  * </pre>
  * 
@@ -266,7 +268,12 @@ protected HashMap<String, RequestConstraint> queryList;//for legend DEG 2011-03-
 	}
 
 	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
 
+		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    }
+
+	@Override
 	public void resourceChanged(ChangeType type, Object object) {
         if ( type != null && type == ChangeType.CAPABILITY ){
         	if (object instanceof ImagingCapability ){
