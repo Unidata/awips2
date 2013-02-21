@@ -88,7 +88,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04 Mar 2011 7644      lbousaid      fixed Zoom in feature       
  * 30 May 2012 14967     wkwock        fix insert deleted data to rejecteddata table    
  * 23 Jul 2012 15195     mpduff        Fix dates for displaying groups
- * 06 Dec 2012 15066     wkwock        Fix "ctrl+r" not work in group mode                   
+ * 06 Dec 2012 15066     wkwock        Fix "ctrl+r" not work in group mode   
+ * 22 Jan 2013 14903     lbousaidi     Fix display error after save to DB.                
  * 
  * </pre>
  * 
@@ -875,18 +876,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     insertList.clear();
                     editList.clear();
                     deleteList.clear();
-
-                    for (TimeSeriesDisplayCanvas canvas : canvasList) {
-                        if (canvas.getTraceArray() != null) {
-                            for (TraceData td : canvas.getTraceArray()) {
-                                /* Reset the selection */
-                                td.setSelected(false);
-                            }
-                        }
-                        canvas.setGetAgain(true);
-                        canvas.redraw();
-                        canvas.update();
-                    }
+                    displayCanvas.redraw();
                 }
             }
         });
