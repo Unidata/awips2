@@ -11,6 +11,7 @@
 ## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##           
 ##        BY QINGLU LIN    7-31-2012 DR 15217 use roundAndPad ##
 ##        BY QINGLU LIN    8-14-2012 DR 14493 use TMLtime    ##
+##        BY QINGLU LIN    2-04-2013 DR 15198 Added <L></L> to ${area.name} for NEW. ##
 ################################################################
 ## Added Volcano Information in version 1.3 for sites where
 ## Volcanoes affect their marine zones. If sites wish to hide
@@ -69,7 +70,7 @@ SPECIAL MARINE WARNING FOR...
 #end
 #foreach (${area} in ${areas}) 
   ##
-${area.name}...
+<L>${area.name}...</L>
 #end
 ##
 ##
