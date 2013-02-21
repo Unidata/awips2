@@ -20,10 +20,11 @@
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 
 /**
@@ -43,11 +44,13 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
  * @version 1.0
  */
 
-public class CheckPermissionsRequestHandler implements IRequestHandler<CheckPermissionsRequest>{
+public class CheckPermissionsRequestHandler extends
+        AbstractPrivilegedRequestHandler<CheckPermissionsRequest> {
 
+    @Override
     public Object handleRequest(CheckPermissionsRequest request)
             throws Exception {
-        AuthorizationResponse response = authorized(request.getUser());
+        AuthorizationResponse response = authorized(request.getUser(), request);
         ServerResponse<String> sr = new ServerResponse<String>();
         if (!response.isAuthorized()) {
             sr.addMessage(response.getResponseMessage());
@@ -55,7 +58,10 @@ public class CheckPermissionsRequestHandler implements IRequestHandler<CheckPerm
         return sr;
     }
 
-    public AuthorizationResponse authorized(IUser user) {
-        return SvcBackupUtil.authorizeWithLocalization(user);
+    @Override
+    public AuthorizationResponse authorized(IUser user,
+            CheckPermissionsRequest request) throws AuthorizationException {
+        return SvcBackupUtil.authorizeWithLocalization(user, request);
     }
+
 }

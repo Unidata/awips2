@@ -200,8 +200,8 @@ public class ModelListInfo {
 		ArrayList<String> cyclesList = new ArrayList<String>();
 		
 		HashMap<String,RequestConstraint> constraintMap = new HashMap<String,RequestConstraint>();
-		constraintMap.put( "pluginName", new RequestConstraint( "ncgrib", ConstraintType.EQUALS) );
-		constraintMap.put( "modelInfo.modelName", 
+		constraintMap.put( "pluginName", new RequestConstraint( "grid", ConstraintType.EQUALS) );
+		constraintMap.put( "info.datasetId", 
         		new RequestConstraint( modelName.toUpperCase(), ConstraintType.EQUALS ) );
 		
 		LayerProperty property = new LayerProperty();

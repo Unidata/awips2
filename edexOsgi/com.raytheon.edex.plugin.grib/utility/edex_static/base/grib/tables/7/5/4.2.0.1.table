@@ -1,6 +1,6 @@
  # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
 #192-254 Reserved for local use
-192:192:Weather::wxType
+192:192:Categorical Rain::CRAIN
 193:193:Categorical Freezing Rain::CFRZR
 194:194:Categorical Ice Pellets::CICEP
 195:195:Categorical Snow::CSNOW
@@ -34,4 +34,5 @@
 223:223:Total precipitation (nearest grid point):mm:APCPN
 224:224:Convective precipitation (nearest grid point):mm:ACPCPN
 225:225:Freezing Rain:mm:FRZR
+242:242:Relative Humidity with Respect to Precipitable Water:%:RHPW
 255:255:Missing

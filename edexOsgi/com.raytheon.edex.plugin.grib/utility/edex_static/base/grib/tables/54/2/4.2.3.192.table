@@ -1,0 +1,10 @@
+# Product Discipline 3: Space Products, Parameter Category 192: Forecast Satellite Imagery
+0:0:Simulated Brightness Temperature for GOES 12, Channel 2:K:SBT122
+1:1:Simulated Brightness Temperature for GOES 12, Channel 3:K:SBT123
+2:2:Simulated Brightness Temperature for GOES 12, Channel 4:K:SBT124
+3:3:Simulated Brightness Temperature for GOES 12, Channel 5:K:SBT125
+4:4:Simulated Brightness Counts for GOES 12, Channel 3:Byte:SBC123
+5:5:Simulated Brightness Counts for GOES 12, Channel 4:Byte:SBC124
+#6-191:	Reserved 	
+#192-254 Reserved for Local Use 	
+255:255:Missing

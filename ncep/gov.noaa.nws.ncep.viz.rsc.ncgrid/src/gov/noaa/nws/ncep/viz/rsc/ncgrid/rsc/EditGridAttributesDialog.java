@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -32,7 +33,7 @@ import org.eclipse.swt.widgets.Text;
  * Nov,22 2010  352			 X. Guo     Add HILO, HLSYM and move all help functions
  *                                      into NcgridAttributesHelp.java
  * Feb 06, 2012  #538        Q. Zhou    Added skip and filter areas and implements. 
- * 
+ * Sep 07, 2012    #743     Archana      Added CLRBAR
  * @author mli
  * @version 1
  */
@@ -56,6 +57,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     private RscAttrValue colors = null;
     private RscAttrValue marker = null;
     private RscAttrValue grdlbl = null;
+    private RscAttrValue clrbar = null;
     
     private Text glevelText;
     private Text gvcordText;
@@ -75,6 +77,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     private Text colorsText;
     private Text markerText;
     private Text grdlblText;
+    private Text clrbarText;
 	
     /**
      * Constructor
@@ -107,9 +110,14 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     	colors     = editedRscAttrSet.getRscAttr("colors");
     	marker     = editedRscAttrSet.getRscAttr("marker");
     	grdlbl     = editedRscAttrSet.getRscAttr("grdlbl");
-    	
+    	clrbar    =  editedRscAttrSet.getRscAttr("clrbar");
     	
     	// confirm the classes of the attributes..
+    	if(clrbar.getAttrClass() != String.class ) {
+    		System.out.println( "line is not of expected class? "+clrbar.getAttrClass().toString() );
+    	}
+    	
+    	
     	if( lineAttr.getAttrClass() != String.class ) {
     		System.out.println( "line is not of expected class? "+ lineAttr.getAttrClass().toString() );
     	}
@@ -310,6 +318,21 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
             });
         }
         
+        if ( clrbar != null ) {
+        	Label hlsymAttrLabel = new Label(comp, SWT.NONE);
+        	hlsymAttrLabel.setText("CLRBAR:");
+            clrbarText = new Text(comp,SWT.SINGLE | SWT.BORDER );
+            clrbarText.setLayoutData(new GridData(230, SWT.DEFAULT));
+            clrbarText.setText((String)clrbar.getAttrValue());
+            clrbarText.addModifyListener(new ModifyListener() {
+    			public void modifyText(ModifyEvent e) {
+    				clrbar.setAttrValue((String)clrbarText.getText().trim());
+    				NmapUiUtils.getActiveNatlCntrsEditor().refresh();
+    			}
+            });
+        }
+        
+        
         
      // WIND
         Label windAttrLabel = new Label(comp, SWT.NONE);
@@ -414,6 +437,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     		if ( hlsym != null ) {
     			hlsymAttrText.setToolTipText(NcgridAttributesHelp.HlsymToolTipText());
     		}
+    		clrbarText.setToolTipText(NcgridAttributesHelp.ClrbarToolTipText());
     		titleAttrText.setToolTipText(NcgridAttributesHelp.TitleToolTipText());
     		colorsText.setToolTipText(NcgridAttributesHelp.ColorsToolTipText());
     		markerText.setToolTipText(NcgridAttributesHelp.MarkerToolTipText());
@@ -436,7 +460,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     		if ( hlsym != null ) {
     			hlsymAttrText.setToolTipText(null);
     		}
-
+             clrbarText.setToolTipText(null);
     		windAttrText.setToolTipText(null);
     		titleAttrText.setToolTipText(null);
     		colorsText.setToolTipText(null);

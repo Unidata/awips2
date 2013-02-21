@@ -17,6 +17,22 @@ import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
+/**
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *
+ * ???????????  ???         ???         Created
+ * 12/14/1212   #903        Greg Hull   fontSize, fontName, and color
+ * 
+ * </pre>
+ * 
+ * @author ghull
+ * @version 1.0
+ * 
+ */
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name="LocatorResourceData")
@@ -25,10 +41,13 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
 	public static final int MAX_NUM_SOURCES = 5;
 
     @XmlElement
-	private String pos1LocatorSource = ""; 
+	private Integer fontSize;
 
-//    @XmlElement
-//	private Boolean pos1Enabled;
+    @XmlElement
+	private String fontName;
+
+    @XmlElement
+	private String pos1LocatorSource = ""; 
  
     @XmlElement
 	private Integer pos1RoundToNearest=1;
@@ -39,16 +58,10 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
     @XmlElement
 	private String pos1DirectionUnit="";
 
-//    @XmlElement
-//	private String pos1NameOrID;
-
     // Position 2
     @XmlElement
 	private String pos2LocatorSource = "";
 
-//    @XmlElement
-//	private Boolean pos2Enabled;
- 
     @XmlElement
 	private Integer pos2RoundToNearest=1;
     
@@ -58,16 +71,10 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
     @XmlElement
 	private String pos2DirectionUnit="";
 
-//    @XmlElement
-//	private String pos2NameOrID;
-
     // Position 3
     @XmlElement
 	private String pos3LocatorSource = "";
 
-//    @XmlElement
-//	private Boolean pos3Enabled;
- 
     @XmlElement
 	private Integer pos3RoundToNearest=1;
     
@@ -77,16 +84,10 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
     @XmlElement
 	private String pos3DirectionUnit = "";
 
-//    @XmlElement
-//	private String pos3NameOrID;
-
     // Position 4
     @XmlElement
 	private String pos4LocatorSource = "";
 
-//    @XmlElement
-//	private Boolean pos4Enabled;
- 
     @XmlElement
 	private Integer pos4RoundToNearest=1;
     
@@ -95,9 +96,6 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
     
     @XmlElement
 	private String pos4DirectionUnit = "";
-
-//    @XmlElement
-//	private String pos4NameOrID;
 
     // Position 5
     @XmlElement
@@ -112,13 +110,12 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
     @XmlElement
 	private String pos5DirectionUnit = "";
 
-//    @XmlElement
-//	private String pos5NameOrID;
-
 
     @XmlElement
 	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-    private RGB color = new RGB(0, 255, 0);
+    private RGB color = null;
+    
+    private RGB dfltColor = new RGB(255, 255, 255);
     	
     private String legendStr = null;
     
@@ -361,12 +358,28 @@ public class LocatorResourceData extends AbstractNatlCntrsResourceData {
 	}
 
 	public RGB getColor() {
-		return color;
+		return (color==null?dfltColor:color);
 	}
 
 	public void setColor(RGB _color) {
 		color = _color; 
 		this.legendColor = color;
+	}
+
+	public String getFontName() {
+		return fontName;
+	}
+
+	public void setFontName(String fontName) {
+		this.fontName = fontName;
+	}
+
+	public Integer getFontSize() {
+		return (fontSize == null ? 12 : fontSize);
+	}
+
+	public void setFontSize(Integer fs) {
+		this.fontSize = fs;
 	}
 
 	public LocatorDisplayAttributes getDisplayAttributesForPosition( int pos ) {

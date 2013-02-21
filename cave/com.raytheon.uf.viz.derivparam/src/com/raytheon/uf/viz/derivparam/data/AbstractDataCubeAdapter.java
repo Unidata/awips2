@@ -24,19 +24,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.common.datastorage.Request;
@@ -48,8 +44,10 @@ import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
  * Abstract data cube adapter for standard data type that uses derived
@@ -99,55 +97,67 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
             throws VizException {
-        int mapSize = (int) (requests.size() * 1) + 1;
-        Map<AbstractRequestableLevelNode, Set<DataTime>> cache = new HashMap<AbstractRequestableLevelNode, Set<DataTime>>(
-                mapSize);
-        LinkedHashMap<AbstractRequestableLevelNode, TimeQueryRequest> queries = new LinkedHashMap<AbstractRequestableLevelNode, TimeQueryRequest>(
-                mapSize);
-
-        for (TimeQueryRequest request : requests) {
-            List<AbstractRequestableLevelNode> requestNodes = evaluateRequestConstraints(request
-                    .getQueryTerms());
-            // pull out time queries and bulk submit
-            for (AbstractRequestableLevelNode requestNode : requestNodes) {
-                getTimeQuery(request, requestNode, false, queries, cache, null);
-            }
-        }
-
-        // set the results back into the cache's
-        TimeQueryRequestSet reqSet = new TimeQueryRequestSet();
-        reqSet.setRequests(queries.values().toArray(
-                new TimeQueryRequest[queries.size()]));
-        @SuppressWarnings("unchecked")
-        List<List<DataTime>> qResponses = (List<List<DataTime>>) ThriftClient
-                .sendRequest(reqSet);
-        int index = 0;
-        for (AbstractRequestableLevelNode node : queries.keySet()) {
-            // put results into cache
-            node.setTimeQueryResults(false, qResponses.get(index++), cache,
-                    null);
-        }
-        List<List<DataTime>> finalResponse = new ArrayList<List<DataTime>>(
+        List<AvailabilityContainer> containers = new ArrayList<AvailabilityContainer>(
+                requests.size());
+        List<List<DbQueryRequest>> requestLists = new ArrayList<List<DbQueryRequest>>(
+                requests.size());
+        List<DbQueryRequest> fullList = new ArrayList<DbQueryRequest>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
-            List<AbstractRequestableLevelNode> requestNodes = evaluateRequestConstraints(request
+            AvailabilityContainer container = createAvailabilityContainer(request
+                    .getQueryTerms());
+            List<AbstractRequestableNode> requestNodes = evaluateRequestConstraints(request
+                    .getQueryTerms());
+            // pull out time queries and bulk submit
+            for (AbstractRequestableNode requestNode : requestNodes) {
+                container.prepareRequests(requestNode);
+            }
+            containers.add(container);
+            List<DbQueryRequest> containerRequests = container
+                    .getAvailabilityRequests();
+            requestLists.add(containerRequests);
+            fullList.addAll(containerRequests);
+        }
+
+        // bulk up all the requests.
+        DbQueryRequestSet requestSet = new DbQueryRequestSet();
+        requestSet.setQueries(fullList.toArray(new DbQueryRequest[0]));
+        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
+                .sendRequest(requestSet);
+        DbQueryResponse[] responses = responseSet.getResults();
+        int responseIndex = 0;
+        List<List<DataTime>> finalResponse = new ArrayList<List<DataTime>>(
+                requests.size());
+        for (int i = 0; i < requests.size(); i += 1) {
+            TimeQueryRequest request = requests.get(i);
+            AvailabilityContainer container = containers.get(i);
+            // set the bulked responses back into the container
+            List<DbQueryRequest> containerRequests = requestLists.get(i);
+            Map<DbQueryRequest, DbQueryResponse> responseMap = new HashMap<DbQueryRequest, DbQueryResponse>(
+                    (int) (containerRequests.size() / 0.75) + 1, 0.75f);
+            for (int j = 0; j < containerRequests.size(); j += 1) {
+                responseMap.put(containerRequests.get(j),
+                        responses[responseIndex++]);
+            }
+            container.setAvailabilityResponses(responseMap);
+            List<AbstractRequestableNode> requestNodes = evaluateRequestConstraints(request
                     .getQueryTerms());
             // pull the actual results from the cache
             Set<DataTime> results = new HashSet<DataTime>(64);
-            for (AbstractRequestableLevelNode requestNode : requestNodes) {
-                Set<DataTime> times = requestNode.timeQuery(request, false,
-                        cache, null);
-                if (times == AbstractRequestableLevelNode.TIME_AGNOSTIC) {
-                    // TODO: include time agnostic query in main bulk query as
-                    // each pressure level will cause a separate query
-                    List<DataTime> temp = timeAgnosticQuery(request
-                            .getQueryTerms());
-                    if (temp != null) {
-                        results.addAll(temp);
+            for (AbstractRequestableNode requestNode : requestNodes) {
+                Set<TimeAndSpace> avialability = container
+                        .getAvailability(requestNode);
+                for (TimeAndSpace ast : avialability) {
+                    if (ast.isTimeAgnostic()) {
+                        List<DataTime> temp = timeAgnosticQuery(request
+                                .getQueryTerms());
+                        if (temp != null) {
+                            results.addAll(temp);
+                        }
+                        break;
+                    } else {
+                        results.add(ast.getTime());
                     }
-                    break;
-                } else {
-                    results.addAll(times);
                 }
             }
             if (!request.isMaxQuery() || results.isEmpty()) {
@@ -160,35 +170,6 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
             }
         }
         return finalResponse;
-    }
-
-    protected void getTimeQuery(
-            TimeQueryRequest originalRequest,
-            AbstractRequestableLevelNode req,
-            boolean latestOnly,
-            LinkedHashMap<AbstractRequestableLevelNode, TimeQueryRequest> queries,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
-            throws VizException {
-        List<Dependency> depends = req.getDependencies();
-        if (depends.isEmpty()) {
-            // is source node
-            TimeQueryRequest myQ = req.getTimeQuery(originalRequest,
-                    latestOnly, cache, latestOnlyCache);
-            if (myQ != null) {
-                queries.put(req, myQ);
-            }
-        } else {
-            for (Dependency dep : depends) {
-                // TODO: Optimize dTime/fTime to use bulk query mechanism,
-                // small case that is a not easy to get right with a bulk
-                // query
-                if (dep.timeOffset == 0 || !latestOnly) {
-                    getTimeQuery(originalRequest, dep.node, latestOnly,
-                            queries, cache, latestOnlyCache);
-                }
-            }
-        }
     }
 
     /*
@@ -232,94 +213,41 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public List<Object> getData(LayerProperty property, int timeOut)
             throws VizException {
-        List<AbstractRequestableLevelNode> requests = evaluateRequestConstraints(property
+        List<AbstractRequestableNode> requests = evaluateRequestConstraints(property
                 .getEntryQueryParameters(false));
-        int mapSize = (int) (requests.size() * 1.25) + 1;
-        Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache = new HashMap<AbstractRequestableLevelNode, List<AbstractRequestableData>>(
-                mapSize);
-        LinkedHashMap<AbstractRequestableLevelNode, DbQueryRequest> queries = new LinkedHashMap<AbstractRequestableLevelNode, DbQueryRequest>(
-                mapSize);
-        for (AbstractRequestableLevelNode req : requests) {
-            getDataQuery(req, property, timeOut, queries, cache);
-        }
-        DbQueryRequestSet reqSet = new DbQueryRequestSet();
-        reqSet.setQueries(queries.values().toArray(
-                new DbQueryRequest[queries.size()]));
-        DbQueryResponseSet qSetResponse = (DbQueryResponseSet) ThriftClient
-                .sendRequest(reqSet);
-        DbQueryResponse[] qResponses = qSetResponse.getResults();
-        int index = 0;
-        for (AbstractRequestableLevelNode node : queries.keySet()) {
-            // put results into cache
-            node.setDataQueryResults(qResponses[index++], cache);
+        Set<TimeAndSpace> availability = null;
+        if (property.getSelectedEntryTime() != null) {
+            availability = new HashSet<TimeAndSpace>();
+            for (DataTime time : property.getSelectedEntryTime()) {
+                availability.add(new TimeAndSpace(time));
+            }
+        } else {
+            availability = AvailabilityContainer.AGNOSTIC_SET;
         }
 
         // pull the actual results from the cache
-        List<AbstractRequestableData> requesters = new ArrayList<AbstractRequestableData>(
-                requests.size());
-        for (AbstractRequestableLevelNode request : requests) {
-            requesters.addAll(request.getData(property, timeOut, cache));
+        List<AbstractRequestableData> requesters = new ArrayList<AbstractRequestableData>();
+        MetadataContainer container = createMetadataContainer(property
+                .getEntryQueryParameters(false));
+        for (AbstractRequestableNode request : requests) {
+            container.prepareRequests(request, availability);
+        }
+        for (AbstractRequestableNode request : requests) {
+            requesters.addAll(container.getData(request, availability));
         }
 
         return getData(property, requesters);
     }
 
-    protected void getDataQuery(
-            AbstractRequestableLevelNode req,
-            LayerProperty property,
-            int timeOut,
-            LinkedHashMap<AbstractRequestableLevelNode, DbQueryRequest> queries,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        List<Dependency> depends = req.getDependencies();
-        if (depends.isEmpty()) {
-            // is source node
-            DbQueryRequest myQ = req.getDataQuery(property, timeOut, cache);
-            if (myQ != null) {
-                addDataQuery(req, myQ, queries);
-            }
-        } else {
-            for (Dependency dep : depends) {
-                // TODO: Optimize dTime/fTime to use bulk query mechanism,
-                // small case that is a not easy to get right with a bulk
-                // query
-                if (dep.timeOffset == 0) {
-                    getDataQuery(dep.node, property, timeOut, queries, cache);
-                }
-            }
-        }
+    protected MetadataContainer createMetadataContainer(
+            Map<String, RequestConstraint> constraints) {
+        return new MetadataContainer(constraints,
+                createAvailabilityContainer(constraints));
     }
 
-    private void addDataQuery(AbstractRequestableLevelNode req,
-            DbQueryRequest query,
-            LinkedHashMap<AbstractRequestableLevelNode, DbQueryRequest> queries) {
-        DbQueryRequest curQuery = queries.get(req);
-        if (curQuery == null) {
-            queries.put(req, query);
-        } else {
-            // merge
-            // assume same DB, fields, etc, should only be different
-            // time constraints since its the same node
-            RequestConstraint curDTs = curQuery.getConstraints()
-                    .get("dataTime");
-            RequestConstraint myDTs = query.getConstraints().get("dataTime");
-            if (curDTs != null && myDTs != null) {
-                // only merge if both require dataTimes, otherwise one
-                // would be constrained when it needs everything, also
-                // assuming both to be in lists and needing to be merged
-                curDTs.setConstraintType(ConstraintType.IN);
-                Pattern split = Pattern.compile(",");
-
-                String[] curVals = split.split(curDTs.getConstraintValue());
-                String[] myVals = split.split(myDTs.getConstraintValue());
-                HashSet<String> dups = new HashSet<String>(curVals.length
-                        + myVals.length);
-                dups.addAll(Arrays.asList(curVals));
-                dups.addAll(Arrays.asList(myVals));
-                curDTs.setConstraintValueList(dups.toArray(new String[dups
-                        .size()]));
-            }
-        }
+    protected AvailabilityContainer createAvailabilityContainer(
+            Map<String, RequestConstraint> constraints) {
+        return new AvailabilityContainer(constraints);
     }
 
     /*
@@ -374,7 +302,7 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
      * @param constraints
      * @return
      */
-    protected abstract List<AbstractRequestableLevelNode> evaluateRequestConstraints(
+    protected abstract List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> constraints);
 
     /**

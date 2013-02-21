@@ -1,0 +1,134 @@
+diff -crB a/component.spec b/component.spec
+*** a/component.spec	2013-01-05 09:43:38.000000000 -0600
+--- b/component.spec	2013-01-05 09:49:43.000000000 -0600
+***************
+*** 1,13 ****
+  #
+! # AWIPS II Edex "component" spec file
+  #
+  %define __prelink_undo_cmd %{nil}
+  # Turn off the brp-python-bytecompile script
+  %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+  %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
+  
+! Name: awips2-%{_component_name}
+! Summary: awips2-%{_component_name} Installation
+  Version: %{_component_version}
+  Release: %{_component_release}
+  Group: AWIPSII
+--- 1,13 ----
+  #
+! # AWIPS II Edex Data Delivery spec file
+  #
+  %define __prelink_undo_cmd %{nil}
+  # Turn off the brp-python-bytecompile script
+  %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+  %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
+  
+! Name: awips2-edex-datadelivery
+! Summary: awips2-edex-datadelivery Installation
+  Version: %{_component_version}
+  Release: %{_component_release}
+  Group: AWIPSII
+***************
+*** 18,24 ****
+  Vendor: Raytheon
+  Packager: Bryan Kowal
+  
+! provides: awips2-%{_component_name}
+  requires: awips2
+  requires: awips2-edex-base
+  requires: awips2-python
+--- 18,24 ----
+  Vendor: Raytheon
+  Packager: Bryan Kowal
+  
+! provides: awips2-edex-datadelivery
+  requires: awips2
+  requires: awips2-edex-base
+  requires: awips2-python
+***************
+*** 40,58 ****
+     rm -rf %{_build_root}
+  fi
+  mkdir -p %{_build_root}
+  
+  %build
+  
+  %install
+! 
+! unzip %{_baseline_workspace}/build.edex/edex/dist/%{_component_name}.zip \
+     -d %{_build_root}
+  if [ $? -ne 0 ]; then
+     exit 1
+  fi
+  
+  %pre
+  %post
+  %preun
+  %postun
+  
+--- 40,88 ----
+     rm -rf %{_build_root}
+  fi
+  mkdir -p %{_build_root}
++ # prepare the init.d directory path
++ mkdir -p %{_build_root}/etc/init.d
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
+  
+  %build
+  
+  %install
+! unzip %{_baseline_workspace}/build.edex/edex/dist/edex-datadelivery.zip \
+     -d %{_build_root}
+  if [ $? -ne 0 ]; then
+     exit 1
+  fi
+  
++ # include the init.d script
++ INSTALLER_RPM="%{_baseline_workspace}/rpms"
++ EDEX_DATADELIVERY="${INSTALLER_RPM}/awips2.edex/Installer.edex-datadelivery"
++ cp -v ${EDEX_DATADELIVERY}/scripts/init.d/* \
++    %{_build_root}/etc/init.d
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
++ # rename the script to prevent naming conflicts during installation
++ pushd . > /dev/null 2>&1
++ cd %{_build_root}/etc/init.d
++ mv edexServiceList edexServiceList-datadelivery
++ popd > /dev/null 2>&1
++ 
+  %pre
+  %post
++ # replace the service list script with the datadelivery service list script
++ if [ -f /etc/init.d/edexServiceList ]; then
++    rm -f /etc/init.d/edexServiceList
++    if [ $? -ne 0 ]; then
++       exit 1
++    fi
++ fi
++ mv /etc/init.d/edexServiceList-datadelivery /etc/init.d/edexServiceList
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
++ 
+  %preun
+  %postun
+  
+***************
+*** 63,66 ****
+  %defattr(644,awips,fxalpha,755)
+  %dir /awips2
+  %dir /awips2/edex
+! /awips2/edex/*
+\ No newline at end of file
+--- 93,98 ----
+  %defattr(644,awips,fxalpha,755)
+  %dir /awips2
+  %dir /awips2/edex
+! /awips2/edex/*
+! 
+! %attr(744,root,root) /etc/init.d/*

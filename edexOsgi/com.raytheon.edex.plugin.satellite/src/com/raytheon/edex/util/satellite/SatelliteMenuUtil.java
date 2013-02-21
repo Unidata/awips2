@@ -30,13 +30,13 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.menus.AbstractMenuUtil;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
 import com.raytheon.uf.common.menus.xml.MenuTemplateFile;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.awipstools.GetWfoCenterHandler;
+import com.raytheon.uf.edex.menus.AbstractMenuUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
