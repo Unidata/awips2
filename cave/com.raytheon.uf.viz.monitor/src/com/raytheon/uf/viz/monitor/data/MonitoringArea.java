@@ -42,6 +42,7 @@ import com.raytheon.uf.common.monitor.data.ObConst;
  * Feb 17, 2009 1999       grichard    Initial creation.
  * 3/16/2009    2047       grichard    Add zone related routines.
  * Dec  9, 2009 3424       zhao        Added method getZoneId(platformId)
+ * Nov. 1, 2012 1297       skorolev    Changed ArrayList to List.
  * 
  * </pre>
  * 
@@ -51,42 +52,73 @@ import com.raytheon.uf.common.monitor.data.ObConst;
 
 public final class MonitoringArea {
 
-    // Private constructor -- all contents must be public static
+    /**
+     * Private constructor -- all contents must be public static
+     */
     private MonitoringArea() {
     }
 
-    // The map that contains the zoneIds for all platform identifiers
-    private static Map<String, ArrayList<String>> zoneMap = new HashMap<String, ArrayList<String>>();
+    /**
+     * The map that contains the zoneIds for all platform identifiers
+     */
+    private static Map<String, List<String>> zoneMap = new HashMap<String, List<String>>();
 
-    // The map that contains the platformIds for all zone identifiers
-    private static Map<String, ArrayList<String>> platformMap = new HashMap<String, ArrayList<String>>();
+    /**
+     * The map that contains the platformIds for all zone identifiers
+     */
+    private static Map<String, List<String>> platformMap = new HashMap<String, List<String>>();
 
-    // Get the monitoring area time window
+    /**
+     * Get the monitoring area time window
+     * 
+     * @return
+     */
     public static int getTimeWindow() {
         return ObConst.THREAT_INTERVAL_HOURS;
     }
 
-    // Getter for zone map
-    public static Map<String, ArrayList<String>> getZoneMap() {
+    /**
+     * Getter for zone map
+     * 
+     * @return
+     */
+    public static Map<String, List<String>> getZoneMap() {
         return zoneMap;
     }
 
-    // Setter for zone map
-    public static void setZoneMap(Map<String, ArrayList<String>> zoneMap) {
+    /**
+     * Setter for zone map
+     * 
+     * @param zoneMap
+     */
+    public static void setZoneMap(Map<String, List<String>> zoneMap) {
         MonitoringArea.zoneMap = zoneMap;
     }
 
-    // Getter for platform map
-    public static Map<String, ArrayList<String>> getPlatformMap() {
+    /**
+     * Getter for platform map
+     * 
+     * @return
+     */
+    public static Map<String, List<String>> getPlatformMap() {
         return platformMap;
     }
 
-    // Setter for platform map
-    public static void setPlatformMap(Map<String, ArrayList<String>> platformMap) {
+    /**
+     * Setter for platform map
+     * 
+     * @param platformMap
+     */
+    public static void setPlatformMap(Map<String, List<String>> platformMap) {
         MonitoringArea.platformMap = platformMap;
     }
 
-    // Getter for the List of all zones which associate with the given platform
+    /**
+     * Getter for the List of all zones which associate with the given platform
+     * 
+     * @param platformId
+     * @return
+     */
     public static List<String> listZonesToPlatform(String platformId) {
         return getZoneMap().get(platformId);
     }
@@ -112,17 +144,19 @@ public final class MonitoringArea {
         return theZones;
     }
 
+    /**
+     * @return list of stations
+     */
     public static String getPlatformIdList() {
         StringBuilder stList = new StringBuilder();
         Set<String> stns = new HashSet<String>();
         for (String zone : platformMap.keySet()) {
-            ArrayList<String> platfrms = platformMap.get(zone);
+            List<String> platfrms = platformMap.get(zone);
             stns.addAll(platfrms);
         }
         stList.append(stns.toString());
         stList.deleteCharAt(0);
         stList.deleteCharAt(stList.length() - 1);
-        // System.out.println("============ stList = " + stList.toString());
         return stList.toString();
     }
 

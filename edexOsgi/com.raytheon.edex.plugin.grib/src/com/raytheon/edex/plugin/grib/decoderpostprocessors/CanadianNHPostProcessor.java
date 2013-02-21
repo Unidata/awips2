@@ -24,12 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * Grib post processor implementation to generate 6-hr precipitation grids from
@@ -51,33 +52,33 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 public class CanadianNHPostProcessor extends SixHrPrecipGridProcessor {
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
         // Post process the data if this is a Total Precipitation grid
-        if (record.getModelInfo().getParameterAbbreviation().equals("TPrun")) {
+        if (record.getParameter().getAbbreviation().equals("TPrun")) {
             return super.process(record);
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    protected List<GribRecord> getPrecipInventory(Date refTime)
+    protected List<GridRecord> getPrecipInventory(Date refTime)
             throws GribException {
-        GribDao dao = null;
+        GridDao dao = null;
         try {
-            dao = new GribDao();
+            dao = new GridDao();
         } catch (PluginException e) {
             throw new GribException("Error instantiating grib dao!", e);
         }
-        DatabaseQuery query = new DatabaseQuery(GribRecord.class);
-        query.addQueryParam("modelInfo.parameterAbbreviation", "TPrun");
-        query.addQueryParam("modelInfo.modelName", "Canadian-NH");
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
+        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "TPrun");
+        query.addQueryParam(GridConstants.DATASET_ID, "Canadian-NH");
         query.addQueryParam("dataTime.refTime", refTime);
         query.addOrder("dataTime.fcstTime", true);
         try {
-            return (List<GribRecord>) dao.queryByCriteria(query);
+            return (List<GridRecord>) dao.queryByCriteria(query);
         } catch (DataAccessLayerException e) {
             throw new GribException(
                     "Error getting Precip inventory for Canadian-NH!", e);
@@ -90,15 +91,15 @@ public class CanadianNHPostProcessor extends SixHrPrecipGridProcessor {
     @SuppressWarnings("unchecked")
     protected List<Integer> getPrecip6hrInventory(Date refTime)
             throws GribException {
-        GribDao dao = null;
+        GridDao dao = null;
         try {
-            dao = new GribDao();
+            dao = new GridDao();
         } catch (PluginException e) {
             throw new GribException("Error instantiating grib dao!", e);
         }
-        DatabaseQuery query = new DatabaseQuery(GribRecord.class);
-        query.addQueryParam("modelInfo.parameterAbbreviation", "TP6hr");
-        query.addQueryParam("modelInfo.modelName", "Canadian-NH");
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
+        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "TP6hr");
+        query.addQueryParam(GridConstants.DATASET_ID, "Canadian-NH");
         query.addQueryParam("dataTime.refTime", refTime);
         query.addReturnedField("dataTime.fcstTime");
         try {
@@ -120,12 +121,12 @@ public class CanadianNHPostProcessor extends SixHrPrecipGridProcessor {
      * @return The generated 6-hr precipitation grids
      * @throws GribException
      */
-    protected synchronized GribRecord[] generate6hrPrecipGrids(GribRecord record)
+    protected synchronized GridRecord[] generate6hrPrecipGrids(GridRecord record)
             throws GribException {
 
         // The current run accumulated precipitation grid inventory in the
         // database
-        List<GribRecord> precipInventory = getPrecipInventory(record
+        List<GridRecord> precipInventory = getPrecipInventory(record
                 .getDataTime().getRefTime());
 
         // The current 6-hr precipitation grid inventory in the database
@@ -139,16 +140,16 @@ public class CanadianNHPostProcessor extends SixHrPrecipGridProcessor {
 
         // Examine each grid in the inventory and generate the 6hr precipitation
         // grid if possible
-        List<GribRecord> generatedRecords = new ArrayList<GribRecord>();
+        List<GridRecord> generatedRecords = new ArrayList<GridRecord>();
         for (int i = 0; i < precipInventory.size(); i++) {
             // Check if the 6hr precipitation grid has already been produced
             if (!precip6hrInventory.contains(precipInventory.get(i)
                     .getDataTime().getFcstTime())) {
                 // If the precipitation grid has not been produced, generate it
-                List<GribRecord> generated6hrPrecips = generate6hrPrecip(
+                List<GridRecord> generated6hrPrecips = generate6hrPrecip(
                         precipInventory.get(i), precipInventory,
                         precip6hrInventory);
-                for (GribRecord newRecord : generated6hrPrecips) {
+                for (GridRecord newRecord : generated6hrPrecips) {
                     // Add the generated grid to the current inventory
                     if (newRecord != null) {
                         precip6hrInventory.add(newRecord.getDataTime()
@@ -159,7 +160,7 @@ public class CanadianNHPostProcessor extends SixHrPrecipGridProcessor {
             }
         }
 
-        return generatedRecords.toArray(new GribRecord[] {});
+        return generatedRecords.toArray(new GridRecord[] {});
     }
 
     /**

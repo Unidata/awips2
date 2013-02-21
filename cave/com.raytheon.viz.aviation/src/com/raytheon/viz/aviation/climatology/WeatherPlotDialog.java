@@ -88,6 +88,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/02/2012   1229       rferrel     Made dialog non-blocking.
  * 10/10/2012   1229       rferrel     Changes for non-blocking TimeSelectorDlg.
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 11/26/2012   1298       rferrel     Non-blocking dialog code cleanup.
+ * 
  * 
  * </pre>
  * 
@@ -221,6 +223,8 @@ public class WeatherPlotDialog extends CaveSWTDialog {
 
     private HelpUsageDlg usageDlg;
 
+    private WeatherPlotDataManager dataMgr;
+
     /**
      * Constructor.
      * 
@@ -238,6 +242,7 @@ public class WeatherPlotDialog extends CaveSWTDialog {
 
         this.msgType = msgType;
         this.icaos = stationList;
+        this.dataMgr = WeatherPlotDataManager.getInstance();
     }
 
     @Override
@@ -287,9 +292,8 @@ public class WeatherPlotDialog extends CaveSWTDialog {
     }
 
     private void initData() {
-        WeatherPlotDataManager mgr = WeatherPlotDataManager.getInstance();
-        mgr.getNewConfig();
-        wxPlotCfg = mgr.getWxPlotCfg();
+        dataMgr.getNewConfig();
+        wxPlotCfg = dataMgr.getWxPlotCfg();
     }
 
     /**
@@ -418,8 +422,7 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         timesBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (timeDlg == null || timeDlg.getShell() == null
-                        || timeDlg.isDisposed()) {
+                if (timeDlg == null) {
                     timeDlg = new TimeSelectorDialog(shell, wxPlotCfg);
                     timeDlg.setCloseCallback(new ICloseCallback() {
 
@@ -431,13 +434,11 @@ public class WeatherPlotDialog extends CaveSWTDialog {
                                     displayData();
                                 }
                             }
-
+                            timeDlg = null;
                         }
                     });
-                    timeDlg.open();
-                } else {
-                    timeDlg.bringToTop();
                 }
+                timeDlg.open();
             }
         });
 
@@ -470,14 +471,12 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (mustCreate(usageDlg)) {
+                if (usageDlg == null) {
                     String description = "Help";
                     String helpText = "This dialog is used to display TAFs, METARs and guidance forecasts.\n\nMenus:\n    Site ID     - pulldown menu displaying list of all TAF sites.\n                  Selection of a site from the list redraws the window.\n    zoom        - zoom factor (time scale). \n\nButtons:\n    Display     - Redraws the window.\n    Times       - Displays forecast time selection window\n    Print       - Dumps an image of the window to a command specified in\n                  the configration file etc/wxplot.cfg.\n    Close       - Closes this dialog.\n    Help        - Displays this help.\n\nData Sources    - selection of available data sources. ";
                     usageDlg = new HelpUsageDlg(shell, description, helpText);
-                    usageDlg.open();
-                } else {
-                    usageDlg.bringToTop();
                 }
+                usageDlg.open();
             }
         });
     }
@@ -727,15 +726,11 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                WeatherPlotDataManager dataMgr = WeatherPlotDataManager
-                        .getInstance();
                 dataMgr.loadCacheData(siteId);
                 if (isDisposed() == false) {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
-                            WeatherPlotDataManager dataMgr = WeatherPlotDataManager
-                                    .getInstance();
                             if (dataMgr.loadData(siteId, currentTime)) {
                                 updateSiteTimeLabel();
                                 displayData();
@@ -753,13 +748,12 @@ public class WeatherPlotDialog extends CaveSWTDialog {
     }
 
     private void displayData() {
-        WeatherPlotDataManager dataMgr = WeatherPlotDataManager.getInstance();
         if (dataMgr.havePendingCache()) {
             setCursorBusy(true);
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    WeatherPlotDataManager.getInstance().waitForCacheRequests();
+                    dataMgr.waitForCacheRequests();
                     if (isDisposed() == false) {
                         VizApp.runAsync(new Runnable() {
                             @Override

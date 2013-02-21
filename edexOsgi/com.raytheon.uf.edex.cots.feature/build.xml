@@ -16,6 +16,13 @@
 			<property name="ws" value="gtk"/>
 			<property name="os" value="linux"/>
 		</ant>
+
+                <ant antfile="build.xml" dir="../../ncep/gov.nasa.gsfc.fits" target="${target}">
+                        <property name="arch" value="x86"/>
+                        <property name="ws" value="gtk"/>
+                        <property name="os" value="linux"/>
+                </ant>
+
 		<ant antfile="build.xml" dir="../../cots/org.eclipse.jetty" target="${target}">
 			<property name="arch" value="x86"/>
 			<property name="ws" value="gtk"/>

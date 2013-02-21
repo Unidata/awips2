@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.gfe.core.msgs;
 
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
+
 /**
  * TODO Add Description
  * 
@@ -26,9 +29,12 @@ package com.raytheon.viz.gfe.core.msgs;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 30, 2011            randerso     Initial creation
+ * Date         Ticket#    Engineer         Description
+ * ------------ ---------- ---------------- --------------------------
+ * 03/30/11                randerso         Initial creation
+ * 01/16/13     DR15722    jzeng/randerso   override send() to
+ *                                          force the UI to update the button 
+ *                                          whenever the message is sent. 
  * 
  * </pre>
  * 
@@ -50,4 +56,15 @@ public class ShowISCGridsMsg extends Message {
     public boolean show() {
         return showIscGrids;
     }
+    
+    @Override
+    public void send() {
+        super.send();
+
+        ICommandService service = (ICommandService) PlatformUI.getWorkbench()
+                .getService(ICommandService.class);
+        service.refreshElements("com.raytheon.viz.gfe.actions.showISCGrids",
+                null);
+    }
+
 }

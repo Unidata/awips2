@@ -48,8 +48,7 @@ public class SatelliteProductBrowserDataDefinition extends
     public SatelliteProductBrowserDataDefinition() {
         productName = "satellite";
         displayName = "Satellite";
-        order = new String[] { "pluginName", "creatingEntity", "sectorID",
-                "physicalElement" };
+        order = new String[] { "creatingEntity", "sectorID", "physicalElement" };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());

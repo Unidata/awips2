@@ -7,6 +7,7 @@
 ##           Mike and Phil   1-25-2012 at CRH TIM
 ##           Evan Bookbinder 2-24-2012 
 ##           Phil Kurimski   2-28-2012  for OB 12.2.1-3
+##           Qinglu Lin     12-27-2012  DR 15594. Appended true to headlineLocList's parameter list.
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -182,7 +183,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${areas} true true true false)##
+#headlineLocList(${areas} true true true false true)##
 ...
 
 #if(${list.contains($bullets, "recedingWater")})
@@ -207,7 +208,7 @@ EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone
 #else
 WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
 #end
-#headlineLocList(${areas} true true true false)##
+#headlineLocList(${areas} true true true false true)##
 ...
 
 #if(${list.contains($bullets, "recedingWater")})
@@ -228,7 +229,7 @@ THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -351,7 +352,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)##
+#headlineLocList(${cancelareas} true true true false true)##
 ...
 ########### END NEW HEADLINE CODE ####################
 
@@ -383,7 +384,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -503,7 +504,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${areas} true true true false)##
+#headlineLocList(${areas} true true true false true)##
 ...
 ########### END NEW HEADLINE CODE ####################
 
@@ -535,7 +536,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 

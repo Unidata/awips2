@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.ifpimage;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -31,17 +30,18 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.rsc.GFELegendResource;
@@ -61,6 +61,10 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Jul 10, 2012  15186     ryu          Set legend font
  * Aug 20, 2012  #1078     dgilling     Fix handling of ImageLegend_color
  *                                      setting.
+ * Nov 30, 2012  #1328     mschenke     Made GFE use descriptor for time matching
+ *                                      and time storage and manipulation
+ * Jan 22, 2013  #1518     randerso     Removed use of Map with Parms as keys,
+ *                                      really just needed a list anyway.
  * 
  * </pre>
  * 
@@ -99,13 +103,8 @@ public class ImageLegendResource extends GFELegendResource {
 
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
-        Date date = this.dataManager.getSpatialDisplayManager()
-                .getSpatialEditorTime();
-        DataTime dt = new DataTime(date);
-
-        Parm[] parms = orderParms(descriptor);
-
-        LegendData[] data = makeLegend(parms, dt);
+        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(descriptor);
+        LegendData[] data = makeLegend(parms);
 
         LegendEntry[] entries = new LegendEntry[data.length];
         for (int i = 0; i < entries.length; ++i) {
@@ -116,17 +115,22 @@ public class ImageLegendResource extends GFELegendResource {
         return entries;
     }
 
-    private LegendData[] makeLegend(Parm[] parms, DataTime curTime) {
+    private LegendData[] makeLegend(List<Pair<Parm, ResourcePair>> parms) {
+        FramesInfo currInfo = descriptor.getFramesInfo();
+        DataTime curTime = currInfo.getCurrentFrame();
+
         // loop through the grids
         List<LegendData> legendData = new ArrayList<LegendData>();
-        for (int i = parms.length - 1; i >= 0; i--) {
-            Parm parm = parms[i];
-            String parmName = parm.getParmID().getParmName();
-            ResourcePair rp = this.parmToRscMap.get(parm);
+        for (Pair<Parm, ResourcePair> pair : parms) {
+            Parm parm = pair.getFirst();
+            ResourcePair rp = pair.getSecond();
             GFEResource rsc = (GFEResource) rp.getResource();
+            String parmName = parm.getParmID().getParmName();
             ResourceProperties props = rp.getProperties();
             LegendData data = new LegendData();
             data.resource = rp;
+
+            DataTime curRscTime = currInfo.getTimeForResource(rsc);
 
             // color for the text
             if ((props.isVisible())
@@ -148,7 +152,6 @@ public class ImageLegendResource extends GFELegendResource {
 
             // get the units for the time string
             String units = rsc.getParm().getGridInfo().getUnitString();
-            IGridData[] gd = new IGridData[0];
 
             Locale locale = Locale.getDefault();
             String lang = getLanguage();
@@ -175,36 +178,32 @@ public class ImageLegendResource extends GFELegendResource {
                 snap.setTimeZone(TimeZone.getTimeZone(tz));
                 formatter.format(snapshotFormat.replaceAll("\\%", "%1\\$t"),
                         snap);
-            } else {
-                // get the valid time for the grid, get the time format
-                gd = rsc.getParm().getGridInventory(curTime.getValidPeriod());
-                if (gd.length > 0) {
-                    TimeRange tr = gd[0].getGridTime();
-                    if (durationFormat != null) {
-                        timeString += durationString(tr);
-                    }
-                    if (startFormat != null) {
-                        Calendar start = Calendar.getInstance();
-                        start.setTimeZone(TimeZone.getTimeZone(tz));
-                        start.setTime(tr.getStart());
-                        formatter.format(
-                                startFormat.replaceAll("\\%", "%1\\$t"), start);
-                    }
-                    if (endFormat != null) {
-                        Calendar end = Calendar.getInstance();
-                        end.setTimeZone(TimeZone.getTimeZone(tz));
-                        end.setTime(tr.getEnd());
-                        formatter.format(endFormat.replaceAll("\\%", "%1\\$t"),
-                                end);
-                    }
-
+            } else if (curRscTime != null) {
+                TimeRange tr = curRscTime.getValidPeriod();
+                if (durationFormat != null) {
+                    timeString += durationString(tr);
                 }
+                if (startFormat != null) {
+                    Calendar start = Calendar.getInstance();
+                    start.setTimeZone(TimeZone.getTimeZone(tz));
+                    start.setTime(tr.getStart());
+                    formatter.format(startFormat.replaceAll("\\%", "%1\\$t"),
+                            start);
+                }
+                if (endFormat != null) {
+                    Calendar end = Calendar.getInstance();
+                    end.setTimeZone(TimeZone.getTimeZone(tz));
+                    end.setTime(tr.getEnd());
+                    formatter
+                            .format(endFormat.replaceAll("\\%", "%1\\$t"), end);
+                }
+
             }
 
             timeString += formatter.toString();
             timeString = timeString.replaceAll("\\[UNITS\\]", units);
 
-            if (snapshotTime || gd.length > 0) {
+            if (snapshotTime || curRscTime != null) {
                 // now prefix the parameter name
                 String name = null;
 

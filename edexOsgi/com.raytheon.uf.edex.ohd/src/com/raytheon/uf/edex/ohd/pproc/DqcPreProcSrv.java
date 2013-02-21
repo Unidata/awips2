@@ -59,26 +59,28 @@ public class DqcPreProcSrv {
         }
 
         int exitValue = 0;
-        if (dqcArg.matches(DAYS_ARG)) {
-            logger.info("Executing DQC Preprocessor with argument: " + dqcArg);
-            exitValue = MainMethod.runProgram("ksh", appsDefaults
-                    .getToken("pproc_bin")
-                    + "/run_dqc_preprocessor", "-d" + dqcArg);
-        } else if (DAYS_ARG == null) {
-            logger
-                    .info("Executing DQC Preprocessor with default number of days:  "
-                            + defaultNumDays);
-            exitValue = MainMethod.runProgram("ksh", appsDefaults
-                    .getToken("pproc_bin")
-                    + "/run_dqc_preprocessor", "-d" + defaultNumDays);
-        }
+        if (AppsDefaults.getInstance().setAppContext(this)) {
+            if (dqcArg.matches(DAYS_ARG)) {
+                logger.info("Executing DQC Preprocessor with argument: "
+                        + dqcArg);
+                exitValue = MainMethod.runProgram("ksh",
+                        appsDefaults.getToken("pproc_bin")
+                                + "/run_dqc_preprocessor", "-d" + dqcArg);
+            } else if (DAYS_ARG == null) {
+                logger.info("Executing DQC Preprocessor with default number of days:  "
+                        + defaultNumDays);
+                exitValue = MainMethod.runProgram("ksh",
+                        appsDefaults.getToken("pproc_bin")
+                                + "/run_dqc_preprocessor", "-d"
+                                + defaultNumDays);
+            }
 
-        if (exitValue == 0) {
-            logger.info("DQC Preprocessor execution successful");
-        } else {
-            logger
-                    .error("DQC Preprocessor terminated abnormally with exit code: "
-                            + exitValue);
+            if (exitValue == 0) {
+                logger.info("DQC Preprocessor execution successful");
+            } else {
+                logger.error("DQC Preprocessor terminated abnormally with exit code: "
+                        + exitValue);
+            }
         }
         return exitValue;
     }

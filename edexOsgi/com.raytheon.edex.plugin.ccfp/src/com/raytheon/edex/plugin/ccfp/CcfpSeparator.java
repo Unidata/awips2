@@ -45,6 +45,7 @@ import com.raytheon.edex.util.Util;
  * 03/03/2007   908         bwoodle     initial creation
  * 12/03/2008               chammack    Camel refactor
  * 09/16/2009   3027      njensen        Static patterns
+ * 01/02/2013	DCS 135		tk			use \\r* for testing end of line
  * 
  * </pre>
  * 
@@ -58,11 +59,11 @@ public class CcfpSeparator extends AbstractRecordSeparator {
 
     /** Regex used for separating multi-record files */
     private static final Pattern DATASET = Pattern
-            .compile("CCFP \\d{8}_\\d{4} \\d{8}_\\d{4}([\\r\\n]+(AREA|LINE).*)*");
+            .compile("CCFP \\d{8}_\\d{4} \\d{8}_\\d{4}([\\r*\\n]+(AREA|LINE).*)*");
 
     /** Regex to pull AWIPS Header */
     private static final Pattern AWIPSHEADER = Pattern
-            .compile("[\\r\\n]+(TAF|MTR|CFP)([\\p{Alnum} ]{3})[\\r\\n]+");
+            .compile("[\\r*\\n]+(TAF|MTR|CFP)([\\p{Alnum} ]{3})[\\r*\\n]+");
 
     /** Regex used for extracting the header */
     private static final Pattern HEADERREGEX = Pattern
