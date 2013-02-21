@@ -21,7 +21,13 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
  **/
 
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
@@ -33,6 +39,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2011            dhladky     Initial creation
+ * Feb 12, 2013 1543       djohnson    Abstract class now.
+ * Feb 15, 2013 1543       djohnson    Sub-classes must implement payload methods, make JAXBable.
  * 
  * </pre>
  * 
@@ -41,27 +49,30 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @author dhladky
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+public abstract class RetrievalResponse implements IRetrievalResponse {
 
-public class RetrievalResponse implements IRetrievalResponse {
+    @XmlElement
+    @DynamicSerializeElement
+    private RetrievalAttribute attribute;
 
-    private RetrievalAttribute attXML;
+    public RetrievalResponse() {
 
-    private Object[] payLoad;
-
-    public RetrievalResponse(RetrievalAttribute attXML) {
-        this.attXML = attXML;
     }
 
-    public void setPayLoad(Object[] payLoad) {
-        this.payLoad = payLoad;
+    public RetrievalResponse(RetrievalAttribute attribute) {
+        this.attribute = attribute;
     }
 
-    public Object[] getPayLoad() {
-        return payLoad;
-    }
-
+    @Override
     public RetrievalAttribute getAttribute() {
-        return attXML;
+        return attribute;
+    }
+
+    @Override
+    public void setAttribute(RetrievalAttribute attribute) {
+        this.attribute = attribute;
     }
 
 }

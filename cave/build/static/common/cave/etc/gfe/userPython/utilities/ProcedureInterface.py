@@ -30,6 +30,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/05/08                      njensen        Initial Creation.
+#    01/17/13         1486         dgilling       Re-factor based on 
+#                                                 RollbackMasterInterface.
 #    
 # 
 #
@@ -37,15 +39,13 @@
 
 import sys
 import Exceptions
-import MasterInterface
-from com.raytheon.uf.common.localization import PathManagerFactory
+import RollbackMasterInterface
 
-class ProcedureInterface(MasterInterface.MasterInterface):
+class ProcedureInterface(RollbackMasterInterface.RollbackMasterInterface):
     
     def __init__(self, scriptPath):
-        MasterInterface.MasterInterface.__init__(self)
-        self.importModules(scriptPath)
-        self.pathMgr = PathManagerFactory.getPathManager()
+        super(ProcedureInterface, self).__init__(scriptPath)
+        self.importModules()
         
         self.menuToProcMap = {}
         for script in self.scripts:
@@ -72,26 +72,20 @@ class ProcedureInterface(MasterInterface.MasterInterface):
         return scriptList
     
     def addModule(self, moduleName):
-        MasterInterface.MasterInterface.addModule(self, moduleName)
+        super(ProcedureInterface, self).addModule(moduleName)
         self.__mapMenuList(moduleName)
         
     def removeModule(self, moduleName):
-        MasterInterface.MasterInterface.removeModule(self, moduleName)
+        super(ProcedureInterface, self).removeModule(moduleName)
         for key in self.menuToProcMap:
             procList = self.menuToProcMap.get(key)
             if moduleName in procList:
                 procList.remove(moduleName)
                 self.menuToProcMap[key] = procList
-        if self.pathMgr.getStaticLocalizationFile("gfe/userPython/procedures/" + moduleName + ".py") is not None:
-            self.addModule(moduleName)
-            
-    
-    def getStartupErrors(self):
-        from java.util import ArrayList
-        errorList = ArrayList()
-        for err in self.getImportErrors():
-            errorList.add(str(err))
-        return errorList
+        # in-case we removed just an override, let's
+        # check to see if another script with the same name exists
+        if sys.modules.has_key(moduleName):
+            self.__mapMenuList(moduleName)
     
     def getMethodArgNames(self, moduleName, className, methodName):
         from java.util import ArrayList        
@@ -133,10 +127,5 @@ class ProcedureInterface(MasterInterface.MasterInterface):
                             # wasn't in list
                             pass
                         
-        MasterInterface.MasterInterface.reloadModule(self, moduleName)
+        super(ProcedureInterface, self).reloadModule(moduleName)
         self.__mapMenuList(moduleName)
-            
-            
-
-    
-    

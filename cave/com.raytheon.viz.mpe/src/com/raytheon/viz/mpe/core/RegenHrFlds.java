@@ -300,9 +300,7 @@ public class RegenHrFlds {
                 e.printStackTrace();
             }
 
-            MPEDataManager.getInstance().readGageData(datetime, datetime);
-            /* Read radar data */
-            MPEDataManager.getInstance().readRadarData(datetime);
+            /* Clear gage edits */
             MPEDataManager.getInstance().clearEditGages();
             shell.setCursor(prev);
         }
@@ -361,11 +359,11 @@ public class RegenHrFlds {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         int hr = dt.get(Calendar.HOUR_OF_DAY);
-        
+
         //
-        if (hr==0) {
-        	hr=24;
-        	dt.add(Calendar.DAY_OF_MONTH, -1);
+        if (hr == 0) {
+            hr = 24;
+            dt.add(Calendar.DAY_OF_MONTH, -1);
         }
 
         String where = "WHERE lid='" + id + "' AND pe='PP'" + " AND dur="

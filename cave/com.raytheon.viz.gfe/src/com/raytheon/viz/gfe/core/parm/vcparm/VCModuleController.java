@@ -47,6 +47,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            dgilling     Initial creation
+ * Jan 08, 2013  1486      dgilling     Support changes to BaseGfePyController.
  * 
  * </pre>
  * 
@@ -97,21 +98,16 @@ public class VCModuleController extends BaseGfePyController {
      */
     public List<String> getMethodArgs(String moduleName, String method)
             throws JepException {
-        String[] argNames = getMethodArguments(moduleName, method);
-        List<String> retVal = new ArrayList<String>(argNames.length);
-        for (String arg : argNames) {
-            if (!arg.equals("self")) {
-                retVal.add(arg);
-            }
-        }
-
-        return retVal;
+        List<String> argNames = new ArrayList<String>(getMethodArguments(
+                moduleName, method));
+        argNames.remove("self");
+        return argNames;
     }
 
     public Object executeMethod(String moduleName, String methodName,
             Map<String, Object> args, GridType type) throws JepException {
         if (!isInstantiated(moduleName)) {
-            instantiatePythonTool(moduleName);
+            instantiatePythonScript(moduleName);
         }
 
         args.put(PyConstants.METHOD_NAME, methodName);
@@ -227,7 +223,7 @@ public class VCModuleController extends BaseGfePyController {
      * .String)
      */
     @Override
-    public void instantiatePythonTool(String moduleName) throws JepException {
+    public void instantiatePythonScript(String moduleName) throws JepException {
         Map<String, Object> instanceMap = getStarterMap(moduleName);
         execute("instantiate", INTERFACE, instanceMap);
     }

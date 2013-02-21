@@ -119,6 +119,10 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * 07/19/10        5952     bkowal      GLTarget will now check for the existence of updated extents
  *                                      before drawing. A method has also been added to notify
  *                                      GLTarget of when there are updated extents to load.
+ * Feb 14, 2013 1616        bsteffen    Add option for interpolation of colormap
+ *                                      parameters, disable colormap
+ *                                      interpolation by default.
+ * 
  * 
  * </pre>
  * 
@@ -539,7 +543,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             gl.glActiveTexture(GL.GL_TEXTURE0);
             i.bind(gl, GL.GL_TEXTURE_1D);
 
-            if (drawableColorMap.interpolate) {
+            if (colorMapParams.isInterpolate()) {
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
                         GL.GL_LINEAR);
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,

@@ -48,9 +48,8 @@ public class HDF5Util {
             String fileName = pathProvider.getHDFFileName(
                     object.getPluginName(), persistable);
 
-            file = new File(VizApp.getServerDataDir() + IPathManager.SEPARATOR
-                    + object.getPluginName() + IPathManager.SEPARATOR + path
-                    + IPathManager.SEPARATOR + fileName);
+            file = new File(object.getPluginName() + IPathManager.SEPARATOR
+                    + path + IPathManager.SEPARATOR + fileName);
         }
 
         return file;

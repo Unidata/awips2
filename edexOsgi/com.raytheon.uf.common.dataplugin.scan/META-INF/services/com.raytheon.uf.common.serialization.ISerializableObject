@@ -1,11 +1,1 @@
 com.raytheon.uf.common.dataplugin.scan.ScanRecord
-com.raytheon.uf.common.dataplugin.scan.data.CellTableData
-com.raytheon.uf.common.dataplugin.scan.data.CellTableDataRow
-com.raytheon.uf.common.dataplugin.scan.data.DMDTableData
-com.raytheon.uf.common.dataplugin.scan.data.MDTableData
-com.raytheon.uf.common.dataplugin.scan.data.DMDTableDataRow
-com.raytheon.uf.common.dataplugin.scan.data.TVSTableData
-com.raytheon.uf.common.dataplugin.scan.data.TVSTableDataRow
-com.raytheon.uf.common.dataplugin.scan.data.ModelData
-com.raytheon.uf.common.dataplugin.scan.data.LightningData
-com.raytheon.uf.common.dataplugin.scan.data.SoundingData

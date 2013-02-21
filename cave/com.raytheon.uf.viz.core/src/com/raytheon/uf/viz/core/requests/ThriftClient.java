@@ -16,10 +16,7 @@ import com.raytheon.uf.common.auth.resp.UserNotAuthenticated;
 import com.raytheon.uf.common.auth.resp.UserNotAuthorized;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.comm.HttpClient;
-import com.raytheon.uf.common.comm.NetworkStatistics;
 import com.raytheon.uf.common.serialization.ExceptionWrapper;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.serialization.comm.RemoteServiceRequest;
 import com.raytheon.uf.common.serialization.comm.RequestWrapper;
@@ -64,6 +61,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Aug 3, 2009             mschenke    Initial creation
  * Jul 24, 2012            njensen     Enhanced logging
  * Nov 15, 2012 1322       djohnson    Publicize ability to specify specific httpAddress.
+ * Jan 24, 2013   1526      njensen      Switch from using postBinary() to postDynamicSerialize()
  * 
  * </pre>
  * 
@@ -125,9 +123,6 @@ public class ThriftClient {
 
     private static INotAuthHandler defaultHandler = UserController
             .getNotAuthHandler();
-
-    private static NetworkStatistics stats = HttpClient.getInstance()
-            .getStats();
 
     /**
      * Construct a thrift web service object that sends method calls to the http
@@ -274,24 +269,30 @@ public class ThriftClient {
         return sendRequest(request, httpAddress, "/thrift");
     }
 
+    /**
+     * Sends an IServerRequest to the server at the specified URI.
+     * 
+     * @param request
+     *            the request to send
+     * @param httpAddress
+     *            the http address
+     * @param uri
+     *            the URI at the address
+     * @return the object the server returns
+     * @throws VizException
+     */
     private static Object sendRequest(IServerRequest request,
             String httpAddress, String uri) throws VizException {
         httpAddress += uri;
         String uniqueId = UUID.randomUUID().toString();
         RequestWrapper wrapper = new RequestWrapper(request, VizApp.getWsId(),
                 uniqueId);
-        byte[] message;
-        try {
-            message = SerializationUtil.transformToThrift(wrapper);
-        } catch (SerializationException e) {
-            throw new VizException("unable to serialize request object", e);
-        }
 
-        byte[] response = null;
+        Object rval = null;
         try {
             long t0 = System.currentTimeMillis();
-            response = HttpClient.getInstance()
-                    .postBinary(httpAddress, message);
+            rval = HttpClient.getInstance().postDynamicSerialize(httpAddress,
+                    wrapper, true);
             long time = System.currentTimeMillis() - t0;
             if (time >= SIMPLE_LOG_TIME) {
                 System.out.println("Took " + time + "ms to run request id["
@@ -313,14 +314,6 @@ public class ThriftClient {
 
                 }.printStackTrace(System.out);
             }
-
-            long responseLen = 0;
-            if (response != null) {
-                responseLen = response.length;
-            }
-            // Log request stats
-            stats.log(request.getClass().getSimpleName(), message.length,
-                    responseLen);
         } catch (IOException e) {
             throw new VizCommunicationException(
                     "unable to post request to server", e);
@@ -330,15 +323,7 @@ public class ThriftClient {
         } catch (Exception e) {
             throw new VizException("unable to post request to server", e);
         }
-        Object rval = null;
-        if (response != null) {
-            try {
-                rval = SerializationUtil.transformFromThrift(response);
-            } catch (SerializationException e) {
-                throw new VizException(
-                        "unable to transform response to object", e);
-            }
-        }
+
         if (rval instanceof ServerErrorResponse) {
             ServerErrorResponse resp = (ServerErrorResponse) rval;
             Throwable serverException = ExceptionWrapper.unwrapThrowable(resp

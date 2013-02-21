@@ -20,29 +20,21 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.jdbc.Work;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.util.session.SessionContext;
-import com.raytheon.uf.common.util.session.SessionManager;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -57,137 +49,31 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2012 1286       djohnson     Extracted from BandwidthContextFactory.
+ * Feb 07, 2013 1543       djohnson     Moved session management context to CoreDao.
+ * Feb 11, 2013 1543       djohnson     Use Spring transactions.
+ * Feb 13, 2013 1543       djohnson     Converted into a service, created new DAOs as required.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
-    /**
-     * 
-     * Implementation of {@link SessionContext} which controls the Hibernate
-     * session and transaction. The {@link SessionManager} controls the
-     * lifecycle of the context, and you can read the documentation located in
-     * the {@link SessionManager} class for more details on its use.
-     */
-    public static class BandwidthSessionContext implements SessionContext {
-        private Session session;
+@Transactional
+@Service
+public class HibernateBandwidthDao implements IBandwidthDao {
 
-        private Transaction tx;
+    private IBandwidthAllocationDao bandwidthAllocationDao;
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void open() {
-            session = instance.getSessionFactory().openSession();
-            tx = session.beginTransaction();
-        }
+    private ISubscriptionRetrievalDao subscriptionRetrievalDao;
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void close() {
-            if (tx != null && !tx.wasCommitted()) {
-                tx.rollback();
-            }
-            if (session != null) {
-                session.close();
-            }
-        }
+    private IBandwidthSubscriptionDao bandwidthSubscriptionDao;
 
-        private void commit() {
-            tx.commit();
-        }
-
-        private Query getQuery(final String queryString) {
-            return session.createQuery(queryString).setCacheable(true);
-        }
-
-        /**
-         * Do some database work.
-         * 
-         * @param work
-         *            the work instance
-         */
-        private void doWork(Work work) {
-            session.doWork(work);
-        }
-    }
-
-    private static final String GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK = "from BandwidthAllocation res where res.network = :network";
-
-    private static final String GET_BANDWIDTH_ALLOCATIONS_BY_STATE = "from BandwidthAllocation res where res.status = :state";
-
-    private static final String GET_BANDWIDTH_ALLOCATIONS_BY_SUBSCRIPTION_ID = "from BandwidthAllocation res where res.subscriptionDao.id = :subscriptionId";
-
-    private static final String GET_DATASETMETADATA_BY_PROVIDER_AND_DATASET = "from DataSetMetaDataDao d where "
-            + "d.providerName = :providerName and "
-            + "d.dataSetName = :dataSetName order by dataSetBaseTime desc";
-
-    private static final String GET_DATASETMETADATA_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME = "from DataSetMetaDataDao d where "
-            + "d.providerName = :providerName and "
-            + "d.dataSetName = :dataSetName and "
-            + "d.dataSetBaseTime = :dataSetBaseTime "
-            + "order by dataSetBaseTime desc";
-
-    private static final String GET_DEFERRED = "from BandwidthAllocation alloc where "
-            + "alloc.status = :status and "
-            + "alloc.network = :network and "
-            + "alloc.endTime <= :endTime";
-
-    private static final String GET_SUBSCRIPTIONDAO = "from SubscriptionDao sub order by sub.baseReferenceTime asc";
-
-    private static final String GET_SUBSCRIPTIONDAO_BY_IDENTIFIER = "from SubscriptionDao sub where sub.id = :identifier";
-
-    private static final String GET_SUBSCRIPTIONDAO_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME = "from SubscriptionDao sub where "
-            + "  sub.provider = :provider and "
-            + "  sub.dataSetName = :dataSetName and "
-            + "  sub.baseReferenceTime = :baseReferenceTime";
-
-    private static final String GET_SUBSCRIPTIONDAO_BY_REGISTRY_ID_AND_BASEREFERENCETIME = "from SubscriptionDao sub where "
-            + "sub.registryId = :registryId and "
-            + "sub.baseReferenceTime = :baseReferenceTime";
-
-    private static final String GET_SUBSCRIPTIONDAO_BY_REGISTRYID = "from SubscriptionDao sub where "
-            + "sub.registryId = :registryId";
-
-    private static final String GET_SUBSCRIPTIONDAO_BY_SUBSCRIPTION = "from SubscriptionDao sub where "
-            + "sub.owner = :owner and "
-            + "sub.provider = :provider and "
-            + "sub.name = :name and " + "sub.dataSetName = :dataSetName";
-
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_IDENTIFIER = "from SubscriptionRetrieval sr where "
-            + "sr.id = :identifier";
-
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE = "from SubscriptionRetrieval sr where "
-            + " sr.subscriptionDao.id in ("
-            + "  select sub.id from SubscriptionDao sub where "
-            + "  sub.provider = :provider and "
-            + "  sub.dataSetName = :dataSetName";
-
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE
-            + ")";
-
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE
-            + " and sub.baseReferenceTime = :baseReferenceTime)";
-
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_SUBSCRIPTIONID = "from SubscriptionRetrieval sr where "
-            + "sr.subscriptionDao.id = :subscriptionId";
-
-    private static final HibernateBandwidthDao instance = new HibernateBandwidthDao();
+    private IBandwidthDataSetUpdateDao bandwidthDataSetUpdateDao;
 
     /**
-     * @return the instance
+     * Constructor.
      */
-    public static HibernateBandwidthDao getInstance() {
-        return instance;
-    }
-
-    private HibernateBandwidthDao() {
-        super(DaoConfig.forClass(HibernateBandwidthDao.class));
+    public HibernateBandwidthDao() {
     }
 
     /**
@@ -195,9 +81,7 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      */
     @Override
     public List<BandwidthAllocation> getBandwidthAllocations(Long subscriptionId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("subscriptionId", subscriptionId);
-        return query(GET_BANDWIDTH_ALLOCATIONS_BY_SUBSCRIPTION_ID, params);
+        return bandwidthAllocationDao.getBySubscriptionId(subscriptionId);
     }
 
     /**
@@ -205,9 +89,7 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      */
     @Override
     public List<BandwidthAllocation> getBandwidthAllocations(Network network) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("network", network);
-        return query(GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK, params);
+        return bandwidthAllocationDao.getByNetwork(network);
     }
 
     /**
@@ -216,36 +98,27 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
     @Override
     public List<BandwidthAllocation> getBandwidthAllocationsInState(
             RetrievalStatus state) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("state", state);
-        return query(GET_BANDWIDTH_ALLOCATIONS_BY_STATE, params);
+        return bandwidthAllocationDao.getByState(state);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<DataSetMetaDataDao> getDataSetMetaDataDao(String providerName,
-            String dataSetName) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("providerName", providerName);
-        params.put("dataSetName", dataSetName);
-        return query(GET_DATASETMETADATA_BY_PROVIDER_AND_DATASET, params);
+    public List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(
+            String providerName, String dataSetName) {
+        return bandwidthDataSetUpdateDao.getByProviderDataSet(providerName,
+                dataSetName);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<DataSetMetaDataDao> getDataSetMetaDataDao(String providerName,
-            String dataSetName, Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("providerName", providerName);
-        params.put("dataSetName", dataSetName);
-        params.put("dataSetBaseTime", baseReferenceTime);
-        return query(
-                GET_DATASETMETADATA_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME,
-                params);
+    public List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(
+            String providerName, String dataSetName, Calendar baseReferenceTime) {
+        return bandwidthDataSetUpdateDao.getByProviderDataSetReferenceTime(
+                providerName, dataSetName, baseReferenceTime);
     }
 
     /**
@@ -254,11 +127,7 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
     @Override
     public List<BandwidthAllocation> getDeferred(Network network,
             Calendar endTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("status", RetrievalStatus.DEFERRED);
-        params.put("network", network);
-        params.put("endTime", endTime);
-        return query(GET_DEFERRED, params);
+        return bandwidthAllocationDao.getDeferred(network, endTime);
     }
 
     /**
@@ -268,56 +137,43 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      * @return The Dialect.
      */
     public Dialect getDialect() {
-        return ((SessionFactoryImpl) getSessionFactory()).getDialect();
+        return subscriptionRetrievalDao.getDialect();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionDao getSubscriptionDao(long identifier) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("identifier", identifier);
-        return uniqueResult(GET_SUBSCRIPTIONDAO_BY_IDENTIFIER, params);
+    public BandwidthSubscription getBandwidthSubscription(long identifier) {
+        return bandwidthSubscriptionDao.getById(identifier);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionDao getSubscriptionDao(String registryId,
+    public BandwidthSubscription getBandwidthSubscription(String registryId,
             Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("registryId", registryId);
-        params.put("baseReferenceTime", baseReferenceTime);
-        return uniqueResult(
-                GET_SUBSCRIPTIONDAO_BY_REGISTRY_ID_AND_BASEREFERENCETIME,
-                params);
+        return bandwidthSubscriptionDao.getByRegistryIdReferenceTime(
+                registryId, baseReferenceTime);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<SubscriptionDao> getSubscriptionDao(Subscription subscription) {
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("owner", subscription.getOwner());
-        params.put("provider", subscription.getProvider());
-        params.put("name", subscription.getName());
-        params.put("dataSetName", subscription.getDataSetName());
-        return query(GET_SUBSCRIPTIONDAO_BY_SUBSCRIPTION, params);
+    public List<BandwidthSubscription> getBandwidthSubscription(
+            Subscription subscription) {
+        return bandwidthSubscriptionDao.getBySubscription(subscription);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<SubscriptionDao> getSubscriptionDaoByRegistryId(
+    public List<BandwidthSubscription> getBandwidthSubscriptionByRegistryId(
             String registryId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("registryId", registryId);
-        return query(GET_SUBSCRIPTIONDAO_BY_REGISTRYID, params);
+        return bandwidthSubscriptionDao.getByRegistryId(registryId);
     }
 
     /**
@@ -325,10 +181,7 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      */
     @Override
     public SubscriptionRetrieval getSubscriptionRetrieval(long identifier) {
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("identifier", identifier);
-        return uniqueResult(GET_SUBSCRIPTIONRETRIEVAL_BY_IDENTIFIER, params);
+        return subscriptionRetrievalDao.getById(identifier);
     }
 
     /**
@@ -337,13 +190,8 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
     @Override
     public List<SubscriptionRetrieval> getSubscriptionRetrievals(
             String provider, String dataSetName, Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("provider", provider);
-        params.put("dataSetName", dataSetName);
-        params.put("baseReferenceTime", baseReferenceTime);
-        return query(
-                GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME,
-                params);
+        return subscriptionRetrievalDao.getByProviderDataSetReferenceTime(
+                provider, dataSetName, baseReferenceTime);
     }
 
     /**
@@ -352,62 +200,56 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
     @Override
     public List<SubscriptionRetrieval> getSubscriptionRetrievals(
             String provider, String dataSetName) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("provider", provider);
-        params.put("dataSetName", dataSetName);
-        return query(GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET, params);
+        return subscriptionRetrievalDao.getByProviderDataSet(provider,
+                dataSetName);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<SubscriptionDao> getSubscriptions() {
-        Map<String, Object> params = new HashMap<String, Object>();
-        return query(GET_SUBSCRIPTIONDAO, params);
+    public List<BandwidthSubscription> getBandwidthSubscriptions() {
+        return bandwidthSubscriptionDao.getAll();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<SubscriptionDao> getSubscriptions(String provider,
-            String dataSetName, Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("provider", provider);
-        params.put("dataSetName", dataSetName);
-        params.put("baseReferenceTime", baseReferenceTime);
-        return query(
-                GET_SUBSCRIPTIONDAO_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME,
-                params);
+    public List<BandwidthSubscription> getBandwidthSubscriptions(
+            String provider, String dataSetName, Calendar baseReferenceTime) {
+        return bandwidthSubscriptionDao.getByProviderDataSetReferenceTime(
+                provider, dataSetName, baseReferenceTime);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public DataSetMetaDataDao newDataSetMetaDataDao(
+    public BandwidthDataSetUpdate newBandwidthDataSetUpdate(
             DataSetMetaData dataSetMetaData) {
 
-        DataSetMetaDataDao dao = BandwidthUtil
+        BandwidthDataSetUpdate entity = BandwidthUtil
                 .newDataSetMetaDataDao(dataSetMetaData);
+        bandwidthDataSetUpdateDao.create(entity);
 
-        persist(dao);
-
-        return dao;
+        return entity;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionDao newSubscriptionDao(Subscription subscription,
-            Calendar baseReferenceTime) throws SerializationException {
-        SubscriptionDao dao = BandwidthUtil.getSubscriptionDaoForSubscription(
-                subscription, baseReferenceTime);
+    public BandwidthSubscription newBandwidthSubscription(
+            Subscription subscription, Calendar baseReferenceTime)
+            throws SerializationException {
+        BandwidthSubscription entity = BandwidthUtil
+                .getSubscriptionDaoForSubscription(subscription,
+                        baseReferenceTime);
 
-        store(dao);
-        return dao;
+        bandwidthSubscriptionDao.create(entity);
+
+        return entity;
     }
 
     /**
@@ -416,9 +258,7 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
     @Override
     public List<SubscriptionRetrieval> querySubscriptionRetrievals(
             long subscriptionId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("subscriptionId", subscriptionId);
-        return query(GET_SUBSCRIPTIONRETRIEVAL_BY_SUBSCRIPTIONID, params);
+        return subscriptionRetrievalDao.getBySubscriptionId(subscriptionId);
     }
 
     /**
@@ -426,7 +266,7 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      */
     @Override
     public List<SubscriptionRetrieval> querySubscriptionRetrievals(
-            SubscriptionDao subscriptionDao) {
+            BandwidthSubscription subscriptionDao) {
         return querySubscriptionRetrievals(subscriptionDao.getId());
     }
 
@@ -434,19 +274,11 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void remove(SubscriptionDao subscriptionDao) {
-        List<BandwidthAllocation> bandwidthReservations = getBandwidthAllocations(subscriptionDao
-                .getIdentifier());
-        deleteAll(bandwidthReservations);
-        delete(subscriptionDao);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void store(BandwidthAllocation bandwidthAllocation) {
-        persist(bandwidthAllocation);
+    public void remove(BandwidthSubscription subscriptionDao) {
+        List<SubscriptionRetrieval> bandwidthReservations = subscriptionRetrievalDao
+                .getBySubscriptionId(subscriptionDao.getIdentifier());
+        subscriptionRetrievalDao.deleteAll(bandwidthReservations);
+        bandwidthSubscriptionDao.delete(subscriptionDao);
     }
 
     /**
@@ -454,9 +286,8 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      */
     @Override
     public void store(List<SubscriptionRetrieval> retrievals) {
-
         for (SubscriptionRetrieval retrieval : retrievals) {
-            persist(retrieval);
+            subscriptionRetrievalDao.create(retrieval);
         }
     }
 
@@ -464,8 +295,25 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public void store(SubscriptionDao subscriptionDao) {
-        persist(subscriptionDao);
+    @Transactional
+    public void store(BandwidthSubscription subscriptionDao) {
+        bandwidthSubscriptionDao.create(subscriptionDao);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void store(BandwidthAllocation bandwidthAllocation) {
+        bandwidthAllocationDao.create(bandwidthAllocation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void createOrUpdate(BandwidthAllocation allocation) {
+        bandwidthAllocationDao.createOrUpdate(allocation);
     }
 
     /**
@@ -473,85 +321,15 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      */
     @Override
     public void update(BandwidthAllocation allocation) {
-        persist(allocation);
+        bandwidthAllocationDao.update(allocation);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void update(SubscriptionDao dao) {
-        persist(dao);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void update(SubscriptionRetrieval subscriptionRetrieval) {
-        persist(subscriptionRetrieval);
-    }
-
-    /**
-     * Internal convenience method for querying.
-     * 
-     * @param <T>
-     * @param queryString
-     * @param params
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends Object> List<T> query(String queryString,
-            Map<String, Object> params) {
-        List<T> results = null;
-        BandwidthSessionContext ctx = SessionManager
-                .openSession(BandwidthSessionContext.class);
-        try {
-            Query query = ctx.getQuery(queryString);
-
-            if (params != null) {
-                for (String name : params.keySet()) {
-                    Object val = params.get(name);
-                    query.setParameter(name, val);
-                }
-            }
-            results = query.list();
-            ctx.commit();
-        } finally {
-            SessionManager.closeSession(BandwidthSessionContext.class);
-        }
-        return results;
-    }
-
-    /**
-     * Internal convenience method for returning a single result.
-     * 
-     * @param <T>
-     * @param queryString
-     * @param params
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends Object> T uniqueResult(String queryString,
-            Map<String, Object> params) {
-        T results = null;
-        BandwidthSessionContext ctx = SessionManager
-                .openSession(BandwidthSessionContext.class);
-        try {
-            Query query = ctx.getQuery(queryString);
-
-            if (params != null) {
-                for (String name : params.keySet()) {
-                    Object val = params.get(name);
-                    query.setParameter(name, val);
-                }
-            }
-            results = (T) query.uniqueResult();
-            ctx.commit();
-        } finally {
-            SessionManager.closeSession(BandwidthSessionContext.class);
-        }
-        return results;
+    public void update(BandwidthSubscription dao) {
+        bandwidthSubscriptionDao.update(dao);
     }
 
     /**
@@ -561,13 +339,71 @@ public class HibernateBandwidthDao extends CoreDao implements IBandwidthDao {
      *            The unit of work to do.
      */
     public void doWork(Work work) {
-        BandwidthSessionContext ctx = SessionManager
-                .openSession(BandwidthSessionContext.class);
-        try {
-            ctx.doWork(work);
-            ctx.commit();
-        } finally {
-            SessionManager.closeSession(BandwidthSessionContext.class);
-        }
+        subscriptionRetrievalDao.doWork(work);
     }
+
+    /**
+     * @return the subscriptionRetrievalDao
+     */
+    public ISubscriptionRetrievalDao getSubscriptionRetrievalDao() {
+        return subscriptionRetrievalDao;
+    }
+
+    /**
+     * @param subscriptionRetrievalDao
+     *            the subscriptionRetrievalDao to set
+     */
+    public void setSubscriptionRetrievalDao(
+            ISubscriptionRetrievalDao bandwidthAllocationDao) {
+        this.subscriptionRetrievalDao = bandwidthAllocationDao;
+    }
+
+    /**
+     * @return the subscriptionDaoDao
+     */
+    public IBandwidthSubscriptionDao getBandwidthSubscriptionDao() {
+        return bandwidthSubscriptionDao;
+    }
+
+    /**
+     * @param subscriptionDaoDao
+     *            the subscriptionDaoDao to set
+     */
+    public void setBandwidthSubscriptionDao(
+            IBandwidthSubscriptionDao bandwidthSubscriptionDao) {
+        this.bandwidthSubscriptionDao = bandwidthSubscriptionDao;
+    }
+
+    /**
+     * @return the bandwidthAllocationDao
+     */
+    public IBandwidthAllocationDao getBandwidthAllocationDao() {
+        return bandwidthAllocationDao;
+    }
+
+    /**
+     * @param bandwidthAllocationDao
+     *            the bandwidthAllocationDao to set
+     */
+    public void setBandwidthAllocationDao(
+            IBandwidthAllocationDao bandwidthAllocationDao) {
+        this.bandwidthAllocationDao = bandwidthAllocationDao;
+    }
+
+    /**
+     * @return the bandwidthDataSetUpdateDao
+     */
+    public IBandwidthDataSetUpdateDao getBandwidthDataSetUpdateDao() {
+        return bandwidthDataSetUpdateDao;
+    }
+
+    /**
+     * @param bandwidthDataSetUpdateDao
+     *            the bandwidthDataSetUpdateDao to set
+     */
+    public void setBandwidthDataSetUpdateDao(
+            IBandwidthDataSetUpdateDao bandwidthDataSetUpdateDao) {
+        this.bandwidthDataSetUpdateDao = bandwidthDataSetUpdateDao;
+    }
+
 }

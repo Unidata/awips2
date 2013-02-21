@@ -21,11 +21,6 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -40,14 +35,14 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  * 
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public abstract class ScanTableDataRow implements ISerializableObject, Serializable {
 		
@@ -105,47 +100,35 @@ public abstract class ScanTableDataRow implements ISerializableObject, Serializa
     };
     /** time of insert **/
     @DynamicSerializeElement
-    @XmlElement
     public DataTime time = null;
     /** azimuth **/
     @DynamicSerializeElement
-    @XmlElement
 	public Double azm = 0.0;
 	/** range **/
     @DynamicSerializeElement
-    @XmlElement
 	public Double rng = 0.0;
 	/** speed **/
     @DynamicSerializeElement
-    @XmlElement
 	public Double spd = 0.0;
 	/** direction **/
     @DynamicSerializeElement
-    @XmlElement
 	public Double dir = 0.0;
 	/** county of origin **/
     @DynamicSerializeElement
-    @XmlElement
 	public String county = "N/A";
 	/** cwa **/
     @DynamicSerializeElement
-    @XmlElement
     public String cwa = "N/A";
 	/** latitude **/
     @DynamicSerializeElement
-    @XmlElement
 	public Double lat = 0.0;
 	/** longitude **/
     @DynamicSerializeElement
-    @XmlElement
 	public Double lon = 0.0;
     @DynamicSerializeElement
-    @XmlElement
 	/** Ident (Cell Table - Storm ID, MESO DMDIdent, TVS FeatureID) **/
 	public String ident = null;
-    
     @DynamicSerializeElement
-    @XmlElement
     /** is feature new **/
     public boolean isNew = true;
 	
