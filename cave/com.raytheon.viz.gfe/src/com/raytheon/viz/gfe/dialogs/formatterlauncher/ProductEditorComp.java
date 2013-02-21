@@ -59,6 +59,8 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -143,6 +145,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking FindReplaceDlg.
  *                                     Changes for non-blocking StoreTransmitDlg.
  *                                     Changes for non-blocking WrapLengthDialog.
+ * 08 Feb 2013 12851   	   jzeng       Add menuToAddTo in create*Menu
+ *                                     Create createEditorPopupMenu() 
+ *                                     Add mouselistener in createTextControl() for StyledText	                                     
  * 
  * </pre>
  * 
@@ -166,6 +171,11 @@ public class ProductEditorComp extends Composite implements
      * Toolbar used to mimic a menu bar.
      */
     private ToolBar toolbar;
+    
+    /**
+     * Pop-up Menu
+     */
+    private Menu popupMenu;
 
     /**
      * File menu.
@@ -504,7 +514,8 @@ public class ProductEditorComp extends Composite implements
         transDisabledImg = getImageRegistry().get("transmitDisabled");
         transLiveImg = getImageRegistry().get("transmitLive");
         checkImg = getImageRegistry().get("checkmark");
-
+        menuItems = new ArrayList<MenuItem>();
+        
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 1;
@@ -565,11 +576,15 @@ public class ProductEditorComp extends Composite implements
      */
     private void createToolbar() {
         toolbar = new ToolBar(this, SWT.NONE);
-
-        createFileMenu();
-        createEditMenu();
-        createOptionsMenu();
-        createCallToActionsMenu();
+        
+        fileMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createFileMenu(fileMenu);
+        editMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createEditMenu(editMenu);
+        optionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createOptionsMenu(optionsMenu);
+        callToActionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createCallToActionsMenu(callToActionsMenu);
 
         fileTI = new ToolItem(toolbar, SWT.DROP_DOWN);
         fileTI.setText("File");
@@ -627,12 +642,9 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the file menu.
      */
-    private void createFileMenu() {
-        fileMenu = new Menu(parent.getShell(), SWT.POP_UP);
-
-        menuItems = new ArrayList<MenuItem>();
-
-        MenuItem saveFileMI = new MenuItem(fileMenu, SWT.PUSH);
+    private void createFileMenu(Menu menuToAddTo) {
+        
+        MenuItem saveFileMI = new MenuItem(menuToAddTo, SWT.PUSH);
         saveFileMI.setText("Save File...");
         saveFileMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -641,7 +653,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem storeMI = new MenuItem(fileMenu, SWT.PUSH);
+        MenuItem storeMI = new MenuItem(menuToAddTo, SWT.PUSH);
         storeMI.setText("Store...");
         storeMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -650,10 +662,10 @@ public class ProductEditorComp extends Composite implements
             }
         });
         menuItems.add(storeMI);
-
+        
         // we can't color the background of the menu item so
         // we use an image like the tab folder.
-        transmitMI = new MenuItem(fileMenu, SWT.PUSH);
+        transmitMI = new MenuItem(menuToAddTo, SWT.PUSH);
         transmitMI.setText("Transmit...");
         transmitMI.setImage(transLiveImg);
         transmitMI.addSelectionListener(new SelectionAdapter() {
@@ -663,11 +675,11 @@ public class ProductEditorComp extends Composite implements
             }
         });
         menuItems.add(transmitMI);
-
+        
         // Menu Separator
-        new MenuItem(fileMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem printMI = new MenuItem(fileMenu, SWT.PUSH);
+        MenuItem printMI = new MenuItem(menuToAddTo, SWT.PUSH);
         printMI.setText("Print");
         printMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -698,10 +710,10 @@ public class ProductEditorComp extends Composite implements
         });
 
         // Menu Separator
-        new MenuItem(fileMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
         if (editorCorrectionMode) {
-            MenuItem loadDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem loadDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             loadDraftMI.setText("Open File...");
             loadDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -710,7 +722,7 @@ public class ProductEditorComp extends Composite implements
                 }
             });
 
-            MenuItem saveDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem saveDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             saveDraftMI.setText("Load Product / Make Correction...");
             saveDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -719,7 +731,7 @@ public class ProductEditorComp extends Composite implements
                 }
             });
         } else {
-            MenuItem loadDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem loadDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             loadDraftMI.setText("Load Draft");
             loadDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -729,7 +741,7 @@ public class ProductEditorComp extends Composite implements
             });
             menuItems.add(loadDraftMI);
 
-            MenuItem saveDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem saveDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             saveDraftMI.setText("Save Draft");
             saveDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -744,21 +756,20 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the edit menu.
      */
-    private void createEditMenu() {
-        editMenu = new Menu(parent.getShell(), SWT.POP_UP);
-
-        MenuItem undoMI = new MenuItem(editMenu, SWT.PUSH);
+    private void createEditMenu(Menu menuToAddTo) {
+        
+        MenuItem undoMI = new MenuItem(menuToAddTo, SWT.PUSH);
         undoMI.setText("Undo");
         undoMI.setEnabled(false);
 
-        MenuItem redoMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem redoMI = new MenuItem(menuToAddTo, SWT.PUSH);
         redoMI.setText("Redo");
         redoMI.setEnabled(false);
 
         // Menu Separator
-        new MenuItem(editMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem cutMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem cutMI = new MenuItem(menuToAddTo, SWT.PUSH);
         cutMI.setText("Cut");
         cutMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -767,7 +778,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem copyMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem copyMI = new MenuItem(menuToAddTo, SWT.PUSH);
         copyMI.setText("Copy");
         copyMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -776,7 +787,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem pasteMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem pasteMI = new MenuItem(menuToAddTo, SWT.PUSH);
         pasteMI.setText("Paste");
         pasteMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -786,9 +797,9 @@ public class ProductEditorComp extends Composite implements
         });
 
         // Menu Separator
-        new MenuItem(editMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem findMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem findMI = new MenuItem(menuToAddTo, SWT.PUSH);
         findMI.setText("Find...");
         findMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -797,7 +808,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem replaceMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem replaceMI = new MenuItem(menuToAddTo, SWT.PUSH);
         replaceMI.setText("Replace...");
         replaceMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -806,7 +817,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem spellCheckMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem spellCheckMI = new MenuItem(menuToAddTo, SWT.PUSH);
         spellCheckMI.setText("Spell Check...");
         spellCheckMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -820,9 +831,9 @@ public class ProductEditorComp extends Composite implements
         });
 
         // Menu Separator
-        new MenuItem(editMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem wrapSelectedMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem wrapSelectedMI = new MenuItem(menuToAddTo, SWT.PUSH);
         wrapSelectedMI.setText("Wrap Selected");
         wrapSelectedMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -835,10 +846,8 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the options menu.
      */
-    private void createOptionsMenu() {
-        optionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
-
-        autoWrapMI = new MenuItem(optionsMenu, SWT.CHECK);
+    private void createOptionsMenu(Menu menuToAddTo) {
+        autoWrapMI = new MenuItem(menuToAddTo, SWT.CHECK);
         autoWrapMI.setText("Auto Wrap");
         autoWrapMI.setSelection(wrapMode);
         autoWrapMI.addSelectionListener(new SelectionAdapter() {
@@ -848,7 +857,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        framingCodeMI = new MenuItem(optionsMenu, SWT.CHECK);
+        framingCodeMI = new MenuItem(menuToAddTo, SWT.CHECK);
         framingCodeMI.setText("Highlight Framing Codes");
         framingCodeMI.setSelection(Activator.getDefault().getPreferenceStore()
                 .getBoolean("HighlightFramingCodes"));
@@ -862,7 +871,7 @@ public class ProductEditorComp extends Composite implements
 
         });
 
-        MenuItem wrapLengthMI = new MenuItem(optionsMenu, SWT.PUSH);
+        MenuItem wrapLengthMI = new MenuItem(menuToAddTo, SWT.PUSH);
         wrapLengthMI.setText("Wrap Length...");
         wrapLengthMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -895,10 +904,8 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the call to actions menu.
      */
-    private void createCallToActionsMenu() {
-        callToActionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
-
-        MenuItem hazardMI = new MenuItem(callToActionsMenu, SWT.PUSH);
+    private void createCallToActionsMenu(Menu menuToAddTo) {
+        MenuItem hazardMI = new MenuItem(menuToAddTo, SWT.PUSH);
         hazardMI.setText("Hazard...");
         hazardMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -907,7 +914,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem productMI = new MenuItem(callToActionsMenu, SWT.PUSH);
+        MenuItem productMI = new MenuItem(menuToAddTo, SWT.PUSH);
         productMI.setText("Product...");
         productMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -916,7 +923,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem genericMI = new MenuItem(callToActionsMenu, SWT.PUSH);
+        MenuItem genericMI = new MenuItem(menuToAddTo, SWT.PUSH);
         genericMI.setText("Generic...");
         genericMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -935,6 +942,17 @@ public class ProductEditorComp extends Composite implements
         textComp.setWrapColumn(wrapColumn);
 
         textComp.setAutoWrapMode(wrapMode);
+
+        createEditorPopupMenu();
+        
+        textComp.getTextEditorST().addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.button == 3){
+					popupMenu.setVisible(true);
+				}
+			}
+        });
     }
 
     /**
@@ -2996,5 +3014,37 @@ public class ProductEditorComp extends Composite implements
         }
 
         return str;
+    }
+    
+    /*
+     * Add Pop-up GUI for File, Edit, Options, and CallToActions 
+     * at the location of mouse, when right click the mouse
+     */
+    private void createEditorPopupMenu(){
+    	popupMenu = new Menu(textComp);
+    	
+    	MenuItem fileMI = new MenuItem(popupMenu, SWT.CASCADE);
+    	fileMI.setText("File");
+    	Menu fileSubMenu = new Menu(popupMenu);
+    	fileMI.setMenu(fileSubMenu);
+    	createFileMenu(fileSubMenu);
+    	
+        MenuItem editMI = new MenuItem(popupMenu, SWT.CASCADE);
+    	editMI.setText("Edit");
+        Menu editSubMenu = new Menu(popupMenu);
+    	editMI.setMenu(editSubMenu);
+        createEditMenu(editSubMenu);
+        
+    	MenuItem optionsMI = new MenuItem(popupMenu, SWT.CASCADE);
+    	optionsMI.setText("Options");
+        Menu optionsSubMenu = new Menu(popupMenu);
+        optionsMI.setMenu(optionsSubMenu);
+        createOptionsMenu(optionsSubMenu); 
+        
+    	MenuItem callToActionsMI = new MenuItem(popupMenu, SWT.CASCADE);
+    	callToActionsMI.setText("CallToActions");
+        Menu callToActionsSubMenu = new Menu(popupMenu);
+    	callToActionsMI.setMenu(callToActionsSubMenu);
+    	createCallToActionsMenu(callToActionsSubMenu);
     }
 }
