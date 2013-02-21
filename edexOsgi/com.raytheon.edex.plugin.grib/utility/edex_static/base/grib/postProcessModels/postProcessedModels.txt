@@ -1,0 +1,80 @@
+# RUC130 PostProcessor
+RUC130:com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC130GribPostProcessor
+
+# Generate 6Hr Records Post Processor
+ECMWF-HiRes:com.raytheon.edex.plugin.grib.decoderpostprocessors.ECMWFHiResProcessor
+GFS213:com.raytheon.edex.plugin.grib.decoderpostprocessors.GFSProcessor
+
+# Post Processor For Lifted Index, if the ability to limit post processing to specific
+# parameters is ever added this would be better done there
+ETA:com.raytheon.edex.plugin.grib.decoderpostprocessors.Nam80PostProcessor
+ETA218:com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor
+ETA242:com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor
+GFS212:com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor
+GFS213:com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor
+
+# Ensemble Grids that need to be stitched together
+AVN37:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+AVN38:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+AVN39:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+AVN40:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF1:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF2:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF3:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF4:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF5:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF6:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF7:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ECMF8:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ENSEMBLE37:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ENSEMBLE38:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ENSEMBLE39:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+ENSEMBLE40:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+UKMET37:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+UKMET38:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+UKMET39:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+UKMET40:com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler
+
+# FFG grids
+FFG-TIR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-RSA:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-ORN:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-FWR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-MSR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-TUA:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-ALR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-RHA:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-STR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-KRF:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-ACR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-PTR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+FFG-TAR:com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor
+
+#RFCqpf grids
+RFCqpf:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
+#MPE-Local grids
+MPE-Local:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
+MPE-Mosaic:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
+
+#RTMA grids
+RTMA:com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor
+
+#LAPS grids
+LAPS:com.raytheon.edex.plugin.grib.decoderpostprocessors.LapsPostProcessor
+
+#TPC grids
+CPCoutlook211:com.raytheon.edex.plugin.grib.decoderpostprocessors.CPCoutlookGribPostProcessor
+
+#MSAS grids
+MSAS:com.raytheon.edex.plugin.grib.decoderpostprocessors.MSASPostProcessor
+
+#HPCqpf grids
+HPCqpf:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
+HPCqpfNDFD:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
+
+#Canadian GEM grids
+Canadian-Reg:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianRegPostProcessor
+Canadian-NH:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianNHPostProcessor
+
+# RUC236 PostProcessor
+RUC236:com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor

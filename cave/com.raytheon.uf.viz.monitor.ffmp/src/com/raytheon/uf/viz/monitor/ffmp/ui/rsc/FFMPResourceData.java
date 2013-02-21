@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -230,11 +231,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 DataTime mostRecentTime = availableTimes[availableTimes.length - 1];
                 this.timeBack = new Date(
                         (long) (mostRecentTime.getRefTime().getTime() - (cfgBasinXML
-                                .getTimeFrame() * 3600 * 1000)));
+                                .getTimeFrame() * TimeUtil.MILLIS_PER_HOUR)));
                 ArrayList<String> hucsToLoad = monitor.getTemplates(siteKey).getTemplateMgr().getHucLevels();
-                //ArrayList<String> hucsToLoad = new ArrayList<String>();
-                //hucsToLoad.add(cfgBasinXML.getLayer());
-                //hucsToLoad.add("ALL");
                 // goes back X hours and pre populates the Data Hashes
                 FFMPDataLoader loader = new FFMPDataLoader(this, timeBack,
                         mostRecentTime.getRefTime(), LOADER_TYPE.INITIAL,
@@ -275,18 +273,28 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 this.domains = monitor.getRunConfig().getDomains();
                 SourceXML source = monitor.getSourceConfig().getSource(
                         sourceName);
+                Date standAloneTime = null;
 
                 if (source != null) {
+                    // Special Loading for guidance sources, as mentioned in the comment
+                    if (source.getDataType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                        long oldestTime = availableTimes[0].getRefTime()
+								.getTime();
+                        long expirationTime = source
+								.getExpirationMinutes(siteKey) * TimeUtil.MILLIS_PER_MINUTE;
+                        standAloneTime = new Date(oldestTime
+								- expirationTime);
+                    } else {
+						// Only load current frames time
+                        standAloneTime = availableTimes[availableTimes.length - 1]
+								.getRefTime();
+                    }
 
-                    long oldestTime = availableTimes[0].getRefTime().getTime();
-                    long expirationTime = source.getExpirationMinutes(siteKey) * 60 * 1000;
-                    Date standAloneTime = new Date(oldestTime - expirationTime);
-                    
                     NavigableMap<Date, List<String>> sourceURIs = getMonitor()
-                            .getAvailableUris(siteKey, dataKey, sourceName,
-                                    standAloneTime);
+							.getAvailableUris(siteKey, dataKey, sourceName,
+									standAloneTime);
                     getMonitor().processUris(sourceURIs, false, siteKey,
-                            sourceName, standAloneTime, "ALL");
+							sourceName, standAloneTime, "ALL");
                 }
             }
         }

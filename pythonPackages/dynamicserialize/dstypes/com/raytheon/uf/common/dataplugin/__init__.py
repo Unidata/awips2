@@ -22,7 +22,8 @@
 
 __all__ = [
             'gfe',
-            'grib'
+            'grib',
+            'grid'
           ]
 
 

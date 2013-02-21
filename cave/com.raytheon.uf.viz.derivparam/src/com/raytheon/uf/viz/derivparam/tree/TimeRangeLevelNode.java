@@ -24,16 +24,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.AggregateRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher.MatchResult;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 8, 2010            bsteffen     Initial creation
+ * Feb 13, 2013 1621      bsteffen     update getDataDependency to correctly handle sources with time ranges.
  * 
  * </pre>
  * 
@@ -69,56 +71,45 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
         this.dt = that.dt;
     }
 
-    public TimeRangeLevelNode(AbstractRequestableLevelNode sourceNode,
+    public TimeRangeLevelNode(AbstractRequestableNode sourceNode,
             DerivParamDesc desc, DerivParamMethod method, String modelName,
-            int startTime, int endTime, int dt, Level level) {
+            Integer startTime, int endTime, int dt, Level level) {
         super(sourceNode, desc, method, modelName, level);
         this.startTime = startTime;
         this.endTime = endTime;
         this.dt = dt;
     }
 
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        Set<DataTime> allTime = sourceNode.timeQuery(null, false);
-        Map<DataTime, List<DataTime>> goodTimes = new HashMap<DataTime, List<DataTime>>();
-        Set<DataTime> timesToRequest = new HashSet<DataTime>();
-        for (DataTime time : allTime) {
-            List<DataTime> neededTimes = calculateNeededTimes(time);
-            if (allTime.containsAll(neededTimes)) {
-                goodTimes.put(time, neededTimes);
-                timesToRequest.addAll(neededTimes);
+        TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
+        matcher.setIgnoreRange(true);
+        Map<TimeAndSpace, AbstractRequestableData> dataMap = new HashMap<TimeAndSpace, AbstractRequestableData>();
+        for (AbstractRequestableData data : dependencyData.get(sourceNode)) {
+            dataMap.put(data.getTimeAndSpace(), data);
+        }
+        Set<AbstractRequestableData> records = new HashSet<AbstractRequestableData>();
+        for (TimeAndSpace ast : availability) {
+            Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
+            if (needed.isEmpty()) {
+                continue;
             }
+            Map<TimeAndSpace, MatchResult> matched = matcher.match(needed,
+                    dataMap.keySet());
+            if (TimeAndSpaceMatcher.getAll1(matched).containsAll(needed)) {
+                List<AbstractRequestableData> dataList = new ArrayList<AbstractRequestableData>();
+                for (TimeAndSpace dataTime : TimeAndSpaceMatcher
+                        .getAll2(matched)) {
+                    dataList.add(dataMap.get(dataTime));
 
-        }
-        property.setSelectedEntryTimes(timesToRequest
-                .toArray(new DataTime[timesToRequest.size()]));
-        Map<DataTime, List<AbstractRequestableData>> timeBins = new HashMap<DataTime, List<AbstractRequestableData>>();
-        for (AbstractRequestableData record : sourceNode.getData(property,
-                timeOut, cache)) {
-            for (Entry<DataTime, List<DataTime>> entry : goodTimes.entrySet()) {
-                if (entry.getValue().contains(record.getDataTime())) {
-                    List<AbstractRequestableData> records = timeBins.get(entry
-                            .getKey());
-                    if (records == null) {
-                        records = new ArrayList<AbstractRequestableData>(entry
-                                .getValue().size());
-                        timeBins.put(entry.getKey(), records);
-                    }
-                    records.add(record);
                 }
-            }
-        }
-        List<AbstractRequestableData> records = new ArrayList<AbstractRequestableData>();
-        for (Entry<DataTime, List<AbstractRequestableData>> entry : timeBins
-                .entrySet()) {
-            if (entry.getValue().size() == goodTimes.get(entry.getKey()).size()) {
                 AggregateRequestableData newRecord = new AggregateRequestableData(
-                        entry.getValue());
-                newRecord.setDataTime(entry.getKey());
+                        dataList);
+                newRecord.setDataTime(ast.getTime());
+                newRecord.setSpace(ast.getSpace());
                 modifyRequest(newRecord);
                 records.add(newRecord);
             }
@@ -127,31 +118,96 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
-        Set<DataTime> allTime = sourceNode.timeQuery(originalRequest, false,
-                cache, latestOnlyCache);
-        Set<DataTime> goodTimes = new HashSet<DataTime>();
-        for (DataTime time : allTime) {
-            if (allTime.containsAll(calculateNeededTimes(time))) {
-                goodTimes.add(time);
+        TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
+        matcher.setIgnoreRange(true);
+        Set<TimeAndSpace> allAvail = availability.get(sourceNode);
+        Set<TimeAndSpace> goodAvail = new HashSet<TimeAndSpace>();
+        for (TimeAndSpace ast : allAvail) {
+            Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
+            if (!needed.isEmpty()) {
+                Set<TimeAndSpace> matchedNeeded = TimeAndSpaceMatcher
+                        .getAll1(matcher.match(needed, allAvail));
+                if (matchedNeeded.containsAll(needed)) {
+                    goodAvail.add(ast);
+                }
             }
-
         }
-        return goodTimes;
+        return goodAvail;
     }
 
-    private List<DataTime> calculateNeededTimes(DataTime time) {
-        List<DataTime> times = new ArrayList<DataTime>();
-        for (int i = time.getFcstTime() + this.startTime; i <= time
-                .getFcstTime() + this.endTime; i += dt) {
-            times.add(new DataTime(time.getRefTime(), i));
-
+    /**
+     * The only data dependency for this node will be the sourceNode and the
+     * times needed will contain the TimeAndSpace objects for which the source
+     * node must provide data to fill the desired time range for each
+     * TimeAndSpace in availability
+     * 
+     * 
+     * @param availability
+     *            a set of TimeAndSpace for which data is needed
+     * @param availabilityContainer
+     *            an availability container used for querying the actual
+     *            availability of the sourceNode
+     * @return a map which only has one entry for the sourceNode, containing all
+     *         the times needed to expand each TimeAndSpace in availability to
+     *         include the correct range.
+     */
+    @Override
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        // neededAvailability will contain all of the TimeAndSpace needed to
+        // construct
+        // the TimeAndSpace requested in availability.
+        Set<TimeAndSpace> neededAvailability = new HashSet<TimeAndSpace>();
+        for (TimeAndSpace ast : availability) {
+            // For every TimeAndSpace in availability, calculate what is needed
+            // to fill the range.
+            Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
+            neededAvailability.addAll(needed);
         }
-        return times;
+        // Get the actual TimeAndSpace where the source is available.
+        Set<TimeAndSpace> sourceAvailability = availabilityContainer
+                .getAvailability(sourceNode);
+
+        TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
+        matcher.setIgnoreRange(true);
+        // use a matcher to match the needed TimeAndSpace to what the source
+        // really has, this is necessary because precip parameters sometimes
+        // have a range on the time and sometimes don't so there is no way to
+        // correctly populate it in calculateNeededAvailability
+        Map<TimeAndSpace, MatchResult> matchResults = matcher.match(
+                neededAvailability, sourceAvailability);
+
+        neededAvailability = TimeAndSpaceMatcher.getAll2(matchResults);
+
+        // The only dependency is the source node that this time range is
+        // gathering.
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        result.put(sourceNode, neededAvailability);
+        return result;
+    }
+
+    /**
+     * For a given TimeAndSpace calculate all times needed to fill the time
+     * range required by startTime, endTime, and dt.
+     * 
+     * @param ast
+     * @return
+     */
+    private Set<TimeAndSpace> calculateNeededAvailability(TimeAndSpace ast) {
+        Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
+        int start = dt;
+        if (startTime != null) {
+            start = ast.getTime().getFcstTime() + this.startTime;
+        }
+        for (int i = start; i <= ast.getTime().getFcstTime() + this.endTime; i += dt) {
+            DataTime time = new DataTime(ast.getTime().getRefTime(), i);
+            result.add(new TimeAndSpace(time, ast.getSpace()));
+        }
+        return result;
     }
 
     @Override

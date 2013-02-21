@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Available Fitler classes: FilterComp AreaComp -->
+<Filters>
+	<Filter>
+		<class>FilterComp</class>
+		<displayName>Data Provider</displayName>
+		<filterId>Data Provider</filterId>
+		<settings name="availableText" value="Available Providers:"/>
+		<settings name="selectedText" value="Selected Providers:"/>
+		<settings name="showMatch" value="true"/>
+		<settings name="showDualList" value="true"/>
+	</Filter>
+	<Filter>
+		<class>FilterComp</class>
+		<displayName>Data Set</displayName>
+		<filterId>Data Set</filterId>
+		<settings name="availableText" value="Available Data Sets:"/>
+		<settings name="selectedText" value="Selected Data Sets:"/>
+		<settings name="showRegEx" value="true"/>
+		<settings name="showMatch" value="false"/>
+		<settings name="showDualList" value="true"/>
+	</Filter>
+	<Filter>
+		<class>FilterComp</class>
+		<displayName>Level</displayName>
+		<filterId>Level</filterId>
+		<settings name="availableText" value="Available Levels:"/>
+		<settings name="selectedText" value="Selected Levels:"/>
+		<settings name="showRegEx" value="true"/>
+		<settings name="showMatch" value="true"/>
+	</Filter>
+	<Filter>
+		<class>FilterComp</class>
+		<displayName>Parameter</displayName>
+		<filterId>Parameter</filterId>
+		<settings name="availableText" value="Available Parameters:"/>
+		<settings name="selectedText" value="Selected Parameters:"/>
+		<settings name="showRegEx" value="true"/>
+		<settings name="showMatch" value="true"/>
+		<settings name="showDualList" value="true"/>
+	</Filter>
+	<Filter>
+		<class>AreaComp</class>
+		<displayName>Area</displayName>
+		<filterId>Area</filterId>
+	</Filter>
+</Filters>
