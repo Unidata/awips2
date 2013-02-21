@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
@@ -42,14 +41,13 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationAction;
 import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationResponse;
 import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier.IVerificationStrategy;
-import com.raytheon.uf.edex.event.EventBus;
-import com.raytheon.uf.edex.event.EventBusTest;
 
 /**
  * Test {@link SubscriptionIntegrityVerifier}.
@@ -61,6 +59,7 @@ import com.raytheon.uf.edex.event.EventBusTest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 07, 2012 1104       djohnson     Initial creation
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -101,13 +100,6 @@ public class SubscriptionIntegrityVerifierTest {
     private final InsertRegistryEvent dataSetUpdateEvent = new InsertRegistryEvent(
             "someId", "someLid", DataDeliveryRegistryObjectTypes.DATASET);
 
-    private final EventBus eventBus = EventBus.getInstance();
-    
-    @BeforeClass
-    public static void classSetUp() {
-        EventBusTest.initSynchronous();
-    }
-
     @Before
     public void setUp() throws RegistryHandlerException {
         whenRegistryEventIdLookedUpReturnDataSet();
@@ -115,14 +107,14 @@ public class SubscriptionIntegrityVerifierTest {
 
     @After
     public void tearDown() {
-        eventBus.unregister(verifier);
+        EventBus.unregister(verifier);
     }
 
     @Test
     public void testSubscriptionsForDataSetAreRetrieved()
             throws RegistryHandlerException {
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifySubscriptionsAreRetrievedForDataSet();
     }
@@ -135,7 +127,7 @@ public class SubscriptionIntegrityVerifierTest {
         whenSubscriptionIsVerifiedItSucceeds(sub1);
         whenSubscriptionIsVerifiedItSucceeds(sub2);
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifyEachSubscriptionIsVerifiedAgainstDataSet();
     }
@@ -149,7 +141,7 @@ public class SubscriptionIntegrityVerifierTest {
         // sub2 is already invalid, should not be verified
         sub2.setValid(false);
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifySubscriptionIsNotVerifiedAgainstDataSet(sub2);
     }
@@ -162,7 +154,7 @@ public class SubscriptionIntegrityVerifierTest {
         whenSubscriptionIsVerifiedItSucceeds(sub1);
         whenSubscriptionIsVerifiedItFails(sub2);
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifyFailedVerificationActionInvoked(sub2);
     }
@@ -174,8 +166,7 @@ public class SubscriptionIntegrityVerifierTest {
         whenSubscriptionsAreRetrievedForDataSetReturnTwo();
         whenSubscriptionIsVerifiedItSucceeds(sub1);
         whenSubscriptionIsVerifiedItFails(sub2);
-
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifyFailedVerificationActionNotInvoked(sub1);
     }
@@ -188,7 +179,7 @@ public class SubscriptionIntegrityVerifierTest {
         whenSubscriptionIsVerifiedItSucceeds(sub1);
         whenSubscriptionIsVerifiedItFails(sub2);
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifySuccessfulVerificationActionNotInvoked(sub2);
     }
@@ -201,7 +192,7 @@ public class SubscriptionIntegrityVerifierTest {
         whenSubscriptionIsVerifiedItSucceeds(sub1);
         whenSubscriptionIsVerifiedItFails(sub2);
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifySuccessfulVerificationActionInvoked(sub1);
     }
@@ -212,7 +203,7 @@ public class SubscriptionIntegrityVerifierTest {
 
         whenSubscriptionsAreRetrievedForDataSetThrowException();
 
-        eventBus.publish(dataSetUpdateEvent);
+        EventBus.publish(dataSetUpdateEvent);
 
         verifySuccessfulVerificationActionNotInvoked(sub1);
         verifySuccessfulVerificationActionNotInvoked(sub2);

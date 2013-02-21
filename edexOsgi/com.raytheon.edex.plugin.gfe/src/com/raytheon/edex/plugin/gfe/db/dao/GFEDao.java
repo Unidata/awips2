@@ -109,6 +109,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     adding it to the inventory
  * 12/06/12     #1394      rjpeter     Optimized D2D grid access.
  * 01/21/12     #1504      randerso    Back ported change to use ParameterMapper into 13.1.2
+ * 02/10/13     #1603      randerso    Eliminated unnecessary conversion from lists to arrays
+ * 02/12/13     #1608      randerso    Changed to use explicit deletes for groups and datasets
  * 
  * </pre>
  * 
@@ -222,7 +224,7 @@ public class GFEDao extends DefaultPluginDao {
         return (GFERecord) this.queryById(record);
     }
 
-    public GFERecord[] saveOrUpdate(final GFERecord[] records) {
+    public List<GFERecord> saveOrUpdate(final List<GFERecord> records) {
         List<GFERecord> failedToSave = new ArrayList<GFERecord>();
         for (GFERecord rec : records) {
             if (rec.getIdentifier() == null) {
@@ -247,7 +249,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
         int commitPoint = 0;
         int index = 0;
-        boolean notDone = index < records.length;
+        boolean notDone = index < records.size();
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
             tx = sess.beginTransaction();
@@ -257,8 +259,8 @@ public class GFEDao extends DefaultPluginDao {
             Query q = sess.createSQLQuery(sql);
 
             while (notDone) {
-                GFERecord rec = records[index++];
-                notDone = index < records.length;
+                GFERecord rec = records.get(index++);
+                notDone = index < records.size();
                 try {
                     q.setString("dataURI", rec.getDataURI());
                     List<?> list = q.list();
@@ -323,15 +325,15 @@ public class GFEDao extends DefaultPluginDao {
             }
             if (sess != null) {
                 try {
-                sess.close();
+                    sess.close();
                 } catch (Exception e) {
                     statusHandler.error(
                             "Error occurred closing database session", e);
+                }
             }
         }
-        }
 
-        return failedToSave.toArray(new GFERecord[failedToSave.size()]);
+        return failedToSave;
 
     }
 
@@ -459,12 +461,12 @@ public class GFEDao extends DefaultPluginDao {
             String[] groupsToDelete = entry.getValue().getSecond();
 
             try {
-                dataStore.delete(groupsToDelete);
+                dataStore.deleteGroups(groupsToDelete);
 
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler.handle(Priority.DEBUG,
-                        "Deleted: " + Arrays.toString(groupsToDelete)
-                                + " from " + hdf5File.getName());
+                    statusHandler.handle(Priority.DEBUG,
+                            "Deleted: " + Arrays.toString(groupsToDelete)
+                                    + " from " + hdf5File.getName());
                 }
             } catch (Exception e) {
                 statusHandler.handle(
@@ -659,10 +661,10 @@ public class GFEDao extends DefaultPluginDao {
             s = getHibernateTemplate().getSessionFactory().openSession();
             // TODO: clean up so we only make one db query
             SortedMap<DataTime, Integer> rawTimes = queryByD2DParmId(id, s);
-        List<TimeRange> gribTimes = new ArrayList<TimeRange>();
+            List<TimeRange> gribTimes = new ArrayList<TimeRange>();
             for (DataTime dt : rawTimes.keySet()) {
                 gribTimes.add(dt.getValidPeriod());
-        }
+            }
 
             try {
                 if (isMos(id)) {
@@ -672,26 +674,26 @@ public class GFEDao extends DefaultPluginDao {
                                 .getValidPeriod();
                         TimeRange time = info.getTimeConstraints()
                                 .constraintTime(gribTime.getEnd());
-                    if (timeRange.getEnd().equals(time.getEnd())
-                            || !info.getTimeConstraints().anyConstraints()) {
+                        if (timeRange.getEnd().equals(time.getEnd())
+                                || !info.getTimeConstraints().anyConstraints()) {
                             GridRecord retVal = (GridRecord) s.get(
                                     GridRecord.class, timeEntry.getValue());
-                        retVal.setPluginName(GridConstants.GRID);
-                        return retVal;
-                    }
+                            retVal.setPluginName(GridConstants.GRID);
+                            return retVal;
+                        }
                     }
                 } else if (D2DGridDatabase.isNonAccumDuration(id, gribTimes)) {
                     for (Map.Entry<DataTime, Integer> timeEntry : rawTimes
                             .entrySet()) {
                         TimeRange gribTime = timeEntry.getKey()
                                 .getValidPeriod();
-                    if (timeRange.getStart().equals(gribTime.getEnd())
-                            || timeRange.equals(gribTime)) {
+                        if (timeRange.getStart().equals(gribTime.getEnd())
+                                || timeRange.equals(gribTime)) {
                             GridRecord retVal = (GridRecord) s.get(
                                     GridRecord.class, timeEntry.getValue());
-                        retVal.setPluginName(GridConstants.GRID);
-                        return retVal;
-                    }
+                            retVal.setPluginName(GridConstants.GRID);
+                            return retVal;
+                        }
                     }
                 } else {
                     for (Map.Entry<DataTime, Integer> timeEntry : rawTimes
@@ -700,14 +702,14 @@ public class GFEDao extends DefaultPluginDao {
                                 .getValidPeriod();
                         TimeRange time = info.getTimeConstraints()
                                 .constraintTime(gribTime.getStart());
-                    if ((timeRange.getStart().equals(time.getStart()) || !info
-                            .getTimeConstraints().anyConstraints())) {
+                        if ((timeRange.getStart().equals(time.getStart()) || !info
+                                .getTimeConstraints().anyConstraints())) {
                             GridRecord retVal = (GridRecord) s.get(
                                     GridRecord.class, timeEntry.getValue());
-                        retVal.setPluginName(GridConstants.GRID);
-                        return retVal;
+                            retVal.setPluginName(GridConstants.GRID);
+                            return retVal;
+                        }
                     }
-                }
                 }
             } catch (GfeConfigurationException e) {
                 throw new DataAccessLayerException(
@@ -722,7 +724,7 @@ public class GFEDao extends DefaultPluginDao {
                     statusHandler.error(
                             "Error occurred closing database session", e);
                 }
-        }
+            }
         }
 
         return null;
@@ -745,48 +747,48 @@ public class GFEDao extends DefaultPluginDao {
     @SuppressWarnings("unchecked")
     public SortedMap<DataTime, Integer> queryByD2DParmId(ParmID id, Session s)
             throws DataAccessLayerException {
-            String levelName = GridTranslator.getLevelName(id.getParmLevel());
+        String levelName = GridTranslator.getLevelName(id.getParmLevel());
 
         double[] levelValues = GridTranslator.getLevelValue(id.getParmLevel());
-            boolean levelOnePresent = (levelValues[0] != Level
-                    .getInvalidLevelValue());
-            boolean levelTwoPresent = (levelValues[1] != Level
-                    .getInvalidLevelValue());
-            Level level = null;
+        boolean levelOnePresent = (levelValues[0] != Level
+                .getInvalidLevelValue());
+        boolean levelTwoPresent = (levelValues[1] != Level
+                .getInvalidLevelValue());
+        Level level = null;
 
-            // to have a level 2, must have a level one
-            try {
-                if (levelOnePresent && levelTwoPresent) {
-                    level = LevelFactory.getInstance().getLevel(levelName,
-                            levelValues[0], levelValues[1]);
-                } else if (levelOnePresent) {
-                    level = LevelFactory.getInstance().getLevel(levelName,
-                            levelValues[0]);
-                } else {
-                    level = LevelFactory.getInstance().getLevel(levelName, 0.0);
-                }
-            } catch (CommunicationException e) {
-                logger.error(e.getLocalizedMessage(), e);
+        // to have a level 2, must have a level one
+        try {
+            if (levelOnePresent && levelTwoPresent) {
+                level = LevelFactory.getInstance().getLevel(levelName,
+                        levelValues[0], levelValues[1]);
+            } else if (levelOnePresent) {
+                level = LevelFactory.getInstance().getLevel(levelName,
+                        levelValues[0]);
+            } else {
+                level = LevelFactory.getInstance().getLevel(levelName, 0.0);
             }
-            if (level == null) {
-                logger.warn("Unable to query D2D parms, ParmID " + id
-                        + " does not map to a level");
+        } catch (CommunicationException e) {
+            logger.error(e.getLocalizedMessage(), e);
+        }
+        if (level == null) {
+            logger.warn("Unable to query D2D parms, ParmID " + id
+                    + " does not map to a level");
             return new TreeMap<DataTime, Integer>();
-            }
+        }
 
         SQLQuery modelQuery = s.createSQLQuery(SQL_D2D_GRID_PARM_QUERY);
         modelQuery.setLong("level_id", level.getId());
         DatabaseID dbId = id.getDbId();
 
-            try {
-                IFPServerConfig config = IFPServerConfigManager
-                        .getServerConfig(dbId.getSiteId());
+        try {
+            IFPServerConfig config = IFPServerConfigManager
+                    .getServerConfig(dbId.getSiteId());
             modelQuery.setString(GridInfoConstants.DATASET_ID,
                     config.d2dModelNameMapping(dbId.getModelName()));
-            } catch (GfeConfigurationException e) {
-                throw new DataAccessLayerException(
-                        "Error occurred looking up model name mapping", e);
-            }
+        } catch (GfeConfigurationException e) {
+            throw new DataAccessLayerException(
+                    "Error occurred looking up model name mapping", e);
+        }
 
         String abbreviation = null;
         try {
@@ -795,38 +797,38 @@ public class GFEDao extends DefaultPluginDao {
         } catch (MultipleMappingException e) {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
             abbreviation = e.getArbitraryMapping();
-            }
+        }
 
-            abbreviation = abbreviation.toLowerCase();
+        abbreviation = abbreviation.toLowerCase();
         modelQuery.setString("abbrev", abbreviation);
         modelQuery.setString("hourAbbrev", abbreviation + "%hr");
         List<?> results = modelQuery.list();
         Integer modelId = null;
-            if (results.size() == 0) {
+        if (results.size() == 0) {
             return new TreeMap<DataTime, Integer>();
-            } else if (results.size() > 1) {
-                // hours matched, take hour with least number that matches exact
-                // param
-                Pattern p = Pattern.compile("^" + abbreviation + "(\\d+)hr$");
-                int lowestHr = -1;
+        } else if (results.size() > 1) {
+            // hours matched, take hour with least number that matches exact
+            // param
+            Pattern p = Pattern.compile("^" + abbreviation + "(\\d+)hr$");
+            int lowestHr = -1;
             for (Object[] rows : (List<Object[]>) results) {
                 String param = ((String) rows[0]).toLowerCase();
-                    if (param.equals(abbreviation) && (lowestHr < 0)) {
+                if (param.equals(abbreviation) && (lowestHr < 0)) {
                     modelId = (Integer) rows[1];
-                    } else {
-                        Matcher matcher = p.matcher(param);
-                        if (matcher.matches()) {
-                            int hr = Integer.parseInt(matcher.group(1));
-                            if ((lowestHr < 0) || (hr < lowestHr)) {
+                } else {
+                    Matcher matcher = p.matcher(param);
+                    if (matcher.matches()) {
+                        int hr = Integer.parseInt(matcher.group(1));
+                        if ((lowestHr < 0) || (hr < lowestHr)) {
                             modelId = (Integer) rows[1];
-                                lowestHr = hr;
-                            }
+                            lowestHr = hr;
                         }
                     }
                 }
-            } else {
-            modelId = (Integer) ((Object[]) results.get(0))[1];
             }
+        } else {
+            modelId = (Integer) ((Object[]) results.get(0))[1];
+        }
 
         Query timeQuery = s.createQuery(HQL_D2D_GRID_TIME_QUERY);
         timeQuery.setInteger("info_id", modelId);
@@ -834,7 +836,7 @@ public class GFEDao extends DefaultPluginDao {
         List<Object[]> timeResults = timeQuery.list();
         if (timeResults.isEmpty()) {
             return new TreeMap<DataTime, Integer>();
-            }
+        }
 
         SortedMap<DataTime, Integer> dataTimes = new TreeMap<DataTime, Integer>();
         for (Object[] rows : timeResults) {
@@ -850,7 +852,7 @@ public class GFEDao extends DefaultPluginDao {
         try {
             s = getHibernateTemplate().getSessionFactory().openSession();
 
-        if (id.getParmName().equalsIgnoreCase("wind")) {
+            if (id.getParmName().equalsIgnoreCase("wind")) {
                 String idString = id.toString();
                 Matcher idWindMatcher = WIND_PATTERN.matcher(idString);
 
@@ -860,53 +862,53 @@ public class GFEDao extends DefaultPluginDao {
                 List<TimeRange> uTimeList = new ArrayList<TimeRange>(
                         results.size());
                 for (DataTime o : results.keySet()) {
-                uTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
+                    uTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
+                            3600 * 1000));
+                }
 
                 ParmID vWindId = new ParmID(idWindMatcher.replaceAll("vW"));
                 results = queryByD2DParmId(vWindId, s);
                 Set<TimeRange> vTimeList = new HashSet<TimeRange>(
                         results.size(), 1);
                 for (DataTime o : results.keySet()) {
-                vTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
-
-            for (TimeRange tr : uTimeList) {
-                if (vTimeList.contains(tr)) {
-                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+                    vTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
+                            3600 * 1000));
                 }
-            }
 
-            if (!timeList.isEmpty()) {
-                return timeList;
-            }
+                for (TimeRange tr : uTimeList) {
+                    if (vTimeList.contains(tr)) {
+                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+                    }
+                }
+
+                if (!timeList.isEmpty()) {
+                    return timeList;
+                }
 
                 ParmID sWindId = new ParmID(idWindMatcher.replaceAll("ws"));
                 results = queryByD2DParmId(sWindId, s);
                 List<TimeRange> sTimeList = new ArrayList<TimeRange>(
                         results.size());
                 for (DataTime o : results.keySet()) {
-                sTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
+                    sTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
+                            3600 * 1000));
+                }
 
                 ParmID dWindId = new ParmID(idWindMatcher.replaceAll("wd"));
                 results = queryByD2DParmId(dWindId, s);
                 Set<TimeRange> dTimeList = new HashSet<TimeRange>(
                         results.size(), 1);
                 for (DataTime o : results.keySet()) {
-                dTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
-
-            for (TimeRange tr : sTimeList) {
-                if (dTimeList.contains(tr)) {
-                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+                    dTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
+                            3600 * 1000));
                 }
-            }
-        } else {
+
+                for (TimeRange tr : sTimeList) {
+                    if (dTimeList.contains(tr)) {
+                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+                    }
+                }
+            } else {
                 SortedMap<DataTime, Integer> results = queryByD2DParmId(id, s);
                 if (isMos(id)) {
                     for (DataTime o : results.keySet()) {
@@ -915,10 +917,10 @@ public class GFEDao extends DefaultPluginDao {
                     }
                 } else {
                     for (DataTime o : results.keySet()) {
-                    timeList.add(o.getValidPeriod());
+                        timeList.add(o.getValidPeriod());
+                    }
                 }
             }
-        }
         } finally {
             if (s != null) {
                 try {
@@ -1074,7 +1076,8 @@ public class GFEDao extends DefaultPluginDao {
         try {
             IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
                     .getGridParmHdf5File(GridDatabase.gfeBaseDataDir, dbId));
-            ds.delete("/GridParmInfo/" + parmAndLevel);
+            ds.deleteDatasets("/GridParmInfo/" + parmAndLevel,
+                    "/GridParmStorageInfo/" + parmAndLevel);
         } catch (Exception e1) {
             throw new DataAccessLayerException("Error deleting data from HDF5",
                     e1);

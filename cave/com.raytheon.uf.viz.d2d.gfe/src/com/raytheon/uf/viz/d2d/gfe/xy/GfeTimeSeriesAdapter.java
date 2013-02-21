@@ -12,6 +12,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
@@ -20,7 +21,6 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.style.level.Level;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
-import com.raytheon.uf.viz.d2d.gfe.GFEUtil;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
@@ -50,7 +50,12 @@ public class GfeTimeSeriesAdapter extends AbstractTimeSeriesAdapter<GFERecord> {
 
         DirectPosition2D point = null;
         for (GFERecord gfeRecord : recordsToLoad) {
-            IGridSlice slice = GFEUtil.getSlice(gfeRecord);
+            IGridSlice slice = null;
+            try {
+                slice = GFEDataAccessUtil.getSlice(gfeRecord);
+            } catch (Exception e) {
+                throw new VizException(e);
+            }
             if (slice != null) {
                 unit = slice.getGridInfo().getUnitObject();
                 if (point == null) {

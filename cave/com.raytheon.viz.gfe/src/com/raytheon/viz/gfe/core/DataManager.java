@@ -90,6 +90,9 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolUIController;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/12/2008              chammack    Initial Creation.
+ * 02/15/2013    1507      dgilling    Force procedureInterface and
+ *                                     smartToolInterface to be 
+ *                                     initialized by constructor.
  * 
  * </pre>
  * 
@@ -217,7 +220,9 @@ public class DataManager {
         SelectTRMgrInitJob strInitJob = new SelectTRMgrInitJob(this);
         strInitJob.setSystem(true);
         strInitJob.schedule();
-        // this.selectTimeRangeManager = new SelectTimeRangeManager(this);
+
+        initializeScriptControllers();
+
         this.weGroupManager = new WEGroupManager(this);
         this.editActionProcessor = new EditActionProcessor(this);
 
@@ -474,41 +479,43 @@ public class DataManager {
         this.gridManager = gridManager;
     }
 
-    public SmartToolUIController getSmartToolInterface() {
-        if (smartToolInterface == null) {
-            VizApp.runSync(new Runnable() {
+    private void initializeScriptControllers() {
+        // it would be really nice to be able to spawn the construction of these
+        // two heavy objects into another thread. Unfortunately, Jep requires
+        // creation and all subsequent access to happen on the same thread. So
+        // we need to make use of runSync() here. It would be even be acceptable
+        // if we could make this a UIJob; unfortunately the thread most often
+        // used to create DataManager is the UI thread at perspective open, so
+        // we can't block and wait on the UI thread for a job that
+        // requires the UI thread to run.
+        VizApp.runSync(new Runnable() {
 
-                @Override
-                public void run() {
-                    try {
-                        DataManager.this.smartToolInterface = SmartToolFactory
-                                .buildUIController(DataManager.this);
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error initializing smart tool interface", e);
-                    }
+            @Override
+            public void run() {
+                try {
+                    DataManager.this.procedureInterface = ProcedureFactory
+                            .buildUIController(DataManager.this);
+                } catch (JepException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error initializing procedure interface", e);
                 }
-            });
-        }
+
+                try {
+                    DataManager.this.smartToolInterface = SmartToolFactory
+                            .buildUIController(DataManager.this);
+                } catch (JepException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error initializing smart tool interface", e);
+                }
+            }
+        });
+    }
+
+    public SmartToolUIController getSmartToolInterface() {
         return smartToolInterface;
     }
 
     public ProcedureUIController getProcedureInterface() {
-        if (procedureInterface == null) {
-            VizApp.runSync(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        DataManager.this.procedureInterface = ProcedureFactory
-                                .buildUIController(DataManager.this);
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error initializing procedure interface", e);
-                    }
-                }
-            });
-        }
         return procedureInterface;
     }
 

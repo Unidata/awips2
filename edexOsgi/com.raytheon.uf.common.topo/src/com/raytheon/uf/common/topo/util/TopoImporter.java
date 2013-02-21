@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
-import com.raytheon.uf.common.datastorage.hdf5.HDF5DataStore;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
@@ -253,8 +253,7 @@ public class TopoImporter {
             System.exit(-1);
         }
 
-        HDF5DataStore store = (HDF5DataStore) DataStoreFactory
-                .getDataStore(hdf);
+        IDataStore store = DataStoreFactory.getDataStore(hdf);
 
         String dataset = "full";
         long[] sizes = new long[] { maxCols, maxRows };

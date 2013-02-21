@@ -103,8 +103,8 @@ public class HibernateBandwidthDbInit implements IBandwidthDbInit {
         // TODO: add package scanning or some other more elegant solution, but
         // for now
         // just to it ugly.
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao.class);
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao.class);
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate.class);
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class);
 

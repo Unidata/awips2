@@ -130,6 +130,8 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 26, 2010            mnash     Initial creation
+ * Feb 13, 2013  1610      mschenke  Fixed null pointer by repopulating LocalizationFileGroupData 
+ *                                   objects even if they weren't expanded
  * 
  * </pre>
  * 
@@ -591,11 +593,15 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     }
 
     private void expand(Map<FileTreeEntryData, Boolean> map, TreeItem item) {
-        if (map.containsKey(item.getData()) && map.get(item.getData())) {
+        boolean wasExpanded = map.containsKey(item.getData())
+                && map.get(item.getData());
+        if (wasExpanded || item.getData() instanceof LocalizationFileGroupData) {
             populateNode(item);
-            item.setExpanded(true);
-            for (TreeItem child : item.getItems()) {
-                expand(map, child);
+            if (wasExpanded) {
+                item.setExpanded(true);
+                for (TreeItem child : item.getItems()) {
+                    expand(map, child);
+                }
             }
         }
     }

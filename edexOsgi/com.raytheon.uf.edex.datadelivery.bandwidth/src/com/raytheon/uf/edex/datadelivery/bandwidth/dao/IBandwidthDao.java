@@ -82,7 +82,7 @@ public interface IBandwidthDao {
      * @return A List of DataSetMetaDataDaos that have the specified
      *         providerName and dataSetName.
      */
-    List<DataSetMetaDataDao> getDataSetMetaDataDao(String providerName,
+    List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(String providerName,
             String dataSetName);
 
     /**
@@ -99,7 +99,7 @@ public interface IBandwidthDao {
      * @return A List of DataSetMetaDataDaos that have the specified
      *         providerName, dataSetName and baseReferenceTime.
      */
-    List<DataSetMetaDataDao> getDataSetMetaDataDao(String providerName,
+    List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(String providerName,
             String dataSetName, Calendar baseReferenceTime);
 
     /**
@@ -112,53 +112,54 @@ public interface IBandwidthDao {
     List<BandwidthAllocation> getDeferred(Network network, Calendar endTime);
 
     /**
-     * Get a SubscriptionDao.
+     * Get a BandwidthSubscription.
      * 
      * @param identifier
-     *            Retrieve the SubscriptionDao with the specified identifier.
+     *            Retrieve the BandwidthSubscription with the specified identifier.
      * 
-     * @return The SubscriptionDao that has the specified identifier or null if
-     *         no such SubscriptionDao exists.
+     * @return The BandwidthSubscription that has the specified identifier or null if
+     *         no such BandwidthSubscription exists.
      */
-    SubscriptionDao getSubscriptionDao(long identifier);
+    BandwidthSubscription getBandwidthSubscription(long identifier);
 
     /**
-     * Get a SubscriptionDao.
+     * Get a BandwidthSubscription.
      * 
      * @param registryId
-     *            Retrieve the SubscriptionDao with the specified registryId.
+     *            Retrieve the BandwidthSubscription with the specified registryId.
      * @param baseReferenceTime
-     *            Retrieve the SubscriptionDao with the specified
+     *            Retrieve the BandwidthSubscription with the specified
      *            baseReferenceTime.
      * 
-     * @return The SubscriptionDao that has the specified identifier and
-     *         baseReferenceTime or null if no such SubscriptionDao exists.
+     * @return The BandwidthSubscription that has the specified identifier and
+     *         baseReferenceTime or null if no such BandwidthSubscription exists.
      */
-    SubscriptionDao getSubscriptionDao(String registryId,
+    BandwidthSubscription getBandwidthSubscription(String registryId,
             Calendar baseReferenceTime);
 
     /**
-     * Get SubscriptionDaos.
+     * Get BandwidthSubscriptions.
      * 
      * @param subscription
-     *            Retrieve SubscriptionDaos that match the specified
+     *            Retrieve BandwidthSubscriptions that match the specified
      *            subscription's owner, provider, name and dataSetName.
      * 
-     * @return A List of SubscriptionDaos that have the same owner, provider,
-     *         name and dataSetName and the specified subscription.
+     * @return A List of BandwidthSubscriptions that have the same owner,
+     *         provider, name and dataSetName and the specified subscription.
      */
-    List<SubscriptionDao> getSubscriptionDao(Subscription subscription);
+    List<BandwidthSubscription> getBandwidthSubscription(Subscription subscription);
 
     /**
-     * Get a SubscriptionDaos.
+     * Get a BandwidthSubscriptions.
      * 
      * @param registryId
-     *            Retrieve the SubscriptionDaos with the specified registryId.
+     *            Retrieve the BandwidthSubscriptions with the specified
+     *            registryId.
      * 
-     * @return A List of SubscriptionDaos that has the specified registryId or
-     *         null if no such SubscriptionDao exists.
+     * @return A List of BandwidthSubscriptions that has the specified
+     *         registryId or null if no such BandwidthSubscription exists.
      */
-    List<SubscriptionDao> getSubscriptionDaoByRegistryId(String registryId);
+    List<BandwidthSubscription> getBandwidthSubscriptionByRegistryId(String registryId);
 
     /**
      * Retrieve a SubscriptionRetrieval Object from the database given an
@@ -211,12 +212,12 @@ public interface IBandwidthDao {
             String dataSetName);
 
     /**
-     * Return all the SubscriptionDao Objects in the database in ascending order
-     * based on the SubscriptionDao's baseReferenceTime attribute.
+     * Return all the BandwidthSubscription Objects in the database in ascending order
+     * based on the BandwidthSubscription's baseReferenceTime attribute.
      * 
-     * @return A List of SubscriptionDao Objects.
+     * @return A List of BandwidthSubscription Objects.
      */
-    List<SubscriptionDao> getSubscriptions();
+    List<BandwidthSubscription> getBandwidthSubscriptions();
 
     /**
      * Get all the subscription retrievals for the specified dataset and base
@@ -234,36 +235,36 @@ public interface IBandwidthDao {
      * @return All the SubscriptionRetrievals that are scheduled for the
      *         specified time.
      */
-    List<SubscriptionDao> getSubscriptions(String provider, String dataSetName,
+    List<BandwidthSubscription> getBandwidthSubscriptions(String provider, String dataSetName,
             Calendar baseReferenceTime);
 
     /**
-     * Create a new DataSetMetaDataDao Object based on the dataSetMetaData
+     * Create a new BandwidthDataSetUpdate Object based on the dataSetMetaData
      * Object provided.
      * 
      * @param dataSetMetaData
-     *            The DataSetMetaData Object to create the DataSetMetaDataDao
+     *            The DataSetMetaData Object to create the BandwidthDataSetUpdate
      *            Object from.
      * 
-     * @return A newly created and persisted DataSetMetaDataDao Object.
+     * @return A newly created and persisted BandwidthDataSetUpdate Object.
      */
-    DataSetMetaDataDao newDataSetMetaDataDao(DataSetMetaData dataSetMetaData);
+    BandwidthDataSetUpdate newBandwidthDataSetUpdate(DataSetMetaData dataSetMetaData);
 
     /**
-     * Create a new SubscriptionDao Object based on the Subscription and
+     * Create a new BandwidthSubscription Object based on the Subscription and
      * Calendar Objects provided.
      * 
      * @param Subscription
-     *            The Subscription Object to create the SubscriptionDao Object
+     *            The Subscription Object to create the BandwidthSubscription Object
      *            from.
      * 
      * @param baseReferenceTime
      *            The base reference time to set on the newly created
-     *            SubscriptionDao Object.
+     *            BandwidthSubscription Object.
      * 
-     * @return A newly created and persisted SubscriptionDao Object.
+     * @return A newly created and persisted BandwidthSubscription Object.
      */
-    SubscriptionDao newSubscriptionDao(Subscription subscription,
+    BandwidthSubscription newBandwidthSubscription(Subscription subscription,
             Calendar baseReferenceTime) throws SerializationException;
 
     /**
@@ -280,22 +281,22 @@ public interface IBandwidthDao {
 
     /**
      * Get {@link SubscriptionRetrieval}s for the specific
-     * {@link SubscriptionDao}.
+     * {@link BandwidthSubscription}.
      * 
      * @param subscriptionDao
      *            the dao
      * @return the retrievals
      */
     List<SubscriptionRetrieval> querySubscriptionRetrievals(
-            SubscriptionDao subscriptionDao);
+            BandwidthSubscription subscriptionDao);
 
     /**
-     * Remove a SubscriptionDao from the database.
+     * Remove a BandwidthSubscription from the database.
      * 
      * @param subscriptionDao
      *            The subscriptionDao to remove.
      */
-    void remove(SubscriptionDao subscriptionDao);
+    void remove(BandwidthSubscription subscriptionDao);
 
     /**
      * Persist a BandwidthAllocation to the database.
@@ -314,12 +315,12 @@ public interface IBandwidthDao {
     void store(List<SubscriptionRetrieval> retrievals);
 
     /**
-     * Persist a {@link SubscriptionDao} to the database.
+     * Persist a {@link BandwidthSubscription} to the database.
      * 
      * @param subscriptionDao
-     *            The {@link SubscriptionDao} to store.
+     *            The {@link BandwidthSubscription} to store.
      */
-    void store(SubscriptionDao subscriptionDao);
+    void store(BandwidthSubscription subscriptionDao);
 
     /**
      * Update a BandwidthAllocation in the database.
@@ -327,23 +328,23 @@ public interface IBandwidthDao {
      * @param allocation
      *            The BandwidthAllocation to store.
      */
-    void update(BandwidthAllocation allocation);
+    void createOrUpdate(BandwidthAllocation allocation);
 
     /**
-     * Update a SubscriptionDao in the database.
+     * Update a BandwidthSubscription in the database.
      * 
      * @param dao
-     *            The SubscriptionDao to store.
+     *            The BandwidthSubscription to store.
      */
-    void update(SubscriptionDao dao);
+    void update(BandwidthSubscription dao);
 
     /**
-     * Update a SubscriptionRetrieval in the database.
+     * Update a BandwidthAllocation in the database.
      * 
-     * @param subscriptionRetrieval
-     *            The SubscriptionRetrieval to store.
+     * @param bandwidthAllocation
+     *            The bandwidthAllocation to update.
      */
-    void update(SubscriptionRetrieval subscriptionRetrieval);
+    void update(BandwidthAllocation allocation);
 
     /**
      * Find all bandwidth allocations in the specified state.
