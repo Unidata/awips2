@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
@@ -54,7 +55,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * 02/12		#672		J. Wu		Re-order states list based on FA area.
  * 05/12		#610		J. Wu		Add an empty Gfa to pass issue/until time.
  * 05/12		#610		J. Wu		Assign issue/until times if they are missing.
- * 
+ * 11/12		#952		J. Wu		Format for "TURB_HI" and "TURB-LO". 
+ * 12/12		#953		J. Wu		Use deep copy when generating XML to avoid 
+ *                                      the parents of DEs in the layer..
  * </pre>
  * 
  * @author M.Laryukhin
@@ -178,12 +181,22 @@ public class GfaGenerate {
 				
 				//Add to a in-memory product for converting
 				String fileName = "AIRMET_" + category + "_" + area + "_" + cycle + ".txt";
-				fileName = PgenUtil.getWorkingDirectory() + File.separator + fileName;
+				fileName = PgenUtil.getPgenActivityTextProdPath() + File.separator + fileName;
 				
 				Product p = new Product();
 				Layer l = new Layer();
 				p.addLayer( l );				
-				l.add( ret );
+                
+				/*
+				 *  Note - needs to use a copy so it won't change the parent of the original
+				 *         G-Airmets, e.g. l.add( de ) will set the parent of the 'de"
+				 *         to be "l"!
+				 */		
+				for ( AbstractDrawableComponent gss : ret ) {
+					l.add( gss.copy() );				
+				}
+//				l.add( ret );
+
 				
 				List<Product> pList = new ArrayList<Product>();
 				pList.add( p );
@@ -198,7 +211,8 @@ public class GfaGenerate {
 				String xml = SerializationUtil.marshalToXml( products );
 
 				if( sb.length() > 0 && !sb.toString().endsWith("\n\n") )  sb.append( "\n\n" );
-				temp.append( generateProduct( xml, category, area ).trim() );
+				String prdXml = generateProduct( xml, category, area ).trim();
+				temp.append( prdXml );
 				
 				saveToFile( temp, fileName );
 
@@ -212,20 +226,8 @@ public class GfaGenerate {
 
 	public void saveToFile(StringBuilder sb, String fileName) throws IOException {
 
-		File file = new File( fileName );
-		BufferedWriter output = null;
-		try {
-			output = new BufferedWriter( new FileWriter( file ) );
-			output.write( sb.toString() );
-		} finally {
-			try {
-				if (output != null)
-					output.close();
-			} catch ( IOException e ) {
-//				logger.error( e );
-				e.printStackTrace();
-			}
-		}
+		FileTools.writeFile(fileName, sb.toString());
+	
 	}
 
 	/**
@@ -260,7 +262,11 @@ public class GfaGenerate {
 		return ret;
 	}
 
-	public String generateProduct( String xml, String category, String area ) {
+	public String generateProduct( String prdxml, String category, String area ) {
+				
+		String xml1 = prdxml.replaceAll("TURB-HI", "TURB");
+		String xml = xml1.replaceAll("TURB-LO", "TURB");
+		
 		String res = "";
 		try {
 			

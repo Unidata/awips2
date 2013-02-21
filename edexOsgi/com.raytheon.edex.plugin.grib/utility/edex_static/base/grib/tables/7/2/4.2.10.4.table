@@ -1,0 +1,10 @@
+# Product Discipline 10: Oceanographic products, Parameter Category 4: Sub-surface Properties
+#192-254 Reserved for local use
+192:192:3-D Temperature:℃:WTMPC
+193:193:3-D Salinity::SALIN
+194:194:Barotropic Kinectic Energy:J/kg:BKENG
+195:195:Geometric Depth Below Sea Surface:m:DBSS
+196:196:Interface Depths:m:INTFD
+197:197:Ocean Heat Content:J/m^2:OHC
+255:255:Missing
+

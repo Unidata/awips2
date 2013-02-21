@@ -20,10 +20,18 @@
 package com.raytheon.uf.common.serialization;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 
 /**
  * Provides serialization support for certain Java built-in classes
@@ -32,7 +40,11 @@ import java.util.TimeZone;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 3, 2008  #1448      chammack     Initial creation
+ * Sep 03, 2008  #1448      chammack    Initial creation
+ * Mar 27, 2012  #428       dgilling    Add support for built-in
+ *                                      classes used by data delivery's
+ *                                      registry service.
+ * Sep 14, 2012  #1169      djohnson    Add {@link ThrowableSerializer}.
  * </pre>
  * 
  * @author chammack
@@ -130,6 +142,45 @@ public class BuiltInTypeSupport {
         }
     }
 
+    /**
+     * Serialization for {@link javax.xml.datatype.XMLGregorianCalendar}
+     * 
+     * 
+     * @author dgilling
+     * @version 1.0
+     */
+    public static class XMLGregorianCalendarSerializer implements
+            ISerializationTypeAdapter<XMLGregorianCalendar> {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.edex.esb.serialize.ISerializationFactory#deserialize
+         * (com.raytheon.edex.esb.serialize.ISerializer)
+         */
+        @Override
+        public XMLGregorianCalendar deserialize(IDeserializationContext arg0)
+                throws SerializationException {
+            try {
+                long t = arg0.readI64();
+                GregorianCalendar c = new GregorianCalendar(
+                        TimeZone.getTimeZone("GMT"));
+                c.setTimeInMillis(t);
+                return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+            } catch (DatatypeConfigurationException e) {
+                throw new SerializationException(e);
+            }
+        }
+
+        @Override
+        public void serialize(ISerializationContext arg0,
+                XMLGregorianCalendar arg1) throws SerializationException {
+            long t = arg1.toGregorianCalendar().getTimeInMillis();
+            arg0.writeI64(t);
+        }
+    }
+
     public static class SqlDateSerializer implements
             ISerializationTypeAdapter<java.sql.Date> {
 
@@ -182,5 +233,127 @@ public class BuiltInTypeSupport {
             serializer.writeDouble(object.doubleValue());
         }
 
+    }
+
+    public static class BigIntegerSerializer implements
+            ISerializationTypeAdapter<BigInteger> {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @seecom.raytheon.uf.common.serialization.ISerializationTypeAdapter#
+         * deserialize
+         * (com.raytheon.uf.common.serialization.IDeserializationContext)
+         */
+        @Override
+        public BigInteger deserialize(IDeserializationContext deserializer)
+                throws SerializationException {
+            return new BigInteger(deserializer.readBinary());
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.common.serialization.ISerializationTypeAdapter#serialize
+         * (com.raytheon.uf.common.serialization.ISerializationContext,
+         * java.lang.Object)
+         */
+        @Override
+        public void serialize(ISerializationContext serializer,
+                BigInteger object) throws SerializationException {
+            serializer.writeBinary(object.toByteArray());
+        }
+    }
+
+    /**
+     * Serialization for {@link javax.xml.datatype.Duration}
+     * 
+     * 
+     * @author dgilling
+     * @version 1.0
+     */
+    public static class DurationSerializer implements
+            ISerializationTypeAdapter<Duration> {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.edex.esb.serialize.ISerializationFactory#deserialize
+         * (com.raytheon.edex.esb.serialize.ISerializer)
+         */
+        @Override
+        public Duration deserialize(IDeserializationContext arg0)
+                throws SerializationException {
+            try {
+                String durationStr = arg0.readString();
+                return DatatypeFactory.newInstance().newDuration(durationStr);
+            } catch (DatatypeConfigurationException e) {
+                throw new SerializationException(e);
+            }
+        }
+
+        @Override
+        public void serialize(ISerializationContext arg0, Duration arg1)
+                throws SerializationException {
+            arg0.writeString(arg1.toString());
+        }
+    }
+
+    /**
+     * Serialization for {@link javax.xml.namespace.QName}
+     * 
+     * 
+     * @author dgilling
+     * @version 1.0
+     */
+    public static class QNameSerializer implements
+            ISerializationTypeAdapter<QName> {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.edex.esb.serialize.ISerializationFactory#deserialize
+         * (com.raytheon.edex.esb.serialize.ISerializer)
+         */
+        @Override
+        public QName deserialize(IDeserializationContext arg0)
+                throws SerializationException {
+            return QName.valueOf(arg0.readString());
+        }
+
+        @Override
+        public void serialize(ISerializationContext arg0, QName arg1)
+                throws SerializationException {
+            arg0.writeString(arg1.toString());
+        }
+    }
+
+    /**
+     * Serializes a {@link Throwable} and deserializes it into a
+     * {@link Throwable}.
+     * 
+     * NOTE: The deserialized object is NOT an instance of the original
+     * throwable type, rather it is an instance of
+     * {@link SerializableExceptionWrapper} whose toString() and getMessage()
+     * methods will return the same value as the original.
+     */
+    public static class ThrowableSerializer implements
+            ISerializationTypeAdapter<Throwable> {
+        @Override
+        public void serialize(ISerializationContext serializer, Throwable object)
+                throws SerializationException {
+            serializer.writeObject(ExceptionWrapper.wrapThrowable(object));
+        }
+
+        @Override
+        public Throwable deserialize(IDeserializationContext deserializer)
+                throws SerializationException {
+            return ExceptionWrapper
+                    .unwrapThrowable(SerializableExceptionWrapper.class
+                    .cast(deserializer.readObject()));
+        }
     }
 }

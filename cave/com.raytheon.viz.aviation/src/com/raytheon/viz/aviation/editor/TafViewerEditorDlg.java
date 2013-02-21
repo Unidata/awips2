@@ -223,6 +223,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       made non-blocking.
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
+ * 01/09/2013   15528       zhao        Modified saveFile() and restoreFile()
  * 
  * </pre>
  * 
@@ -1848,18 +1849,12 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 String bbb = editorTafTabComp.getBBB();
                 String type;
 
-                if (ti.getText().equals(tabFillText)
-                        || editorTafTabComp.getTextEditorControl().getText()
-                                .trim().length() == 0) {
-                    MessageBox questionMB = new MessageBox(shell,
-                            SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+                if (ti.getText().equals(tabFillText) || editorTafTabComp.getTextEditorControl().getText().trim().length() == 0) {
+                    MessageBox questionMB = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK );
                     questionMB.setText("Save TAF");
-                    questionMB.setMessage("Empty TAF do you want to save it?");
-                    int result = questionMB.open();
-
-                    if (result == SWT.CANCEL) {
-                        return;
-                    }
+                    questionMB.setMessage("Cannot save Empty TAF!");
+                    questionMB.open();
+                    return;
                 }
 
                 if (bbb.startsWith("AA")) {
@@ -2290,8 +2285,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     private void saveFile(String filename) {
         String tempTafPath = "aviation/tmp/";
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         String path = pm.getFile(context, tempTafPath).getAbsolutePath();
         String filepath = null;
 
@@ -2311,17 +2305,14 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (filepath != null) {
             try {
                 setWaitCursor(true);
-                String fname = tempTafPath
-                        + filepath.substring(filepath.lastIndexOf('/') + 1);
+                String fname = tempTafPath + filepath.substring(filepath.lastIndexOf('/') + 1);
                 LocalizationFile lFile = pm.getLocalizationFile(context, fname);
                 File file = lFile.getFile();
 
                 if (filename == null && file.exists()) {
-                    MessageBox questionMB = new MessageBox(shell,
-                            SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+                    MessageBox questionMB = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
                     questionMB.setText("Save TAF");
-                    questionMB
-                            .setMessage("File already exists. Do you want to overwrite it?");
+                    questionMB.setMessage("File already exists. Do you want to overwrite it?");
                     int result = questionMB.open();
 
                     if (result == SWT.CANCEL) {
@@ -2346,17 +2337,14 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 setMessageStatusOK("File " + filepath + " saved successfully.");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                setMessageStatusError("Unable to open file " + filepath
-                        + " for writing.");
+                setMessageStatusError("Unable to open file " + filepath + " for writing.");
 
             } catch (IOException e) {
                 e.printStackTrace();
-                setMessageStatusError("An IOException occured while saving file "
-                        + filepath);
+                setMessageStatusError("An IOException occured while saving file " + filepath);
             } catch (LocalizationOpFailedException e) {
                 e.printStackTrace();
-                setMessageStatusError("A LocalizationOpFailedException occured while saving file "
-                        + filepath);
+                setMessageStatusError("A LocalizationOpFailedException occured while saving file " + filepath);
             } finally {
                 setWaitCursor(false);
             }
@@ -2373,12 +2361,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 tabFolder.setSelection(editorTab);
                 // Use the current tab
                 if (!(ti.getText().equals(tabFillText))) {
-                    if (!editorTafTabComp.isTafSent()) {
-                        MessageBox questionMB = new MessageBox(shell,
-                                SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+                    if (!editorTafTabComp.isTafSent() && !editorTafTabComp.getTextEditorControl().getText().trim().equals("")) {
+                        MessageBox questionMB = new MessageBox(shell,SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
                         questionMB.setText("Restore TAF");
-                        questionMB
-                                .setMessage("Forecast not saved. Do you want to continue?");
+                        questionMB.setMessage("Forecast not saved. Do you want to continue?");
                         int result = questionMB.open();
 
                         if (result == SWT.CANCEL) {
@@ -2389,10 +2375,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
                 String tempTafPath = "aviation/tmp/";
                 IPathManager pm = PathManagerFactory.getPathManager();
-                LocalizationContext context = pm.getContext(
-                        LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-                String path = pm.getFile(context, tempTafPath)
-                        .getAbsolutePath();
+                LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                String path = pm.getFile(context, tempTafPath).getAbsolutePath();
                 String filepath = null;
 
                 File tmp = new File(path);
@@ -2413,11 +2397,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
                     try {
                         setWaitCursor(true);
-                        String fname = tempTafPath
-                                + filepath
-                                        .substring(filepath.lastIndexOf('/') + 1);
-                        LocalizationFile lFile = pm.getLocalizationFile(
-                                context, fname);
+                        String fname = tempTafPath + filepath.substring(filepath.lastIndexOf('/') + 1);
+                        LocalizationFile lFile = pm.getLocalizationFile(context, fname);
                         File file = lFile.getFile();
                         FileReader reader = new FileReader(file);
                         BufferedReader input = new BufferedReader(reader);
@@ -2434,20 +2415,17 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                             if (values.length != 3) {
                                 errorMsg = "parse error";
                                 contents.append(line);
-                                contents.append(System
-                                        .getProperty("line.separator"));
+                                contents.append(System.getProperty("line.separator"));
                             } else {
                                 editorTafTabComp.setWmoIdLbl(values[0].trim());
-                                editorTafTabComp
-                                        .setWmoSiteLbl(values[1].trim());
+                                editorTafTabComp.setWmoSiteLbl(values[1].trim());
                                 editorTafTabComp.setLargeTF(values[2].trim());
                             }
                         }
 
                         while ((line = input.readLine()) != null) {
                             contents.append(line);
-                            contents.append(System
-                                    .getProperty("line.separator"));
+                            contents.append(System.getProperty("line.separator"));
                         }
 
                         input.close();
@@ -2468,25 +2446,20 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                         }
 
                         ti.setText(icao + " " + bbb);
-                        editorTafTabComp.getTextEditorControl()
-                                .setText(tafText);
+                        editorTafTabComp.getTextEditorControl().setText(tafText);
 
                         if (editorTafTabComp.isTafSent()) {
                             editorTafTabComp.updateTafSent(false);
                         }
                     } catch (FileNotFoundException e) {
-                        setMessageStatusError("File " + filepath
-                                + " not found.");
+                        setMessageStatusError("File " + filepath + " not found.");
                     } catch (IOException e) {
-                        setMessageStatusError("An IOException occured while opening file "
-                                + filepath);
+                        setMessageStatusError("An IOException occured while opening file " + filepath);
                     } finally {
                         if (errorMsg != null) {
-                            setMessageStatusError("File " + filepath + ": "
-                                    + errorMsg);
+                            setMessageStatusError("File " + filepath + ": " + errorMsg);
                         } else {
-                            setMessageStatusOK("File " + filepath
-                                    + " opened successfully.");
+                            setMessageStatusOK("File " + filepath + " opened successfully.");
                         }
                         setWaitCursor(false);
                     }

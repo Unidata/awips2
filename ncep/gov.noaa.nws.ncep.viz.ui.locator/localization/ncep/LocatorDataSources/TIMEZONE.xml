@@ -4,5 +4,5 @@
     <sourceType>BOUNDED_AREA</sourceType>
     <dbName>ncep</dbName>
     <dbTableName>bounds.tzbnds</dbTableName>
-	<dbFieldName>timezone</dbFieldName> 
+	<dbFieldName>time_zone</dbFieldName> 
 </LocatorDataSource>

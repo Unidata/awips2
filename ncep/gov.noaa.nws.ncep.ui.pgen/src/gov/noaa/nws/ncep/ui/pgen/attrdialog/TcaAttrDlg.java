@@ -984,7 +984,7 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 		int num = getStormNumber() % 5;
 		if ( num == 0 ) num = 5;
 		String name = String.format("%sTCV%2s%1d", PgenUtil.getCurrentOffice(), basin, num );
-		return PgenUtil.getWorkingDirectory() + File.separator + name;
+		return PgenUtil.getPgenActivityTextProdPath() + File.separator + name;
 	}
 	
 	/*

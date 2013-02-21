@@ -65,6 +65,28 @@ public class GLShortDataFormat extends AbstractGLColorMapDataFormat {
     /*
      * (non-Javadoc)
      * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMin()
+     */
+    @Override
+    public double getDataFormatMin() {
+        return Short.MIN_VALUE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMax()
+     */
+    @Override
+    public double getDataFormatMax() {
+        return Short.MAX_VALUE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.core.gl.dataprep.AbstractGLColorMapDataFormat#
      * getCopyBackBuffer(com.raytheon.viz.core.gl.dataprep.GLColorMapData)
      */

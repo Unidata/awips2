@@ -28,7 +28,7 @@
 	</bean>
 
 	<bean id="metarToShefFilter"
-		class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+		class="com.raytheon.edex.transform.shef.MetarToShefFilter">
 		<constructor-arg type="java.lang.String" value="metarToShefFilter.xml" />
 		<constructor-arg type="java.lang.String" value="SITE" />
 	</bean>
@@ -133,7 +133,7 @@
 			<pipeline>
 				<split streaming="true">
 					<method bean="metarToShef" method="iterate" />
-					<bean ref="metarToShef" method="transform" />
+					<bean ref="metarToShef" method="transformMetar" />
 					<to
 						uri="jms-generic:queue:Ingest.ShefStaged?destinationResolver=#qpidDurableResolver" />
 				</split>

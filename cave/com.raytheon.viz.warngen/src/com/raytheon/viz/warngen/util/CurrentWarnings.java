@@ -20,6 +20,7 @@
 package com.raytheon.viz.warngen.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,8 +38,10 @@ import com.raytheon.uf.common.dataplugin.warning.UGCZone;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.util.AnnotationUtil;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -46,10 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -187,7 +188,8 @@ public class CurrentWarnings {
      * @param phenSigs
      * @return
      */
-    public List<AbstractWarningRecord> getCorrectableWarnings(AbstractWarningRecord warnRec) {
+    public List<AbstractWarningRecord> getCorrectableWarnings(
+            AbstractWarningRecord warnRec) {
         List<AbstractWarningRecord> rval = new ArrayList<AbstractWarningRecord>();
         Calendar current = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
@@ -197,24 +199,28 @@ public class CurrentWarnings {
             for (AbstractWarningRecord warning : records) {
                 String phensig = warning.getPhensig();
                 String etn = warning.getEtn();
-                
-                if (warnRec.getPhensig().equals(phensig) && warnRec.getEtn().equals(etn)) {
-                    WarningAction action = WarningAction.valueOf(warning.getAct());
+
+                if (warnRec.getPhensig().equals(phensig)
+                        && warnRec.getEtn().equals(etn)) {
+                    WarningAction action = WarningAction.valueOf(warning
+                            .getAct());
                     end.setTime(warning.getStartTime().getTime());
                     end.add(Calendar.MINUTE, 10);
-                    TimeRange t = new TimeRange(warning.getStartTime().getTime(),
-                            end.getTime());
-                    if ((action == WarningAction.NEW || action == WarningAction.CON || action == WarningAction.EXT)
+                    TimeRange t = new TimeRange(warning.getStartTime()
+                            .getTime(), end.getTime());
+                    if ((action == WarningAction.NEW
+                            || action == WarningAction.CON || action == WarningAction.EXT)
                             && t.contains(current.getTime())) {
                         rval.add(warning);
-                    } else if (action == WarningAction.CAN || action == WarningAction.EXP) {
+                    } else if (action == WarningAction.CAN
+                            || action == WarningAction.EXP) {
                         rval.clear();
                         return rval;
                     }
                 }
             }
         }
-        
+
         return rval;
     }
 
@@ -253,7 +259,7 @@ public class CurrentWarnings {
                 for (AbstractWarningRecord warning : warnings) {
                     if (getAction(warning.getAct()) == WarningAction.CON) {
                         if (rval != null) {
-                            //rval.setAct("CON");
+                            // rval.setAct("CON");
                             rval.setGeometry(warning.getGeometry());
                             rval.setCountyheader(warning.getCountyheader());
                             rval.setUgczones(warning.getUgczones());
@@ -421,7 +427,10 @@ public class CurrentWarnings {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
         constraints.put("officeid", new RequestConstraint(officeId));
 
+        long t0 = System.currentTimeMillis();
         List<AbstractWarningRecord> warnings = requestRecords(constraints);
+        System.out.println("Time to request CurrentWarnings records: "
+                + (System.currentTimeMillis() - t0) + "ms");
         processRecords(warnings);
     }
 
@@ -470,6 +479,10 @@ public class CurrentWarnings {
                     .get("xxxid")))) {
                 dataURIs.add(am.dataURI);
             }
+        }
+
+        if (dataURIs.size() == 0) {
+            return;
         }
 
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
@@ -534,25 +547,16 @@ public class CurrentWarnings {
     private static List<AbstractWarningRecord> requestRecords(
             Map<String, RequestConstraint> constraints) {
         List<AbstractWarningRecord> newRecords = new ArrayList<AbstractWarningRecord>();
-        Object[] resp;
-        LayerProperty lp = new LayerProperty();
+
         try {
-            String tableName = AnnotationUtil.getTableName(getWarningClass());
-
-            constraints.put("pluginName", new RequestConstraint(tableName));
-            lp.setDesiredProduct(ResourceType.PLAN_VIEW);
-            lp.setEntryQueryParameters(constraints, false);
-
-            lp.setNumberOfImages(9999);
-
-            String script = ScriptCreator.createScript(lp);
-            if (script != null) {
-                resp = Connector.getInstance().connect(script, null, 60000);
-                for (int i = 0; i < resp.length; i++) {
-                    newRecords.add((AbstractWarningRecord) resp[i]);
-                }
-            }
-        } catch (Exception e) {
+            DbQueryRequest request = new DbQueryRequest();
+            request.setConstraints(constraints);
+            request.setEntityClass(getWarningClass());
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            newRecords.addAll(Arrays.asList(response
+                    .getEntityObjects(AbstractWarningRecord.class)));
+        } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Error retreiving warnings",
                     e);
         }

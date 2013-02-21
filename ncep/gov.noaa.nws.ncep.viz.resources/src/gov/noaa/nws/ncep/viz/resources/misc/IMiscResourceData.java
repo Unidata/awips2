@@ -24,6 +24,7 @@ import java.util.ArrayList;
  *  06/12/09     #115      Greg Hull    Integrate to work with INatlCntrsResource
  *                                      and ResourceAttrSet
  *  04/23/10     #245      Greg Hull    Added Spinner for Airmet attributes
+ *  12/14/12     #861      Greg Hull    Added COLOR_PALLETTE for Pgen Rsc
  * 
  * </pre>
  *
@@ -34,7 +35,8 @@ public interface IMiscResourceData extends INatlCntrsResourceData {
 	
 	public static enum EditElement {
 		CHECK_BOX,
-		COLOR_SELECTOR,
+		COLOR_SELECTOR,   // a button that pops up a color palette
+		COLOR_PALLETE,     
 		SPINNER,
 		LABEL,
 	//	SLIDER_TEXT,
@@ -52,6 +54,11 @@ public interface IMiscResourceData extends INatlCntrsResourceData {
 		public int    spinnerIncr      = 1;
 		public int    spinnerPageIncr  = 2;
 		public int    dispColumn;
+
+		// TODO : we could add some configuration options for the COLOR_PALLETTE
+		// if needed for other resources besides just the PGEN resource.
+		//
+		
 
 		public MiscResourceAttr( String attrName, String l, EditElement e, int col ) {
 			rscAttrName = attrName; // field name in the resource/rscAttrSet

@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.auth;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -29,10 +32,13 @@ import org.eclipse.core.runtime.Platform;
 import com.raytheon.uf.common.auth.resp.UserNotAuthenticated;
 import com.raytheon.uf.common.auth.resp.UserNotAuthorized;
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
+import com.raytheon.uf.common.auth.user.IPermission;
+import com.raytheon.uf.common.auth.user.IRole;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ServiceLoaderUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.INotAuthHandler;
 
@@ -45,6 +51,8 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2010            mschenke     Initial creation
+ * Nov 06, 2012 1302       djohnson     Add ability to retrieve the {@link IUserManager}.
+ * Jan 04, 2013 1451       djohnson     Move static block code to an implementation of an interface.
  * 
  * </pre>
  * 
@@ -53,80 +61,127 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  */
 
 public class UserController {
-    private static transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(UserController.class, "CAVE");
 
-    private static final String EXTENSION_POINT = "com.raytheon.uf.viz.core.userManager";
+    /**
+     * Loads the {@link IUserManager} implementation from extension points. This
+     * code was moved in verbatim from the static block below.
+     */
+    private static class ExtensionPointManagerLoader implements
+            IUserManagerLoader {
+        
+        private static final IUFStatusHandler statusHandler = UFStatus.getHandler(
+                ExtensionPointManagerLoader.class, "CAVE");
+        
+        private static final String EXTENSION_POINT = "com.raytheon.uf.viz.core.userManager";
 
-    private static IUserManager manager = null;
+        private static final ExtensionPointManagerLoader INSTANCE = new ExtensionPointManagerLoader();
+        
+        private ExtensionPointManagerLoader() {
+        }
 
-    static {
-        IExtensionRegistry registry = Platform.getExtensionRegistry();
-        IExtensionPoint point = registry.getExtensionPoint(EXTENSION_POINT);
-        if (point != null) {
-            IExtension[] extensions = point.getExtensions();
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public IUserManager getUserManager() {
+            IUserManager manager = null;
 
-            for (IExtension ext : extensions) {
-                for (IConfigurationElement elem : ext
-                        .getConfigurationElements()) {
-                    if (manager != null) {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Not using user authentication manager: "
-                                                + elem.getAttribute("class")
-                                                + ".\nViz does not currently support multiple authentication methods,"
-                                                + " using first one found in extension point.  Remove any authentication"
-                                                + " plugins not on edex server");
-                    } else {
-                        try {
-                            manager = (IUserManager) elem
-                                    .createExecutableExtension("class");
-                        } catch (CoreException e) {
+            IExtensionRegistry registry = Platform.getExtensionRegistry();
+            IExtensionPoint point = registry.getExtensionPoint(EXTENSION_POINT);
+            if (point != null) {
+                IExtension[] extensions = point.getExtensions();
+
+                for (IExtension ext : extensions) {
+                    for (IConfigurationElement elem : ext
+                            .getConfigurationElements()) {
+                        if (manager != null) {
                             statusHandler
                                     .handle(Priority.PROBLEM,
-                                            "Error creating IUserManager from extension point",
-                                            e);
+                                            "Not using user authentication manager: "
+                                                    + elem.getAttribute("class")
+                                                    + ".\nViz does not currently support multiple authentication methods,"
+                                                    + " using first one found in extension point.  Remove any authentication"
+                                                    + " plugins not on edex server");
+                        } else {
+                            try {
+                                manager = (IUserManager) elem
+                                        .createExecutableExtension("class");
+                            } catch (CoreException e) {
+                                statusHandler
+                                        .handle(Priority.PROBLEM,
+                                                "Error creating IUserManager from extension point",
+                                                e);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (manager == null) {
-            manager = new IUserManager() {
-                @Override
-                public IUser getUserObject() {
-                    return null;
-                }
+            if (manager == null) {
+                manager = new IUserManager() {
+                    @Override
+                    public IUser getUserObject() {
+                        return null;
+                    }
 
-                @Override
-                public void updateUserObject(IUser user,
-                        IAuthenticationData authData) {
+                    @Override
+                    public void updateUserObject(IUser user,
+                            IAuthenticationData authData) {
 
-                }
+                    }
 
-                @Override
-                public INotAuthHandler getNotAuthHandler() {
-                    return new INotAuthHandler() {
-                        @Override
-                        public Object notAuthenticated(
-                                UserNotAuthenticated response)
-                                throws VizException {
-                            throw new VizException(
-                                    "Could not perform request, user is not authenticated with server.");
-                        }
+                    @Override
+                    public INotAuthHandler getNotAuthHandler() {
+                        return new INotAuthHandler() {
+                            @Override
+                            public Object notAuthenticated(
+                                    UserNotAuthenticated response)
+                                    throws VizException {
+                                throw new VizException(
+                                        "Could not perform request, user is not authenticated with server.");
+                            }
 
-                        @Override
-                        public Object notAuthorized(UserNotAuthorized response)
-                                throws VizException {
-                            throw new VizException(response.getMessage());
-                        }
-                    };
-                }
+                            @Override
+                            public Object notAuthorized(
+                                    UserNotAuthorized response)
+                                    throws VizException {
+                                throw new VizException(response.getMessage());
+                            }
+                        };
+                    }
 
-            };
+                    /**
+                     * {@inheritDoc}
+                     */
+                    @Override
+                    public List<IPermission> getPermissions(String application) {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public List<IRole> getRoles(String application) {
+                        return Collections.emptyList();
+                    }
+
+                };
+            }
+            return manager;
         }
     }
+
+    private static final IUserManager manager;
+    static {
+        // This static block will perform exactly as before, with a few
+        // caveats...
+        // If a service loader config file for the interface is present on the
+        // classpath, it can change the implementation, such as in a test case
+        IUserManagerLoader userManagerLoader = ServiceLoaderUtil.load(
+                IUserManagerLoader.class, ExtensionPointManagerLoader.INSTANCE);
+
+        // manager is now final, it can't be changed once it is initialized
+        manager = userManagerLoader.getUserManager();
+    }
+
 
     public static IUser getUserObject() {
         return manager.getUserObject();
@@ -140,4 +195,10 @@ public class UserController {
         return manager.getNotAuthHandler();
     }
 
+    /**
+     * @return the manager
+     */
+    public static IUserManager getManager() {
+        return manager;
+    }
 }

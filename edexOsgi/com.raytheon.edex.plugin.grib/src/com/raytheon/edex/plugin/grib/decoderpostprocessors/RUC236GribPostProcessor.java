@@ -20,11 +20,11 @@
 
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
- * Grib post processor implementation to eliminate invalid 7HR and 8HR forecast 
+ * Grib post processor implementation to eliminate invalid 7HR and 8HR forecast
  * grids from the RUC236 model
  * 
  * <pre>
@@ -43,14 +43,14 @@ import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 public class RUC236GribPostProcessor implements IDecoderPostProcessor {
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
         // Toss out all 7HR and 8HR forecast grids
-    	if(record.getDataTime().getFcstTime() == 25200 
-    			|| record.getDataTime().getFcstTime() == 28800) {
-    			
-            return new GribRecord[] {};
+        if (record.getDataTime().getFcstTime() == 25200
+                || record.getDataTime().getFcstTime() == 28800) {
+
+            return new GridRecord[] {};
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

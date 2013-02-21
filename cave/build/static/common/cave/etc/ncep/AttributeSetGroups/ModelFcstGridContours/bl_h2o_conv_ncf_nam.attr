@@ -9,8 +9,9 @@
 GLEVEL =  9823!9823!9823:0!9823:0!9823
 GVCORD =  sgma!sgma!sgma!sgma!sgma
 SKIP   =    0/1                                                                     
+FILTER=y
 SCALE  =   7!0
-GDPFUN =  sdiv(mixr,obs)!thte(mul(.9823;mul(1e-2,pres@0%none)),tmpc,dwpc)//te!te!te!kntv(wnd)
+GDPFUN =  sdiv(mixr,obs)!thte(mul(.9823;pres@0%none),tmpc,dwpc)//te!te!te!kntv(wnd)
 TYPE   =    c             !c                                         !c  !c    !b
 CINT   =    2/-100/-2     !4//296                                     !4/300/320!4/324
 LINE   =    3/1/2/1       !30/10/1/0                                  !29/10/1/0!7/10/2/1 
@@ -24,4 +25,3 @@ TITLE  =   1/-1/~ BL (18MB AGL) MOIST CONV, WIND    (KTS) and THTAE!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
