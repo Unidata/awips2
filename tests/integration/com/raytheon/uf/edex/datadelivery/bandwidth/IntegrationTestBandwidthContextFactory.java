@@ -19,12 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import java.io.File;
+
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
-import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
-import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
 /**
  * The {@link BandwidthContextFactory} implementation for integration tests.
@@ -36,6 +35,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
+ * Feb 20, 2013 1543       djohnson     Pass additional super-class constructor arguments.
  * 
  * </pre>
  * 
@@ -46,6 +46,18 @@ public class IntegrationTestBandwidthContextFactory extends
         EdexBandwidthContextFactory {
 
     /**
+     * Constructor, intentionally package-private.
+     * 
+     * @param bandwidthDao
+     *            the bandwidthDao
+     */
+    IntegrationTestBandwidthContextFactory(IBandwidthDao bandwidthDao,
+            IEdexBandwidthManagerCreator bandwidthManagerCreator) {
+        super(bandwidthDao, new IntegrationTestBandwidthInitializer(),
+                bandwidthManagerCreator);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -54,21 +66,13 @@ public class IntegrationTestBandwidthContextFactory extends
     }
 
     /**
-     * {@inheritDoc}
+     * Get the integration test bandwidth map config file.
+     * 
+     * @return the file
      */
-    @Override
-    public BandwidthInitializer getBandwidthInitializer() {
-        return new IntegrationTestBandwidthInitializer();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
-        return new IntegrationTestBandwidthManager(dbInit, bandwidthDao,
-                retrievalManager, bandwidthDaoUtil);
+    public static File getIntegrationTestBandwidthMapConfigFile() {
+        return new IntegrationTestBandwidthContextFactory((IBandwidthDao) null,
+                (IEdexBandwidthManagerCreator) null)
+                .getBandwidthMapConfigFile();
     }
 }

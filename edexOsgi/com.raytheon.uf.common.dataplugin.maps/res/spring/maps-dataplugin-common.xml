@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="mapsPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="maps" />
+	</bean>
+
+	<bean id="mapsDataFactory" class="com.raytheon.uf.common.dataplugin.maps.dataaccess.MapsGeometryFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register" 
+	depends-on="mapsPluginName, mapsDataFactory">
+		<constructor-arg ref="mapsPluginName"/>
+		<constructor-arg ref="mapsDataFactory"/>
+	</bean>	
+	
+</beans>

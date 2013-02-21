@@ -46,8 +46,6 @@ import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.pointdata.Activator;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -69,7 +67,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * @version 1.0
  */
 public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ScatterometerPlotInfoRetriever.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ScatterometerPlotInfoRetriever.class);
 
     private static final int MAX_RESULT_SIZE = 2000;
 
@@ -135,7 +134,8 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
                     List<PlotInfo> stations = getStations(request.metadataMap);
                     if (stations != null && !stations.isEmpty()) {
                         request.listener.resourceChanged(
-                                ChangeType.DATA_UPDATE, stations.toArray());
+                                ChangeType.DATA_UPDATE,
+                                stations.toArray(new PlotInfo[0]));
                     }
                     if (stations != null && stations.size() == MAX_RESULT_SIZE) {
                         for (PlotInfo station : stations) {
@@ -200,11 +200,12 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
         super.addColumns(dq);
         dq.addColumn("id");
     }
-    
-    
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever#getPlotInfo(java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever#
+     * getPlotInfo(java.lang.Object[])
      */
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
@@ -212,8 +213,6 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
         info.stationId = data[data.length - 1].toString();
         return info;
     }
-
-
 
     public void getStations(IResourceDataChanged listener, DataTime time,
             HashMap<String, RequestConstraint> metadataMap) throws VizException {

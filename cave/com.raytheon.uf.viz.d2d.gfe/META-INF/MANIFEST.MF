@@ -7,17 +7,11 @@ Bundle-Activator: com.raytheon.uf.viz.d2d.gfe.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.core.runtime,
- com.raytheon.uf.common.serialization;bundle-version="1.12.1174"
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.gfe,
- com.raytheon.uf.common.dataplugin.gfe.db.objects,
- com.raytheon.uf.common.dataplugin.gfe.grid,
- com.raytheon.uf.common.dataplugin.gfe.request,
- com.raytheon.uf.common.dataplugin.gfe.server.message,
- com.raytheon.uf.common.dataplugin.gfe.server.request,
- com.raytheon.uf.common.dataplugin.gfe.slice,
  com.raytheon.uf.common.dataquery.requests,
  com.raytheon.uf.common.dataquery.responses,
  com.raytheon.uf.common.datastorage.records,

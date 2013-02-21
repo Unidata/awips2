@@ -71,6 +71,9 @@ import com.raytheon.uf.common.util.FileUtil;
  * May 27, 2010            njensen     Initial creation
  * Oct 01, 2010            rjpeter     Added logging of requests over 300ms
  * Mon 07, 2013  DR 15294  D. Friedman Stream large requests
+ * Feb 11, 2013      1526   njensen    use HttpClient.postDynamicSerialize() for memory efficiency
+ * Feb 12, 2013     #1608  randerso    Added explicit deletes for groups and datasets
+ * 
  * </pre>
  * 
  * @author njensen
@@ -148,13 +151,29 @@ public class PyPiesDataStore implements IDataStore {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#delete(java.lang.String[])
+     * com.raytheon.uf.common.datastorage.IDataStore#deleteDatasets(java.lang
+     * .String[])
      */
     @Override
-    public void delete(final String... location) throws StorageException,
+    public void deleteDatasets(final String... datasets)
+            throws StorageException, FileNotFoundException {
+        DeleteRequest delete = new DeleteRequest();
+        delete.setDatasets(datasets);
+        sendRequest(delete);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.datastorage.IDataStore#deleteGroups(java.lang.
+     * String[])
+     */
+    @Override
+    public void deleteGroups(final String... groups) throws StorageException,
             FileNotFoundException {
         DeleteRequest delete = new DeleteRequest();
-        delete.setLocations(location);
+        delete.setGroups(groups);
         sendRequest(delete);
     }
 
@@ -344,7 +363,8 @@ public class PyPiesDataStore implements IDataStore {
         return ss;
     }
 
-    protected Object sendRequest(final AbstractRequest obj) throws StorageException {
+    protected Object sendRequest(final AbstractRequest obj)
+            throws StorageException {
         return sendRequest(obj, false);
     }
 
@@ -354,10 +374,10 @@ public class PyPiesDataStore implements IDataStore {
 
         initializeProperties();
 
-        byte[] result = null;
+        Object ret = null;
         long t0 = System.currentTimeMillis();
         try {
-            result = doSendRequest(obj, huge);
+            ret = doSendRequest(obj, huge);
         } catch (Exception e) {
             throw new StorageException(
                     "Error communicating with pypies server", null, e);
@@ -370,8 +390,6 @@ public class PyPiesDataStore implements IDataStore {
                     + obj.getFilename());
         }
 
-        Object ret = deserializeResponse(result);
-
         if (ret instanceof ErrorResponse) {
             throw new StorageException(((ErrorResponse) ret).getError(), null);
         }
@@ -379,21 +397,28 @@ public class PyPiesDataStore implements IDataStore {
         return ret;
     }
 
-    protected byte[] doSendRequest(final AbstractRequest obj, boolean huge) throws Exception {
+    protected Object doSendRequest(final AbstractRequest obj, boolean huge)
+            throws Exception {
         if (huge) {
-            return HttpClient.getInstance().postBinary(address, new HttpClient.OStreamHandler() {
-                @Override
-                public void writeToStream(OutputStream os) throws CommunicationException {
-                    try {
-                        DynamicSerializationManager.getManager(SerializationType.Thrift).serialize(obj, os);
-                    } catch (SerializationException e) {
-                        throw new CommunicationException(e);
-                    }
-                }
-            });
+            byte[] resp = HttpClient.getInstance().postBinary(address,
+                    new HttpClient.OStreamHandler() {
+                        @Override
+                        public void writeToStream(OutputStream os)
+                                throws CommunicationException {
+                            try {
+                                DynamicSerializationManager.getManager(
+                                        SerializationType.Thrift).serialize(
+                                        obj, os);
+                            } catch (SerializationException e) {
+                                throw new CommunicationException(e);
+                            }
+                        }
+                    });
+            return SerializationUtil.transformFromThrift(Object.class, resp);
         } else {
-            byte[] bytes = serializeRequest(obj);
-            return HttpClient.getInstance().postBinary(address, bytes);
+            // can't stream to pypies due to WSGI spec not handling chunked http
+            return HttpClient.getInstance().postDynamicSerialize(address, obj,
+                    false);
         }
     }
 
