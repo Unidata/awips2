@@ -38,9 +38,9 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
@@ -231,17 +231,17 @@ public class MeanArealPrecipResource extends
         meanAreaNodes = (ArrayList<GeoAreaLineSegs>) GeoUtil.getInstance()
                 .getGeoAreaLinesegs(areaType);
         if (extent != null) {
-            compute_mean_areal_precip(buf, meanAreaNodes, xor, yor, max_columns,
-                    max_rows);
+            compute_mean_areal_precip(buf, meanAreaNodes, xor, yor,
+                    max_columns, max_rows);
             try {
                 subGrid = new HRAPSubGrid(extent);
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-    
+
             gridGeometry = MapUtil.getGridGeometry(subGrid);
-    
+
             try {
                 project(gridGeometry.getCoordinateReferenceSystem());
             } catch (InvalidGridGeometryException e) {
@@ -516,9 +516,7 @@ public class MeanArealPrecipResource extends
         // target.setUseBuiltinColorbar(false);
 
         if (gridDisplay == null) {
-            gridDisplay = new GriddedImageDisplay2(buf2, gridGeometry, this,
-                    target.getViewType());
-            gridDisplay.init(target);
+            gridDisplay = new GriddedImageDisplay2(buf2, gridGeometry, this);
         }
 
         gridDisplay.paint(target, paintProps);
@@ -590,11 +588,12 @@ public class MeanArealPrecipResource extends
         if ((buf2 == null) || (gridGeometry == null)) {
             noData = true;
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append(dman.getAccumInterval()
                 + " hr Accumulated Best Estimate QPE Ending "
-                + HydroConstants.DISPLAY_DATE_FORMAT.format(dman.getDataDate())+"z (in)");
+                + HydroConstants.DISPLAY_DATE_FORMAT.format(dman.getDataDate())
+                + "z (in)");
 
         if (noData) {
             sb.append(" No Data Available");
@@ -649,7 +648,7 @@ public class MeanArealPrecipResource extends
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         if (gridDisplay != null) {
-            gridDisplay.reproject();
+            gridDisplay.project(descriptor.getGridGeometry());
         }
     }
 }

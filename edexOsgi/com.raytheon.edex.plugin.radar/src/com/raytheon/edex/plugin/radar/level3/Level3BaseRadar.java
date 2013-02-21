@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -178,6 +179,21 @@ public class Level3BaseRadar {
 
     private RadarInfoDict dict = null;
 
+    private final List<Integer> SPECIAL_PRODS = new ArrayList<Integer>(
+            Arrays.asList(73, 62, 75, 77, 82));
+
+    public static final int GSM_MESSAGE = 2;
+
+    public final int PRODUCT_REQUEST_RESPONSE_MESSAGE = 3;
+
+    public final int ALERT_ADAPTATION_PARAMETERS = 6;
+
+    public final int PRODUCT_LIST = 8;
+
+    public final int RADAR_CODED_MESSAGE = 74;
+
+    public final int ALERT_MESSAGE = 9;
+
     /**
      * This baseradar constructor accepts a radar file contained within a
      * java.io.File object.
@@ -251,16 +267,16 @@ public class Level3BaseRadar {
         this.parseRadarHeader();
 
         // Handle the message contents
-        if (this.theMessageCode == 6) {
+        if (this.theMessageCode == ALERT_ADAPTATION_PARAMETERS) {
             // Alert Adaptation Params
             this.parseAAP();
-        } else if (this.theMessageCode == 3) {
+        } else if (this.theMessageCode == PRODUCT_REQUEST_RESPONSE_MESSAGE) {
             this.parseRequestResponse();
-        } else if (this.theMessageCode == 8) {
+        } else if (this.theMessageCode == PRODUCT_LIST) {
             this.parseProductList(headers);
-        } else if (this.theMessageCode == 2) {
+        } else if (this.theMessageCode == GSM_MESSAGE) {
             this.parseGeneralStatusMessage();
-        } else if (this.theMessageCode == 9) {
+        } else if (this.theMessageCode == ALERT_MESSAGE) {
             this.parseAlertMessage(headers);
         } else {
             this.parseRadarMessage(headers);
@@ -593,8 +609,13 @@ public class Level3BaseRadar {
             byte[] buf = new byte[lineLen];
             theRadarData.readFully(buf);
             String temp = new String(buf);
+            // PSM is found in all products that have useful Site Adaptation
+            // Parameters. For this reason, we are dropping every other set of
+            // Site Adaptation Parameters.
             if (temp.contains("PSM")) {
                 temp = temp.substring(temp.indexOf("PSM"));
+            } else {
+                temp = "";
             }
             return temp;
         } else {
@@ -795,15 +816,13 @@ public class Level3BaseRadar {
             }
         }
 
-        if (this.theProductCode == 73 || this.theProductCode == 62
-                || this.theProductCode == 75 || this.theProductCode == 77
-                || this.theProductCode == 82) {
+        if (SPECIAL_PRODS.contains(this.theProductCode)) {
             // The first offset will be to the tabular block
             tabularBlock = readStandaloneTabular(symbologyBlockOffset);
             // The second offset will be to a symbology block with no header
             symbologyBlock = readPseudoSymbologyBlock(graphicBlockOffset);
             // tabularBlock.getPages().toString();
-        } else if (this.theProductCode == 74) {
+        } else if (this.theProductCode == RADAR_CODED_MESSAGE) {
             tabularBlock = readRadarCodedMessage(symbologyBlockOffset);
         } else {
             symbologyBlock = readSymbologyBlock(symbologyBlockOffset);

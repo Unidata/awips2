@@ -512,9 +512,6 @@ public class PaneManager extends InputAdapter implements IMultiPaneEditor {
             registerHandlers(pane);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Error adding pane", e);
-            if (pane != null) {
-                pane.dispose();
-            }
         }
 
         if (pane != null) {

@@ -75,7 +75,7 @@ popd > /dev/null
 INSTALLER_RPM="%{_baseline_workspace}/rpms"
 # copy the service script.
 EDEX_BASE="${INSTALLER_RPM}/awips2.edex/Installer.edex-base"
-cp -v ${EDEX_BASE}/scripts/init.d/edex_camel \
+cp -v ${EDEX_BASE}/scripts/init.d/* \
    %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -156,4 +156,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/edex/bin/*.sh
 /awips2/edex/bin/linux-x86-%{_build_bits}/wrapper
 
-%attr(744,root,root) /etc/init.d/edex_camel
+%attr(744,root,root) /etc/init.d/*

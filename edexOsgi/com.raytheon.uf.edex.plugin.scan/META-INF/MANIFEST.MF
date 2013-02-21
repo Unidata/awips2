@@ -6,31 +6,21 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
-Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.11.26",
- com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.11.26",
- com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.11.26",
+Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.11.26",
  com.raytheon.uf.common.dataplugin.scan;bundle-version="1.11.26",
- org.geotools;bundle-version="2.5.8",
- com.raytheon.uf.common.geospatial;bundle-version="1.11.26",
  com.raytheon.uf.common.monitor;bundle-version="1.11.26",
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
  com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.1";resolution:=optional,
- com.raytheon.uf.common.time;bundle-version="1.11.26",
- com.raytheon.uf.common.dataplugin.grib;bundle-version="1.11.26",
+ com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.edex.common;bundle-version="1.11.26",
  org.apache.commons.logging,
  com.raytheon.uf.common.status,
- com.raytheon.edex.plugin.grib;bundle-version="1.11.26",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.11.31",
- com.raytheon.uf.edex.plugin.ffmp;bundle-version="1.11.31",
  com.raytheon.uf.common.sounding;bundle-version="1.12.1112",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- com.raytheon.edex.plugin.radar;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.plugin.scan,
  com.raytheon.uf.edex.plugin.scan.process
 Import-Package: com.raytheon.uf.common.localization,
- com.raytheon.uf.common.menus,
- com.raytheon.uf.common.menus.xml,
  com.raytheon.uf.edex.dat.utils,
  com.raytheon.uf.edex.plugin.scan.common,
  javax.measure.converter,

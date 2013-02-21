@@ -29,12 +29,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -68,8 +62,6 @@ public class CloudHeightData implements ISerializableObject {
     private static final String DATA_FILE = CLOUDHEIGHT_DATA_DIR
             + File.separator + "values.xml";
 
-    private static LocalizationFile cloudHeightDir;
-
     private static CloudHeightData theData = null;
 
     @XmlAccessorType(XmlAccessType.NONE)
@@ -101,26 +93,9 @@ public class CloudHeightData implements ISerializableObject {
 
     public static synchronized CloudHeightData getCloudHeightData() {
         if (theData == null) {
-            IPathManager pm = PathManagerFactory.getPathManager();
             theData = new CloudHeightData();
-            cloudHeightDir = pm.getLocalizationFile(pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
-                    CLOUDHEIGHT_DATA_DIR);
-
-            ILocalizationFileObserver observer = new ILocalizationFileObserver() {
-                @Override
-                public void fileUpdated(FileUpdatedMessage message) {
-                    if (DATA_FILE.equals(message.getFileName())) {
-                        populateData(theData, PathManagerFactory
-                                .getPathManager().getStaticFile(DATA_FILE));
-                    }
-                }
-            };
-
-            // load data
-            observer.fileUpdated(new FileUpdatedMessage(null, DATA_FILE, null));
-
-            // TODO: cloudHeightDir.addFileUpdatedObserver(observer);
+            populateData(theData, PathManagerFactory.getPathManager()
+                    .getStaticFile(DATA_FILE));
         }
         return theData;
     }

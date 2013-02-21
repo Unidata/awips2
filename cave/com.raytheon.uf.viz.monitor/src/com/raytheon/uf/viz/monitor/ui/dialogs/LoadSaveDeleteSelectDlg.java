@@ -38,49 +38,87 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * File Load/Save/Delete/Select Dialogs.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Dec 5, 2012  #1351      skorolev    Cleaned code
+ * 
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
 public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
-
+    /**  **/
     public static enum DialogType {
         OPEN, SAVE_AS, DELETE, SELECT_DEFAULT
     };
 
+    /** Dialog Type **/
     private DialogType dialogType;
 
+    /** Font **/
     private Font controlFont;
 
+    /** Configuration File List **/
     private List cfgFileList;
 
+    /** Selected File **/
     private LocalizationFile selectedFile;
 
+    /** Localization Files **/
     private LocalizationFile[] locFiles;
 
+    /** Localization Files Map **/
     private TreeMap<String, LocalizationFile> locFileMap;
 
+    /** New file name **/
     private Text newFileNameTF;
 
+    /** Action Button **/
     private Button actionBtn;
 
+    /** File path **/
     private String fileNamePath;
 
+    /** Excluded Name For Saving **/
     private String excludedNameForSaving = "";
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param type
+     *            Dialog type
+     * @param fileNamePath
+     * @param excludedNameForSaving
+     */
     public LoadSaveDeleteSelectDlg(Shell parent, DialogType type,
             String fileNamePath, String excludedNameForSaving) {
         super(parent, SWT.TITLE);
+        // TODO add Cave.DO_NOT_BLOCK once all dialogs using this class have
+        // been converted to use close call.
         if (type == DialogType.OPEN) {
             setText("Load");
         } else if (type == DialogType.SAVE_AS) {
             setText("Save");
         } else if (type == DialogType.SELECT_DEFAULT) {
             setText("Select Default");
+        } else if (type == DialogType.DELETE) {
+            setText("Delete");
         }
-
         dialogType = type;
         this.fileNamePath = fileNamePath;
         if (excludedNameForSaving != null) {
@@ -88,6 +126,11 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -98,34 +141,44 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
         setReturnValue(selectedFile);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         locFileMap = new TreeMap<String, LocalizationFile>();
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-
         createListControl();
-
         // Create the buttons at the bottom of the display.
         createBottomButtons();
-
         getAvailableConfigFiles();
     }
 
+    /**
+     * Creates List Control.
+     */
     private void createListControl() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite controlComp = new Composite(shell, SWT.NONE);
         controlComp.setLayout(new GridLayout(1, false));
         controlComp.setLayoutData(gd);
-
         Label listLbl = new Label(controlComp, SWT.NONE);
         listLbl.setText("Available Files:");
-
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 400;
         gd.heightHint = 400;
@@ -146,24 +199,23 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
                 }
             }
         });
-
         if (dialogType == DialogType.SAVE_AS) {
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             gd.horizontalSpan = ((GridLayout) controlComp.getLayout()).numColumns;
             Label sepLbl = new Label(controlComp, SWT.SEPARATOR
                     | SWT.HORIZONTAL);
             sepLbl.setLayoutData(gd);
-
             Label newFileLbl = new Label(controlComp, SWT.NONE);
             newFileLbl.setText("Enter file name:");
-
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             newFileNameTF = new Text(controlComp, SWT.BORDER);
             newFileNameTF.setLayoutData(gd);
-
         }
     }
 
+    /**
+     * Creates Bottom Buttons.
+     */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
@@ -224,10 +276,12 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
         });
     }
 
+    /**
+     * Opens Delete confirmation message.
+     */
     private void openDeleteSelectAction() {
         int selectedIndex = cfgFileList.getSelectionIndex();
         String str = cfgFileList.getItem(selectedIndex);
-
         if (dialogType == DialogType.DELETE) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
                     | SWT.NO);
@@ -235,32 +289,35 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
             mb.setMessage("You are about to delete the file:\n\n" + str
                     + "\n\nDo you wish to continue?");
             int result = mb.open();
-
             if (result == SWT.NO) {
                 return;
             }
         }
-
         selectedFile = locFileMap.get(str);
         shell.dispose();
     }
 
+    /**
+     * Save action.
+     */
     private void saveAction() {
         String fileName = newFileNameTF.getText();
-
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         String newFileName = fileNamePath + fileName;
         selectedFile = pm.getLocalizationFile(context, newFileName);
-
         shell.dispose();
     }
 
+    /**
+     * Validates File Name.
+     * 
+     * @return True/False
+     */
     private boolean validateFileName() {
         StringBuffer strBuf = new StringBuffer(newFileNameTF.getText().trim());
         newFileNameTF.setText(strBuf.toString());
-
         if (strBuf.length() == 0) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Warning");
@@ -268,17 +325,14 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
             mb.open();
             return false;
         }
-
         if (strBuf.toString().matches("[A-Za-z0-9._-]+") == false) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Warning");
-            mb
-                    .setMessage("File name contains invalid charaters.  The file name can only\n"
-                            + "contain A-Z, a-z, 0-9, or periods, underscores, or dashes.");
+            mb.setMessage("File name contains invalid charaters.  The file name can only\n"
+                    + "contain A-Z, a-z, 0-9, or periods, underscores, or dashes.");
             mb.open();
             return false;
         }
-
         if (strBuf.toString().compareTo(excludedNameForSaving) == 0) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Warning");
@@ -287,20 +341,16 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
             mb.open();
             return false;
         }
-
         String[] listItems = cfgFileList.getItems();
-
         for (String listItem : listItems) {
             int idx = listItem.lastIndexOf("/");
             String fn = listItem.substring(idx + 1);
-
             if (fn.compareTo(strBuf.toString()) == 0) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.YES
                         | SWT.NO);
                 mb.setText("Warning");
-                mb
-                        .setMessage("File name already exists.  Do you wish to overwrite\n"
-                                + "the existing file?.");
+                mb.setMessage("File name already exists.  Do you wish to overwrite\n"
+                        + "the existing file?.");
                 int result = mb.open();
 
                 if (result == SWT.NO) {
@@ -308,24 +358,23 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
                 }
             }
         }
-
         if (strBuf.toString().endsWith(".xml") == false) {
             strBuf.append(".xml");
             newFileNameTF.setText(strBuf.toString().trim());
         }
-
         return true;
     }
 
+    /**
+     * Gets Available Configuration Files.
+     */
     private void getAvailableConfigFiles() {
         String[] extensions = new String[] { ".xml" };
         locFiles = PathManagerFactory.getPathManager().listStaticFiles(
                 fileNamePath, extensions, false, true);
-
         if (locFiles == null) {
             return;
         }
-
         for (int i = 0; i < locFiles.length; i++) {
             /*
              * Add the available files to the list as long as the file name does
@@ -342,15 +391,12 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
                 locFileMap.put(locFiles[i].getFile().getName(), locFiles[i]);
             }
         }
-
         for (String str : locFileMap.keySet()) {
             cfgFileList.add(str);
         }
-
         if (cfgFileList.getSelectionCount() > 0) {
             cfgFileList.setSelection(0);
         }
-
         if (cfgFileList.getItemCount() == 0) {
             if (dialogType == DialogType.DELETE
                     || dialogType == DialogType.SELECT_DEFAULT) {
@@ -359,6 +405,11 @@ public class LoadSaveDeleteSelectDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Gets Selected File
+     * 
+     * @return selectedFile
+     */
     public LocalizationFile getSelectedFile() {
         return selectedFile;
     }

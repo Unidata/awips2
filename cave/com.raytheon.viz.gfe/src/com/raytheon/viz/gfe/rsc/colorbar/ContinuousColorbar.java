@@ -119,15 +119,11 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
         ISpatialDisplayManager spatialDisplayManager = dManager
                 .getSpatialDisplayManager();
-        ColorMapParameters cmap = null;
-        try {
-            cmap = spatialDisplayManager.getColorMapParameters(parm,
-                    colorbarResource.getDescriptor());
-        } catch (GFEOperationFailedException e) {
-            // spatial display manager may not be active.
-            // Log the exception in case it's something else
-            log.handle(Priority.DEBUG, "Error obtaining color map", e);
-        }
+
+        ResourcePair parmRsc = spatialDisplayManager.getResourcePair(parm);
+        ColorMapParameters cmap = parmRsc.getResource()
+                .getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
 
         if (cmap == null) {
             log.debug("Cannot obtain color map, exiting paint()");

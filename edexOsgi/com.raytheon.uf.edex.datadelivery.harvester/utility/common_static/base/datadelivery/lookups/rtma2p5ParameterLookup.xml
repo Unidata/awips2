@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <parameterConfig AWIPS="tmp2m" GrADs="tmp2m"/>
+    <parameterConfig AWIPS="spfh2m" GrADs="spfh2m"/>
+    <parameterConfig AWIPS="P" GrADs="pressfc"/>
+    <parameterConfig AWIPS="wind10m" GrADs="wind10m"/>
+    <parameterConfig AWIPS="GH" GrADs="hgtsfc"/>
+    <parameterConfig AWIPS="vgrd10m" GrADs="vgrd10m"/>
+    <parameterConfig AWIPS="wdir10m" GrADs="wdir10m"/>
+    <parameterConfig AWIPS="ugrd10m" GrADs="ugrd10m"/>
+    <parameterConfig AWIPS="dpt2m" GrADs="dpt2m"/>
+</ParameterLookup>

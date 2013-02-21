@@ -49,6 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in    
  * 20080408           1039 jkorman     Added traceId for tracing data.
+ * Oct 10, 2012 1261        djohnson     Add generic for identifier.
  * 
  * </pre>
  * 
@@ -57,8 +58,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public abstract class PersistableDataObject implements IPersistableDataObject,
+public abstract class PersistableDataObject<IDENTIFIER_TYPE> implements
+        IPersistableDataObject<IDENTIFIER_TYPE>,
         Serializable, ISerializableObject {
+
+    private static final long serialVersionUID = -6747395152869923909L;
 
     /**
      * Object used as the unique identifier. Intended to be used as the primary
@@ -66,7 +70,7 @@ public abstract class PersistableDataObject implements IPersistableDataObject,
      */
     @XmlElement
     @DynamicSerializeElement
-    protected Object identifier;
+    protected IDENTIFIER_TYPE identifier;
 
     private String traceId = "";
 
@@ -96,7 +100,8 @@ public abstract class PersistableDataObject implements IPersistableDataObject,
      * 
      * @return The identifier
      */
-    public Object getIdentifier() {
+    @Override
+    public IDENTIFIER_TYPE getIdentifier() {
         return identifier;
     }
 
@@ -106,7 +111,7 @@ public abstract class PersistableDataObject implements IPersistableDataObject,
      * @param identifier
      *            The identifier
      */
-    public void setIdentifier(Object identifier) {
+    public void setIdentifier(IDENTIFIER_TYPE identifier) {
         this.identifier = identifier;
     }
 

@@ -1,8 +1,6 @@
 package gov.noaa.nws.ncep.gempak.parameters.gridlimits;
 
-import static org.junit.Assert.*;
-import gov.noaa.nws.ncep.gempak.parameters.gridlimits.GGLIMS;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class GGLIMSTest {
@@ -32,9 +30,17 @@ public class GGLIMSTest {
         testCaseNumber++;
 	}
 
-	
     /**
-     * Test valid GGLIMS string of the form <tt>lowerLimit;minValue|upperLimit;maxValue</tt>
+     * @param lowerLimit
+     * @param d
+     */
+    private static void assertEquals(Float lowerLimit, double d) {
+        Assert.assertEquals(d, lowerLimit.doubleValue(), 0.01);
+    }
+
+    /**
+     * Test valid GGLIMS string of the form
+     * <tt>lowerLimit;minValue|upperLimit;maxValue</tt>
      */
 	@Test
 	public void testGGLIMSStringWithoutDefaultValue() {
