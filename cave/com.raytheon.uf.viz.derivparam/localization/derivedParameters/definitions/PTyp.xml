@@ -19,9 +19,29 @@
         further_licensing_information.
     -->
 <DerivedParameter name="Precip Type" abbreviation="PTyp" xmlns:ns2="group">
-    <Method levels="Surface" name="Alias">
-        <Field abbreviation="SPT"/>
-    </Method>
+	<Method name="Mapping" levels="Surface">
+		<Field level="Surface" abbreviation="SPT" />
+		<ConstantField value="1" />
+		<ConstantField value="79" />
+
+		<ConstantField value="2" />
+		<ConstantField value="89" />
+
+		<ConstantField value="3" />
+		<ConstantField value="71" />
+
+		<ConstantField value="4" />
+		<ConstantField value="77" />
+
+		<ConstantField value="5" />
+		<ConstantField value="80" />
+
+		<ConstantField value="6" />
+		<ConstantField value="67" />
+
+		<ConstantField value="7" />
+		<ConstantField value="69" />
+	</Method>    
     <Method levels="Surface" name="PTyp.execute1">
         <Field level="Station" abbreviation="precipType"/>
         <Field level="Station" abbreviation="POP_hour_bestCat"/>
