@@ -24,11 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -45,14 +40,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  * 
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class CellTableDataRow extends ScanTableDataRow {
 
@@ -71,146 +65,117 @@ public class CellTableDataRow extends ScanTableDataRow {
 
     /** cell rank in table **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer rank = 0;
 
     /** cell TVS **/
     @DynamicSerializeElement
-    @XmlElement
     public String tvs = TVS_TYPE.NONE.getTVSName();
 
     /** meso cyclone detection alg rank **/
     @DynamicSerializeElement
-    @XmlElement
     public String mdaSR = null;
 
     /** prob of severe hail **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer posh = 0;
 
     /** prob of hail **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer poh = 0;
 
     /** prob of large hail **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer polh = 0;
 
     /** hail size, inches **/
     @DynamicSerializeElement
-    @XmlElement
     public Double hsize = 0.0;
 
     /** Vertically Integrated Liquid **/
     @DynamicSerializeElement
-    @XmlElement
     public Double vil = 0.0;
 
     /** max reflectivity Decibel return **/
     @DynamicSerializeElement
-    @XmlElement
     public Double dbz = 0.0;
 
     /** height of max reflectivity dbz return **/
     @DynamicSerializeElement
-    @XmlElement
     public Double dbzHt = 0.0;
 
     /** top of storm in kft **/
     @DynamicSerializeElement
-    @XmlElement
     public Double top = 0.0;
 
     /** 15 min forecast azm **/
     @DynamicSerializeElement
-    @XmlElement
     public Double azm15 = 0.0;
 
     /** 15 min forecast range **/
     @DynamicSerializeElement
-    @XmlElement
     public Double rng15 = 0.0;
 
     /** 30 min forecast azm **/
     @DynamicSerializeElement
-    @XmlElement
     public Double azm30 = 0.0;
 
     /** 30 min forecast range **/
     @DynamicSerializeElement
-    @XmlElement
     public Double rng30 = 0.0;
 
     /** 45 min forecast azm **/
     @DynamicSerializeElement
-    @XmlElement
     public Double azm45 = 0.0;
 
     /** 45 min forecast range **/
     @DynamicSerializeElement
-    @XmlElement
     public Double rng45 = 0.0;
 
     /** 60 min forecast azm **/
     @DynamicSerializeElement
-    @XmlElement
     public Double azm60 = 0.0;
 
     /** 60 min forecast range **/
     @DynamicSerializeElement
-    @XmlElement
     public Double rng60 = 0.0;
 
     /** move error **/
     @DynamicSerializeElement
-    @XmlElement
     public Double mvtErr = 0.0;
 
     /** move error mean **/
     @DynamicSerializeElement
-    @XmlElement
     public Double mvtMn = 0.0;
 
     /** severe wx prob **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer svrwx = 0;
 
     /** heavy precip % **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer hvyPr = 0;
 
     /** % positive ligtning strikes **/
     @DynamicSerializeElement
-    @XmlElement
     public Double pos = 0.0;
 
     /** % cloud to ground strikes **/
     @DynamicSerializeElement
-    @XmlElement
     public Double cgRate = 0.0;
 
     /** Volume Coverage Pattern **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer vcp = 0;
 
     /** CAPE Convective Available Potential Energy **/
     @DynamicSerializeElement
-    @XmlElement
     public Double cape = -99999.0;
 
     /** Storm Relative Helicity **/
     @DynamicSerializeElement
-    @XmlElement
     public Double sreh = -99999.0;
 
     @DynamicSerializeElement
-    @XmlElement
     public HashMap<Date, Coordinate> pastCoordinates;
 
     /**

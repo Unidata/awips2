@@ -49,6 +49,8 @@ import com.raytheon.uf.viz.core.status.StatusConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 16, 2008            njensen     Initial creation
+ * Jan 14, 2013 1469       bkowal      The hdf5 root will no longer be appended to the
+ *                                     beginning of the file name.
  * 
  * </pre>
  * 
@@ -77,7 +79,7 @@ public class CubeUtil {
         if (record != null) {
             File file = HDF5Util.findHDF5Location(record);
             if (file != null)
-                filename = file.getAbsolutePath();
+                filename = file.getPath();
         }
         return filename;
     }

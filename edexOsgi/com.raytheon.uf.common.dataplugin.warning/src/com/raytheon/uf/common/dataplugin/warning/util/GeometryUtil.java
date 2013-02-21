@@ -1,7 +1,6 @@
 package com.raytheon.uf.common.dataplugin.warning.util;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -9,10 +8,9 @@ import java.util.TreeSet;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
-import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
-import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
 
 /**
  * 
@@ -63,79 +61,28 @@ public class GeometryUtil {
     }
 
     /**
-     * @param parentGeom
-     * @param geometry
-     * @return
-     */
-    public static boolean intersects(Geometry g1, Geometry g2) {
-        if (g1 instanceof GeometryCollection) {
-            for (int i = 0; i < g1.getNumGeometries(); ++i) {
-                if (intersects(g1.getGeometryN(i), g2)) {
-                    return true;
-                }
-            }
-            return false;
-        } else if (g2 instanceof GeometryCollection) {
-            for (int i = 0; i < g2.getNumGeometries(); ++i) {
-                if (intersects(g1, g2.getGeometryN(i))) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            return g1.intersects(g2);
-        }
-    }
-
-    /**
-     * Checks to see if g1 contains g2
+     * Checks to see if g1 contains the point
      * 
      * @param g1
      * @param g2
      * @return
      */
-    public static boolean contains(Geometry g1, Geometry g2) {
+    public static boolean contains(Geometry g1, Point p) {
         if (g1 instanceof GeometryCollection) {
             for (int i = 0; i < g1.getNumGeometries(); ++i) {
-                if (contains(g1.getGeometryN(i), g2)) {
+                if (contains(g1.getGeometryN(i), p)) {
                     return true;
                 }
             }
             return false;
         } else {
-            return g1.contains(g2);
+            return g1.contains(p);
         }
     }
 
     /**
-     * Checks to see if g intersects any pGs
-     * 
-     * @param pGs
-     * @param g
-     * @return
-     */
-    public static boolean intersects(List<PreparedGeometry> pGs, Geometry g) {
-        for (PreparedGeometry pg : pGs) {
-            if (pg.intersects(g)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static void recursivePreparedGeometry(Geometry g,
-            List<PreparedGeometry> prepGeom) {
-        if (g instanceof GeometryCollection) {
-            for (int i = 0; i < g.getNumGeometries(); ++i) {
-                recursivePreparedGeometry(g.getGeometryN(i), prepGeom);
-            }
-        } else {
-            prepGeom.add(PreparedGeometryFactory.prepare(g));
-        }
-    }
-
-    /**
-     * Intersection between g1 and g2
+     * Intersection between g1 and g2. Resulting intersection will contain user
+     * data from g2
      * 
      * @param g1
      * @param g2
@@ -149,38 +96,7 @@ public class GeometryUtil {
         intersection(g1, g2, intersection);
         Geometry rval = gf.createGeometryCollection(intersection
                 .toArray(new Geometry[intersection.size()]));
-        for (int i = 0; i < rval.getNumGeometries(); ++i) {
-            setUserData(rval.getGeometryN(i), (CountyUserData) intersection
-                    .get(i).getUserData());
-            // why set it again??
-            rval.getGeometryN(i).setUserData(intersection.get(i).getUserData());
-        }
         rval.setUserData(g2.getUserData());
-        return rval;
-    }
-
-    /**
-     * Intersection between g1 and g2
-     * 
-     * @param g1
-     * @param g2
-     * 
-     * @return the intersection between g1 and g2
-     */
-    public static Geometry intersection(Geometry g1, PreparedGeometry pg) {
-        GeometryFactory gf = new GeometryFactory();
-        List<Geometry> intersection = new ArrayList<Geometry>(
-                g1.getNumGeometries() + 1);
-        intersection(g1, pg, intersection);
-        Geometry rval = gf.createGeometryCollection(intersection
-                .toArray(new Geometry[intersection.size()]));
-        for (int i = 0; i < rval.getNumGeometries(); ++i) {
-            setUserData(rval.getGeometryN(i), (CountyUserData) intersection
-                    .get(i).getUserData());
-            // why set it again??
-            rval.getGeometryN(i).setUserData(intersection.get(i).getUserData());
-        }
-        rval.setUserData(pg.getGeometry().getUserData());
         return rval;
     }
 
@@ -198,25 +114,46 @@ public class GeometryUtil {
             } else {
                 String g1Name = toString(g1.getUserData());
                 String g2Name = toString(g2.getUserData());
-                String prefix = null;
-                if (g1Name != null && g2Name != null) {
-                    prefix = getPrefix(g1Name);
-                }
-                if ((g1Name == null || g2Name == null || g2Name
-                        .startsWith(prefix))) {
-                    if (g1.isValid() && g2.isValid()) {
-                        Geometry section = g1.intersection(g2);
-                        if (section.isEmpty() == false) {
-                            section = section.buffer(0);
-                            setUserData(section,
-                                    (CountyUserData) g2.getUserData());
-                            section.setUserData(g2.getUserData());
-                            intersections.add(section);
+
+                if ((g1Name == null || g2Name == null || g2Name.equals(g1Name))) {
+                    Geometry section = g1.intersection(g2);
+                    if (section.isEmpty() == false) {
+                        if (g2.getUserData() != null) {
+                            if (section instanceof GeometryCollection) {
+                                for (int n = 0; n < section.getNumGeometries(); ++n) {
+                                    setUserData(section.getGeometryN(n),
+                                            (CountyUserData) g2.getUserData());
+                                }
+                            } else {
+                                setUserData(section,
+                                        (CountyUserData) g2.getUserData());
+                            }
                         }
+                        intersections.add(section);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Intersection between g1 and prepared geometry pg. Resulting Geometry will
+     * have user data from pg
+     * 
+     * @param g1
+     * @param g2
+     * 
+     * @return the intersection between g1 and g2
+     */
+    public static Geometry intersection(Geometry g1, PreparedGeometry pg) {
+        GeometryFactory gf = new GeometryFactory();
+        List<Geometry> intersection = new ArrayList<Geometry>(
+                g1.getNumGeometries() + 1);
+        intersection(g1, pg, intersection);
+        Geometry rval = gf.createGeometryCollection(intersection
+                .toArray(new Geometry[intersection.size()]));
+        rval.setUserData(pg.getGeometry().getUserData());
+        return rval;
     }
 
     private static void intersection(Geometry g1, PreparedGeometry pg,
@@ -226,76 +163,15 @@ public class GeometryUtil {
                 intersection(g1.getGeometryN(i), pg, intersections);
             }
         } else {
-            if (pg.intersects(g1)) {
+            String g1Name = toString(g1.getUserData());
+            String g2Name = toString(pg.getGeometry().getUserData());
+
+            if ((g2Name != null && g2Name.equals(g1Name))
+                    || ((g1Name == null || g2Name == null) && pg.intersects(g1))) {
                 Geometry g2 = pg.getGeometry();
-                List<Geometry> sections = new ArrayList<Geometry>();
-                for (int n = 0; n < g2.getNumGeometries(); n++) {
-                    Geometry section = g1.intersection(g2.getGeometryN(n));
-                    if (section.isEmpty() == false) {
-                        sections.add(section);
-                    }
-                }
-                Geometry section = null;
-                if (sections.size() == 1) {
-                    section = sections.get(0);
-                } else if (sections.size() > 0) {
-                    section = new GeometryFactory()
-                            .createGeometryCollection(sections
-                                    .toArray(new Geometry[0]));
-                }
-                if (section != null && section.isEmpty() == false) {
-                    setUserData(section, (CountyUserData) g2.getUserData());
-                    intersections.add(section);
-                }
+                intersection(g1, g2, intersections);
             }
         }
-    }
-
-    /**
-     * Get the difference between the 2 geometries
-     * 
-     * @param g1
-     *            main geometry
-     * @param g2
-     *            geometry to remove
-     * @return g1 minus g2
-     */
-    public static Geometry difference(Geometry g1, Geometry g2) {
-        GeometryFactory gf = new GeometryFactory();
-        List<Geometry> differences = new ArrayList<Geometry>();
-        buildGeometryList(differences, g1);
-        Set<String> prefixes = new HashSet<String>();
-
-        String pre = getPrefix(toString(g2.getUserData()));
-        if (pre != null) {
-            // A one county geometry
-            prefixes.add(pre);
-        } else {
-            // Multi county geometry, add each unique prefix
-            for (int j = 0; j < g2.getNumGeometries(); ++j) {
-                Geometry g2g = g2.getGeometryN(j);
-                prefixes.add(getPrefix(toString(g2g.getUserData())));
-            }
-        }
-
-        for (String prefix : prefixes) {
-            // For each prefix, remove any geometries from g1 that have the same
-            // prefix
-            if (prefix != null) {
-                List<Geometry> toRemove = new ArrayList<Geometry>();
-                for (int i = 0; i < g1.getNumGeometries(); ++i) {
-                    Geometry g1g = g1.getGeometryN(i);
-                    String g1gPrefix = getPrefix(toString(g1g.getUserData()));
-                    if (g1gPrefix.equals(prefix)) {
-                        toRemove.add(g1g);
-                    }
-                }
-                differences.removeAll(toRemove);
-            }
-        }
-
-        return gf.createGeometryCollection(differences
-                .toArray(new Geometry[differences.size()]));
     }
 
     /**
@@ -324,15 +200,6 @@ public class GeometryUtil {
                 buildGeometryList(geometryParts, g);
             }
         }
-    }
-
-    public static Geometry selfSnap(Geometry g, double snapTolerance) {
-        GeometrySnapper snapper = new GeometrySnapper(g);
-        Geometry snapped = snapper.snapTo(g, snapTolerance);
-        // need to "clean" snapped geometry - use buffer(0) as a simple way to
-        // do this
-        Geometry fix = snapped.buffer(0);
-        return fix;
     }
 
     public static void printGeoemtry(Geometry g) {

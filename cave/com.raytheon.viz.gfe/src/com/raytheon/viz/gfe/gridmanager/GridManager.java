@@ -46,6 +46,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.progress.UIJob;
 
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
@@ -68,6 +69,7 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009            randerso     Redesigned
  * May 18, 2009 2159      rjpeter      Added temporal editor.
+ * Jan 14, 2013 1442       rferrel     Add SimulatedTimeChangeListener.
  * </pre>
  * 
  * @author randerso
@@ -151,11 +153,13 @@ public class GridManager implements IGridManager,
     /**
      * Job to update the time display
      */
-    private static class UpdateJob extends UIJob {
+    private static class UpdateJob extends UIJob implements
+            ISimulatedTimeChangeListener {
 
         public UpdateJob() {
             super("GridManagerUpdate");
             this.setSystem(true);
+            SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
         }
 
         /*
@@ -177,6 +181,18 @@ public class GridManager implements IGridManager,
             }
 
             return Status.OK_STATUS;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.common.time.ISimulatedTimeChangeListener#timechanged
+         * ()
+         */
+        @Override
+        public void timechanged() {
+            wakeUp();
         }
     }
 

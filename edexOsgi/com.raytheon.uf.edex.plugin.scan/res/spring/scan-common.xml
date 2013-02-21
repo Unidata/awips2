@@ -15,6 +15,7 @@
 			value="com.raytheon.uf.common.dataplugin.scan.dao.ScanDao" />
 		<property name="record"
 			value="com.raytheon.uf.common.dataplugin.scan.ScanRecord" />
+		<property name="compression" value="LZF"/>
 	</bean>
 
 	<bean factory-bean="pluginRegistry" factory-method="register"
@@ -22,5 +23,6 @@
 		<constructor-arg value="scan" />
 		<constructor-arg ref="scanProperties" />
 	</bean>
+	
 
 </beans>

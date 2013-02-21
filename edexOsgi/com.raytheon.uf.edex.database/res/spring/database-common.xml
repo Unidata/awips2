@@ -29,6 +29,12 @@
   	<constructor-arg ref="qlServerRequestHandler"/>
   </bean>
   
+  <bean id="dataRecordRequestHandler" class="com.raytheon.uf.edex.database.handlers.DataRecordRequestHandler" />
+  <bean factory-bean="handlerRegistry" factory-method="register">
+     <constructor-arg value="com.raytheon.uf.common.dataplugin.request.DataRecordRequest" />
+     <constructor-arg ref="dataRecordRequestHandler"/>
+  </bean>
+  
   <bean id="timeQueryHandler" class="com.raytheon.uf.edex.database.handlers.TimeQueryHandler" />
   <bean id="timeQueryHandlerSet" class="com.raytheon.uf.edex.database.handlers.TimeQueryHandlerSet" />
   <bean factory-bean="handlerRegistry" factory-method="register">

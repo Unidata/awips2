@@ -28,11 +28,15 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -44,9 +48,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 09, 2012            rjpeter     Initial creation
- * Oct 10, 2012 0726       djohnson    Add {@link #subRetrievalKey}.
- * Nov 26, 2012 1340       dhladky     Added additional fields for tracking subscriptions
+ * May 09, 2012            rjpeter      Initial creation
+ * Oct 10, 2012 0726       djohnson     Add {@link #subRetrievalKey}.
+ * Nov 26, 2012 1340       dhladky      Added additional fields for tracking subscriptions
+ * Jan 30, 2013 1543       djohnson     Add PENDING_SBN, give retrieval column a length.
  * 
  * </pre>
  * 
@@ -60,9 +65,8 @@ public class RetrievalRequestRecord implements
         IPersistableDataObject<RetrievalRequestRecordPK>, Serializable,
         ISerializableObject {
 
-    // TODO: Need COMPLETED state?
     public enum State {
-        PENDING, RUNNING, FAILED, COMPLETED
+        PENDING, RUNNING, FAILED, COMPLETED;
     };
 
     private static final long serialVersionUID = 1L;
@@ -104,9 +108,12 @@ public class RetrievalRequestRecord implements
     @DynamicSerializeElement
     private Date insertTime;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100000)
     @DynamicSerializeElement
     private byte[] retrieval;
+
+    @Transient
+    private Retrieval retrievalObj;
 
     @Column(nullable = false)
     @DynamicSerializeElement
@@ -212,5 +219,34 @@ public class RetrievalRequestRecord implements
 
     public String getProvider() {
         return provider;
+    }
+
+    /**
+     * Convenience method to set the retrieval byte array from an object.
+     * 
+     * @param retrieval
+     *            the retrieval
+     * @throws SerializationException
+     *             on error serializing the retrieval
+     */
+    public void setRetrievalObj(Retrieval retrieval)
+            throws SerializationException {
+        this.retrievalObj = retrieval;
+        this.retrieval = SerializationUtil.transformToThrift(retrieval);
+    }
+
+    /**
+     * Convenience method to get the retrieval as an object.
+     * 
+     * @return the retrievalObj
+     * @throws SerializationException
+     *             on error deserializing the retrieval
+     */
+    public Retrieval getRetrievalObj() throws SerializationException {
+        if (retrievalObj == null && retrieval != null) {
+            retrievalObj = SerializationUtil.transformFromThrift(
+                    Retrieval.class, retrieval);
+        }
+        return retrievalObj;
     }
 }
