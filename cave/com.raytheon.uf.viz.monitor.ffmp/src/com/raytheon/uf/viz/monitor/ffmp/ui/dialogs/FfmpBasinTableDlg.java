@@ -105,7 +105,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking AttributesDlg.
  *                                       Changes for non-blocking AttributeThresholdDlg.
  *                                       Changes for non-blocking LoadSaveConfigDlg.
- * 
+ * Jan 23, 2013 14907      gzhang		GUID not in Thresholds menu even ColorCell true  
  * </pre>
  * 
  * @author lvenable
@@ -1038,7 +1038,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         // Loop over enum from config singleton to create menu items
         for (ThreshColNames colName : ThreshColNames.values()) {
-            if (ffmpConfig.isColorCell(colName)) {
+            if (ffmpConfig.isColorCell(colName) && (colName != ThreshColNames.GUID)) {// DR 14907
                 // only add a menu item if colorCell is true
                 MenuItem mi = new MenuItem(popupMenu, SWT.NONE);
                 mi.setText(colName.name());
