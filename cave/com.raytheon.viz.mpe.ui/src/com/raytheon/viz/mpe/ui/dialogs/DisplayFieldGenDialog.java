@@ -32,10 +32,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.mpe.core.RegenHrFlds;
-import com.raytheon.viz.mpe.ui.DisplayFieldData;
+import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -93,28 +95,25 @@ public class DisplayFieldGenDialog extends CaveJFACEDialog {
         yesButton.setText("Yes");
         yesButton.setLayoutData(gd);
         yesButton.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 MPEDisplayManager instance = MPEDisplayManager.getCurrent();
-                Date dt = instance.getCurrentDate();
+                Date dt = instance.getCurrentEditDate();
                 try {
+                    // TODO: This process should send alert message that things
+                    // were regenerated to keep CAVEs in sync with each other.
+                    // TODO: Should this clear polygon edits/does it delete them
+                    // on the file system?
                     RegenHrFlds.getInstance().regenFields(dt);
-                    DisplayFieldData fldType = instance.getDisplayFieldType();
-                    instance.setDisplayFieldType(fldType);
+                    MPEFieldResource rsc = instance.getDisplayedFieldResource();
+                    if (rsc != null) {
+                        rsc.getResourceData().update(dt);
+                    }
                 } catch (VizException ex) {
-                    ex.printStackTrace();
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            "Error regenerating hourly fields", ex);
                 }
                 DisplayFieldGenDialog.this.close();
-                instance.setDataSaved(true);
-                MPEDisplayManager.getCurrent().setCurrentDate(dt);
             }
         });
 
@@ -125,14 +124,6 @@ public class DisplayFieldGenDialog extends CaveJFACEDialog {
         noButton.setText("No");
         noButton.setLayoutData(gd);
         noButton.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 DisplayFieldGenDialog.this.close();

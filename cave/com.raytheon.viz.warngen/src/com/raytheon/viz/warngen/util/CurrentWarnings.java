@@ -20,7 +20,6 @@
 package com.raytheon.viz.warngen.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -66,6 +66,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2011            mschenke     Initial creation
+ * Feb 12, 2013 1500       mschenke     Refactored to not request full records and only request full 
+ *                                      record when actually retrieving for use
  * 
  * </pre>
  * 
@@ -81,7 +83,41 @@ public class CurrentWarnings {
         public void warningsArrived();
     }
 
-    private static final String JOIN_KEY = ".";
+    private static class WarningKey {
+
+        private final String phensig;
+
+        private final String etn;
+
+        private WarningKey(String phensig, String etn) {
+            this.phensig = String.valueOf(phensig);
+            this.etn = String.valueOf(etn);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = prime + etn.hashCode();
+            return prime * result + phensig.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            WarningKey other = (WarningKey) obj;
+            if (etn.equals(other.etn) == false)
+                return false;
+            else if (phensig.equals(other.phensig) == false)
+                return false;
+            return true;
+        }
+
+    }
 
     private static Map<String, CurrentWarnings> instanceMap = new HashMap<String, CurrentWarnings>();
 
@@ -145,17 +181,39 @@ public class CurrentWarnings {
 
     private String officeId;
 
-    private List<AbstractWarningRecord> records = new LinkedList<AbstractWarningRecord>();
+    private Map<String, AbstractWarningRecord> recordsMap = new HashMap<String, AbstractWarningRecord>();
 
-    private Map<String, List<AbstractWarningRecord>> warningMap = new HashMap<String, List<AbstractWarningRecord>>();
+    private Map<WarningKey, List<AbstractWarningRecord>> warningMap = new HashMap<WarningKey, List<AbstractWarningRecord>>() {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public List<AbstractWarningRecord> get(Object key) {
+            List<AbstractWarningRecord> records = super.get(key);
+            if (records != null) {
+                records = prepare(records);
+            }
+            return records;
+        }
+    };
 
     private CurrentWarnings(String officeId) {
         this.officeId = officeId;
         initializeData();
     }
 
-    public List<AbstractWarningRecord> getWarnings() {
-        return records;
+    /**
+     * request and populate data
+     */
+    private void initializeData() {
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+        constraints.put("officeid", new RequestConstraint(officeId));
+
+        long t0 = System.currentTimeMillis();
+        List<AbstractWarningRecord> warnings = requestRecords(constraints);
+        System.out.println("Time to request CurrentWarnings records: "
+                + (System.currentTimeMillis() - t0) + "ms");
+        processRecords(warnings);
     }
 
     /**
@@ -167,13 +225,13 @@ public class CurrentWarnings {
         List<AbstractWarningRecord> rval = new ArrayList<AbstractWarningRecord>();
 
         synchronized (officeId) {
-            for (List<AbstractWarningRecord> warnings : warningMap.values()) {
-                if (warnings.size() > 0) {
-                    AbstractWarningRecord tmp = getNewestByTracking(warnings
-                            .get(0).getEtn(), warnings.get(0).getPhensig());
-                    if (tmp != null && rval.contains(tmp) == false) {
-                        rval.add(tmp);
-                    }
+            List<WarningKey> keys = new ArrayList<WarningKey>(
+                    warningMap.keySet());
+            for (WarningKey key : keys) {
+                AbstractWarningRecord tmp = getNewestByTracking(key.etn,
+                        key.phensig);
+                if (tmp != null && rval.contains(tmp) == false) {
+                    rval.add(tmp);
                 }
             }
         }
@@ -196,27 +254,21 @@ public class CurrentWarnings {
         current.setTime(SimulatedTime.getSystemTime().getTime());
 
         synchronized (officeId) {
+            List<AbstractWarningRecord> records = warningMap.get(toKey(
+                    warnRec.getPhensig(), warnRec.getEtn()));
             for (AbstractWarningRecord warning : records) {
-                String phensig = warning.getPhensig();
-                String etn = warning.getEtn();
-
-                if (warnRec.getPhensig().equals(phensig)
-                        && warnRec.getEtn().equals(etn)) {
-                    WarningAction action = WarningAction.valueOf(warning
-                            .getAct());
-                    end.setTime(warning.getStartTime().getTime());
-                    end.add(Calendar.MINUTE, 10);
-                    TimeRange t = new TimeRange(warning.getStartTime()
-                            .getTime(), end.getTime());
-                    if ((action == WarningAction.NEW
-                            || action == WarningAction.CON || action == WarningAction.EXT)
-                            && t.contains(current.getTime())) {
-                        rval.add(warning);
-                    } else if (action == WarningAction.CAN
-                            || action == WarningAction.EXP) {
-                        rval.clear();
-                        return rval;
-                    }
+                WarningAction action = WarningAction.valueOf(warning.getAct());
+                end.setTime(warning.getStartTime().getTime());
+                end.add(Calendar.MINUTE, 10);
+                TimeRange t = new TimeRange(warning.getStartTime().getTime(),
+                        end.getTime());
+                if ((action == WarningAction.NEW || action == WarningAction.CON || action == WarningAction.EXT)
+                        && t.contains(current.getTime())) {
+                    rval.add(warning);
+                } else if (action == WarningAction.CAN
+                        || action == WarningAction.EXP) {
+                    rval.clear();
+                    return rval;
                 }
             }
         }
@@ -421,27 +473,60 @@ public class CurrentWarnings {
     }
 
     /**
-     * request and populate data
+     * Prepares a collection of records to be returned
+     * 
+     * @param records
+     * @return
      */
-    private void initializeData() {
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("officeid", new RequestConstraint(officeId));
+    private List<AbstractWarningRecord> prepare(
+            List<AbstractWarningRecord> records) {
+        List<AbstractWarningRecord> prepared = new ArrayList<AbstractWarningRecord>();
+        DbQueryRequest request = new DbQueryRequest();
+        Set<String> dataURIs = new HashSet<String>();
+        for (AbstractWarningRecord record : records) {
+            if (record.getGeometry() == null) {
+                dataURIs.add(record.getDataURI());
+            } else {
+                prepared.add(record);
+            }
+        }
 
-        long t0 = System.currentTimeMillis();
-        List<AbstractWarningRecord> warnings = requestRecords(constraints);
-        System.out.println("Time to request CurrentWarnings records: "
-                + (System.currentTimeMillis() - t0) + "ms");
-        processRecords(warnings);
+        if (dataURIs.size() > 0) {
+            long t0 = System.currentTimeMillis();
+            RequestConstraint constraint = new RequestConstraint(null,
+                    ConstraintType.IN);
+            constraint.setBetweenValueList(dataURIs.toArray(new String[0]));
+            request.addConstraint("dataURI", constraint);
+            request.setEntityClass(getWarningClass());
+            try {
+                List<AbstractWarningRecord> toProcess = new ArrayList<AbstractWarningRecord>();
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
+                for (AbstractWarningRecord record : response
+                        .getEntityObjects(AbstractWarningRecord.class)) {
+                    toProcess.add(record);
+                }
+                processRecords(toProcess);
+                prepared.addAll(toProcess);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+            System.out.println("Time to prepare " + records.size()
+                    + " records = " + (System.currentTimeMillis() - t0) + "ms");
+        }
+
+        return prepared;
     }
 
     private void processRecords(List<AbstractWarningRecord> warnings) {
         synchronized (officeId) {
             for (AbstractWarningRecord record : warnings) {
-                if (records.contains(record) == false
-                        && record.getGeometry() != null) {
-                    records.add(record);
-                }
+                recordsMap.put(record.getDataURI(), record);
             }
+
+            List<AbstractWarningRecord> records = new ArrayList<AbstractWarningRecord>(
+                    recordsMap.values());
 
             // Sort by insert time
             Collections.sort(records, new Comparator<AbstractWarningRecord>() {
@@ -452,16 +537,19 @@ public class CurrentWarnings {
                 }
             });
 
-            warningMap.clear();
+            Map<WarningKey, List<AbstractWarningRecord>> tmpMap = new HashMap<WarningKey, List<AbstractWarningRecord>>();
             for (AbstractWarningRecord record : records) {
-                String key = toKey(record.getPhensig(), record.getEtn());
-                List<AbstractWarningRecord> recordsByKey = warningMap.get(key);
+                WarningKey key = toKey(record.getPhensig(), record.getEtn());
+                List<AbstractWarningRecord> recordsByKey = tmpMap.get(key);
                 if (recordsByKey == null) {
                     recordsByKey = new LinkedList<AbstractWarningRecord>();
-                    warningMap.put(key, recordsByKey);
+                    tmpMap.put(key, recordsByKey);
                 }
                 recordsByKey.add(record);
             }
+
+            warningMap.clear();
+            warningMap.putAll(tmpMap);
         }
     }
 
@@ -508,7 +596,7 @@ public class CurrentWarnings {
         for (String key : recordMap.keySet()) {
             CurrentWarnings cw = instanceMap.get(key);
             if (cw != null) {
-                cw.processRecords(recordMap.get(key));
+                cw.prepare(recordMap.get(key));
             }
         }
 
@@ -524,8 +612,8 @@ public class CurrentWarnings {
      * @param etn
      * @return
      */
-    private static String toKey(String phensig, String etn) {
-        return phensig + JOIN_KEY + etn;
+    private static WarningKey toKey(String phensig, String etn) {
+        return new WarningKey(phensig, etn);
     }
 
     /**
@@ -546,16 +634,30 @@ public class CurrentWarnings {
      */
     private static List<AbstractWarningRecord> requestRecords(
             Map<String, RequestConstraint> constraints) {
+        Map<String, RequestConstraint> constraintsCopy = new HashMap<String, RequestConstraint>(
+                constraints);
+        // Ensures we won't request any records we wont use
+        constraintsCopy.put("geometry", new RequestConstraint(null,
+                ConstraintType.ISNOTNULL));
         List<AbstractWarningRecord> newRecords = new ArrayList<AbstractWarningRecord>();
 
         try {
+            String insertTimeField = "insertTime";
+            String dataURIField = "dataURI";
             DbQueryRequest request = new DbQueryRequest();
-            request.setConstraints(constraints);
+            request.setConstraints(constraintsCopy);
             request.setEntityClass(getWarningClass());
+            request.addRequestField(dataURIField);
+            request.addRequestField(insertTimeField);
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
-            newRecords.addAll(Arrays.asList(response
-                    .getEntityObjects(AbstractWarningRecord.class)));
+            for (Map<String, Object> result : response.getResults()) {
+                String dataURI = (String) result.get(dataURIField);
+                AbstractWarningRecord record = (AbstractWarningRecord) RecordFactory
+                        .getInstance().loadRecordFromUri(dataURI);
+                record.setInsertTime((Calendar) result.get(insertTimeField));
+                newRecords.add(record);
+            }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Error retreiving warnings",
                     e);

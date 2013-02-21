@@ -20,7 +20,7 @@
 
 package com.raytheon.viz.hydro.flashfloodguidance;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation 
  * 12 Oct 2009  2256       mpduff      Implmented the code.
+ * 07 Feb 2012  1578       rferrel     Code clean up non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -119,7 +120,7 @@ public class ColorLegendComp extends Composite {
     /**
      * Array of legend color bar data.
      */
-    private ArrayList<ColorLegendBarData> barDataArray;
+    private List<ColorLegendBarData> barDataArray;
 
     /**
      * Constructor.
@@ -130,7 +131,7 @@ public class ColorLegendComp extends Composite {
      *            Array of legend color bar data.
      */
     public ColorLegendComp(Composite parent,
-            ArrayList<ColorLegendBarData> barDataArray) {
+            List<ColorLegendBarData> barDataArray) {
         super(parent, SWT.NONE);
 
         this.parent = parent;
@@ -152,7 +153,7 @@ public class ColorLegendComp extends Composite {
      *            Array of legend color bar data.
      */
     public ColorLegendComp(Composite parent, String title,
-            ArrayList<ColorLegendBarData> barDataArray) {
+            List<ColorLegendBarData> barDataArray) {
         super(parent, SWT.NONE);
 
         this.parent = parent;
@@ -196,7 +197,8 @@ public class ColorLegendComp extends Composite {
                 if ((font != null) && (font.isDisposed() == false)) {
                     font.dispose();
                 }
-                if ((currentColor != null) && (currentColor.isDisposed() == false)) {
+                if ((currentColor != null)
+                        && (currentColor.isDisposed() == false)) {
                     currentColor.dispose();
                 }
             }
@@ -219,7 +221,7 @@ public class ColorLegendComp extends Composite {
         if ((productText == null) || (productText.length() < 1)) {
             return;
         }
-        
+
         // Draw the FFG line text
         e.gc.drawString(ffgLineText, 3, 0, true);
 
@@ -251,8 +253,8 @@ public class ColorLegendComp extends Composite {
                         + "-- setting color to white...");
                 currentColor = new Color(parent.getDisplay(), 255, 255, 255);
             } else {
-                currentColor = new Color(parent.getDisplay(), RGBColors
-                        .getRGBColor(barData.getColorName()));
+                currentColor = new Color(parent.getDisplay(),
+                        RGBColors.getRGBColor(barData.getColorName()));
             }
 
             e.gc.setBackground(currentColor);
@@ -272,8 +274,8 @@ public class ColorLegendComp extends Composite {
             String barText;
 
             if (i == 0) {
-                barText = String.format(">=      %5.2f---", barData
-                        .getDuration());
+                barText = String.format(">=      %5.2f---",
+                        barData.getDuration());
                 textY += 11;
             } else if (barData.getDuration() == -8888) {
                 double duration = lowestValue;// - 0.01;
@@ -283,32 +285,32 @@ public class ColorLegendComp extends Composite {
                 barText = "       MISSING";
                 textY += 2;
             } else {
-                barText = String.format("        %5.2f---", barData
-                        .getDuration());
+                barText = String.format("        %5.2f---",
+                        barData.getDuration());
                 textY += 11;
             }
 
             e.gc.drawString(barText, 3, textY, true);
         }
     }
-    
+
     /**
      * Set the text to display above the legend color bar.
      * 
      * @param line1
-     *      The first line of text
+     *            The first line of text
      * @param line2
-     *      The second line of text
+     *            The second line of text
      */
     public void setDisplayText(String line1, String line2) {
         if ((line1 != null) && (line1.length() > 0)) {
             ffgLineText = line1;
         }
-        
+
         if ((line2 != null) && (line2.length() > 0)) {
             productText = line2;
         }
-        
+
         legendCanvas.redraw();
     }
 }

@@ -76,6 +76,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
+ * 05 Feb 2013  1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -84,7 +85,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class TabularDisplayDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(TabularDisplayDlg.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TabularDisplayDlg.class);
 
     /**
      * Font used by the list control.
@@ -253,8 +255,7 @@ public class TabularDisplayDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 GageData gageData = getSelection();
-                TimeSeriesDlg tsd = new TimeSeriesDlg(shell, gageData, true);
-                tsd.open();
+                TimeSeriesDlg.getInstance().updateAndOpen(gageData, true);
             }
         });
 
@@ -285,8 +286,7 @@ public class TabularDisplayDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 GageData gageData = getSelection();
-                TimeSeriesDlg tsd = new TimeSeriesDlg(shell, gageData, false);
-                tsd.open();
+                TimeSeriesDlg.getInstance().updateAndOpen(gageData, false);
             }
         });
 
@@ -748,7 +748,7 @@ public class TabularDisplayDlg extends CaveSWTDialog {
         } catch (IOException e) {
             e.printStackTrace();
             statusHandler.handle(Priority.PROBLEM, "saveTable()"
-                            + " Error saving the tabluar data to file");
+                    + " Error saving the tabluar data to file");
         }
     }
 }

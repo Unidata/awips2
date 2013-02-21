@@ -19,13 +19,10 @@
  **/
 package com.raytheon.viz.mpe.ui.actions;
 
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.commands.IElementUpdater;
-import org.eclipse.ui.menus.UIElement;
+import org.eclipse.ui.handlers.RadioState;
 
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageMissingOptions;
@@ -46,8 +43,7 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageMissingOptions;
  * @version 1.0
  */
 
-public class ToggleGageMissing extends AbstractHandler implements
-        IElementUpdater {
+public class ToggleGageMissing extends AbstractHandler {
     /*
      * (non-Javadoc)
      * 
@@ -56,26 +52,11 @@ public class ToggleGageMissing extends AbstractHandler implements
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        String g = arg0.getParameter("Missing");
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        String g = event.getParameter(RadioState.PARAMETER_ID);
         GageMissingOptions miss = GageMissingOptions.valueOf(g);
-        MPEDisplayManager.getCurrent().toggleGageMissing(miss);
-
+        MPEDisplayManager.setGageMissing(miss);
         return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void updateElement(UIElement element, Map parameters) {
-        MPEDisplayManager dm = MPEDisplayManager.getCurrent();
-        if (dm == null) {
-            return;
-        }
-
-        GageMissingOptions disp = dm.getGageMissing();
-        String g = (String) parameters.get("Missing");
-        GageMissingOptions val = GageMissingOptions.valueOf(g);
-        element.setChecked(disp.equals(val));
     }
 
 }

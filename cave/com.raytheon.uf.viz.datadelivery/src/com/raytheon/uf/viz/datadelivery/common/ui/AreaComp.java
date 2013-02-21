@@ -805,29 +805,48 @@ public class AreaComp extends Composite implements ISubset {
                 lr, 0.05);
 
         envelopeValid = ulValid && lrValid;
+
+        int lrColor = SWT.COLOR_WHITE;
+        int ulColor = SWT.COLOR_WHITE;
+        StringBuilder errorText = null;
+
         if (envelopeValid) {
             subEnvelope = EnvelopeUtils.createSubenvelopeFromLatLon(
                     fullEnvelope, ul, lr);
             updateDataSize();
         } else {
-            StringBuilder errorText = new StringBuilder();
+            errorText = new StringBuilder();
             errorText.append("The ");
             if (ulValid) {
                 errorText.append("Lower Right Coordinate is");
+                lrColor = SWT.COLOR_RED;
             } else if (lrValid) {
                 errorText.append("Upper Left Coordinate is");
+                ulColor = SWT.COLOR_RED;
             } else {
+                lrColor = SWT.COLOR_RED;
+                ulColor = SWT.COLOR_RED;
                 errorText.append("Lower Right and Upper Left Coordinates are");
             }
             errorText.append(" not within the dataset area.");
+        }
+
+        // Set the background color before displaying an error message.
+        Color color = getDisplay().getSystemColor(lrColor);
+        lowerRightLatTxt.setBackground(color);
+        lowerRightLonTxt.setBackground(color);
+        if (lrColor != ulColor) {
+            color = getDisplay().getSystemColor(ulColor);
+        }
+        upperLeftLatTxt.setBackground(color);
+        upperLeftLonTxt.setBackground(color);
+
+        if (errorText != null) {
             DataDeliveryUtils.showMessage(getShell(), SWT.OK,
                     "Validation Error", errorText.toString());
         }
 
-        // Entries are valid so save them off.
-        this.envelopeValid = true;
-
-        return true;
+        return envelopeValid;
     }
 
     /**

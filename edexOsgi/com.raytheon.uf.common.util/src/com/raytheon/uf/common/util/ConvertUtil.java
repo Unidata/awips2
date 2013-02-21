@@ -27,6 +27,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
+import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Utilities for converting objects, originally taken from
@@ -101,6 +102,19 @@ public class ConvertUtil {
             try {
                 // see if string is in ISO 8601
                 return DatatypeConverter.parseDateTime(value).getTime();
+            } catch (Exception e) {
+                // try with DateUtils, convertUtils is unlikely
+                // to succeed
+            }
+
+            // Allows ConvertUtils to successfully convert:
+            // 1) TimeRange.getStart().toString()
+            // 2) TimeRange.getEnd().toString()
+            // 3) "BinOffset usage"
+            final String[] parsePatterns = { "yyyy-MM-dd hh:mm:ss.S",
+                    "EEE MMM dd hh:mm:ss z yyyy" };
+            try {
+                return DateUtils.parseDate(value, parsePatterns);
             } catch (Exception e) {
                 // let convertUtils try
             }

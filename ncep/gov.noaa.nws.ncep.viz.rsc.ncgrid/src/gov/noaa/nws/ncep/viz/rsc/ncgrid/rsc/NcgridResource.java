@@ -2364,8 +2364,7 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 		//	file = new File(File.separator + dataURI.split("/")[1]
 		//			+ File.separator + path + File.separator + sb.toString());
 		//} else if (DataMode.getSystemMode() == DataMode.PYPIES) {
-			file = new File(VizApp.getServerDataDir() + File.separator
-					+ dataURI.split("/")[1] + File.separator + path
+			file = new File(dataURI.split("/")[1] + File.separator + path
 					+ File.separator + sb.toString());
 		//} else {
 		//	file = new File(VizApp.getDataDir() + File.separator
