@@ -312,7 +312,7 @@ public interface IReferenceSetManager {
      * 
      * @param listener
      */
-    public void evaluateActiveRefSet(IPythonJobListener<?> listener);
+    public void evaluateActiveRefSet(IPythonJobListener<ReferenceData> listener);
 
     /**
      * Force the active ref set to be re-evalutated
