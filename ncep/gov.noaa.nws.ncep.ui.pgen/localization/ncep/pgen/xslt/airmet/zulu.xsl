@@ -38,6 +38,10 @@
 			<xsl:call-template name="GetUntilTimeZ"/>
 		</xsl:variable>
 
+		<xsl:variable name="outlookEndTime">
+			<xsl:call-template name="GetOutlookEndTimeZ"/>
+		</xsl:variable>
+		
 		<xsl:variable name="issueTime">
 			<xsl:call-template name="GetIssueTimeZ"/>
 		</xsl:variable>
@@ -86,7 +90,7 @@
 		<xsl:if test="$numOutlooks > 0">
 			<xsl:call-template name="ZuluOutlook">
 				<xsl:with-param name="outlookStart" select="$untilTime"/>
-				<xsl:with-param name="outlookEnd" select="$untilTime"/>
+				<xsl:with-param name="outlookEnd" select="$outlookEndTime"/>
 				<xsl:with-param name="numICE" select="$numOutlookICE"/>
 				<xsl:with-param name="numOutlooks" select="$numOutlooks"/>
 			</xsl:call-template>
@@ -138,6 +142,23 @@
 			<xsl:variable name="temp2">
 				<xsl:for-each select="//Gfa[contains(@fcstHr,'-') and string-length(@untilTime)>0][last()]">
 					<xsl:value-of select="@untilTime"/>
+				</xsl:for-each>
+			</xsl:variable>
+			<xsl:value-of select="$temp2"/>
+		</xsl:if>
+	</xsl:template>
+	
+	<xsl:template name="GetOutlookEndTimeZ">
+		<xsl:variable name="temp">
+			<xsl:for-each select="//Gfa[(@hazard='ICE' or contains(@hazard,'FZLVL')) and contains(@fcstHr,'-')][last()]">
+				<xsl:value-of select="@outlookEndTime"/>
+			</xsl:for-each>
+		</xsl:variable>
+		<xsl:value-of select="$temp"/>
+		<xsl:if test="string-length($temp)=0">
+			<xsl:variable name="temp2">
+				<xsl:for-each select="//Gfa[contains(@fcstHr,'-') and string-length(@untilTime)>0][last()]">
+					<xsl:value-of select="@outlookEndTime"/>
 				</xsl:for-each>
 			</xsl:variable>
 			<xsl:value-of select="$temp2"/>
@@ -264,7 +285,8 @@
                     <xsl:value-of select="$newline"/>FROM <xsl:value-of select="normalize-space(@textVor)"/></xsl:element>
 
                 <!-- Frequency & Severity line -->
-                <xsl:variable name="airTag"><xsl:value-of select="concat(@tag,@desk)"/></xsl:variable>
+                <xsl:variable name="airTag"><xsl:value-of select="@airmetTag"/></xsl:variable>
+
                 <xsl:if test="not( contains( $status, 'CAN' ))">
                     <xsl:if test="string-length($freqSevStatement) > 1">
                         <xsl:element name="line">

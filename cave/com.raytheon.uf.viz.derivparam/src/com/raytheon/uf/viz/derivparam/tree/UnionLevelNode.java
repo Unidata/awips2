@@ -30,12 +30,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.AggregateRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -63,7 +62,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * @author bsteffen
  * @version 1.0
  */
-public class UnionLevelNode extends AbstractDerivedLevelNode {
+public class UnionLevelNode extends AbstractDerivedDataNode {
 
     private static final Comparator<AbstractRequestableData> requestComp = new Comparator<AbstractRequestableData>() {
 
@@ -76,21 +75,20 @@ public class UnionLevelNode extends AbstractDerivedLevelNode {
 
     };
 
-    protected List<AbstractRequestableLevelNode> nodes;
+    protected List<AbstractRequestableNode> nodes;
 
     public UnionLevelNode(UnionLevelNode that) {
         super(that);
         this.nodes = that.nodes;
     }
 
-    public UnionLevelNode(List<AbstractRequestableLevelNode> nodes,
-            String modelName) {
+    public UnionLevelNode(List<AbstractRequestableNode> nodes, String modelName) {
         this.nodes = nodes;
         this.modelName = modelName;
     }
 
     public UnionLevelNode(Level level, String modelName,
-            List<AbstractRequestableLevelNode> nodes) {
+            List<AbstractRequestableNode> nodes) {
         this.setLevel(level);
         this.nodes = nodes;
         this.modelName = modelName;
@@ -98,43 +96,55 @@ public class UnionLevelNode extends AbstractDerivedLevelNode {
 
     public UnionLevelNode(Level level, DerivParamDesc desc,
             DerivParamMethod method, String modelName,
-            List<AbstractRequestableLevelNode> nodes) {
+            List<AbstractRequestableNode> nodes) {
         super(level, desc, method, modelName);
         this.nodes = nodes;
     }
 
     @Override
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        for (AbstractRequestableNode node : nodes) {
+            result.put(node, availability);
+        }
+        return result;
+    }
+
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
         List<AbstractRequestableData> rawRecords = new ArrayList<AbstractRequestableData>();
 
-        List<AbstractRequestableLevelNode> requests = new ArrayList<AbstractRequestableLevelNode>(
+        List<AbstractRequestableNode> requests = new ArrayList<AbstractRequestableNode>(
                 nodes);
-        for (AbstractRequestableLevelNode request : requests) {
-            rawRecords.addAll(request.getData(property, timeOut, cache));
+        for (AbstractRequestableNode request : requests) {
+            rawRecords.addAll(dependencyData.get(request));
         }
-        Map<DataTime, List<AbstractRequestableData>> bins = new HashMap<DataTime, List<AbstractRequestableData>>();
+        Map<TimeAndSpace, List<AbstractRequestableData>> bins = new HashMap<TimeAndSpace, List<AbstractRequestableData>>();
         for (AbstractRequestableData record : rawRecords) {
-            List<AbstractRequestableData> bin = bins.get(record.getDataTime());
+            List<AbstractRequestableData> bin = bins.get(record
+                    .getTimeAndSpace());
             if (bin == null) {
                 bin = new ArrayList<AbstractRequestableData>();
-                bins.put(record.getDataTime(), bin);
+                bins.put(record.getTimeAndSpace(), bin);
             }
             bin.add(record);
         }
-        List<AbstractRequestableData> records = new ArrayList<AbstractRequestableData>(
+        Set<AbstractRequestableData> records = new HashSet<AbstractRequestableData>(
                 bins.size());
-        for (Entry<DataTime, List<AbstractRequestableData>> entry : bins
+        for (Entry<TimeAndSpace, List<AbstractRequestableData>> entry : bins
                 .entrySet()) {
             if (entry.getValue().size() >= 2) {
                 Collections.sort(entry.getValue(), requestComp);
 
                 AggregateRequestableData newRecord = new AggregateRequestableData(
                         entry.getValue());
-                newRecord.setDataTime(entry.getKey());
+                newRecord.setDataTime(entry.getKey().getTime());
+                newRecord.setSpace(entry.getKey().getSpace());
                 modifyRequest(newRecord);
                 records.add(newRecord);
             }
@@ -143,49 +153,28 @@ public class UnionLevelNode extends AbstractDerivedLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
-        // Any time in results should have at least 2 nodes with that time
-        Set<DataTime> results = TIME_AGNOSTIC;
-        // Any time in single has at least one node available at that time
-        Set<DataTime> single = new HashSet<DataTime>();
-        List<AbstractRequestableLevelNode> requests = new ArrayList<AbstractRequestableLevelNode>(
+        // things in one are available for one level
+        Set<TimeAndSpace> one = new HashSet<TimeAndSpace>();
+        // things in two are available for two levels.
+        Set<TimeAndSpace> two = new HashSet<TimeAndSpace>();
+
+        List<AbstractRequestableNode> requests = new ArrayList<AbstractRequestableNode>(
                 nodes);
-        for (AbstractRequestableLevelNode request : requests) {
-            Set<DataTime> times = request.timeQuery(originalRequest,
-                    latestOnly, cache, latestOnlyCache);
-            if (times == TIME_AGNOSTIC) {
-                continue;
-            } else if (results == TIME_AGNOSTIC) {
-                results = new HashSet<DataTime>();
-                single.addAll(times);
-            } else {
-                // We must have at least two resources with times. The first
-                // node with times will add only to single, after that any
-                // time in single will also be added to results
-                results.addAll(times);
-                results.retainAll(single);
-                single.addAll(times);
+        for (AbstractRequestableNode request : requests) {
+            // Do not request just latest only because if two nodes have
+            // different latests than this will return no times
+            for (TimeAndSpace time : availability.get(request)) {
+                if (one.contains(time)) {
+                    two.add(time);
+                } else {
+                    one.add(time);
+                }
             }
         }
-        return results;
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        boolean timeAgnostic = true;
-
-        for (AbstractRequestableLevelNode node : nodes) {
-            if (!node.isTimeAgnostic()) {
-                timeAgnostic = false;
-                break;
-            }
-        }
-
-        return timeAgnostic;
+        return two;
     }
 
     /*
@@ -197,7 +186,7 @@ public class UnionLevelNode extends AbstractDerivedLevelNode {
     @Override
     public List<Dependency> getDependencies() {
         List<Dependency> dependencies = new ArrayList<Dependency>(nodes.size());
-        for (AbstractRequestableLevelNode node : nodes) {
+        for (AbstractRequestableNode node : nodes) {
             dependencies.add(new Dependency(node, 0));
         }
         return dependencies;

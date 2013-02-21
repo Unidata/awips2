@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_NodeTypeScheme.xml,v 1.7 2007/05/25 17:18:53 farrukh_najmi Exp $-->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:NodeType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:NodeType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="NodeType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="NodeType.desc"/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" code="UniqueCode" id="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:NodeType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="UniqueCode"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="UniqueCode.desc"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:NodeType:EmbeddedPath" code="EmbeddedPath" id="urn:oasis:names:tc:ebxml-regrep:NodeType:EmbeddedPath" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:NodeType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="EmbeddedPath"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="EmbeddedPath.desc"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:NodeType:NonUniqueCode" code="NonUniqueCode" id="urn:oasis:names:tc:ebxml-regrep:NodeType:NonUniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:NodeType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="NonUniqueCode"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="NonUniqueCode.desc"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

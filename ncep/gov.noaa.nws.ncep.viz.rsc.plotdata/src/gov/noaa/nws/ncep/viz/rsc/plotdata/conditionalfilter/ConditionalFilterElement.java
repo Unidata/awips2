@@ -71,4 +71,8 @@ public class ConditionalFilterElement {
         value = val;
     }
 
+    @Override
+    public String toString() {
+    	return paramName+" "+constraintType+" "+value;
+    }
 }

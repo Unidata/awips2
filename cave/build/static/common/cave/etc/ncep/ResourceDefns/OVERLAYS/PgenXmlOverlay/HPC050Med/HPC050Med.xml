@@ -4,10 +4,11 @@
     <resourceDefnName>HPC050Med</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
-pgenProductName=hpc050_med.xml
+pgenStaticProductLocation=ncep/StaticPgenOverlays
+pgenStaticProductName=hpc050_med.xml
     </resourceParameters>
-    <filterLabels></filterLabels>
-    <rscImplementation>PgenXmlOverlay</rscImplementation>
+    <filterLabels>PGEN</filterLabels>
+    <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

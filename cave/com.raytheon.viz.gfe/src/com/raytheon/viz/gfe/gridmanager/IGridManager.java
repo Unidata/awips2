@@ -60,32 +60,6 @@ public interface IGridManager {
     public void contractTimeScale();
 
     /**
-     * Moves the selected grid to the next selected grid or if at the end of the
-     * list selects the first grid in the list.
-     * 
-     */
-    public void nextSelectedGrid();
-
-    /**
-     * Moves the selected grid to the previous selected grid or if at the
-     * beginning of the list selects the last grid in the list.
-     * 
-     */
-    public void previousSelectedGrid();
-
-    /**
-     * Moves the selected grid to the first selected grid.
-     * 
-     */
-    public void firstSelectedGrid();
-
-    /**
-     * Moves the selected grid to the last selected grid.
-     * 
-     */
-    public void lastSelectedGrid();
-
-    /**
      * Paints the TimeScale and all of the GridBars.
      */
     public void redraw();

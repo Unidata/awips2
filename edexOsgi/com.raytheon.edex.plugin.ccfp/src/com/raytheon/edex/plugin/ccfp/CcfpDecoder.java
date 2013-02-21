@@ -47,7 +47,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 12/03/2008               chammack    Camel refactor
  * 09/15/2009   3027     njensen        Patterns constants
  * 09/21/2009   3072        bsteffen    Fixed Decoding of Line Records
- * 
+ * 01/02/2013	DCS 135		tk			handle coverage value Line records
  * 
  * </pre>
  * 
@@ -71,7 +71,7 @@ public class CcfpDecoder extends AbstractDecoder {
     private static final String PARSE_AREA = "AREA (\\d+) (\\d+) (\\d+) (\\d+) (\\d+) (\\d+) \\d+ (.*) (\\d+) (\\d+)";
 
     /** Parse a LINE line */
-    private static final String PARSE_LINE = "LINE \\d+ (.*)";
+    private static final String PARSE_LINE = "LINE (\\d+) \\d+ (.*)";
 
     private static final Pattern STRING_PATTERN = Pattern.compile(PARSE_STRING);
 
@@ -180,26 +180,33 @@ public class CcfpDecoder extends AbstractDecoder {
             } else if (record.getProducttype().equals("LINE")) {
                 matcher = LINE_PATTERN.matcher(msg);
                 if (matcher.find()) {
-                    record.setCoverage(null);
+                    record.setCoverage(Integer.parseInt(matcher.group(1))); // change to group 1
                     record.setConf(null);
                     record.setGrowth(null);
                     record.setTops(null);
                     record.setSpeed(null);
                     record.setDirection(null);
-                    location.setBoxLat(0);
-                    location.setBoxLong(0);
-                    String templatlonpairs = matcher.group(1);
+                    String templatlonpairs = matcher.group(2); // change to group 2
                     matcher = PAIR_PATTERN.matcher(templatlonpairs);
 
                     StringBuffer wtk = new StringBuffer();
                     wtk.append("LINESTRING(");
                     if (matcher.find()) {
-                        wtk.append(Double.toString(Integer.parseInt(matcher
-                                .group(2))
-                                * -0.1));
+                    	
+                    	Double lon = Integer.parseInt(matcher
+                                .group(2)) * -0.1;
+                        String lonStr = Double.toString(lon);
+
+                        Double lat = Integer.parseInt(matcher
+                                .group(1)) * 0.1;
+                        String latStr = Double.toString(lat);
+
+                        location.setBoxLong(lon);
+                        location.setBoxLat(lat);
+                        
+                        wtk.append(lonStr);
                         wtk.append(SPACE);
-                        wtk.append(Double.toString(Integer.parseInt(matcher
-                                .group(1)) * 0.1));
+                        wtk.append(latStr);
                     }
                     while (matcher.find()) {
                         wtk.append(COMMA);

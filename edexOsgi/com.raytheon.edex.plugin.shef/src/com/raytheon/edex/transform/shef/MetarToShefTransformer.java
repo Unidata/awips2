@@ -49,7 +49,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Oct 29, 2008       1659 jkorman     Initial creation
  * ======================================
  * AWIPS2 DR Work
- * 20120918           1185 jkorman     Added save to archive capability.  
+ * 20120918           1185 jkorman     Added save to archive capability. 
+ * Jan 30, 2010       15779  lbousaidi   added 4 letter to station id for ACR
  * </pre>
  * 
  * @author jkorman
@@ -79,6 +80,10 @@ public class MetarToShefTransformer extends
     
     private static final int P1_MIN  = 50;
     private static final int P2_MAX  =  5;
+
+    private static String cfgFileName="metar.cfg";
+    private static String cmdLnOptions="";
+    private static boolean refreshOptions=true;
 
     /**
      * Construct an instance of this transformer.
@@ -219,6 +224,8 @@ public class MetarToShefTransformer extends
             place = 1;
             if (options.isOptStripICAO()) {
                 lineHdr.append(stnId.substring(1));
+            } else {  // Only for ALASKA region
+                lineHdr.append(stnId);
             }
 
             lineHdr.append(" :");
@@ -410,5 +417,25 @@ public class MetarToShefTransformer extends
             }
         }
         return sb;
+    }
+
+    public final byte[] transformMetar(MetarRecord report, Headers headers)
+    throws TransformerException {
+    	if (refreshOptions) {
+    		logger.info("Metar to SHEF now use config file: "+cfgFileName+" with options:"+cmdLnOptions);
+    		options.setCfgFileName(cfgFileName);
+ 			options.updateCommandLine(cmdLnOptions);
+    		options.updateOptions();
+    		refreshOptions=false;
+    	}
+    	configureArchiveDir();
+
+    	return transformReport(report, headers);
+    }
+
+    public static void setCfgNOption (String cfg, String options){
+    	cfgFileName=cfg;
+    	cmdLnOptions=options;
+    	refreshOptions=true;
     }
 }

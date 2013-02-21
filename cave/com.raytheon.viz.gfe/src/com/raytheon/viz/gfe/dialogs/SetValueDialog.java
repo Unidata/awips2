@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -52,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2009 #1318      randerso    Ported AWIPS I pickup value dialogs
+ * Nov 13, 2012 #1298      rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -62,9 +64,11 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class SetValueDialog extends CaveJFACEDialog implements
         IDisplayedParmListChangedListener, IActivatedParmChangedListener {
 
-    private static final int DISMISS_ID = IDialogConstants.CLIENT_ID + 1;
+    private static SetValueDialog dialog;
 
-    private static final int ASSIGN_ID = IDialogConstants.CLIENT_ID + 0;
+    private final int DISMISS_ID = IDialogConstants.CLIENT_ID + 1;
+
+    private final int ASSIGN_ID = IDialogConstants.CLIENT_ID + 0;
 
     private DataManager dataManager;
 
@@ -78,15 +82,26 @@ public class SetValueDialog extends CaveJFACEDialog implements
 
     private Composite valueFrame;
 
+    public static void openDialog() {
+        if (dialog == null) {
+            Shell parent = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            DataManager dataManager = DataManager.getCurrentInstance();
+            dialog = new SetValueDialog(parent, dataManager);
+            dialog.setBlockOnOpen(false);
+        }
+        dialog.open();
+    }
+
     /**
-     * Constructor
+     * Constructor is private use openDialog
      * 
      * @param parentShell
      *            parent shell
      * @param dataManager
      *            DataManager for the associated window
      */
-    public SetValueDialog(Shell parentShell, DataManager dataManager) {
+    private SetValueDialog(Shell parentShell, DataManager dataManager) {
         super(parentShell);
 
         this.dataManager = dataManager;
@@ -190,6 +205,8 @@ public class SetValueDialog extends CaveJFACEDialog implements
             setValue.dispose();
             setValue = null;
         }
+
+        SetValueDialog.dialog = null;
 
         return super.close();
     }
