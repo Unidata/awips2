@@ -23,8 +23,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
 
 /**
  * 
- * DAO for {@link RetrievalRequestRecord} entities. Intentionally
- * package-private as all access should be through the Spring set interface.
+ * DAO for {@link RetrievalRequestRecord} entities.
  * 
  * <pre>
  * 
@@ -35,6 +34,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * Jan 30, 2013 1543       djohnson     Add SW history.
  * Feb 07, 2013 1543       djohnson     Use session management code.
  * Feb 13, 2013 1543       djohnson     Exported interface which is now implemented.
+ * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
  * 
  * </pre>
  * 
@@ -44,7 +44,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
 @Repository
 @Transactional
 // TODO: Split service functionality from DAO functionality
-class RetrievalDao extends
+public class RetrievalDao extends
         SessionManagedDao<RetrievalRequestRecordPK, RetrievalRequestRecord> implements IRetrievalDao {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -53,7 +53,7 @@ class RetrievalDao extends
     /**
      * Constructor.
      */
-    RetrievalDao() {
+    public RetrievalDao() {
     }
 
     /**
