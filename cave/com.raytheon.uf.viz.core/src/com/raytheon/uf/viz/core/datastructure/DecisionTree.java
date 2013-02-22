@@ -46,6 +46,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2007             chammack    Initial Creation.
  * Jan 14, 2013 1442       rferrel     Added method searchTreeUsingContraints.
+ *                                     Addition checks on constraints.
  * 
  * </pre>
  * 
@@ -356,12 +357,7 @@ public class DecisionTree<T> {
                         || (c == RequestConstraint.WILDCARD
                                 || parsedValue == null || c
                                 .evaluate(parsedValue))) {
-                    // for (int k = 0; k < lvl; k++) {
-                    // System.out.print(" ");
-                    // }
                     foundSomething = true;
-                    // System.out.println("visit: " + curNode.decisionAttribute
-                    // + ":: " + c);
                     searchTree(n, searchCriteria, resultList, lvl + 1,
                             evaluatedConstraint);
                 }
@@ -370,13 +366,9 @@ public class DecisionTree<T> {
             // Evaluate using existing constraints.
             for (Node n : curNode.nodeChildren) {
                 RequestConstraint c = n.decision;
-                if (parsedValue.equals(c)) {
-                    // for (int k = 0; k < lvl; k++) {
-                    // System.out.print(" ");
-                    // }
+                if ((c == null && parsedValue == null)
+                        || (parsedValue != null && parsedValue.equals(c))) {
                     foundSomething = true;
-                    // System.out.println("visit: " + curNode.decisionAttribute
-                    // + ":: " + c);
                     searchTree(n, searchCriteria, resultList, lvl + 1,
                             evaluatedConstraint);
                 }
@@ -521,8 +513,6 @@ public class DecisionTree<T> {
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("pluginName", "grib");
         dataMap.put("model", "nam12");
-        // List<Integer> list = iDT.searchTree(dataMap);
-        // System.out.println(list.get(0));
 
         Map<String, Object> dataMap2 = new HashMap<String, Object>();
         dataMap2.put("pluginName", "grib");
