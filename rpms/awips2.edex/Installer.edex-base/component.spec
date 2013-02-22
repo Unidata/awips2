@@ -145,7 +145,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/logs
 %dir /awips2/edex/webapps
 /awips2/edex/webapps/*
-/awips2/edex/bin/wrapper.jar
 %dir /awips2/edex/bin/yajsw
 /awips2/edex/bin/yajsw/*
 
