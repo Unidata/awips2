@@ -138,6 +138,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
@@ -307,10 +308,11 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 28Nov2012   14842	    M.Gamazaychikov	Re-wrote processPopup method
  * 13Dec2012   1353         rferrel     Change to make edit cancel message not
  *                                       dispaly the red had kill job message.
- * 31Dec2012   15651	    M.Gamazaychikov	Added an argument to re-factored PrintDisplay.print
- * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method.
+ * 10JAN2013   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method.
  * 31JAN2013   14247        D. Friedman Make spell check dialog child of editor window.
  * 31JAN2013   15580        D. Friedman Prevent errors when window is disposed.
+ * 31JAN2013   15610        M.Gamazaychikov Added handling first line of text product which
+ * 											is not a valid WMO heading.
  * </pre>
  * 
  * @author lvenable
@@ -4194,7 +4196,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void printAllText() {
         FontData fontData = textEditor.getFont().getFontData()[0];
-        PrintDisplay.print(textEditor.getText(), fontData, charWrapCol, statusHandler);
+        PrintDisplay.print(textEditor.getText(), fontData, statusHandler);
     }
 
     /**
@@ -4217,7 +4219,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
-            PrintDisplay.print(textEditor.getSelectionText(), fontData, charWrapCol,
+            PrintDisplay.print(textEditor.getSelectionText(), fontData, 
                     statusHandler);
             textEditor.setText(tmpText);
             textEditor.setSelection(point);
@@ -5203,85 +5205,108 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int numberOfLinesOfHeaderText = 2;
         int afosNnnLimit = 2; // first three characters is AFOS NNN
         int afosXxxLimit = 5; // second three characters is AFOS XXX
+        
+        /*
+         * DR15610 - Make sure that if the first line of the
+         * text product is not a WMO heading it is treated as
+         * part of the text body.
+         */
+        String[] pieces = textEditor.getText().split("\r*\n", 2);
+        if (pieces.length > 1) {
+            pieces[0] += "\n"; // WMOHeader expects this
+        }
+        WMOHeader header = new WMOHeader(pieces[0].getBytes(), null);
+        if ( !header.isValid() ) {
+			headerTF.setText("");
+			try {
+				textEditor.setText(originalText);
+				textEditor.setEditable(true);
+				textEditor.setEditable(false);
+			} catch (IllegalArgumentException e) {
+				// There is no text product body, so set it to the empty string.
+				textEditor.setText("");
+			}
+        }
+        else {
+            // TODO FIX PARSING
 
-        // TODO FIX PARSING
-
-        // First, set the current header by assuming that it usually
-        // consists of the first two lines of text in the text product,
-        // though there will be exceptions to that "rule" as handled below.
-        // So, obtain the AFOS NNNxxx. If it's where it is supposed to be
-        // in the new format, then the existing header is already an AWIPS
-        // text product identifier. Otherwise it is a legacy AFOS identifier.
-        if (TextDisplayModel.getInstance().hasStdTextProduct(token)) {
-            StdTextProduct textProd = TextDisplayModel.getInstance()
-                    .getStdTextProduct(token);
-            StdTextProductId prodId = textProd.getProdId();
-            try {
-                // start of second line of text
-                start = textEditor.getOffsetAtLine(thisLine + 1);
-                if ((textEditor.getText(start, start + afosNnnLimit)
-                        .equals(prodId.getNnnid()))
-                        && (textEditor.getText(start + afosNnnLimit + 1, start
-                                + afosXxxLimit).equals(prodId.getXxxid()))) {
-                    // Text matches the products nnnid and xxxid
-                    numberOfLinesOfHeaderText = 2;
-                } else if (textEditor.getText(start, start + afosNnnLimit + 2)
-                        .equals(AFOSParser.DRAFT_PIL)
-                        || textEditor.getText(start, start + afosNnnLimit + 2)
-                                .equals("TTAA0")) {
-                    // Text matches temporary WRKWG#
-                    numberOfLinesOfHeaderText = 2;
-                } else {
+            // First, set the current header by assuming that it usually
+            // consists of the first two lines of text in the text product,
+            // though there will be exceptions to that "rule" as handled below.
+            // So, obtain the AFOS NNNxxx. If it's where it is supposed to be
+            // in the new format, then the existing header is already an AWIPS
+            // text product identifier. Otherwise it is a legacy AFOS identifier.
+            if (TextDisplayModel.getInstance().hasStdTextProduct(token)) {
+                StdTextProduct textProd = TextDisplayModel.getInstance()
+                        .getStdTextProduct(token);
+                StdTextProductId prodId = textProd.getProdId();
+                try {
+                    // start of second line of text
+                    start = textEditor.getOffsetAtLine(thisLine + 1);
+                    if ((textEditor.getText(start, start + afosNnnLimit)
+                            .equals(prodId.getNnnid()))
+                            && (textEditor.getText(start + afosNnnLimit + 1, start
+                                    + afosXxxLimit).equals(prodId.getXxxid()))) {
+                        // Text matches the products nnnid and xxxid
+                        numberOfLinesOfHeaderText = 2;
+                    } else if (textEditor.getText(start, start + afosNnnLimit + 2)
+                            .equals(AFOSParser.DRAFT_PIL)
+                            || textEditor.getText(start, start + afosNnnLimit + 2)
+                                    .equals("TTAA0")) {
+                        // Text matches temporary WRKWG#
+                        numberOfLinesOfHeaderText = 2;
+                    } else {
+                        // Assume this header block is a legacy AFOS identifier.
+                        numberOfLinesOfHeaderText = 1;
+                    }
+                } catch (IllegalArgumentException e) {
                     // Assume this header block is a legacy AFOS identifier.
                     numberOfLinesOfHeaderText = 1;
                 }
-            } catch (IllegalArgumentException e) {
-                // Assume this header block is a legacy AFOS identifier.
-                numberOfLinesOfHeaderText = 1;
             }
-        }
 
-        try {
-            start = 0;
-            finish = textEditor.getOffsetAtLine(thisLine
-                    + numberOfLinesOfHeaderText) - 1;
-        } catch (IllegalArgumentException e) {
-            // The text does not span enough lines so use the full extent
-            // of the product.
-            finish = textEditor.getCharCount() - 1;
-        }
+            try {
+                start = 0;
+                finish = textEditor.getOffsetAtLine(thisLine
+                        + numberOfLinesOfHeaderText) - 1;
+            } catch (IllegalArgumentException e) {
+                // The text does not span enough lines so use the full extent
+                // of the product.
+                finish = textEditor.getCharCount() - 1;
+            }
 
-        // Set the content of the header block to consist of just the header of
-        // the text product... it will get reunited with the body when it is
-        // saved.
-        if (finish > start) {
-            headerTF.setText(textEditor.getText(start, finish));
-        } else {
-            headerTF.setText("");
-        }
+            // Set the content of the header block to consist of just the header of
+            // the text product... it will get reunited with the body when it is
+            // saved.
+            if (finish > start) {
+                headerTF.setText(textEditor.getText(start, finish));
+            } else {
+                headerTF.setText("");
+            }
 
-        // Next, set the current body by assuming that it always
-        // consists of the rest of the text product beyond the line(s)
-        // of text in the header.
-        try {
-            int numberOfBlankLines = -1;
-            String line = null;
-            do {
-                numberOfBlankLines++;
-                line = textEditor.getLine(thisLine + numberOfLinesOfHeaderText
-                        + numberOfBlankLines);
-            } while (line.length() == 0 || line.equals(""));
-            // Note: 'st' is a reference to 'textEditor'...
-            // delelete the header from the text in 'textEditor'
-            finish = textEditor.getOffsetAtLine(thisLine
-                    + numberOfLinesOfHeaderText + numberOfBlankLines);
-            textEditor.setSelection(start, finish);
-            textEditor.setEditable(true);
-            textEditor.invokeAction(SWT.DEL);
-            textEditor.setEditable(false);
-        } catch (IllegalArgumentException e) {
-            // There is no text product body, so set it to the empty string.
-            textEditor.setText("");
+            // Next, set the current body by assuming that it always
+            // consists of the rest of the text product beyond the line(s)
+            // of text in the header.
+            try {
+                int numberOfBlankLines = -1;
+                String line = null;
+                do {
+                    numberOfBlankLines++;
+                    line = textEditor.getLine(thisLine + numberOfLinesOfHeaderText
+                            + numberOfBlankLines);
+                } while (line.length() == 0 || line.equals(""));
+                // Note: 'st' is a reference to 'textEditor'...
+                // delelete the header from the text in 'textEditor'
+                finish = textEditor.getOffsetAtLine(thisLine
+                        + numberOfLinesOfHeaderText + numberOfBlankLines);
+                textEditor.setSelection(start, finish);
+                textEditor.setEditable(true);
+                textEditor.invokeAction(SWT.DEL);
+                textEditor.setEditable(false);
+            } catch (IllegalArgumentException e) {
+                // There is no text product body, so set it to the empty string.
+                textEditor.setText("");
+            }
         }
         // set editor status flags
         dirty = false;
