@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -73,6 +74,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
  * 01/30/2012   DR 14308   D.Friedman  Use correct style for arrow types.
  * 07/31/2012   #875       rferrel     Now uses points.
+ * Feb 21, 2013 1617       bsteffen    fixed vb sounding point selection for
+ *                                     points which contain the word Point
  * 
  * 
  * </pre>
@@ -90,6 +93,8 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
     /** key representing all point and line planes **/
     public static final String POINT_LINE_KEY = "PointLine";
+
+    public static final Pattern POINT_PATTERN = Pattern.compile("^Point");
 
     /**
      * 
@@ -274,8 +279,9 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         case VARVSHGT:
         case CROSSSECTION:
         case SOUNDING:
-            pointLetter = catalogEntry.getSelectedData().getPlanesKey()
-                    .replace("Point", "");
+            pointLetter = POINT_PATTERN.matcher(
+                    catalogEntry.getSelectedData().getPlanesKey())
+                    .replaceFirst("");
             break;
         case TIMESERIES:
             pointLetter = catalogEntry.getDialogSettings().getPointsSelection()
