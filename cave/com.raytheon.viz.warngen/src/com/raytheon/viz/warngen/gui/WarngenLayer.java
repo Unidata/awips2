@@ -2278,21 +2278,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             if (fipsIds.contains(featureFips) == false) {
                                 break;
                             } else if (oldWarningPolygon.contains(point) == true) {
-                                boolean first = true;
+                                // Get intersecting parts for each geom with
+                                // matching fips
+                                List<Geometry> fipsParts = new ArrayList<Geometry>(
+                                        dataWithFips.size());
                                 for (GeospatialData g : dataWithFips) {
-                                    if (first) {
-                                        geom = GeometryUtil.intersection(
-                                                g.geometry, oldWarningArea);
-                                        first = false;
-                                    } else {
-                                        geom = GeometryUtil.intersection(
-                                                g.geometry, geom);
-                                    }
+                                    fipsParts.add(GeometryUtil.intersection(
+                                            oldWarningArea, g.geometry));
                                 }
-
+                                // Create a collection of each part
+                                geom = GeometryUtil.union(fipsParts
+                                        .toArray(new Geometry[0]));
                                 if (warningPolygon.contains(point)) {
-                                    geom = GeometryUtil.intersection(geom,
-                                            warningPolygon);
+                                    // If inside warning polygon, intersect
+                                    geom = GeometryUtil.intersection(
+                                            warningPolygon, geom);
                                 }
                                 state.setWarningArea(GeometryUtil.union(
                                         state.getWarningArea(), geom));
