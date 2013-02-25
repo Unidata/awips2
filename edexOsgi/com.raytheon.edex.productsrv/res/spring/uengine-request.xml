@@ -45,10 +45,6 @@
 										<property name="contextPath" value="/uEngineProducts" />
 										<property name="war" value="file:///${edex.home}/data/uEngine" />
 									</bean>
-									<bean class="org.eclipse.jetty.webapp.WebAppContext">
-										<property name="contextPath" value="/activemqAdmin" />
-										<property name="war" value="file:///${edex.home}/webapps/admin" />
-									</bean>
 								</list>
 							</property>
 						</bean>
