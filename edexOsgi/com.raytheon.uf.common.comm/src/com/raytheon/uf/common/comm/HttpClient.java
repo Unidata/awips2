@@ -37,7 +37,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
@@ -77,6 +76,8 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    08/09/12     15307        snaples   Added putEntitiy in postStreamingEntity.
  *    01/07/13     DR 15294     D. Friedman  Added streaming requests.
  *    Jan 24, 2013     1526     njensen     Added postDynamicSerialize()
+ *    Feb 20, 2013  1628        bsteffen    clean up Inflaters used by
+ *                                          HttpClient.
  * 
  * </pre>
  * 
@@ -385,6 +386,11 @@ public class HttpClient {
                     // notify but continue
                     statusHandler.handle(Priority.EVENTB,
                             "Error reading InputStream, assuming closed", e);
+                }
+                try {
+                    SafeGzipDecompressingEntity.close();
+                } catch (IOException e) {
+                    // ignore
                 }
             }
         }
@@ -747,7 +753,7 @@ public class HttpClient {
                 HeaderElement[] codecs = ceheader.getElements();
                 for (HeaderElement codec : codecs) {
                     if (codec.getName().equalsIgnoreCase("gzip")) {
-                        response.setEntity(new GzipDecompressingEntity(response
+                        response.setEntity(new SafeGzipDecompressingEntity(response
                                 .getEntity()));
                         return;
                     }
