@@ -127,10 +127,6 @@ if [ -e $EDEX_HOME/etc/${RUN_MODE}.sh ]; then
     . $EDEX_HOME/etc/${RUN_MODE}.sh
 fi
 
-if [ $DEBUG_FLAG == "on" ]; then
-    . $EDEX_HOME/etc/debug.sh
-fi
-
 if [ $PROFILE_FLAG == "on" ]; then
     . $EDEX_HOME/etc/profiler.sh
 fi
@@ -147,4 +143,10 @@ if [ "${EXPECTED_ARCH}" = "64-bit" ]; then
 fi
 export EDEX_BITS=${EDEX_BITS}
 
-java -jar ${EDEX_HOME}/bin/yajsw/wrapper.jar -c ${EDEX_HOME}/bin/yajsw/conf/${CONF_FILE}
+WRAPPER_ARGS=""
+if [ $DEBUG_FLAG == "on" ]; then
+   WRAPPER_ARGS="wrapper.java.debug.port=${EDEX_DEBUG_PORT}"
+   echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
+fi
+
+java -jar ${EDEX_HOME}/bin/yajsw/wrapper.jar -c ${EDEX_HOME}/bin/yajsw/conf/${CONF_FILE} ${WRAPPER_ARGS}
