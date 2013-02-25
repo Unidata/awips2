@@ -37,11 +37,10 @@
 
         <!-- delete the shell scripts from ${esbDir}/bin/ -->
         <echo message="Cleaning target directory: ${edex.root.directory}/bin/" />
-        <delete>
+        <delete includeemptydirs="true">
             <fileset dir="${edex.root.directory}/bin/">
                 <include name="*.sh"/>
-            	<include name="wrapper.conf" />
-        		<include name="linux-x86-*/**" />
+        		<include name="yajsw/**" />
             </fileset>
         </delete>
 
