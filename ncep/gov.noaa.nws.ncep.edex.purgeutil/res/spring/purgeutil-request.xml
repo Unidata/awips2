@@ -39,10 +39,6 @@
                      <property name="contextPath" value="/purgeWeb"/>
                      <property name="war" value="file:///${edex.home}/webapps/purgeWeb"/>
                    </bean>
-                   <bean class="org.eclipse.jetty.webapp.WebAppContext">
-                     <property name="contextPath" value="/activemqAdmin"/>
-                     <property name="war" value="file:///${edex.home}/webapps/admin"/>
-                   </bean>
                  </list>
                </property>
              </bean>
