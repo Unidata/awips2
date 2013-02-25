@@ -1762,13 +1762,16 @@ public class ReferenceSetManager implements IReferenceSetManager,
     }
 
     @Override
-    public void evaluateActiveRefSet(IPythonJobListener<?> listener) {
+    public void evaluateActiveRefSet(IPythonJobListener<ReferenceData> listener) {
         ReferenceData active = getActiveRefSet();
         if (active.isQuery()) {
             // Re-evaluate the activeRefSet
             evaluateQuery(active.getQuery(), listener);
+        } else {
+            // if non-query,need to fire, but do this in an else otherwise we
+            // will fire the listener twice for queries
+            listener.jobFinished(getActiveRefSet());
         }
-
     }
 
     @Override
@@ -1800,18 +1803,17 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     @Override
     public void receiveMessage(final Message message) {
-        IPythonJobListener<Object> listener = new IPythonJobListener<Object>() {
+        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
             @Override
             public void jobFailed(Throwable e) {
                 statusHandler.handle(Priority.ERROR,
                         "Unable to finish QueryScript job", e);
             }
 
-            public void jobFinished(Object result) {
+            public void jobFinished(ReferenceData result) {
                 getActiveRefSet();
-                ReferenceData newRef = (ReferenceData) result;
-                if (!newRef.getGrid().equals(getActiveRefSet().getGrid())) {
-                    setActiveRefSet(newRef);
+                if (!result.getGrid().equals(getActiveRefSet().getGrid())) {
+                    setActiveRefSet(result);
                 }
             };
         };
