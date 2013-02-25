@@ -29,9 +29,7 @@ import org.hibernate.jdbc.Work;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 
 /**
- * * DAO that handles {@link SubscriptionRetrieval} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * * DAO that handles {@link SubscriptionRetrieval} instances.
  * 
  * <pre>
  * 
@@ -40,13 +38,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
+ * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class SubscriptionRetrievalDao extends
+public class SubscriptionRetrievalDao extends
         BaseBandwidthAllocationDao<SubscriptionRetrieval> implements ISubscriptionRetrievalDao {
 
     private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE = "from SubscriptionRetrieval sr where "
