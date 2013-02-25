@@ -19,19 +19,22 @@
  **/
 package com.raytheon.viz.grid.inv;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 /**
- * Cache times for GridRequestableNode's to avoid multiple trips to edex for the
- * same data. The hit rate tends to be low when requesting individual products
- * but can get very high when requesting complex derived parameters or model
- * families since often many of the derived parameters can have dependencies on
- * the same base parameters.
+ * Cache times for grid data to avoid multiple trips to edex for the same data.
+ * This caches times for GridRequestableNodes and also times for a whole model.
+ * The hit rate tends to be low when requesting individual products but can get
+ * very high when requesting complex derived parameters or model families since
+ * often many of the derived parameters can have dependencies on the same base
+ * parameters.
  * 
  * <pre>
  * 
@@ -39,6 +42,8 @@ import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2010            bsteffen     Initial creation
+ * Feb 26, 2013 1659       bsteffen    Add time agnostic caching to grid derived
+ *                                     parameters.
  * 
  * </pre>
  * 
@@ -48,16 +53,13 @@ import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 public class GridTimeCache {
 
-    protected static final int CACHE_SIZE = 500;
+    protected static final int CACHE_SIZE = 1000;
 
     protected static final int CACHE_TIME = 300000;
 
-    private static GridTimeCache instance;
+    private final static GridTimeCache instance = new GridTimeCache();
 
     public static GridTimeCache getInstance() {
-        if (instance == null) {
-            instance = new GridTimeCache();
-        }
         return instance;
     }
 
@@ -65,20 +67,23 @@ public class GridTimeCache {
 
     }
 
-    private class CacheEntry {
+    private class CacheEntry<T> {
 
-        public CacheEntry(Set<TimeAndSpace> times) {
+        public CacheEntry(Set<T> times) {
             this.insertTime = System.currentTimeMillis();
             this.times = times;
         }
 
-        public long insertTime;
+        public final long insertTime;
 
-        public Set<TimeAndSpace> times;
+        public final Set<T> times;
 
     }
 
-    private Map<GridMapKey, CacheEntry> cache = new LinkedHashMap<GridMapKey, CacheEntry>(
+    /**
+     * This map handles caching for GridRequestableNodes
+     */
+    private final Map<GridMapKey, CacheEntry<TimeAndSpace>> cache = new LinkedHashMap<GridMapKey, CacheEntry<TimeAndSpace>>(
             135, .75f, true) {
 
         private static final long serialVersionUID = 2022670836957170184L;
@@ -96,7 +101,8 @@ public class GridTimeCache {
          * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
          */
         @Override
-        protected boolean removeEldestEntry(Entry<GridMapKey, CacheEntry> eldest) {
+        protected boolean removeEldestEntry(
+                Entry<GridMapKey, CacheEntry<TimeAndSpace>> eldest) {
             if (this.size() > CACHE_SIZE) {
                 // It is normal for stale entries to stay in the map until this
                 // purges them, but we want some logging for non stale entries.
@@ -120,31 +126,69 @@ public class GridTimeCache {
         }
     };
 
-    public synchronized void setTimes(GridRequestableNode gNode,
-            Set<TimeAndSpace> times) {
-        cache.put(new GridMapKey(gNode.getRequestConstraintMap()),
-                new CacheEntry(times));
+    /**
+     * This is the cache for all times for a model.
+     */
+    private final Map<String, CacheEntry<DataTime>> modelCache = new HashMap<String, CacheEntry<DataTime>>();
+
+    public void setTimes(GridRequestableNode gNode, Set<TimeAndSpace> times) {
+        synchronized (cache) {
+            cache.put(new GridMapKey(gNode.getRequestConstraintMap()),
+                    new CacheEntry<TimeAndSpace>(times));
+        }
     }
 
-    public synchronized Set<TimeAndSpace> getTimes(GridRequestableNode gNode) {
-        GridMapKey key = new GridMapKey(gNode.getRequestConstraintMap());
-        CacheEntry entry = cache.get(key);
-        if (entry == null) {
-            return null;
+    public Set<TimeAndSpace> getTimes(GridRequestableNode gNode) {
+        synchronized (cache) {
+            GridMapKey key = new GridMapKey(gNode.getRequestConstraintMap());
+            CacheEntry<TimeAndSpace> entry = cache.get(key);
+            if (entry == null) {
+                return null;
+            }
+            if (entry.insertTime + CACHE_TIME < System.currentTimeMillis()) {
+                cache.remove(key);
+                return null;
+            }
+            return entry.times;
         }
-        if (entry.insertTime + CACHE_TIME < System.currentTimeMillis()) {
-            cache.remove(key);
-            return null;
+    }
+
+    public void setModelTimes(String modelName, Set<DataTime> times) {
+        synchronized (modelCache) {
+            modelCache.put(modelName, new CacheEntry<DataTime>(times));
         }
-        return entry.times;
+    }
+
+    public Set<DataTime> getModelTimes(String modelName) {
+        synchronized (modelCache) {
+            CacheEntry<DataTime> entry = modelCache.get(modelName);
+            if (entry == null) {
+                return null;
+            }
+            if (entry.insertTime + CACHE_TIME < System.currentTimeMillis()) {
+                modelCache.remove(modelName);
+                return null;
+            }
+            return entry.times;
+        }
     }
 
     public synchronized void clearTimes(GridMapKey key) {
-        cache.remove(key);
+        synchronized (cache) {
+            cache.remove(key);
+        }
+        synchronized (modelCache) {
+            modelCache.remove(key.modelName);
+        }
     }
 
     public synchronized void flush() {
-        cache.clear();
+        synchronized (cache) {
+            cache.clear();
+        }
+        synchronized (modelCache) {
+            modelCache.clear();
+        }
     }
 
 }
