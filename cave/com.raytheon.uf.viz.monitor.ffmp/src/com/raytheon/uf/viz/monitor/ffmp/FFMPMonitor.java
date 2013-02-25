@@ -91,6 +91,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 02/01/13     1569        D. Hladky   updated constants
  * 02/01/13     1627        D. Hladky   removed unused(useless) db load method
  * 02/19/13     1639        njensen     Replaced ConcurrentHashMaps with data structures
+ * 02/20/13     1635        D. Hladky   Fixed multi guidance sources
  * 
  * </pre>
  * 
@@ -118,23 +119,6 @@ public class FFMPMonitor extends ResourceMonitor {
     public static String datePattern = "yyyy-MM-dd HH:mm:ss";
 
     private FFMPSiteDataContainer siteDataMap = new FFMPSiteDataContainer();
-
-    // /** FFMP Records indexed by site, times and field **/
-    // public ConcurrentHashMap<String, ConcurrentHashMap<String,
-    // FFMPCacheRecord>> ffmpData = null;
-    //
-    // // list of earliest available date queried by site, sourceName
-    // public ConcurrentHashMap<String, ConcurrentHashMap<String, Date>>
-    // ffmpAvailableUriQueryDates = null;
-    //
-    // // map by site, sourceName, Date
-    // public ConcurrentHashMap<String, ConcurrentHashMap<String,
-    // ConcurrentSkipListMap<Date, List<String>>>> ffmpAvailableUris = null;
-    //
-    // // map by field, huc, and the URIs that have been loaded for
-    // public ConcurrentHashMap<String, ConcurrentHashMap<String,
-    // ConcurrentHashMap<String, ConcurrentHashMap<String, String>>>>
-    // ffmpLoadedUris = null;
 
     // Interpolation Guidance Sources
     public FFMPGuidanceInterpolation interpolation = null;
@@ -890,7 +874,7 @@ public class FFMPMonitor extends ResourceMonitor {
                                 ffmpSplash.close();
                                 break;
                             }
-                            Thread.sleep(1000);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             if (ffmpSplash != null) {

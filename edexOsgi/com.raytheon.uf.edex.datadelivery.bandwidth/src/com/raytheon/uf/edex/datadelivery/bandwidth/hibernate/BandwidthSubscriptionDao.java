@@ -29,9 +29,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 
 /**
- * Data access object for {@link BandwidthSubscription} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * Data access object for {@link BandwidthSubscription} instances.
  * 
  * <pre>
  * 
@@ -40,13 +38,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 07, 2013 1543       djohnson     Initial creation
+ * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class BandwidthSubscriptionDao extends
+public class BandwidthSubscriptionDao extends
         SessionManagedDao<Long, BandwidthSubscription> implements
         IBandwidthSubscriptionDao {
 

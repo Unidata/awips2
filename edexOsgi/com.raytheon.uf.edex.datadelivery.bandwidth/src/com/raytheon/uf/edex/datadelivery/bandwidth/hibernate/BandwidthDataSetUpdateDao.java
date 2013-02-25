@@ -28,9 +28,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 
 /**
- * DAO that handles {@link BandwidthDataSetUpdate} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * DAO that handles {@link BandwidthDataSetUpdate} instances.
  * 
  * <pre>
  * 
@@ -39,13 +37,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
+ * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class BandwidthDataSetUpdateDao extends
+public class BandwidthDataSetUpdateDao extends
         SessionManagedDao<Long, BandwidthDataSetUpdate> implements IBandwidthDataSetUpdateDao {
 
     private static final String GET_DATASETMETADATA_BY_PROVIDER_AND_DATASET = "from BandwidthDataSetUpdate d where "
