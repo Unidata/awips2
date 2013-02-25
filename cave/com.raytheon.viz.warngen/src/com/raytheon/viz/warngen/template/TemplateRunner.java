@@ -413,7 +413,7 @@ public class TemplateRunner {
                 if (timeZones.size() > 1 && cityTimezone != null) {
                     String timezone;
                     while (iterator.hasNext()) {
-                        timezone = iterator.next();
+                        timezone = iterator.next().toUpperCase();
                         if (timezone.equals(cityTimezone) && context.get("localtimezone") == null) {
                             context.put("localtimezone", timezone);
                         } else if (context.get("secondtimezone") == null) {
