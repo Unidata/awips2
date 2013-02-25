@@ -20,6 +20,10 @@
 package com.raytheon.viz.warngen.template;
 
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -56,6 +60,7 @@ import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
 import com.raytheon.uf.common.activetable.PracticeActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
@@ -66,6 +71,11 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -138,6 +148,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.
  * Feb 12, 2013   1600     jsanchez    Correctly set the StormTrackData's motion direction for a CAN and EXP.
  * Feb 15, 2013   1607     jsanchez    Added two variables corEventTime and corCreateTime.
+ * Feb 15, 2013   15820    Qinglu Lin  Added createOfficeTimezoneMap() and added logic so that localtimezone 
+ *                                     and secondtimezone can get correct values when warning area covers two time zones.
  * 
  * </pre>
  * 
@@ -172,6 +184,36 @@ public class TemplateRunner {
         dateFormat.put("time", new SimpleDateFormat("HHmm"));
     }
 
+    /**
+     * Read cwa and timezone info from officeCityTimezone.txt, and put them
+     * into map officeCityTimezone.
+     */
+    public static Map<String,String> createOfficeTimezoneMap() {
+        Map<String,String> officeCityTimezone = new HashMap<String,String>();
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        String octz = "officeCityTimezone.txt";
+        String fileToRetrieve = IPathManager.SEPARATOR + WarningConstants.WARNGEN_DIR 
+            + IPathManager.SEPARATOR + octz;
+        File timezoneFile = pathMgr.getFile(lc, fileToRetrieve);
+        String line;
+        String[] splitLine;
+        BufferedReader timezoneReader;
+        try {
+            timezoneReader = new BufferedReader(new InputStreamReader(new FileInputStream(
+                    timezoneFile)));
+            for (line = timezoneReader.readLine(); line != null; line = timezoneReader.readLine()) {
+                splitLine = line.trim().split("\\\\");
+                officeCityTimezone.put(splitLine[0].trim(),splitLine[1].trim());
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "WarnGen Error while processing data in : " + octz, e);
+        }
+        return officeCityTimezone;
+    }
+    
     /**
      * Executes a warngen template given the polygon from the Warngen Layer and
      * the Storm tracking information from StormTrackDisplay
@@ -368,12 +410,28 @@ public class TemplateRunner {
                     }
                 }
 
+                Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
+                String cityTimezone = null;
+                if (officeCityTimezone != null)
+                   cityTimezone = officeCityTimezone.get(warngenLayer.getLocalizedSite());
                 Iterator<String> iterator = timeZones.iterator();
-                while (iterator.hasNext()) {
-                    if (context.get("localtimezone") == null) {
-                        context.put("localtimezone", iterator.next());
-                    } else if (context.get("secondtimezone") == null) {
-                        context.put("secondtimezone", iterator.next());
+                if (timeZones.size() > 1 && cityTimezone != null) {
+                    String timezone;
+                    while (iterator.hasNext()) {
+                        timezone = iterator.next().toUpperCase();
+                        if (timezone.equals(cityTimezone) && context.get("localtimezone") == null) {
+                            context.put("localtimezone", timezone);
+                        } else if (context.get("secondtimezone") == null) {
+                            context.put("secondtimezone", timezone);
+                        }
+                    }
+                } else {
+                    while (iterator.hasNext()) {
+                        if (context.get("localtimezone") == null) {
+                            context.put("localtimezone", iterator.next());
+                        } else if (context.get("secondtimezone") == null) {
+                            context.put("secondtimezone", iterator.next());
+                        }
                     }
                 }
             }
