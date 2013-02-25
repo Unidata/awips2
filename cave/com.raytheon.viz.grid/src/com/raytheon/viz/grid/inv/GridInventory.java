@@ -89,6 +89,9 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * Mar 25, 2009            brockwoo    Initial creation
  * Nov 20, 2009 #3387      jelkins     Use derived script's variableId instead of filename
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
+ * Feb 26, 2013 1659       bsteffen    Add time agnostic caching to grid derived
+ *                                     parameters.
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -324,12 +327,32 @@ public class GridInventory extends AbstractInventory implements
             newQuery.remove(GridInventory.LEVEL_ONE_QUERY);
             newQuery.remove(GridInventory.LEVEL_TWO_QUERY);
             newQuery.remove(GridInventory.MASTER_LEVEL_QUERY);
-            // Hopefully this results in querying all times for this model.
-            DataTime[] times = CatalogQuery.performTimeQuery(newQuery, false,
-                    null);
-
+            String modelName = null;
+            Collection<DataTime> times = null;
+            if (newQuery.size() == 2 && newQuery.containsKey(PLUGIN_NAME_QUERY)
+                    && newQuery.containsKey(MODEL_NAME_QUERY)) {
+                // Only use the cache if the only constraint left are pluginName
+                // and datasetId and datasetId is an Equals constraint. This is
+                // almost always the case.
+                RequestConstraint modelRc = newQuery.get(MODEL_NAME_QUERY);
+                if (modelRc.getConstraintType() == ConstraintType.EQUALS) {
+                    modelName = modelRc.getConstraintValue();
+                    times = GridTimeCache.getInstance()
+                            .getModelTimes(modelName);
+                }
+            }
+            if (times == null) {
+                // This should query all times for this model.
+                DataTime[] timesArray = CatalogQuery.performTimeQuery(newQuery,
+                        false, null);
+                times = Arrays.asList(timesArray);
+                if (modelName != null) {
+                    GridTimeCache.getInstance().setModelTimes(modelName,
+                            new HashSet<DataTime>(times));
+                }
+            }
             if (times != null) {
-                rval = new ArrayList<DataTime>(Arrays.asList(times));
+                rval = new ArrayList<DataTime>(times);
             }
         }
         if (processRadar) {
