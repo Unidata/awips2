@@ -1122,19 +1122,21 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private void updateGapValueLabel(double gapVal) {
 
-        if (gapVal > 0.75) {
-            gapValueLbl.setBackground(getDisplay()
-                    .getSystemColor(SWT.COLOR_RED));
-        } else if (gapVal > 0.30) {
-            gapValueLbl.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_YELLOW));
-        } else {
-            gapValueLbl.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_GREEN));
-        }
+        if (gapValueLbl != null) {
+            if (gapVal > 0.75) {
+                gapValueLbl.setBackground(getDisplay().getSystemColor(
+                        SWT.COLOR_RED));
+            } else if (gapVal > 0.30) {
+                gapValueLbl.setBackground(getDisplay().getSystemColor(
+                        SWT.COLOR_YELLOW));
+            } else {
+                gapValueLbl.setBackground(getDisplay().getSystemColor(
+                        SWT.COLOR_GREEN));
+            }
 
-        String str = String.format("%2.2f ", gapVal);
-        gapValueLbl.setText(str);
+            String str = String.format("%2.2f ", gapVal);
+            gapValueLbl.setText(str);
+        }
     }
 
     private void initTimeDuration() {
