@@ -324,14 +324,20 @@ class H5pyDataStore(IDataStore.IDataStore):
         deleteFile = False
 
         try:
+            rootNode=f['/']
             locs = request.getLocations()
-            for dataset in locs:
+            for loc in locs:
                 ds = None
 
                 try :
-                    ds = self.__getNode(f, None, dataset)
+                    # try deleting as dataset
+                    ds = self.__getNode(rootNode, None, loc)
                 except Exception, e:
-                    logger.warn('Unable to find uri [' + str(dataset) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
+                    try:
+                        # try deleting as group
+                        ds = self.__getNode(rootNode, loc, None)
+                    except:
+                        logger.warn('Unable to find uri [' + str(loc) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
 
                 if ds:
                     grp = ds.parent
@@ -353,6 +359,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             timeMap['closeFile']=t1-t0
 
             if deleteFile:
+                logger.info('Removing empty file ['+ str(fn) + ']')
                 try:
                     os.remove(fn)
                 except Exception, e:
