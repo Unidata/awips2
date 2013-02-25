@@ -54,7 +54,6 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResourceData;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GenericGeometryResourceData extends
         AbstractDataAccessResourceData<IGeometryData> {
-
     /**
      * Constructor
      */
