@@ -102,6 +102,9 @@ function captureQpidStat() {
 
   local returnCode=0
   local qpidConnLimit=500
+  local qpidConnMedAlarm=75
+  local qpidConnHighAlarm=40
+  local qpidConnCritAlarm=15
 
   case "${platformName}" in
     [a-z][a-z][a-z]n    )   qpidConnLimit=1000 ; echo -e "\tNOTE:  Setting Max qpidd connection to 1000 due to NCEP site" >>  ${logDirectory}/${nowTimeDate}-qpid-stat.out ;; 
@@ -111,20 +114,28 @@ function captureQpidStat() {
   echoDate >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
   echo -e "----------------------------------------------------------------|\n" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
 
+  # Send ITO alarm to NCF - Thank you Sean Bowser for your guidance here.  You are wise.
   numQpidConnections=$( qpid-stat -c | wc -l )
   (( numQpidConnections-=3 )) 
   echo -e "Total Number of QPID Connections: ${numQpidConnections}" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
-  if [[ ${numQpidConnections} -ge $(( qpidConnLimit - 50 )) && ${numQpidConnections} -le $(( qpidConnLimit - 15 )) ]] ; then
-	echo -e "\tNOTE:  Sending Major ITO to NCF because number of connections is between 450 and 485" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
+  if [[ ${numQpidConnections} -ge $(( qpidConnLimit - qpidConnMedAlarm )) && ${numQpidConnections} -lt $(( qpidConnLimit - qpidConnHighAlarm )) ]] ; then
+	echo -e "\tNOTE:  Sending Warning ITO to NCF because number of connections is between $(( qpidConnLimit - qpidConnMedAlarm )) and $(( qpidConnLimit - qpidConnHighAlarm ))" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
 	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
-		opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between 450-485: Please check system health" severity=Major msg_grp=AWIPS
+		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between $(( qpidConnLimit - qpidConnMedAlarm )) and $(( qpidConnLimit - qpidConnHighAlarm )) : Please check for deadlock condition" severity=Warning msg_grp=AWIPS
 	else
 		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
 	fi
-  elif [[ ${numQpidConnections} -gt $(( qpidConnLimit - 15 )) ]] ; then
-	echo -e "\tNOTE:  Sending CRITIAL ITO to NCF because number of connections is > 485" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
+  elif [[ ${numQpidConnections} -ge $(( qpidConnLimit - qpidConnHighAlarm )) && ${numQpidConnections} -lt $(( qpidConnLimit - qpidConnCritAlarm )) ]] ; then
+    echo -e "\tNOTE:  Sending Major ITO to NCF because number of connections is between $(( qpidConnLimit - qpidConnHighAlarm )) and $(( qpidConnLimit - qpidConnCritAlarm ))" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out 
+    if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
+        /opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between $(( qpidConnLimit - qpidConnMedAlarm )) and $(( qpidConnLimit - qpidConnHighAlarm )) : Please check for deadlock condition" severity=Major msg_grp=AWIPS
+    else
+        echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
+    fi
+  elif [[ ${numQpidConnections} -ge $(( qpidConnLimit - qpidConnCritAlarm )) ]] ; then
+	echo -e "\tNOTE:  Sending CRITIAL ITO to NCF because number of connections is >= $(( qpidConnLimit - qpidConnCritAlarm ))" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
 	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
-		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is > 485 -- Take IMMEDIATE action to prevent system failure" severity=Critical msg_grp=AWIPS
+		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is >= $(( qpidConnLimit - qpidConnCritAlarm )) -- Take IMMEDIATE action to prevent system failure" severity=Critical msg_grp=AWIPS
 	else
 		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
 	fi
