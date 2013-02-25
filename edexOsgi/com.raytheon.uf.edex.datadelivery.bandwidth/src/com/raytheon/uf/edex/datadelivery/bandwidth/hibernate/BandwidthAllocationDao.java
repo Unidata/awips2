@@ -22,9 +22,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 
 /**
- * DAO that handles {@link BandwidthAllocation} instances. Intentionally
- * package-private as Spring reflectively creates it, and application code must
- * rely on the interface.
+ * DAO that handles {@link BandwidthAllocation} instances.
  * 
  * <pre>
  * 
@@ -33,13 +31,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
+ * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class BandwidthAllocationDao extends
+public class BandwidthAllocationDao extends
         BaseBandwidthAllocationDao<BandwidthAllocation> implements IBandwidthAllocationDao {
 
     /**
