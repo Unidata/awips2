@@ -111,6 +111,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
  * 07/31/2011   578        dhladky     FFTI modifications
  * 01/27/13     1478       D. Hladky   Added creation of full cache records to help read write stress on NAS
  * 02/01/13     1569        D. Hladky  Added constants, switched to using aggregate records written through pypies
+ * 02/20/13     1635       D. Hladky   Added some finally methods to increase dead lock safety.  Reduced wait times for threads.
  * </pre>
  * 
  * @author dhladky
@@ -468,15 +469,19 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 while (processes.size() > 0) {
                     // wait for all threads to finish before returning
                     try {
-                        Thread.sleep(100);
-                        statusHandler.handle(Priority.DEBUG,
-                                "Checking status ..." + processes.size());
-                        for (String source : processes.keySet()) {
+                        Thread.sleep(50);
+                        
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                             statusHandler.handle(Priority.DEBUG,
-                                    "Still processing ..." + source);
+                                    "Checking status ..." + processes.size());
+                            for (String source : processes.keySet()) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "Still processing ..." + source);
+                            }
                         }
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        statusHandler.handle(Priority.WARN,
+                                "Thread interrupted ..." + e);
                     }
                 }
 
@@ -506,9 +511,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                     while (fftiSources.size() > 0) {
                         try {
-                            Thread.sleep(100);
-                            statusHandler.handle(Priority.DEBUG,
-                                    "Checking status ..." + fftiDone);
+                            Thread.sleep(50);
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "Checking status ..." + fftiDone);
+                            }
                         } catch (InterruptedException e) {
                             statusHandler.handle(Priority.DEBUG,
                                     "Checking status failed!" + e);
@@ -532,8 +539,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             } catch (Throwable e) {
                 statusHandler.handle(Priority.ERROR,
-                        "Unable to process FFMP Records.");
-                e.printStackTrace();
+                        "Unable to process FFMP Records.", e);
             }
         }
     }
@@ -585,19 +591,25 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         @Override
         public void run() {
             try {
-                statusHandler.handle(
-                        Priority.DEBUG,
-                        "ProcessProduct: Starting thread "
-                                + ffmpProduct.getSourceName());
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.handle(
+                            Priority.DEBUG,
+                            "ProcessProduct: Starting thread "
+                                    + ffmpProduct.getSourceName());
+                }
                 process();
-                statusHandler.handle(
-                        Priority.DEBUG,
-                        "ProcessProduct: Finishing thread "
-                                + ffmpProduct.getSourceName());
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.handle(
+                            Priority.DEBUG,
+                            "ProcessProduct: Finishing thread "
+                                    + ffmpProduct.getSourceName());
+                }
             } catch (Exception e) {
-                processes.remove(ffmpProduct.getSourceName());
                 statusHandler.handle(Priority.ERROR, "ProcessProduct: removed "
                         + ffmpProduct.getSourceName(), e);
+            } finally {
+                // resets the process list
+                processes.remove(ffmpProduct.getSourceName());
             }
         }
 
@@ -748,12 +760,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 while (productKeys.size() > 0) {
                     // wait for all threads to finish before returning
                     try {
-                        Thread.sleep(100);
-                        statusHandler.handle(Priority.DEBUG,
-                                "Checking status ..." + productKeys.size());
-                        for (String source : productKeys.keySet()) {
+                        Thread.sleep(50);
+                        
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                             statusHandler.handle(Priority.DEBUG,
-                                    "Still processing ..." + source);
+                                    "Checking status ..." + productKeys.size());
+                            for (String source : productKeys.keySet()) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "Still processing ..." + source);
+                            }
                         }
                     } catch (InterruptedException e) {
                         statusHandler.handle(Priority.WARN,
@@ -767,7 +782,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 recs[i] = ffmpRecords.get(i);
             }
             products.put(ffmpProduct.getSourceName(), recs);
-            processes.remove(ffmpProduct.getSourceName());
         }
     }
 
@@ -811,8 +825,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
          */
         public void createUnifiedGeometries(DomainXML domain) {
             ArrayList<String> hucsToGen = new ArrayList<String>();
-            hucsToGen.add("ALL");
-            hucsToGen.add("COUNTY");
+            hucsToGen.add(FFMPRecord.ALL);
+            hucsToGen.add(FFMPRecord.COUNTY);
 
             for (int i = template.getTotalHucLevels() - 1; i >= 0; i--) {
                 hucsToGen.add("HUC" + i);
@@ -877,7 +891,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     // Didn't process a domain, locked by another cluster
                     // member, sleep and try again
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                     } catch (InterruptedException e) {
                         statusHandler.handle(Priority.WARN,
                                 "Domain processing Interrupted!", e);
@@ -1204,10 +1218,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.ERROR, getGeneratorName()
                     + ": filter: " + filter.getName()
                     + ": failed to route filter to generator", e);
+        } finally {
+            // safer, this way filter never gets set in weird state
+            filter.setValidTime(new Date(System.currentTimeMillis()));
+            filter.reset();
         }
-
-        filter.setValidTime(new Date(System.currentTimeMillis()));
-        filter.reset();
     }
 
     /**
