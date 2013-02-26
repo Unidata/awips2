@@ -1,3 +1,4 @@
+#!/bin/sh
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -18,19 +19,22 @@
 # further licensing information.
 ##
 
-class UpdateActiveTableResponse(object):
-    def __init__(self):
-        self.sourceInfo = None
-        self.message = None
-        
-    def getSourceInfo(self):
-        return self.sourceInfo
-    
-    def getMessage(self):
-        return self.message
-    
-    def setSourceInfo(self, sourceInfo):
-        self.sourceInfo = sourceInfo
-        
-    def setMessage(self, message):
-        self.message = message
+# this allows you to run this script from outside of ./bin
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+GFESUITE_DIR=`dirname $RUN_FROM_DIR`
+
+# get the base environment
+source ${RUN_FROM_DIR}/setup.env
+
+# setup the environment needed to run the the Python
+export LD_LIBRARY_PATH=${GFESUITE_DIR}/src/lib:${PYTHON_INSTALL}/lib
+export PYTHONPATH=${RUN_FROM_DIR}/src:${RUN_FROM_DIR}/activeTable:$PYTHONPATH
+
+# execute the Python module
+_PYTHON="${PYTHON_INSTALL}/bin/python"
+_MODULE="${RUN_FROM_DIR}/src/activeTable/sendAT.py"
+
+# quoting of '$@' is used to prevent command line interpretation 
+$_PYTHON $_MODULE "$@"
