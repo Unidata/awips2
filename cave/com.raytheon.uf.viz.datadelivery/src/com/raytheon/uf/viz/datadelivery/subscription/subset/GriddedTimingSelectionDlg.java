@@ -24,6 +24,8 @@ import java.util.Set;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -56,7 +58,8 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * Oct 11, 2012  1263      jpiatt      Modified for cancel button
  * Nov 20, 2012  1286      djohnson    Implement displayYesNoPopup.
  * Jan 04, 2013  1420      mpduff      Add Priority Composite.
- * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
+ * Jan 25, 2013  1528      djohnson    Subscription priority is now an enum.
+ * Feb 26, 2013  1592      djohnson    When the shell is closed, don't submit the query.
  * 
  * </pre>
  * 
@@ -237,6 +240,13 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 close();
+                cancelBtnConf.getOnClickAction().run();
+            }
+        });
+
+        shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent event) {
                 cancelBtnConf.getOnClickAction().run();
             }
         });
