@@ -6,4 +6,8 @@
     <bean id="bandwidthManagerCreator"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.WfoBandwidthManagerCreator" />
 
+    <bean id="ncfBandwidthManagerServiceRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
+        <constructor-arg value="${ncf.bandwidth.manager.service}" />
+    </bean>
+
 </beans>
