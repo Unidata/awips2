@@ -1885,7 +1885,7 @@ IFPConfigServer.allowTopoBelowZero       = 1
 def doIt():
     # Import the local site configuration file (if it exists)
     import doConfig
-#    import VTECPartners
+    import VTECPartners
     (models, projections, vis, wx, desDef, allSites, domain, siteId, timeZone,officeTypes) = \
       doConfig.parse(GFESUITE_SITEID, DATABASES, types, visibilities, SITES,
       allProjections)
@@ -1910,6 +1910,7 @@ def doIt():
     logFilePurgeAfter, \
     prdDir, baseDir, \
     extraWEPrecision, \
+    tableFetchTime, \
     autoConfigureNotifyTextProd, \
     iscRoutingTableAddress, \
     requestedISCsites, requestISC, \
@@ -1922,7 +1923,8 @@ def doIt():
       D2DAccumulativeElements,
       INITSKIPS, D2DDBVERSIONS, LOG_FILE_PURGE_AFTER, 
       GFESUITE_PRDDIR, GFESUITE_HOME,
-      ExtraWEPrecision, AUTO_CONFIGURE_NOTIFYTEXTPROD, ISC_ROUTING_TABLE_ADDRESS,
+      ExtraWEPrecision, VTECPartners.VTEC_REMOTE_TABLE_FETCH_TIME, 
+      AUTO_CONFIGURE_NOTIFYTEXTPROD, ISC_ROUTING_TABLE_ADDRESS,
       REQUESTED_ISC_SITES, REQUEST_ISC, SEND_ISC_ON_SAVE, SEND_ISC_ON_PUBLISH,
       REQUESTED_ISC_PARMS, TRANSMIT_SCRIPT)
     IFPConfigServer.serverHost = serverHost
@@ -1936,6 +1938,7 @@ def doIt():
     IFPConfigServer.prdDir = prdDir
     IFPConfigServer.baseDir = baseDir
     IFPConfigServer.extraWEPrecision = extraWEPrecision
+    IFPConfigServer.tableFetchTime = tableFetchTime
     IFPConfigServer.autoConfigureNotifyTextProd =  autoConfigureNotifyTextProd
     IFPConfigServer.iscRoutingTableAddress = iscRoutingTableAddress
     IFPConfigServer.requestedISCsites = requestedISCsites
