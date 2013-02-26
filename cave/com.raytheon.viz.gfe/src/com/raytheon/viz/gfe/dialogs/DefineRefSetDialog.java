@@ -859,7 +859,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                 "evaluate", argMap);
 
-        IPythonJobListener<Object> listener = new IPythonJobListener<Object>() {
+        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
             @Override
             public void jobFailed(Throwable e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -867,12 +867,16 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             }
 
             @Override
-            public void jobFinished(Object result) {
-                ReferenceData newRef = (ReferenceData) result;
-                activeDisplay.setText(s);
-                refSetMgr.incomingRefSet(newRef, RefSetMode.USE_CURRENT);
-                addToHistory(s);
-                queryField.setText("");
+            public void jobFinished(final ReferenceData result) {
+                VizApp.runAsync(new Runnable() {
+                    public void run() {
+                        activeDisplay.setText(s);
+                        refSetMgr
+                                .incomingRefSet(result, RefSetMode.USE_CURRENT);
+                        addToHistory(s);
+                        queryField.setText("");
+                    };
+                });
             }
         };
         try {
