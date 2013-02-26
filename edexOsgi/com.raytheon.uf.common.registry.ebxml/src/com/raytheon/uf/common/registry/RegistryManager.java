@@ -25,6 +25,7 @@ import com.raytheon.uf.common.registry.ebxml.IdQuery;
  * Aug 20, 2012 0743       djohnson    Allow instance to be changed from {@link RegistryManagerTest}.
  * Sep 14, 2012 1169       djohnson    Add use of create only mode.
  * Nov 15, 2012 1322       djohnson    Use package-level constructor to control who can set the handler instance.
+ * Feb 26, 2013 1643       djohnson    Remove registry manager debug toggle.
  * 
  * </pre>
  * 
@@ -34,11 +35,6 @@ import com.raytheon.uf.common.registry.ebxml.IdQuery;
 public final class RegistryManager {
 
     private static RegistryHandler instance;
-
-    private static final String REGISTRYMANAGER_DEBUG = "awips.registrymanager.debug";
-
-    public static final boolean DEBUG = Boolean
-            .getBoolean(REGISTRYMANAGER_DEBUG);
 
     /**
      * Package-level constructor for utility class, it allows Spring to set the
