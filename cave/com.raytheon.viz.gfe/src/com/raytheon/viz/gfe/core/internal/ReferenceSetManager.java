@@ -1856,6 +1856,20 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     @Override
     public void spatialEditorTimeChanged(Date date) {
-        evaluateActiveRefSet();
+        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
+            @Override
+            public void jobFailed(Throwable e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to run QueryScript job", e);
+            }
+
+            @Override
+            public void jobFinished(ReferenceData result) {
+                if (!result.getGrid().equals(activeRefSet.getGrid())) {
+                    setActiveRefSet(result);
+                }
+            }
+        };
+        evaluateActiveRefSet(listener);
     }
 }
