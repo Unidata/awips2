@@ -51,6 +51,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2009            njensen     Initial creation
+ * Feb 26, 2013  1447      dgilling    Implement equals().
  * 
  * </pre>
  * 
@@ -216,6 +217,258 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
 
     @Override
     public abstract Object clone();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ActiveTableRecord other = (ActiveTableRecord) obj;
+        if (act == null) {
+            if (other.act != null) {
+                return false;
+            }
+        } else if (!act.equals(other.act)) {
+            return false;
+        }
+        if (countyheader == null) {
+            if (other.countyheader != null) {
+                return false;
+            }
+        } else if (!countyheader.equals(other.countyheader)) {
+            return false;
+        }
+        if (endTime == null) {
+            if (other.endTime != null) {
+                return false;
+            }
+        } else if (!endTime.equals(other.endTime)) {
+            return false;
+        }
+        if (etn == null) {
+            if (other.etn != null) {
+                return false;
+            }
+        } else if (!etn.equals(other.etn)) {
+            return false;
+        }
+        if (floodBegin == null) {
+            if (other.floodBegin != null) {
+                return false;
+            }
+        } else if (!floodBegin.equals(other.floodBegin)) {
+            return false;
+        }
+        if (floodCrest == null) {
+            if (other.floodCrest != null) {
+                return false;
+            }
+        } else if (!floodCrest.equals(other.floodCrest)) {
+            return false;
+        }
+        if (floodEnd == null) {
+            if (other.floodEnd != null) {
+                return false;
+            }
+        } else if (!floodEnd.equals(other.floodEnd)) {
+            return false;
+        }
+        if (floodRecordStatus == null) {
+            if (other.floodRecordStatus != null) {
+                return false;
+            }
+        } else if (!floodRecordStatus.equals(other.floodRecordStatus)) {
+            return false;
+        }
+        if (floodSeverity == null) {
+            if (other.floodSeverity != null) {
+                return false;
+            }
+        } else if (!floodSeverity.equals(other.floodSeverity)) {
+            return false;
+        }
+        if (forecaster == null) {
+            if (other.forecaster != null) {
+                return false;
+            }
+        } else if (!forecaster.equals(other.forecaster)) {
+            return false;
+        }
+        if (geometry == null) {
+            if (other.geometry != null) {
+                return false;
+            }
+        } else if (!geometry.equalsExact(other.geometry)) {
+            return false;
+        }
+        if (immediateCause == null) {
+            if (other.immediateCause != null) {
+                return false;
+            }
+        } else if (!immediateCause.equals(other.immediateCause)) {
+            return false;
+        }
+        if (issueTime == null) {
+            if (other.issueTime != null) {
+                return false;
+            }
+        } else if (!issueTime.equals(other.issueTime)) {
+            return false;
+        }
+        if (loc == null) {
+            if (other.loc != null) {
+                return false;
+            }
+        } else if (!loc.equals(other.loc)) {
+            return false;
+        }
+        if (locationID == null) {
+            if (other.locationID != null) {
+                return false;
+            }
+        } else if (!locationID.equals(other.locationID)) {
+            return false;
+        }
+        if (motdir == null) {
+            if (other.motdir != null) {
+                return false;
+            }
+        } else if (!motdir.equals(other.motdir)) {
+            return false;
+        }
+        if (motspd == null) {
+            if (other.motspd != null) {
+                return false;
+            }
+        } else if (!motspd.equals(other.motspd)) {
+            return false;
+        }
+        if (officeid == null) {
+            if (other.officeid != null) {
+                return false;
+            }
+        } else if (!officeid.equals(other.officeid)) {
+            return false;
+        }
+        if (overviewText == null) {
+            if (other.overviewText != null) {
+                return false;
+            }
+        } else if (!overviewText.equals(other.overviewText)) {
+            return false;
+        }
+        if (phen == null) {
+            if (other.phen != null) {
+                return false;
+            }
+        } else if (!phen.equals(other.phen)) {
+            return false;
+        }
+        if (phensig == null) {
+            if (other.phensig != null) {
+                return false;
+            }
+        } else if (!phensig.equals(other.phensig)) {
+            return false;
+        }
+        if (pil == null) {
+            if (other.pil != null) {
+                return false;
+            }
+        } else if (!pil.equals(other.pil)) {
+            return false;
+        }
+        if (productClass == null) {
+            if (other.productClass != null) {
+                return false;
+            }
+        } else if (!productClass.equals(other.productClass)) {
+            return false;
+        }
+        if (purgeTime == null) {
+            if (other.purgeTime != null) {
+                return false;
+            }
+        } else if (!purgeTime.equals(other.purgeTime)) {
+            return false;
+        }
+        if (rawmessage == null) {
+            if (other.rawmessage != null) {
+                return false;
+            }
+        } else if (!rawmessage.equals(other.rawmessage)) {
+            return false;
+        }
+        if (region == null) {
+            if (other.region != null) {
+                return false;
+            }
+        } else if (!region.equals(other.region)) {
+            return false;
+        }
+        if (seg != other.seg) {
+            return false;
+        }
+        if (segText == null) {
+            if (other.segText != null) {
+                return false;
+            }
+        } else if (!segText.equals(other.segText)) {
+            return false;
+        }
+        if (sig == null) {
+            if (other.sig != null) {
+                return false;
+            }
+        } else if (!sig.equals(other.sig)) {
+            return false;
+        }
+        if (startTime == null) {
+            if (other.startTime != null) {
+                return false;
+            }
+        } else if (!startTime.equals(other.startTime)) {
+            return false;
+        }
+        if (ufn != other.ufn) {
+            return false;
+        }
+        if (ugcZone == null) {
+            if (other.ugcZone != null) {
+                return false;
+            }
+        } else if (!ugcZone.equals(other.ugcZone)) {
+            return false;
+        }
+        if (vtecstr == null) {
+            if (other.vtecstr != null) {
+                return false;
+            }
+        } else if (!vtecstr.equals(other.vtecstr)) {
+            return false;
+        }
+        if (wmoid == null) {
+            if (other.wmoid != null) {
+                return false;
+            }
+        } else if (!wmoid.equals(other.wmoid)) {
+            return false;
+        }
+        if (xxxid == null) {
+            if (other.xxxid != null) {
+                return false;
+            }
+        } else if (!xxxid.equals(other.xxxid)) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * @return the wmoid
