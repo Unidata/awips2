@@ -405,16 +405,16 @@ def parseSat(satdirs):
 def otherParse(serverhost, mhsid, port,  
   initmodules, accumElem,
   initskips, d2ddbver, logfilepurge, prddir, home,
-  extraWEPrec, autoConfigureNotifyTextProd,
+  extraWEPrec, vtecRequestTime, autoConfigureNotifyTextProd,
   iscRoutingTableAddress, requestedISCsites, requestISC, sendiscOnSave,
   sendiscOnPublish, requestedISCparms, transmitScript):
     if type(serverhost) != str:
         raise TypeError, "GFESUITE_HOST not an str: " + `serverhost`
     if type(mhsid) != str:
         raise TypeError, "GFESUITE_MHSID not an str: " + `mhsid`
-#    if type(vtecRequestTime) != int:
-#        raise TypeError, "VTECPartners: VTEC_REMOTE_TABLE_FETCH_TIME " + \
-#          "not an int: " + `vtecRequestTime`
+    if type(vtecRequestTime) != int:
+        raise TypeError, "VTECPartners: VTEC_REMOTE_TABLE_FETCH_TIME " + \
+          "not an int: " + `vtecRequestTime`
     if type(port) != int:
         raise TypeError, "GFESUITE_PORT not an int: " + `port`
     initmodules = dictCheck(initmodules, list, str, "INITMODULES")
@@ -490,7 +490,7 @@ def otherParse(serverhost, mhsid, port,
     return serverhost, mhsid, \
       port, initmodules, accumElem, \
       initskips, d2ddbver, logfilepurge, prddir, home,\
-      extraWEPrecision, \
+      extraWEPrecision, vtecRequestTime, \
       autoConfigureNotifyTextProd, \
       iscRoutingTableAddress, reqISCsites, requestISC, sendiscOnSave, \
       sendiscOnPublish, reqISCparms, transmitScript
