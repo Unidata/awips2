@@ -20,35 +20,21 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
 
-class UpdateActiveTableRequest(object):
+class ActiveTableSharingResponse(object):
 
     def __init__(self):
-        self.activeTable = None
-        self.xmlSource = None
-        self.mode = None
-        self.timeOffset = None
+        self.taskSuccess = None
+        self.errorMessage = None
 
-    def getActiveTable(self):
-        return self.activeTable
+    def getTaskSuccess(self):
+        return self.taskSuccess
 
-    def setActiveTable(self, activeTable):
-        self.activeTable = activeTable
+    def setTaskSuccess(self, taskSuccess):
+        self.taskSuccess = bool(taskSuccess)
 
-    def getXmlSource(self):
-        return self.xmlSource
+    def getErrorMessage(self):
+        return self.errorMessage
 
-    def setXmlSource(self, xmlSource):
-        self.xmlSource = xmlSource
-
-    def getMode(self):
-        return self.mode
-
-    def setMode(self, mode):
-        self.mode = mode
-
-    def getTimeOffset(self):
-        return self.timeOffset
-
-    def setTimeOffset(self, timeOffset):
-        self.timeOffset = timeOffset
+    def setErrorMessage(self, errorMessage):
+        self.errorMessage = errorMessage
 
