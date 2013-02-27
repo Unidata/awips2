@@ -19,42 +19,8 @@
 
    <requires>
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
    </requires>
-
-   <plugin
-         id="com.raytheon.uf.common.auth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.colormap"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataquery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.datastorage"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.derivparam"
@@ -71,33 +37,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.geospatial"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.units"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.localization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.menus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.message"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -111,35 +51,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.pypies"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.python"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.cache"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.serialization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.serialization.comm"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -153,19 +65,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.status"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.time"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.common.topo"
          download-size="0"
          install-size="0"
@@ -173,28 +72,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.alertmonitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.edex.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -216,13 +94,6 @@
 
    <plugin
          id="com.raytheon.uf.common.spatial"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.level"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -285,35 +156,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.stats"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.event"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataaccess"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.image"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.python.concurrent"
          download-size="0"
          install-size="0"
          version="0.0.0"
