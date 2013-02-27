@@ -15,6 +15,10 @@
    </license>
 
    <includes
+         id="com.raytheon.uf.common.base.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.eclipse.feature"
          version="0.0.0"/>
 
@@ -168,10 +172,6 @@
 
    <includes
          id="com.raytheon.uf.viz.gisdatastore.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.viz.dataaccess.feature"
          version="0.0.0"/>
 
    <requires>
