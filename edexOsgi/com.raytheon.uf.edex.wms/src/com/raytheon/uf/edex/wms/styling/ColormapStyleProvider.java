@@ -32,6 +32,7 @@ package com.raytheon.uf.edex.wms.styling;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -63,6 +64,7 @@ import org.geotools.styling.StyleBuilder;
 import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.edex.exception.ColorTableException;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.IPrecomputedRange;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -70,7 +72,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
-import com.raytheon.uf.common.image.colormap.ColorMapParameters;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -193,7 +194,7 @@ public class ColormapStyleProvider implements CoverageStyleProvider {
                     }
                 }
 
-                BufferedImage img = applyColorMap(dataRecord.getRecord(),
+                RenderedImage img = applyColorMap(dataRecord.getRecord(),
                         styleChoice.getCmap(), styleRule);
                 GeneralEnvelope ge = new GeneralEnvelope(2);
                 ge.setCoordinateReferenceSystem(re
@@ -210,9 +211,9 @@ public class ColormapStyleProvider implements CoverageStyleProvider {
         return rval;
     }
 
-    protected BufferedImage applyColorMap(IDataRecord record, ColorMap cmap,
+    protected RenderedImage applyColorMap(IDataRecord record, ColorMap cmap,
             StyleRule styleRule) throws Exception {
-        BufferedImage rval;
+        RenderedImage rval;
         if (record instanceof ByteDataRecord) {
             ByteDataRecord data = (ByteDataRecord) record;
             rval = ColorMapUtility.applyColorMap(data, cmap, styleRule);
@@ -232,7 +233,7 @@ public class ColormapStyleProvider implements CoverageStyleProvider {
         return rval;
     }
 
-    protected GridCoverage2D convert(BufferedImage img, GeneralEnvelope bounds) {
+    protected GridCoverage2D convert(RenderedImage img, GeneralEnvelope bounds) {
         GridCoverageFactory fact = new GridCoverageFactory();
         return fact.create("", img, bounds);
     }
@@ -533,7 +534,7 @@ public class ColormapStyleProvider implements CoverageStyleProvider {
         // Create the labels if necessary.
         BufferedImage labels = null;
         ColorMapParameters params = ColorMapUtility.getCmapParams(cmap,
-                styleRule, null, null);
+                styleRule, null);
         float min = params.getColorMapMin();
         float max = params.getColorMapMax();
         ColorbarLabeling colorbarLabeling = styleRule.getColorbarLabeling();

@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.opengis.metadata.spatial.PixelOrientation;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.satellite.units.ir.IRPixel;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -53,7 +54,6 @@ import com.raytheon.uf.viz.cloudheight.impl.ModelCloudHeightSourceImplementation
 import com.raytheon.uf.viz.cloudheight.impl.RaobCloudHeightSourceImplementation;
 import com.raytheon.uf.viz.cloudheight.rsc.PopupSkewTResource;
 import com.raytheon.uf.viz.cloudheight.ui.CloudHeightRightClickAction;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
