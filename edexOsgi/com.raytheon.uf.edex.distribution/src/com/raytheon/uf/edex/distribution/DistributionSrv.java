@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,6 +37,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -55,6 +59,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 16, 2009            brockwoo     Initial creation
  * 6/8/2010     4647       bphillip    Added automatic pattern refreshing
  * 09/01/2010   4293       cjeanbap    Logging of unknown Weather Products.
+ * Feb 27, 2013 1638        mschenke   Cleaned up localization code to fix null pointer
+ *                                     when no distribution files present
  * 
  * </pre>
  * 
@@ -263,43 +269,18 @@ public class DistributionSrv {
      * @return An array of the files in the distribution directory
      */
     private File[] getDistributionFiles() {
-        List<File> fileList = new ArrayList<File>();
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
 
-        LocalizationContext siteStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC,
-                LocalizationContext.LocalizationLevel.SITE);
-
-        File[] distributionFiles = pathMgr.getFile(commonStaticBase,
-                "distribution").listFiles();
-
-        File[] siteDistributionFiles = pathMgr.getFile(siteStaticBase,
-                "distribution").listFiles();
-
-        if (siteDistributionFiles == null) {
-            return distributionFiles;
-        } else if (siteDistributionFiles.length == 0) {
-            return distributionFiles;
-        }
-        fileList.addAll(Arrays.asList(siteDistributionFiles));
-        boolean siteOverride = false;
-        for (File baseFile : distributionFiles) {
-            siteOverride = false;
-            for (File siteFile : fileList) {
-                if (siteFile.exists()
-                        && siteFile.getName().equals(baseFile.getName())) {
-                    siteOverride = true;
-                    break;
-                }
-            }
-            if (!siteOverride) {
-                fileList.add(baseFile);
+        LocalizationFile[] files = pathMgr.listFiles(
+                pathMgr.getLocalSearchHierarchy(LocalizationType.EDEX_STATIC),
+                "distribution", null, true, true);
+        Map<String, File> distFiles = new HashMap<String, File>();
+        for (LocalizationFile file : files) {
+            if (distFiles.containsKey(file.getName()) == false) {
+                distFiles.put(file.getName(), file.getFile());
             }
         }
 
-        return fileList.toArray(new File[] {});
+        return distFiles.values().toArray(new File[0]);
     }
 }

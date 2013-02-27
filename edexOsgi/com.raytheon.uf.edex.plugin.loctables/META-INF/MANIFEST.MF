@@ -7,7 +7,7 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.common.localization,
  javax.measure,
  org.geotools,
