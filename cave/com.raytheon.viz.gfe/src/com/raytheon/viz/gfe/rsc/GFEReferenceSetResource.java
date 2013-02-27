@@ -28,7 +28,6 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateT
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
-import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,7 +60,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Mar 27, 2008		#1053	randerso	Initial creation
- * 2/14/2013                mnash       Use the new Python concurrency for QueryScript
+ * 02/14/2013       #1506   mnash       Use the new Python concurrency for QueryScript
+ * 02/26/2013       #1708   randerso    Changed to not evaluate the ref set
  * 
  * </pre>
  * 
@@ -154,46 +154,30 @@ public class GFEReferenceSetResource extends
         shadedShape = target.createShadedShape(false,
                 this.descriptor.getGridGeometry(), true);
 
+        JTSCompiler jtsCompiler = new JTSCompiler(shadedShape, outlineShape,
+                this.descriptor);
+
         this.needsUpdate = false;
+        ReferenceData refData = this.refSetMgr.getActiveRefSet();
 
-        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
-            @Override
-            public void jobFailed(Throwable e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Unable to run query script", e);
-            }
+        refData.setGrid(refData.getGrid());
 
-            @Override
-            public void jobFinished(ReferenceData refData) {
-                JTSCompiler jtsCompiler = new JTSCompiler(shadedShape,
-                        outlineShape, descriptor);
-                refData.setGrid(refData.getGrid());
+        MultiPolygon mp = (MultiPolygon) refData.getPolygons(
+                CoordinateType.GRID).clone();
 
-                MultiPolygon mp = (MultiPolygon) refData.getPolygons(
-                        CoordinateType.GRID).clone();
+        ReferencedGeometry rc = new ReferencedGeometry(mp,
+                MapUtil.getGridGeometry(refData.getGloc()), Type.GRID_CENTER);
 
-                ReferencedGeometry rc = new ReferencedGeometry(mp,
-                        MapUtil.getGridGeometry(refData.getGloc()),
-                        Type.GRID_CENTER);
+        try {
+            jtsCompiler.handle(rc, getCapability(ColorableCapability.class)
+                    .getColor());
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
 
-                try {
-                    jtsCompiler
-                            .handle(rc,
-                                    getCapability(ColorableCapability.class)
-                                            .getColor());
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-
-                outlineShape.compile();
-                shadedShape.compile();
-                shadedShape.setFillPattern(fillPattern);
-                refSetMgr.getActiveRefSet();
-                issueRefresh();
-            }
-        };
-        this.refSetMgr.evaluateActiveRefSet(listener);
+        outlineShape.compile();
+        shadedShape.compile();
+        shadedShape.setFillPattern(fillPattern);
     }
 
     /*
