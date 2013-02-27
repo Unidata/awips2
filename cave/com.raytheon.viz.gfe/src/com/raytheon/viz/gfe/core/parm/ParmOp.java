@@ -48,7 +48,9 @@ import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SendISCRequest;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -91,6 +93,9 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 public class ParmOp {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParmOp.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     private static final int MAX_CONCURRENT_JOBS = 5;
 
@@ -387,7 +392,7 @@ public class ParmOp {
      */
     public void interpolateSelected(InterpMode interpMode,
             InterpState interpState, int interval, int duration) {
-        statusHandler.debug("Interpolation started");
+        perfLog.log("Interpolation started");
         Parm[] allParms = this.dataManager.getParmManager().getAllParms();
         for (Parm parm : allParms) {
             if (parm.getParmState().isSelected() && parm.isMutable()) {
