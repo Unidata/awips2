@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.pirep.PirepLayerData;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Point;
  * parse text elements properly. Removed test code to unit-test
  * parse TEIs.
  * 08/23/2012         1011 jkorman     Corrected test for icing NEG.
+ * Feb 27, 2013 1638       mschenke     Moved ObStationDao to edex pointdata plugin
  * </pre>
  * 
  * @author jkorman

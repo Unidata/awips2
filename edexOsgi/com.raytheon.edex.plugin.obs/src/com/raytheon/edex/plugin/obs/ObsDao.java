@@ -26,7 +26,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * TODO Add Description
@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * ------------ ---------- ----------- --------------------------
  *  
  * 20071217            453  jkorman    added queryDataUriColumn method.
+ * Feb 27, 2013 1638        mschenke    Moved ObStationDao to edex pointdata plugin
  * </pre>
  * 
  * @author jkorman

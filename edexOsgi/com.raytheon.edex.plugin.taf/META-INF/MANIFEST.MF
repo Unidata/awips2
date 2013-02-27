@@ -9,7 +9,7 @@ Export-Package: com.raytheon.edex.plugin.taf,
  com.raytheon.edex.plugin.taf.common,
  com.raytheon.edex.plugin.taf.decoder
 Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.apache.commons.logging,
  org.apache.commons.lang,
