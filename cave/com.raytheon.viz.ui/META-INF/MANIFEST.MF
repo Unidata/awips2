@@ -13,7 +13,8 @@ Require-Bundle: com.raytheon.viz.core,
  javax.measure,
  org.apache.commons.lang,
  com.raytheon.uf.viz.core,
- org.eclipse.core.expressions
+ org.eclipse.core.expressions,
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.actions,
  com.raytheon.viz.ui.cmenu,
@@ -36,6 +37,5 @@ Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.widgets,
  com.raytheon.viz.ui.widgets.duallist
 Bundle-Vendor: Raytheon
-Import-Package: com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.message.response
+Import-Package: com.raytheon.uf.common.message.response
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

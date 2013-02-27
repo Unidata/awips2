@@ -25,14 +25,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import com.raytheon.edex.exception.ColorTableException;
 import com.raytheon.uf.common.colormap.CMapFilenameFilter;
-import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.colormap.ColorMapUtils;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.image.Colormapper;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -63,9 +61,9 @@ public class ColorMapManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ColorMapManager.class);
 
-    public static final int NUMBER_BITS = ColorMapUtils.COLOR_MODEL_NUMBER_BITS;
+    public static final int NUMBER_BITS = Colormapper.COLOR_MODEL_NUMBER_BITS;
 
-    public static final float MAX_VALUE = ColorMapUtils.MAX_VALUE;
+    public static final float MAX_VALUE = Colormapper.MAX_VALUE;
 
     private static ColorMapManager instance;
 
@@ -163,7 +161,7 @@ public class ColorMapManager {
      */
     @Deprecated
     public static IndexColorModel buildColorModel(IColorMap aColorMap) {
-        return ColorMapUtils.buildColorModel(aColorMap);
+        return Colormapper.buildColorModel(aColorMap);
     }
 
 }

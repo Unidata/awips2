@@ -33,11 +33,11 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.shef.tables.Curpc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Curpp;
 import com.raytheon.uf.common.dataplugin.shef.tables.Riverstatus;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.hydro.Activator;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.TimeModeType;
 import com.raytheon.viz.hydro.pointdatacontrol.data.PDCLocationShift;

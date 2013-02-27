@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.core.gl.dataformat;
 
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 
 /**
  * Factory class for getting GLColorMapDataFormat objects given the ColorMapData
