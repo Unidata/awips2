@@ -18,7 +18,8 @@ Require-Bundle: net.opengis;bundle-version="1.0.2",
  org.apache.commons.collections;bundle-version="3.2.0",
  com.raytheon.uf.common.json;bundle-version="1.0.0",
  com.sun.xml.bind;bundle-version="1.0.0",
- com.raytheon.uf.common.status;bundle-version="1.12.1174"
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.spatial;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.ogc.common,
  com.raytheon.uf.edex.ogc.common.colormap,
  com.raytheon.uf.edex.ogc.common.db,

@@ -20,7 +20,6 @@
 
 package com.raytheon.uf.edex.alertviz.handler;
 
-import com.raytheon.edex.uengine.Activator;
 import com.raytheon.uf.common.alertviz.AlertVizRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * 11/22/2010   2235       cjeanbap    Pass audioFile value to EDEXUtility.
  * 02/02/2011   6500       cjeanbap    Pass source value to EDEXUtility.
  * 03/14/2011   5149	   cjeanbap	   Removed debug log statements.
+ * Feb 27, 2013 1638       mschenke    Removed dependency on uengine project
  * 
  * </pre>
  * 
@@ -47,6 +47,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 public class AlertVizRequestHandler implements IRequestHandler<AlertVizRequest> {
 
+    private static final String PLUGIN_ID = "com.raytheon.uf.edex.alertviz";
+    
     private static final String RESULT = "None";
 
     /**
@@ -61,13 +63,12 @@ public class AlertVizRequestHandler implements IRequestHandler<AlertVizRequest> 
 
         String sourceKey = request.getSourceKey();
         Priority priority = findPriority(request);
-        String pluginName = Activator.PLUGIN_ID;
         String category = request.getCategory();
         String message = request.getMessage();
         String details = request.toString();
         String audioFile = request.getAudioFile();
 
-        EDEXUtil.sendMessageAlertViz(priority, pluginName, sourceKey, category,
+        EDEXUtil.sendMessageAlertViz(priority, PLUGIN_ID, sourceKey, category,
                 message, details, audioFile);
 
         return RESULT;

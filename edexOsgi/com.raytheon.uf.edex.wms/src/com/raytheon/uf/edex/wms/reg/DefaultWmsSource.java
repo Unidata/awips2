@@ -48,12 +48,14 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
+import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.ogc.common.OgcNamespace;
 import com.raytheon.uf.edex.ogc.common.OgcStyle;
 import com.raytheon.uf.edex.ogc.common.StyleLookup;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
-import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
+import com.raytheon.uf.edex.ogc.common.spatial.RecordUtil;
 import com.raytheon.uf.edex.wms.WmsException;
 import com.raytheon.uf.edex.wms.WmsException.Code;
 import com.raytheon.uf.edex.wms.styling.CoverageStyleProvider;
@@ -85,9 +87,9 @@ public abstract class DefaultWmsSource extends AbstractWmsSource implements
 				null);
 		double value;
 		try {
-			PluginDao dao = getDao();
-			value = dao.getHDF5Value(record, crs, c, 0);
-		} catch (Exception e) {
+            PluginDao dao = getDao();
+            value = RecordUtil.getHDF5Value(dao, record, crs, c, 0);
+        } catch (Exception e) {
 			log.error("Problem retrieving feature data", e);
 			throw new WmsException(Code.InternalServerError);
 		}
@@ -183,8 +185,7 @@ public abstract class DefaultWmsSource extends AbstractWmsSource implements
 	public ReferencedDataRecord getDataRecord(PluginDataObject record,
 			ReferencedEnvelope envelope) throws WmsException {
 		try {
-			PluginDao dao = getDao();
-			return dao.getProjected(record, envelope);
+			return RecordUtil.getProjected(getDao(),record, envelope);
 		} catch (Exception e) {
 			log.error("Unable to get reprojected data for record: " + record, e);
 			throw new WmsException(Code.InternalServerError);
@@ -195,9 +196,8 @@ public abstract class DefaultWmsSource extends AbstractWmsSource implements
 	public GridCoverage2D getGridCoverage(PluginDataObject record,
 			ReferencedEnvelope envelope) throws WmsException {
 		try {
-			PluginDao dao = getDao();
-			return dao.getProjectedCoverage(record, envelope);
-		} catch (Exception e) {
+            return RecordUtil.getProjectedCoverage(getDao(), record, envelope);
+        } catch (Exception e) {
 			log.error("Unable to get reprojected data for record: " + record, e);
 			throw new WmsException(Code.InternalServerError);
 		}
