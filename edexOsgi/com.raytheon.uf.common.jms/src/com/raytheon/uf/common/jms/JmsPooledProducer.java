@@ -22,7 +22,6 @@ package com.raytheon.uf.common.jms;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 
@@ -32,8 +31,12 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
+ * Jms Pooled Producer. Tracks references to the producers to know when the
+ * producer can be released to the pool. Any exception will close pooled
+ * producer instead of returning to the pool.
+ * 
  * Synchronization Principle To prevent deadlocks: Chained sync blocks can only
- * happen in a doward direction. A manager has a synchonized lock can make a
+ * happen in a downward direction. A manager has a synchronized lock can make a
  * call down to a wrapper, but not nice versa. Also a session inside a sync
  * block can make a call down to a producer but not vice versa.
  * 
@@ -44,8 +47,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2011            rjpeter     Initial creation
- * Mar 08, 2012   194   njensen   Improved logging
- * 
+ * Mar 08, 2012 194        njensen     Improved logging
+ * Feb 26, 2013 1642       rjpeter     Removed lazy initialization
  * </pre>
  * 
  * @author rjpeter
@@ -58,31 +61,29 @@ public class JmsPooledProducer {
 
     private final JmsPooledSession sess;
 
-    private final Destination destination;
-
-    private MessageProducer producer;
+    private final MessageProducer producer;
 
     private final String destKey;
 
-    private boolean exceptionOccurred = false;
+    private volatile boolean exceptionOccurred = false;
 
-    private Object stateLock = new Object();
+    private final Object stateLock = new Object();
 
-    private State state = State.InUse;
+    private volatile State state = State.InUse;
 
     /**
      * Technically a pooled producer should only have 1 reference at a time.
      * Bullet proofing in case 3rd party ever tries to get multiple producers to
      * the same destination.
      */
-    private List<JmsProducerWrapper> references = new ArrayList<JmsProducerWrapper>(
+    private final List<JmsProducerWrapper> references = new ArrayList<JmsProducerWrapper>(
             1);
 
     public JmsPooledProducer(JmsPooledSession sess, String destKey,
-            Destination destination) {
+            MessageProducer producer) {
         this.sess = sess;
         this.destKey = destKey;
-        this.destination = destination;
+        this.producer = producer;
     }
 
     public String getDestKey() {
@@ -151,7 +152,7 @@ public class JmsPooledProducer {
                 close = true;
 
                 for (JmsProducerWrapper wrapper : references) {
-                    wrapper.closeInternal();
+                    wrapper.closeWrapper();
                 }
 
                 references.clear();
@@ -159,15 +160,12 @@ public class JmsPooledProducer {
         }
 
         if (close) {
-            if (producer != null) {
-                try {
-                    statusHandler.info("Closing producer " + producer); // njensen
-                    producer.close();
-                } catch (Throwable e) {
-                    statusHandler.handle(Priority.INFO,
-                            "Failed to close producer", e);
-                }
-                producer = null;
+            try {
+                statusHandler.info("Closing producer " + producer); // njensen
+                producer.close();
+            } catch (Throwable e) {
+                statusHandler.handle(Priority.WARN, "Failed to close producer",
+                        e);
             }
 
             sess.removeProducerFromPool(this);
@@ -207,17 +205,6 @@ public class JmsPooledProducer {
     }
 
     public MessageProducer getProducer() throws JMSException {
-        // TODO: allow this to automatically grab a new producer if the current
-        // one fails, try up to 3 times so that we don't always drop messages on
-        // a single failure
-        if (producer == null) {
-            synchronized (this) {
-                if (producer == null) {
-                    producer = sess.getSession().createProducer(destination);
-                }
-            }
-        }
-
         return producer;
     }
 
