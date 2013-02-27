@@ -22,10 +22,10 @@ package com.raytheon.uf.viz.core.drawables.ext.colormap;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;

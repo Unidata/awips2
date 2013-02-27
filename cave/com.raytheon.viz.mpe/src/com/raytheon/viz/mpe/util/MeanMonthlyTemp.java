@@ -25,8 +25,8 @@ import java.io.IOException;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 
 /**

@@ -31,7 +31,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 
 import com.raytheon.uf.common.colormap.Color;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;

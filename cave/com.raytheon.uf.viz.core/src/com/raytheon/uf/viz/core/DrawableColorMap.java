@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.core;
 
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
 /**
  * Object used to store information for drawing a color map to an

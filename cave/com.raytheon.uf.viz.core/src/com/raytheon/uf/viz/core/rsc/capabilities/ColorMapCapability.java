@@ -23,8 +23,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.IColorMapParametersListener;
 
 /**
  * Capability for changing a colormap and/or its parameters
