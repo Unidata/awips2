@@ -21,8 +21,8 @@ package com.raytheon.viz.radar.interrogators;
 
 import java.util.Map;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

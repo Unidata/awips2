@@ -30,27 +30,21 @@
  */
 package com.raytheon.uf.edex.wms.util;
 
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.Colormapper;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
-import com.raytheon.uf.common.image.colormap.ColorMapParameters;
-import com.raytheon.uf.common.image.data.IColormappedDataPreparer;
-import com.raytheon.uf.common.image.data.resp.IOImageData;
-import com.raytheon.uf.common.image.dataprep.ByteDataPreparer;
-import com.raytheon.uf.common.image.dataprep.ColormapDataPreparer;
-import com.raytheon.uf.common.image.dataprep.FloatDataPreparer;
-import com.raytheon.uf.common.image.dataprep.IntDataPreparer;
-import com.raytheon.uf.common.image.dataprep.ShortDataPreparer;
 import com.raytheon.uf.edex.ogc.common.colormap.MapRange;
 import com.raytheon.uf.edex.ogc.common.colormap.StyleRule;
 
@@ -63,15 +57,15 @@ public class ColorMapUtility {
 
 	public static final double CALCULATED_PAD_RATIO = 0.25;
 
-	public static BufferedImage applyColorMap(ByteDataRecord record,
+    public static RenderedImage applyColorMap(ByteDataRecord record,
 			ColorMap cmap, StyleRule styleRule) throws Exception {
-		IColormappedDataPreparer prep = buildPreparer(record);
+        ColorMapData prep = buildColorMapData(record);
 		return applyColorMap(prep, cmap, styleRule, record);
 	}
 
-	public static BufferedImage applyColorMap(IntegerDataRecord record,
+    public static RenderedImage applyColorMap(IntegerDataRecord record,
 			ColorMap cmap, StyleRule styleRule) throws Exception {
-		IColormappedDataPreparer prep = buildPreparer(record);
+        ColorMapData prep = buildColorMapData(record);
 		return applyColorMap(prep, cmap, styleRule, record);
 	}
 
@@ -81,31 +75,30 @@ public class ColorMapUtility {
 	// return applyColorMap(prep, cmap);
 	// }
 
-	public static BufferedImage applyColorMap(ShortDataRecord record,
+    public static RenderedImage applyColorMap(ShortDataRecord record,
 			ColorMap cmap, StyleRule styleRule) throws Exception {
-		IColormappedDataPreparer prep = buildPreparer(record);
+        ColorMapData prep = buildColorMapData(record);
 		return applyColorMap(prep, cmap, styleRule, record);
 	}
 
-	public static BufferedImage applyColorMap(FloatDataRecord record,
+    public static RenderedImage applyColorMap(FloatDataRecord record,
 			ColorMap cmap, StyleRule styleRule) throws Exception {
-		IColormappedDataPreparer prep = buildPreparer(record);
+        ColorMapData prep = buildColorMapData(record);
 		return applyColorMap(prep, cmap, styleRule, record);
 	}
 
-	public static BufferedImage applyColorMap(IColormappedDataPreparer prep,
+    public static RenderedImage applyColorMap(ColorMapData prep,
 			ColorMap cmap, StyleRule styleRule, IDataRecord record)
 			throws Exception {
 		ColorMapParameters cmapParams = null;
-		cmapParams = getCmapParams(cmap, styleRule, prep, record);
+        cmapParams = getCmapParams(cmap, styleRule, record);
 
-		ColormapDataPreparer cdp = new ColormapDataPreparer(prep, cmapParams);
-		IOImageData ioimage = cdp.prepareData();
-		return ioimage.getImage();
+        return Colormapper.colorMap(prep, cmapParams);
+
 	}
 
 	public static ColorMapParameters getCmapParams(ColorMap colormap,
-			StyleRule rule, IColormappedDataPreparer prep, IDataRecord record) {
+            StyleRule rule, IDataRecord record) {
 
 		boolean isLog = false;
 		boolean doCalcRange = false;
@@ -164,73 +157,57 @@ public class ColorMapUtility {
 		return params;
 	}
 
-	public static IColormappedDataPreparer buildPreparer(
-			ByteDataRecord dataRecord) {
-		ByteBuffer bbuff = ByteBuffer.wrap(dataRecord.getByteData());
-		long[] sizes = dataRecord.getSizes();
-		Rectangle datasetBounds = new Rectangle((int) sizes[0], (int) sizes[1]);
-		int[] dims = { (int) sizes[0], (int) sizes[1] };
-		return new ByteDataPreparer(bbuff, datasetBounds, dims);
-	}
+    public static ColorMapData buildColorMapData(ByteDataRecord dataRecord) {
+        ByteBuffer bbuff = ByteBuffer.wrap(dataRecord.getByteData());
+        long[] sizes = dataRecord.getSizes();
+        int[] dims = { (int) sizes[0], (int) sizes[1] };
+        return new ColorMapData(bbuff, dims);
+    }
 
-	public static IColormappedDataPreparer buildPreparer(
-			IntegerDataRecord dataRecord) {
+    public static ColorMapData buildColorMapData(IntegerDataRecord dataRecord) {
 		IntBuffer buff = IntBuffer.wrap(dataRecord.getIntData());
 		long[] sizes = dataRecord.getSizes();
-		Rectangle datasetBounds = new Rectangle((int) sizes[0], (int) sizes[1]);
 		int[] dims = { (int) sizes[0], (int) sizes[1] };
-		return new IntDataPreparer(buff, datasetBounds, dims);
+        return new ColorMapData(buff, dims);
 	}
 
-	// protected static IColormappedDataPreparer buildPreparer(
-	// LongDataRecord dataRecord) {
-	// LongBuffer buff = LongBuffer.wrap(dataRecord.getLongData());
-	// long[] sizes = dataRecord.getSizes();
-	// Rectangle datasetBounds = new Rectangle((int) sizes[0], (int) sizes[1]);
-	// int[] dims = { (int) sizes[0], (int) sizes[1] };
-	// return new LongDataPreparer(buff, datasetBounds, dims);
-	// }
-
-	public static IColormappedDataPreparer buildPreparer(
+    public static ColorMapData buildColorMapData(
 			ShortDataRecord dataRecord) {
 		ShortBuffer buff = ShortBuffer.wrap(dataRecord.getShortData());
 		long[] sizes = dataRecord.getSizes();
-		Rectangle datasetBounds = new Rectangle((int) sizes[0], (int) sizes[1]);
 		int[] dims = { (int) sizes[0], (int) sizes[1] };
-		return new ShortDataPreparer(buff, datasetBounds, dims);
+        return new ColorMapData(buff, dims);
 	}
 
-	public static IColormappedDataPreparer buildPreparer(
+    public static ColorMapData buildColorMapData(
 			FloatDataRecord dataRecord) {
 		FloatBuffer buff = FloatBuffer.wrap(dataRecord.getFloatData());
 		long[] sizes = dataRecord.getSizes();
-		Rectangle datasetBounds = new Rectangle((int) sizes[0], (int) sizes[1]);
 		int[] dims = { (int) sizes[0], (int) sizes[1] };
-		return new FloatDataPreparer(buff, datasetBounds, dims);
+        return new ColorMapData(buff, dims);
 	}
 
-	public static IColormappedDataPreparer buildPreparer(IDataRecord dataRecord)
+    public static ColorMapData buildColorMapData(IDataRecord dataRecord)
 			throws Exception {
 		long[] sizes = dataRecord.getSizes();
-		Rectangle datasetBounds = new Rectangle((int) sizes[0], (int) sizes[1]);
 		int[] dims = { (int) sizes[0], (int) sizes[1] };
-		IColormappedDataPreparer rval = null;
+        ColorMapData rval = null;
 		if (dataRecord instanceof ByteDataRecord) {
 			ByteBuffer buff = ByteBuffer.wrap(((ByteDataRecord) dataRecord)
 					.getByteData());
-			rval = new ByteDataPreparer(buff, datasetBounds, dims);
+            rval = new ColorMapData(buff, dims);
 		} else if (dataRecord instanceof ShortDataRecord) {
 			ShortBuffer buff = ShortBuffer.wrap(((ShortDataRecord) dataRecord)
 					.getShortData());
-			rval = new ShortDataPreparer(buff, datasetBounds, dims);
+            rval = new ColorMapData(buff, dims);
 		} else if (dataRecord instanceof IntegerDataRecord) {
 			IntBuffer buff = IntBuffer.wrap(((IntegerDataRecord) dataRecord)
 					.getIntData());
-			rval = new IntDataPreparer(buff, datasetBounds, dims);
+            rval = new ColorMapData(buff, dims);
 		} else if (dataRecord instanceof FloatDataRecord) {
 			FloatBuffer buff = FloatBuffer.wrap(((FloatDataRecord) dataRecord)
 					.getFloatData());
-			rval = new FloatDataPreparer(buff, datasetBounds, dims);
+            rval = new ColorMapData(buff, dims);
 		} else {
 			throw new IllegalArgumentException(
 					"Unable to apply colormap to class "
