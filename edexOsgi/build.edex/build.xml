@@ -18,6 +18,15 @@
 		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
 	
 	<target name="main" depends="clean">
+
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.common.base.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.base.feature" />
+		</antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.cots.feature" />
@@ -26,10 +35,6 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.common.core.feature" />
 		</antcall>
-                <antcall target="build">
-                        <param name="feature"
-                                value="com.raytheon.uf.edex.event.feature" />
-                </antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.core.feature" />
