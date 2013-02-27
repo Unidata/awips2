@@ -25,10 +25,11 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.common.menus;bundle-version="1.12.1174",
  com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
- com.raytheon.uf.viz.points;bundle-version="1.0.0"
+ com.raytheon.uf.viz.points;bundle-version="1.0.0",
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.edex.meteoLib,
- com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.message.response,

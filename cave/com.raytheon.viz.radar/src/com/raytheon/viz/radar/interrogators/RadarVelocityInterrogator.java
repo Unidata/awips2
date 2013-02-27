@@ -24,8 +24,8 @@ import java.util.Map;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 
 /**
  * TODO Add Description

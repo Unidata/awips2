@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channel;

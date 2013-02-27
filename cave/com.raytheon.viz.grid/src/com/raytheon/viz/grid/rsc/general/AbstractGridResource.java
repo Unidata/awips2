@@ -36,6 +36,8 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
@@ -50,8 +52,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
