@@ -120,13 +120,6 @@
 				includes="it.*/**" />
 		</copy>
 		<!-- END: Copy The Plugins -->
-		
-		<!-- Copy The Features -->
-		<echo message="FEATURES: *viz*feature*" />
-		<copy todir="${basedir}/cave/p2/features">
-			<fileset dir="${workspace.dir}"
-				includes="*viz*feature*/**" />
-		</copy>
 	</target>
 	
 	<!-- Cleans Up Any Temporary Directories -->
@@ -159,6 +152,10 @@
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.cots.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.common.base.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -313,6 +310,12 @@
 	</target>
 	
 	<target name="p2.build.repo">
+		<!-- Copy The Feature -->
+		<copy todir="${basedir}/cave/p2/features">
+			<fileset dir="${workspace.dir}"
+				includes="${feature}/**" />
+		</copy>
+		
 		<!-- Update The Feature -->
 		<property name="process.feature.tool"
 			value="${workspace.dir}/build/tools/ProcessFeature.jar" />

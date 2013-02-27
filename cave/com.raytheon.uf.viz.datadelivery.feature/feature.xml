@@ -31,12 +31,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.event"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.common.registry.schemas.ebxml"
          download-size="0"
          install-size="0"
@@ -101,13 +95,6 @@
 
    <plugin
          id="com.raytheon.uf.common.datadelivery.service"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.stats"
          download-size="0"
          install-size="0"
          version="0.0.0"
