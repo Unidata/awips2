@@ -3,6 +3,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+	<bean id="pythonThreadPool" class="com.raytheon.edex.productsrv.PythonExecThreadPool"
+		factory-method="getInstance" >
+	    <property name="maxSize" value="50" />	
+	</bean>
+
 	<bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
 
 	<!-- uEngineWeb -->
@@ -78,4 +83,5 @@
 		</route>
 
 	</camelContext>
+	
 </beans>  

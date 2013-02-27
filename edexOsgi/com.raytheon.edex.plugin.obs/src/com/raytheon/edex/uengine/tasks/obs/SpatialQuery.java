@@ -23,10 +23,10 @@ package com.raytheon.edex.uengine.tasks.obs;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.edex.uengine.tasks.ScriptTask;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * SpatialQuery task derived from original uEngine SpatialQuery task.
@@ -37,6 +37,7 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
  * Date             PR#             Engineer            Description
  * -----------      ----------      ------------        --------------------------
  * Apr 11, 2007                     njensen             Initial Creation
+ * Feb 27, 2013     1638            mschenke            Moved ObStationDao to edex pointdata plugin
  *
  * </PRE>
  *

@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.regional.Sec5MaritimeDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -31,6 +30,7 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * Decode CMAN synoptic observations. The class decodes section 0 for time and
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 20070928     391        jkorman     Initial Coding.
  * Dec 17, 2007 600        bphillip    Added dao pool usage
  * 20080116            798 jkorman     Changed logging levels.
+ * Feb 27, 2013 1638       mschenke    Moved ObStationDao to edex pointdata plugin
  * </pre>
  * 
  * @author jkorman

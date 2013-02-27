@@ -24,9 +24,8 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
-import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * TODO Add Description
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2010            jkorman     Initial creation
+ * Feb 27, 2013 1638       mschenke    Moved ObStationDao to edex pointdata plugin
  *
  * </pre>
  *

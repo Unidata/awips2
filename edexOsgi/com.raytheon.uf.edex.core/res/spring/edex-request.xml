@@ -12,10 +12,5 @@
 			value="com.raytheon.uf.common.dataplugin.request.GetPluginRecordMapRequest" />
 		<constructor-arg ref="getPluginRecordMapHandler" />
 	</bean>
-
-	<bean id="pythonThreadPool" class="com.raytheon.edex.productsrv.PythonExecThreadPool"
-		factory-method="getInstance" >
-	    <property name="maxSize" value="50" />	
-	</bean>
 	
 </beans>
