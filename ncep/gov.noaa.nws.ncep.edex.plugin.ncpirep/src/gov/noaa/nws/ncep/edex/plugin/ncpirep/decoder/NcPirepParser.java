@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftCloudLayer;
@@ -42,6 +41,7 @@ import com.raytheon.uf.edex.decodertools.aircraft.AircraftRemarks;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
