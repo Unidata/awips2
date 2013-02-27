@@ -37,8 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import jep.JepException;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
@@ -108,6 +106,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Apr 1, 2008		#1053	randerso	Initial creation
  * 02/14/2013        #1506  mnash       Move QueryScript to use new Python concurrency implementation
  * 02/12/2013        #1597  randerso    Improved error message for exceptions evaluating queries
+ * 02/26/2013        #1708  randerso    Removed no longer needed near duplicate methods
  * 
  * </pre>
  * 
@@ -185,7 +184,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     private final ArrayList<String> historyStack;
 
-    private PythonJobCoordinator coordinator;
+    private PythonJobCoordinator<QueryScript> coordinator;
 
     /**
      * Set the wait cursor on or off
@@ -1321,22 +1320,30 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode)
      */
     @Override
-    public void incomingRefSet(ReferenceData refData, RefSetMode mode) {
+    public void incomingRefSet(ReferenceData refData, final RefSetMode mode) {
         // Evaluate the Incoming refData if necessary
         // Then, change the active Reference Set using the given mode.
         ReferenceData ref = null;
         if (refData.isQuery()) {
-            String query = refData.getQuery();
-            try {
-                ref = evaluateQuery(query);
-                ref.setQuery(query);
-            } catch (JepException e) {
-                return;
-            }
+            final String query = refData.getQuery();
+            IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
+                @Override
+                public void jobFailed(Throwable e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to run QueryScript job", e);
+                }
+
+                @Override
+                public void jobFinished(ReferenceData result) {
+                    result.setQuery(query);
+                    setRefSet(result, mode);
+                }
+            };
+            evaluateQuery(query, listener);
         } else {
             ref = refData;
+            setRefSet(ref, mode);
         }
-        setRefSet(ref, mode);
     }
 
     /**
@@ -1714,24 +1721,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
         sendEditAreaGroupInvChanged();
     }
 
-    private ReferenceData evaluateQuery(String query) throws JepException {
+    private void evaluateQuery(String query,
+            IPythonJobListener<ReferenceData> listener) {
         Map<String, Object> argMap = new HashMap<String, Object>();
-        argMap.put("expression", query);
 
-        IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
-                "evaluate", argMap);
-        ReferenceData newRef = null;
-        try {
-            newRef = (ReferenceData) coordinator.submitSyncJob(executor);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to submit job to ExecutorService", e);
-        }
-        return newRef;
-    }
-
-    private void evaluateQuery(String query, IPythonJobListener<?> listener) {
-        Map<String, Object> argMap = new HashMap<String, Object>();
         argMap.put("expression", query);
 
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
@@ -1753,7 +1746,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 argMap);
         int result = 0;
         try {
-            result = (Integer) coordinator.submitSyncJob(executor);
+            result = coordinator.submitSyncJob(executor);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to submit job to ExecutorService", e);
@@ -1762,8 +1755,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return result != 0;
     }
 
-    @Override
-    public void evaluateActiveRefSet(IPythonJobListener<ReferenceData> listener) {
+    private void evaluateActiveRefSet(IPythonJobListener<ReferenceData> listener) {
         ReferenceData active = getActiveRefSet();
         if (active.isQuery()) {
             // Re-evaluate the activeRefSet
@@ -1773,27 +1765,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
             // will fire the listener twice for queries
             listener.jobFinished(getActiveRefSet());
         }
-    }
-
-    @Override
-    public ReferenceData evaluateActiveRefSet() {
-        // If activeRefSet is a query, re-evaluate it
-        ReferenceData active = getActiveRefSet();
-        if (active.isQuery()) {
-            // Re-evaluate the activeRefSet
-            try {
-                ReferenceData newRef = evaluateQuery(active.getQuery());
-                if (!newRef.getGrid().equals(active.getGrid())) {
-                    setActiveRefSet(newRef);
-                }
-            } catch (JepException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error evaluating query \"" + active.getQuery()
-                                + "\" for " + active.getId().getName(), e);
-            }
-        }
-
-        return getActiveRefSet();
     }
 
     /*
