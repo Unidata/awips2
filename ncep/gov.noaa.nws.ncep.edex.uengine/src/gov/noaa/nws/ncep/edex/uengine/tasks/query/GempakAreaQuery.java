@@ -15,11 +15,11 @@ import java.util.List;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.msg.ResponseMessageNull;
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.edex.uengine.tasks.ScriptTask;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * GempakAreaQuery

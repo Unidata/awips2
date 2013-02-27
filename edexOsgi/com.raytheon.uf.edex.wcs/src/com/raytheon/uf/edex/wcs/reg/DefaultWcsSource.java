@@ -63,13 +63,14 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
+import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
-import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
+import com.raytheon.uf.edex.ogc.common.spatial.RecordUtil;
 import com.raytheon.uf.edex.wcs.WcsException;
 import com.raytheon.uf.edex.wcs.WcsException.Code;
 import com.vividsolutions.jts.geom.Envelope;
@@ -218,9 +219,9 @@ public abstract class DefaultWcsSource implements WcsSource {
 	protected ReferencedDataRecord getDataRecord(PluginDataObject record,
 			CoordinateReferenceSystem crs, Envelope bbox) throws WcsException {
 		try {
-			// get the projected slice from the DAO
-			ReferencedDataRecord projectedRecord = getDao().getProjected(
-					record, crs, bbox);
+            // get the projected slice from the DAO
+            ReferencedDataRecord projectedRecord = RecordUtil.getProjected(
+                    getDao(), record, crs, bbox);
 
 			ReferencedDataRecord rval;
 			if (projectedRecord != null) {
