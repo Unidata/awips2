@@ -28,7 +28,8 @@ import javax.jms.MessageListener;
 import com.raytheon.uf.common.jms.JmsPooledConsumer;
 
 /**
- * TODO Add Description
+ * Wrapper class for jms consumer pooling. Helps track references to the pooled
+ * consumer to know when the consumer can be closed.
  * 
  * <pre>
  * 
@@ -37,7 +38,7 @@ import com.raytheon.uf.common.jms.JmsPooledConsumer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2011            rjpeter     Initial creation
- * 
+ * Feb 26, 2013 1642       rjpeter     Added volatile references for better concurrency handling.
  * </pre>
  * 
  * @author rjpeter
@@ -45,11 +46,11 @@ import com.raytheon.uf.common.jms.JmsPooledConsumer;
  */
 
 public class JmsConsumerWrapper implements MessageConsumer {
-    private JmsPooledConsumer mgr = null;
+    private final JmsPooledConsumer mgr;
 
-    private boolean exceptionOccurred = false;
+    private volatile boolean exceptionOccurred = false;
 
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
     public JmsConsumerWrapper(JmsPooledConsumer mgr) {
         this.mgr = mgr;
@@ -74,21 +75,20 @@ public class JmsConsumerWrapper implements MessageConsumer {
      * 
      * @return True if this wrapper hasn't been closed before, false otherwise.
      */
-    public boolean closeInternal() {
-        boolean close = false;
-
+    public boolean closeWrapper() {
         synchronized (this) {
             if (!closed) {
                 closed = true;
-                close = true;
+
+                if (exceptionOccurred) {
+                    mgr.setExceptionOccurred(true);
+                }
+
+                return true;
             }
         }
 
-        if (close && exceptionOccurred) {
-            mgr.setExceptionOccurred(true);
-        }
-
-        return close;
+        return false;
     }
 
     /*
@@ -101,7 +101,7 @@ public class JmsConsumerWrapper implements MessageConsumer {
      */
     @Override
     public void close() throws JMSException {
-        if (closeInternal()) {
+        if (closeWrapper()) {
             mgr.removeReference(this);
 
             if (exceptionOccurred) {
