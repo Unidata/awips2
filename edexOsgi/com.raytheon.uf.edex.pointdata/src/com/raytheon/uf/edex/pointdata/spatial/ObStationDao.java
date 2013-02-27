@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.db.dao.spatial;
+package com.raytheon.uf.edex.pointdata.spatial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +45,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 7/24/07      353         bphillip    Initial Check in    
  * 10/12/07     391         jkorman     Modified queryByIcao and queryByWmoIndex
  *                                      to guard for an empty list.
+ * Feb 27, 2013 1638        mschenke    Moved ObStationDao to edex pointdata plugin
  * </pre>
  * 
  * @author bphillip
@@ -199,7 +200,7 @@ public class ObStationDao extends CoreDao {
 
 			return (List<ObStation>)executeCriteriaQuery(stationEq);
 		} else {
-			logger.warn("Cannot execute spatial query with less than 3 points");
+			statusHandler.warn("Cannot execute spatial query with less than 3 points");
 			return new ArrayList<ObStation>();
 		}
 
