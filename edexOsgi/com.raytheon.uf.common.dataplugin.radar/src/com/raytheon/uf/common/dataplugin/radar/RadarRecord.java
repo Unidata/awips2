@@ -96,10 +96,10 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.image.units.PiecewisePixel;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.units.PiecewisePixel;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
