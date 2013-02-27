@@ -77,7 +77,8 @@ public class QueryScriptExecutor implements
         try {
             retVal = (ReferenceData) script.execute(methodName, args);
         } catch (JepException e) {
-            statusHandler.handle(Priority.ERROR, "Unable to execute script", e);
+            statusHandler.handle(Priority.ERROR,
+                    "Error evaluating edit area query: " + e.getMessage(), e);
         }
         return retVal;
     }
