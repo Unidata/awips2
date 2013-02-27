@@ -35,10 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -55,13 +51,9 @@ import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -70,8 +62,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.spatial.reprojection.DataReprojector;
-import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
@@ -82,10 +72,6 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Abstract implementation of a Plugin data access object
@@ -105,6 +91,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
  *                                     from the environment.
  * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
+ * Feb 26, 2013 1638       mschenke    Moved OGC specific functions to OGC project
  * 
  * </pre>
  * 
@@ -1591,129 +1578,4 @@ public abstract class PluginDao extends CoreDao {
         return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
     }
 
-    public double getHDF5Value(PluginDataObject pdo,
-            CoordinateReferenceSystem crs, Coordinate coord,
-            double defaultReturn) throws Exception {
-        IDataStore store = getDataStore((IPersistable) pdo);
-        // TODO a cache would probably be good here
-        double rval = defaultReturn;
-        if (pdo instanceof ISpatialEnabled) {
-            ISpatialObject spat = getSpatialObject(pdo);
-            DataReprojector reprojector = getDataReprojector(store);
-            ReferencedEnvelope nativeEnv = getNativeEnvelope(spat);
-            IDataRecord data = reprojector.getProjectedPoints(pdo.getDataURI(),
-                    spat, nativeEnv, crs, new Coordinate[] { coord });
-            Double res = extractSingle(data);
-            if (res != null) {
-                rval = res;
-            }
-        }
-        return rval;
-    }
-
-    /**
-     * @param record
-     * @param crs
-     *            target crs for projected data
-     * @param envelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public ReferencedDataRecord getProjected(PluginDataObject record,
-            CoordinateReferenceSystem crs, Envelope envelope) throws Exception {
-        ReferencedEnvelope targetEnv = new ReferencedEnvelope(
-                envelope.getMinX(), envelope.getMaxX(), envelope.getMinY(),
-                envelope.getMaxY(), crs);
-        return getProjected(record, targetEnv);
-    }
-
-    /**
-     * @param record
-     * @param crs
-     *            target crs for projected data
-     * @param envelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public GridCoverage2D getProjectedCoverage(PluginDataObject record,
-            CoordinateReferenceSystem crs, Envelope envelope) throws Exception {
-        ReferencedEnvelope targetEnv = new ReferencedEnvelope(
-                envelope.getMinX(), envelope.getMaxX(), envelope.getMinY(),
-                envelope.getMaxY(), crs);
-        return getProjectedCoverage(record, targetEnv);
-    }
-
-    /**
-     * @param record
-     * @param targetEnvelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public ReferencedDataRecord getProjected(PluginDataObject record,
-            ReferencedEnvelope targetEnvelope) throws Exception {
-        ISpatialObject spatial = getSpatialObject(record);
-        IDataStore store = getDataStore((IPersistable) record);
-        DataReprojector reprojector = getDataReprojector(store);
-        ReferencedEnvelope nativeEnvelope = getNativeEnvelope(spatial);
-        return reprojector.getReprojected(record.getDataURI(), spatial,
-                nativeEnvelope, targetEnvelope);
-    }
-
-    /**
-     * @param record
-     * @param targetEnvelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public GridCoverage2D getProjectedCoverage(PluginDataObject record,
-            ReferencedEnvelope envelope) throws Exception {
-        ISpatialObject spatial = getSpatialObject(record);
-        IDataStore store = getDataStore((IPersistable) record);
-        DataReprojector reprojector = getDataReprojector(store);
-        ReferencedEnvelope nativeEnvelope = getNativeEnvelope(spatial);
-        return reprojector.getReprojectedCoverage(record.getDataURI(), spatial,
-                nativeEnvelope, envelope);
-    }
-
-    protected ISpatialObject getSpatialObject(PluginDataObject record)
-            throws Exception {
-        if (record instanceof ISpatialEnabled) {
-            return ((ISpatialEnabled) record).getSpatialObject();
-        } else {
-            throw new Exception(record.getClass() + " is not spatially enabled");
-        }
-    }
-
-    protected DataReprojector getDataReprojector(IDataStore dataStore) {
-        return new DataReprojector(dataStore);
-    }
-
-    protected ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
-            throws FactoryException {
-        CoordinateReferenceSystem crs = spatial.getCrs();
-        Geometry geom = spatial.getGeometry();
-        return MapUtil.getBoundingEnvelope(crs, (Polygon) geom);
-    }
-
-    public Double extractSingle(IDataRecord record) {
-        Double rval = null;
-        if (record == null) {
-            return rval;
-        }
-        if (record instanceof ByteDataRecord) {
-            byte[] data = ((ByteDataRecord) record).getByteData();
-            rval = (double) data[0];
-        } else if (record instanceof FloatDataRecord) {
-            float[] data = ((FloatDataRecord) record).getFloatData();
-            rval = (double) data[0];
-        } else if (record instanceof IntegerDataRecord) {
-            int[] data = ((IntegerDataRecord) record).getIntData();
-            rval = (double) data[0];
-        }
-        return rval;
-    }
 }
