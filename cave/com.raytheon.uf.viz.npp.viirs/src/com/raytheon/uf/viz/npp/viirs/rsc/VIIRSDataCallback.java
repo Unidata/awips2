@@ -24,6 +24,7 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -87,13 +88,13 @@ public class VIIRSDataCallback implements IColorMapDataRetrievalCallback {
                 return new ColorMapData(shortData, new int[] {
                         (int) rawData.getSizes()[0],
                         (int) rawData.getSizes()[1] },
-                        ColorMapDataType.UNSIGNED_SHORT);
+                        ColorMapData.ColorMapDataType.UNSIGNED_SHORT);
             } else if (rawData instanceof FloatDataRecord) {
                 Buffer floatData = FloatBuffer.wrap(((FloatDataRecord) rawData)
                         .getFloatData());
                 return new ColorMapData(floatData, new int[] {
                         (int) rawData.getSizes()[0],
-                        (int) rawData.getSizes()[1] }, ColorMapDataType.FLOAT);
+                        (int) rawData.getSizes()[1] }, ColorMapData.ColorMapDataType.FLOAT);
             } else {
                 throw new VizException("Could not handle IDataRecord: "
                         + rawData);

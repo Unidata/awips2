@@ -29,6 +29,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.datum.PixelInCell;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -38,7 +39,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
