@@ -25,7 +25,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import com.raytheon.uf.common.image.units.PiecewisePixel;
+import com.raytheon.uf.common.units.PiecewisePixel;
 
 
 /**

@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.core.drawables;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+
 
 /**
  * Describes a Colormapped Image
