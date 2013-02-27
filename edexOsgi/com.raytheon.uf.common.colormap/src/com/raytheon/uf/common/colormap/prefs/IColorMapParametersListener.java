@@ -17,17 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.image.data.resp;
+package com.raytheon.uf.common.colormap.prefs;
 
 /**
- * Return type for IDataPreparers
+ * Interface for listening for updates on the colormap parameters.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            mschenke     Initial creation
+ * Aug 16, 2010            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -35,6 +35,11 @@ package com.raytheon.uf.common.image.data.resp;
  * @version 1.0
  */
 
-public class ImageData {
+public interface IColorMapParametersListener {
+
+    /**
+     * Notification that the color map has changed
+     */
+    public void colorMapChanged();
 
 }

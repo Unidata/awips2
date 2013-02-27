@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.data.prep;
+package com.raytheon.uf.common.colormap.image;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -33,11 +33,12 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.List;
 
-import com.raytheon.uf.common.colormap.ColorMapUtils;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
 /**
  * Colormapper class
@@ -57,6 +58,10 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
  */
 
 public class Colormapper {
+
+    public static final int COLOR_MODEL_NUMBER_BITS = 8;
+
+    public static final float MAX_VALUE = 255.0f;
 
     /**
      * This method will color map a Buffer to a RenderedImage given size and
@@ -102,15 +107,13 @@ public class Colormapper {
             cmapedData[i] = findColorIndex(index, logFactor, colorMapSz);
         }
 
-        IndexColorModel cm = ColorMapUtils.buildColorModel(parameters
-                .getColorMap());
-        
+        IndexColorModel cm = buildColorModel(parameters.getColorMap());
+
         DataBufferByte byteArray = new DataBufferByte(cmapedData, width
                 * height);
 
         MultiPixelPackedSampleModel sample = new MultiPixelPackedSampleModel(
-                DataBuffer.TYPE_BYTE, width, height,
-                ColorMapUtils.COLOR_MODEL_NUMBER_BITS);
+                DataBuffer.TYPE_BYTE, width, height, COLOR_MODEL_NUMBER_BITS);
         WritableRaster writeRaster = Raster.createWritableRaster(sample,
                 byteArray, new Point(0, 0));
 
@@ -226,5 +229,31 @@ public class Colormapper {
             }
         }
         return (byte) (index * (colorMapSz - 1));
+    }
+
+    /**
+     * Builds a color model from a color map
+     * 
+     * @param aColorMap
+     * @return
+     */
+    public static IndexColorModel buildColorModel(IColorMap aColorMap) {
+        int size = aColorMap.getSize();
+        byte[] red = new byte[size];
+        byte[] green = new byte[size];
+        byte[] blue = new byte[size];
+        byte[] alpha = new byte[size];
+
+        List<Color> colors = aColorMap.getColors();
+        for (int i = 0; i < size; ++i) {
+            Color color = colors.get(i);
+            red[i] = (byte) (color.getRed() * MAX_VALUE);
+            green[i] = (byte) (color.getGreen() * MAX_VALUE);
+            blue[i] = (byte) (color.getBlue() * MAX_VALUE);
+            alpha[i] = (byte) (color.getAlpha() * MAX_VALUE);
+        }
+
+        return new IndexColorModel(COLOR_MODEL_NUMBER_BITS, size, red, green,
+                blue, alpha);
     }
 }

@@ -21,9 +21,9 @@ package com.raytheon.uf.viz.kml.export.graphics.ext;
 
 import java.util.Comparator;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension.IMosaicImage;
 import com.raytheon.uf.viz.core.exception.VizException;
