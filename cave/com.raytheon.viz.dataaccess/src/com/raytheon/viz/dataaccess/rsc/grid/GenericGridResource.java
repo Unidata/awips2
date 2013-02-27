@@ -30,13 +30,13 @@ import org.apache.commons.lang.StringUtils;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;

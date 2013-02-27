@@ -36,6 +36,7 @@ import javax.xml.bind.JAXB;
 
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -46,7 +47,6 @@ import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.radar.util.DmdAttribute;
 import com.raytheon.viz.radar.util.DmdModifier;
 import com.raytheon.viz.radar.util.GraphicDataUtil;

@@ -31,7 +31,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataquery;visibility:=reexport,
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174"
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: org.apache.velocity, org.apache.log4j, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level
@@ -79,7 +81,6 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.viz.core.slice.request,
  com.raytheon.viz.core.units
 Import-Package: com.raytheon.uf.common.alertmonitor,
- com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.comm,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.datastorage.records,
