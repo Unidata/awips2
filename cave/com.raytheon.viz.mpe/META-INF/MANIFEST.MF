@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  ucar.nc2;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
  org.slf4j;bundle-version="1.6.1",
- org.apache.log4j;bundle-version="1.0.0"
+ org.apache.log4j;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.mpe.core,
  com.raytheon.viz.mpe.util

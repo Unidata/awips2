@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.drawables;
+package com.raytheon.uf.common.colormap.prefs;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -32,14 +32,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.eclipse.swt.graphics.RGB;
-
 import com.raytheon.uf.common.colormap.AbstractColorMap;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 
 /**
  * Colormap Parameters
@@ -933,16 +930,6 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
-     * Get the rgb color of the value
-     * 
-     * @param value
-     * @return
-     */
-    public RGB getRGBByValue(float value) {
-        return colorToRGB(getColorByValue(value));
-    }
-
-    /**
      * Get the Color object of the value
      * 
      * @param value
@@ -974,16 +961,6 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
                     (int) (index * (colorMap.getSize() - 1)));
 
         }
-    }
-
-    public static RGB colorToRGB(Color c) {
-        return new RGB((int) (c.getRed() * 255f), (int) (c.getGreen() * 255f),
-                (int) (c.getBlue() * 255f));
-    }
-
-    public static Color rgbToColor(RGB rgb) {
-        return new Color(rgb.red / 255.0f, rgb.green / 255.0f,
-                rgb.blue / 255.0f);
     }
 
     /**
