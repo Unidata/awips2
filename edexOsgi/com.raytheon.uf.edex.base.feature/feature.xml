@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.raytheon.uf.viz.collaboration.feature"
-      label="Collaboration Feature"
+      id="com.raytheon.uf.edex.base.feature"
+      label="EDEX Base Feature"
       version="1.0.0.qualifier"
       provider-name="RAYTHEON">
 
@@ -18,130 +18,174 @@
    </license>
 
    <requires>
-      <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.viz.eclipse.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
-         id="com.raytheon.uf.viz.collaboration.comm"
+         id="com.mchange"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.edex.common"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.presence"
+         id="com.raytheon.edex.ingestsrv"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.provider.xmpp"
+         id="com.raytheon.edex.utilitysrv"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf"
+         id="com.raytheon.uf.edex.alertviz"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.filetransfer"
+         id="com.raytheon.uf.edex.auth"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.identity"
+         id="com.raytheon.uf.edex.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.provider.filetransfer"
+         id="com.raytheon.uf.edex.database"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.provider"
+         id="com.raytheon.uf.edex.distribution"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf.sharedobject"
+         id="com.raytheon.uf.edex.esb.camel"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.collaboration.ui"
+         id="com.raytheon.uf.edex.esb.camel.launcher"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.drawing"
+         id="com.raytheon.uf.edex.event"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.remote.graphics"
+         id="com.raytheon.uf.edex.log"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.collaboration.radar"
+         id="com.raytheon.uf.edex.plugin.level"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.collaboration.display"
+         id="com.raytheon.uf.edex.plugin.level.handler"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.collaboration.pointdata"
+         id="com.raytheon.uf.edex.purgesrv"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.jivesoftware.smack"
+         id="com.raytheon.uf.edex.stats"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.collaboration.comm.xmpp"
+         id="net.sf.ehcache"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.camel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.cxf"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.management"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.mina"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.qpid"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.dom4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.jetty"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
