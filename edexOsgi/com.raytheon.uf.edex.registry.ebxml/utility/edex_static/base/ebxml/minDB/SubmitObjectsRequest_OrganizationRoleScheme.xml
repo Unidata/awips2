@@ -1,55 +1,48 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:SubmitObjectsRequest mode="CreateOrReplace" checkReferences="false" comment="Submission of registered user profile" id="User Profiles and Roles" xmlns:ns2="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:ns6="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:ns7="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0">
-    <RegistryObjectList>
-        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryAdministrator" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryAdministrator" id="RegistryAdministrator" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Name>
-                <LocalizedString value="RegAdminRole" xml:lang="en-US"/>
-            </Name>
-            <Description>
-                <LocalizedString value="Role used for Registry Administrators" xml:lang="en-US"/>
-            </Description>
-        </RegistryObject>
-        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryLocalAdministrator" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryLocalAdministrator" id="RegistryLocalAdministrator" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Name>
-                <LocalizedString value="RegistryLocalAdministrator" xml:lang="en-US"/>
-            </Name>
-            <Description>
-                <LocalizedString value="Role used for localAdministrators" xml:lang="en-US"/>
-            </Description>
-        </RegistryObject>
-        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryUser" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryUser" id="RegistryUser" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Name>
-                <LocalizedString value="RegistryUser" xml:lang="en-US"/>
-            </Name>
-            <Description>
-                <LocalizedString value="Role used for Registry Users" xml:lang="en-US"/>
-            </Description>
-        </RegistryObject>
-        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryGuest" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryGuest" id="RegistryGuest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Name>
-                <LocalizedString value="RegistryGuest" xml:lang="en-US"/>
-            </Name>
-            <Description>
-                <LocalizedString value="Role used for guests to the registry" xml:lang="en-US"/>
-            </Description>
-        </RegistryObject>
-        <RegistryObject xsi:type="PersonType" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Person" lid="EDEX_Internal_User" id="EDEX_Internal_User" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Name>
-                <LocalizedString value="EDEX_Internal_User" xml:lang="en-US"/>
-            </Name>
-            <Description>
-                <LocalizedString value="EDEX_Internal_User" xml:lang="en-US"/>
-            </Description>
-            <PersonName lastName="User" middleName="Internal" firstName="EDEX"/>
-        </RegistryObject>
-        <RegistryObject xsi:type="AssociationType" targetObject="RegistryAdministrator" sourceObject="EDEX_Internal_User" type="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasRole" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" lid="EDEX Internal Admin Association" id="EDEX Internal Admin Association" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Name>
-                <LocalizedString value="EDEX Internal Admin" xml:lang="en-US"/>
-            </Name>
-            <Description>
-                <LocalizedString value="Association linking EDEX Internal user to admin role" xml:lang="en-US"/>
-            </Description>
-        </RegistryObject>
-    </RegistryObjectList>
-</ns2:SubmitObjectsRequest>
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_OrganizationRoleScheme.xml,v 1.13 2007/05/25 17:18:54 farrukh_najmi Exp $ -->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:OrganizationRole" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:OrganizationRole" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="OrganizationRole"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="OrganizationRole.desc"/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:RegisterOwner" code="RegisterOwner" id="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:RegisterOwner" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:OrganizationRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Register Owner"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="The Organization that creates a Register"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:SubmittingOrganization" code="SubmittingOrganization" id="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:SubmittingOrganization" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:OrganizationRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Submitting Organization"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="An Organization approved by the RegisterOwner to submit change proposals to a Register"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:RegisterManager" code="RegisterManager" id="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:RegisterManager" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:OrganizationRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Register Manager"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="The Organization appointed by the RegisterOwner to receive change proposals for a Register"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:ControlBody" code="ControlBody" id="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:ControlBody" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:OrganizationRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Control Body"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="The Organization appointed by the RegisterOwner to perform detailed technical review of change proposals to a register"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+        <rim:RegistryObject xsi:type="rim:ClassificationType" lid="urn:oasis:names:tc:ebxml-regrep:classification:ControlBody" id="urn:oasis:names:tc:ebxml-regrep:classification:ControlBody" classifiedObject="urn:freebxml:registry:predefinedusers:registryoperator" classificationNode="urn:oasis:names:tc:ebxml-regrep:OrganizationRole:ControlBody">
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>
