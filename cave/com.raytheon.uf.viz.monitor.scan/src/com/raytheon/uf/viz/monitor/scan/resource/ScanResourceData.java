@@ -55,6 +55,8 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009            dhladky     Initial creation
+ * Feb 28, 2013 1731       bsteffen    Remove unneccessary query in
+ *                                     getDataStore.
  * 
  * </pre>
  * 
@@ -199,22 +201,8 @@ public class ScanResourceData extends AbstractRequestableResourceData {
      * @return
      */
     private IDataStore getDataStore(ScanRecord record) {
-        IDataStore dataStore = null;
-        try {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("dataURI", record.getDataURI());
-            vals.put("pluginName", record.getPluginName());
-
-            record = (ScanRecord) Loader.loadData(vals);
-
-            File loc = HDF5Util.findHDF5Location(record);
-            dataStore = DataStoreFactory.getDataStore(loc);
-
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return dataStore;
+        File loc = HDF5Util.findHDF5Location(record);
+        return DataStoreFactory.getDataStore(loc);
     }
 
     // create the monitor instance
