@@ -176,10 +176,11 @@ public interface IDataStore extends ISerializableObject {
             Request request) throws StorageException, FileNotFoundException;
 
     /**
-     * Retrieve a set of datasets at given the Request parameters
+     * Retrieve multiple datasets from a single file
      * 
      * 
      * @param datasetGroupPath
+     *            the full path to a dataset.
      * @param request
      *            the request type to perform
      * @return a set of datarecords
@@ -190,7 +191,8 @@ public interface IDataStore extends ISerializableObject {
             Request request) throws StorageException, FileNotFoundException;
 
     /**
-     * Retrieve multiple groups from a single file
+     * Retrieve multiple groups from a single file, retrieves all datasets from
+     * each group.
      * 
      * NOTE: The request is applied to every group
      * 
