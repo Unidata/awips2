@@ -48,7 +48,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.core"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.database"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.mchange"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.ebxml"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.management"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.facebook.thrift"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datastorage"/>
