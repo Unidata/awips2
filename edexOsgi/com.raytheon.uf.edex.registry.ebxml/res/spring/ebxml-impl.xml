@@ -15,7 +15,7 @@
 	<!-- NOTIFICATION LISTENER -->
 	<!-- Define concrete implementation of the service -->
 	<bean id="notificationServiceImpl"
-		class="com.raytheon.uf.edex.ebxml.services.NotificationListenerImpl" />
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImpl" />
 
 
 	<!-- LIFE CYCLE MANAGER -->
