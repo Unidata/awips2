@@ -33,7 +33,6 @@ import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -52,6 +51,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    15Mar2009    2037        dhladky    Initial Creation.
+ *    Feb 28, 2013 1731        bsteffen    Remove unneccessary query in
+ *                                         getDataStore.
  * 
  * </pre>
  * 
@@ -114,21 +115,7 @@ public class CWATResourceData extends AbstractRequestableResourceData {
      * @return
      */
     private IDataStore getDataStore(CWATRecord record) {
-        IDataStore dataStore = null;
-        try {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("dataURI", record.getDataURI());
-            vals.put("pluginName", record.getPluginName());
-
-            record = (CWATRecord) Loader.loadData(vals);
-
-            File loc = HDF5Util.findHDF5Location(record);
-            dataStore = DataStoreFactory.getDataStore(loc);
-
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return dataStore;
+        File loc = HDF5Util.findHDF5Location(record);
+        return DataStoreFactory.getDataStore(loc);
     }
 }
