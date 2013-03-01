@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.activetable;
+package com.raytheon.uf.common.activetable;
 
 import java.io.File;
 import java.util.ArrayList;

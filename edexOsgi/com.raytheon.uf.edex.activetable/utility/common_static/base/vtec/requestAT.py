@@ -44,6 +44,7 @@ import siteConfig
 import VTECPartners
 
 from com.raytheon.uf.common.activetable import ActiveTableMode
+from com.raytheon.uf.common.time.util import TimeUtil
 from com.raytheon.uf.edex.activetable import ActiveTable
 
 
@@ -104,7 +105,7 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
           rec.getOfficeid() not in otherSites:
             continue
 
-        recIssueTime = rec.getIssueTime().getTimeInMillis() / 1000
+        recIssueTime = float(rec.getIssueTime().getTimeInMillis() / TimeUtil.MILLIS_PER_SECOND)
         #track latest
         issueTime = max(recIssueTime, issueTime)
 
