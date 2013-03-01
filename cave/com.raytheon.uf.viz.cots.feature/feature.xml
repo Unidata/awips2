@@ -16,6 +16,10 @@
    <license url="http://www.example.com/license">
       [Enter License Description here.]
    </license>
+   
+   <requires>
+      <import feature="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
+   </requires>
 
    <plugin
          id="javax.media.opengl"
@@ -127,12 +131,6 @@
 
    <plugin
          id="org.apache.tools.bzip2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.junit"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
