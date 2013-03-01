@@ -151,7 +151,7 @@ setTargetArchitecture
 # Adjust Our Execution Position.
 cd ../
 
-buildRPM "Installer.edex-base"
+buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
 buildRPM "Installer.edex-shapefiles"
 # build the edex-datadelivery rpm
