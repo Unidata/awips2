@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.python;
 
-
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -282,6 +281,14 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE), VTEC);
         String siteDir = getPath(PATH_MANAGER.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE), VTEC);
+        return PyUtil.buildJepIncludePath(siteDir, baseDir);
+    }
+
+    public static String getVtecIncludePath(String siteId) {
+        String baseDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE), VTEC);
+        String siteDir = getPath(PATH_MANAGER.getContextForSite(
+                LocalizationType.COMMON_STATIC, siteId), VTEC);
         return PyUtil.buildJepIncludePath(siteDir, baseDir);
     }
 

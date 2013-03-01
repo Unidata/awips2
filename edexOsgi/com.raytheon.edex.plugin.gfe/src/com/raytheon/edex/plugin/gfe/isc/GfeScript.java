@@ -48,6 +48,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2009 #2960       bphillip    Initial creation
+ * Mar 04, 2013 #1447       dgilling    Add VTEC scripts to include path.
  * 
  * </pre>
  * 
@@ -108,6 +109,7 @@ public class GfeScript extends Thread {
             if (pythonIncludePath == null) {
                 pythonIncludePath = PyUtil.buildJepIncludePath(
                         GfePyIncludeUtil.getCommonPythonIncludePath(),
+                        GfePyIncludeUtil.getVtecIncludePath(site),
                         GfePyIncludeUtil.getIscScriptsIncludePath(),
                         GfePyIncludeUtil.getGfeConfigIncludePath(site));
             }
