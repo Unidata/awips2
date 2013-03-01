@@ -51,7 +51,7 @@ from ufpy import UsageArgumentParser
 
 logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 
                     datefmt="%H:%M:%S", 
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 log = logging.getLogger('MergeVTEC')
 
 
