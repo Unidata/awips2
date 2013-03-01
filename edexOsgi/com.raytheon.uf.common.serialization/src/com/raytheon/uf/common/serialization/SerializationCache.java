@@ -34,6 +34,7 @@ import net.sf.cglib.reflect.FastClass;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 3, 2008  #1448      chammack    Initial creation
+ * Mar 1, 2013   #1744     njensen          Fix deadlock
  * </pre>
  * 
  * @author chammack
@@ -100,7 +101,14 @@ public class SerializationCache {
 
         generator.setClassLoader(SerializationCache.class.getClassLoader());
         generator.setBean(obj);
-        bm = generator.create();
+        // must synchronize create() call to safely avoid deadlock between
+        // cglib and eclipse classloader. cglib synchronizes inside create()
+        // and will block other threads, meanwhile deeper inside create()
+        // it needs to obtain a lock on the classloader which another thread
+        // might already have
+        synchronized (SerializationCache.class) {
+            bm = generator.create();
+        }
         generator.setBean(null);
 
         synchronized (generators) {
