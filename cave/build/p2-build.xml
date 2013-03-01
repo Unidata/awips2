@@ -157,11 +157,11 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
-				value="com.raytheon.uf.viz.cots.feature" />
+				value="com.raytheon.uf.common.base.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
-				value="com.raytheon.uf.common.base.feature" />
+				value="com.raytheon.uf.viz.cots.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"

@@ -1,7 +1,7 @@
 #
-# AWIPS II edex-base Spec File
+# AWIPS II EDEX Spec File
 #
-Name: awips2-edex-base
+Name: awips2-edex
 Summary: AWIPS II Edex
 Version: %{_component_version}
 Release: %{_component_release}
@@ -13,14 +13,14 @@ Distribution: N/A
 Vendor: Raytheon
 Packager: Bryan Kowal
 
-provides: awips2-edex-base
+provides: awips2-edex
 provides: awips2-base-component
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
 
 %description
-AWIPS II Edex Installation - Installs and configures AWIPS II Edex "Base".
+AWIPS II Edex Installation - Installs and configures AWIPS II Edex.
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -56,7 +56,7 @@ if [ "${BUILD_ARCH}" = "i386" ]; then
    BUILD_ARCH="x86"
 fi
 
-# use deploy-install to deploy edex-base.
+# use deploy-install to deploy edex.
 pushd . > /dev/null
 cd %{_baseline_workspace}
 /awips2/ant/bin/ant -f ${DEPLOY_SCRIPT} \
@@ -74,7 +74,7 @@ popd > /dev/null
 
 INSTALLER_RPM="%{_baseline_workspace}/rpms"
 # copy the service script.
-EDEX_BASE="${INSTALLER_RPM}/awips2.edex/Installer.edex-base"
+EDEX_BASE="${INSTALLER_RPM}/awips2.edex/Installer.edex"
 cp -v ${EDEX_BASE}/scripts/init.d/* \
    %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
