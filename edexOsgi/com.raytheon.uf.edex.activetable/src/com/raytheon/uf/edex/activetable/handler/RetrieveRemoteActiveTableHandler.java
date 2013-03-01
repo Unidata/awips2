@@ -96,7 +96,8 @@ public class RetrieveRemoteActiveTableHandler implements
             try {
                 Map<String, Object> argMap = new HashMap<String, Object>();
                 argMap.put("serverHost", request.getServerHost());
-                argMap.put("serverPort", request.getServerPort());
+                argMap.put("serverPort",
+                        Integer.toString(request.getServerPort()));
                 argMap.put("serverProtocol", request.getServerProtocol());
                 argMap.put("mhsid", request.getMhsId());
                 argMap.put("siteID", siteId);
