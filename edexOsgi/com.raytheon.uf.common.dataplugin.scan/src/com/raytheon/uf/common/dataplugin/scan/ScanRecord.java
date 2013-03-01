@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -64,6 +65,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 03/17/10     2521     D. Hladky   Initial release
  * 02/01/13     1649      D. Hladky  better logging,
+ * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
  * 
  * </pre>
  * 
@@ -128,6 +130,14 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
     @Transient
     /* cell data only */
     public ModelData md = null;
+
+    public ScanRecord() {
+        super();
+    }
+
+    public ScanRecord(String uri) {
+        super(uri);
+    }
 
     @Override
     public IDecoderGettable getDecoderGettable() {
@@ -259,6 +269,21 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
     }
 
     /**
+     * Set the TableData from the serialized form that is stored in hdf5.
+     * 
+     * @param byteData
+     * @throws SerializationException
+     */
+    public void setTableData(ByteDataRecord byteData)
+            throws SerializationException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(
+                byteData.getByteData());
+        Object o = DynamicSerializationManager.getManager(
+                SerializationType.Thrift).deserialize(bais);
+        setTableData((ScanTableData<?>) o);
+    }
+
+    /**
      * Gets the Hash out of the datastore by HUC
      * 
      * @param dataStore
@@ -268,11 +293,7 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
         try {
             ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                     getDataURI(), getType(), Request.ALL);
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    byteData.getByteData());
-            Object o = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).deserialize(bais);
-            setTableData((ScanTableData<?>) o);
+            setTableData(byteData);
         } catch (Throwable e) {
             statusHandler.handle(Priority.ERROR, "Couldn't load Table data!" + getDataURI());
         }
