@@ -187,21 +187,21 @@ function buildFeatureRPMs()
       if [ "${feature}" = "com.raytheon.uf.common.base.feature" ]; then
          echo 'export COMPONENT_NAME="awips2-cave-common-base"' > \
             ${CONST_SETUP_DIR}/feature.setup
-         echo 'export COMPONENT_FEATURE="com.raytheon.uf.common.base.feature"' >> \
+         echo 'export COMPONENT_FEATURE="${feature}"' >> \
             ${CONST_SETUP_DIR}/feature.setup
          echo 'export COMPONENT_DESC="awips2-cave-common-base"' >> \
             ${CONST_SETUP_DIR}/feature.setup
 	 echo 'export DOWNSTREAM_REQUIRES="awips2-cave"' >> \
 	    ${CONST_SETUP_DIR}/feature.setup
       else
-         if [ "${feature}" = "com.raytheon.uf.viz.common.core.feature" ]; then
-            echo 'export COMPONENT_NAME="awips2-cave-viz-common-core"' > \
+         if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ]; then
+            echo 'export COMPONENT_NAME="awips2-cave-viz-cots"' > \
                ${CONST_SETUP_DIR}/feature.setup
-            echo 'export COMPONENT_FEATURE="com.raytheon.uf.viz.common.core.feature"' >> \
+            echo 'export COMPONENT_FEATURE="${feature}"' >> \
                ${CONST_SETUP_DIR}/feature.setup
-            echo 'export COMPONENT_DESC="awips2-cave-viz-common-core"' >> \
+            echo 'export COMPONENT_DESC="awips2-cave-viz-cots"' >> \
                ${CONST_SETUP_DIR}/feature.setup
-            echo 'export DOWNSTREAM_REQUIRES="awips2-cave-viz-cots awips2-cave-common-base"' >> \
+            echo 'export DOWNSTREAM_REQUIRES="awips2-cave-common-base"' >> \
                ${CONST_SETUP_DIR}/feature.setup         
          else
             java -jar ${PROCESS_FEATURE_JAR} \
