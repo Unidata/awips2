@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.activetable;
 
 import com.raytheon.uf.common.activetable.GetVtecAttributeRequest;
 import com.raytheon.uf.common.activetable.GetVtecAttributeResponse;
+import com.raytheon.uf.common.activetable.VTECPartners;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
