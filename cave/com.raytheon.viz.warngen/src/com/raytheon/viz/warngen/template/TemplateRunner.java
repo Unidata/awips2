@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
+import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -133,6 +134,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc) 
  *                                     while loc is null.
  * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.                                  
+ * Feb 12, 2013   1600     jsanchez    Correctly set the StormTrackData's motion direction for a CAN and EXP.
+ * Feb 15, 2013   1607     jsanchez    Added two variables corEventTime and corCreateTime.
  *                                   
  * </pre>
  * 
@@ -506,17 +509,18 @@ public class TemplateRunner {
                     	coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
                     }
                     context.put("eventLocation", coords);
-                    double motionDirection = oldWarn.getMotdir();
-                    while (motionDirection >= 360) {
-                        motionDirection -= 360;
-                    }
-                    context.put("movementDirection", motionDirection);
+                    context.put("movementDirection", oldWarn.getMotdir());
                     context.put("movementInKnots", oldWarn.getMotspd());
 
+                    // StormTrackData motion direction is between -180/180,
+                    // whereas a WarningRecord motion direction is between
+                    // -360/360
+                    double motionDirection = AbstractStormTrackResource
+                            .adjustAngle(oldWarn.getMotdir() - 180);
                     StormTrackData std = ToolsDataManager.getInstance()
                             .getStormTrackData();
                     std.setDate(simulatedTime);
-                    std.setMotionDirection(oldWarn.getMotdir());
+                    std.setMotionDirection(motionDirection);
                     std.setMotionSpeed(oldWarn.getMotspd());
                     t0 = System.currentTimeMillis();
                     ToolsDataManager.getInstance().setStormTrackData(std);
@@ -580,9 +584,14 @@ public class TemplateRunner {
                 context.put("start", oldWarn.getIssueTime().getTime());
                 if (oldWarn.getAct().equals("NEW")) {
                     context.put("now", new Date(wwaMNDTime));
+                    // original warning's 'now' time used in MND header
+                    context.put("corCreateTime", new Date(wwaMNDTime));
                 } else
                     context.put("now", simulatedTime);
                 context.put("event", oldWarn.getIssueTime().getTime());
+                // original warning's 'event' time, which should match the storm
+                // track
+                context.put("corEventTime", eventTime);
 
                 String message = oldWarn.getRawmessage();
                 if (!stormTrackState.originalTrack) {
