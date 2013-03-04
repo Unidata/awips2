@@ -106,7 +106,7 @@ public class SerializationCache {
         // and will block other threads, meanwhile deeper inside create()
         // it needs to obtain a lock on the classloader which another thread
         // might already have
-        synchronized (SerializationCache.class.getClassLoader()) {
+        synchronized (SerializationCache.class) {
             bm = generator.create();
         }
         generator.setBean(null);
