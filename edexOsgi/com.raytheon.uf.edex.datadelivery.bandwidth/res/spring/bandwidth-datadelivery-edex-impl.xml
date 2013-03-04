@@ -32,14 +32,6 @@
         <!-- The strategy for how to create the bandwidth manager -->
         <constructor-arg ref="bandwidthManagerCreator" />
     </bean>
-
-    <util:map id="retrievalAgents">
-        <entry key="Retrievals-1" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-2" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-3" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-4" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-5" value-ref="subscriptionRetrievalAgentPrototype" />
-    </util:map>
     
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
