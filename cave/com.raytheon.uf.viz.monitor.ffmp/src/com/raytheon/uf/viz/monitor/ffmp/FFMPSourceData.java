@@ -21,10 +21,10 @@ package com.raytheon.uf.viz.monitor.ffmp;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -41,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013            njensen     Initial creation
+ * Feb 28, 2013  1729      dhladky     Sped up, synch blocks were hanging it.
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class FFMPSourceData {
     private ConcurrentNavigableMap<Date, List<String>> availableUris = new ConcurrentSkipListMap<Date, List<String>>();
 
     /** map of huc to list of loaded URIs **/
-    private Map<String, List<String>> loadedUris = new HashMap<String, List<String>>();
+    private ConcurrentMap<String, List<String>> loadedUris = new ConcurrentHashMap<String, List<String>>();
 
     /**
      * Clears the data
@@ -67,9 +68,7 @@ public class FFMPSourceData {
         ffmpData = null;
         previousUriQueryDate = null;
         availableUris.clear();
-        synchronized (loadedUris) {
-            loadedUris.clear();
-        }
+        loadedUris.clear();
     }
 
     /**
@@ -117,14 +116,17 @@ public class FFMPSourceData {
      * @return
      */
     public List<String> getLoadedUris(String huc) {
-        List<String> loaded = null;
-        synchronized (loadedUris) {
-            loaded = loadedUris.get(huc);
-            if (loaded == null) {
-                loaded = new ArrayList<String>();
-                loadedUris.put(huc, loaded);
+
+        List<String> loaded = loadedUris.get(huc);
+
+        if (loaded == null) {
+            loaded = new ArrayList<String>();
+            List<String> previous = loadedUris.putIfAbsent(huc, loaded);
+            if (previous != null) {
+                return previous;
             }
         }
+
         return loaded;
     }
 
@@ -135,14 +137,18 @@ public class FFMPSourceData {
      * @param uri
      */
     public void addLoadedUri(String huc, String uri) {
-        synchronized (loadedUris) {
-            List<String> uriList = loadedUris.get(huc);
-            if (uriList == null) {
-                uriList = new ArrayList<String>();
-                loadedUris.put(huc, uriList);
+
+        List<String> uriList = loadedUris.get(huc);
+
+        if (uriList == null) {
+            uriList = new ArrayList<String>();
+            List<String> previous = loadedUris.putIfAbsent(huc, uriList);
+            if (previous != null) {
+                uriList = previous;
             }
-            uriList.add(uri);
         }
+
+        uriList.add(uri);
     }
 
     /**
@@ -151,7 +157,7 @@ public class FFMPSourceData {
      * @return
      */
     public boolean hasLoadedAnyUris() {
-        return (loadedUris.size() > 0);
+        return !loadedUris.isEmpty();
     }
 
     /**
