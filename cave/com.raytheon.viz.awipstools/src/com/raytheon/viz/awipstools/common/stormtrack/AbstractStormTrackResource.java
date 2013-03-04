@@ -64,7 +64,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  *                                     retrieve the requested line style so
  *                                     that it can be stored in the 
  *                                     StormTrackState.
- * 
+ * 02-12-2013   1600       jsanchez    Changed the visibility of the method adjustAngle
  * </pre>
  * 
  * @author mschenke
@@ -269,7 +269,7 @@ public abstract class AbstractStormTrackResource extends
      * @param angle
      * @return
      */
-    protected double adjustAngle(double angle) {
+    public static double adjustAngle(double angle) {
         double newVal = angle % 360;
         if (newVal > 180) {
             newVal -= 360;

@@ -190,11 +190,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class CustomMaps extends Job {
 
-        private Set<String> customMaps = new HashSet<String>();
+        private final Set<String> customMaps = new HashSet<String>();
 
         private Set<String> mapsToLoad;
 
-        private MapManager manager;
+        private final MapManager manager;
 
         public CustomMaps() {
             super("Loading WarnGen Maps");
