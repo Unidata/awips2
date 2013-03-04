@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * 29 June, 2009   2521    dhladky     Initial creation
  * 02/01/13     1569        D. Hladky   Added constants
  * Feb 10, 2013  1584      mpduff      Add performance logging.
+ * Feb 28, 2013  1729      dhladky     Got rid of thread sleeps
  * 
  * </pre>
  * 
@@ -204,11 +205,15 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                                     "Failed to read template in allotted time");
                             break;
                         }
-                        Thread.sleep(50);
+                        if (floader != null) {
+                            synchronized (floader) {
+                                floader.wait(1000);
+                            }
+                        }
                         i++;
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
-
+                        statusHandler.handle(Priority.INFO,
+                                "Data Loader thread interrupted, dying!", e);
                     }
                 }
 
@@ -264,10 +269,13 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                                             "Didn't load initial data in allotted time, releasing table");
                             break;
                         }
-                        Thread.sleep(30);
+                        synchronized (loader) {
+                            loader.wait(1000);
+                        }
                         i++;
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        statusHandler.handle(Priority.INFO,
+                                "Data Loader thread interrupted, dying!", e);
                     }
                 }
 
