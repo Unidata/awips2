@@ -161,6 +161,7 @@ import com.vividsolutions.jts.geom.Point;
  * 10 Feb 2013   1584         mpduff       Add performance logging.
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * Feb 20, 2013    1635   dhladky      Fixed multiple guidance display
+ * Feb 28, 2013  1729      dhladky     Changed the way the loaders are managed via the status updates.
  * </pre>
  * 
  * @author dhladky
@@ -476,9 +477,12 @@ public class FFMPResource extends
                         } else {
                             while (!loader.isDone) {
                                 try {
-                                    Thread.sleep(10);
+                                    synchronized (loader) {
+                                        loader.wait(1000);
+                                    }
                                 } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    statusHandler.handle(Priority.INFO,
+                                            "Data Loader thread interrupted, dying!", e);
                                 }
                             }
                             startLoader(previousMostRecentTime, ffmpRec
@@ -488,9 +492,12 @@ public class FFMPResource extends
 
                         while (!loader.isDone) {
                             try {
-                                Thread.sleep(10);
+                                synchronized (loader) {
+                                    loader.wait();
+                                }
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                statusHandler.handle(Priority.INFO,
+                                        "Data Loader thread interrupted, dying!", e);
                             }
                         }
 
@@ -4182,8 +4189,16 @@ public class FFMPResource extends
         if (basinTableDlg != null) {
             // call to update the basin table dialog
             if (event.getSource() instanceof FFMPLoaderStatus) {
-                FFMPLoaderStatus status = (FFMPLoaderStatus) event.getSource();
-                basinTableDlg.updateLoadingLabel(status);
+                final FFMPLoaderStatus status = (FFMPLoaderStatus) event
+                        .getSource();
+                VizApp.runAsync(new Runnable() {
+                    public void run() {
+                        if (basinTableDlg != null
+                                && !basinTableDlg.isDisposed()) {
+                            basinTableDlg.updateLoadingLabel(status);
+                        }
+                    }
+                });
             }
         }
     }
@@ -4366,14 +4381,13 @@ public class FFMPResource extends
                             - (6 * TimeUtil.MILLIS_PER_HOUR));
                     FFMPMonitor.getInstance().startLoad(this, startDate,
                             LOADER_TYPE.TERTIARY);
+                    
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Secondary Data Load failure", e);
                 }
             }
         }
-
-        // We don't really care about status of tertiary and general loaders
     }
 
 }
