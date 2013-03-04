@@ -85,18 +85,6 @@
         its Agents -->
     <bean id="retrievalAgentNotifier" class="java.lang.Object" />
 
-    <bean id="subscriptionRetrievalAgentPrototype"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent"
-        scope="prototype">
-        <constructor-arg value="OPSNET" />
-        <constructor-arg value="notifyRetrieval" />
-        <constructor-arg ref="retrievalAgentNotifier" />
-        <constructor-arg value="${bandwidth.default.retrieval.priority}" />
-        <constructor-arg ref="retrievalManager" />
-        <constructor-arg ref="bandwidthDao" />
-        <constructor-arg ref="retrievalDao" />
-    </bean>
-
     <bean id="retrievalAgentManager"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalAgentManager"
         init-method="start">
