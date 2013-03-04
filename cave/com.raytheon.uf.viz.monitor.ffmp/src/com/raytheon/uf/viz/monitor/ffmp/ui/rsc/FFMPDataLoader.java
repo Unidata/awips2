@@ -45,7 +45,6 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoadListener;
@@ -64,6 +63,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * 25 Jan, 2012   DR13839 gzhang      Handle Uris and Huc processing
  * 01/27/13     1478      D. Hladky   revamped the cache file format to help NAS overloading
  * 02/01/13      1569    D. Hladky   Changed to reading aggregate records from pypies
+ * Feb 28, 2013  1729      dhladky   Changed the way status messages are sent to the FFMP Dialog.
  * </pre>
  * 
  * @author dhladky
@@ -385,6 +385,9 @@ public class FFMPDataLoader extends Thread {
             statusHandler.handle(Priority.PROBLEM,"General Problem in Loading FFMP Data", e);
         } finally {
             isDone = true;
+            synchronized(this) {
+                this.notifyAll();
+            }
         }
 
         String message = null;
@@ -396,7 +399,6 @@ public class FFMPDataLoader extends Thread {
 
         long endTime = (System.currentTimeMillis()) - time;
         System.out.println(loadType.loaderType + " Loader took: " + endTime / 1000 + " seconds");
-
         fireLoaderEvent(loadType, message, isDone);
     }
 
@@ -408,28 +410,23 @@ public class FFMPDataLoader extends Thread {
     public void fireLoaderEvent(LOADER_TYPE ltype, String lmessage,
             boolean lstatus) {
 
-        final FFMPLoaderStatus sstatus = new FFMPLoaderStatus(ltype, lmessage,
+        FFMPLoaderStatus sstatus = new FFMPLoaderStatus(ltype, lmessage,
                 lstatus);
 
-        VizApp.runAsync(new Runnable() {
-            public void run() {
-                FFMPLoaderEvent fle = new FFMPLoaderEvent(sstatus);
-                Iterator<FFMPLoadListener> iter = loadListeners.iterator();
+        FFMPLoaderEvent fle = new FFMPLoaderEvent(sstatus);
+        Iterator<FFMPLoadListener> iter = loadListeners.iterator();
 
-                while (iter.hasNext()) {
-                    FFMPLoadListener listener = iter.next();
-                    listener.loadStatus(fle);
-                }
-            }
-        });
+        while (iter.hasNext()) {
+            FFMPLoadListener listener = iter.next();
+            listener.loadStatus(fle);
+        }
+
     }
 
     private FFMPMonitor getMonitor() {
         if (FFMPMonitor.isRunning()) {
-            // System.out.println("Monitor is running...");
             return FFMPMonitor.getInstance();
         } else {
-            // System.out.println("Monitor is dead...");
             isDone = true;
             return null;
         }
