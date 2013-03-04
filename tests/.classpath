@@ -80,9 +80,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.log"/>
 	<classpathentry kind="src" path="/com.raytheon.viz.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.decodertools"/>
-	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar"/>
-	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64.source_3.6.1.v3655c.jar"/>
-	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.jep">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="org.jep.linux32"/>
