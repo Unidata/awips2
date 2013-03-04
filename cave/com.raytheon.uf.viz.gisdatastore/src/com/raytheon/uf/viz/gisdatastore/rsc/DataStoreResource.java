@@ -105,6 +105,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012      #1326 randerso     Initial creation
+ * Feb 22, 2013      #1641 randerso     Moved ID_ATTRIBUTE_NAME to package scope
  * 
  * </pre>
  * 
@@ -115,7 +116,7 @@ import com.vividsolutions.jts.geom.Point;
 public class DataStoreResource extends
         AbstractVizResource<DataStoreResourceData, MapDescriptor> implements
         IPropertyChangeListener, IResourceDataChanged {
-    private static final String ID_ATTRIBUTE_NAME = "Feature.ID";
+    static final String ID_ATTRIBUTE_NAME = "Feature.ID";
 
     private static final int CLICK_TOLERANCE = 3;
 
