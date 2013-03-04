@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -120,7 +120,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Composite containing the product editor controls.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -143,12 +143,13 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking FindReplaceDlg.
  *                                     Changes for non-blocking StoreTransmitDlg.
  *                                     Changes for non-blocking WrapLengthDialog.
- * 
+ * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
- * 
+ *
  */
 public class ProductEditorComp extends Composite implements
         INotificationObserver {
@@ -350,7 +351,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Enumeration of product types.
-     * 
+     *
      * @author lvenable
      */
     public enum productTypeEnum {
@@ -395,7 +396,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent composite.
      */
@@ -1054,7 +1055,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Store or Transmit text product.
-     * 
+     *
      * @param action
      *            STORE: show the Store dialog TRANSMITT: shows the Transmit
      *            dialog. AUTOSTORE: implement autoStore
@@ -1136,7 +1137,6 @@ public class ProductEditorComp extends Composite implements
 
         boolean retVal = true;
         if (!textComp.isCorMode()) {
-            detachAttributionPhrase();
             retVal = changeTimes();
         }
 
@@ -1235,70 +1235,6 @@ public class ProductEditorComp extends Composite implements
             vtecList.add(vtec);
         }
         return vtecList;
-    }
-
-    /**
-     * get the list of VTEC Action Codes for this segment one Action code per
-     * VTEC line
-     */
-    private List<String> getVTECActionCodes(SegmentData segData,
-            ProductDataStruct pds) {
-
-        HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
-        TextIndexPoints tipVtec = segMap.get("vtec");
-        if (tipVtec == null) {
-            return new ArrayList<String>();
-        }
-
-        int lineCount = tipVtec.getEndIndex().x - tipVtec.getStartIndex().x;
-        ArrayList<String> actioncodes = new ArrayList<String>(lineCount);
-        for (int i = 0; i < lineCount; i++) {
-            String vtec = pds.getProductTextArray()[i
-                    + tipVtec.getStartIndex().x];
-            // extract the action code
-            String vline = vtec.split("/", 3)[1];
-            String ac = vline.split("\\.")[1];
-            actioncodes.add(ac);
-        }
-        return actioncodes;
-    }
-
-    private void detachAttributionPhrase() {
-        final String attributionPhraseRgx = "THE NATIONAL WEATHER SERVICE IN [A-Z0-9\\p{Punct}\\s]+?\\n\\n";
-        Pattern attribPattern = Pattern.compile(attributionPhraseRgx);
-        StyledTextComp stc = textComp;
-        ProductDataStruct pds = stc.getProductDataStruct();
-        List<SegmentData> segs = pds.getSegmentsArray();
-        for (SegmentData segData : segs) {
-            String newSegTxt = null;
-            String oldSegTxt = segData.getSementMap().get("ugc").getText();
-            TextIndexPoints oldSegTip = segData.getSementMap().get("ugc");
-            List<String> actioncodes = getVTECActionCodes(segData, pds);
-            if (actioncodes == null || actioncodes.isEmpty()) {
-                return;
-            }
-
-            if (actioncodes.contains("NEW") || actioncodes.contains("EXA")
-                    || actioncodes.contains("EXB")) {
-                continue;
-            } else {
-                // all actions in {"CON","CAN","UPG","EXT","EXP"}
-                // Not the first issuance, strip the attribution phrase from
-                // segment text.
-                Matcher matcher = attribPattern.matcher(oldSegTxt);
-                while (matcher.find()) {
-                    newSegTxt = matcher.replaceAll("");
-                    final int segNum = segs.indexOf(segData) + 1;
-                    statusHandler.handle(Priority.INFO,
-                            "Detached attribution phrase from segment data number "
-                                    + segNum);
-                }
-            }
-
-            if (newSegTxt != null) {
-                textComp.replaceText(oldSegTip, newSegTxt);
-            }
-        }
     }
 
     /**
@@ -1574,7 +1510,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Decodes the start and end times of VTEC, return null if all zeros.
-     * 
+     *
      * @param vt
      *            The VTEC date string in "yyMMdd'T'HHmm'Z'" format
      * @return Date object that corresponds to the specified VTEC time or null
@@ -1905,7 +1841,7 @@ public class ProductEditorComp extends Composite implements
     /**
      * Returns a Date from an encoded YYMMDD and hhmm string. Function name is a
      * misnomer, but kept from porting AWIPS1 equivalent function.
-     * 
+     *
      * @param day
      *            The "calendar day" of the time in Java's "yyMMdd" format.
      * @param time
@@ -1929,7 +1865,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Convert time string in DDHHMM format to a Date.
-     * 
+     *
      * @param dtgString
      *            time string in DDHHMM format
      * @return time converted from input string
@@ -2087,14 +2023,14 @@ public class ProductEditorComp extends Composite implements
      * returns the appropriate expiration time. Expiration time is the earliest
      * of the specified expiration time, 1 hr if a CAN code is detected, or the
      * ending time of ongoing events (CON, EXT, EXB, NEW).
-     * 
+     *
      * @param issTime
      *            issue time
      * @param expTime
      *            expire time
      * @param vtecStr
      *            vtec string
-     * 
+     *
      * @return expire time
      */
     public Date getExpireTime(Date issTime, Date expTime, String vtecStr) {
@@ -2340,7 +2276,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Get the directory.
-     * 
+     *
      * @return The directory
      */
     private String getDir() {
@@ -2475,7 +2411,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Display the Find or Find & Replace dialog.
-     * 
+     *
      * @param findAndReplace
      *            If true show the Find & Replace dialog, false shows the Find
      *            dialog.
@@ -2707,7 +2643,7 @@ public class ProductEditorComp extends Composite implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
      * notificationArrived
      * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
@@ -2878,7 +2814,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Word-wrap the text selected by the user.
-     * 
+     *
      */
     private void doWrapSelection() {
         StyledText styledText = textComp.getTextEditorST();
@@ -2959,7 +2895,7 @@ public class ProductEditorComp extends Composite implements
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
          * IProgressMonitor)
          */
