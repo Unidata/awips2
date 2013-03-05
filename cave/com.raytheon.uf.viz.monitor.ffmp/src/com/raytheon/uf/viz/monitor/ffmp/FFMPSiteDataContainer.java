@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.monitor.ffmp;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * FFMP data container that holds the FFMPSiteData for each site.
@@ -33,6 +33,7 @@ import java.util.Map;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2013            njensen     Initial creation
+ * Feb 28, 2013  1729      dhladky     Sped up, synch blocks were hanging it.
  * 
  * </pre>
  * 
@@ -42,17 +43,20 @@ import java.util.Map;
 
 public class FFMPSiteDataContainer {
 
-    private Map<String, FFMPSiteData> siteDataMap = new HashMap<String, FFMPSiteData>();
+    private ConcurrentMap<String, FFMPSiteData> siteDataMap = new ConcurrentHashMap<String, FFMPSiteData>();
 
     public FFMPSiteData get(String siteKey) {
-        FFMPSiteData data = null;
-        synchronized (siteDataMap) {
-            data = siteDataMap.get(siteKey);
-            if (data == null) {
-                data = new FFMPSiteData();
-                siteDataMap.put(siteKey, data);
+
+        FFMPSiteData data = siteDataMap.get(siteKey);
+
+        if (data == null) {
+            data = new FFMPSiteData();
+            FFMPSiteData previous = siteDataMap.putIfAbsent(siteKey, data);
+            if (previous != null) {
+                return previous;
             }
         }
+
         return data;
     }
 
@@ -61,17 +65,13 @@ public class FFMPSiteDataContainer {
         for (FFMPSiteData data : vals) {
             data.clear();
         }
-        synchronized (siteDataMap) {
-            siteDataMap.clear();
-        }
+
+        siteDataMap.clear();
     }
 
     public FFMPSiteData removeSite(String siteKey) {
-        FFMPSiteData data = null;
-        synchronized (siteDataMap) {
-            data = siteDataMap.remove(siteKey);
-        }
-        return data;
+   
+        return siteDataMap.remove(siteKey);
     }
 
     public boolean containsSite(String siteKey) {
