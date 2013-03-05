@@ -3,6 +3,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 
@@ -19,6 +21,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
  * Oct 11, 2012 0726       djohnson     Add SW history, use generics, 
  *                                      separate work method from loop control.
  * Nov 09, 2012 1286       djohnson     Add ability to kill the threads when BandwidthManager instance is replaced.
+ * Mar 05, 2013 1647       djohnson     Sleep one minute between checks.
  * 
  * </pre>
  * 
@@ -29,7 +32,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation>
         extends Thread {
 
-    private static final int SLEEP_TIME = 300000;
+    private static final long SLEEP_TIME = TimeUtil.MILLIS_PER_MINUTE;
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalAgent.class);
@@ -122,7 +125,8 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
 
                     notifier.wait(SLEEP_TIME);
                 } catch (InterruptedException e) {
-                    // ignore
+                    statusHandler.handle(Priority.WARN,
+                            "Interrupted while waiting for notification.", e);
                 }
             }
         }
