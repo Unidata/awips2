@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
  * Oct 13, 2011            dhladky     Initial creation.
  * Jul 31, 2012 14517      mpduff      Fix for Rapid slider changes
  * 02/01/13     1569       D. Hladky   Added constants
+ * Feb 28, 2013  1729      dhladky     Removed un-necessary logging.
  * 
  * </pre>
  * 
@@ -150,6 +151,9 @@ public class FFMPTableDataLoader extends Thread {
                                 FFMPDataGenerator dg = new FFMPDataGenerator(
                                         ffmp, resource);
                                 tData = dg.generateFFMPData();
+                                
+                                
+                                
                                 drawable.setTableData(iHuc, tData);
                                 drawable.setDrawTime(origDrawTime);
                             }
@@ -163,7 +167,6 @@ public class FFMPTableDataLoader extends Thread {
                         // multiple table cells
                         statusHandler.handle(Priority.WARN,
                                 "No Data available...");
-                        System.err.println("NO Data Available...");
                     }
 
                     if (tData != null) {
@@ -210,7 +213,6 @@ public class FFMPTableDataLoader extends Thread {
             tableDataUpdate.setSourceUpdate(sourceUpdate);
             
             isDone = true;
-
             callback.tableDataUpdateComplete(tableDataUpdate);
         }
     }
