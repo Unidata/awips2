@@ -25,12 +25,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.raytheon.uf.common.auth.req.BasePrivilegedServerService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.service.BasePrivilegedDataDeliveryService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -49,18 +49,28 @@ import com.raytheon.uf.common.util.LogUtil;
  * Nov 15, 2012 1286       djohnson     No longer abstract.
  * Nov 20, 2012 1286       djohnson     Add proposeSchedule methods.
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
+ * Feb 27, 2013 1644       djohnson     Now abstract, sub-classes provide specific service lookup keys.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class BandwidthService extends
-        BasePrivilegedDataDeliveryService<IBandwidthRequest> implements
+public abstract class BandwidthService extends
+        BasePrivilegedServerService<IBandwidthRequest> implements
         IBandwidthService {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthService.class);
+
+    /**
+     * Constructor.
+     * 
+     * @param serviceKey
+     */
+    protected BandwidthService(String serviceKey) {
+        super(serviceKey);
+    }
 
     /**
      * {@inheritDoc}
@@ -226,7 +236,6 @@ public class BandwidthService extends
         }
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -237,10 +246,9 @@ public class BandwidthService extends
         try {
             return sendRequest(request, BandwidthGraphData.class);
         } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
+            statusHandler.handle(Priority.PROBLEM,
                     "Unable to retrieve bandwidth graph data, returning null.",
-                            e);
+                    e);
             return null;
         }
     }
