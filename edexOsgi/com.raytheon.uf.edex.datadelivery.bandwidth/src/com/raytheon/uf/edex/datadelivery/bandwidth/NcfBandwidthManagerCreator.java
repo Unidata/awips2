@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import java.util.List;
+import java.util.Set;
+
+import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
@@ -36,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013 1543       djohnson     Initial creation
+ * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
  * 
  * </pre>
  * 
@@ -47,7 +54,7 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
     /**
      * NCF {@link BandwidthManager} implementation.
      */
-    private static class NcfBandwidthManager extends BandwidthManager {
+    static class NcfBandwidthManager extends BandwidthManager {
 
         private static final String[] NCF_BANDWIDTH_MANAGER_FILES = new String[] {
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
@@ -72,6 +79,24 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
         @Override
         protected String[] getSpringFilesForNewInstance() {
             return NCF_BANDWIDTH_MANAGER_FILES;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected ProposeScheduleResponse proposeScheduleSbnSubscription(
+                List<Subscription> subscriptions) throws Exception {
+            return proposeScheduleSubscriptions(subscriptions);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected Set<String> scheduleSbnSubscriptions(
+                List<Subscription> subscriptions) throws SerializationException {
+            return scheduleSubscriptions(subscriptions);
         }
     }
 
