@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Dec. 3, 2009  3424       zhao       Initial creation.
  * Jan 25, 2010  4281       wkwock/Zhao Added history-table-row-data related modules
  * May 23, 2012  14410      zhao       Modified getCellTypeForBlizWarn and getCellTypeForHsnowWarn modules
+ * Feb 28, 2013  14410      zhao       Modified getCellTypeForBlizWarn
  * 
  * </pre>
  * 
@@ -752,13 +753,26 @@ public final class TableUtil {
 
         String presentWx = report.getPresentWx();
         
-        CellType windSpeed = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_WIND_SPEED.getXmlKey(), report.getWindSpeed());
+        CellType windSpeed = CellType.NotAvailable;
+        if ( report.getWindSpeed() != ObConst.MISSING ) {
+        	windSpeed = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_WIND_SPEED.getXmlKey(), report.getWindSpeed());
+        }
 
-        CellType peakWind = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_PEAK_WIND.getXmlKey(), report.getMaxWindSpeed());
+        CellType peakWind =  CellType.NotAvailable; 
+        if ( report.getMaxWindSpeed() != ObConst.MISSING ) {
+        	peakWind = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_PEAK_WIND.getXmlKey(), report.getMaxWindSpeed());
+        }
 
-        CellType windGust = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_GUST_SPEED.getXmlKey(), report.getWindGust());
+        CellType windGust  = CellType.NotAvailable;
+        if ( report.getWindGust() != ObConst.MISSING ) {
+        	windGust = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_GUST_SPEED.getXmlKey(), report.getWindGust());
+        }
 
-        CellType visibility = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_VIS.getXmlKey(), report.getVisibility());
+        CellType visibility  = CellType.NotAvailable;
+        if ( report.getVisibility() != ObConst.MISSING ) {
+            // vis in units of "miles/16" is used to compare with Red/Yellow threshold values
+        	visibility = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_VIS.getXmlKey(), report.getVisibility()*16.0f);
+        }
 
         if ( presentWx.contains("SN") || presentWx.contains("BLSN") ) {
             // snow or blowing snow observed
