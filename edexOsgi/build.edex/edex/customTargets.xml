@@ -169,6 +169,23 @@
                 			<include name="plugins/**" />
                 		</fileset>
 					</copy>
+        			
+            	 	<shellscript shell="bash"
+            	 	dir="${builder}/postBuild/${edex.root.directory}/lib">
+            	 		cd plugins
+            	 		for directory in `find -type d -maxdepth 1`; 
+            	 		do
+            	 			if [ ${directory} != "." ]; then
+            	 				cd ${directory}
+            	 				/awips2/java/bin/jar cmf \
+            	 					META-INF/MANIFEST.MF \
+            	 					../${directory}.jar \
+            	 					*
+            	 				cd ..
+            	 				rm -rf ${directory}
+            	 			fi
+            	 		done
+            	 	</shellscript>
         	
         			<move todir="${builder}/postBuild/${edex.root.directory}/lib">
         				<fileset dir="${builder}/postBuild/${edex.root.directory}/lib">
