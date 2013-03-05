@@ -25,7 +25,7 @@
     
     <bean id="crawlerCommunicationStrategy" class="com.raytheon.uf.edex.datadelivery.harvester.crawler.FileCommunicationStrategy" />
 
-    <bean id="MetaDataProcessor" class="com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler" depends-on="registryInit,registerDataDeliveryHandlers">
+    <bean id="MetaDataProcessor" class="com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler" depends-on="registryInit,registerDataDeliveryHandlers,registryManagerInstanceInitializer">
         <constructor-arg ref="crawlerCommunicationStrategy" />
     </bean>
   	
