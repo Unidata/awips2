@@ -5,7 +5,7 @@
   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
     <bean id="bandwidthService"
-        class="com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService" />
+        class="com.raytheon.uf.common.datadelivery.bandwidth.WfoBandwidthService" />
 
     <bean id="subscriptionNotificationService"
         class="com.raytheon.uf.common.datadelivery.service.SendToServerSubscriptionNotificationService" />
