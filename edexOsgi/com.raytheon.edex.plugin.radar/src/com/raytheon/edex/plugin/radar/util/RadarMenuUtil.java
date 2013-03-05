@@ -57,7 +57,8 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 30, 2010            mnash     Initial creation
+ * Jun 30, 2010            mnash       Initial creation
+ * Feb 25, 2013 DR14418    zwang       Change radar menu to dual pol style   
  * 
  * </pre>
  * 
@@ -110,6 +111,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                         .get(i).toLowerCase());
                 if (terminal) {
                     includeMenuItem.fileName = new File(path
+                            + "dualPol" + File.separator
                             + "baseTerminalLocalRadarMenu.xml");
                     List<Double> elevations = map.get(radars.get(i));
                     vars = new VariableSubstitution[(elevations.size() + 1)
@@ -137,6 +139,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                     includeMenuItem.substitutions = vars;
                 } else {
                     includeMenuItem.fileName = new File(path
+                            + "dualPol" + File.separator
                             + "baseLocalRadarMenu.xml");
                     vars = new VariableSubstitution[1];
                     vars[0] = new VariableSubstitution();
@@ -176,6 +179,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
             if (terminal) {
                 List<Double> elevations = map.get(radars.get(i));
                 includeMenuContribution.fileName = new File(path
+                        + "dualPol" + File.separator
                         + File.separator + "baseTerminalLocalRadarMenu.xml");
                 vars = new VariableSubstitution[(elevations.size() + 1)
                         + NUM_POSSIBLE_RADARS + 1];
@@ -203,6 +207,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                 terminal = true;
             } else {
                 includeMenuContribution.fileName = new File(path
+                        + "dualPol" + File.separator
                         + "baseLocalRadarMenu.xml");
                 vars = new VariableSubstitution[1];
                 vars[0] = new VariableSubstitution();
