@@ -24,8 +24,10 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.TestUtil;
 
@@ -53,6 +55,11 @@ public class SerializeRetrievedDataToDirectoryTest {
 
     private final SerializeRetrievedDataToDirectory service = new SerializeRetrievedDataToDirectory(
             directory);
+
+    @BeforeClass
+    public static void classSetUp() {
+        PathManagerFactoryTest.initLocalization();
+    }
 
     @Test
     public void serializesRetrievedDataToAFileInTheTargetDirectory()
