@@ -69,6 +69,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * June 01 2011 9499       djingtao    add dur in getGraphData()
  * July 25 2011 10082      djingtao    modify edit()
  * May  30 2012 14967      wkwock      overload insertRejectedData method
+ * Feb  22 2013 14676      lbousaidi   check when producttime is null
  * </pre>
  *
  * @author dhladky
@@ -1101,7 +1102,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 					sql.addString(
 							"producttime",
 							dateFormat.format(Calendar.getInstance(
-									TimeZone.getTimeZone("GMT")).getTime()));
+							TimeZone.getTimeZone("GMT")).getTime()));
 				} else {
 					sql.addString("producttime",
 							dateFormat.format(data.getProductTime()));
@@ -1156,6 +1157,11 @@ public class TimeSeriesDataManager extends HydroDataManager {
 			sql.setSqlType(SqlBuilder.UPDATE);
 			sql.addDouble("value", data.getValue());
 			sql.addString("postingTime", HydroConstants.DATE_FORMAT.format(now));
+			if (data.getProductTime() == null) {
+                 sql.addString("producttime",
+                      HydroConstants.DATE_FORMAT.format(Calendar.getInstance(
+                      TimeZone.getTimeZone("GMT")).getTime()));
+           }
 
 			StringBuilder where = new StringBuilder();
 			where.append(" where lid = '" + data.getLid().toUpperCase() + "' ");
@@ -1177,6 +1183,11 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 			if (data.getValue() == HydroConstants.MISSING_VALUE) {
 				DataRecord dr = new DataRecord();
+				 Date productTime=data.getProductTime();
+                 if (productTime==null) {
+                       productTime= now;                     
+                 }
+
 				dr.setDur(data.getDur());
 				dr.setExt(data.getExtremum().toUpperCase());
 				dr.setLid(data.getLid());
@@ -1188,7 +1199,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 				dr.setShefQualCode("M");
 				dr.setTs(data.getTs().toUpperCase());
 				dr.setValue(data.getPreviousValue());
-				dr.setProductTime(data.getProductTime());
+				dr.setProductTime(productTime);
 				dr.setProductId(data.getProductID());
 				if (data.getValidTime() != null) {
 					dr.setValidTime(data.getValidTime());
