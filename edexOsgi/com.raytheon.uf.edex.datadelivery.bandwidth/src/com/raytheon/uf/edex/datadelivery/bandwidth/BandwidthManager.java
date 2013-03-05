@@ -29,6 +29,7 @@ import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -101,6 +102,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 14, 2013 1595       djohnson     Check with BandwidthUtil whether or not to reschedule subscriptions on update.
  * Feb 14, 2013 1596       djohnson     Do not reschedule allocations when a subscription is removed.
  * Feb 20, 2013 1543       djohnson     Add try/catch blocks during the shutdown process.
+ * Feb 27, 2013 1644       djohnson     Force sub-classes to provide an implementation for how to schedule SBN routed subscriptions.
  * </pre>
  * 
  * @author dhladky
@@ -524,7 +526,7 @@ abstract class BandwidthManager extends
                                 bandwidthSubscription.getProvider(),
                                 bandwidthSubscription.getDataSetName(),
                                 bandwidthSubscription.getBaseReferenceTime());
-                if (z.size() > 0) {
+                if (!z.isEmpty()) {
                     retrieval.setStatus(RetrievalStatus.READY);
                 }
                 bandwidthDao.store(retrieval);
@@ -804,14 +806,16 @@ abstract class BandwidthManager extends
                             bandwidthSubscription = itr.next();
                             if (oldCycles.contains(bandwidthSubscription
                                     .getCycle())) {
-                                bandwidthSubscriptionToRemove.add(bandwidthSubscription);
+                                bandwidthSubscriptionToRemove
+                                        .add(bandwidthSubscription);
                                 itr.remove();
                             }
                         }
-                        unscheduled.addAll(remove(bandwidthSubscriptionToRemove));
+                        unscheduled
+                                .addAll(remove(bandwidthSubscriptionToRemove));
                     }
 
-                    if (newCycles.size() > 0) {
+                    if (!newCycles.isEmpty()) {
                         unscheduled.addAll(schedule(subscription, newCycles));
                     }
                 }
@@ -1002,25 +1006,25 @@ abstract class BandwidthManager extends
             response = showRetrievalPlan(requestNetwork);
             break;
         case PROPOSE_SCHEDULE_SUBSCRIPTION:
-            final ProposeScheduleResponse proposeResponse = proposeSchedule(subscriptions);
-            response = proposeResponse;
-            Set<String> subscriptionsUnscheduled = proposeResponse
-                    .getUnscheduledSubscriptions();
-            if (subscriptionsUnscheduled.isEmpty()) {
-                statusHandler
-                        .info("No subscriptions will be unscheduled by scheduling subscriptions "
-                                + subscriptions + ".  Applying...");
-                // This is a safe operation as all subscriptions will remain
-                // scheduled, just apply
-                scheduleSubscriptions(subscriptions);
-            } else if (subscriptions.size() == 1) {
-                int requiredLatency = determineRequiredLatency(subscriptions
-                        .get(0));
-                proposeResponse.setRequiredLatency(requiredLatency);
+            // SBN subscriptions must go through the NCF
+            if (!subscriptions.isEmpty()
+                    && Network.SBN.equals(subscriptions.get(0).getRoute())) {
+                final IProposeScheduleResponse proposeResponse = proposeScheduleSbnSubscription(subscriptions);
+                response = proposeResponse;
+            } else {
+                // OPSNET subscriptions
+                response = proposeScheduleSubscriptions(subscriptions);
             }
             break;
         case SCHEDULE_SUBSCRIPTION:
-            response = scheduleSubscriptions(subscriptions);
+            // SBN subscriptions must go through the NCF
+            if (!subscriptions.isEmpty()
+                    && Network.SBN.equals(subscriptions.get(0).getRoute())) {
+                response = scheduleSbnSubscriptions(subscriptions);
+            } else {
+                // OPSNET subscriptions
+                response = scheduleSubscriptions(subscriptions);
+            }
             break;
         case GET_BANDWIDTH:
             RetrievalPlan b = retrievalManager.getPlan(requestNetwork);
@@ -1098,6 +1102,58 @@ abstract class BandwidthManager extends
     }
 
     /**
+     * Schedule the SBN subscriptions.
+     * 
+     * @param subscriptions
+     *            the subscriptions
+     * @return the set of subscription names unscheduled as a result of
+     *         scheduling the subscriptions
+     * @throws SerializationException
+     */
+    protected abstract Set<String> scheduleSbnSubscriptions(
+            List<Subscription> subscriptions) throws SerializationException;
+
+    /**
+     * Proposes scheduling a list of subscriptions.
+     * 
+     * @param subscriptions
+     *            the subscriptions
+     * @return the response
+     * @throws SerializationException
+     */
+    protected ProposeScheduleResponse proposeScheduleSubscriptions(
+            List<Subscription> subscriptions) throws SerializationException {
+        final ProposeScheduleResponse proposeResponse = proposeSchedule(subscriptions);
+        Set<String> subscriptionsUnscheduled = proposeResponse
+                .getUnscheduledSubscriptions();
+        if (subscriptionsUnscheduled.isEmpty()) {
+            statusHandler
+                    .info("No subscriptions will be unscheduled by scheduling subscriptions "
+                            + subscriptions + ".  Applying...");
+            // This is a safe operation as all subscriptions will remain
+            // scheduled, just apply
+            scheduleSubscriptions(subscriptions);
+        } else if (subscriptions.size() == 1) {
+            int requiredLatency = determineRequiredLatency(subscriptions.get(0));
+            proposeResponse.setRequiredLatency(requiredLatency);
+        }
+        return proposeResponse;
+    }
+
+    /**
+     * Propose scheduling SBN routed subscriptions. Sub-classes must implement
+     * the specific functionality.
+     * 
+     * @param subscriptions
+     *            the subscriptions targeted at the SBN
+     * @return the response
+     * @throws Exception
+     *             on error
+     */
+    protected abstract IProposeScheduleResponse proposeScheduleSbnSubscription(
+            List<Subscription> subscriptions) throws Exception;
+
+    /**
      * Retrieve the bandwidth graph data.
      * 
      * @return the graph data
@@ -1162,7 +1218,7 @@ abstract class BandwidthManager extends
      * @return the set of subscription names unscheduled
      * @throws SerializationException
      */
-    private Set<String> scheduleSubscriptions(List<Subscription> subscriptions)
+    protected Set<String> scheduleSubscriptions(List<Subscription> subscriptions)
             throws SerializationException {
         Set<String> unscheduledSubscriptions = new TreeSet<String>();
 
