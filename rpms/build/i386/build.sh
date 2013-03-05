@@ -86,6 +86,7 @@ fi
 
 if [ "${1}" = "-python-qpid" ]; then
    buildRPM "awips2"
+   buildRPM "awips2-python-qpid"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-dynamicserialize"
@@ -97,7 +98,6 @@ if [ "${1}" = "-python-qpid" ]; then
    buildRPM "awips2-python-pil"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-tables"
@@ -343,6 +343,7 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
+   buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "Installer.ncep-database"

@@ -51,6 +51,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -75,7 +76,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 17, 2009            njensen     Initial creation
- * Dec 21, 2009    4055  njensen    Queued thread for updates
+ * Dec 21, 2009    4055    njensen    Queued thread for updates
+ * Feb 26, 2013    1447    dgilling   Add routine to use MergeVTEC as basis
+ *                                    for merge logic.
  * 
  * </pre>
  * 
@@ -290,7 +293,7 @@ public class ActiveTable {
             updateTable(siteId, result, mode);
 
             if (result.changeList.size() > 0) {
-                sendNotification(mode, result.changeList);
+                sendNotification(mode, result.changeList, "VTECDecoder");
             }
         }
     }
@@ -339,12 +342,13 @@ public class ActiveTable {
         return result;
     }
 
-    private void sendNotification(ActiveTableMode mode, List<VTECChange> changes) {
+    private static void sendNotification(ActiveTableMode mode,
+            List<VTECChange> changes, String source) {
         Date modTime = new Date();
         // VTECTableChangeNotifier.send(mode, modTime, "VTECDecoder", changes);
         try {
             VTECTableChangeNotification notification = new VTECTableChangeNotification(
-                    mode, modTime, "VTECDecoder",
+                    mode, modTime, source,
                     changes.toArray(new VTECChange[changes.size()]));
             // System.out.println("Sending VTECTableChangeNotification:"
             // + notification);
@@ -427,7 +431,7 @@ public class ActiveTable {
      * @param changes
      *            the updated table followed by the purged records
      */
-    private void updateTable(String siteId, MergeResult changes,
+    private static void updateTable(String siteId, MergeResult changes,
             ActiveTableMode mode) {
         synchronized (ActiveTable.class) {
             List<ActiveTableRecord> updated = changes.updatedList;
@@ -466,6 +470,99 @@ public class ActiveTable {
             exc = new Exception(msg, t);
         }
         return exc;
+    }
+
+    /**
+     * Merges the specified new active table records into the active table using
+     * the legacy MergeVTEC logic (which is different than the legacy logic in
+     * ActiveTable.py used elsewhere).
+     * 
+     * @param siteId
+     *            Site ID to perform the merge as.
+     * @param tableName
+     *            Table to merge the records into.
+     * @param newRecords
+     *            The incoming new records to merge.
+     * @param timeOffset
+     *            For DRT; number of seconds from current time to use as base
+     *            time for the merge.
+     * @param makeBackup
+     *            Whether or not to make a backup of the active table prior to
+     *            the merge.
+     * @param runIngestAT
+     *            Whether this merge will be performed as ingestAT or MergeVTEC
+     *            (has minor logging effects).
+     * @param xmlSource
+     *            Only required when <code>runIngestAT</code> is true; XML data
+     *            from MHS about source of new records.
+     * @throws JepException
+     *             If an unhandled exception is encountered in the python code
+     *             executed.
+     */
+    public static void mergeRemoteTable(String siteId,
+            ActiveTableMode tableName, List<ActiveTableRecord> newRecords,
+            float timeOffset, boolean makeBackup, boolean runIngestAT,
+            String xmlSource) throws JepException {
+        MergeResult result = null;
+        PythonScript script = null;
+        try {
+            String scriptName = runIngestAT ? "ingestAT.py" : "MergeVTEC.py";
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext commonCx = pathMgr.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+            String scriptPath = pathMgr.getFile(commonCx,
+                    FileUtil.join(ActiveTablePyIncludeUtil.VTEC, scriptName))
+                    .getPath();
+            String pythonIncludePath = PyUtil.buildJepIncludePath(
+                    ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
+                    ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
+                    ActiveTablePyIncludeUtil.getGfeConfigIncludePath(siteId),
+                    ActiveTablePyIncludeUtil.getIscScriptsIncludePath());
+
+            try {
+                script = new PythonScript(scriptPath, pythonIncludePath,
+                        ActiveTable.class.getClassLoader());
+            } catch (JepException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error initializing ingestAT or MergeVTEC python", e);
+                throw e;
+            }
+
+            try {
+                String site4Char = SiteMap.getInstance().getSite4LetterId(
+                        siteId);
+                List<ActiveTableRecord> activeTable = getActiveTable(site4Char,
+                        tableName);
+                HashMap<String, Object> args = new HashMap<String, Object>();
+                args.put("activeTable", activeTable);
+                args.put("activeTableMode", tableName.toString());
+                args.put("newRecords", newRecords);
+                args.put("drt", timeOffset);
+                args.put("makeBackups", makeBackup);
+                if (runIngestAT) {
+                    args.put("xmlIncoming", xmlSource);
+                }
+
+                String methodName = runIngestAT ? "runFromJava" : "merge";
+                result = (MergeResult) script.execute(methodName, args);
+            } catch (JepException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error merging active table", e);
+                throw e;
+            }
+        } finally {
+            if (script != null) {
+                script.dispose();
+                script = null;
+            }
+        }
+
+        if (result != null) {
+            updateTable(siteId, result, tableName);
+            if (!result.changeList.isEmpty()) {
+                sendNotification(tableName, result.changeList, "MergeVTEC");
+            }
+        }
     }
 
     public void dispose() {

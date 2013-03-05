@@ -17,34 +17,36 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.activetable;
+package com.raytheon.uf.edex.activetable.handler;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+
+import jep.JepException;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
 import com.raytheon.uf.common.activetable.PracticeActiveTableRecord;
-import com.raytheon.uf.common.activetable.UpdateActiveTableRequest;
-import com.raytheon.uf.common.activetable.UpdateActiveTableResponse;
+import com.raytheon.uf.common.activetable.request.MergeActiveTableRequest;
+import com.raytheon.uf.common.activetable.response.ActiveTableSharingResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.activetable.ActiveTable;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
- * Handler for UpdateActiveTableRequests. This is the server-side portion of the
- * ingestAT application.
+ * Handler for
+ * <code>MergeActiveTableRequest<code>s. This is the server-side portion of the
+ * ingestAT/MergeVTEC applications.
  * 
  * <pre>
  * 
@@ -54,6 +56,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Sep 13, 2010            wldougher     Initial creation
  * Aug 20, 2012  #1084     dgilling      Properly zero pad incoming
  *                                       ETN values.
+ * Feb 26, 2013  #1447     dgilling      Rewrite based on MergeActiveTableRequest
+ *                                       and use MergeVTEC.py to perform merge.
  * 
  * </pre>
  * 
@@ -61,10 +65,10 @@ import com.vividsolutions.jts.io.WKTReader;
  * @version 1.0
  */
 
-public class UpdateActiveTableHandler implements
-        IRequestHandler<UpdateActiveTableRequest> {
+public class MergeActiveTableHandler implements
+        IRequestHandler<MergeActiveTableRequest> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(UpdateActiveTableHandler.class);
+            .getHandler(MergeActiveTableHandler.class);
 
     /**
      * Handle a request to update the active table with a list of records. The
@@ -74,100 +78,39 @@ public class UpdateActiveTableHandler implements
      * @see com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest(com.raytheon.uf.common.serialization.comm.IServerRequest)
      */
     @Override
-    public Object handleRequest(UpdateActiveTableRequest request)
-            throws Exception {
-        StringBuilder sb = new StringBuilder();
-        Float timeOffset = request.getTimeOffset();
-
-        Map<String, Object>[] activeTableMap = request.getActiveTable();
-        ActiveTableMode mode = request.getMode();
+    public ActiveTableSharingResponse handleRequest(
+            MergeActiveTableRequest request) throws Exception {
+        Map<String, Object>[] activeTableMap = request.getIncomingRecords();
+        ActiveTableMode mode = request.getTableName();
 
         statusHandler.handle(Priority.INFO,
                 "Received UpdateActiveTable request containing "
                         + activeTableMap.length + " maps.");
 
-        List<ActiveTableRecord> records = null;
+        List<ActiveTableRecord> records;
         try {
             records = mapToRecords(activeTableMap, mode);
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "The mapToRecords() call failed.", e);
-            sb.append(e.getLocalizedMessage());
-            for (StackTraceElement ste : e.getStackTrace()) {
-                sb.append(ste.toString() + "\n");
-            }
+            // already logged this below, just returning failed status
+            return new ActiveTableSharingResponse(false,
+                    "Error executing converting incoming records: "
+                            + e.getLocalizedMessage());
         }
 
-        if (sb.length() == 0) {
-
-            // Records may have entries for more than one site ID (officeid).
-            // However, the merge() method of ActiveTable assumes it will only
-            // get records for a single site. So some sorting and slicing of the
-            // list has to be done.
-            class OidComparator implements Comparator<ActiveTableRecord> {
-                /**
-                 * Comparator for sorting ActiveTableRecords by office id.
-                 * 
-                 * @see java.util.Comparator#compare(java.lang.Object,
-                 *      java.lang.Object)
-                 */
-                @Override
-                public int compare(ActiveTableRecord o1, ActiveTableRecord o2) {
-                    return o1.getOfficeid().compareTo(o2.getOfficeid());
-                }
-            }
-            OidComparator comparator = new OidComparator();
-            Collections.sort(records, comparator);
-
-            // Create an active table instance to perform the merge
-            ActiveTable table = new ActiveTable();
-            // A sublist of records, all for the same site
-            List<ActiveTableRecord> siteRecords = null;
-            // A dummy record for use with binarySearch
-            ActiveTableRecord key = new PracticeActiveTableRecord();
-            // The index of the first record with a different site ID
-            int nextIdx = -1;
-
-            while (records.size() > 0) {
-                // Get a sublist with identical site IDs
-                key.setOfficeid(records.get(0).getOfficeid() + " ");
-                nextIdx = Collections.binarySearch(records, key, comparator);
-                if (nextIdx < 0) {
-                    nextIdx = -(nextIdx + 1);
-                }
-                siteRecords = records.subList(0, nextIdx);
-                // Merge all the records for the site
-                Exception exc = table.merge(siteRecords, timeOffset);
-                if (exc != null) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "table.merge() returned an error.", exc);
-                    sb.append(exc.getLocalizedMessage());
-                    for (StackTraceElement ste : exc.getStackTrace()) {
-                        sb.append(ste.toString() + "\n");
-                    }
-                    break;
-                }
-                // Remove the processed records
-                records = records.subList(nextIdx, records.size());
-            }
-
+        String xmlSource = request.isFromIngestAT() ? request.getXmlSource()
+                : null;
+        try {
+            ActiveTable.mergeRemoteTable(request.getSite(),
+                    request.getTableName(), records, request.getTimeOffset(),
+                    request.isMakeBackups(), request.isFromIngestAT(),
+                    xmlSource);
+        } catch (JepException e) {
+            // already logged this in ActiveTable, just returning failed status
+            return new ActiveTableSharingResponse(false,
+                    "Error performing merge: " + e.getLocalizedMessage());
         }
 
-        String xmlSource = request.getXmlSource();
-        List<String> sourceInfo = null;
-        if (xmlSource != null && !("".equals(xmlSource.trim()))) {
-            ServerInfoExtractor infoExtractor = new ServerInfoExtractor();
-            sourceInfo = infoExtractor.extract(xmlSource);
-        }
-
-        // Tell the user we finished processing.
-        // The merge() method handles its own error reporting, we get no status
-        UpdateActiveTableResponse response = new UpdateActiveTableResponse();
-        response.setSourceInfo(sourceInfo);
-        if (sb.length() > 0) {
-            response.setMessage(sb.toString());
-        }
-        return response;
+        return new ActiveTableSharingResponse(true, null);
     }
 
     /**
@@ -178,9 +121,11 @@ public class UpdateActiveTableHandler implements
      * @param activeTableMap
      * @param mode
      * @return
+     * @throws Exception
      */
     protected List<ActiveTableRecord> mapToRecords(
-            Map<String, Object>[] activeTableMap, ActiveTableMode mode) {
+            Map<String, Object>[] activeTableMap, ActiveTableMode mode)
+            throws Exception {
         List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
                 activeTableMap.length);
         if (activeTableMap != null) {
@@ -214,16 +159,20 @@ public class UpdateActiveTableHandler implements
                     atr.setAct(template.get("act").toString());
                     atr.setSeg((Integer) template.get("seg"));
                     Calendar start = GregorianCalendar.getInstance();
-                    start.setTimeInMillis(((Integer) template.get("startTime")) * 1000L);
+                    start.setTimeInMillis(((Number) template.get("startTime"))
+                            .longValue() * 1000L);
                     atr.setStartTime(start);
                     Calendar end = GregorianCalendar.getInstance();
-                    end.setTimeInMillis(((Integer) template.get("endTime")) * 1000L);
+                    end.setTimeInMillis(((Number) template.get("endTime"))
+                            .longValue() * 1000L);
                     atr.setEndTime(end);
                     Calendar purge = GregorianCalendar.getInstance();
-                    purge.setTimeInMillis(((Integer) template.get("purgeTime")) * 1000L);
+                    purge.setTimeInMillis(((Number) template.get("purgeTime"))
+                            .longValue() * 1000L);
                     atr.setPurgeTime(purge);
                     Calendar issue = GregorianCalendar.getInstance();
-                    issue.setTimeInMillis(((Integer) template.get("issueTime")) * 1000L);
+                    issue.setTimeInMillis(((Number) template.get("issueTime"))
+                            .longValue() * 1000L);
                     atr.setIssueTime(issue);
                     atr.setUfn((Boolean) template.get("ufn"));
                     atr.setOfficeid(template.get("officeid").toString());
@@ -273,7 +222,7 @@ public class UpdateActiveTableHandler implements
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
-
+                    throw e;
                 }
             }
         }
