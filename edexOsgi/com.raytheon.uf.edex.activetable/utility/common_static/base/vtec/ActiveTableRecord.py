@@ -27,6 +27,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/20/09                      njensen        Initial Creation.
+#    02/26/13         1447         dgilling       Implement __eq__() and 
+#                                                 __ne__().
 #    
 # 
 #
@@ -35,7 +37,7 @@
 import ActiveTableVtec
 from java.util import Calendar
 
-class ActiveTableRecord:
+class ActiveTableRecord(object):
     
     def __init__(self, javaRecord, state="Decoded"):
         self.atr = javaRecord
@@ -150,7 +152,12 @@ class ActiveTableRecord:
     
     def __deepcopy__(self, memo):
         return ActiveTableRecord(self.atr.clone(), self.state)
-        
+    
+    def __eq__(self, other):
+        return self.javaRecord().equals(other.javeRecord())
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
     
     def javaRecord(self):
         return self.atr

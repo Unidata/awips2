@@ -869,12 +869,15 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             @Override
             public void jobFinished(final ReferenceData result) {
                 VizApp.runAsync(new Runnable() {
+                    @Override
                     public void run() {
-                        activeDisplay.setText(s);
-                        refSetMgr
-                                .incomingRefSet(result, RefSetMode.USE_CURRENT);
-                        addToHistory(s);
-                        queryField.setText("");
+                        if (result != null) {
+                            activeDisplay.setText(s);
+                            refSetMgr.incomingRefSet(result,
+                                    RefSetMode.USE_CURRENT);
+                            addToHistory(s);
+                            queryField.setText("");
+                        }
                     };
                 });
             }
