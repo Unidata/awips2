@@ -68,6 +68,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 06/03/09     2521     D. Hladky   Initial release
  * 01/27/13     1478        D. Hladky   OUN memory help
+ * Feb 28, 2013  1729      dhladky    Supressed un-necessary debug loggers
  * 
  * </pre>
  * 
@@ -580,9 +581,13 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                                     uri + "/" + domain.getCwa(), ALL,
                                     Request.ALL);
                         } catch (Exception e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "FFMPRecord: no data for: " + uri + "/"
-                                            + domain.getCwa());
+                            // This is a routine error.  Sometimes you can not have data for a configured source
+                            // This suppresses spurrious messages that would inflate the loags needlessly.
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "FFMPRecord: no data for: " + uri + "/"
+                                                + domain.getCwa());
+                            }
                         }
 
                         if (rec != null) {
