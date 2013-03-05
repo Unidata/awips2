@@ -29,7 +29,7 @@ package com.raytheon.viz.gfe.core;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 28, 2013            randerso     Initial creation
+ * Jan 28, 2013     #1597  randerso     Initial creation
  * 
  * </pre>
  * 
@@ -39,9 +39,9 @@ package com.raytheon.viz.gfe.core;
 
 public class GfeClientConfig {
 
-    private int maxSaveThreads;
+    private int maxSaveThreads = 3;
 
-    private long gridSaveThreshold;
+    private long gridSaveThreshold = 32 * 1024 * 1024; // 32 MB
 
     private static final GfeClientConfig instance = new GfeClientConfig();
 
