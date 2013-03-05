@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Oct 10, 2012 0726       djohnson     Use the subRetrievalKey for notifying the retrieval manager.
  * Nov 25, 2012  1268      dhladky      Added additional fields to process subscription tracking
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Mar 05, 2013 1647       djohnson     Debug log running message.
  * 
  * </pre>
  * 
@@ -215,7 +216,7 @@ public class SubscriptionNotifyTask implements Runnable {
 
     @Override
     public void run() {
-        statusHandler.info("SubscriptionNotifyTask() - Running...");
+        statusHandler.debug("SubscriptionNotifyTask() - Running...");
         try {
             SubscriptionDelay nextSub = subscriptionQueue.peek();
 
