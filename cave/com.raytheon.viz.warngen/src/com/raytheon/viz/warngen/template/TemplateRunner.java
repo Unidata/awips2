@@ -88,7 +88,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
-import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -105,6 +104,7 @@ import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.gui.WarngenUIState;
 import com.raytheon.viz.warngen.text.WarningTextHandler;
 import com.raytheon.viz.warngen.text.WarningTextHandlerFactory;
+import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.FipsUtil;
 import com.raytheon.viz.warngen.util.FollowUpUtil;
@@ -185,27 +185,29 @@ public class TemplateRunner {
     }
 
     /**
-     * Read cwa and timezone info from officeCityTimezone.txt, and put them
-     * into map officeCityTimezone.
+     * Read cwa and timezone info from officeCityTimezone.txt, and put them into
+     * map officeCityTimezone.
      */
-    public static Map<String,String> createOfficeTimezoneMap() {
-        Map<String,String> officeCityTimezone = new HashMap<String,String>();
+    public static Map<String, String> createOfficeTimezoneMap() {
+        Map<String, String> officeCityTimezone = new HashMap<String, String>();
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         String octz = "officeCityTimezone.txt";
-        String fileToRetrieve = IPathManager.SEPARATOR + WarningConstants.WARNGEN_DIR 
-            + IPathManager.SEPARATOR + octz;
+        String fileToRetrieve = IPathManager.SEPARATOR
+                + WarningConstants.WARNGEN_DIR + IPathManager.SEPARATOR + octz;
         File timezoneFile = pathMgr.getFile(lc, fileToRetrieve);
         String line;
         String[] splitLine;
         BufferedReader timezoneReader;
         try {
-            timezoneReader = new BufferedReader(new InputStreamReader(new FileInputStream(
-                    timezoneFile)));
-            for (line = timezoneReader.readLine(); line != null; line = timezoneReader.readLine()) {
+            timezoneReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(timezoneFile)));
+            for (line = timezoneReader.readLine(); line != null; line = timezoneReader
+                    .readLine()) {
                 splitLine = line.trim().split("\\\\");
-                officeCityTimezone.put(splitLine[0].trim(),splitLine[1].trim());
+                officeCityTimezone
+                        .put(splitLine[0].trim(), splitLine[1].trim());
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.SIGNIFICANT,
@@ -213,7 +215,7 @@ public class TemplateRunner {
         }
         return officeCityTimezone;
     }
-    
+
     /**
      * Executes a warngen template given the polygon from the Warngen Layer and
      * the Storm tracking information from StormTrackDisplay
@@ -413,13 +415,15 @@ public class TemplateRunner {
                 Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
                 String cityTimezone = null;
                 if (officeCityTimezone != null)
-                   cityTimezone = officeCityTimezone.get(warngenLayer.getLocalizedSite());
+                    cityTimezone = officeCityTimezone.get(warngenLayer
+                            .getLocalizedSite());
                 Iterator<String> iterator = timeZones.iterator();
                 if (timeZones.size() > 1 && cityTimezone != null) {
                     String timezone;
                     while (iterator.hasNext()) {
                         timezone = iterator.next();
-                        if (timezone.equals(cityTimezone) && context.get("localtimezone") == null) {
+                        if (timezone.equals(cityTimezone)
+                                && context.get("localtimezone") == null) {
                             context.put("localtimezone", timezone);
                         } else if (context.get("secondtimezone") == null) {
                             context.put("secondtimezone", timezone);
@@ -576,8 +580,8 @@ public class TemplateRunner {
                     // StormTrackData motion direction is between -180/180,
                     // whereas a WarningRecord motion direction is between
                     // -360/360
-                    double motionDirection = AbstractStormTrackResource
-                            .adjustAngle(oldWarn.getMotdir() - 180);
+                    double motionDirection = AdjustAngle.to180Degrees(oldWarn
+                            .getMotdir() - 180);
                     StormTrackData std = ToolsDataManager.getInstance()
                             .getStormTrackData();
                     std.setDate(simulatedTime);
@@ -1350,8 +1354,10 @@ public class TemplateRunner {
 
     private static String NOT_IN_CWA = new String("NOT_IN_CWA");
 
-    /** Determines if the given UGC is in the CWA and if it is, returns
-     * the portion of the CWA.
+    /**
+     * Determines if the given UGC is in the CWA and if it is, returns the
+     * portion of the CWA.
+     * 
      * @param stateAbbrev
      * @param ugc
      * @param asc
@@ -1367,7 +1373,8 @@ public class TemplateRunner {
                 return (String) g.attributes.get(asc.getFeAreaField());
         }
 
-        // TODO: Is this the correct way to determine if the county is in the CWA?
+        // TODO: Is this the correct way to determine if the county is in the
+        // CWA?
         return NOT_IN_CWA;
     }
 
