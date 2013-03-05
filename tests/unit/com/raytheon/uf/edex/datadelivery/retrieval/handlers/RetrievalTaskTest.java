@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 07, 2013 1543       djohnson     Add test to simulate SBN retrieval task behavior.
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now sent further down the chain.
  * Feb 15, 2013 1543       djohnson     Class renames.
+ * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * 
  * </pre>
  * 
@@ -223,7 +224,8 @@ public class RetrievalTaskTest {
         final File testDirectory = TestUtil
                 .setupTestClassDir(RetrievalTaskTest.class);
         IRetrievalPluginDataObjectsProcessor serializeToDirectory = new SerializeRetrievedDataToDirectory(
-                testDirectory);
+                testDirectory, new AlwaysSameWmoHeader(
+                        "SMYG10 LYBM 280000"));
 
         RetrievalTask downloadTask = new RetrievalTask(Network.OPSNET,
                 retrievalDataFinder, serializeToDirectory,

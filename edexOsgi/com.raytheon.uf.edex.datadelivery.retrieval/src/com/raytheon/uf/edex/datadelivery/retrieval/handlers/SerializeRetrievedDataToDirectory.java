@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalRespo
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 15, 2013 1543       djohnson     Serialize data out as XML.
+ * Mar 05, 2013 1647       djohnson     Apply WMO header.
  * 
  * </pre>
  * 
@@ -54,11 +55,15 @@ public class SerializeRetrievedDataToDirectory implements
 
     private final File targetDirectory;
 
+    private final IWmoHeaderApplier wmoHeaderWrapper;
+
     /**
      * @param directory
      */
-    public SerializeRetrievedDataToDirectory(File directory) {
+    public SerializeRetrievedDataToDirectory(File directory,
+            IWmoHeaderApplier wmoHeaderWrapper) {
         this.targetDirectory = directory;
+        this.wmoHeaderWrapper = wmoHeaderWrapper;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
                     OpenDapRetrievalResponse.class, Coverage.class);
@@ -81,7 +86,9 @@ public class SerializeRetrievedDataToDirectory implements
                     .toString());
             final String xml = jaxbManager
                     .marshalToXml(retrievalPluginDataObjects);
-            FileUtil.bytes2File(xml.getBytes(), output);
+            final String textForFile = wmoHeaderWrapper.applyWmoHeader(xml);
+
+            FileUtil.bytes2File(textForFile.getBytes(), output);
         } catch (Exception e) {
             throw new SerializationException(e);
         }
