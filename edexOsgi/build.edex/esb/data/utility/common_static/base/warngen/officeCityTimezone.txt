@@ -1,7 +1,7 @@
 MSO \ M
 BOI \ M
 VEF \ P
-PSR \ M
+PSR \ m
 BIS \ C
 ABR \ C
 UNR \ M
