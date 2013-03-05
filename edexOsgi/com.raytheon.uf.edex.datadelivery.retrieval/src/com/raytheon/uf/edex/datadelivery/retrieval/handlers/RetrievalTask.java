@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Jan 30, 2013 1543       djohnson     Constrain to the network retrievals are pulled for.
  * Feb 15, 2013 1543       djohnson     Using xml for retrievals now.
+ * Mar 05, 2013 1647       djohnson     Change no retrievals found message to debug.
  * 
  * </pre>
  * 
@@ -88,8 +90,10 @@ public class RetrievalTask implements Runnable {
                     // This forces the return from the while loop once there are
                     // no more retrievals to process
                     if (retrievalPluginDataObject == null) {
-                        statusHandler.info("No " + network
-                                + " retrievals found.");
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                            statusHandler.debug("No " + network
+                                    + " retrievals found.");
+                        }
                         return;
                     }
 
