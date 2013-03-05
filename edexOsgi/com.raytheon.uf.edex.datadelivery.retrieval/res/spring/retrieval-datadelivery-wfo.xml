@@ -42,7 +42,7 @@
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.DeserializeRetrievedDataFromDirectory">
-                <constructor-arg value="/awips2/crawl" />
+                <constructor-arg value="${sbn.retrieval.transfer.directory}" />
             </bean>
         </constructor-arg>
         <constructor-arg>
