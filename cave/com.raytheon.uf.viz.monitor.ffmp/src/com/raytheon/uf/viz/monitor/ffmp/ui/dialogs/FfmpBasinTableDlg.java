@@ -65,6 +65,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -113,6 +114,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking LoadSaveConfigDlg.
  * Jan 23, 2013 14907      gzhang		GUID not in Thresholds menu even ColorCell true  
  * Feb 10, 2013  1584      mpduff       Add performance logging.
+ * Feb 28, 2013  1729      dhladky      Adjusted the way in which the dialog load thread rejoins the main GUI thread.
  * </pre>
  * 
  * @author lvenable
@@ -263,6 +265,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      * Previously selected HUC level
      */
     private String previousHuc;
+
+    private FFMPLoaderStatus loadStatus;
 
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
@@ -1739,11 +1743,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             ffmpTable
                     .setCenteredAggregationKey(resource.centeredAggregationKey);
             ffmpTable.setTableData(mainTableData);
-
             resetCursor();
             shell.pack();
             shell.redraw();
-
             if (loadEvent != null) {
                 StatsCollector.stop(initialLoadKey);
                 loadEvent = null;
@@ -2085,13 +2087,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     public void updateLoadingLabel(FFMPLoaderStatus status) {
+        this.loadStatus = status;
+        
         if (dataLoadComp == null) {
             return;
         }
 
         GridData gd = (GridData) dataLoadComp.getLayoutData();
-
-        // System.out.println("Status message...");
 
         if (gd.exclude == true) {
             ((GridData) dataLoadComp.getLayoutData()).exclude = false;
@@ -2120,8 +2122,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             dataLoadComp.setVisible(false);
             shell.pack();
         }
-
-        resource.manageLoaders(status);
     }
 
     /**
@@ -2191,7 +2191,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (!this.isDisposed()) {
 
-            Display.getDefault().asyncExec(new Runnable() {
+           VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
                     processUpdate(fupdateData);
@@ -2227,6 +2227,11 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         updateGapValueLabel(fupdateData.getGapValueLabel());
 
         resetCursor();
+
+        // start tertiary loader if not run yet
+        if (loadStatus != null) {
+            resource.manageLoaders(loadStatus);
+        }
     }
 
     /**
