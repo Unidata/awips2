@@ -32,6 +32,20 @@
         <constructor-arg ref="retrievalDao" />
         <constructor-arg ref="retrievalTaskList" />
         <constructor-arg ref="subNotifyTask" />
+        <!-- How often to execute the retrieval tasks -->
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.time.domain.Durations"
+                factory-method="fromString">
+                <constructor-arg value="${retrieval.task.frequency}" />
+            </bean>
+        </constructor-arg>
+        <!-- How often to execute the subscription notify tasks -->
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.time.domain.Durations"
+                factory-method="fromString">
+                <constructor-arg value="${subnotify.task.frequency}" />
+            </bean>
+        </constructor-arg>
     </bean>
 
     <camelContext id="dataDeliveryNotify-camel"
