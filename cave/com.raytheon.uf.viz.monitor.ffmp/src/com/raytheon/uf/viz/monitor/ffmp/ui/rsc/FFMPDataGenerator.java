@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Feb 1,  2013 DR 1569   dhladky     Switched to using pypies records instead of files
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
+ * Feb 28, 2013  1729      dhladky    General enhancements for speed.
  * </pre>
  * 
  * @author dhladky
@@ -180,7 +181,9 @@ public class FFMPDataGenerator {
         tData = new FFMPTableData();
 
         try {
+         
             FIELDS field = getBaseField();
+            
             if (field != null) {
                 if (baseRec != null) {
                     FFMPBasinData fbd = null;
@@ -190,7 +193,7 @@ public class FFMPDataGenerator {
                         fbd = baseRec.getBasinData(huc);
                     }
 
-                    if (fbd.getBasins().size() > 0) {
+                    if (!fbd.getBasins().isEmpty()) {
                         if ((centeredAggregationKey == null) || huc.equals(ALL)) {
                             // System.out.println(fbd.getBasins().keySet().size()
                             // + " rows in the table");
@@ -200,18 +203,19 @@ public class FFMPDataGenerator {
 
                                         FFMPBasinMetaData fmdb = ft.getBasin(
                                                 siteKey, key);
+                                        String cwa = domain.getCwa();
 
                                         if (fmdb == null) {
                                             continue;
                                         }
 
-                                        if ((domain.getCwa().equals(fmdb
+                                        if ((cwa.equals(fmdb
                                                 .getCwa()))
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
 
                                             setFFMPRow(fbd.get(key), tData,
-                                                    false, domain.getCwa());
+                                                    false, cwa);
 
                                             if (virtualBasin != null) {
                                                 for (Long id : ft
@@ -243,7 +247,7 @@ public class FFMPDataGenerator {
                                         isVGB = true;
                                     }
 
-                                    if (pfafs.size() > 0) {
+                                    if (!pfafs.isEmpty()) {
 
                                         FFMPBasinMetaData fmdb = ft
                                                 .getBasinInDomains(siteKey,
@@ -295,13 +299,12 @@ public class FFMPDataGenerator {
                                 }
                             }
                         }
-
                         tData.sortData();
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+           statusHandler.handle(Priority.PROBLEM, "Failed to load FFMP table data!", e);
         }
 
         return tData;
@@ -344,10 +347,12 @@ public class FFMPDataGenerator {
 
             rowField = FIELDS.VIRTUAL;
 
-            displayName = ((FFMPVirtualGageBasin) cBasin).getLid();
+            
+            String lid = ((FFMPVirtualGageBasin) cBasin).getLid();
 
-            if (displayName != null) {
+            if (lid != null) {
 
+                StringBuilder sb = new StringBuilder(lid);
                 // in this special case it is actually the LID
                 trd.setPfaf(((FFMPVirtualGageBasin) cBasin).getLid());
                 FFMPVirtualGageBasinMetaData fvgmbd = ft
@@ -358,21 +363,22 @@ public class FFMPDataGenerator {
                 Long parentBasinPfaf = fvgmbd.getParentPfaf();
 
                 if (fvgmbd != null) {
+                    
                     mouseOverText = metabasin.getBasinId() + "\n"
                             + fvgmbd.getLid() + "-" + fvgmbd.getName();
 
                     if (!huc.equals(ALL)) {
-                        displayName += "-" + fvgmbd.getName();
+                        sb.append("-").append(fvgmbd.getName());
                     }
                 }
 
                 trd.setTableCellData(0, new FFMPTableCellData(rowField,
-                        displayName, mouseOverText));
+                        sb.toString(), mouseOverText));
 
                 if (!isWorstCase || huc.equals(ALL)
                         || (centeredAggregationKey != null)) {
 
-                    if (cBasin.getValues().size() > 0) {
+                    if (!cBasin.getValues().isEmpty()) {
                         rate = ((FFMPVirtualGageBasin) cBasin)
                                 .getValue(paintRefTime);
                         trd.setTableCellData(1, new FFMPTableCellData(
@@ -381,7 +387,7 @@ public class FFMPDataGenerator {
                         trd.setTableCellData(1, new FFMPTableCellData(
                                 FIELDS.RATE, Float.NaN));
                     }
-                    if (cBasin.getValues().size() > 0) {
+                    if (!cBasin.getValues().isEmpty()) {
 
                         if (sliderTime > 0.00) {
                             qpe = cBasin.getAccumValue(monitor.getQpeWindow()
@@ -460,7 +466,7 @@ public class FFMPDataGenerator {
                                 forced = forceUtil.isForced();
                             }
 
-                            if (((forcedPfafs.size() > 1)) && forced) {
+                            if ((!forcedPfafs.isEmpty()) && forced) {
                                 // Recalculate the guidance using the forced
                                 // value(s)
                                 guidance = guidRecords
@@ -473,7 +479,7 @@ public class FFMPDataGenerator {
                                                 guidance,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                            } else if (forcedPfafs.size() > 1) {
+                            } else if (!forcedPfafs.isEmpty()) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -485,7 +491,7 @@ public class FFMPDataGenerator {
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
                                 forced = true;
-                            } else if (pfafList.size() > 1) {
+                            } else if (!pfafList.isEmpty()) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -543,10 +549,12 @@ public class FFMPDataGenerator {
             displayName = getDisplayName(cBasin);
 
             if (displayName != null) {
-                trd.setPfaf(cBasin.getPfaf().toString());
+                String cbasinPfaf = cBasin.getPfaf().toString();
+                StringBuilder sb = new StringBuilder(cbasinPfaf);
+                sb.append(cbasinPfaf).append("\n").append(displayName);
+                trd.setPfaf(cbasinPfaf);
                 trd.setTableCellData(0, new FFMPTableCellData(rowField,
-                        displayName, cBasin.getPfaf().toString() + "\n"
-                                + displayName));
+                        displayName, sb.toString()));
 
                 if (!isWorstCase || huc.equals(ALL)
                         || (centeredAggregationKey != null)) {
@@ -635,7 +643,7 @@ public class FFMPDataGenerator {
                                 forced = forceUtil.isForced();
                             }
 
-                            if (((forcedPfafs.size() > 1)) && forced) {
+                            if ((!forcedPfafs.isEmpty()) && forced) {
                                 // Recalculate the guidance using the forced
                                 // value(s)
                                 guidance = guidRecords
@@ -648,7 +656,7 @@ public class FFMPDataGenerator {
                                                 guidance,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                            } else if (forcedPfafs.size() > 1) {
+                            } else if (!forcedPfafs.isEmpty()) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -660,7 +668,7 @@ public class FFMPDataGenerator {
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
                                 forced = true;
-                            } else if (pfafList.size() > 1) {
+                            } else if (!pfafList.isEmpty()) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -671,7 +679,7 @@ public class FFMPDataGenerator {
                                                 Float.NaN,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                                if (forcedPfafs.size() > 0) {
+                                if (!forcedPfafs.isEmpty()) {
                                     forced = true;
                                 }
                             } else {
@@ -803,7 +811,7 @@ public class FFMPDataGenerator {
 
                 ArrayList<Long> pfafs = ft.getAggregatePfafs(basin.getPfaf(),
                         siteKey, huc);
-                if (pfafs.size() > 0) {
+                if (!pfafs.isEmpty()) {
                     if (huc.equals("COUNTY")) {
                         name = ft.getCountyStateName(siteKey, basin.getPfaf());
                     } else {
@@ -846,7 +854,7 @@ public class FFMPDataGenerator {
         Float qpf = Float.NaN;
 
         if (cBasin instanceof FFMPVirtualGageBasin) {
-            if (pfafs.size() == 0) {
+            if (!pfafs.isEmpty()) {
                 if (virtualBasin != null) {
                     trd.setTableCellData(
                             1,
@@ -911,7 +919,7 @@ public class FFMPDataGenerator {
 
                         if (!forced) {
                             if ((forcedPfafs != null)
-                                    && (forcedPfafs.size() > 0)) {
+                                    && (!forcedPfafs.isEmpty())) {
                                 forced = true;
                             }
                         }
@@ -944,7 +952,7 @@ public class FFMPDataGenerator {
             }
 
         } else {
-            if (pfafs.size() > 0) {
+            if (!pfafs.isEmpty()) {
                 if (rateBasin != null) {
                     rate = rateBasin.getMaxValue(pfafs, paintRefTime);
                     trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
@@ -988,7 +996,7 @@ public class FFMPDataGenerator {
 
                     List<Long> pfafList = new ArrayList<Long>();
                     if ((guidBasin != null)
-                            && (guidBasin.getBasins().size() > 0)) {
+                            && (!guidBasin.getBasins().isEmpty())) {
                         if (cBasin.getAggregated()) {
                             pfafList = ft.getAggregatePfafs(cBasin.getPfaf(),
                                     siteKey, huc);
@@ -1008,7 +1016,7 @@ public class FFMPDataGenerator {
 
                         if (!forced) {
                             if ((forcedPfafs != null)
-                                    && (forcedPfafs.size() > 0)) {
+                                    && (!forcedPfafs.isEmpty())) {
                                 forced = true;
                             }
                         }
@@ -1050,8 +1058,8 @@ public class FFMPDataGenerator {
                                     resource.getGuidSourceExpiration(guidType));
                         }
 
-                        if ((qpes.size() > 0)
-                                && ((guids != null) && (guids.size() > 0))) {
+                        if ((!qpes.isEmpty())
+                                && ((guids != null) && (!guids.isEmpty()))) {
 
                             trd.setTableCellData(
                                     i + 5,
@@ -1144,7 +1152,7 @@ public class FFMPDataGenerator {
 
                         if (!forced) {
                             if ((forcedPfafs != null)
-                                    && (forcedPfafs.size() > 0)) {
+                                    && (!forcedPfafs.isEmpty())) {
                                 forced = true;
                             }
                         }
@@ -1250,14 +1258,14 @@ public class FFMPDataGenerator {
         try {
             if (rateRecord != null) {
                 rateBasin = rateRecord.getBasinData(localHuc);
-                if (rateBasin.getBasins().size() > 0) {
+                if (!rateBasin.getBasins().isEmpty()) {
                     field = FIELDS.RATE;
                     baseRec = rateRecord;
                 }
             }
             if (qpeRecord != null) {
                 qpeBasin = qpeRecord.getBasinData(localHuc);
-                if (qpeBasin.getBasins().size() > 0) {
+                if (!qpeBasin.getBasins().isEmpty()) {
                     field = FIELDS.QPE;
                     if (baseRec == null) {
                         baseRec = qpeRecord;
@@ -1285,7 +1293,7 @@ public class FFMPDataGenerator {
             // Get interpolators
             HashMap<String, FFMPGuidanceInterpolation> interpolators = resource
                     .getGuidanceInterpolators();
-            if ((forceUtils == null) || (forceUtils.size() == 0)) {
+            if ((forceUtils == null) || (forceUtils.isEmpty())) {
                 forceUtils = new HashMap<String, FFFGForceUtil>();
 
                 for (String guidType : interpolators.keySet()) {

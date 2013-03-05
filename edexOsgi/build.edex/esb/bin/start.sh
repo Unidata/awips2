@@ -149,4 +149,4 @@ if [ $DEBUG_FLAG == "on" ]; then
    echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
 fi
 
-java -jar ${EDEX_HOME}/bin/yajsw/wrapper.jar -c ${EDEX_HOME}/bin/yajsw/conf/${CONF_FILE} ${WRAPPER_ARGS}
+java -jar ${EDEX_HOME}/bin/yajsw/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
