@@ -24,10 +24,13 @@ import java.io.FileFilter;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
+import com.raytheon.uf.edex.wmo.message.WMOMessage;
 
 /**
  * Deserializes the retrieved data in a directory.
@@ -39,14 +42,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalRespo
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Mar 05, 2013 1647       djohnson     Remove WMO header.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class DeserializeRetrievedDataFromDirectory implements
-        IRetrievalsFinder {
+public class DeserializeRetrievedDataFromDirectory implements IRetrievalsFinder {
 
     private static final FileFilter NO_DIRECTORIES = new FileFilter() {
         @Override
@@ -65,8 +68,7 @@ public class DeserializeRetrievedDataFromDirectory implements
     public DeserializeRetrievedDataFromDirectory(File directory) {
         this.directory = directory;
         try {
-            this.jaxbManager = new JAXBManager(
-                    RetrievalResponseXml.class,
+            this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
                     OpenDapRetrievalResponse.class, Coverage.class);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
@@ -78,8 +80,7 @@ public class DeserializeRetrievedDataFromDirectory implements
      * {@inheritDoc}
      */
     @Override
-    public RetrievalResponseXml findRetrievals()
-            throws Exception {
+    public RetrievalResponseXml findRetrievals() throws Exception {
 
         final File[] files = directory.listFiles(NO_DIRECTORIES);
 
@@ -89,8 +90,10 @@ public class DeserializeRetrievedDataFromDirectory implements
 
         final File file = files[0];
         try {
+            WMOMessage message = new WMOMessage(FileUtil.file2bytes(file),
+                    new Headers());
             return (RetrievalResponseXml) jaxbManager
-                    .jaxbUnmarshalFromXmlFile(file);
+                    .unmarshalFromXml(new String(message.getMessageBody()));
         } finally {
             file.delete();
         }

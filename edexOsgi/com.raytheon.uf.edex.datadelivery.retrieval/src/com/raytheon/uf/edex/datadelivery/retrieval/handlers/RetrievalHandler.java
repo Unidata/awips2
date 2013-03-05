@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.domain.api.IDuration;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
@@ -41,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2011            dhladky     Initial creation
  * Aug 09, 2012 1022       djohnson    Use {@link ExecutorService} for retrieval.
+ * Mar 04, 2013 1647       djohnson    RetrievalTasks are now scheduled via constructor parameter.
  * 
  * </pre>
  * 
@@ -57,28 +59,26 @@ public class RetrievalHandler {
 
     private final List<RetrievalTask> retrievalTasks;
 
-    private final SubscriptionNotifyTask subNotifyTask;
-
     public RetrievalHandler(ScheduledExecutorService executorService,
             IRetrievalDao retrievalDao, List<RetrievalTask> retrievalTasks,
-            SubscriptionNotifyTask subNotifyTask) {
+            SubscriptionNotifyTask subNotifyTask,
+            IDuration retrievalTaskFrequency, IDuration subnotifyTaskFrequency) {
         this.executorService = executorService;
         this.retrievalTasks = retrievalTasks;
-        this.subNotifyTask = subNotifyTask;
 
         // set all Running state retrievals to pending
         retrievalDao.resetRunningRetrievalsToPending();
 
         for (RetrievalTask retrievalTask : retrievalTasks) {
-            executorService.scheduleWithFixedDelay(retrievalTask, 1, 5,
-                    TimeUnit.MINUTES);
+            executorService.scheduleWithFixedDelay(retrievalTask, 1,
+                    retrievalTaskFrequency.getMillis(), TimeUnit.MILLISECONDS);
         }
-        executorService.scheduleWithFixedDelay(subNotifyTask, 1, 1,
-                TimeUnit.MINUTES);
+        executorService.scheduleWithFixedDelay(subNotifyTask, 1,
+                subnotifyTaskFrequency.getMillis(), TimeUnit.MILLISECONDS);
     }
 
     public void notify(List<String> subscriptions) {
-        statusHandler.info("Notifying that subscriptions are available.");
+        statusHandler.debug("Notifying that subscriptions are available.");
 
         for (RetrievalTask retrievalTask : retrievalTasks) {
             executorService.execute(retrievalTask);
