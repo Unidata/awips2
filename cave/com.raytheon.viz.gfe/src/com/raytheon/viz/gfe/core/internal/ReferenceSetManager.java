@@ -688,8 +688,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
     public void setActiveRefSet(final ReferenceData refData) {
         refData.getGrid(); // force it to a grid
 
-        statusHandler.handle(Priority.VERBOSE, "PrevActiveSet = "
-                + activeRefSet.getId());
+        // statusHandler.handle(Priority.VERBOSE, "PrevActiveSet = "
+        // + activeRefSet.getId());
         // turn on wait cursor
         setCursor(0);
 
@@ -714,8 +714,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         // turn off wait cursor
         setCursor(1);
-        statusHandler.handle(Priority.VERBOSE,
-                "NewActiveSet = " + activeRefSet.getId());
+        // statusHandler.handle(Priority.VERBOSE,
+        // "NewActiveSet = " + activeRefSet.getId());
     }
 
     /*

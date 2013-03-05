@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * A data container that holds the site's FFMPSourceData for each source.
@@ -33,6 +33,7 @@ import java.util.Set;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013            njensen     Initial creation
+ * Feb 28, 2013  1729      dhladky     Sped up, synch blocks were hanging it.
  * 
  * </pre>
  * 
@@ -42,7 +43,7 @@ import java.util.Set;
 
 public class FFMPSiteData {
 
-    private Map<String, FFMPSourceData> sourceMap = new HashMap<String, FFMPSourceData>();
+    private ConcurrentMap<String, FFMPSourceData> sourceMap = new ConcurrentHashMap<String, FFMPSourceData>();
 
     /**
      * Gets the data of the specified source
@@ -51,14 +52,17 @@ public class FFMPSiteData {
      * @return
      */
     public FFMPSourceData getSourceData(String source) {
-        FFMPSourceData sourceData = null;
-        synchronized (sourceMap) {
-            sourceData = sourceMap.get(source);
-            if (sourceData == null) {
-                sourceData = new FFMPSourceData();
-                sourceMap.put(source, sourceData);
+
+        FFMPSourceData sourceData = sourceMap.get(source);
+
+        if (sourceData == null) {
+            sourceData = new FFMPSourceData();
+            FFMPSourceData previous = sourceMap.putIfAbsent(source, sourceData);
+            if (previous != null) {
+                return previous;
             }
         }
+
         return sourceData;
     }
 
@@ -69,7 +73,6 @@ public class FFMPSiteData {
         for (FFMPSourceData source : sourceMap.values()) {
             source.clear();
         }
-        sourceMap.clear();
     }
 
     /**
