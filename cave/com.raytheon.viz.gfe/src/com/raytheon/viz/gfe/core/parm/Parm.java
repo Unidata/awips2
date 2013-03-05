@@ -68,7 +68,9 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -186,6 +188,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 public abstract class Parm implements Comparable<Parm> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Parm.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     protected RWLArrayList<IGridData> grids;
 
@@ -4323,6 +4328,8 @@ public abstract class Parm implements Comparable<Parm> {
             if (!quietMode) {
                 statusHandler.handle(Priority.EVENTA, "Interpolation for "
                         + getParmID().getShortParmId() + " finished.");
+                perfLog.log("Interpolation for " + getParmID().getShortParmId()
+                        + " finished.");
             }
         }
     }

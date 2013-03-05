@@ -213,7 +213,8 @@ class VTECTableSqueeze:
             for ps in phensig:
                 issueYears = d[o][ps].keys()
                 for iy in issueYears:
-                    etns = d[o][ps][iy].keys()
+                    dd = d[o][ps][iy]
+                    etns = dd.keys()
 
                     #get two maxetn for tropicalPhen (one for site created and the other
                     #for NHC created. The etn will be more than 100 for NHC hazards), 
@@ -227,50 +228,75 @@ class VTECTableSqueeze:
                     else:
                        maxetn2 = maxetn1
                              
-                    ids1 = d[o][ps][iy][maxetn1]
+                    ids1 = dd[maxetn1]
                     minid1 = min(ids1)
 
                     ids2 = ids1
                     minid2 = minid1
 
                     if maxetn2 > 0 and maxetn2 != maxetn1:
-                       ids2 = d[o][ps][iy][maxetn2]
+                       ids2 = dd[maxetn2]
                        minid2 = min(ids2)
 
                     #determine what to keep and what to toss 
-                    for etn in d[o][ps][iy].keys():
-                        for id in d[o][ps][iy][etn].keys():
-                            for rec in d[o][ps][iy][etn][id]:
+                    for etn in etns:
+                        all_hourOld = True
+                        all_cancelled = True
+                        all_twoWeeksOld = True
+                        ufn = None
 
-                                ufn  = rec.get('ufn',0)
+                        for id in dd[etn].keys():
+                            for rec in dd[etn][id]:
+                                if ufn is None:
+                                    ufn = rec.get('ufn', False)
                                 hourOld = self.__ctime > rec['endTime'] + (1*3600)
                                 twoWeeksOld = self.__ctime > rec['issueTime'] + (14*86400)
                                 cancelled = rec['act'] in ['CAN','UPG','EXP']
-                                # keep records that are:
-                                # 1. are UFN, not cancelled, and not older then two weeks.
-                                # 2. not UFN, and not ended in the last hour
-                                # 3. cancelled, from this year, are minid, and are maxetn
-                                if ufn and not cancelled and not twoWeeksOld: # 1
+                                all_hourOld &= hourOld
+                                all_cancelled &= cancelled
+                                all_twoWeeksOld &= twoWeeksOld
+
+                        # keep records if the event:
+                        # 1. is UFN, not cancelled, and not older then two weeks.
+                        # 2. not UFN, and not ended in the last hour
+                        # 3. cancelled, from this year, keep only records that are minid, and maxetn
+
+                        if ufn and not all_cancelled and not all_twoWeeksOld: # 1
+                            for id in dd[etn].keys():
+                                for rec in dd[etn][id]:
                                     saveRec.append(rec)
-                                elif not ufn and not hourOld: # 2
+
+                        elif not ufn and not all_hourOld: # 2
+                            for id in dd[etn].keys():
+                                for rec in dd[etn][id]:
                                     saveRec.append(rec)
-                                elif iy == self.__thisYear and \
-                                  rec['id'] == minid1 and \
-                                  rec['etn'] == maxetn1:
-                                    if rec['officeid'] in ['KNHC'] and twoWeeksOld:
-                                       LogStream.logDebug("******** WILL PURGE *******", rec['vtecstr'])
-                                    else:
-                                       saveRec.append(rec)
-                                elif iy == self.__thisYear and \
-                                  maxetn1 != maxetn2 and \
-                                  rec['phen'] in tropicalPhen and \
-                                  rec['id'] == minid2 and \
-                                  rec['etn'] == maxetn2: # 3
-                                    saveRec.append(rec)
-                                # otherwise, remove them
+
+                        elif iy == self.__thisYear and etn == maxetn1: # 3
+                            for id in dd[etn].keys():
+                                if (id == minid1):
+                                    for rec in dd[etn][id]:
+                                        saveRec.append(rec)
                                 else:
+                                    for rec in dd[etn][id]:
+                                        LogStream.logDebug("******** WILL PURGE *******", rec['vtecstr'])
+                                        purgeRec.append(rec)
+                
+                        elif (iy == self.__thisYear) and (etn == maxetn2): # 3
+                            for id in dd[etn].keys():
+                                if (id == minid2):
+                                    for rec in dd[etn][id]:
+                                        saveRec.append(rec)
+                                else:
+                                    for rec in dd[etn][id]:
+                                        LogStream.logDebug("******** WILL PURGE *******", rec['vtecstr'])
+                                        purgeRec.append(rec)
+                
+                        else:
+                            for id in dd[etn].keys():
+                                for rec in dd[etn][id]:
                                     LogStream.logDebug("******** WILL PURGE *******", rec['vtecstr'])
                                     purgeRec.append(rec)
+
         return saveRec, purgeRec
     
     #prints the dictionary organized by oid, phensig, issueYear, etn, id
