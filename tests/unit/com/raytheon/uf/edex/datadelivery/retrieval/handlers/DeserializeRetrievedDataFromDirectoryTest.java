@@ -45,6 +45,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 12, 2013 1543       djohnson     Can only test the retrieval response is now not null.
  * Feb 15, 2013 1543       djohnson     Some renames.
+ * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * 
  * </pre>
  * 
@@ -70,7 +71,8 @@ public class DeserializeRetrievedDataFromDirectoryTest {
         RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
-        new SerializeRetrievedDataToDirectory(directory)
+        new SerializeRetrievedDataToDirectory(directory,
+                new AlwaysSameWmoHeader("SMYG10 LYBM 280000"))
                 .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
 
         final RetrievalResponseXml restored = service
@@ -88,7 +90,8 @@ public class DeserializeRetrievedDataFromDirectoryTest {
         RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
-        new SerializeRetrievedDataToDirectory(directory)
+        new SerializeRetrievedDataToDirectory(directory,
+                new AlwaysSameWmoHeader("SMYG10 LYBM 280000"))
                 .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
 
         service.findRetrievals();
