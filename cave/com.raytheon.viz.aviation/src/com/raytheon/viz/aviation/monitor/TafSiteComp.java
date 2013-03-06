@@ -92,6 +92,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  * 04/26/2012   14717       zhao        Indicator labels turn gray when Metar is outdated
  * 20JUL2012    14570       gzhang/zhao Add data structure for highlighting correct time groups in TAF viewer
  * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
+ * 03/07/2013   1735        rferrel     Flag to indicate grid data is needed.
  * </pre>
  * 
  * @author lvenable
@@ -99,6 +100,10 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  * 
  */
 public class TafSiteComp {
+    /**
+     * 
+     */
+    public static final String GRID_MONITOR_CLASS = "GridMonitor";
 
     /**
      * Number of seconds to blink the button.
@@ -113,26 +118,28 @@ public class TafSiteComp {
      * DR14717: changed grace period from 10 minutes to 5 minutes.
      */
     private final static long METAR_TIMEOUT = (1L * 60L + 5L) * 60L * 1000L;
-    
+
     /**
-     * DR14717: When Metar is 2 hours old, the persistence indicators turn gray. 
+     * DR14717: When Metar is 2 hours old, the persistence indicators turn gray.
      * This is the timeout in milliseconds for 2 hours.
      */
     public final static long METAR_TIMEOUT_2HR = 2L * 60L * 60L * 1000L;
-    
+
     /**
-     * DR14717: When Metar is 4 hours plus 10 minutes old, Metar Time Label is replaced by "None",
-     * and the current observation and persistence indicators turn gray.
-     * This is the timeout in milliseconds for 4 hours plus 10 minutes.
+     * DR14717: When Metar is 4 hours plus 10 minutes old, Metar Time Label is
+     * replaced by "None", and the current observation and persistence
+     * indicators turn gray. This is the timeout in milliseconds for 4 hours
+     * plus 10 minutes.
      */
     public final static long METAR_TIMEOUT_4HR10MIN = (4L * 60L + 10L) * 60L * 1000L;
-    
+
     /**
      * DR14717:
      */
     private long latestMtrTime = -1;
+
     private boolean persistMonitorProcessedFirst = false;
-    
+
     /**
      * A TAF is good for up to 6 hours and can be issued up to 40 minutes before
      * they take affect. This time out is in milliseconds for 6 hours with a 40
@@ -230,6 +237,8 @@ public class TafSiteComp {
         return alertMap;
     }
 
+    private boolean haveGridMontior = false;
+
     private TafRecord lastTaf;
 
     private boolean updatable;
@@ -300,7 +309,7 @@ public class TafSiteComp {
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
 
         GridData gd = new GridData();
-//        gd.widthHint = 70;	// DR 15606
+        // gd.widthHint = 70; // DR 15606
         gd.minimumWidth = 70;
         siteIdBtn = new Button(parent, SWT.PUSH);
         configMgr.setDefaultFontAndColors(siteIdBtn, "WWWW", gd);
@@ -384,15 +393,22 @@ public class TafSiteComp {
         monitorArray = new ArrayList<SiteMonitor>();
         alertMap = new HashMap<String, String[]>();
         ArrayList<MonitorCfg> monitorCfgs = tafMonCfg.getMonitorCfgs();
-        alertTimeMap = new HashMap<String,String>();/* DR 14570 */ 
-        tempoMap = new HashMap<String,String[]>();//20120711
+        alertTimeMap = new HashMap<String, String>();/* DR 14570 */
+        tempoMap = new HashMap<String, String[]>();// 20120711
         for (MonitorCfg monCfg : monitorCfgs) {
             SiteMonitor monitor = null;
             if ("MetarMonitor".equals(monCfg.getClassName())) {
-                monitor = new SiteMonitor(parent, this, monCfg, alertMap, /* DR 14570 */alertTimeMap,tempoMap);
-                metarMontiorIndex = monitorArray.size(); 
+                // DR14570
+                monitor = new SiteMonitor(parent, this, monCfg, alertMap,
+                        alertTimeMap, tempoMap);
+                metarMontiorIndex = monitorArray.size();
             } else {
-                monitor = new SiteMonitor(parent, this, monCfg, null, /* DR 14570 */null,null);
+                if (GRID_MONITOR_CLASS.equals(monCfg.getClassName())) {
+                    haveGridMontior = true;
+                }
+                // DR14570
+                monitor = new SiteMonitor(parent, this, monCfg, null, null,
+                        null);
             }
             monitorArray.add(monitor);
         }
@@ -449,7 +465,7 @@ public class TafSiteComp {
 
         GridData gd = new GridData();
         gd.minimumWidth = btnMinWidth;
-//        gd.widthHint = btnMinWidth;	// DR 15606
+        // gd.widthHint = btnMinWidth; // DR 15606
         amdBtn = new Button(btnStatusComp, SWT.PUSH);
         configMgr.setDefaultFontAndColors(amdBtn, "Amd", gd);
         amdBtn.addSelectionListener(new SelectionAdapter() {
@@ -466,7 +482,7 @@ public class TafSiteComp {
 
         gd = new GridData();
         gd.minimumWidth = btnMinWidth;
-//        gd.widthHint = btnMinWidth;	// DR 15606
+        // gd.widthHint = btnMinWidth; // DR 15606
         rtdBtn = new Button(btnStatusComp, SWT.PUSH);
         configMgr.setDefaultFontAndColors(rtdBtn, "Rtd", gd);
         rtdBtn.addSelectionListener(new SelectionAdapter() {
@@ -483,7 +499,7 @@ public class TafSiteComp {
 
         gd = new GridData();
         gd.minimumWidth = btnMinWidth;
-//        gd.widthHint = btnMinWidth;	// DR 15606
+        // gd.widthHint = btnMinWidth; // DR 15606
         corBtn = new Button(btnStatusComp, SWT.PUSH);
         configMgr.setDefaultFontAndColors(corBtn, "Cor", gd);
         corBtn.addSelectionListener(new SelectionAdapter() {
@@ -653,31 +669,32 @@ public class TafSiteComp {
                     + timestamp.substring(4, 6));
             long currentTime = SimulatedTime.getSystemTime().getTime()
                     .getTime();
-            
-            if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR10MIN ) ) { 
-            	mtrTimeLbl.setText("None");
+
+            if (currentTime > (metarTime + METAR_TIMEOUT_4HR10MIN)) {
+                mtrTimeLbl.setText("None");
                 mtrTimeLbl.setBackground(getBackgroundColor());
-            	if ( persistMonitorProcessedFirst ) {
-                	SiteMonitor psstMonitor = monitorArray.get(1);
-                	Color grayColor = psstMonitor.getGraySeverityColor();
-                	Map<String, Label> psstLabelMap = psstMonitor.getLabelMap();
-                	Set<String> psstKeys = psstLabelMap.keySet();
-                	for ( String key : psstKeys ) {
-                		psstLabelMap.get(key).setBackground(grayColor);
-                	}
-            	}
+                if (persistMonitorProcessedFirst) {
+                    SiteMonitor psstMonitor = monitorArray.get(1);
+                    Color grayColor = psstMonitor.getGraySeverityColor();
+                    Map<String, Label> psstLabelMap = psstMonitor.getLabelMap();
+                    Set<String> psstKeys = psstLabelMap.keySet();
+                    for (String key : psstKeys) {
+                        psstLabelMap.get(key).setBackground(grayColor);
+                    }
+                }
             } else if (currentTime > (metarTime + METAR_TIMEOUT)) {
                 mtrTimeLbl.setBackground(getWarningColor());
-                if ( currentTime > ( metarTime + METAR_TIMEOUT_2HR ) ) {
-                	if ( persistMonitorProcessedFirst ) {
-                    	SiteMonitor psstMonitor = monitorArray.get(1);
-                    	Color grayColor = psstMonitor.getGraySeverityColor();
-                    	Map<String, Label> psstLabelMap = psstMonitor.getLabelMap();
-                    	Set<String> psstKeys = psstLabelMap.keySet();
-                    	for ( String key : psstKeys ) {
-                    		psstLabelMap.get(key).setBackground(grayColor);
-                    	}
-                	}
+                if (currentTime > (metarTime + METAR_TIMEOUT_2HR)) {
+                    if (persistMonitorProcessedFirst) {
+                        SiteMonitor psstMonitor = monitorArray.get(1);
+                        Color grayColor = psstMonitor.getGraySeverityColor();
+                        Map<String, Label> psstLabelMap = psstMonitor
+                                .getLabelMap();
+                        Set<String> psstKeys = psstLabelMap.keySet();
+                        for (String key : psstKeys) {
+                            psstLabelMap.get(key).setBackground(grayColor);
+                        }
+                    }
                 }
             } else {
                 mtrTimeLbl.setBackground(getBackgroundColor());
@@ -814,21 +831,32 @@ public class TafSiteComp {
         }
     }
 
-	public void setPersistMonitorProcessedFirst(boolean b) {
-		persistMonitorProcessedFirst = b;
-	}
-	
-	public void setLatestMtrTime(long latestMtrTime) {
-		this.latestMtrTime = latestMtrTime;
-	}
+    public boolean doGridMonitor() {
+        return haveGridMontior;
+    }
 
-	public long getLatestMtrTime() {
-		return latestMtrTime;
-	}
-	
-	//------------------------------- DR 14570:
-	private Map<String, String[]> tempoMap = null;//20120711
-	private Map<String, String> alertTimeMap = null;
-	public Map<String,String> getAlertTimeMap(){ return alertTimeMap;}
-	public Map<String,String[]> getTempoMap(){return tempoMap;}//20120711
+    public void setPersistMonitorProcessedFirst(boolean b) {
+        persistMonitorProcessedFirst = b;
+    }
+
+    public void setLatestMtrTime(long latestMtrTime) {
+        this.latestMtrTime = latestMtrTime;
+    }
+
+    public long getLatestMtrTime() {
+        return latestMtrTime;
+    }
+
+    // ------------------------------- DR 14570:
+    private Map<String, String[]> tempoMap = null;// 20120711
+
+    private Map<String, String> alertTimeMap = null;
+
+    public Map<String, String> getAlertTimeMap() {
+        return alertTimeMap;
+    }
+
+    public Map<String, String[]> getTempoMap() {
+        return tempoMap;
+    }// 20120711
 }
