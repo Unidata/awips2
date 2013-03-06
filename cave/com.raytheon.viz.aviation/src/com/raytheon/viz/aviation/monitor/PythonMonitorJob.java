@@ -41,7 +41,6 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.jobs.AbstractQueueJob;
 import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
 import com.raytheon.viz.aviation.activator.Activator;
-import com.raytheon.viz.aviation.guidance.PythonGuidanceJob;
 
 /**
  * A job that performs the monitoring/rules compare within python. A FIFO queue
@@ -57,7 +56,8 @@ import com.raytheon.viz.aviation.guidance.PythonGuidanceJob;
  * ------------ ---------- ----------- --------------------------
  * Sep 3, 2009            njensen     Initial creation
  * Sep 27,2010  6185      rferrel     Allow multiple jobs off a static queue.
- * May 13,2011  8611      rferrel     Adde request's type to the results
+ * May 13,2011  8611      rferrel     Added request's type to the results
+ * Mar 06, 2013 1735      rferrel     Have python reference proper class.
  * 
  * </pre>
  * 
@@ -91,7 +91,7 @@ public class PythonMonitorJob extends AbstractQueueJob<MonitorRequest> {
                 .getPath(), AvnPyUtil.getLoggingHandlerDir(), AvnPyUtil
                 .getPointDataDir(), AvnPyUtil.getCommonPythonDir());
         python = new PythonScript(filePath, includePath,
-                PythonGuidanceJob.class.getClassLoader());
+                PythonMonitorJob.class.getClassLoader());
     }
 
     /**
