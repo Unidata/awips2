@@ -140,10 +140,20 @@
 #       	Relationship Type: In Response to
 #       	Status:           TEST
 #       	Title:             AvnFPS: Lack of customization in QC check
-#       
+#  
+#**
+#*
+#* 
+#* <pre>
+#* SOFTWARE HISTORY
+#* Date         Ticket#     Engineer    Description
+#* ------------ ----------  ----------- --------------------------
+#*                                      Initial creation.
+#* Mar 07, 2013 1735        rferrel     Changes to obtain grid data for a list of sites.
+##  
 #
-import logging, os, time, ConfigParser, sys
-import Avn, AvnLib, AvnParser
+import logging, os, time, ConfigParser
+import Avn, AvnLib, AvnParser, JUtil, cPickle
 import PointDataView, GfeValues
 
 _Missing = ''
@@ -443,8 +453,11 @@ def _readPrbConf():
         prb_conf['after9hr'][wx] = conf.getint('after9hr',wx)
     return prb_conf
 
-def makeData(siteID, timeSeconds):    
+def makeData(siteID, timeSeconds):
     data = retrieveData(siteID, timeSeconds)
+    return formatData(siteID, timeSeconds, data)
+
+def formatData(siteID, timeSeconds, data):    
     if data is None or data['issuetime'] < time.time() - 86400:
         msg = 'Grid data is not available'
         _Logger.info(msg)
@@ -491,42 +504,51 @@ def makeTable(siteID, timeSeconds):
         msg = 'Grid data for %s is not available', siteID
         raise Avn.AvnError(msg)
 
+def retrieveData(siteID, timeSeconds, parameters=Parameters):
+    results = _retrieveMapData([siteID], timeSeconds, parameters)
+    return results[siteID]
 
-def retrieveData(siteID, timeSeconds):
+def retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
+    r = _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters)
+    results = {}
+    for siteID in siteIDs:
+        results[siteID] = cPickle.dumps(r[siteID])
+    
+    return JUtil.pyDictToJavaMap(results)
+
+def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
+    import JUtil
     from com.raytheon.uf.common.dataplugin.gfe.request import GetPointDataRequest
     from com.vividsolutions.jts.geom import Coordinate
     from com.raytheon.viz.aviation.guidance import GuidanceUtil
     from com.raytheon.uf.viz.core.localization import LocalizationManager
-    
-    #timerStart = time.clock()
-    #print 'GridData retrieveData, siteID %s, timeSeconds %d' % (siteID, timeSeconds)
-    config = AvnParser.getTafSiteCfg(siteID)
-    lat = config['geography']['lat']
-    lon = config['geography']['lon']
     gfeSiteId = LocalizationManager.getInstance().getCurrentSite()
-    #print '\tgfeSiteId: %s, lat %s, lon %s' % (gfeSiteId, lat, lon)
-    
     task = GetPointDataRequest()
     task.setSiteID(gfeSiteId);
-    c = Coordinate(float(lon), float(lat))
-    task.setCoordinate(c)
-    task.setNumberHours(_NumHours)
-    task.setStartTime(long(timeSeconds * 1000))
-    for p in Parameters:
-        task.addParameter(p)
     db = gfeSiteId + '_GRID__Official_00000000_0000'
     task.setDatabaseID(db)
-    pdc = GuidanceUtil.getGFEPointData(task)
-    data = _getData(pdc, timeSeconds * 1000)
-    #print '\tdata: ', data
-    #timerEnd = time.clock()
-    #print '\ttime: ', timerEnd - timerStart
-                     
-    if data is None :
-        _Logger.info('Data not available for %s', siteID)
-    #sys.stdout.flush()
-    return data
-
+    for siteID in siteIDs:
+        config = AvnParser.getTafSiteCfg(siteID)
+        lat = config['geography']['lat']
+        lon = config['geography']['lon']
+        c = Coordinate(float(lon), float(lat))
+        task.addCoordinate(c)
+    task.setNumberHours(_NumHours)
+    task.setStartTime(long(timeSeconds * 1000))
+    for p in parameters:
+        task.addParameter(p)
+    pdcs = GuidanceUtil.getGFEPointsData(task)
+    i = 0
+    results = {}
+    for siteID in siteIDs:
+        pdc = pdcs.getContainer(i)
+        if i < pdcs.getSize() :
+            ++i
+        data = _getData(pdc, timeSeconds * 1000)
+        if data is None:
+            _Logger.info('Data not available for %s', siteID)
+        results[siteID] = data
+    return results
 
 ###############################################################################
 if __name__ == '__main__':
