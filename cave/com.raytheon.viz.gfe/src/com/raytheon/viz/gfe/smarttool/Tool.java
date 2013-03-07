@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jep.JepException;
 
@@ -33,22 +34,26 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
+import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.MissingDataModeMsg;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
-import com.raytheon.viz.gfe.query.QueryFactory;
 import com.raytheon.viz.gfe.query.QueryScript;
+import com.raytheon.viz.gfe.query.QueryScriptExecutor;
+import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.gfe.smarttool.SmartToolException.ErrorType;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
 
@@ -60,6 +65,8 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2007            njensen     Initial creation
+ * Jan 08, 2013  1486      dgilling    Support changes to BaseGfePyController.
+ * 2/14/2013     1506      mnash       Change QueryScript to use new Python concurrency
  * 
  * </pre>
  * 
@@ -91,6 +98,8 @@ public class Tool {
      */
     private ReferenceData trueEditArea;
 
+    private PythonJobCoordinator coordinator = null;
+
     /**
      * Constructor
      * 
@@ -111,6 +120,9 @@ public class Tool {
         toolName = aToolName;
         tool = aTool;
 
+        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
+                DataManagerUIFactory.getCurrentInstance());
+        coordinator = PythonJobCoordinator.newInstance(factory);
         try {
             if (!tool.isInstantiated(toolName)) {
                 tool.instantiatePythonTool(toolName);
@@ -441,8 +453,9 @@ public class Tool {
             // # PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
-            statusHandler.handle(Priority.DEBUG, "Running smartTool: " + toolName);
-            
+            statusHandler.handle(Priority.DEBUG, "Running smartTool: "
+                    + toolName);
+
             // Iterate over time range
             // Process each grid in the time range.
             int numberOfGrids = grids.length;
@@ -485,33 +498,21 @@ public class Tool {
 
                 // Re-evaluate edit area if a query
                 if (editArea.isQuery()) {
-                    // have to use runSync here to force the QueryScript to
-                    // execute on the proper thread for JEP
                     if (Display.getDefault().isDisposed() == false) {
-                        VizApp.runSync(new Runnable() {
-                            @Override
-                            public void run() {
-                                QueryScript script;
-                                try {
-                                    script = QueryFactory
-                                            .getCachedScript(DataManager
-                                                    .getCurrentInstance());
-                                    HashMap<String, Object> argMap = new HashMap<String, Object>();
-                                    argMap.put("expression",
-                                            editArea.getQuery());
-                                    argMap.put("timeInfluence", timeInfluence);
-                                    Tool.this.trueEditArea = (ReferenceData) script
-                                            .execute("evaluate", argMap);
-                                } catch (JepException e) {
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            "Error re-evaluating edit area "
-                                                    + editArea.getId()
-                                                            .getName() + ": "
-                                                    + e.getLocalizedMessage(),
-                                            e);
-                                }
-                            }
-                        });
+                        Map<String, Object> argMap = new HashMap<String, Object>();
+                        argMap.put("expression", editArea.getQuery());
+                        argMap.put("timeInfluence", timeInfluence);
+                        IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
+                                "evaluate", argMap);
+                        try {
+                            Tool.this.trueEditArea = (ReferenceData) coordinator
+                                    .submitSyncJob(executor);
+                        } catch (Exception e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error re-evaluating edit area "
+                                            + editArea.getId().getName() + ": "
+                                            + e.getLocalizedMessage(), e);
+                        }
                     }
                 } else {
                     trueEditArea = editArea;
@@ -602,10 +603,13 @@ public class Tool {
                 try {
                     parmToEdit.startParmEdit(new Date[] { timeInfluence });
                 } catch (GFEOperationFailedException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error during start parm edit for " + toolName + " - already running." +
-                            		"  Please wait for the operation to complete and try again.", 
-                            e);
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Error during start parm edit for "
+                                            + toolName
+                                            + " - already running."
+                                            + "  Please wait for the operation to complete and try again.",
+                                    e);
                     return;
                 }
                 startedParmEdit = true;
