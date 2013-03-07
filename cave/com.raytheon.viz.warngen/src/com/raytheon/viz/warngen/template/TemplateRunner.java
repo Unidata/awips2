@@ -76,7 +76,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
-import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -93,6 +92,7 @@ import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.gui.WarngenUIState;
 import com.raytheon.viz.warngen.text.WarningTextHandler;
 import com.raytheon.viz.warngen.text.WarningTextHandlerFactory;
+import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.FipsUtil;
 import com.raytheon.viz.warngen.util.FollowUpUtil;
@@ -515,8 +515,8 @@ public class TemplateRunner {
                     // StormTrackData motion direction is between -180/180,
                     // whereas a WarningRecord motion direction is between
                     // -360/360
-                    double motionDirection = AbstractStormTrackResource
-                            .adjustAngle(oldWarn.getMotdir() - 180);
+                    double motionDirection = AdjustAngle.to180Degrees(oldWarn
+                            .getMotdir() - 180);
                     StormTrackData std = ToolsDataManager.getInstance()
                             .getStormTrackData();
                     std.setDate(simulatedTime);
