@@ -57,6 +57,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012            mschenke     Initial creation
+ * Feb 26, 2013     #1708  randerso     Fixed double notification for time change
  * 
  * </pre>
  * 
@@ -162,6 +163,9 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
         FramesInfo currInfo = descriptor.getFramesInfo();
         int currIdx = currInfo.getFrameIndex();
         DataTime currTime = currInfo.getCurrentFrame();
+        if (selectedDate != null) {
+            currTime = new DataTime(selectedDate);
+        }
 
         // Create descriptor times, for each resource, time match against them
         DataTime[] descriptorTimes = calculateDescriptorTimes(descriptor,
