@@ -27,6 +27,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
  com.raytheon.uf.common.parameter;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
  com.google.guava;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
  org.apache.commons.lang;bundle-version="2.3.0"
 Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.config,
