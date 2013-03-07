@@ -21,6 +21,9 @@
 import argparse
 import sys
 
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
+
+
 class UsageArgumentParser(argparse.ArgumentParser):
     """
     A subclass of ArgumentParser that overrides error() to print the
@@ -30,3 +33,14 @@ class UsageArgumentParser(argparse.ArgumentParser):
         sys.stderr.write('%s: error: %s\n' % (self.prog, message))
         self.print_help()
         sys.exit(2)
+
+## Custom actions for ArgumentParser objects ##
+class StoreDatabaseIDAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        did = DatabaseID(values)
+        if did.isValid():
+            setattr(namespace, self.dest, did)
+        else:
+            parser.error("DatabaseID [" + values + "] not a valid identifier")
+
+
