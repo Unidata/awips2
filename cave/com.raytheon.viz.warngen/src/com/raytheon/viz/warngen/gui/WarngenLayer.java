@@ -160,6 +160,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 12/18/2012   DR 15571   Qinglu Lin  Resolved coordinate issue in TML line caused by clicking Restart button.
  * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed 
  *                                     counties from being re-hatched.        
+ * 03/06/2013   DR 15831   D. Friedman Use area inclusion filter in followups.
  * 
  * </pre>
  * 
@@ -1147,6 +1148,38 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
+    /** Determine if a feature should be included based on how much of it
+     * is hatched and the configured inclusion criteria.
+     * @param feature
+     * @param featureAreaToConsider the portion of the feature that is hatched
+     * @param localCoordinates if true, use local CRS; otherwise, use lat/lon
+     * @param anyAmountOfArea if true, ignore the configured criteria and
+     * include the feature if event a small amount is hatched.
+     * @return true if the feature should be included
+     */
+    private boolean filterArea(GeospatialData feature, Geometry featureAreaToConsider, boolean localCRS, boolean anyAmountOfArea) {
+        Geometry geom = localCRS ?
+                (Geometry) feature.attributes.get(GeospatialDataList.LOCAL_GEOM) :
+                    feature.geometry;
+        double ratio = featureAreaToConsider.getArea() / geom.getArea();
+        double ratioInPercent = ratio * 100.;
+        Double areaOfGeom = (Double) feature.attributes.get(AREA);
+        double areaInKmSqOfIntersection = meterSqToKmSq
+                .convert(areaOfGeom * ratio);
+
+        if (anyAmountOfArea) {
+            return areaInKmSqOfIntersection > 1;
+        } else {
+            boolean percentOk = ratioInPercent >= getConfiguration()
+                .getHatchedAreaSource().getInclusionPercent();
+            boolean areaOk = areaInKmSqOfIntersection > getConfiguration()
+                .getHatchedAreaSource().getInclusionArea();
+            return getConfiguration().getHatchedAreaSource()
+                .getInclusionAndOr().equalsIgnoreCase("AND") ?
+                        percentOk && areaOk : percentOk || areaOk;
+        }
+    }
+
     /**
      * 
      * @param snapHatchedAreaToPolygon
@@ -1177,6 +1210,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         long t0 = System.currentTimeMillis();
         Geometry newHatchedArea = null;
         boolean insideCWA = false;
+        Set<String> filteredOutGids = new HashSet<String>();
         // Loop through each of our counties returned from the query
         for (GeospatialData f : geoData.features) {
             // get the geometry of the county and make sure it intersects with
@@ -1189,7 +1223,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             try {
                 // Get intersection between county and hatched boundary
                 intersection = GeometryUtil.intersection(hatchedArea, prepGeom);
+                if (oldWarningArea != null)
+                    intersection = GeometryUtil.intersection(intersection, oldWarningArea);
                 if (intersection.isEmpty()) {
+                    filteredOutGids.addAll(Arrays.asList(GeometryUtil.getGID(f.geometry)));
                     continue;
                 }
                 insideCWA = true;
@@ -1199,32 +1236,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
 
             try {
-                double ratio = intersection.getArea() / geom.getArea();
-                double ratioInPercent = ratio * 100.;
-                Double areaOfGeom = (Double) f.attributes.get(AREA);
-                double areaInKmSqOfIntersection = meterSqToKmSq
-                        .convert(areaOfGeom * ratio);
-
-                boolean includeArea = false;
-                if (!determineInclusion) {
-                    includeArea = areaInKmSqOfIntersection > 1;
-                } else if (getConfiguration().getHatchedAreaSource()
-                        .getInclusionAndOr().equalsIgnoreCase("AND")) {
-                    if ((ratioInPercent >= getConfiguration()
-                            .getHatchedAreaSource().getInclusionPercent())
-                            && (areaInKmSqOfIntersection > getConfiguration()
-                                    .getHatchedAreaSource().getInclusionArea())) {
-                        includeArea = true;
-                    }
-                } else {
-                    if ((ratioInPercent >= getConfiguration()
-                            .getHatchedAreaSource().getInclusionPercent())
-                            || (areaInKmSqOfIntersection > getConfiguration()
-                                    .getHatchedAreaSource().getInclusionArea())) {
-                        includeArea = true;
-                    }
-                }
-                if (includeArea
+                if (filterArea(f, intersection, true, ! determineInclusion)
                         && (oldWarningPolygon == null || prepGeom
                                 .intersects(oldWarningPolygon))) {
                     if (newHatchedArea == null) {
@@ -1233,6 +1245,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         newHatchedArea = GeometryUtil.union(newHatchedArea,
                                 intersection);
                     }
+                } else {
+                    filteredOutGids.addAll(Arrays.asList(GeometryUtil.getGID(f.geometry)));
                 }
             } catch (TopologyException e) {
                 statusHandler.handle(Priority.VERBOSE,
@@ -1284,7 +1298,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     String[] gids = GeometryUtil.getGID(geom);
                     boolean flag = false;
                     for (String gid: gids) {
-                        if (removedGids.contains(gid)) {
+                        if (removedGids.contains(gid) || filteredOutGids.contains(gid)) {
                             flag = true;
                             break;
                         }
@@ -2172,10 +2186,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                     geom = GeometryUtil.intersection(
                                             warningPolygon, geom);
                                 }
-                                state.setWarningArea(GeometryUtil.union(
-                                        state.getWarningArea(), geom));
-                                for (String gid: gids) {
-                                    removedGids.remove(gid);
+                                if (filterArea(f, geom, false, false)) {
+                                    state.setWarningArea(GeometryUtil.union(
+                                            state.getWarningArea(), geom));
+                                    for (String gid: gids) {
+                                        removedGids.remove(gid);
+                                    }
                                 }
                             }
                         } else {
