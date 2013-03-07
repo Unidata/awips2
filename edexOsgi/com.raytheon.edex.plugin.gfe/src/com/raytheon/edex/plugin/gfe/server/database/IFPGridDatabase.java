@@ -81,10 +81,14 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -108,6 +112,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     Removed unncecssary conversion from Lists to/from arrays
  *                                     Added performance logging
  * 02/12/13     #1608      randerso    Changed to explicitly call deleteGroups
+ * 03/07/13     #1737      njensen      Logged getGridData times
  * 
  * </pre>
  * 
@@ -120,8 +125,8 @@ public class IFPGridDatabase extends GridDatabase {
             .getHandler(IFPGridDatabase.class);
 
     // separate logger for GFE performance logging
-    private static final IUFStatusHandler gfePerformanceLogger = UFStatus
-            .getNamedHandler("GFEPerformanceLogger");
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     protected static final String GRID_PARM_INFO = "GridParmInfo";
 
@@ -848,8 +853,7 @@ public class IFPGridDatabase extends GridDatabase {
             }
         }
         long t1 = System.currentTimeMillis();
-        gfePerformanceLogger.debug("Consolidating grids took " + (t1 - t0)
-                + " ms");
+        perfLog.logDuration("Consolidating grids", (t1 - t0));
 
         if (!gridsToRemove.isEmpty()) {
             for (GFERecord toRemove : gridsToRemove) {
@@ -858,8 +862,8 @@ public class IFPGridDatabase extends GridDatabase {
             }
         }
         long t2 = System.currentTimeMillis();
-        gfePerformanceLogger.debug("Removing " + gridsToRemove.size()
-                + " existing grids took " + (t2 - t1) + " ms");
+        perfLog.logDuration("Removing " + gridsToRemove.size()
+                + " existing grids", (t2 - t1));
 
         boolean hdf5SaveSuccess = false;
         List<GFERecord> failedGrids = Collections.emptyList();
@@ -877,9 +881,8 @@ public class IFPGridDatabase extends GridDatabase {
             sr.addMessage("Failed to save grid to HDF5: " + gfeRecord);
         }
         long t3 = System.currentTimeMillis();
-        gfePerformanceLogger
-                .debug("Saving " + records.size() + " " + id.getParmName()
-                        + " grids to hdf5 took " + (t3 - t2) + " ms");
+        perfLog.logDuration("Saving " + records.size() + " " + id.getParmName()
+                + " grids to hdf5", (t3 - t2));
 
         if (hdf5SaveSuccess) {
             records.removeAll(failedGrids);
@@ -903,9 +906,8 @@ public class IFPGridDatabase extends GridDatabase {
             }
         }
         long t4 = System.currentTimeMillis();
-        gfePerformanceLogger.debug("Saving " + records.size() + " "
-                + id.getParmName() + " grids to database took " + (t4 - t3)
-                + " ms");
+        perfLog.logDuration("Saving " + records.size() + " " + id.getParmName()
+                + " grids to database", (t4 - t3));
 
         sr.addNotifications(new GridUpdateNotification(id, originalTimeRange,
                 histories, requesterId, id.getDbId().getSiteId()));
@@ -1032,6 +1034,8 @@ public class IFPGridDatabase extends GridDatabase {
         Map<TimeRange, List<GridDataHistory>> historyMap = ssr2.getPayload();
 
         String siteId = parmId.getDbId().getSiteId();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         IGridSlice slice = null;
         Grid2DFloat rawData = null;
         Grid2DFloat rawData2 = null;
@@ -1149,6 +1153,9 @@ public class IFPGridDatabase extends GridDatabase {
         default:
             break;
         }
+        timer.stop();
+        perfLog.logDuration("Retrieving " + timeRanges.size()
+                + " records from hdf5", timer.getElapsedTime());
         sr.setPayload(data);
         return sr;
     }
@@ -1854,8 +1861,8 @@ public class IFPGridDatabase extends GridDatabase {
                 long t0 = System.currentTimeMillis();
                 StorageStatus ss = dataStore.store(StoreOp.REPLACE);
                 long t1 = System.currentTimeMillis();
-                gfePerformanceLogger.debug("Storing " + entry.getValue().size()
-                        + " records to hdf5 took " + (t1 - t0) + " ms");
+                perfLog.logDuration("Storing " + entry.getValue().size()
+                        + " records to hdf5", (t1 - t0));
                 StorageException[] exceptions = ss.getExceptions();
                 if ((exceptions != null) && (exceptions.length > 0)) {
                     // Describe the errors, then
