@@ -32,13 +32,15 @@ import com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
 
 /**
- * TODO Add Description
+ * Public interface for ReferenceSetManager
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 2, 2008				randerso	Initial creation
+ * 02/14/2013        #1506  mnash       Move away from using QueryScript on the UI thread
+ * 02/26/2013        #1708  randerso    Remove evaluateRefSet from public interface
  * 
  * </pre>
  * 
@@ -210,6 +212,7 @@ public interface IReferenceSetManager {
      */
     public abstract Grid2DBit mySiteGridpoints();
 
+    @Override
     public abstract String toString();
 
     /**
@@ -305,13 +308,6 @@ public interface IReferenceSetManager {
     public void saveGroup(String groupName, List<String> areaNames);
 
     public void deleteGroup(String groupName);
-
-    /**
-     * Force the active ref set to be re-evalutated
-     * 
-     * @return the active refersence set
-     */
-    public ReferenceData evaluateActiveRefSet();
 
     /**
      * Dispose of this instance
