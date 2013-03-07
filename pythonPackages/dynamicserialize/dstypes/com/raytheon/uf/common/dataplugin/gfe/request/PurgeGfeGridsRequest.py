@@ -20,28 +20,23 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
 
-class PurgeGfeGridsRequest(object):
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import AbstractGfeRequest
+
+class PurgeGfeGridsRequest(AbstractGfeRequest):
 
     def __init__(self):
-        self.argString = None
-        self.workstationID = None
-        self.siteID = None
+        super(PurgeGfeGridsRequest, self).__init__()
+        self.databaseID = None
+        
+    def __str__(self):
+        retVal = "PurgeGfeGridsRequest[" 
+        retVal += "wokstationID: " + str(self.workstationID) + ", "
+        retVal += "siteID: " + str(self.siteID) + ", "
+        retVal += "databaseID: " + str(self.databaseID) + "]"
+        return retVal
 
-    def getArgString(self):
-        return self.argString
+    def getDatabaseID(self):
+        return self.databaseID
 
-    def setArgString(self, argString):
-        self.argString = argString
-
-    def getWorkstationID(self):
-        return self.workstationID
-
-    def setWorkstationID(self, workstationID):
-        self.workstationID = workstationID
-
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
-
+    def setDatabaseID(self, databaseID):
+        self.databaseID = databaseID
