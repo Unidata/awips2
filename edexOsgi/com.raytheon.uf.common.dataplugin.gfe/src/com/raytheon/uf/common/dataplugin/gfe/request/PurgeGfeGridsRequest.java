@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -31,6 +32,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2010            dgilling     Initial creation
+ * Mar 07, 2013   1759     dgilling     Refactored to use more sensible
+ *                                      fields.
  * 
  * </pre>
  * 
@@ -42,20 +45,35 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class PurgeGfeGridsRequest extends AbstractGfeRequest {
 
     @DynamicSerializeElement
-    private String argString;
+    private DatabaseID databaseID;
 
-    /**
-     * @return the argString
-     */
-    public String getArgString() {
-        return argString;
+    public PurgeGfeGridsRequest() {
+        // no-op, for serialization
     }
 
-    /**
-     * @param argString
-     *            the argString to set
-     */
-    public void setArgString(String argString) {
-        this.argString = argString;
+    public PurgeGfeGridsRequest(DatabaseID dbId) {
+        this.databaseID = dbId;
+        this.siteID = databaseID.getSiteId();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PurgeGfeGridsRequest [databaseID=");
+        builder.append(databaseID);
+        builder.append(", workstationID=");
+        builder.append(workstationID);
+        builder.append(", siteID=");
+        builder.append(siteID);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    public void setDatabaseID(DatabaseID databaseID) {
+        this.databaseID = databaseID;
+    }
+
+    public DatabaseID getDatabaseID() {
+        return databaseID;
     }
 }
