@@ -21,6 +21,7 @@ package com.raytheon.uf.common.serialization.comm;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.registry.GenericRegistry;
 import com.raytheon.uf.common.util.registry.RegistryException;
 
@@ -35,6 +36,8 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2010             rjpeter     Initial creation
  * Nov 15, 2012 1322       djohnson    Add ability to route by server key.
+ * Mar 05, 2013 1754       djohnson    Prevent infinite loop when request.server router not registered,
+ *                                     info log when router registered.
  * 
  * </pre>
  * 
@@ -62,22 +65,24 @@ public final class RequestRouter {
                 throws RegistryException {
             if (registry.containsKey(t)) {
                 throw new RegistryException("Unable to register router",
-                        new IllegalStateException(
-                        "IRequestRouter of type ["
-                        + s.getClass().getName()
+                        new IllegalStateException("IRequestRouter of type ["
+                                + s.getClass().getName()
                                 + "] already registered for key [" + t + "]"));
             }
+            statusHandler.info("Registered request router for key [" + t
+                    + "] of type [" + s.getClass().getName() + "]");
             return super.register(t, s);
         }
-        
+
         /**
-         * Clear the registry.  Intentionally package-private so it can be cleared by test code.
+         * Clear the registry. Intentionally package-private so it can be
+         * cleared by test code.
          */
         void clear() {
             registry.clear();
         }
     };
-    
+
     private static final RouterRegistry routerRegistry = new RouterRegistry();
 
     /**
@@ -119,13 +124,22 @@ public final class RequestRouter {
      */
     public static Object route(IServerRequest request, String service)
             throws Exception {
-        final IRequestRouter router = routerRegistry.getRegisteredObject(service);
+        final IRequestRouter router = routerRegistry
+                .getRegisteredObject(service);
         if (router == null) {
-            statusHandler
-                    .error("There is no registered router for service ["
-                            + service
-                            + "].  Routing to the request service, but the request may not be able to be processed!");
-            return route(request);
+            if (REQUEST_SERVICE.equals(service)) {
+                final String errorMessage = "There is no registered router for service ["
+                        + service + "].  The request cannot be processed!";
+                statusHandler.handle(Priority.FATAL, errorMessage);
+
+                throw new IllegalStateException(errorMessage);
+            } else {
+                statusHandler
+                        .error("There is no registered router for service ["
+                                + service
+                                + "].  Routing to the request service, but the request may not be able to be processed!");
+                return route(request);
+            }
         } else {
             return router.route(request);
         }
