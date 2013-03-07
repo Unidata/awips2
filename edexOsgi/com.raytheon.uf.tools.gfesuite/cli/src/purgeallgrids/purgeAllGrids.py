@@ -18,14 +18,6 @@
 # further licensing information.
 ##
 
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import PurgeGfeGridsRequest
-from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from dynamicserialize import DynamicSerializationManager
-import sys
-import os
-from ufpy import ThriftClient
-from ufpy.UsageOptionParser import UsageOptionParser
-
 #
 # Provides a command-line utility to purge selected GFE grids.
 #  
@@ -35,40 +27,63 @@ from ufpy.UsageOptionParser import UsageOptionParser
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/23/10                      dgilling       Initial Creation.
-#    
+#    03/07/13         1759         dgilling       Modified to support refactored
+#                                                 PurgeGfeGridsRequest.
+#
 # 
 #
 
 
+import logging
+import os
+import sys
+
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import PurgeGfeGridsRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
+from ufpy import ThriftClient
+from ufpy import UsageArgumentParser
+from ufpy.UsageArgumentParser import StoreDatabaseIDAction as StoreDatabaseIDAction
+
+
+logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 
+                    datefmt="%H:%M:%S", 
+                    level=logging.DEBUG)
+log = logging.getLogger('purgeAllGrids')
+
+
+
 def main():
-    (options, args) = validateArgs()
+    options = validateArgs()
+    log.debug("Command-line args: " + repr(options))
         
     try:
-        purgeRequest = createRequest()
+        purgeRequest = createRequest(options.databaseID)
+        log.debug("Sending request: " + str(purgeRequest))
         thriftClient = ThriftClient.ThriftClient(options.host, options.port, "/services")
         serverResponse = thriftClient.sendRequest(purgeRequest)
-    except Exception, e:
-        print >> sys.stderr, "Unhandled exception thrown during grid purge: \n", str(e)
+    except Exception as e:
+        log.error("Unhandled exception thrown during grid purge: \n" + str(e))
         sys.exit(1)
     
-    if (not serverResponse.isOkay()):
-        print >> sys.stderr, "Errors occurred during grid purge: ", serverResponse.message()
+    if not serverResponse:
+        log.error("Errors occurred during grid purge: " + serverResponse.message())
         sys.exit(1)
 
 def validateArgs():
-    usage = "%prog -h hostname -p port -d databaseID"
-    parser = UsageOptionParser(usage=usage, conflict_handler="resolve")
-    parser.add_option("-h", action="store", type="string", dest="host",
-                      help="ifpServer host name", 
-                      metavar="hostname")
-    parser.add_option("-p", action="store", type="int", dest="port", 
-                      help="port number of the ifpServer",
-                      metavar="port")
-    parser.add_option("-d", action="store", type="string", dest="databaseID", 
-                      help="database identifier",
-                      metavar="databaseID")
+    usage = "%(prog)s -h hostname -p port -d databaseID"
+    parser = UsageArgumentParser.UsageArgumentParser(prog='purgeAllGrids',
+                usage=usage, conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="host",
+                help="ifpServer host name", 
+                metavar="hostname")
+    parser.add_argument("-p", action="store", type=int, dest="port", 
+                help="port number of the ifpServer",
+                metavar="port")
+    parser.add_argument("-d", action=StoreDatabaseIDAction, dest="databaseID",
+                required=True, help="database identifier",
+                metavar="databaseID")
     
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
     if options.host == None:
         if "CDSHOST" in os.environ:
@@ -81,21 +96,16 @@ def validateArgs():
             options.port = int(os.environ["CDSPORT"])
         else:
             parser.error("No server port defined.")
-            
-    if (options.databaseID is None):
-        parser.error("-d: At least one DatabaseID must be provided.")
     
-    return (options, args)
+    return options
     
 
-def createRequest():    
+def createRequest(dbId):    
     obj = PurgeGfeGridsRequest()
+    obj.setDatabaseID(dbId)   
+    obj.setWorkstationID(WsId(progName="purgeAllGrids"))
+    obj.setSiteID(dbId.getSiteId())
     
-    wsId = WsId(progName="purgeAllGrids")
-    
-    obj.setWorkstationID(wsId)
-    obj.setSiteID("")
-    obj.setArgString(" ".join(sys.argv[1:]))
     return obj
 
 if __name__ == '__main__':
