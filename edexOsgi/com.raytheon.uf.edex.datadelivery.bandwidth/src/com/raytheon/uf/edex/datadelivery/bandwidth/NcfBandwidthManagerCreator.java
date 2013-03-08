@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013 1543       djohnson     Initial creation
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
+ * Mar 11, 2013 1645       djohnson     Add missing Spring file.
  * 
  * </pre>
  * 
@@ -57,6 +58,7 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
     static class NcfBandwidthManager extends BandwidthManager {
 
         private static final String[] NCF_BANDWIDTH_MANAGER_FILES = new String[] {
+                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
                 JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
