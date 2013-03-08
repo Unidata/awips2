@@ -162,6 +162,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * Feb 20, 2013    1635   dhladky      Fixed multiple guidance display
  * Feb 28, 2013  1729      dhladky     Changed the way the loaders are managed via the status updates.
+ * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * </pre>
  * 
  * @author dhladky
@@ -475,29 +476,21 @@ public class FFMPResource extends
                                     .getDataTime().getRefTime(),
                                     LOADER_TYPE.GENERAL);
                         } else {
-                            while (!loader.isDone) {
-                                try {
-                                    synchronized (loader) {
-                                        loader.wait(1000);
-                                    }
-                                } catch (InterruptedException e) {
-                                    statusHandler.handle(Priority.INFO,
-                                            "Data Loader thread interrupted, dying!", e);
-                                }
+                            try {
+                                loader.waitFor();
+                            } catch (InterruptedException e) {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        e.getLocalizedMessage(), e);
                             }
+
                             startLoader(previousMostRecentTime, ffmpRec
                                     .getDataTime().getRefTime(),
                                     LOADER_TYPE.GENERAL);
-                        }
-
-                        while (!loader.isDone) {
                             try {
-                                synchronized (loader) {
-                                    loader.wait();
-                                }
+                                loader.waitFor();
                             } catch (InterruptedException e) {
-                                statusHandler.handle(Priority.INFO,
-                                        "Data Loader thread interrupted, dying!", e);
+                                statusHandler.handle(Priority.PROBLEM,
+                                        e.getLocalizedMessage(), e);
                             }
                         }
 
@@ -1228,7 +1221,7 @@ public class FFMPResource extends
             FFMPDrawable drawable = null;
 
             if (paintTime != null) {
-                if (loader != null && !loader.isDone
+                if (loader != null && !loader.isDone()
                         && loader.loadType == LOADER_TYPE.GENERAL) {
                     return;
                 }
