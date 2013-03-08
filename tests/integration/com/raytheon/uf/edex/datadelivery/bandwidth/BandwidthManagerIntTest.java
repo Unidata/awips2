@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -100,6 +101,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * Feb 14, 2013 1595       djohnson     Fix expired subscription updates that weren't scheduling retrievals.
  * Feb 14, 2013 1596       djohnson     Add test duplicating errors deleting multiple subscriptions for the same provider/dataset.
+ * Mar 11, 2013 1645       djohnson     Test configuration file modifications.
  * 
  * </pre>
  * 
@@ -954,6 +956,25 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         assertEquals("Expected all subscription daos to have been deleted.", 0,
                 subscriptionDaosAfterDelete.size());
+    }
+
+    @Test
+    public void testModifiedConfigurationFileWillReinitializeBandwidthManager() {
+        IntegrationTestBandwidthContextFactory
+                .getIntegrationTestBandwidthMapConfigFile().setLastModified(
+                        Long.MAX_VALUE);
+        bandwidthManager.watchForConfigFileChanges.run();
+
+        assertThat(EdexBandwidthContextFactory.getInstance(),
+                is(not(sameInstance(bandwidthManager))));
+    }
+
+    @Test
+    public void testUnmodifiedConfigurationFileWillNotReinitializeBandwidthManager() {
+        bandwidthManager.watchForConfigFileChanges.run();
+
+        assertThat(EdexBandwidthContextFactory.getInstance(),
+                is(sameInstance(bandwidthManager)));
     }
 
     private void testSubscriptionCyclesAreAllocatedOncePerCyclePerPlanDay(
