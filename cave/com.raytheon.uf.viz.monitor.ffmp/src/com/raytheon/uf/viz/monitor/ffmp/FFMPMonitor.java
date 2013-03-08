@@ -92,6 +92,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 02/01/13     1627        D. Hladky   removed unused(useless) db load method
  * 02/19/13     1639        njensen     Replaced ConcurrentHashMaps with data structures
  * 02/20/13     1635        D. Hladky   Fixed multi guidance sources
+ * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * 
  * </pre>
  * 
