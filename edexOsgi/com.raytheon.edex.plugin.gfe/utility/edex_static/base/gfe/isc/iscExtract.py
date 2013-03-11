@@ -52,6 +52,7 @@ from com.vividsolutions.jts.geom import Coordinate
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
+#    03/12/13        1759          dgilling       Change how ifpnetCDF is called.
 #    
 # 
 #
@@ -425,38 +426,22 @@ def executeIscExtract(parmNames, databaseName, startTime, endTime,
             else:  #no clipping, or different projection
                 maskName = "ISC_Send_Area"
     
-            # Run ifpnetCDF for the data 
-            argv = []
-            argv.append("ifpnetCDF")
-            argv.append("-h")
-            argv.append(siteConfig.GFESUITE_SERVER)
-            argv.append("-r")
-            argv.append(siteConfig.GFESUITE_PORT)
-            argv.append("-o")
-            argv.append(fname)
-            argv.append("-C")
-            argv.append("iscSendSampleDef")
-            for p in dest['parms']:
-                argv.append("-p")
-                argv.append(p)
-                
-            argv.append("-d")
-            argv.append(dbid)
-            argv.append("-s")
-            argv.append(startTR)
-            argv.append("-e")
-            argv.append(endTR)
-            argv.append("-m")
-            argv.append(maskName)
-            argv.append("-c")
-            argv.append("-f")
-            argv.append("6")
-            argv.append("-t")
-            argv.append("-k")
-            argv.append("-u")
-            argv.append("iscExtract")
-
-            ifpnetCDF.main(argv)    
+            # Run ifpnetCDF for the data
+            argv = {"outputFilename": fname, 
+                    "parmList": dest['parms'],
+                    "databaseID": dbid, 
+                    "startTime": startTR,
+                    "endTime": endTR, 
+                    "mask": maskName, 
+                    "geoInfo": False, 
+                    "compressFileFlag": True, 
+                    "configFileName": "iscSendSampleDef", 
+                    "compressFileFactor": 6, 
+                    "trim": True, 
+                    "krunch": True, 
+                    "userID": "iscExtract",
+                    "logFileName": None}
+            ifpnetCDF.main(**argv)
             
             fname = fname + '.gz'
             size = os.stat(fname)[stat.ST_SIZE]
