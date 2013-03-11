@@ -54,7 +54,9 @@
 		<constructor-arg ref="dbInventoryHandler" />
 	</bean>
 	<bean id="executeIscMosaicHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIscMosaicRequestHandler" />
+		class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIscMosaicRequestHandler">
+		 <constructor-arg ref="iscMosaicPythonThreadPool" />
+	</bean>
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg
 			value="com.raytheon.uf.common.dataplugin.gfe.request.ExecuteIscMosaicRequest" />
@@ -131,10 +133,12 @@
 		<constructor-arg ref="lockTablesHandler" />
 	</bean>
 	<bean id="netCDFHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.CreateNetCDFGridRequestHandler" />
+		class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIfpNetCDFGridRequestHandler">
+		<constructor-arg ref="ifpnetCDFPythonThreadPool" />
+	</bean>
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNetCDFGridRequest" />
+			value="com.raytheon.uf.common.dataplugin.gfe.request.ExecuteIfpNetCDFGridRequest" />
 		<constructor-arg ref="netCDFHandler" />
 	</bean>
 	<bean id="purgeGfeGridsHandler"
@@ -481,8 +485,59 @@
 		<property name="corePoolSize" value="2" />
 		<property name="maxPoolSize" value="2" />
 	</bean>
-  	<bean id="IscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv" />
+  	<bean id="IscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv">
+  		<constructor-arg ref="iscDataRecPythonThreadPool" />
+	</bean>
   	<!-- End ISC Receive Beans -->
+  	
+  	<!-- Additional ISC Beans -->
+  	
+  	<bean id="ifpnetCDFFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+  		<constructor-arg value="ifpnetCDF" />
+  		<constructor-arg value="2" />
+  	</bean>
+  	<bean name="ifpnetCDFPythonThreadPool"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance" />
+        <property name="arguments">
+            <list>
+                <ref bean="ifpnetCDFFactory" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="iscMosaicFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+  		<constructor-arg value="iscMosaic" />
+  		<constructor-arg value="2" />
+  	</bean>
+  	<bean name="iscMosaicPythonThreadPool"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance" />
+        <property name="arguments">
+            <list>
+                <ref bean="iscMosaicFactory" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="iscDataRecFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+  		<constructor-arg value="iscDataRec" />
+  		<constructor-arg value="2" />
+  	</bean>
+  	<bean name="iscDataRecPythonThreadPool"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance" />
+        <property name="arguments">
+            <list>
+                <ref bean="iscDataRecFactory" />
+            </list>
+        </property>
+    </bean>
+  	
+  	<!-- End Additional ISC Beans -->
 
 	<bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger" />
 
