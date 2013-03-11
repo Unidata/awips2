@@ -25,7 +25,7 @@ __all__ = [
             'ClearPracticeVTECTableRequest',
             'CommitGridsRequest',
             'ConfigureTextProductsRequest',
-            'CreateNetCDFGridRequest',
+            'ExecuteIfpNetCDFGridRequest',
             'ExecuteIscMosaicRequest',
             'GetASCIIGridsRequest',
             'GetGridDataRequest',
@@ -49,11 +49,11 @@ __all__ = [
             'SmartInitRequest'
           ]
 
-from CommitGridsRequest import CommitGridsRequest
 from AbstractGfeRequest import AbstractGfeRequest
 from ClearPracticeVTECTableRequest import ClearPracticeVTECTableRequest
+from CommitGridsRequest import CommitGridsRequest
 from ConfigureTextProductsRequest import ConfigureTextProductsRequest
-from CreateNetCDFGridRequest import CreateNetCDFGridRequest
+from ExecuteIfpNetCDFGridRequest import ExecuteIfpNetCDFGridRequest
 from ExecuteIscMosaicRequest import ExecuteIscMosaicRequest
 from GetASCIIGridsRequest import GetASCIIGridsRequest
 from GetGridDataRequest import GetGridDataRequest
