@@ -22,6 +22,7 @@ import argparse
 import sys
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID
 
 
 class UsageArgumentParser(argparse.ArgumentParser):
@@ -43,4 +44,15 @@ class StoreDatabaseIDAction(argparse.Action):
         else:
             parser.error("DatabaseID [" + values + "] not a valid identifier")
 
+class AppendParmNameAndLevelAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        tx = ParmID.parmNameAndLevel(values)
+        comp = tx[0] + '_' + tx[1]
+        if (hasattr(namespace, self.dest)) and \
+            (getattr(namespace, self.dest) is not None):
+                currentValues = getattr(namespace, self.dest)
+                currentValues.append(comp)
+                setattr(namespace, self.dest, currentValues)
+        else:
+            setattr(namespace, self.dest, [comp])
 
