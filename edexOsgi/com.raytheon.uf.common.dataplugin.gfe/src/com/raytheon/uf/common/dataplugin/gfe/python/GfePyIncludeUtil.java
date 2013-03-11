@@ -37,6 +37,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Oct  9, 2008            njensen     Initial creation
  * Sep 18, 2012      #1091 randerso    added base directory to getGfeConfigIncludePath
  * Feb 27, 2013      #1447 dgilling    Re-factor based on PythonPathIncludeUtil.
+ * Mar 11, 2013      #1759 dgilling    Add method getGfeConfigLF().
  * </pre>
  * 
  * @author njensen
@@ -369,6 +370,10 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         String siteConfigDir = getPath(PATH_MANAGER.getContextForSite(
                 LocalizationType.EDEX_STATIC, siteId), GFE_CONFIG);
         return PyUtil.buildJepIncludePath(siteConfigDir, baseConfigDir);
+    }
+
+    public static LocalizationFile getGfeConfigLF(LocalizationContext ctx) {
+        return PATH_MANAGER.getLocalizationFile(ctx, GFE_CONFIG);
     }
 
     public static String getVCModulesIncludePath() {
