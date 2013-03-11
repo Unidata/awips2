@@ -47,7 +47,7 @@ from ufpy.UsageArgumentParser import StoreDatabaseIDAction as StoreDatabaseIDAct
 
 logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 
                     datefmt="%H:%M:%S", 
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 log = logging.getLogger('purgeAllGrids')
 
 
