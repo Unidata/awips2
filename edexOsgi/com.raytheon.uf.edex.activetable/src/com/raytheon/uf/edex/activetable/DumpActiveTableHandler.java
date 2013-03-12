@@ -13,8 +13,10 @@ import jep.JepException;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
+import com.raytheon.uf.common.activetable.ActiveTableUtil;
 import com.raytheon.uf.common.activetable.DumpActiveTableRequest;
 import com.raytheon.uf.common.activetable.DumpActiveTableResponse;
+import com.raytheon.uf.common.activetable.VTECPartners;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PythonScript;
@@ -95,7 +97,7 @@ public class DumpActiveTableHandler implements
 
                 List<ActiveTableRecord> tableOfRecords = getActiveTableForSites(
                         sites, fromSite, request.getMode());
-                table = ActiveTable.convertToDict(tableOfRecords, fromSite);
+                table = ActiveTableUtil.convertToDict(tableOfRecords, fromSite);
             }
 
             response.setUnfilteredCount(Integer.valueOf(table.size()));
