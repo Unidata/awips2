@@ -19,7 +19,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResource;
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpShowTextDialog;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
 import org.eclipse.swt.graphics.Point;
 
@@ -235,7 +235,7 @@ public class NsharpHodoPaneMouseHandler extends NsharpAbstractMouseHandler{
     			this.mode = Mode.CREATE;
     		} else if(mouseButton == 3){
     			//right mouse button
-    			System.out.println("hodo handleMouseUp right button");
+    			//System.out.println("hodo handleMouseUp right button");
     			NsharpMapResource.bringMapEditorToTop();
     		}
     		editor.refresh();

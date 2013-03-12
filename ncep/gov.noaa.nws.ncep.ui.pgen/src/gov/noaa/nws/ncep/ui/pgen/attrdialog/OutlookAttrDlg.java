@@ -175,8 +175,12 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
     
     //Format button
     private Button fmtBtn;
+
     //previous selection of text label
     private String prevLbl;
+    
+    //previous selection of outlook type
+    private String prevType;;
     
     //default value for 'UseLineColor' button
     private boolean useLineColor;
@@ -202,6 +206,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	private boolean flagLabel = true;
 	private boolean flagAction = true;
 	
+	private String defaultLinetype = "POINTED_ARROW";
+	private String lineType = defaultLinetype;
 	
 	/**
 	 * Private constructor
@@ -324,6 +330,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				 String type = ((Combo)(e.widget)).getText();
+				 prevType = type; 
+
 				 boolean warning = false;
 				 
 				 //Loop through current layer and see if there is a different type of outlook.
@@ -373,6 +381,11 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 			}
 		});
         
+		if ( prevType == null ){
+			outlookCombo.select( 0 );
+			prevType = outlookCombo.getText();
+		}
+		
 		//Check box for label
 		lblBtn = new Button( panel1, SWT.CHECK );
 		lblBtn.setText("Label:");
@@ -602,7 +615,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 					if ( de.getParent().getParent() instanceof Outlook ){
 						showContLines((Outlook)de.getParent().getParent());
 					}
-					else if ( de.getParent().getParent().getParent() instanceof Outlook ){
+					else if ( de.getParent().getParent().getParent() != null &&  
+							 de.getParent().getParent().getParent() instanceof Outlook ){
 						showContLines((Outlook)de.getParent().getParent().getParent());
 					}
 					
@@ -625,8 +639,13 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 				if ( de != null ){
 					if(fmtDlg == null || ( fmtDlg != null && fmtDlg.getShell() == null ) ) {
 						Outlook otlk = null;
-						if ( de.getParent().getParent() instanceof Outlook ) otlk = (Outlook)de.getParent().getParent();
-						else if ( de.getParent().getParent().getParent() instanceof Outlook) otlk = (Outlook)de.getParent().getParent().getParent();
+						if ( de.getParent().getParent() instanceof Outlook ){
+							otlk = (Outlook)de.getParent().getParent();
+						}
+						else if ( de.getParent().getParent().getParent() != null && 
+								de.getParent().getParent().getParent()instanceof Outlook){
+							otlk = (Outlook)de.getParent().getParent().getParent();
+						}
 						if ( otlk != null ) {
 							fmtDlg = new OutlookFormatDlg(OutlookAttrDlg.this.getParentShell(), OutlookAttrDlg.this, otlk);
 							fmtDlg.open();
@@ -1089,6 +1108,18 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 			}
 		}
 		
+		//set outlook type
+		if ( prevType == null ){
+			outlookCombo.select( 0 );
+		}
+		else {
+			int idx = (outlookCombo.indexOf(prevType));
+			if ( idx >= 0 ) outlookCombo.select(idx);
+			else outlookCombo.select(0);
+			 //Set default labels for the selected outlook type
+			 setDefaultLabels( prevType );
+		}
+		
 		//set label text
 		if ( prevLbl == null ){
 			txtCombo.select( 0 );
@@ -1417,9 +1448,12 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	 * @param type
 	 */
 	public void setOtlkType( String type ){
+		int idx = outlookCombo.indexOf(type.toUpperCase());
+		if ( idx > 0 ){
 		outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
 		setDefaultLabels( this.getOutlookType());
 		setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
+	}
 	}
 		
 	/**
@@ -1522,8 +1556,13 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 			Line ln = settings.get(key);
 			if ( ln != null ){
 				this.setAttrForDlg((IAttribute)ln);
+				lineType = ln.getPgenType();
+			}
 			}
 		}
+	
+	public String getLineType(){
+		return lineType;
 	}
 	
 	/*
@@ -1618,6 +1657,9 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	 * Set the text on the info button based on parm, level, and time.
 	 */
 	private void setInfoBtnText() {
+		
+		if ( contourParm == null || contourLevel == null 
+				|| contourTime1 == null ) return;
 		
 		String str = contourParm + ", " + contourLevel + "\n" + 		             
 		             contourTime1.get(Calendar.YEAR) + "-" +  
