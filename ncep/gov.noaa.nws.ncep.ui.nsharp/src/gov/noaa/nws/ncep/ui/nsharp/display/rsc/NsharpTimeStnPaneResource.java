@@ -193,7 +193,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			numTimeLineToShowPerPage=1;
     	}
     	int startIndex = (curTimeLinePage-1) * numTimeLineToShowPerPage;
-    	
+    	if(startIndex<0)
+    		startIndex =0;
     	if(timeLineStateList!= null){
     		int compIndex= 1;
     		int colorIndex;
@@ -325,6 +326,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			numStnToShow=1;
     	}
     	int startIndex = (rscHandler.getCurStnIdPage()-1) * numStnToShow;
+    	if(startIndex<0)
+    		startIndex =0;
         int compIndex= 1;
     	int colorIndex;
     	boolean compareStnIsOn = rscHandler.isCompareStnIsOn();
@@ -472,8 +475,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 		getDescriptor().setNewPe(pe);
 	    defineCharHeight(font10);
 	    //rscHandler.setCharHeight(charHeight);
-		float prevHeight = paneHeight;
-		float prevWidth = paneWidth;
+		//float prevHeight = paneHeight;
+		//float prevWidth = paneWidth;
 		paneHeight = (int) ext.getHeight();
 		paneWidth = (int) (ext.getWidth());
 		//xRatio = xRatio* paneWidth/prevWidth;
