@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
+ * Mar 5, 2013     1753     njensen    Added shutdown printout
  * 
  * </pre>
  * 
@@ -309,8 +310,11 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
                     "Are you sure you want to exit?");
         }
 
-        // close all non-restorable detached views
         if (bResult) {
+            System.out
+                    .println("VizWorkbenchAdvisor: User exiting CAVE, shutdown initiated");
+
+            // close all non-restorable detached views
             detachedViewsListener.handleEvent(null);
         }
 

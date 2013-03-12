@@ -61,10 +61,14 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 
@@ -85,6 +89,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     fixed a purge inefficiency,
  *                                     fixed error which caused D2D purging to remove 
  *                                     smartInit hdf5 data
+ * 03/07/13      #1773     njensen     Logged commitGrid() times
  * 
  * </pre>
  * 
@@ -95,6 +100,9 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
 public class GridParmManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmManager.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     /** The data access object for retrieving GFE grid records */
     private static GFEDao gfeDao;
@@ -445,6 +453,12 @@ public class GridParmManager {
         logger.info("Publish/Commit Grids Request: " + parmReq);
         List<CommitGridRequest> failures = new ArrayList<CommitGridRequest>();
 
+        ITimer inventoryTimer = TimeUtil.getTimer();
+        ITimer retrieveTimer = TimeUtil.getTimer();
+        ITimer historyRetrieveTimer = TimeUtil.getTimer();
+        ITimer historyUpdateTimer = TimeUtil.getTimer();
+        ITimer storeTimer = TimeUtil.getTimer();
+
         // process each request
         ServerResponse<?> srDetailed = new ServerResponse<String>();
         for (int r = 0; r < parmReq.size(); r++) {
@@ -511,6 +525,7 @@ public class GridParmManager {
             }
 
             // get the source data inventory
+            inventoryTimer.start();
             ServerResponse<List<TimeRange>> invSr = sourceGP.getGridInventory();
             List<TimeRange> inventory = invSr.getPayload();
             ssr.addMessages(invSr);
@@ -523,6 +538,7 @@ public class GridParmManager {
 
             // get the destination data inventory
             invSr = destGP.getGridInventory();
+            inventoryTimer.stop();
             List<TimeRange> destInventory = invSr.getPayload();
             ssr.addMessages(invSr);
             if (!ssr.isOkay()) {
@@ -550,10 +566,12 @@ public class GridParmManager {
             // System.out.println("overlapInventory initial size "
             // + overlapInventory.size());
 
+            historyRetrieveTimer.start();
             ServerResponse<Map<TimeRange, List<GridDataHistory>>> history = sourceGP
                     .getGridHistory(overlapInventory);
             Map<TimeRange, List<GridDataHistory>> currentDestHistory = destGP
                     .getGridHistory(overlapInventory).getPayload();
+            historyRetrieveTimer.stop();
 
             Map<TimeRange, List<GridDataHistory>> historyOnly = new HashMap<TimeRange, List<GridDataHistory>>();
             for (TimeRange tr : history.getPayload().keySet()) {
@@ -581,9 +599,11 @@ public class GridParmManager {
                 }
             }
 
+            retrieveTimer.start();
             ServerResponse<List<IGridSlice>> getSr = sourceGP.getGridData(
                     new GetGridRequest(req.getParmId(), overlapInventory),
                     badGridTR);
+            retrieveTimer.stop();
             // System.out.println("Retrieved " + overlapInventory.size()
             // + " grids");
             sourceData = getSr.getPayload();
@@ -612,8 +632,10 @@ public class GridParmManager {
                 }
             }
             if (!officialTR.isEmpty()) {
+                retrieveTimer.start();
                 getSr = destGP.getGridData(new GetGridRequest(destParmId,
                         officialTR), badGridTR);
+                retrieveTimer.stop();
                 officialData = getSr.getPayload();
                 ssr.addMessages(getSr);
                 if (!ssr.isOkay()) {
@@ -691,8 +713,10 @@ public class GridParmManager {
 
             // update the histories into the source database, update the
             // notifications
+            historyUpdateTimer.start();
             sr.addMessages(sourceGP.updateGridHistory(histories));
             // System.out.println("Updated " + histories.size() + " histories");
+            historyUpdateTimer.stop();
 
             changes.add(new GridUpdateNotification(req.getParmId(), req
                     .getTimeRange(), histories, requestorId, siteID));
@@ -702,8 +726,10 @@ public class GridParmManager {
             List<TimeRange> historyOnlyList = new ArrayList<TimeRange>();
             historyOnlyList.addAll(historyOnly.keySet());
 
+            historyRetrieveTimer.start();
             Map<TimeRange, List<GridDataHistory>> destHistory = destGP
                     .getGridHistory(historyOnlyList).getPayload();
+            historyRetrieveTimer.stop();
             for (TimeRange tr : destHistory.keySet()) {
                 List<GridDataHistory> srcHistList = histories.get(tr);
                 List<GridDataHistory> destHistList = destHistory.get(tr);
@@ -711,12 +737,16 @@ public class GridParmManager {
                     destHistList.get(i).replaceValues(srcHistList.get(i));
                 }
             }
+            historyUpdateTimer.start();
             destGP.updateGridHistory(destHistory);
+            historyUpdateTimer.stop();
 
             // save data directly to the official database (bypassing
             // the checks in Parm intentionally)
+            storeTimer.start();
             ssr.addMessages(officialDBPtr.saveGridSlices(destParmId,
                     publishTime, sourceData, requestorId, historyOnlyList));
+            storeTimer.stop();
             // System.out.println("Published " + sourceData.size() + " slices");
             if (!ssr.isOkay()) {
                 ssr.addMessage("SaveGridData for official for commitGrid() failure: "
@@ -732,6 +762,17 @@ public class GridParmManager {
             changes.add(not);
             sr.getPayload().add(not);
         }
+
+        perfLog.logDuration("Publish Grids: Retrieving inventories",
+                inventoryTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Retrieving histories",
+                historyRetrieveTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Retrieving data",
+                retrieveTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Updating histories",
+                historyUpdateTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Storing data",
+                storeTimer.getElapsedTime());
 
         // if a problem occurred, log the information
         if (!failures.isEmpty()) {
