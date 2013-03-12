@@ -69,12 +69,12 @@ echo -e "\e[1;34m---------------------------------------------------------------
 if [ "${1}" = "2" ]; then
    exit 0
 fi
-POSTGRESQL_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-postgresql`
+POSTGRESQL_INSTALL="/awips2/postgresql"
 # Need this for the lwpostgis.sql and spatial_ref_sys.sql scripts
 DATABASE_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-database`
 AWIPS2_DATA_DIRECTORY="${POSTGRESQL_INSTALL}/data"
 POSTGRESQL_INSTALL="${POSTGRESQL_INSTALL}/postgresql"
-PSQL_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-psql`
+PSQL_INSTALL="/awips2/psql"
 
 POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
 PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
@@ -86,8 +86,8 @@ DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
 # Our log file
 SQL_LOG="${RPM_INSTALL_PREFIX}/sqlScripts/share/sql/ncep/ncep_sql_install.log"
 SQL_SHARE_DIR="${RPM_INSTALL_PREFIX}/sqlScripts/share/sql/ncep"
-LWPOSTGIS_SQL="${DATABASE_INSTALL}/sqlScripts/share/lwpostgis.sql"
-SPATIAL_SQL="${DATABASE_INSTALL}/sqlScripts/share/spatial_ref_sys.sql"
+LWPOSTGIS_SQL="/awips2/postgresql/share/contrib/postgis-2.0/postgis.sql"
+SPATIAL_SQL="/awips2/postgresql/share/contrib/postgis-2.0/spatial_ref_sys.sql"
 
 # Determine if PostgreSQL is running.
 I_STARTED_POSTGRESQL="NO"
@@ -184,9 +184,8 @@ if [ "${1}" = "1" ]; then
    exit 0
 fi
 
-POSTGRESQL_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-postgresql`
-POSTGRESQL_INSTALL="${POSTGRESQL_INSTALL}/postgresql"
-PSQL_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-psql`
+POSTGRESQL_INSTALL="/awips2/postgresql"
+PSQL_INSTALL="/awips2/psql"
 
 POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
 PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"

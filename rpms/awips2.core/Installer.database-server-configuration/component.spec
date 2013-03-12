@@ -7,6 +7,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -53,4 +54,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%attr(644,awips,fxalpha) /awips2/data/postgresql.conf
+%defattr(644,awips,fxalpha,755) 
+%dir /awips2
+%dir /awips2/data
+/awips2/data/postgresql.conf
