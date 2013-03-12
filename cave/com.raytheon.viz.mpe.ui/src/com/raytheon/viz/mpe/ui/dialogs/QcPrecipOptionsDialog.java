@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -62,6 +64,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            snaples     Initial creation
+ * Mar 7, 2013   15657    lbousaidi   fixed DQC slider and added listener to the Keys
+ *                                     when pressed. 									      	
  * 
  * </pre>
  * 
@@ -886,20 +890,40 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         gd.horizontalSpan = 2;
         pntFilter = new Scale(pntControlComp, SWT.BORDER);
         pntFilter.setMinimum(0);
-        pntFilter.setMaximum(500);
+        pntFilter.setMaximum(5000);
+        pntFilter.setIncrement(10);
         pntFilter.setSelection(0);
         pntFilter.setLayoutData(gd);
         pntFilter.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int sel = pntFilter.getSelection();
-                pfvalueLabel.setText(String.format("%4.2f", sel / 100.0f));
+                pfvalueLabel.setText(String.format("%4.2f", sel / 1000.0f));
             }
         });
         pntFilter.addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
             @Override
             public void mouseUp(MouseEvent e) {
                 opo.refresh_exposure();
+            }
+
+        });
+
+        /**
+         * Add a key listener for up and down arrows
+         * to move up and down through the filter
+         * scale
+         */
+
+        pntFilter.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.ARROW_RIGHT) {
+                    opo.refresh_exposure();
+                } else if (e.keyCode == SWT.ARROW_LEFT) {
+                    opo.refresh_exposure();
+                }
+
             }
 
         });
@@ -922,15 +946,15 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         gd.horizontalSpan = 2;
         pntRevFilter = new Scale(pntControlComp, SWT.BORDER);
         pntRevFilter.setMinimum(0);
-        pntRevFilter.setMaximum(2000);
+        pntRevFilter.setMaximum(20000);
         pntRevFilter.setIncrement(10);
         pntRevFilter.setSelection(0);
         pntRevFilter.setLayoutData(gd);
         pntRevFilter.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int sel = 2000 - pntRevFilter.getSelection();
-                prvalueLabel.setText(String.format("%4.2f", sel / 100.0f));
+                int sel = 20000 - pntRevFilter.getSelection();
+                prvalueLabel.setText(String.format("%4.2f", sel / 1000.0f));
             }
         });
         pntRevFilter
@@ -941,6 +965,23 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
                     }
 
                 });
+        /**
+         * Add a key listener for up and down arrows
+         * to move up and down through the reverse filter
+         * scale
+         */
+        pntRevFilter.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.ARROW_RIGHT) {
+                    opo.refresh_exposure();
+                } else if (e.keyCode == SWT.ARROW_LEFT) {
+                    opo.refresh_exposure();
+                }
+
+            }
+
+        });
 
         /**
          * Point elevation scale
@@ -1048,12 +1089,12 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     }
 
     public static float getPointFilterValue() {
-        float sel = pntFilter.getSelection() / 100.0f;
+        float sel = pntFilter.getSelection() / 1000.0f;
         return sel;
     }
 
     public static float getPointFilterReverseValue() {
-        float sel = (2000 - pntRevFilter.getSelection()) / 100.0f;
+        float sel = (20000 - pntRevFilter.getSelection()) / 1000.0f;
         return sel;
     }
 

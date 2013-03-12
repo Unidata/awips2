@@ -120,8 +120,8 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 	private IShadedShape cloudFMShape = null;
 	private IWireframeShape cloudFMLabelShape = null;
 	private IShadedShape cloudCEShape = null;
-	private IWireframeShape parcelTraceRscShape;
-	private IWireframeShape parcelAscentRscShape; 
+	private IWireframeShape parcelVtTraceRscShape; //Virtual temp Parcel trace
+	private IWireframeShape parcelRtRscShape; //Real temp parcel trace
 	private IWireframeShape dacpeTraceRscShape;
 	private List<NsharpShapeAndLineProperty>pressureTempRscShapeList  = new ArrayList<NsharpShapeAndLineProperty>();
 	//ICING wireframe shape
@@ -1253,16 +1253,16 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 						target.drawWireframeShape(vtempTraceCurveRscShape,lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 					}
 					// parcel trace curve
-					if(graphConfigProperty.isParcel() == true && !compareStnIsOn && !compareTmIsOn){
+					if(graphConfigProperty.isParcelTv() == true && !compareStnIsOn && !compareTmIsOn){
 						if(soundingLys.size() > 0){
-								NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
-							target.drawWireframeShape(parcelTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
+							NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL_TV]);
+							target.drawWireframeShape(parcelVtTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 							}
 						}
-					if(graphConfigProperty.isParcelAscent() == true && !compareStnIsOn && !compareTmIsOn){
+					if(graphConfigProperty.isParcel() == true && !compareStnIsOn && !compareTmIsOn){
 						if(soundingLys.size() > 0){
-							NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL_ASCENT]);
-							target.drawWireframeShape(parcelAscentRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
+							NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
+							target.drawWireframeShape(parcelRtRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 							
 					}
 					}
@@ -1314,10 +1314,10 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 						target.drawWireframeShape(vtempTraceCurveRscShape,lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 
 						// parcel trace curve
+						lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL_TV]);
+						target.drawWireframeShape(parcelVtTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 								lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
-						target.drawWireframeShape(parcelTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
-						lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL_ASCENT]);
-						target.drawWireframeShape(parcelAscentRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
+						target.drawWireframeShape(parcelRtRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 						if(dacpeTraceRscShape != null){
 							lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_DCAPE]);
 							target.drawWireframeShape(dacpeTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
@@ -1456,22 +1456,22 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 	}
 	public void createRscParcelTraceShapes( short parcelType, float userPre){
 		//System.out.println("createRscParcelTraceShape called defoine_parcel pType="+parcelType+" pre="+ userPre+ " BY:"+this.toString());
-		if(parcelTraceRscShape != null){
-			parcelTraceRscShape.dispose();
-			parcelTraceRscShape = null;
+		if(parcelVtTraceRscShape != null){
+			parcelVtTraceRscShape.dispose();
+			parcelVtTraceRscShape = null;
 		}
-		if(parcelAscentRscShape != null){
-			parcelAscentRscShape.dispose();
-			parcelAscentRscShape = null;
+		if(parcelRtRscShape != null){
+			parcelRtRscShape.dispose();
+			parcelRtRscShape = null;
 		}
 		if(dacpeTraceRscShape != null){
 			dacpeTraceRscShape.dispose();
 			dacpeTraceRscShape = null;
 		}
-		parcelTraceRscShape= target.createWireframeShape(false,descriptor );
-		parcelTraceRscShape.allocate(40);
-		parcelAscentRscShape= target.createWireframeShape(false,descriptor );
-		parcelAscentRscShape.allocate(40);
+		parcelVtTraceRscShape= target.createWireframeShape(false,descriptor );
+		parcelVtTraceRscShape.allocate(40);
+		parcelRtRscShape= target.createWireframeShape(false,descriptor );
+		parcelRtRscShape.allocate(40);
 		dacpeTraceRscShape= target.createWireframeShape(false,descriptor );
 		dacpeTraceRscShape.allocate(40);
 		//call native define_parcel() with parcel type and user defined pressure (if user defined it)
@@ -1497,7 +1497,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		c2.y = world.mapY(c2.y);
 
 		double [][] lines = {{c1.x, c1.y},{c2.x, c2.y}};
-		parcelTraceRscShape.addLineSegment(lines);
+		parcelVtTraceRscShape.addLineSegment(lines);
 		c1 = c2;
 
 		Coordinate a1 = NsharpWxMath.getSkewTXY(sfcpres, sfctemp);
@@ -1508,7 +1508,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		a2.y = world.mapY(a2.y);
 
 		double [][] alines = {{a1.x, a1.y},{a2.x, a2.y}};
-		parcelAscentRscShape.addLineSegment(alines);
+		parcelRtRscShape.addLineSegment(alines);
 		a1 = a2;
 
 		float t3;
@@ -1521,14 +1521,14 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 			c2.y = world.mapY(c2.y);
 
 			double [][] lines1 = {{c1.x, c1.y},{c2.x, c2.y}};
-			parcelTraceRscShape.addLineSegment(lines1);
+			parcelVtTraceRscShape.addLineSegment(lines1);
 			c1 = c2;
 			
 			a2 = NsharpWxMath.getSkewTXY(i, t3);
 			a2.x = world.mapX(a2.x);
 			a2.y = world.mapY(a2.y);
 			double [][] alines1 = {{a1.x, a1.y},{a2.x, a2.y}};
-			parcelAscentRscShape.addLineSegment(alines1);
+			parcelRtRscShape.addLineSegment(alines1);
 			a1 = a2;
 		}
 
@@ -1539,16 +1539,16 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		c2.y = world.mapY(c2.y);
 
 		double [][] lines2 = {{c1.x, c1.y},{c2.x, c2.y}};
-		parcelTraceRscShape.addLineSegment(lines2);
+		parcelVtTraceRscShape.addLineSegment(lines2);
 
 		a2 = NsharpWxMath.getSkewTXY(100, t3);
 		a2.x = world.mapX(a2.x);
 		a2.y = world.mapY(a2.y);
 		double [][] alines1 = {{a1.x, a1.y},{a2.x, a2.y}};
-		parcelAscentRscShape.addLineSegment(alines1);
+		parcelRtRscShape.addLineSegment(alines1);
 		
-		parcelAscentRscShape.compile();
-		parcelTraceRscShape.compile();
+		parcelRtRscShape.compile();
+		parcelVtTraceRscShape.compile();
 
 		//DCAPE------------------
 		//Downdraft Convective Available Potential Energy - DCAPE
@@ -2410,13 +2410,13 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 			parcelTraceRscShapeList.clear();
 
 		}*/
-		if(parcelTraceRscShape != null){
-			parcelTraceRscShape.dispose();
-			parcelTraceRscShape = null;
+		if(parcelVtTraceRscShape != null){
+			parcelVtTraceRscShape.dispose();
+			parcelVtTraceRscShape = null;
 		}
-		if(parcelAscentRscShape != null){
-			parcelAscentRscShape.dispose();
-			parcelAscentRscShape = null;
+		if(parcelRtRscShape != null){
+			parcelRtRscShape.dispose();
+			parcelRtRscShape = null;
 		}
 		if(dacpeTraceRscShape != null){
 			dacpeTraceRscShape.dispose();
@@ -2612,6 +2612,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		if (ext.getWidth() == 0.0 || ext.getHeight() == 0.0) {
             return;
         }
+
 		//System.out.println("skewtPane: handleResize");
    	 	this.rectangle = new Rectangle((int)ext.getMinX(), (int) ext.getMinY(),
    			 (int) ext.getWidth(), (int) ext.getHeight());
@@ -2652,7 +2653,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 
 	@Override
 	public void handleZooming() {
-		//System.out.println("NsharpSkewTPaneResource handleZooming called! ");
+		
 		if(heightMarkRscShape!=null)
 			heightMarkRscShape.dispose();
 		if(omegaBkgShape!=null){

@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: solarimage
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.rsc.solarimage;singleton:=true
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.rsc.solarimage.Activator
+Require-Bundle: gov.nasa.gsfc.fits,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ gov.noaa.nws.ncep.common.dataplugin.solarimage;bundle-version="1.0.0",
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ org.geotools;bundle-version="2.6.4",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.xy;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
+ com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.d2d.ui;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.viz.core;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.viz.xy.timeseries;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.viz.common
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: gov.noaa.nws.ncep.viz.ui.display
+
