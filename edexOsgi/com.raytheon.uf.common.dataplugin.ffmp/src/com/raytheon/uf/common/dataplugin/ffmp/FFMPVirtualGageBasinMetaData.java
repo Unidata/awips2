@@ -14,7 +14,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 01may10      3937       dhladky     Setup
- * 
+ * 01mar13      DR13228    gzhang      Add basin state
  * </pre>
  * 
  * @author dhladky
@@ -39,6 +39,10 @@ public class FFMPVirtualGageBasinMetaData implements ISerializableObject {
     /** basin county **/
     @DynamicSerializeElement
     public String county;
+    
+    /** basin state DR 13228 **/
+    @DynamicSerializeElement
+    public String state;
 
     /** basin county **/
     @DynamicSerializeElement
@@ -88,6 +92,14 @@ public class FFMPVirtualGageBasinMetaData implements ISerializableObject {
         this.county = county;
     }
 
+    public String getState() {
+        return state;// DR 13228
+    }
+
+    public void setState(String state) {
+        this.state = state;// DR 13228
+    }
+    
     public Long getParentPfaf() {
         return parentPfaf;
     }

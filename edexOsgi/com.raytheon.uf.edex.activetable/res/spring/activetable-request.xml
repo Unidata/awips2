@@ -70,4 +70,25 @@
   	  <constructor-arg value="com.raytheon.uf.common.activetable.request.MergeActiveTableRequest"/>
   	  <constructor-arg ref="ingestATHandler"/>
     </bean>
+    
+    <bean id="fetchATSrv" class="com.raytheon.uf.edex.activetable.vtecsharing.FetchActiveTableSrv"/>
+    <camelContext id="activeTableSharingRoutes"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
+		
+		<route id="activeSiteForFetchATSrv">
+			<from uri="jms-generic:queue:gfeSiteActivated" />
+			<doTry>
+				<bean ref="fetchATSrv" method="addSite" />
+				<doCatch>
+	            	<exception>java.lang.Throwable</exception>
+	            	<to uri="log:fetchATSrv?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+	            </doCatch>
+            </doTry>
+		</route>
+	</camelContext>
+    <bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="activeTableSharingRoutes" />
+  	</bean>
 </beans>

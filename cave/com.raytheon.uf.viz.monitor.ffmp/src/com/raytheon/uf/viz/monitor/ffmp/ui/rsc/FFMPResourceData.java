@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * 02/01/13     1569        D. Hladky   Added constants
  * Feb 10, 2013  1584      mpduff      Add performance logging.
  * Feb 28, 2013  1729      dhladky     Got rid of thread sleeps
+ * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * 
  * </pre>
  * 
@@ -258,25 +259,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                         hucsToLoad);
                 loader.start();
 
-                int i = 0;
                 // make the table load wait for finish of initial data load
-                while (!loader.isDone) {
-                    try {
-                        // give it 120 or so seconds
-                        if (i > 4000) {
-                            statusHandler
-                                    .handle(Priority.WARN,
-                                            "Didn't load initial data in allotted time, releasing table");
-                            break;
-                        }
-                        synchronized (loader) {
-                            loader.wait(1000);
-                        }
-                        i++;
-                    } catch (InterruptedException e) {
-                        statusHandler.handle(Priority.INFO,
-                                "Data Loader thread interrupted, dying!", e);
-                    }
+                try {
+                    loader.waitFor();
+                } catch (InterruptedException e) {
+                    statusHandler.handle(Priority.INFO,
+                            "Data Loader thread interrupted, dying!", e);
                 }
 
             } else {

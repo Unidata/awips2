@@ -59,7 +59,7 @@
 #       	Relationship Type: In Response to
 #       	Status:           TEST
 #       	Title:             AvnFPS: tpo indicator not monitoring properly
-#       
+#    
 #
 import logging, time
 import Avn, AvnLib, Globals, MonitorP
