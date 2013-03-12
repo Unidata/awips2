@@ -23,7 +23,6 @@
 
 --Create the awips user and modify passwords
 ALTER USER %{databaseUsername} with password 'postgres';
-ALTER USER postgres with password 'postgres';
 CREATE ROLE awips with password 'awips' login superuser createdb createrole;
 ALTER USER awips with password 'awips';
 
@@ -35,7 +34,6 @@ CREATE DATABASE metadata OWNER awips TABLESPACE metadata;
 
 --Switch to the metadata database
 \c metadata;
-CREATE PROCEDURAL LANGUAGE plpgsql;
 
 --Create the AWIPS schema
 CREATE SCHEMA awips AUTHORIZATION awips;
