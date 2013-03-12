@@ -120,6 +120,11 @@
                     <Point Lat="37.779530031591975" Lon="-124.95888526230613"/>
                     <Point Lat="38.60506004629856" Lon="-119.85585806847165"/>
                 </Line>
+                <Line pgenType="SHEAR_LINE" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="35.779530031591975" Lon="-123.95888526230613"/>
+                    <Point Lat="36.60506004629856" Lon="-118.85585806847165"/>
+                </Line>
                 <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
                     <Color red="0" green="255" blue="0" alpha="255"/>
                     <Point Lat="57.704562232189716" Lon="-119.17524290838445"/>

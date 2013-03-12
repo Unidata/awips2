@@ -104,6 +104,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                      Changed default value for alertAlarm
  * 05/28/2009   2410       J. Sanchez  Posted data for unknstnvalue.
  * 12/11/2009   2488       M. Duff     Fixed problem with storing text products.
+ * 03/07/2013   15545      w. kwock    Added Observe time to log
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class PostShef {
     
     private static final String POST_START_MSG = "Posting process started for LID [%s] PEDTSEP [%s] value [%s]";
         
-    private static final String LOV_POST_MSG = "Data [%s] for LID [%s] posted to the latestObsTable for PE [%s]";
+    private static final String LOV_POST_MSG = "Data [%s] ObsTime[%s] for LID [%s] posted to the latestObsValue for PE [%s]";
     
     private static final String SHEF_ON = "ON";
 
@@ -714,7 +715,8 @@ public class PostShef {
                             qualityCode, prodId, prodTime,
                             shefPostDuplicateDef, stats, postDate);
                     if (dataLog) {
-                        log.info(String.format(LOV_POST_MSG, dataValue, locId,
+                        log.info(String.format(LOV_POST_MSG, dataValue, 
+                                data.getObservationTimeObj(), locId,
                                 data.getPhysicalElement().getCode()));
                     }
                 }

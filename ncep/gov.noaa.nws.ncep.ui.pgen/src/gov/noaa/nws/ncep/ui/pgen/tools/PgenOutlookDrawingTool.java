@@ -186,14 +186,15 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         	        
             	}
             	else {
+            		String lineType = ((OutlookAttrDlg)attrDlg).getLineType();
             		// create a new DrawableElement.    
-            		if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
-            				|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
+      //      		if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
+      //      				|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
+      //      			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
+      //      				"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
+      //      		else 
             			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
-            				"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
-            		else 
-            			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
-                				"Lines", "POINTED_ARROW", points, drawingLayer.getActiveLayer());
+                				"Lines", lineType, points, drawingLayer.getActiveLayer());
             		//if (((IMultiPoint)attrDlg).getFillFlag()) ((Line)elem).setFillPattern(attrDlg.getFillPattern());
             		
             		dec = new DECollection(Outlook.OUTLOOK_LABELED_LINE);
@@ -272,13 +273,15 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         	
         	// create the ghost line and put it in the drawing layer
         	AbstractDrawableComponent ghost = null;
-        	if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
-        			|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
+    		String lineType = ((OutlookAttrDlg)attrDlg).getLineType();
+
+       // 	if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
+       // 			|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
+       // 		ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
+       // 			"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
+       // 	else
         		ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
-        			"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
-        	else
-        		ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
-            			"Lines", "POINTED_ARROW", points, drawingLayer.getActiveLayer());
+            			"Lines", lineType, points, drawingLayer.getActiveLayer());
         	
     		if (((ILine)attrDlg).isFilled()) ((Line)ghost).setFillPattern(((ILine)attrDlg).getFillPattern());
 

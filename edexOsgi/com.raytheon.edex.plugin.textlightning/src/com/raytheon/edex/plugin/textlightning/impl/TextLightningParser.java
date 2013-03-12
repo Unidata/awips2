@@ -44,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009       3983 jsanchez     Initial creation
+ * Feb 27, 2013    DCS 152 jgerth/elau	Support for WWLLN
  * 
  * </pre>
  * 
@@ -66,7 +67,10 @@ public class TextLightningParser {
     // 10:03:24:13:35:00.68 72.000 157.000   -14.2  1
     private static final String LIGHTNING_PTRN_B = "(\\d{2,2}:\\d{2,2}:\\d{2,2}:\\d{2,2}:\\d{2,2}:\\d{2,2}\\.\\d{2,2})\\s{1,}(\\d{1,2}\\.\\d{2,})\\s{1,}(-?\\d{1,3}\\.\\d{2,})\\s{1,}(-?\\d{1,3}\\.\\d{1,})\\s{1,}(\\d{1,2}).*";
     private static final Pattern LTG_PTRN_B = Pattern.compile(LIGHTNING_PTRN_B);
-    
+
+    // 2012-03-14T18:58:00,-5.5021,-45.9669,0.0,1
+    private static final String LIGHTNING_PTRN_C = "(\\d{4,4}-\\d{2,2}-\\d{2,2})T(\\d{2,2}:\\d{2,2}:\\d{2,2}),(-?\\d{1,2}.\\d{1,4}),(-?\\d{1,3}.\\d{1,4}),(0.0),(1)";
+    private static final Pattern LTG_PTRN_C = Pattern.compile(LIGHTNING_PTRN_C);
     
     /**
      * default constructor.
@@ -169,6 +173,7 @@ public class TextLightningParser {
                         strike.setMillis(0);
                         strike.setMsgType(LtgMsgType.STRIKE_MSG_FL);
                         strike.setType(LtgStrikeType.STRIKE_CG);
+                        strike.setLightSource("UNKN");
                         reports.add(strike);                
                     } else {
                         m = LTG_PTRN_B.matcher(line);
@@ -206,11 +211,49 @@ public class TextLightningParser {
                             strike.setMillis(Integer.parseInt(msec)*10);
                             strike.setMsgType(LtgMsgType.STRIKE_MSG_FL);
                             strike.setType(LtgStrikeType.STRIKE_CG);
+                            strike.setLightSource("UNKN");
                             reports.add(strike);                
+                        } else {
+                        	m = LTG_PTRN_C.matcher(line);
+                        	if (m.matches()) {
+                        		String[] datec = m.group(1).split("-");
+                        		String[] timec = m.group(2).split(":");
+                        		String year     = datec[0];
+                        		String month    = datec[1];
+                        		String day      = datec[2];
+                        		String hour     = timec[0];
+                        		String min      = timec[1];
+                        		String sec      = timec[2];
+                        		String msec     = "0";
+                        		String sls		= "WWLLN";
+
+                        		String latitude = m.group(3);
+                        		String longitude= m.group(4);
+                        		String strength = m.group(5);
+                        		String count    = m.group(6);
+
+                        		strike = new LightningStrikePoint(
+                        				Double.parseDouble(latitude),Double.parseDouble(longitude));
+                        		strike.setStrikeStrength(Double.parseDouble(strength));
+                        		strike.setStrikeCount(Integer.parseInt(count));
+                        		strike.setMonth(Integer.parseInt(month));
+                        		strike.setDay(Integer.parseInt(day));
+                        		strike.setYear(Integer.parseInt(year));              
+                        		strike.setHour(Integer.parseInt(hour));
+                        		strike.setMinute(Integer.parseInt(min));
+                        		strike.setSecond(Integer.parseInt(sec));
+                        		strike.setMillis(Integer.parseInt(msec)*10);
+                        		strike.setMsgType(LtgMsgType.STRIKE_MSG_FL);
+                        		strike.setType(LtgStrikeType.STRIKE_CG);
+                        		strike.setLightSource(sls);
+                        		reports.add(strike);
+                        	} else {
+                        		logger.error("Cannot match lightning input " + line);
+                        	}
                         }
                     }
                 } catch (NumberFormatException e){
-                    logger.debug("Invalid numerical value", e);
+                	logger.debug("Invalid numerical value", e);
                 }
             }
         }

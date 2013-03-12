@@ -106,8 +106,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking AttributeThresholdDlg.
  *                                       Changes for non-blocking LoadSaveConfigDlg.
  * Jan 23, 2013 14907      gzhang		GUID not in Thresholds menu even ColorCell true  
+ * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
  * </pre>
- * 
  * @author lvenable
  * @version 1.0
  */
@@ -235,7 +235,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private FFMPTableDataLoader dataRetrieveThread = null;
 
     private boolean groupLabelFlag = true;
-
+    
+    private String rowName="";// DR 13228
+    
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
@@ -1707,7 +1709,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 || allOnlySmallBasinsMI.getSelection()) {
             groupLbl.setText(name);
         }
-
+        rowName=name;// DR 13228
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         fireScreenRecenterEvent(pfaf, 1);
     }
@@ -2170,5 +2172,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (groupLbl != null) {
             groupLbl.setText("");
         }
+    }
+ 
+    // DR 13228
+    public String getRowName(){
+    	return this.rowName;
     }
 }

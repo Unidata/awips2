@@ -23,7 +23,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.NsharpAbstractPaneDescriptor;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._lplvalues;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._parcel;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpParcelDialog;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpParcelDialog;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;
@@ -2502,8 +2502,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 		
-		//Calculate mean wind at 0-6 km 
-		nsharpNative.nsharpLib.mean_wind( -1, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.agl(6000)), mnu, mnv, wdir, wspd);
+		//fix TT 549890
+		//Calculate mean wind at 0-6 km, following the same algorithm used in drawPanel2()  at BigNsharp page 2. 
+		//Like this : mean_wind(nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h1)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h2)))
+		nsharpNative.nsharpLib.mean_wind( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(0)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(6000)), mnu, mnv, wdir, wspd);
+		//this line was  nsharpNative.nsharpLib.mean_wind( -1, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.agl(6000)), mnu, mnv, wdir, wspd);
 		//System.out.println("wsp ="+ wspd.getValue()+ " wdir "+ wdir.getValue() + " agl(6000)="+nsharpNative.nsharpLib.agl(6000)+ " preAt6000="+nsharpNative.nsharpLib.i_pres(nsharpNative.nsharpLib.agl(6000)));
 		if(nsharpNative.nsharpLib.qc(wdir.getValue()) == 1 && nsharpNative.nsharpLib.qc(wspd.getValue())== 1) {
 			textStr = NsharpNativeConstants.MEANWIND_SFC6KM_LINE;
@@ -2520,8 +2523,33 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
                 VerticalAlignment.TOP, null);
 		}
 		curY = curY +  charHeight;
+		
+		
+		
+		//fix TT 549890
+		//Calculate mean wind at LFC-EL, following the same algorithm used in drawPanel2() for LCL_EL for BigNsharp pag
+		// Replacing LCL with LFC
+		_lplvalues lpvls;
+		_parcel pcl;
+		lpvls = new _lplvalues();
+		pcl = new _parcel();
+		float h1, h2;
+		h1=-1;
+		h2=-1;
+		nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
+
+		float	sfctemp = lpvls.temp;
+		float	sfcdwpt = lpvls.dwpt;
+		float	sfcpres = lpvls.pres;
+		nsharpNative.nsharpLib.parcel( -1.0F, -1.0F, sfcpres, sfctemp, sfcdwpt, pcl);
+		if (pcl.bplus > 0)
+		{
+			h1 = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(pcl.lfcpres));
+			h2 = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(pcl.elpres));
+		}
+		
 		//Calculate mean wind at LFC-EL 
-		nsharpNative.nsharpLib.mean_wind( -1, -1, mnu, mnv, wdir, wspd);
+		nsharpNative.nsharpLib.mean_wind( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h1)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h2)), mnu, mnv, wdir, wspd);
 		if(nsharpNative.nsharpLib.qc(wdir.getValue())==1 && nsharpNative.nsharpLib.qc(wspd.getValue())==1) {
 			textStr = NsharpNativeConstants.MEANWIND_LFC_EL_LINE;
 			textStr = String.format(textStr,wdir.getValue(), wspd.getValue(),
@@ -2594,7 +2622,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
    		
 		//Calculate wind shear at Low - 3 km
-		nsharpNative.nsharpLib.wind_shear( -1, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(3000)), 
+		nsharpNative.nsharpLib.wind_shear( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(0)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(3000)), 
 				shu,shv,sdir,smag);
 		if(nsharpNative.nsharpLib.qc(smag.getValue())==1) {
 			textStr = NsharpNativeConstants.SHEAR_LOW_3KM_LINE;
@@ -2615,7 +2643,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		curY = curY +  charHeight;
 		
 		//Calculate wind shear at Sfc - 2 km
-		nsharpNative.nsharpLib.wind_shear( -1, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(2000)), 
+		nsharpNative.nsharpLib.wind_shear( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(0)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(2000)), 
 				shu,shv,sdir,smag);
 		if(nsharpNative.nsharpLib.qc(smag.getValue())==1) {
 			textStr = NsharpNativeConstants.SHEAR_SFC_2KM_LINE;
@@ -2635,7 +2663,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		curY = curY +  charHeight;
 
 		//Calculate wind shear at Sfc - 6 km
-		nsharpNative.nsharpLib.wind_shear( -1, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(6000)), 
+		nsharpNative.nsharpLib.wind_shear( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(0)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(6000)), 
 				shu,shv,sdir,smag);
 		if(nsharpNative.nsharpLib.qc(smag.getValue())==1) {
 			textStr = NsharpNativeConstants.SHEAR_SFC_6KM_LINE;
@@ -2655,7 +2683,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		curY = curY +  charHeight;
 
 		//Calculate wind shear at Sfc - 12 km
-		nsharpNative.nsharpLib.wind_shear( -1, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(12000)), 
+		nsharpNative.nsharpLib.wind_shear( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(0)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(12000)), 
 				shu,shv,sdir,smag);
 		if(nsharpNative.nsharpLib.qc(smag.getValue())==1) {
 			textStr = NsharpNativeConstants.SHEAR_SFC_12KM_LINE;
