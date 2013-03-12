@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bundle editor="gov.noaa.nws.ncep.viz.rsc.fits.SolarImageEditor">
+<bundle editor="gov.noaa.nws.ncep.viz.rsc.solarimage.SolarImageEditor">
 	<displayList>
 	<displays xsi:type="defaultNonMapDisplay" tabTitle="GOES-15 SXI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="xyGraphDescriptor">
                  <resource>
-	                <loadProperties loadWithoutData="false">
+	                <loadProperties loadWithoutData="true">
 	                	<capabilities>
                             <capability xsi:type="colorMapCapability">
                                 <colorMapParameters colorMapName="solar/Blue"/>
@@ -16,12 +16,12 @@
 					<properties isSystemResource="false"
 						isBlinking="false" isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-					<resourceData xsi:type="fitsResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<resourceData xsi:type="SolarImageResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 					    	<mapping key="pluginName">
-								<constraint constraintValue="fits" constraintType="EQUALS" />
+								<constraint constraintValue="solarimage" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="telescope">
+							<mapping key="satellite">
 								<constraint constraintValue="GOES-15" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="instrument">
@@ -36,7 +36,7 @@
 						</metadataMap>
 					</resourceData>
 				</resource>
-                <!--timeMatcher xsi:type="d2dTimeMatcher" deltaFilter="0" forecastFilter="0"/-->
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="LATEST" deltaFilter="0" forecastFilter="0"/>
             </descriptor>
         </displays>
 	</displayList>

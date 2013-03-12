@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.menus.UIElement;
 
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
@@ -14,6 +15,7 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties.LoopMode;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.tools.AbstractTool;
+import com.raytheon.uf.viz.xy.VizXyEditor;
 
 /**
  * Activate rock looping.
@@ -27,7 +29,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  *                                      add codes to check Loop Stop.
  * 03/07/11      migration  G. Hull     use NCLoopProperties                                    
  * 07/15/11                 C Chen      fix looping buttons not coordinated issue. Clean up code.
- * 
+ * 02/13/13      958        S. Gurung   Added temporary code (for solar image display) to refresh GUI elements for editor of type VizXyEditor 
  * </pre>
  * 
  * @author mli
@@ -93,6 +95,10 @@ public class LoopRockAction extends AbstractTool {
         	AbstractNcEditor e = (AbstractNcEditor)editor;
         	e.refreshGUIElements();
         }
+    	/* temporary code (added to make the looping work for solar image display) */
+    	else if (editor != null && editor instanceof VizXyEditor) {
+    		refreshGUIElements((AbstractEditor)editor);
+    	}
         return null;
     }
 
@@ -114,6 +120,23 @@ public class LoopRockAction extends AbstractTool {
         }
     }
 
+    public void refreshGUIElements(AbstractEditor editor) {
+        ICommandService service = (ICommandService) editor.getSite().getService(
+                ICommandService.class);
 
+        String[] guiUpdateElementCommands = {
+                // "gov.noaa.nws.ncep.viz.tools.pan",
+                "gov.noaa.nws.ncep.viz.ui.options.SyncPanes",
+                "gov.noaa.nws.ncep.viz.ui.actions.loopBackward",
+                "gov.noaa.nws.ncep.viz.ui.actions.loopForward",
+                "gov.noaa.nws.ncep.viz.ui.actions.rock",
+                "gov.noaa.nws.ncep.viz.ui.actions.frameTool",
+                "gov.noaa.nws.ncep.viz.ui.autoUpdate",
+                "gov.noaa.nws.ncep.viz.ui.actions.hideFrames" };
+        // Update the GUI elements on the menus and toolbars
+        for (String toolbarID : guiUpdateElementCommands) {
+            service.refreshElements(toolbarID, null);
+        }
+    }
 }
 

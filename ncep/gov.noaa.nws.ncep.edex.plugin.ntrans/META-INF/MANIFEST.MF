@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NTRANS PlugIn 
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.ntrans
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.22",
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.11.22",
+ gov.noaa.nws.ncep.common.dataplugin.ntrans;bundle-version="1.0.0"
+Import-Package: org.apache.log4j
+Export-Package: gov.noaa.nws.ncep.edex.plugin.ntrans.decoder

@@ -79,8 +79,8 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
+ * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
  * </pre>
- * 
  * @author dhladky
  * @version 1
  */
@@ -195,7 +195,7 @@ public class FFMPUtils {
             double extent, String cwa, String mode) {
 
         LinkedHashMap<String, FFMPVirtualGageBasinMetaData> virtualBasins = new LinkedHashMap<String, FFMPVirtualGageBasinMetaData>();
-        String sql = "SELECT lid, county, name, lat, lon FROM location "
+        String sql = "SELECT lid, county, name, lat, lon, state FROM location "// DR 13228 state added
                 + "where lid in " + "(select distinct(lid) from IngestFilter "
                 + "where pe in ('PC', 'PP') " + "and ingest = 'T' "
                 + "and dur < 2000)";
@@ -800,7 +800,7 @@ public class FFMPUtils {
     public static Geometry getCwaGeometry(String cwa, String mode) {
         // convert buffer to km, then degrees
         String sql = "Select asBinary("
-                + ScanUtils.getStandardResolutionLevel("cwa")
+                + ScanUtils.getHighResolutionLevel("cwa") // DR 13228.getStandardResolutionLevel("cwa")
                 + ") from mapdata.cwa where cwa = '" + cwa + "'";
 
         ISpatialQuery sq = null;
@@ -1214,7 +1214,11 @@ public class FFMPUtils {
         if ((lat != Double.NaN) && (lon != Double.NaN)) {
             basin.setCoordinate(new Coordinate(lon, lat));
         }
-
+        
+        if (dbResult[5] != null) {
+            basin.setState((String) dbResult[5]);// DR 13228
+        }
+        
         return basin;
     }
 
