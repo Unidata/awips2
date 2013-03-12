@@ -59,6 +59,8 @@ import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
+import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket.GFMAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.DataLevelThreshold;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
 import com.raytheon.uf.common.dataplugin.radar.level3.GenericDataPacket;
@@ -116,6 +118,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      getPersistenceTime() from new IPersistable
  * 10/09/2007   465         randerso    Updated to better represent level 3 data                                   
  * 20071129            472  jkorman     Added IDecoderGettable interface.
+ * 03/04/2013   DCS51       zwang       Handle MIGFA product
  * </pre>
  * 
  * @author bphillip
@@ -1183,9 +1186,19 @@ public class RadarRecord extends PersistablePluginDataObject implements
     private <T> void addPacketData(double i, double j, String stormID,
             int type, RadarProductType productType, T currData,
             boolean needToConvert) {
-        if (needToConvert) {
-            // switch to lat/lon
-            Coordinate coor = convertStormLatLon(i, j);
+        
+    	// Convert x/y to lon/lat
+    	if (needToConvert) {
+    		Coordinate coor;
+    
+            // for MIGFA, i/j unit is 1km, for other radar products, unit is 1/4km
+        	if (type == 140) {
+        		coor = convertStormLatLon(i * 4.0, j * 4.0);
+        	}
+        	else {
+                coor = convertStormLatLon(i, j);
+        	}
+            
             i = coor.x;
             j = coor.y;
         }
@@ -1459,7 +1472,45 @@ public class RadarRecord extends PersistablePluginDataObject implements
                                 currFeature, convertLatLon);
                     }
                     continue PACKET;
-                } else if (currPacket instanceof GenericDataPacket) {
+                } else if (currPacket instanceof GFMPacket) {
+                    // Need to get each component/feature out and located the
+                    // thing
+                    GFMPacket packet = (GFMPacket) currPacket;
+
+                    // need to convert x/y to lon/lat
+                    convertLatLon = true;
+
+                    Map<MapValues, String> map = new HashMap<MapValues, String>();
+                    
+                    for (GenericDataParameter param : packet.getParams()
+                            .values()) {
+                    	
+                    	GFMAttributeIDs id = null;
+                        id = GFMAttributeIDs.getAttribute(param.getId());
+
+                        if (id != null) {
+                            for (MapValues vals : MapValues.values()) {
+                                if (id.getName().equals(vals.getName())) {
+                                    map.put(vals, param.getValue());
+                                }
+                            }
+                        }
+                    }
+                    getMapRecordVals().put(MapValues.GFM_TYPE, map);
+
+                    AreaComponent currFeature;
+                    for (GenericDataComponent currComponent : packet
+                            .getFeatures().values()) {
+                        currFeature = (AreaComponent) currComponent;
+                        //first point of GFM
+                        i = currFeature.getPoints().get(0).getCoordinate1();
+                        j = currFeature.getPoints().get(0).getCoordinate2();
+
+                        addPacketData(i, j, type, RadarProductType.GENERIC,
+                                currFeature, convertLatLon);
+                    }
+                    continue PACKET;
+                }else if (currPacket instanceof GenericDataPacket) {
                     // Generic Packet will contain most of the data for the
                     // product, so, in general, nothing probably needs to be
                     // done here
