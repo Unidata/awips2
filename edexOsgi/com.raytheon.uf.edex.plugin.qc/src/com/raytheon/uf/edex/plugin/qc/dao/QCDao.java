@@ -268,12 +268,12 @@ public class QCDao extends PointDataPluginDao<QCRecord> {
 				"Operation not supported on the QC plugin");
 	}
 
-	// Support function for Python script. Too much of a pain to get it to work
-	// in Python
-	public int getMaxRecordIndex(String setName)
+	/** Support function for the QCScanner */
+	public int getMaxRecordIndex(String qcType, String setName)
 			throws DataAccessLayerException {
 		DatabaseQuery q = new DatabaseQuery(daoClass.getName());
 		q.setMaxResults(1);
+		q.addQueryParam("qcType", qcType);
 		q.addQueryParam("ncSet", setName);
 		q.addReturnedField("pointDataView.curIdx");
 		q.addOrder("pointDataView.curIdx", false);

@@ -33,7 +33,7 @@ import LogStream
 import JUtil
 
 from java.util import ArrayList
-from com.raytheon.uf.edex.activetable import ActiveTable
+from com.raytheon.uf.common.activetable import ActiveTableUtil
 
 
 class VTECTableUtil:
@@ -380,7 +380,7 @@ class VTECTableUtil:
         for rec in table:
             javaRecList.add(rec.javaRecord())
             
-        javaDictFormat = ActiveTable.convertToDict(javaRecList, siteId)
+        javaDictFormat = ActiveTableUtil.convertToDict(javaRecList, siteId)
         
         return JUtil.javaObjToPyVal(javaDictFormat)
         

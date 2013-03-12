@@ -1,13 +1,19 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.advanced.ConditionalColorBar;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.advanced.EditPlotModelElementAdvancedDialog;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.EditConditionalFilterAttrDialog;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModelElement;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,13 +23,16 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -58,6 +67,8 @@ import org.eclipse.swt.widgets.Scale;
  * 05/29/2012    654        S. Gurung   Added option "Apply to All" to apply text changes to all parameters;
  * 										Added additional options to textFontOptions and textStyleOptions;
  * 										Fixed the issue of Sky Coverage parameters not appearing in the Sky Coverage drop-down list.
+ * 07/24/2012    431        S. Gurung   Added code for editing advanced settings
+ * 02/26/2013    936        Archana     Removed references to the 'Standard' font.
  * 
  * </pre>
  * 
@@ -77,9 +88,10 @@ public class EditPlotModelComposite extends Composite {
 	private Combo textFontCombo = null;
 	private Combo textStyleCombo = null;
 	private Button applyToAllBtn = null;
+	private Button advancedBtn = null;
 		
-	private final String[] textSizeOptions = {"6", "8", "10", "12", "14", "16", "18"};
-	private final String[] textFontOptions = {"Courier", "Helvetica", "Times", "Standard"}; 		
+	private final String[] textSizeOptions = {"10", "12", "14", "16", "18","20","22","24","32"};
+	private final String[] textFontOptions = {"Courier", "Helvetica", "Times"}; 		
 	private final String[] textStyleOptions = {"Normal", "Italic", "Bold", "Bold-Italic"};   		
 
 	private final String[] plotModelElementPositions = {
@@ -120,6 +132,8 @@ public class EditPlotModelComposite extends Composite {
 //	private Button skycChkBtn = null;
 	private Label skycLbl = null;
 	private Label wndBrbLbl = null;
+	
+	private File advancedIconFile = NcPathManager.getInstance().getStaticFile(NcPathConstants.ADVANCED_ICON_IMG ); ;
 	
 	public EditPlotModelComposite( Composite parent, int style, PlotModel pm, INatlCntrsResourceData rscData ) {
 		super(parent,  style);
@@ -186,13 +200,13 @@ public class EditPlotModelComposite extends Composite {
 				if( seldPlotModelElemButton != null ) {
 					seldPlotModelElemButton.getPlotModelElement().setTextFont(textFontCombo.getText() );
 					
-					if ("Standard".equals(textFontCombo.getText())) {
-						textStyleCombo.select(0);
-						textStyleCombo.setEnabled(false);
-					} else {
+//					if ("Standard".equals(textFontCombo.getText())) {
+//						textStyleCombo.select(0);
+//						textStyleCombo.setEnabled(false);
+//					} else {
+//						textStyleCombo.setEnabled(true);
+//					}
 						textStyleCombo.setEnabled(true);
-					}
-					
 					if (applyToAllBtn.getSelection()) {
 		    			applyTextChangesToAllParameters();
 		    		}					
@@ -396,12 +410,39 @@ public class EditPlotModelComposite extends Composite {
 		// Create Bottom position button    
 	 
 		comp = new Composite(topComposite, SWT.NONE);
-		gl = new GridLayout(1, true);
+		gl = new GridLayout(3, true);
 		gl.horizontalSpacing = 0;
 		gl.verticalSpacing = 0;
 		gl.marginHeight = 0;
 		comp.setLayout(gl);
 
+		// create "Advanced..." button
+        advancedBtn = new Button(comp, SWT.NONE);        
+        advancedBtn.setText("Advanced...");
+        advancedBtn.setToolTipText("Edit Advanced Settings");
+        gd = new GridData();
+		gd.horizontalAlignment = GridData.BEGINNING;
+		gd.grabExcessHorizontalSpace = true;
+		advancedBtn.setLayoutData( gd );
+        if (seldPlotModelElemButton == null)
+        	advancedBtn.setEnabled(false);
+        else if (!seldPlotModelElemButton.isParamNameSelected())
+        	advancedBtn.setEnabled(false);
+        
+        advancedBtn.addSelectionListener(new SelectionListener() 
+        {
+        	public void widgetSelected(SelectionEvent event) 
+        	{        		
+        		if (seldPlotModelElemButton != null) {
+        			editAdvancedSettings();	        		
+        		}
+        	}
+        	public void widgetDefaultSelected(SelectionEvent event) 
+        	{
+        	}
+        });
+		
+	
 		gd = new GridData();
 		gd.horizontalAlignment = GridData.CENTER;
 		gd.grabExcessHorizontalSpace = true;
@@ -418,6 +459,7 @@ public class EditPlotModelComposite extends Composite {
 		pmeBtn.init();
 
 		plotModelElementsUIMap.put( plotModelElementPositions[10], pmeBtn ); 
+						
 	}    
 
 
@@ -426,6 +468,8 @@ public class EditPlotModelComposite extends Composite {
 		
 		final PlotModelElemButton thisButton = this;
 		protected Group grp = null;
+		protected Group advGrp = null;
+		protected Group parmGrp = null;
 		protected Button parmBtn = null;;
 		protected Button checkBtn = null;
 
@@ -445,6 +489,15 @@ public class EditPlotModelComposite extends Composite {
 			
 			grp.setLayoutData( gd );
 
+			if(advancedIconFile != null && advancedIconFile.exists() && pltMdlElmt.hasAdvancedSettings()) {
+				Image image = new Image(Display.getCurrent(), advancedIconFile.getAbsolutePath());
+				grp.setBackgroundImage(image);
+				grp.setToolTipText("Advanced Settings Applied.");
+			} else {
+				grp.setBackgroundImage(null);
+				grp.setToolTipText("");
+			}
+			
 			checkBtn = new Button(grp, SWT.CHECK | SWT.SHADOW_ETCHED_OUT);
 			checkBtn.setLayoutData(new GridData(15, 12));
 			
@@ -520,6 +573,7 @@ public class EditPlotModelComposite extends Composite {
 						plotModelElementsUIMap.get(pos).unselectButton();
 					}
 				}
+				
 			}
 			else {  // Turn the parm button OFF
 				seldPlotModelElemButton = null;
@@ -556,7 +610,6 @@ public class EditPlotModelComposite extends Composite {
 			RGB rgb = getColor();
 
 			grp.setBackground( new Color(getParent().getDisplay(), cms.getColorValue() ));
-
 
 			seldPlotModelElemButton.parmBtn.setForeground(
 					new Color(getParent().getDisplay(), rgb ) );
@@ -711,6 +764,16 @@ public class EditPlotModelComposite extends Composite {
 			if( wndBrbElmt == null ) {
 				wndBrbElmt = new PlotModelElement();
 				wndBrbElmt.setPosition("WD");
+			}
+
+			if(advancedIconFile != null && advancedIconFile.exists() 
+					&& (skyCovElmt.hasAdvancedSettings() || wndBrbElmt.hasAdvancedSettings())) {
+				Image image = new Image(Display.getCurrent(), advancedIconFile.getAbsolutePath());
+				grp.setBackgroundImage(image);
+				grp.setToolTipText("Advanced Settings Applied.");
+			} else {
+				grp.setBackgroundImage(null);
+				grp.setToolTipText("");
 			}
 
 			setColor( getColor() ); // sync the color for all the elements even if not initially set
@@ -1072,6 +1135,8 @@ public class EditPlotModelComposite extends Composite {
 		if( seldPlotModelElemButton != null &&
 			seldPlotModelElemButton.isParamNameSelected() ) {
 			
+				advancedBtn.setEnabled(true);
+				
 //			if( seldPlotModelElemButton.getPlotModelElement().getParamName() != null ) {
 				prmDefn = plotParamDefns.getPlotParamDefn(  
 					seldPlotModelElemButton.getPlotModelElement().getParamName() );
@@ -1093,8 +1158,13 @@ public class EditPlotModelComposite extends Composite {
 						isTextApplicable = false;
 						isSymbApplicable = true; //(prmDefn != null);
 					}
+					
+					//if (cntrBtn.getSkyCovParamName() != null && cntrBtn.getWindBarbParamName() != null) {
+						//advancedBtn.setEnabled(false);
+					//}
 				}
 //			}
+					
 		}
 							
 		if( isTextApplicable ) {			
@@ -1127,10 +1197,10 @@ public class EditPlotModelComposite extends Composite {
 				}
 			}
 			
-			if ("Standard".equals(textFontCombo.getText())) {
-				textStyleCombo.select(0);
-				textStyleCombo.setEnabled(false);
-			} 
+//			if ("Standard".equals(textFontCombo.getText())) {
+//				textStyleCombo.select(0);
+//				textStyleCombo.setEnabled(false);
+//			} 
 			
 			if (applyToAllBtn.getSelection()) {
     			applyTextChangesToAllParameters();
@@ -1144,7 +1214,7 @@ public class EditPlotModelComposite extends Composite {
 			textStyleCombo.deselectAll();
 			textStyleCombo.setEnabled(false);		
 			applyToAllBtn.setEnabled(false);
-			
+			//advancedBtn.setEnabled(false);			
 		}
 
 		// Set symbol size if applicable		
@@ -1170,7 +1240,6 @@ public class EditPlotModelComposite extends Composite {
 	}
 	
 	private void enableCenterParamWidgets( boolean enable ) {
-//		ctrGrp.setEnabled(  enable );
 		skycLbl.setEnabled( enable );
 		comboSky.setEnabled( enable );
 		wndBrbLbl.setEnabled( enable );
@@ -1198,4 +1267,75 @@ public class EditPlotModelComposite extends Composite {
 			}
 		}
 	}
+		
+	private void editAdvancedSettings() {
+		
+		PlotModelElement pltMdlElmt = null;
+		PlotModelElement skycPltMdlElmt = null;
+		PlotModelElement wbPltMdlElmt = null;
+		
+		if( seldPlotModelElemButton instanceof PlotModelElemCenterButton ) {
+			PlotModelElemCenterButton cntrBtn = (PlotModelElemCenterButton)seldPlotModelElemButton;
+			
+			skycPltMdlElmt = cntrBtn.getSkyCoveragePlotModelElement();
+			wbPltMdlElmt = cntrBtn.getWindBarbPlotModelElement();
+			
+			if (skycPltMdlElmt != null) {
+				pltMdlElmt = skycPltMdlElmt;				
+			} 
+			else if (wbPltMdlElmt != null) {
+				pltMdlElmt = skycPltMdlElmt;
+			
+			} else {
+				return;
+			}
+		} else {
+			pltMdlElmt = seldPlotModelElemButton.pltMdlElmt;
+		}
+		
+		if ( pltMdlElmt.getConditionalColorBar() == null) {
+			ConditionalColorBar newColorBar = new ConditionalColorBar();			
+			pltMdlElmt.setConditionalColorBar(newColorBar);			
+			pltMdlElmt.setConditionalParameter(pltMdlElmt.getParamName());
+		}				
+
+		String prevCondParam = pltMdlElmt.getConditionalParameter();
+		ConditionalColorBar prevCondColorBar = new ConditionalColorBar(pltMdlElmt.getConditionalColorBar());
+				
+		EditPlotModelElementAdvancedDialog editConditionalFilterDlg = new EditPlotModelElementAdvancedDialog(topComposite.getShell(), pltMdlElmt, plotParamDefns);
+		
+		PlotModelElement newPme = (PlotModelElement)editConditionalFilterDlg.open( 
+				topComposite.getShell().getLocation().x + topComposite.getShell().getSize().x + 10, 
+				topComposite.getShell().getLocation().y );
+		
+		if( newPme != null) { 
+			pltMdlElmt = newPme;		
+		} 
+		else {
+			pltMdlElmt.setConditionalParameter(prevCondParam);
+			pltMdlElmt.setConditionalColorBar(prevCondColorBar);
+		}
+		
+		if (pltMdlElmt.hasAdvancedSettings()) {
+			if(advancedIconFile != null && advancedIconFile.exists()) {
+				Image image = new Image(Display.getCurrent(), advancedIconFile.getAbsolutePath());
+				seldPlotModelElemButton.grp.setBackgroundImage(image);
+			}
+			seldPlotModelElemButton.grp.setToolTipText("Advanced Settings Applied.");
+		}
+		else { 
+			seldPlotModelElemButton.grp.setBackgroundImage(null);
+			seldPlotModelElemButton.grp.setToolTipText("");
+		}
+		
+		
+		if (skycPltMdlElmt != null && wbPltMdlElmt != null) {
+			skycPltMdlElmt.setConditionalParameter(pltMdlElmt.getConditionalParameter());
+			skycPltMdlElmt.setConditionalColorBar(pltMdlElmt.getConditionalColorBar());
+			wbPltMdlElmt.setConditionalParameter(pltMdlElmt.getConditionalParameter());
+			wbPltMdlElmt.setConditionalColorBar(pltMdlElmt.getConditionalColorBar());
+		} 
+		
+	}	
+	
 }

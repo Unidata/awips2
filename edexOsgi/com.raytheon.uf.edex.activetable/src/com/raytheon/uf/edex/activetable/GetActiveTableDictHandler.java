@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
+import com.raytheon.uf.common.activetable.ActiveTableUtil;
 import com.raytheon.uf.common.activetable.GetActiveTableDictRequest;
 import com.raytheon.uf.common.activetable.GetActiveTableDictResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -60,7 +61,7 @@ public class GetActiveTableDictHandler implements
         GetActiveTableDictResponse response = new GetActiveTableDictResponse();
         List<ActiveTableRecord> records = ActiveTable.getActiveTable(site,
                 request.getMode(), null, null, null, request.getWfos());
-        List<Map<String, Object>> table = ActiveTable.convertToDict(records,
+        List<Map<String, Object>> table = ActiveTableUtil.convertToDict(records,
                 site);
         response.setActiveTable(table);
         statusHandler.handle(Priority.INFO, "ActiveTable for " + site
