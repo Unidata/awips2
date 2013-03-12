@@ -292,7 +292,7 @@ public class ObservedSoundingQuery {
 			return tl;
 		}
 		synopTimeAry = (Object[]) dao.executeSQLQuery(queryStr);
-		//*System.out.println("size of synoptictime " + synopTimeAry.length);
+		//System.out.println("size of synoptictime " + synopTimeAry.length);
 
 		//for(int i=0; i < synopTimeAry.length; i++){
 		//	if(synopTimeAry[i] != null)
@@ -997,14 +997,14 @@ public class ObservedSoundingQuery {
         	result = request.execute();
         	long t002 = System.currentTimeMillis();
         	//totalRqTime=totalRqTime+(t002-t001);
-        	System.out.println("getObservedSndNcUairDataGeneric data query alone took "+(t002-t001)+"ms");
+        	//System.out.println("getObservedSndNcUairDataGeneric data query alone took "+(t002-t001)+"ms");
 
         	if (result != null) {
         		long t003 = System.currentTimeMillis();
         		returnedDbRecords = NcUairToRecord.toNcUairRecordsList(result); 
 
         		if(returnedDbRecords!= null && returnedDbRecords.size() > 0){
-        			System.out.println("getObservedSndNcUairDataGeneric Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
+        			//System.out.println("getObservedSndNcUairDataGeneric Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
         			//Chin: keep list of records for same station 
         			//search through all returned records and keep same staion's records in one list
         			int loopLen;
@@ -1114,13 +1114,13 @@ public class ObservedSoundingQuery {
 
         		}
         		long t004 = System.currentTimeMillis();
-        		System.out.println(" sorting return records took "+(t004-t003)+"ms");
+        		//System.out.println(" sorting return records took "+(t004-t003)+"ms");
         	}
         } catch (Exception e) {
         	e.printStackTrace();
         }
 
-        System.out.println("getObservedSndNcUairDataGeneric Number profiles (record[]s) in finalRecordArrayList="+finalRecordArrayList.size());
+        //System.out.println("getObservedSndNcUairDataGeneric Number profiles (record[]s) in finalRecordArrayList="+finalRecordArrayList.size());
         return finalRecordArrayList;
 	}
 	/*

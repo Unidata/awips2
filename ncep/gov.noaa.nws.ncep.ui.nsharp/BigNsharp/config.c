@@ -184,9 +184,9 @@ int read_nsharp_config(void)
             	fprintf(stderr, "Could not read nsharp.cfg file. Use default.\n");
 		strcpy(sars_filename, "                                                                                ");
 		//strcpy(sars_filename, "/users/thompson/nsharp/bigsharp5/nlist.txt");
-		strcpy(sars_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9/nlist.txt");
+		strcpy(sars_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9-original/nlist.txt");
                 strcpy(sup_filename, "                                                                                ");
-                strcpy(sup_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9/sup.txt");
+                strcpy(sup_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9-original/sup.txt");
 		return(1);
           	}
 
