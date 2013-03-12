@@ -94,7 +94,7 @@
              name="Nsharp"
              recursive="true"
              value="ncep/nsharp"
-	         extensionFilter=".xml">
+	         extensionFilter=".xml,.txt">
        </path>
     </extension>
    <extension

@@ -66,12 +66,12 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2009           dhladky     Initial creation
  * Jan 25, 2012 DR 13839  gzhang	  Use paintTime for QPF
+ * Mar 01, 2013 DR 13228  gzhang      Get VGB county info for row name 
  * Feb 1,  2013 DR 1569   dhladky     Switched to using pypies records instead of files
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
  * Feb 28, 2013  1729      dhladky    General enhancements for speed.
  * </pre>
- * 
  * @author dhladky
  * @version 1.0
  */

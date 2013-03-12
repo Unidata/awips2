@@ -218,8 +218,18 @@ public class PgenUtil {
 		setCommandMode("gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect");
 
     }
+    
 	/**
-	 * set current ModalTool to  Selecting mode
+	 * set current ModalTool to  "MultiSelect" mode
+	 */   
+    public static final void setMultiSelectMode() {
+      
+		setCommandMode("gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiSelect");
+
+    }
+    
+	/**
+	 * set current ModalTool to "DelectObj" mode
 	 */   
     public static final void setDelObjMode() {
     		setCommandMode("gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteObj");
