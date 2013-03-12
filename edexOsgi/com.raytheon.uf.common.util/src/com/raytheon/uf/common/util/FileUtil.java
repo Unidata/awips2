@@ -54,12 +54,14 @@ import java.util.zip.GZIPOutputStream;
  *                                     to create temporary directories and files.
  * 02/15/2013        #1597 randerso    Fixed error when copying empty files
  * Feb 15, 2013 1638       mschenke    Moved EOL field from edex.common Util
+ * Mar 11, 2013 1645       djohnson    Added file modification watcher.
  * 
  * </pre>
  * 
  * @author njensen
  */
 public class FileUtil {
+
     /**
      * Displayable string of valid filename characters
      */
@@ -74,7 +76,7 @@ public class FileUtil {
      * Easy reference to system-dependent end of line
      */
     public static final String EOL = System.getProperty("line.separator");
-    
+
     /**
      * Joins one or more path components into a single path string. Path
      * components are separated by the operating system dependent
@@ -857,5 +859,16 @@ public class FileUtil {
         if (c != null) {
             c.close();
         }
+    }
+
+    /**
+     * Retrieve a file modification watcher.
+     * 
+     * @param file
+     *            the file to watch for modifications
+     * @return the watcher
+     */
+    public static IFileModifiedWatcher getFileModifiedWatcher(File file) {
+        return new FileLastModifiedTimeWatcher(file);
     }
 }
