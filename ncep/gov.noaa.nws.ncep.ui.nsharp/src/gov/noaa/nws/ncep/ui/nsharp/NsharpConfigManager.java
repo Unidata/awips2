@@ -157,4 +157,20 @@ public class NsharpConfigManager {
 
 		return true;
 	}
+	// Note: input file name should be one of {NcPathConstants.NSHARP_NLIST_FILE, NcPathConstants.NSHARP_SUP_FILE}
+	public String getBigNsharpFlPath(String fileName) { 
+		IPathManager pthmgr =  PathManagerFactory.getPathManager();
+		Map<String,LocalizationFile> nsharpFiles =listFiles( pthmgr, 
+				fileName, 
+				new String[]{ ".txt" }, true, true );
+
+		for( LocalizationFile lFile : nsharpFiles.values() ) {
+			if( lFile.getFile().getAbsolutePath() != null ){
+				//System.out.println("sarsFile name="+ lFile.getFile().getAbsolutePath());// lFile.getName());
+
+				return lFile.getFile().getAbsolutePath();
+			}
+		}
+		return null;
+	}
 }
