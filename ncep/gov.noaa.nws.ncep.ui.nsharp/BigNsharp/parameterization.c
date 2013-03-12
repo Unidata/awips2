@@ -224,7 +224,9 @@ float sig_hail(float mucape, float mumixr, float lr75, float t500, float shr6, f
 		if (t500 < -23.0 ) sighail = 0;
 		if (fzlh < 2100 ) sighail = 0;		
 
-	        if (mucape < 1300) sighail*(mucape / 1300);
+		//Chin: change from the following original line after confirmed by Rich T. 10/19/2012
+		//if (mucape < 1300) sighail*(mucape / 1300);
+	        if (mucape < 1300) sighail = sighail*(mucape / 1300);
 	        if (lr75 < 5.8 ) sighail = sighail*(lr75 / 5.8);
 		if (fzlh < 2400) sighail = sighail*(fzlh / 2400);
 		

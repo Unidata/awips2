@@ -28,6 +28,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
@@ -50,6 +51,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * 02/15/2011   7975       bkowal      The Distance Speed Tools will
  *                                     operate independently of each other;
  *                                     the dialogs will have unique titles.
+ * 05Mar2013	15693	mgamazaychikov Added magnification capability.
  * 
  * </pre>
  * 
@@ -72,6 +74,10 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
             AwipsToolsResourceData<DistanceSpeedLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
+        /*
+    	 * 15693 - add magnification capability
+    	 */
+        getCapabilities().addCapability(new MagnificationCapability());
         this.determineDialogTitle();
         reopenDialog();
     }
