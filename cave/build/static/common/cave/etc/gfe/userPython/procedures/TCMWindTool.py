@@ -31,6 +31,11 @@
 # Author:  Tom LeFebvre
 # Contributor: Pablo Santos
 # ----------------------------------------------------------------------------
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer     Description
+# ------------ ---------- -----------  --------------------------
+# 3/6/2013     15658      ryu          Merge in change from AWIPS I DR 21414, which fixed 
+#                                      makeMaxWindGrid() for when center is outside domain.
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -1336,51 +1341,15 @@ class Procedure (SmartScript.SmartScript):
         startTime = interpFcstList[0]["validTime"]
         endTime = startTime + (123 * 3600)  # 123 hours later
 
-        fcstIndex = 0
-        while fcstIndex < len(interpFcstList)-1:
-            f1 = interpFcstList[fcstIndex]
-            f2 = interpFcstList[fcstIndex + 1]
-            
-            f1Time = interpFcstList[fcstIndex]['validTime']
-            f2Time = interpFcstList[fcstIndex + 1]['validTime']
-
-            print "Interpolating from:", time.asctime(time.gmtime(f1Time)), \
-                "to", time.asctime(time.gmtime(f2Time))
-
-            lat1, lon1 = f1['centerLocation']
-            lat2, lon2 = f2['centerLocation']
-
-            x1, y1 = self.getGridCell(lat1, lon1)
-            x2, y2 = self.getGridCell(lat2, lon2)
-
-            if x1 is None or y1 is None or x2 is None or y2 is None:
-                fcstIndex += 1
-                continue
-
-            dx = abs(x2 - x1)
-            dy = abs(y2 - y1)
-
-            dmax = max(dx, dy)
-
-            newInterval = float(interval) / dmax
-
-            newFcstList = self.interpolateWindFcst(f1, f2, newInterval)
-
-            print "Created", len(newFcstList), "new wind forecasts."
-
-            for f in newFcstList:
-                mag, dir = self.makeRankine(f, latGrid, lonGrid, pieSlices, radiiFactor)
-
-                maxWindGrid = where(greater(mag, maxWindGrid), mag, maxWindGrid)
-                
-            fcstIndex += 1
-            
-            if f2["validTime"] >= endTime:
-                break
 
         start = AbsTime.AbsTime(startTime)
         end = AbsTime.AbsTime(endTime)
         timeRange = TimeRange.TimeRange(start, end)
+
+        # Used getGrids to calculate the maximum wind grid.
+        #
+        # Fetch the max of the wind grids just generated as this is very fast.
+        maxWindGrid, maxDirGrid = self.getGrids("Fcst", "Wind", "SFC", timeRange, mode="Max")
 
         maxWindGrid = self.smoothGrid(maxWindGrid, 3)
 
@@ -1485,7 +1454,7 @@ class Procedure (SmartScript.SmartScript):
 
 #        # Use this method to fetch a product from the text database
         if productID == "preTCM":
-            textProduct = self.getTextProductFromFile("/tmp/Irene.txt")
+            textProduct = self.getTextProductFromFile("/tmp/Isaac.txt")
             decoder = TCMDecoder()
             decoder.decodeTCMProduct(textProduct, self.dialogEyeDiameter)
             fcstList = decoder.getFcstList()
@@ -1588,14 +1557,6 @@ class Procedure (SmartScript.SmartScript):
         # get the lat, lon grids
         latGrid, lonGrid = self.getLatLonGrids()
         
-        # interpolate through forecast period to very high resolution and make
-        # a composite maxWind grid from those wind grids
-        if maxwindswath is "Yes":
-            t1 = time.time()
-            self.makeMaxWindGrid(interpFcstList, interval, latGrid, lonGrid, pieSlices,
-                                 radiiFactor)
-            print time.time() - t1, "seconds to generate Max wind composite."
-
         # make a grid for each interpolate forecast
         gridCount = 0
         for f in interpFcstList:
@@ -1620,6 +1581,14 @@ class Procedure (SmartScript.SmartScript):
             gridCount += 1
             print "TCMWindTool:", productID, "- Generated",gridCount, \
                   "out of", len(interpFcstList), "grids", time.asctime(time.gmtime(timeRange.startTime().unixTime()))
+
+        # interpolate through forecast period to very high resolution and make
+        # a composite maxWind grid from those wind grids
+        if maxwindswath is "Yes":
+            t1 = time.time()
+            self.makeMaxWindGrid(interpFcstList, interval, latGrid, lonGrid, pieSlices,
+                                 radiiFactor)
+            print time.time() - t1, "seconds to generate Max wind composite."
 
         if msg != "":
             self.statusBarMsg(msg, "S")

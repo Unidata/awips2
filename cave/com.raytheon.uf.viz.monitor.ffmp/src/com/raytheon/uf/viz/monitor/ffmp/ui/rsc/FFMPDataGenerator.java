@@ -64,8 +64,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2009           dhladky     Initial creation
  * Jan 25, 2012 DR 13839  gzhang	  Use paintTime for QPF
+ * Mar 01, 2013 DR 13228  gzhang      Get VGB county info for row name 
  * </pre>
- * 
  * @author dhladky
  * @version 1.0
  */
@@ -209,7 +209,7 @@ public class FFMPDataGenerator {
 												for (Long id : ft
 														.getVirtualGageBasinLookupIds(
 																siteKey,
-																key)) {
+																key,huc,resource.basinTableDlg.getRowName()/* DR 13228 */)) {
 													setFFMPRow(
 															virtualBasin
 																	.get(id),
@@ -281,7 +281,7 @@ public class FFMPDataGenerator {
 												for (Long id : ft
 														.getVirtualGageBasinLookupIds(
 																siteKey,
-																key)) {
+																key,huc,resource.basinTableDlg.getRowName()/* DR 13228 */)) {
 													setFFMPRow(
 															virtualBasin
 																	.get(id),
@@ -305,7 +305,7 @@ public class FFMPDataGenerator {
 		return tData;
 	}
 
-	private void setFFMPRow(FFMPBasin cBasin, FFMPTableData tData,
+	private void setFFMPRow(/*FFMPVirtualGageBasinMetaData md,*/FFMPBasin cBasin, FFMPTableData tData,
 			boolean isVGB, String domain) {
 		try {
 			if (cBasin instanceof FFMPVirtualGageBasin) {

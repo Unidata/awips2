@@ -125,7 +125,7 @@ import gov.noaa.nws.ncep.viz.customprojection.GempakProjectionValuesUtil;
  * 08/02/2012     #568       Greg Hull   Clear Rbd -> Reset Rbd. get the Default RBD
  * 11/16/2012     #630       Greg Hull   Allow selection of resource-defined areas.
  * 12/02/2012     #630       Greg Hull   add zoomLevel combo
- * 
+ * 03/05/2013     #958       Quan Zhou   Added method to get editor name
  * </pre>
  * 
  * @author ghull
@@ -1793,13 +1793,14 @@ public class CreateRbdControl extends Composite {
     		// they may not be unique without the display id.
     		if( editor == null ) {    			
     			editor = NmapUiUtils.getActiveNatlCntrsEditor();
-
+    			if (editor != null) { //quan
     			String activeEditorName = NmapUiUtils.getNcDisplayNameWithoutID(
     					                           editor.getDisplayName() );
     	
     			if( !activeEditorName.equals( rbdName ) ) {
     				editor = null;
     			}
+    		}
     		}
 
     		// if they changed the layout then we should be able to modify the layout of the current
