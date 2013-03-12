@@ -43,7 +43,7 @@ extern float mu_layer;   /* most-unstable layer */
 /* Titling stuff */
 extern char raobtitle[80], stn_abbrev[4], raob_type[80], mdl_type[80];
 extern char raobtitle2[80], stn_abbrev2[4], raob_type2[80], mdl_type2[80];
-extern char raobsavefilename[256], sars_filename[80], sup_filename[80];
+extern char raobsavefilename[256], sars_filename[256], sup_filename[256]; //CHIN
 
 extern struct _configure config;
 extern struct _pagemode pages;
