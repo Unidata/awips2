@@ -65,7 +65,7 @@ def logDebug(*msg):
 # returns the active table, filtered, pickled.
 def getVTECActiveTable(siteAndFilterInfo, xmlPacket):
     import VTECPartners
-    if VTECPartners.VTEC_RESPOND_TO_TABLE_REQUESTS:
+    if not VTECPartners.VTEC_RESPOND_TO_TABLE_REQUESTS:
         return   #respond is disabled
 
     #decode the data (pickled)
@@ -76,9 +76,10 @@ def getVTECActiveTable(siteAndFilterInfo, xmlPacket):
     from com.raytheon.uf.common.site import SiteMap
     from com.raytheon.uf.edex.activetable import ActiveTable
     from com.raytheon.uf.common.activetable import ActiveTableMode
+    from com.raytheon.uf.common.activetable import ActiveTableUtil
     site4Id = SiteMap.getInstance().getSite4LetterId(siteConfig.GFESUITE_SITEID)
     javaTable = ActiveTable.getActiveTable(site4Id, ActiveTableMode.OPERATIONAL)
-    dictTable = ActiveTable.convertToDict(javaTable, siteConfig.GFESUITE_SITEID)
+    dictTable = ActiveTableUtil.convertToDict(javaTable, siteConfig.GFESUITE_SITEID)
     
     # we must convert this to a python hash using the A1 field naming conventions
     # for cross-version compatibility
@@ -111,69 +112,73 @@ def getVTECActiveTable(siteAndFilterInfo, xmlPacket):
 
     #write the xmlpacket to a temporary file, if one was passed
     if xmlPacket is not None:
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as fp:
+        with tempfile.NamedTemporaryFile(suffix='.xml', dir=outDir, delete=False) as fp:
             fnameXML = fp.name
             fp.write(xmlPacket)
 
+    from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
+    config = IFPServerConfigManager.getServerConfig(siteConfig.GFESUITE_SITEID)
+    ServerHost = siteConfig.GFESUITE_SERVER
+    ServerPort = str(siteConfig.GFESUITE_PORT)
+    ServerProtocol = str(config.getProtocolVersion())
+    ServerMHS = siteConfig.GFESUITE_MHSID
+    ServerSite = siteConfig.GFESUITE_SITEID
+    XmtScript = config.transmitScript()
+
     #call sendAT to send the table to the requestor
-    pid = os.fork()
-    if pid == 0:
-        cmd = os.path.join(siteConfig.GFESUITE_HOME, "bin", "sendAT")
-        args = [cmd, '-s', reqsite, '-a', mhsSite, '-H', ServerHost,
-          '-P', ServerPort, '-L', ServerProtocol, '-M', ServerMHS,
-          '-S', ServerSite, '-x', XmtScript]
-        if filterSites is not None:
-            for fs in filterSites:
-                args.append('-f')
-                args.append(fs)
-        if countDict is not None:
-                args.append('-c')
-                args.append(`countDict`)
-        if issueTime is not None:
-            args.append('-t')
-            args.append(`issueTime`)
-        args.append('-v')
-        args.append(fname)
-        if xmlPacket is not None:
-            args.append('-X')
-            args.append(fnameXML)
-        try:
-            os.execvp(cmd, args)
-        except:
-            logProblem("Error executing sendAT: ", traceback.format_exc())
-        finally:
-            os._exit(0)
+    cmd = os.path.join(siteConfig.GFESUITE_HOME, "bin", "sendAT")
+    args = [cmd, '-s', reqsite, '-a', mhsSite, '-H', ServerHost,
+      '-P', ServerPort, '-L', ServerProtocol, '-M', ServerMHS,
+      '-S', ServerSite, '-x', XmtScript]
+    if filterSites is not None:
+        for fs in filterSites:
+            args.append('-f')
+            args.append(fs)
+    if countDict is not None:
+            args.append('-c')
+            args.append(`countDict`)
+    if issueTime is not None:
+        args.append('-t')
+        args.append(`issueTime`)
+    args.append('-v')
+    args.append(fname)
+    if xmlPacket is not None:
+        args.append('-X')
+        args.append(fnameXML)
+    try:
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+    except:
+        logProblem("Error executing sendAT: ", traceback.format_exc())
+    logEvent("sendAT command output: ", output)
 
 #when we receive a requested active table from another site, this function
 #is called from iscDataRec
 def putVTECActiveTable(strTable, xmlPacket):
     #write the xmlpacket to a temporary file, if one was passed
+    inDir = os.path.join(siteConfig.GFESUITE_PRDDIR, "ATBL")
     if xmlPacket is not None:
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as fp:
+        with tempfile.NamedTemporaryFile(suffix='.xml', dir=inDir, delete=False) as fp:
             fnameXML = fp.name
             fp.write(xmlPacket)
-
-    inDir = os.path.join(siteConfig.GFESUITE_PRDDIR, "ATBL")
     with tempfile.NamedTemporaryFile(suffix='.ati', dir=inDir, delete=False) as fp:
          fname = fp.name
          fp.write(strTable)
     
-    pid = os.fork()
-    if pid == 0:
-        cmd = os.path.join(siteConfig.GFESUITE_HOME, "bin", "ingestAT")
-        args = []
-        args.append(cmd)
-        args.append("-f")
-        args.append(fname)
-        if xmlPacket is not None:
-            args.append('-X')
-            args.append(fnameXML)
-        try:
-            os.execvp(cmd, args)
-        except:
-            logProblem("Error executing ingestAT: ", traceback.format_exc())
-        finally:
-            os._exit(0)
+    cmd = os.path.join(siteConfig.GFESUITE_HOME, "bin", "ingestAT")
+    args = []
+    args.append(cmd)
+    args.append("-s")
+    args.append(siteConfig.GFESUITE_SITEID)
+    args.append("-f")
+    args.append(fname)
+    if xmlPacket is not None:
+        args.append('-X')
+        args.append(fnameXML)
+    try:
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+    except:
+        logProblem("Error executing ingestAT: ", traceback.format_exc())
+    logEvent("ingesAT command output: ", output)
     
 def initIRT(ancfURL, bncfURL, mhsid, serverHost, serverPort, serverProtocol,
   site, parmsWanted, gridDims, gridProj, gridBoundBox, iscWfosWanted):

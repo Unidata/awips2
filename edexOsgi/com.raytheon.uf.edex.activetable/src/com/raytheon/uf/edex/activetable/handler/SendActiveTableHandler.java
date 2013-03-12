@@ -95,7 +95,8 @@ public class SendActiveTableHandler implements
             try {
                 Map<String, Object> argMap = new HashMap<String, Object>();
                 argMap.put("myServerHost", request.getServerHost());
-                argMap.put("myServerPort", request.getServerPort());
+                argMap.put("myServerPort",
+                        Integer.toString(request.getServerPort()));
                 argMap.put("myServerProtocol", request.getServerProtocol());
                 argMap.put("myServerMHSID", request.getMhsId());
                 argMap.put("myServerSite", siteId);

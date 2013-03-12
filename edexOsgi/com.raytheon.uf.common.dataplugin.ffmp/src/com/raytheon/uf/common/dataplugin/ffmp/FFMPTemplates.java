@@ -83,8 +83,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * 07/09/10      3914       D. Hladky   Localization work
  * 12/13/10      7484       D. Hladky   Service Backup
  * 02/01/13      1569       D.Hladky    Constants
+ * 03/01/13      DR13228    G. Zhang    Add VGB county and related code 
  * 02/20/13      1635       D. Hladky   Constants
- * 
  * </pre>
  * 
  * @author dhladky
@@ -107,6 +107,8 @@ public class FFMPTemplates {
 
     private HashMap<String, HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>>> virtualGageBasinsInParentPfaf = null;
 
+    private HashMap<String, HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>> vgbsInCounty = null;// DR 13228
+    
     private HashMap<String, HashMap<String, LinkedHashMap<String, FFMPVirtualGageBasinMetaData>>> virtualDomainMap = null;
 
     private Map<String, SoftReference<Map<Long, Geometry>>> cwaRawGeometries = new ConcurrentHashMap<String, SoftReference<Map<Long, Geometry>>>();
@@ -226,7 +228,8 @@ public class FFMPTemplates {
         virtualGageBasinsInParentPfaf = new HashMap<String, HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>>>();
         ftcm = FFMPTemplateConfigurationManager.getInstance();
         frcm = FFMPRunConfigurationManager.getInstance();
-
+        vgbsInCounty = new HashMap<String, HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>>();// DR 13228
+        
         try {
             ftcm.readConfigXml();
 
@@ -1348,7 +1351,9 @@ public class FFMPTemplates {
                 writeVGBFile(virtuals, cwa, dataKey);
             }
         } else {
+           
             virtuals = readVGBFile("VIRTUAL", cwa, dataKey);
+     
         }
 
         return virtuals;
@@ -1381,26 +1386,49 @@ public class FFMPTemplates {
 
             virtualmap.put(cwa, map);
 
+            HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> vgbMap = new HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>();// DR 13228
+            
             HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>> virtualGageBasins = new HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>(
                     (int) (map.size() * 1.3));
+            
             for (FFMPVirtualGageBasinMetaData vgb : map.values()) {
-                Long id = vgb.getParentPfaf();
+                Long id = vgb.getParentPfaf();		
+                String stateCommaCnty=vgb.getState()+", "+vgb.getCounty();// DR 13228 see getCountyStateName(,)
+                
                 ArrayList<FFMPVirtualGageBasinMetaData> list = virtualGageBasins
-                        .get(id);
+                        .get(id);	
+                ArrayList<FFMPVirtualGageBasinMetaData> list2=vgbMap.get(stateCommaCnty.toUpperCase());// DR 13228
+                
                 if (list == null) {
                     list = new ArrayList<FFMPVirtualGageBasinMetaData>();
                     virtualGageBasins.put(id, list);
                 }
-                list.add(vgb);
+                list.add(vgb);	
+                
+                // DR 13228
+                if(list2==null){
+                	list2=new ArrayList<FFMPVirtualGageBasinMetaData>(); 
+                	vgbMap.put(stateCommaCnty.toUpperCase(),list2);
+                } 
+                list2.add(vgb);// DR 13228
             }
 
+            HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> vMapCounty = vgbsInCounty.get(dataKey);// DR 13228
             HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMapPfaf = virtualGageBasinsInParentPfaf
                     .get(dataKey);
             if (virtualMapPfaf == null) {
                 virtualMapPfaf = new HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>>();
 
             }
+            
+            // DR 13228
+            if(vMapCounty==null) {
+            	vMapCounty = new HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>();// DR 13228            	
+            }
 
+            vMapCounty.put(cwa, vgbMap);// DR 13228	
+            vgbsInCounty.put(dataKey,vMapCounty);// DR 13228
+            
             virtualMapPfaf.put(cwa, virtualGageBasins);
             virtualGageBasinsInParentPfaf.put(dataKey, virtualMapPfaf);
         }
@@ -1585,9 +1613,9 @@ public class FFMPTemplates {
      * @param pfaf
      * @return
      */
-    public synchronized ArrayList<Long> getVirtualGageBasinLookupIds(
-            String dataKey, Long pfaf) {
-
+    public synchronized /*ArrayList<FFMPVirtualGageBasinMetaData>*/ArrayList<Long> getVirtualGageBasinLookupIds(
+            String dataKey, Long pfaf, String huc, String rowName) {
+if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc, rowName);
         HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = virtualGageBasinsInParentPfaf
                 .get(dataKey);
 
@@ -1598,15 +1626,15 @@ public class FFMPTemplates {
             if (map != null) {
                 ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(pfaf);
                 if (list != null && !list.isEmpty()) {
-                    ArrayList<Long> result = new ArrayList<Long>();
+                    ArrayList<Long> result = new ArrayList<Long>();//ArrayList<FFMPVirtualGageBasinMetaData> vgblist = new ArrayList<FFMPVirtualGageBasinMetaData>();
                     for (FFMPVirtualGageBasinMetaData md : list)
-                        result.add(md.getLookupId());
-                    return result;
+                    	/*vgblist.add(md);*/result.add(md.getLookupId());
+                    return /*vgblist;*/result;
                 }
             }
         }
 
-        return new ArrayList<Long>();
+        return /*new ArrayList<FFMPVirtualGageBasinMetaData>();*/new ArrayList<Long>();
 
     }
 
@@ -2323,4 +2351,44 @@ public class FFMPTemplates {
             }
         }
     }
+
+    /** 
+     * DR 13228    
+     */
+    public static boolean isCountyRow(String huc, String rowName){
+
+    	return "COUNTY".equals(huc) && rowName.contains(",");// see getCountyStateName(,)
+
+    }
+    
+    /** 
+     * DR 13228    
+     */
+    public synchronized ArrayList<Long> getVgbLookupIdsByCounty(
+                String dataKey, Long pfaf, String huc, String rowName) {
+
+        	String stateCommaCnty = rowName;//.split(",")[1];
+
+            HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = vgbsInCounty.get(dataKey);
+
+            for (DomainXML domain : domains) {
+
+                HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
+                        .get(domain.getCwa());
+                if (map != null) {
+                    ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(stateCommaCnty.trim().toUpperCase());
+
+                    if (list != null && !list.isEmpty()) {
+                        ArrayList<Long> result = new ArrayList<Long>();
+                        for (FFMPVirtualGageBasinMetaData md : list){
+                        	result.add(md.getLookupId());
+
+                        }
+                        return result;
+                    }
+                }
+            }
+            return new ArrayList<Long>();
+    }
+
 }
