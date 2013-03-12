@@ -1,0 +1,1303 @@
+
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="titleItem" titleText="------ Best Res Base Products ------"
+		id="${icao}BestResBaseProducts" />
+	<contribute xsi:type="subMenu" menuText="${icao} Z" id="${icao}BestResRfl">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 Z best res" id="${icao}00Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 Z best res" id="${icao}05Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 Z best res" id="${icao}09Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 Z best res" id="${icao}15Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 Z best res" id="${icao}18Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 Z best res" id="${icao}24Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 Z best res" id="${icao}34Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 Z best res" id="${icao}43Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 Z best res" id="${icao}53Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 Z best res" id="${icao}60Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 Z best res" id="${icao}75Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 Z best res" id="${icao}87Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 Z best res" id="${icao}100Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 Z best res" id="${icao}120Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 Z best res" id="${icao}140Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 Z best res" id="${icao}167Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 Z best res" id="${icao}195Refl">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="Z (All)" id="${icao}ReflAll">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="${icao} V" id="${icao}BestResRfl">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 V best res" id="${icao}00Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 V best res" id="${icao}05Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 V best res" id="${icao}09Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 V best res" id="${icao}15Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 V best res" id="${icao}18Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 V best res" id="${icao}24Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 V best res" id="${icao}34Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 V best res" id="${icao}43Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 V best res" id="${icao}53Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 V best res" id="${icao}60Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 V best res" id="${icao}75Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 V best res" id="${icao}87Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 V best res" id="${icao}100Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 V best res" id="${icao}120Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 V best res" id="${icao}140Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 V best res" id="${icao}167Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 V best res" id="${icao}275Vel">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="V (All)" id="${icao}VelAll">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="27" />
+			<substitute key="product4" value="25" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="${icao} SRM"
+		id="${icao}BestRes8bitSRM">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 SRM best res" id="${icao}008bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 SRM best res" id="${icao}058bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 SRM best res" id="${icao}098bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 SRM best res" id="${icao}158bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 SRM best res" id="${icao}188bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 SRM best res" id="${icao}248bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 SRM best res" id="${icao}348bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 SRM best res" id="${icao}438bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 SRM best res" id="${icao}538bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 SRM best res" id="${icao}608bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 SRM best res" id="${icao}758bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 SRM best res" id="${icao}878bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 SRM best res" id="${icao}1008bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 SRM best res" id="${icao}1208bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 SRM best res" id="${icao}1408bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 SRM best res" id="${icao}1678bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 SRM best res" id="${icao}1958bitSRM">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="SRM (All)" id="${icao}8bitSRMAll">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="154" />
+			<substitute key="product2" value="99" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="mode" value="SRM8" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="${icao} SW"
+		id="${icao}BestResSpecWidth">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 SW best res" id="${icao}00BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 SW best res" id="${icao}05BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 SW best res" id="${icao}09BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 SW best res" id="${icao}15BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 SW best res" id="${icao}18BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 SW best res" id="${icao}24BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 SW best res" id="${icao}34BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 SW best res" id="${icao}43BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 SW best res" id="${icao}53BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 SW best res" id="${icao}60BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 SW best res" id="${icao}75BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 SW best res" id="${icao}87BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 SW best res" id="${icao}100BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 SW best res" id="${icao}120BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 SW best res" id="${icao}140BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 SW best res" id="${icao}167BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 SW best res" id="${icao}1555BestResSpecWidth">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="SW (All)" id="${icao}BestResSpecWidthAll">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="155" />
+			<substitute key="product2" value="28" />
+			<substitute key="product3" value="29" />
+			<substitute key="product4" value="30" />
+			<substitute key="mode" value="" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="${icao} ZDR"
+		id="${icao}SubMenuBestResZDR">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 ZDR best res" id="${icao}004-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 ZDR best res" id="${icao}054-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 ZDR best res" id="${icao}094-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 ZDR best res" id="${icao}154-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 ZDR best res" id="${icao}184-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 ZDR best res" id="${icao}244-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 ZDR best res" id="${icao}344-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 ZDR best res" id="${icao}434-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 ZDR best res" id="${icao}534-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 ZDR best res" id="${icao}604-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 ZDR best res" id="${icao}754-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 ZDR best res" id="${icao}874-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 ZDR best res" id="${icao}1004-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 ZDR best res" id="${icao}1204-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 ZDR best res" id="${icao}1404-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 ZDR best res" id="${icao}1674-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 ZDR best res" id="${icao}1954-bitDiffRefl (ZDR)">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="ZDR (All)" id="${icao}4bitDiffRefl (ZDR)All">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="159" />
+			<substitute key="product2" value="158" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="${icao} CC"
+		id="${icao}SubMenuBestResCC">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 CC best res" id="${icao}00CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 CC best res" id="${icao}05CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 CC best res" id="${icao}09CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 CC best res" id="${icao}15CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 CC best res" id="${icao}18CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 CC best res" id="${icao}24CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 CC best res" id="${icao}34CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 CC best res" id="${icao}43CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 CC best res" id="${icao}53CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 CC best res" id="${icao}60CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 CC best res" id="${icao}75CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 CC best res" id="${icao}87CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 CC best res" id="${icao}100CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 CC best res" id="${icao}120CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 CC best res" id="${icao}140CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 CC best res" id="${icao}167CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 CC best res" id="${icao}195CorrCoeff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="CC (All)" id="${icao}CorrCoeffAll">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="161" />
+			<substitute key="product2" value="160" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="${icao} KDP"
+		id="${icao}SubMenuBestResKDP">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.0 KDP best res" id="${icao}00SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.5 KDP best res" id="${icao}05SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.5--0.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="0.9 KDP best res" id="${icao}09SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.9--0.9" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.5 KDP best res" id="${icao}15SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="1.8 KDP best res" id="${icao}18SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="2.4 KDP best res" id="${icao}24SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="3.4 KDP best res" id="${icao}34SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="4.3 KDP best res" id="${icao}43SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="5.3 KDP best res" id="${icao}53SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="6.0 KDP best res" id="${icao}60SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="7.5 KDP best res" id="${icao}75SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="8.7 KDP best res" id="${icao}87SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="10.0 KDP best res" id="${icao}100SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="12.0 KDP best res" id="${icao}120SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="14.0 KDP best res" id="${icao}140SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="16.7 KDP best res" id="${icao}167SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="19.5 KDP best res" id="${icao}1635SpecDiff">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+			menuText="KDP (All)" id="${icao}SpecDiffAll">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+			<substitute key="product1" value="163" />
+			<substitute key="product2" value="162" />
+			<substitute key="product3" value="" />
+			<substitute key="product4" value="" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+	</contribute>
+</menuTemplate>

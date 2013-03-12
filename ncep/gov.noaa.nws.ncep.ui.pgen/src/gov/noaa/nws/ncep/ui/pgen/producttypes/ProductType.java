@@ -51,7 +51,10 @@ import javax.xml.bind.annotation.XmlType;
     "pgenLayer",
     "pgenSave",
     "prodType",
-    "pgenSettingsFile"
+    "pgenSettingsFile",
+    "clipFlag",
+    "clipBoundsTable",
+    "clipBoundsName"   
 })
 @XmlRootElement(name = "ProductType")
 public class ProductType {
@@ -70,6 +73,12 @@ public class ProductType {
     protected List<ProdType> prodType;
     @XmlElement(name = "PgenSettingsFile", required = true)
     protected String pgenSettingsFile;
+    @XmlElement(name = "ClipFlag")
+    protected Boolean clipFlag;   
+    @XmlElement(name = "ClipBoundsTable")
+    protected String clipBoundsTable;
+    @XmlElement(name = "ClipBoundsName")
+    protected String clipBoundsName;   
     @XmlAttribute(name = "Subtype")
     protected String subtype;
     @XmlAttribute(name = "Type")
@@ -331,4 +340,46 @@ public class ProductType {
     public void setSubtype(String value) {
         this.subtype = value;
     }
+
+	/**
+	 * @return the clipFlag
+	 */
+	public Boolean getClipFlag() {
+		return clipFlag;
+	}
+
+	/**
+	 * @param clipFlag the clipFlag to set
+	 */
+	public void setClipFlag(Boolean clipFlag) {
+		this.clipFlag = clipFlag;
+	}
+
+	/**
+	 * @return the clipBounds
+	 */
+	public String getClipBoundsTable() {
+		return clipBoundsTable;
+	}
+
+	/**
+	 * @param clipBounds the clipBounds to set
+	 */
+	public void setClipBoundsTable(String table ) {
+		this.clipBoundsTable = table;
+	}
+
+	/**
+	 * @return the clipBoundsName
+	 */
+	public String getClipBoundsName() {
+		return clipBoundsName;
+	}
+
+	/**
+	 * @param clipBoundsName the clipBoundsName to set
+	 */
+	public void setClipBoundsName(String clipBoundsName) {
+		this.clipBoundsName = clipBoundsName;
+	}
 }

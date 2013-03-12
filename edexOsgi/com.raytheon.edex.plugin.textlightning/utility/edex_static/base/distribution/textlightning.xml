@@ -21,4 +21,5 @@
 <requestPatterns xmlns:ns2="group">
     <regex>AWIPS_*</regex>
     <regex>FAA_*</regex>
+    <regex>WWLLN_*</regex>
 </requestPatterns>
