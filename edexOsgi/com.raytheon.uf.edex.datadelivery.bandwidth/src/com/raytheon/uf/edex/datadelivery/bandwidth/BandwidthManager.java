@@ -111,7 +111,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @author dhladky
  * @version 1.0
  */
-abstract class BandwidthManager extends
+public abstract class BandwidthManager extends
         AbstractPrivilegedRequestHandler<IBandwidthRequest> implements
         IBandwidthManager {
 
