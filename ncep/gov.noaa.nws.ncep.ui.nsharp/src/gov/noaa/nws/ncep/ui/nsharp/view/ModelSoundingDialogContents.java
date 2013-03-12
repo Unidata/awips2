@@ -39,6 +39,7 @@ import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,8 +85,9 @@ public class ModelSoundingDialogContents {
 	private final String GOOD_LATLON_STR = " A good input looked like this:\n 38.95;-77.45 or 38.95,-77.45";
 	private final String GOOD_STN_STR = " A good input looked like this:\n GAI or gai";
 	String gribDecoderName = "grid";//NcSoundingQuery.NCGRIB_PLUGIN_NAME;
-	private String selectedModel=null;	
+	private String selectedModel="";	
 	//private DBType currentDb = DBType.NCGRIB;
+	private static final String SND_TIMELINE_NOT_AVAIL_STRING = "No Sounding Time for Nsharp";
 	
 	public enum LocationType {
 		LATLON, STATION
@@ -131,10 +133,10 @@ public class ModelSoundingDialogContents {
 		ldDia.startWaitCursor();
     	ArrayList<String> queryRsltsList1 = 
     		NsharpGridInventory.getInstance().searchInventory( 
-    			rcMap, "dataTime.refTime" ); 
+    			rcMap, "dataTime");//.refTime" ); 
     	/*
-    	 * Chin Note: with this query, the returned string has this format, "ncgrib/ruc13/2012-01-17_16:00:00.0"
-    	 * We will have to strip off "ncgrib/ruc13/" and ":00:00.0", also replace "_" with space, to get 
+    	 * Chin Note: with this query, the returned string has this format, "grid/ruc13/2012-01-17_16:00:00.0(6)xxxxx"
+    	 * We will have to strip off "ncgrib/ruc13/" and ":00:00.0(6)xxxxx", also replace "_" with space, to get 
     	 * grid file name like this "2012-01-17 16".
     	 */
     	char fileSep =  File.pathSeparatorChar;
@@ -149,6 +151,9 @@ public class ModelSoundingDialogContents {
 				String refTime = queryRslt.substring(0, queryRslt.indexOf('_'));
 				refTime = refTime + " "+ queryRslt.substring(queryRslt.indexOf('_')+1,queryRslt.indexOf(':'));
 				//System.out.println("ret for disp="+refTime );
+				//Chin: a same refTime may be returned more than once. 
+				int index = availableFileList.indexOf(refTime);
+				if(index  == -1) // index = -1 means it is not in the list
 				availableFileList.add(refTime);
 			}
 		}
@@ -210,7 +215,7 @@ public class ModelSoundingDialogContents {
 						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,modelName);
 						//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
 						if(sndTimeList.indexOf(gmtTimeStr) != -1){
-							// this indicate that gmtTimeStr is laready in the sndTimeList, then we dont need to add it to list again.
+						// this indicate that gmtTimeStr is already in the sndTimeList, then we dont need to add it to list again.
 							continue;
 						}
 						
@@ -226,9 +231,11 @@ public class ModelSoundingDialogContents {
 								timeLineToFileMap.put(gmtTimeStr, fl);
 							}
 						}
-					
 				}
 			}
+    	}
+    	if(sndTimeList!=null && sndTimeList.getItemCount()<=0){
+    		sndTimeList.add(SND_TIMELINE_NOT_AVAIL_STRING);
     	}
     	ldDia.stopWaitCursor();
 	}
@@ -315,25 +322,6 @@ public class ModelSoundingDialogContents {
 		skewRsc.setSoundingType(selectedModel);
 		NsharpEditor.bringEditorToTop();
     }
-    /*
-    private void createModelTypeListOld(){
-    	if(modelTypeList!=null)
-    		modelTypeList.removeAll();
-    	if(sndTimeList!=null)
-    		sndTimeList.removeAll();
-    	if(availableFileList!=null)
-    		availableFileList.removeAll();
-    	ldDia.startWaitCursor();
-    	NcSoundingModel mdlNames = NcSoundingQuery.soundingModelNameQuery(gribDecoderName);
-		//System.out.println("return from NcSoundingQuery ");
-		if(mdlNames != null)
-			for(String MdlStr: mdlNames.getMdlList()){
-			//System.out.println("model name:"+MdlStr);
-				modelTypeList.add(MdlStr);
-			}
-		ldDia.stopWaitCursor();
-    }*/
-    
     private void createModelTypeList(){
     	if(modelTypeList!=null)
     		modelTypeList.removeAll();
@@ -375,12 +363,35 @@ public class ModelSoundingDialogContents {
 		ldDia.stopWaitCursor();
 		
     }
+    private void handleAvailFileListSelection(){
+    	String selectedFile=null;	
+    	if (availableFileList.getSelectionCount() > 0 ) {
+			selectedFileList.clear();
+			for(int i=0; i < availableFileList.getSelectionCount(); i++) {
+				selectedFile = availableFileList.getSelection()[i];
+				//System.out.println("selected sounding file is " + selectedFile);
+				selectedFileList.add(selectedFile);
+			}	
+			createMDLSndTimeList(selectedFileList);
+		}
+    }
+    private void handleSndTimeSelection(){
+    	String selectedSndTime=null;
+    	if (sndTimeList.getSelectionCount() > 0 && sndTimeList.getSelection()[0].equals(SND_TIMELINE_NOT_AVAIL_STRING)== false) {
      
+			selectedTimeList.clear();
+			for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
+				selectedSndTime = sndTimeList.getSelection()[i];
+				//System.out.println("selected sounding time is " + selectedSndTime);
+				selectedTimeList.add(selectedSndTime);
+			}
+			NsharpMapResource.bringMapEditorToTop();
+		}
+    }
 	public void createMdlDialogContents(){
-		selectedFileList.clear();
 		topGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		topGp.setLayout( new GridLayout( 2, false ) );
-		
+		selectedModel = ldDia.getActiveMdlSndMdlType();
 		ldDia.createSndTypeList(topGp);
 		
 		modelTypeGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
@@ -391,74 +402,19 @@ public class ModelSoundingDialogContents {
 		//query to get and add available sounding models from DB
 		modelTypeList.setFont(newFont);
 		createModelTypeList();
-		/*
-		Object[] mdlNames = NcSoundingQuery.soundingModelNameQuery(gribDecoderName);
-		//System.out.println("return from NcSoundingQuery ");
-		if(mdlNames != null)
-			for(Object MdlStr: mdlNames){
-			//System.out.println("model name:"+MdlStr);
-				modelTypeList.add((String)MdlStr);
-			}*/
+		
 		//create a selection listener to handle user's selection on list		
 		modelTypeList.addListener ( SWT.Selection, new Listener () {
 			public void handleEvent (Event e) {   			
 				if (modelTypeList.getSelectionCount() > 0 ) {
 					selectedModel = modelTypeList.getSelection()[0];
+					ldDia.setActiveMdlSndMdlType(selectedModel);
 					//System.out.println("selected sounding model is " + selectedModel);
 					createMDLAvailableFileList();
 				}
 			}
 		} );
-		/*Group gribGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
-		gribGp.setText("Database");
-		gribGp.setFont(newFont);
-		gribGp.setLayout( new GridLayout( 2, false ) );
-		Button ncgribBtn = new Button(gribGp, SWT.RADIO | SWT.BORDER);
-		ncgribBtn.setText("NCGrib");
-		ncgribBtn.setEnabled( true );
-		if(currentDb == DBType.NCGRIB)
-			ncgribBtn.setSelection(true);
-		ncgribBtn.setFont(newFont);
-		ncgribBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME;
-				//query to get and add available sounding models from DB
-				currentDb = DBType.NCGRIB;
-				createModelTypeList();
-			}          		            	 	
-		} );  
-		Button gribBtn = new Button(gribGp, SWT.RADIO | SWT.BORDER);
-		gribBtn.setText("Grib");
-		gribBtn.setFont(newFont);
-		gribBtn.setEnabled( true );
-		if(currentDb == DBType.GRIB)
-			gribBtn.setSelection(true);
-		gribBtn.setBounds(modelTypeGp.getBounds().x+ NsharpConstants.btnGapX, ncgribBtn.getBounds().y + ncgribBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		gribBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				gribDecoderName = NcSoundingQuery.GRIB_PLUGIN_NAME;
-				//query to get and add available sounding models from DB
-				currentDb = DBType.GRIB;
-				createModelTypeList();
 				
-			}          		            	 	
-		} );  */
-		/*
-		Button ncgribTestBtn = new Button(gribGp, SWT.RADIO | SWT.BORDER);
-		ncgribTestBtn.setText("NCGribTest");
-		ncgribTestBtn.setEnabled( true );
-		ncgribTestBtn.setSelection(false);
-		ncgribTestBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME;
-				//query to get and add available sounding models from DB
-				createModelTypeListOld();
-			}          		            	 	
-		} );  */
-				
-		
-		//bottomGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
-		//bottomGp.setLayout( new GridLayout( 2, false ) );
 		
 		availableFileGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
 		availableFileGp.setText("Available Grid files:");
@@ -468,18 +424,8 @@ public class ModelSoundingDialogContents {
 		availableFileList.setFont(newFont);
 		//create a selection listener to handle user's selection on list		
 		availableFileList.addListener ( SWT.Selection, new Listener () {
-			private String selectedFile=null;	
-
 			public void handleEvent (Event e) {   			
-				if (availableFileList.getSelectionCount() > 0 ) {
-					selectedFileList.clear();
-					for(int i=0; i < availableFileList.getSelectionCount(); i++) {
-						selectedFile = availableFileList.getSelection()[i];
-						//System.out.println("selected sounding file is " + selectedFile);
-						selectedFileList.add(selectedFile);
-					}	
-					createMDLSndTimeList(selectedFileList);
-				}
+				handleAvailFileListSelection();
 			}
 		} );
 		
@@ -492,26 +438,14 @@ public class ModelSoundingDialogContents {
 		sndTimeList.setFont(newFont);
 		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight *32/5);
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
-			private String selectedSndTime=null;
     		public void handleEvent (Event e) {   			
-    			if (sndTimeList.getSelectionCount() > 0 ) {
-    				
-    				selectedTimeList.clear();
-    				for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
-    					selectedSndTime = sndTimeList.getSelection()[i];
-    					//System.out.println("selected sounding time is " + selectedSndTime);
-    					selectedTimeList.add(selectedSndTime);
-    				}
-    				NsharpMapResource.bringMapEditorToTop();
-    			}
+				handleSndTimeSelection();
     		}
     	});
 		timeBtn = new Button(topGp, SWT.CHECK | SWT.BORDER);
 		timeBtn.setText("00Z and 12Z only");
 		timeBtn.setEnabled( true );
 		timeBtn.setFont(newFont);
-		//timeBtn.setBounds(modelTypeGp.getBounds().x+ NsharpConstants.btnGapX, modelTypeGp.getBounds().y + modelTypeGp.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
 		timeBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
 				if(timeLimit)
@@ -534,7 +468,6 @@ public class ModelSoundingDialogContents {
 		latlonBtn.setText("Lat/Lon");
 		latlonBtn.setFont(newFont);
 		latlonBtn.setEnabled(true);
-		//latlonBtn.setBounds(locationMainGp.getBounds().x+ NsharpConstants.btnGapX, locationMainGp.getBounds().y + NsharpConstants.labelGap, 10, NsharpConstants.btnHeight);
 		latlonBtn.setSelection(true);
 		latlonBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
@@ -660,21 +593,25 @@ public class ModelSoundingDialogContents {
 				}
 			}          		            	 	
 		} );  
-		/*newTabBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
-		newTabBtn.setText("new skewT editor");
-		newTabBtn.setEnabled( true );
-		//newTabBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		newTabBtn.setFont(newFont);
-		newTabBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {    
-				if(newTabBtn.getSelection())
-					newtab = true;
-				else
-					newtab = false;
+		
+		if(selectedModel != null && selectedModel.equals("")== false){
+			String[] selectedModelArray = {selectedModel};
+			modelTypeList.setSelection(selectedModelArray);
+			createMDLAvailableFileList();
+			selectedFileList = ldDia.getMdlSelectedFileList();
+			Object[] selFileObjectArray = selectedFileList.toArray();
+			String[] selFileStringArray = Arrays.copyOf(selFileObjectArray, selFileObjectArray.length, String[].class);
+			availableFileList.setSelection(selFileStringArray);
+			handleAvailFileListSelection();
+			
+			selectedTimeList = ldDia.getMdlSelectedTimeList();
+			Object[] selTimeObjectArray = selectedTimeList.toArray();
+			String[] selTimeStringArray = Arrays.copyOf(selTimeObjectArray, selTimeObjectArray.length, String[].class);
+			sndTimeList.setSelection(selTimeStringArray);
+			handleSndTimeSelection();
+			
 				
 			}          		            	 	
-		} );  
-		 */
 	}
 	
 	public void cleanup(){

@@ -37,7 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 19, 2009            askripsk     Initial creation
- * 
+ * 03/04/2013   DCS51      zwang        Handle product GFM
  * </pre>
  * 
  * @author askripsk
@@ -223,7 +223,7 @@ public class AreaComponent extends GenericDataComponent {
 
         @Override
         public String toString() {
-            return "Point 1: " + coordinate1 + " Point 2: " + coordinate2;
+            return "Coord 1: " + coordinate1 + " Coord 2: " + coordinate2;
         }
     }
 
@@ -238,23 +238,22 @@ public class AreaComponent extends GenericDataComponent {
 
     @Override
     public void parseData(DataInputStream in) throws IOException {
-        this.setParameters(GenericUtil.parseParameters(in));
+    	this.setParameters(GenericUtil.parseParameters(in));
 
-        GenericUtil.handlePointer(in);
-
-        // Set the format of the component
-        this.setFormat(AreaPointFormat.valueOf(in.readByte()));
-
-        // Skip the two bytes between the type and format, since the encoding
-        // is: 0x?00?
-        in.readShort();
-
+        // Set the format of the component (0x?000?)
+        this.setFormat(AreaPointFormat.valueOf(in.readShort()));
+        
         // Read in the byte that determines the type
-        this.setType(AreaPointType.valueOf(in.readByte()));
-
+        this.setType(AreaPointType.valueOf(in.readShort()));
+        
         // Get the number of points in the component
         int pointCount = in.readInt();
-
+        
+        if (pointCount != 0) {
+            // redundant
+            pointCount = in.readInt();
+        }
+        
         AreaPoint currPoint;
         for (int i = 0; i < pointCount; i++) {
             currPoint = new AreaPoint();
@@ -262,7 +261,7 @@ public class AreaComponent extends GenericDataComponent {
             currPoint.parseData(in);
 
             points.add(currPoint);
-        }
+        }        
     }
 
     /**
