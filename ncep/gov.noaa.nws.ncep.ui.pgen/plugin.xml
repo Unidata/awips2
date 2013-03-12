@@ -284,6 +284,17 @@
                   id="layerIndex"
                   name="layerIndex"/>
       </command>
+      <command 
+            id="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
+            name="Copy/Paste across layers">
+            <commandParameter 
+                  id="action"
+                  name="action"/>
+      </command>
+      <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool" 
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenClip" 
+          name="Pgen Clip"> 
+      </command>
    </extension>
 
    <extension
@@ -507,6 +518,14 @@
 	   <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenSpenesDrawingTool"
             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSpenesTool">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenClippingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenClip">
        </handler>
    </extension>
 
@@ -752,6 +771,11 @@
              label="Inc/Dec"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenIncDec"
              icon="icons/inc_dec.gif" />  
+         <action
+             name="Clip"
+             label="Clip"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenClip"
+             icon="icons/clip.gif" />  
 
          <class
              name="Front"
@@ -911,6 +935,12 @@
              className="Front"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
              icon="icons/squall.gif" />  
+         <object
+             name="SHEAR_LINE"
+             label="Shear Line"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline10.gif" />         
          <object
              name="PRESENT_WX_061|PRESENT_WX_051"
              label="Rain/Drizzle"
@@ -3214,6 +3244,35 @@
                 sequence="M1+M2+0">
                 <parameter  id="layerIndex" value="20" />
          </key> 
+         <!-- Hot keys to cut, copy paste PGEN elements -->
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+X">
+                <parameter  id="action" value="CUT" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+C">
+                <parameter  id="action" value="COPY" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+V">
+                <parameter  id="action" value="PASTE" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+A">
+                <parameter  id="action" value="SELECTALL" />
+         </key>         
 
    </extension>
 
