@@ -33,6 +33,18 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
  * The activator class controls the plug-in life cycle
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ *                               chammack    Initial Creation.
+ * Mar 5, 2013     1753   njensen   Added printout to stop()
+ * 
+ * </pre>
+ * 
+ * @author chammack
+ * @version 1
  */
 public class Activator extends AbstractUIPlugin {
 
@@ -79,6 +91,7 @@ public class Activator extends AbstractUIPlugin {
      * )
      */
     public void stop(BundleContext context) throws Exception {
+        System.out.println("Stopping " + PLUGIN_ID + " plugin");
         plugin = null;
         super.stop(context);
         for (IDisposable dispose : disposables) {
