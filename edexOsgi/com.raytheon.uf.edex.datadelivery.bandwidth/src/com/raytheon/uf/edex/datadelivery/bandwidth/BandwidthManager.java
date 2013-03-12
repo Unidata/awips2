@@ -51,6 +51,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.IFileModifiedWatcher;
 import com.raytheon.uf.common.util.LogUtil;
 import com.raytheon.uf.common.util.algorithm.AlgorithmUtil;
 import com.raytheon.uf.common.util.algorithm.AlgorithmUtil.IBinarySearchResponse;
@@ -103,6 +105,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 14, 2013 1596       djohnson     Do not reschedule allocations when a subscription is removed.
  * Feb 20, 2013 1543       djohnson     Add try/catch blocks during the shutdown process.
  * Feb 27, 2013 1644       djohnson     Force sub-classes to provide an implementation for how to schedule SBN routed subscriptions.
+ * Mar 11, 2013 1645       djohnson     Watch configuration file for changes.
  * </pre>
  * 
  * @author dhladky
@@ -133,6 +136,20 @@ abstract class BandwidthManager extends
     @VisibleForTesting
     final RetrievalManager retrievalManager;
 
+    @VisibleForTesting
+    final Runnable watchForConfigFileChanges = new Runnable() {
+
+       private final IFileModifiedWatcher fileModifiedWatcher = FileUtil.getFileModifiedWatcher(EdexBandwidthContextFactory
+               .getBandwidthMapConfig());
+
+       @Override
+       public void run() {
+           if (fileModifiedWatcher.hasBeenModified()) {
+               bandwidthMapConfigurationUpdated();
+           }
+       }
+   };
+
     public BandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
@@ -144,8 +161,10 @@ abstract class BandwidthManager extends
         EventBus.register(this);
         BandwidthEventBus.register(this);
 
-        // Start a MaintenanceTask
+        // schedule maintenance tasks
         scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(watchForConfigFileChanges,
+                1, 1, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(new MaintanenceTask(), 1, 5,
                 TimeUnit.MINUTES);
     }
@@ -1445,7 +1464,6 @@ abstract class BandwidthManager extends
 
         @Override
         public void run() {
-
             for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
                     .values()) {
                 plan.resize();
@@ -1670,6 +1688,22 @@ abstract class BandwidthManager extends
                             "Serialization error while determining required latency.  Returning true in order to be fault tolerant.",
                             e);
             return true;
+        }
+    }
+
+    /**
+     * Signals the bandwidth map localization file is updated, perform a
+     * reinitialize operation.
+     */
+    private void bandwidthMapConfigurationUpdated() {
+        IBandwidthRequest request = new IBandwidthRequest();
+        request.setRequestType(RequestType.REINITIALIZE);
+
+        try {
+            handleRequest(request);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error while reinitializing the bandwidth manager.", e);
         }
     }
 }
