@@ -114,7 +114,7 @@ fi
 
 _QPID_VERSION="0.7"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
-POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgresql/scripts/init.d/edex_postgres"
+POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
 QPID_INITD="${RPM_PROJECT}/awips2.qpid/${_QPID_VERSION}/SOURCES/qpidd"
 QUEUE_SH="${RPM_PROJECT}/awips2.qpid/${_QPID_VERSION}/SOURCES/queueCreator.sh"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex-base/scripts/init.d/edex_camel"
