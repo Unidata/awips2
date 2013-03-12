@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.util.velocity.VelocityManager;
+import com.raytheon.uf.common.velocity.VelocityManager;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
