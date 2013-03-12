@@ -22,13 +22,10 @@ package com.raytheon.uf.common.util;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import junit.framework.Assert;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.raytheon.uf.common.util.GridUtil;
 
 /**
  * TODO Add Description

@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.util;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,22 +67,15 @@ public class PropertiesUtilTest {
 
     @Test
     public void testCanReadPropertiesFile() throws IOException {
-        File fileToRead = File.createTempFile(
-                PropertiesUtilTest.class.getSimpleName(), null);
+        final File testDir = TestUtil.setupTestClassDir(CLASS);
+        final File fileToRead = new File(testDir, "propertiesFile.properties");
 
-        InputStream is = null;
-        try {
-            is = CLASS.getResourceAsStream(CLASS.getSimpleName()
-                    + ".properties");
-
-            FileUtil.write(is, fileToRead);
-
-            assertTrue("The file to read should exist!", fileToRead.isFile());
-        } finally {
-            PropertiesUtil.close(is);
-        }
+        FileUtil.bytes2File(
+                TestUtil.readResource(CLASS, CLASS.getSimpleName()
+                        + ".properties"), fileToRead);
 
         Properties properties = PropertiesUtil.read(fileToRead);
+
         assertFalse("The properties should not be empty after reading a file!",
                 properties.isEmpty());
     }
