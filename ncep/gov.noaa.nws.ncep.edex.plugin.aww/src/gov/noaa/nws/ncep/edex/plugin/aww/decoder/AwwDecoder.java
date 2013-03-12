@@ -132,7 +132,7 @@ public class AwwDecoder extends AbstractDecoder {
         
         boolean isWtchFlag = AwwDecoder.isWtch(record);//Ticket 456
         
-        boolean isSevereWeatherStatusFlag = AwwDecoder.isSevereWeatherStatus(record); 
+//        boolean isSevereWeatherStatusFlag = AwwDecoder.isSevereWeatherStatus(record); 
         
         // Get report type
         String reportType = AwwParser.getReportType(theBulletin);
@@ -213,7 +213,7 @@ public class AwwDecoder extends AbstractDecoder {
                         /*
                          * construct VTEC object and then add it to the current Ugc for SevereWeatherStatus aww reocrd
                          */
-                        if(isSevereWeatherStatusFlag && AwwParser.isSegmentTextValid(segment)) {
+                        if( AwwParser.isSegmentTextValid(segment)) {
                         	/*
                         	 * parse and then set the Watch Number for Status Report
                         	 */
@@ -239,6 +239,7 @@ public class AwwDecoder extends AbstractDecoder {
                         }
 
                     }
+
                 }
 
             } catch (Exception e) {
@@ -250,6 +251,10 @@ public class AwwDecoder extends AbstractDecoder {
          * Check the AWW record object. If not, throws exception.
          */
         if (record != null) {
+        	//T976 - check if the record has a valid UGC. If not return an empty PluginDataObject array 
+        	if ( record.getAwwUGC() == null || record.getAwwUGC().size() == 0 )
+        		return new PluginDataObject[0];
+        	
             record.setReportType(reportType.trim().replace(' ', '_'));
             record.setTraceId(traceId);
             record.setPluginName(pluginName);
@@ -300,14 +305,13 @@ public class AwwDecoder extends AbstractDecoder {
     public static boolean isWtch(AwwRecord ar){
     	if(ar == null) 
     		return false;
-    	
-    	return "WWUS30".equalsIgnoreCase(ar.getWmoHeader());
+    	  	return ("WWUS30".equalsIgnoreCase(ar.getWmoHeader()));
     }
     
-    public static boolean isSevereWeatherStatus(AwwRecord awwReocrd) {
-    	boolean isSevereWeatherStatus = false; 
-    	if("WOUS20".equalsIgnoreCase(awwReocrd.getWmoHeader()))
-    		isSevereWeatherStatus = true; 
-    	return isSevereWeatherStatus; 
-    }
+//    public static boolean isSevereWeatherStatus(AwwRecord awwReocrd) {
+//    	boolean isSevereWeatherStatus = false; 
+//    	if("WOUS20".equalsIgnoreCase(awwReocrd.getWmoHeader()))
+//    		isSevereWeatherStatus = true; 
+//    	return isSevereWeatherStatus; 
+//    }
 }

@@ -37,10 +37,10 @@ public class NsharpGraphProperty implements ISerializableObject{
 	private boolean dewp=true;
 	
 	@XmlAttribute
-	private boolean parcel=true;
+	private boolean parcelTv=true;
 	
 	@XmlAttribute
-	private boolean parcelAscent=true;
+	private boolean parcel=true;
 	
 	@XmlAttribute
 	private boolean dcape=true;
@@ -121,21 +121,21 @@ public class NsharpGraphProperty implements ISerializableObject{
 		this.dewp = dewp;
 	}
 
+
+	public boolean isParcelTv() {
+		return parcelTv;
+	}
+
+	public void setParcelTv(boolean parcelTv) {
+		this.parcelTv = parcelTv;
+	}
+	
 	public boolean isParcel() {
 		return parcel;
 	}
 
 	public void setParcel(boolean parcel) {
 		this.parcel = parcel;
-	}
-
-	
-	public boolean isParcelAscent() {
-		return parcelAscent;
-	}
-
-	public void setParcelAscent(boolean parcelAscent) {
-		this.parcelAscent = parcelAscent;
 	}
 
 	public boolean isDcape() {
