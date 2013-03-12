@@ -1,7 +1,5 @@
 \connect ncep
 
-CREATE PROCEDURAL LANGUAGE plpgsql;
-
 -- create bounds schema
 DROP SCHEMA IF EXISTS bounds CASCADE;
 CREATE SCHEMA bounds AUTHORIZATION awips;
