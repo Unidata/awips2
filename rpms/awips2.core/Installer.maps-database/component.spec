@@ -9,6 +9,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -82,15 +83,6 @@ if [ ! -f /awips2/data/postgresql.conf ]; then
    exit 1
 fi
 
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing The AWIPS Maps Database Distribution...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = /awips2/database\e[m"
-
 %post
 if [ "${1}" = "2" ]; then
    exit 0
@@ -130,26 +122,16 @@ RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${POSTMASTER} -D /awips2/data > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
-      echo ""
-      echo "--------------------------------------------------------------------------------"
-      echo "\| Error - failed to start the PostgreSQL Server."
-      echo "--------------------------------------------------------------------------------"
       printFailureMessage
    fi
    # Give PostgreSQL Time To Start.
    sleep 10
    I_STARTED_POSTGRESQL="YES"
 else
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Found Running PostgreSQL Server..."
-   echo "--------------------------------------------------------------------------------"
    # Show The User.
    su ${DB_OWNER} -c \
       "${PG_CTL} status -D /awips2/data"
@@ -161,78 +143,53 @@ MAPS_DB=`${PSQL} -U awips -l | grep maps | awk '{print $1}'`
 if [ "${MAPS_DB}" = "maps" ]; then
    MAPS_DB_EXISTS="true"
    # We Have a Maps Database, There Is Nothing To Do.
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Maps Database Already Exists..."
-   echo "--------------------------------------------------------------------------------"
 fi
 
 if [ "${MAPS_DB_EXISTS}" = "false" ]; then
    # Create the maps directory; remove any existing directories.
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Creating a Directory for the maps Tablespace..."
-   echo "--------------------------------------------------------------------------------"
    if [ -d /awips2/data/maps ]; then
       su ${DB_OWNER} -c "rm -rf /awips2/data/maps"
    fi
    su ${DB_OWNER} -c "mkdir -p /awips2/data/maps"
 
-   # Update: lwpostgis.sql 
-   echo ${POSTGRESQL_INSTALL} | sed 's/\//\\\//g' > .awips2_escape.tmp
-   POSTGRESQL_INSTALL_ESCAPED=`cat .awips2_escape.tmp`
-   rm -f .awips2_escape.tmp
-   perl -p -i -e "s/%{INSTALL_PATH}%/${POSTGRESQL_INSTALL_ESCAPED}/g" \
-      /awips2/database/sqlScripts/share/lwpostgis.sql
-
    # Update the sql script that creates the maps database / tables.
    perl -p -i -e "s/%{database_files_home}%/\/awips2\/data/g" \
       /awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql
 
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Creating maps Database..."
-   echo "--------------------------------------------------------------------------------"
    # Run the setup sql for the maps database.
    SQL_FILE="/awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql"
    su ${DB_OWNER} -c \
       "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
    RC=$?
    if [ ! "${RC}" -eq 0 ]; then
-      echo ""
-      echo "--------------------------------------------------------------------------------"
-      echo "\| Error - Failed to execute: createMapsDb.sql."
-      echo "--------------------------------------------------------------------------------"
       printFailureMessage
    fi
 
-   SQL_FILE="/awips2/database/sqlScripts/share/lwpostgis.sql"
+   SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.0/postgis.sql"
    su ${DB_OWNER} -c \
       "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
    RC=$?
    if [ ! "${RC}" -eq 0 ]; then
-      echo ""
-      echo "--------------------------------------------------------------------------------"
-      echo "\| Error - Failed to execute: lwpostgis.sql."
-      echo "--------------------------------------------------------------------------------"
       printFailureMessage
    fi
    
-   SQL_FILE="/awips2/database/sqlScripts/share/spatial_ref_sys.sql"
+   SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.0/spatial_ref_sys.sql"
    su ${DB_OWNER} -c \
       "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
    RC=$?
    if [ ! "${RC}" -eq 0 ]; then
-      echo ""
-      echo "--------------------------------------------------------------------------------"
-      echo "\| Error - Failed to execute: spatial_ref_sys.sql."
-      echo "--------------------------------------------------------------------------------"
+      printFailureMessage
+   fi
+   
+   SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.0/rtpostgis.sql"
+   su ${DB_OWNER} -c \
+      "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
+   RC=$?
+   if [ ! "${RC}" -eq 0 ]; then
       printFailureMessage
    fi
 
    # Import the data into the maps database.
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Restoring map data..."
-   echo "--------------------------------------------------------------------------------"
    DB_ARCHIVE="/awips2/database/sqlScripts/share/sql/maps/maps.db"
    su ${DB_OWNER} -c \
       "${PG_RESTORE} -d maps -U awips -p 5432 -n mapdata ${DB_ARCHIVE}" >> ${SQL_LOG} 2>&1
@@ -244,10 +201,6 @@ fi
 
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Stopping PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${PG_CTL} stop -D /awips2/data"
    RC="$?"
@@ -256,10 +209,6 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    fi
    sleep 10
 fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| SUCCESSFUL INSTALLATION ~ awips2-maps-database\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
    
 %preun
 if [ "${1}" = "1" ]; then
@@ -304,9 +253,6 @@ RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${POSTMASTER} -D /awips2/data > /dev/null 2>&1 &"
    RC="$?"
@@ -318,9 +264,6 @@ if [ ! "${RC}" = "0" ]; then
    sleep 10
    I_STARTED_POSTGRESQL="YES"
 else
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Found Running PostgreSQL Server..."
-   echo "--------------------------------------------------------------------------------"
    # Show The User.
    su ${DB_OWNER} -c \
       "${PG_CTL} status -D /awips2/data"
@@ -331,10 +274,6 @@ MAPS_DB=`${PSQL} -U awips -l | grep maps | awk '{print $1}'`
 
 if [ "${MAPS_DB}" = "maps" ]; then
    # drop the maps database
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Dropping the maps Database..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${DROPDB} -U awips maps" >> ${SQL_LOG}
 fi
@@ -345,10 +284,6 @@ MAPS_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep maps | awk '{print $5}'`
 
 if [ ! "${MAPS_DIR}" = "" ]; then
    # drop the maps tablespace
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Dropping the maps Tablespace..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE maps\"" >> ${SQL_LOG}
    
@@ -361,10 +296,6 @@ fi
 
 # stop PostgreSQL if we started it
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Stopping PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${PG_CTL} stop -D /awips2/data"
    sleep 2
@@ -374,10 +305,6 @@ fi
 if [ "${1}" = "1" ]; then
    exit 0
 fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| SUCCESSFUL UNINSTALLATION ~ awips2-maps-database\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
