@@ -99,6 +99,7 @@
 		<exclude>nctaf-ingest.xml</exclude>
 		<exclude>nctext-ingest.xml</exclude>
 		<exclude>ncuair-ingest.xml</exclude>
+        <exclude>ntrans-ingest.xml</exclude>
 		<!-- end of ncep excludes -->
 	 	<!-- exclude DAT -->
 		<exclude>ffmp-ingest.xml</exclude>

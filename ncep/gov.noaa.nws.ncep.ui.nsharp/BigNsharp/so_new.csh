@@ -17,7 +17,8 @@
 
 $RM *.o glibnsharp.so Sndglib/*.o
 
-set myLinkflags = "-L$AWIPS2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
+# CHIN was::set myLinkflags = "-L$AWIPS2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
+set myLinkflags = "-L$AWIPS2/tools/lib -L/usr1/cchen/awips2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
 set myLinktail = "-lg2c -lc $XLIBS -lz -lm"
 
 #

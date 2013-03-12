@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -45,6 +46,7 @@ import org.apache.tools.bzip2.CBZip2OutputStream;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -92,7 +94,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 * 	??	               			??	    	Initial Creation
 * 1-3-2013		DR 15667 	M.Porricelli 	Made EnvironParamsLevelTable.xml
 *                                        	accessible from SITE level
-* 
+* 03/04/2013    DR 14770    D. Friedman     Correct clipped grid coordinates.
 **/
 public class RPGEnvironmentalDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -538,26 +540,24 @@ public class RPGEnvironmentalDataManager {
             GridGeometry2D gridGeom = MapUtil.getGridGeometry(gridCoverage);
             GridEnvelope2D ge = gridGeom.getGridRange2D();
             int maxY = ge.getHigh(1);
-            MathTransform llToGrid;
             MathTransform gridToLL;
+            MathTransform llToCRS;
+            MathTransform crsToGrid;
 
-            llToGrid = TransformFactory.latLonToGrid(gridGeom,
-                    PixelInCell.CELL_CORNER);
+            llToCRS = MapUtil.getTransformFromLatLon(gridGeom.getCoordinateReferenceSystem());
+            crsToGrid = gridGeom.getCRSToGrid2D(PixelOrientation.CENTER);
             gridToLL = TransformFactory.gridToLatLon(gridGeom,
-                    PixelInCell.CELL_CORNER);
+                    PixelInCell.CELL_CENTER);
 
             DirectPosition2D stationLL = new DirectPosition2D(
                     radarStation.getLon(), radarStation.getLat());
-            DirectPosition2D stationIJx = new DirectPosition2D(0, 0);
+            DirectPosition2D stationXY = new DirectPosition2D(0, 0);
 
-            llToGrid.transform(stationLL, stationIJx);
+            llToCRS.transform(stationLL, stationXY);
 
-            long radarI = Math.round(stationIJx.x);
-            long radarJ = maxY - Math.round(stationIJx.y);
             int i1, j1, i2, j2;
+            double delta;
 
-            // TODO: get this from the math transform?...
-            long radInPointsI, radInPointsJ;
             if (gridCoverage instanceof LambertConformalGridCoverage) {
                 LambertConformalGridCoverage lcgc = (LambertConformalGridCoverage) gridCoverage;
                 Unit<?> spacingUnit = Unit.valueOf(lcgc.getSpacingUnit());
@@ -569,11 +569,8 @@ public class RPGEnvironmentalDataManager {
                                     "Grid spacing units (%s) not compatible clip radius units (%s)",
                                     spacingUnit, clipRadUnit));
                 }
-                UnitConverter uc = spacingUnit.getConverterTo(clipRadUnit);
-                radInPointsI = Math.round(configuration.clipRadius.value
-                        / uc.convert(lcgc.getDx()));
-                radInPointsJ = Math.round(configuration.clipRadius.value
-                        / uc.convert(lcgc.getDy()));
+                UnitConverter uc = clipRadUnit.getConverterTo(SI.METER);
+                delta = uc.convert(configuration.clipRadius.value);
 
                 result.tangentPoint = new DirectPosition2D(lcgc.getLov(),
                         lcgc.getLatin1());
@@ -582,10 +579,18 @@ public class RPGEnvironmentalDataManager {
                         "Only Lambert conformal projection is supported");
             }
 
-            i1 = (int) (radarI - radInPointsI);
-            i2 = (int) (radarI + radInPointsI);
-            j1 = (int) (radarJ - radInPointsJ);
-            j2 = (int) (radarJ + radInPointsJ);
+            double cx1 = stationXY.x - delta;
+            double cy1 = stationXY.y - delta;
+            double cx2 = stationXY.x + delta;
+            double cy2 = stationXY.y + delta;
+
+            DirectPosition2D c = new DirectPosition2D();
+            crsToGrid.transform(new DirectPosition2D(cx1, cy1), c);
+            i1 = (int) Math.round(c.x);
+            j1 = maxY - (int) Math.round(c.y);
+            crsToGrid.transform(new DirectPosition2D(cx2, cy2), c);
+            i2 = (int) Math.round(c.x);
+            j2 = maxY - (int) Math.round(c.y);
 
             if (i1 < ge.getLow(0) || i2 > ge.getHigh(0) || j1 < ge.getLow(1)
                     || j2 > ge.getHigh(1)) {
