@@ -3216,8 +3216,10 @@ void main_winds(void)
                 depth = el - agl(i_hght(p_bot, I_PRES));
                 wind_shear(p_bot, i_pres(msl(depth*0.5)), &ix1, &ix2, &ix3, &shr6);
                 }
-
-	ship = sig_hail(mucape, mumixr, lr75, i_temp(500, I_PRES), kt_to_mps(shr6), fzlh, mucinh, 0, 0, 25, mlcape);
+	//Chin: 10/19/2012.
+	// change fzlh to in unit of ft, after confirmed by Rich T.
+	// Fzlh should be in ft AGL when used in sig_hail according to Rich.
+	ship = sig_hail(mucape, mumixr, lr75, i_temp(500, I_PRES), kt_to_mps(shr6), mtof(fzlh), mucinh, 0, 0, 25, mlcape);
 	if (ship < .45) setcolor(8);
 	if (ship >= .45) setcolor(31);
 	if (ship >= .95) setcolor(19);
@@ -3986,7 +3988,7 @@ void main_winds(void)
         txtrow += 5;
 
         /* ----- Hail Model Output ----- */
-        setcolor(5);
+        setcolor(26);//chin setcolor(5);
         set_font(4);
 	strcpy( st, "* * * HAILCAST HAIL MODEL - 4/21/10 * * *" );
         ix1 = (350 - getgtextextent(st))/2;
@@ -3995,12 +3997,12 @@ void main_winds(void)
         txtrow += 15;
 
         set_font(4);
-        setcolor(31);
+        setcolor(26);//chin setcolor(31);
         sprintf(st, "Hailcast1 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[18], ctof(h2[2]), ctof(h2[3]),h2[25]);
         outgtext ( st, txtlin, txtrow );
 
-        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(3);
-        if (h2[24] >= 1.95) setcolor(2);
+        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(26);//chin setcolor(3);
+        if (h2[24] >= 1.95) setcolor(26);//chin setcolor(2);
 
         txtrow += 15;
         sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[19], h2[20],h2[21],h2[22], h2[23]);
@@ -4008,13 +4010,13 @@ void main_winds(void)
 
         txtrow +=20;
         set_font(4);
-        setcolor(31);
+        setcolor(26);//chin setcolor(31);
         if(h2[4] == 0) setcolor(31); 
         sprintf(st, "Hailcast2 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[4], ctof(h2[2]), ctof(h2[3]),h2[17]);
         outgtext ( st, txtlin, txtrow );
 
-        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(3);
-        if (h2[15] >= 1.95) setcolor(2);
+        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(26);//chin setcolor(3);
+        if (h2[15] >= 1.95) setcolor(26);//chin setcolor(2);
 
         if(h2[4] == 0) h2[15] = 0;
         sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[5], h2[6],h2[7],h2[8], h2[9]);
@@ -4024,13 +4026,13 @@ void main_winds(void)
 
 
         txtrow += 15;
-        setcolor(31);
+        setcolor(26);//chin setcolor(31);
         moveto(txtlin, txtrow);
         lineto(txtlin+340, txtrow);
 
 
 
-        setcolor(31);
+        setcolor(26);//chin setcolor(31);
         set_font(6);
         if (h2[4] == 0 && h2[18] == 0) {
         sprintf(st, "No Convecting Members");
@@ -4040,16 +4042,16 @@ void main_winds(void)
         }else{
 /* If convecting members then...........*/
         txtrow +=4;
-        if (h2[24] < 1.00) setcolor(31);
-        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(3);
-        if (h2[24] >= 1.95) setcolor(2);
+        if (h2[24] < 1.00) setcolor(26);//chin setcolor(31);
+        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(26);//chin setcolor(3);
+        if (h2[24] >= 1.95) setcolor(26);//chin setcolor(2);
         sprintf(st, "Hailcast1--->   %.1f", h2[24]);
         ix1 = (350 - getgtextextent(st))/2; 
         outgtext(st, txtlin + ix1 - 85, txtrow);
 
-        if (h2[15] < 1.00) setcolor(31);
-        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(3);
-        if (h2[15] >= 1.95) setcolor(2);
+        if (h2[15] < 1.00) setcolor(26);//chin setcolor(31);
+        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(26);//chin setcolor(3);
+        if (h2[15] >= 1.95) setcolor(26);//chin setcolor(2);
         sprintf(st, "Hailcast2--->   %.1f",h2[15]);
         ix1 = (350 - getgtextextent(st))/2;
         outgtext(st, txtlin + ix1 + 70, txtrow);
@@ -4206,7 +4208,7 @@ void main_winds(void)
         /*  SARS hail size */
         txtrow += 6;
         set_font(4);
-        setcolor(5);
+        setcolor(26);//chin setcolor(5);
         strcpy( st, "* * * SARS HAIL SIZE * * *" );
         ix1 = (350 - getgtextextent(st))/2;
         outgtext(st, txtlin + ix1 - 5, txtrow);
@@ -4214,14 +4216,14 @@ void main_winds(void)
         txtrow += 15;
         set_font(6);
         if (matches2 == 0) {
-                setcolor(31);
+        	setcolor(26);//chin setcolor(31);
                 sprintf(st, "No Matches");
 		ix1 = (350 - getgtextextent(st))/2;	
                 outgtext ( st, txtlin + ix1 - 5, txtrow );
                 }
-        if (matches2 == 1 || avsize <= 1.49) setcolor(31);
-        if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49)) setcolor(3);
-        if (matches2 >= 2 && avsize >= 2.06) setcolor(2);
+        if (matches2 == 1 || avsize <= 1.49) setcolor(26);//chin setcolor(31);
+        if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49)) setcolor(26);//chin setcolor(3);
+        if (matches2 >= 2 && avsize >= 2.06) setcolor(26);//chin setcolor(2);
 	if (matches2 >= 1) {
 		set_font(6);	
 		if (avsize <= 1.49) {
@@ -4278,13 +4280,13 @@ void main_winds(void)
 	      }	
 
         txtrow += 18;
-        setcolor(31);
+        setcolor(26);//chin setcolor(31);
         moveto(txtlin, txtrow);
         lineto(txtlin+340, txtrow);
 	if (matches2 > 0) {
         	txtrow += 7;
         	set_font(4);
-        	setcolor(31);
+        	setcolor(26);//chin setcolor(31);
         	strcpy( st, "SARS output ranges for reported sizes (white)");
         	ix1 = (350 - getgtextextent(st))/2;
         	outgtext(st, txtlin + ix1 - 5, txtrow);
@@ -4311,7 +4313,7 @@ void main_winds(void)
 */		
 		/* SARS for reported < 1" hail */
                 if (avsize <= 1.49) {
-			setcolor(31);
+                	setcolor(26);//chin setcolor(31);
 			set_font(6);
 			strcpy(st, "<1");
                		outgtext(st, txtlin + 60, txtrow);
@@ -4330,12 +4332,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-			setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 56, txtrow - 5, txtlin + 91, txtrow + 60);
 			}
                 /* SARS for reported 1-1.5" hail */
                 if ((avsize > 1.49) && (avsize <= 1.68)) {
-                        setcolor(31);
+                	setcolor(26);//chin setcolor(31);
                         set_font(4); 
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow);
@@ -4355,12 +4357,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 91, txtrow - 5, txtlin + 126, txtrow + 60); 
                         }
                 /* SARS for reported 1.75" hail */
                 if ((avsize > 1.68) && (avsize <= 2.06)) {
-                        setcolor(31);
+                	setcolor(26);//chin setcolor(31);
                         set_font(4); 
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow);
@@ -4380,12 +4382,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 126, txtrow - 5, txtlin + 161, txtrow + 60); 
                         }
                 /* SARS for reported 2" hail */
                 if ((avsize > 2.06) && (avsize <= 2.39)) {
-                        setcolor(31);
+                	setcolor(26);//chin setcolor(31);
                         set_font(4); 
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow);
@@ -4405,12 +4407,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 161, txtrow - 5, txtlin + 196, txtrow + 60); 
                         }
                 /* SARS for reported 2.5" hail */
                 if ((avsize > 2.39) && (avsize <= 2.52)) {
-                        setcolor(31);
+                	setcolor(26);//chin setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4430,12 +4432,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 196, txtrow - 5, txtlin + 231, txtrow + 60);
                         }
                 /* SARS for reported 2.75" hail */
 		if ((avsize > 2.52) && (avsize <= 2.56)) {
-                        setcolor(31);
+			setcolor(26);//chin setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4455,12 +4457,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 231, txtrow - 5, txtlin + 266, txtrow + 60);
                         }
                 /* SARS for reported 3-4" hail */
                 if ((avsize > 2.56) && (avsize <= 2.64)) {
-                        setcolor(31);
+                	setcolor(26);//chin setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4480,12 +4482,12 @@ void main_winds(void)
 			set_font(4);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 266, txtrow - 5, txtlin + 301, txtrow + 60);
                         }
                 /* SARS for reported >4" hail */
                 if (avsize > 2.64) {
-                        setcolor(31);
+                	setcolor(26);//chin setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4504,16 +4506,16 @@ void main_winds(void)
 			set_font(6);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(27);
+                        setcolor(26);//chin setcolor(27);
                         rectangle(0, txtlin + 301, txtrow - 5, txtlin + 336, txtrow + 60);
                         }
 
 		txtrow += 15;
-		setcolor(31);
+		setcolor(26);//chin setcolor(31);
 		set_font(4);
 		strcpy(st, "+1 STD");
         	outgtext(st, txtlin, txtrow);
-		setcolor(27);
+        	setcolor(26);//chin setcolor(27);
         	strcpy(st, "1.9");
        		outgtext(st, txtlin + 60, txtrow);
         	strcpy(st, "2.0");
@@ -4532,10 +4534,10 @@ void main_winds(void)
         	outgtext(st, txtlin + 305, txtrow);
 
                 txtrow += 15;
-                setcolor(31);
+                setcolor(26);//chin setcolor(31);
                 strcpy(st, "AVG");
                 outgtext(st, txtlin, txtrow);
-                setcolor(27);
+                setcolor(26);//chin setcolor(27);
                 strcpy(st, "1.5");
                 outgtext(st, txtlin + 60, txtrow);
                 strcpy(st, "1.5");
@@ -4554,10 +4556,10 @@ void main_winds(void)
                 outgtext(st, txtlin + 305, txtrow);
 
         	txtrow += 15;
-        	setcolor(31);
+        	setcolor(26);//chin setcolor(31);
         	strcpy(st, "-1 STD");
         	outgtext(st, txtlin, txtrow);
-		setcolor(27);
+        	setcolor(26);//chin setcolor(27);
         	strcpy(st, "1.1");
         	outgtext(st, txtlin + 60, txtrow);
         	strcpy(st, "1.1");
