@@ -176,7 +176,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         #--------------------------------------------------------------------
         # Create the destination XML file
         #--------------------------------------------------------------------
-        iscOut = Element('isc')
+        iscOut = ET.Element('isc')
         irt.addSourceXML(iscOut, myServer)
 
         destServers = []

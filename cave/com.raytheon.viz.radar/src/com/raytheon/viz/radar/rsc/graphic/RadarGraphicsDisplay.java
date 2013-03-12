@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            chammack     Initial creation
+ * 03/04/2013   DCS51      zwang        Handle GFM product
  * 
  * </pre>
  * 
@@ -134,11 +135,14 @@ public class RadarGraphicsDisplay implements IRenderable {
                 new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { 4096,
                         4096 }, false), generalEnvelope);
         IWireframeShape ws = target.createWireframeShape(true, mapDescriptor);
+        
+        // Used for GFM forecast positions
+        IWireframeShape gfmWs = target.createWireframeShape(true, mapDescriptor);
 
         symbologyData = radarRecord.getSymbologyData();
         if (symbologyData != null) {
             RadarGraphicsPage rgp = new RadarGraphicsPage(mapDescriptor, gg,
-                    ws, target, color);
+                    ws, gfmWs, target, color);
 
             this.symbologyPages.add(rgp);
             // Determine if each set of Storm data should be displayed
@@ -158,7 +162,8 @@ public class RadarGraphicsDisplay implements IRenderable {
                 // logic in createSymbologyImages()
                 rgp.addImages(currStorm, CoordinateSystem.LOCAL);
 
-                if (currStorm.getDataType().equals(RadarProductType.GENERIC)) {
+                //Handle DMD table data
+                if (radarRecord.getProductCode() == 149) {	
                     // Handle the tabular display data in the Generic Packet
                     String data = GraphicDataUtil.getDMDGraphicDataValue(
                             tableModifier, radarRecord,
@@ -170,6 +175,7 @@ public class RadarGraphicsDisplay implements IRenderable {
                         addTableRow(tableData, featureData);
                         processTableData = true;
                     }
+                    
                 }
             }
 
@@ -203,10 +209,21 @@ public class RadarGraphicsDisplay implements IRenderable {
                     }
                 }
             }
+            // handle GFM product
+            else {
+            	this.currentPage = pageNum;
+
+                RadarGraphicsPage gab = this.pageMap.get(pageNum);
+                if (gab == null) {
+                    gab = new RadarGraphicsPage(mapDescriptor, gg, ws, gfmWs,
+                            target, color);
+                    this.pageMap.put(pageNum, gab);
+                }
+            }
 
             this.currentPage = 0;
         }
-
+        
         // Graphic block is organized into pages for display. The data for each
         // page is contained in packets.
         GraphicBlock gb = radarRecord.getGraphicBlock();

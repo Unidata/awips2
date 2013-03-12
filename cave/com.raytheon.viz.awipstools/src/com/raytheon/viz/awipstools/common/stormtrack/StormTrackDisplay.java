@@ -58,6 +58,7 @@ import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.StormCoord;
+import com.raytheon.viz.awipstools.ui.layer.DistanceSpeedLayer;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -97,6 +98,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     when the track was created.
  *  10-27-2010  #6964      bkowal      The LineStyle is now passed as a parameter to
  *                                     the IGraphicsTarget drawWireframeShape method.
+ *  05Mar2013	15693	mgamazaychikov Made sure that magnification capability works 
+ *  								   for DispanceSpeedLayer
  * 
  * </pre>
  * 
@@ -641,10 +644,17 @@ public class StormTrackDisplay implements IRenderable {
         Double magnification = 1.0;
         for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp != null) {
-                magnification = rp.getResource()
-                        .getCapability(MagnificationCapability.class)
-                        .getMagnification();
-                break;
+            	/*
+            	 * 15693 - make sure magnification capability works for 
+            	 * 		   DistanceSpeedLayer
+            	 */
+				if (rp.getResource() instanceof DistanceSpeedLayer) {
+					magnification = rp.getResource()
+							.getCapability(MagnificationCapability.class)
+							.getMagnification();
+					break;
+				}
+                
             }
         }
 
