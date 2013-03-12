@@ -47,7 +47,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/16/12        14439         jdynina        modified Haines calculation
-#    
+#    03/04/13        15585         jzeng          Modified wxtype range in calcWx()
 # 
 ##
 USE_WETBULB = 1
@@ -417,7 +417,7 @@ class NAM12Forecaster(Forecaster):
            #  and add those
            #
            prob = popprobs[popcat]
-           for iwx in range(13):
+           for iwx in range(1, 13):
                wxstring = wxtypes[iwx]
                ispopwx = logical_and(ispopcat, equal(wx, iwx))
                some = logical_or.reduce(logical_or.reduce(ispopwx))
