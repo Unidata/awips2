@@ -128,8 +128,22 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     /**
      * Retrieve the actual bandwidth map configuration file.
+     * 
+     * @return the file reference to the bandwidth map config file, the file may
+     *         or may not exist
      */
     public static File getBandwidthMapConfig() {
+        LocalizationFile lf = getBandwidthMapLocalizationFile();
+        File file = lf.getFile();
+        return file;
+    }
+
+    /**
+     * Retrieve the actual bandwidth map localization file.
+     * 
+     * @return the localization file
+     */
+    public static LocalizationFile getBandwidthMapLocalizationFile() {
         // TODO: Change to be site specific
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
@@ -137,8 +151,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
         LocalizationFile lf = pm.getLocalizationFile(lc,
                 "datadelivery/bandwidthmap.xml");
-        File file = lf.getFile();
-        return file;
+        return lf;
     }
 
     /**
