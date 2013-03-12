@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 drop database if exists fxatext;
-create database fxatext with encoding='SQL_ASCII';
+create database fxatext with TEMPLATE = template0 ENCODING = 'SQL_ASCII';
 \c fxatext;
 create user postgres superuser;
 create user pguser nosuperuser;
@@ -43,11 +43,3 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 SET SESSION AUTHORIZATION 'pguser';
 
 SET search_path = public, pg_catalog;
-
---
--- TOC entry 3 (OID 2200)
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
---
-
-COMMENT ON SCHEMA public IS 'Standard public schema';
-

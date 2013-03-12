@@ -23,7 +23,6 @@ DROP TABLESPACE IF EXISTS maps;
 CREATE TABLESPACE maps owner awips location '%{database_files_home}%/maps';
 CREATE DATABASE maps OWNER awips TABLESPACE maps;
 \connect maps
-CREATE PROCEDURAL LANGUAGE plpgsql;
 CREATE SCHEMA mapdata AUTHORIZATION awips;
 CREATE TABLE mapdata.map_version (
   table_name varchar(256) not null, 

@@ -124,14 +124,22 @@ if [ "${1}" = "-python-qpid" ]; then
    #buildRPM "awips2-httpd-pypies"
    #buildRPM "awips2-java"
    #buildRPM "awips2-ldm"
-   #buildRPM "awips2-postgresql"
-   #buildRPM "awips2-psql"
    #buildRPM "awips2-tools"
    buildRPM "awips2-python-shapely"
 
    exit 0
 fi
 
+if [ "${1}" = "-postgres" ]; then
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-pgadmin3"
+
+   exit 0
+fi
 
 if [ "${1}" = "-delta" ]; then
    buildCAVE
@@ -246,8 +254,8 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-httpd-pypies"
    buildRPM "awips2-java"
    #buildRPM "awips2-ldm"
-   buildRPM "awips2-postgresql"
-   buildRPM "awips2-psql"
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-pgadmin3"
    buildRPM "awips2-tools"
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-openfire"
