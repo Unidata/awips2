@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -44,6 +46,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2009            chammack     Initial creation
+ * Feb 27, 2013 DCS 152    jgerth       Support for WWLLN and multiple sources
  * 
  * </pre>
  * 
@@ -61,10 +64,29 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     @XmlAttribute
     private boolean handlingNegativeStrikes = true;
 
+    @XmlAttribute
+    private String plotLightSource = "";
+
+    @XmlAttribute
+    private int countPosition = 0;
+    
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
-        LightningResource rsc = new LightningResource(this, loadProperties);
+    	// jjg add
+    	String ls = "";
+    	if (this.metadataMap.containsKey("lightSource"))
+    		ls = this.metadataMap.get("lightSource").getConstraintValue();
+    	else if (!plotLightSource.isEmpty()) {
+    		ls = plotLightSource;
+    		RequestConstraint lsrc = new RequestConstraint(ls, ConstraintType.EQUALS);
+    		this.metadataMap.put("lightSource", lsrc);
+    	}
+    	int pa = 0;
+    	if (countPosition != 0)
+    		pa = countPosition;
+    	// end
+    	LightningResource rsc = new LightningResource(this, loadProperties, ls, pa);
         List<BinLightningRecord> records = new ArrayList<BinLightningRecord>(
                 objects.length);
         for (PluginDataObject pdo : objects) {
@@ -83,6 +105,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
 
     @Override
     public boolean isUpdatingOnMetadataOnly() {
+    	if (this.isUpdatingOnMetadataOnly == false)
+    		return false;
         return true;
     }
 
@@ -121,6 +145,38 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         this.handlingNegativeStrikes = handlingNegativeStrikes;
     }
 
+    /**
+     * @return plotLightSource
+     *            the lightSource to get - JJG
+     */
+    public String getPlotLightSource() {
+    	return plotLightSource;
+    }
+    
+    /**
+     * @param plotLightSource
+     *            the lightSource to set - JJG
+     */
+    public void setPlotLightSource(String plotLightSource) {
+        this.plotLightSource = plotLightSource;
+    }
+
+    /**
+     * @return countPosition
+     *            the countPosition to get - JJG
+     */
+    public int getCountPosition() {
+    	return countPosition;
+    }
+
+    /**
+     * @param countPosition
+     *            the countPosition to set - JJG
+     */
+    public void setCountPosition(int countPosition) {
+        this.countPosition = countPosition;
+    }
+
     @Override
     public boolean equals(Object obj) {
         // TODO Auto-generated method stub
@@ -133,7 +189,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         }
 
         LightningResourceData other = (LightningResourceData) obj;
-        return (this.handlingNegativeStrikes == other.handlingNegativeStrikes && this.handlingPositiveStrikes == other.handlingPositiveStrikes);
+        return (this.handlingNegativeStrikes == other.handlingNegativeStrikes && this.handlingPositiveStrikes == other.handlingPositiveStrikes &&
+        		this.plotLightSource == other.plotLightSource && this.countPosition == other.countPosition);
     }
 
 }
