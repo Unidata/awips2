@@ -37,6 +37,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -96,6 +97,9 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      Alarm Queue" GUI
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.
+ * Mar 05,2013  15173   mgamazaychikov The dimensions and location of closed window
+ * 									   are saved and set on the next open. 
+ * 
  * </pre>
  * 
  * @author mnash
@@ -134,14 +138,26 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
     private static CurrentAlarmQueue INSTANCE;
 
-    private static Point closeLocation;
+    /**
+     * Location and dimensions of the dialog on the close.
+     */
+    private static Point closeLocation = null;
+    
+    private static Point closeDimensions = null;
 
     /**
      * Redraw flag indicating if the window should redraw on a resize.
      */
     private boolean canRedraw = true;
 
-    private static final int MIN_WIDTH = 350;
+    /**
+     * Maximum width,initial height and offset of the window 
+     */
+    private static final int SHELL_WIDTH = 350;
+    
+    private static final int INIT_HEIGHT = 200;
+    
+    private static final int INIT_OFFSET = 15;
 
     /**
      * @param parentShell
@@ -237,7 +253,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
 
-        shell.setMinimumSize(MIN_WIDTH, 200);
         // Create the main layout for the shell.
 
         font = new Font(shell.getDisplay(), "Helvetica", 11, SWT.BOLD);
@@ -246,6 +261,18 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         shellComp = new Composite(shell, SWT.NONE);
         shellComp.setLayout(constructShellLayout());
         shellComp.setLayoutData(gd);
+        
+        /*
+         * DR15173 - Create a listener to save the location 
+         * 			 and dimensions of closed window.
+         */
+        shell.addShellListener(new ShellAdapter() {
+            public void shellClosed(ShellEvent event) {
+                closeLocation = getShell().getLocation();
+                closeDimensions = getShell().getSize();
+                shell.dispose();
+            }
+        });
 
         shell.addControlListener(new ControlAdapter() {
             @Override
@@ -256,25 +283,53 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
                 final Shell resizedShell = (Shell) e.getSource();
                 final Point point = resizedShell.getSize();
+                final Point location = resizedShell.getLocation();
 
-                if (point.x != MIN_WIDTH) {
-                    canRedraw = false;
-                    Display.getDefault().asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            // resizedShell.setMinimumSize(MIN_WIDTH, point.y);
-                            canRedraw = true;
-                        }
-                    });
-                }
+                canRedraw = false;
+                Display.getDefault().asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                    	/*
+                    	 * DR15173 - Enforce that the window width does not exceed the SHELL_WIDTH.
+                    	 */
+                    	shell.setBounds(location.x, location.y, SHELL_WIDTH, point.y);
+                    	shell.setMinimumSize(SHELL_WIDTH, 0);
+                        canRedraw = true;
+                    }
+                });
             }
         });
 
         // Initialize all of the controls and layouts
         initializeComponents();
+        
+        // Set the shell location and dimensions.
+        setShellGeometry();
     }
 
     /**
+     * Sets the geometry for the Current Alarm Queue shell
+     */
+	private void setShellGeometry() {
+		Rectangle displayArea = shell.getDisplay().getClientArea();
+		int locationX = displayArea.x + INIT_OFFSET;
+		int locationY = displayArea.y + INIT_OFFSET;
+		int width = SHELL_WIDTH;
+		int height = INIT_HEIGHT;
+		if (CurrentAlarmQueue.closeLocation != null) {
+			locationX = CurrentAlarmQueue.closeLocation.x;
+			locationY = CurrentAlarmQueue.closeLocation.y;
+		}
+		if (CurrentAlarmQueue.closeDimensions != null) {
+			height = CurrentAlarmQueue.closeDimensions.y;
+		}
+		shell.setMinimumSize(width, height);
+		shell.setLocation(locationX, locationY);
+		return;
+	}
+
+
+	/**
      * Initializes each component of the shell
      */
     private void initializeComponents() {
@@ -610,26 +665,5 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     @Override
     protected void opened() {
         // shell.setSize(600, 300);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-
-        shell.addShellListener(new ShellAdapter() {
-            @Override
-            public void shellClosed(ShellEvent event) {
-                closeLocation = getShell().getLocation();
-            }
-        });
-
-        if (closeLocation != null) {
-            getShell().setLocation(closeLocation);
-        }
     }
 }
