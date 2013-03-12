@@ -111,7 +111,7 @@ public class FFMPTemplates {
     
     private HashMap<String, HashMap<String, LinkedHashMap<String, FFMPVirtualGageBasinMetaData>>> virtualDomainMap = null;
 
-    private Map<String, SoftReference<Map<Long, Geometry>>> cwaRawGeometries = new ConcurrentHashMap<String, SoftReference<Map<Long, Geometry>>>();
+    private final Map<String, SoftReference<Map<Long, Geometry>>> cwaRawGeometries = new ConcurrentHashMap<String, SoftReference<Map<Long, Geometry>>>();
 
     /** Singleton instance of this class */
     private static FFMPTemplates template = null;
@@ -148,12 +148,12 @@ public class FFMPTemplates {
 
     public boolean done = false;
 
-    private Map<Long, FFMPCounty> countyMap = new HashMap<Long, FFMPCounty>();
+    private final Map<Long, FFMPCounty> countyMap = new HashMap<Long, FFMPCounty>();
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPTemplates.class);
 
-    private IPathManager pathManager;
+    private final IPathManager pathManager;
 
     /**
      * Single constructor
@@ -1613,9 +1613,11 @@ public class FFMPTemplates {
      * @param pfaf
      * @return
      */
-    public synchronized /*ArrayList<FFMPVirtualGageBasinMetaData>*/ArrayList<Long> getVirtualGageBasinLookupIds(
+    public synchronized ArrayList<Long> getVirtualGageBasinLookupIds(
             String dataKey, Long pfaf, String huc, String rowName) {
-if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc, rowName);
+        if (isCountyRow(huc, rowName)) {
+            return getVgbLookupIdsByCounty(dataKey, pfaf, huc, rowName);
+        }
         HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = virtualGageBasinsInParentPfaf
                 .get(dataKey);
 
@@ -1626,15 +1628,15 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
             if (map != null) {
                 ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(pfaf);
                 if (list != null && !list.isEmpty()) {
-                    ArrayList<Long> result = new ArrayList<Long>();//ArrayList<FFMPVirtualGageBasinMetaData> vgblist = new ArrayList<FFMPVirtualGageBasinMetaData>();
+                    ArrayList<Long> result = new ArrayList<Long>();
                     for (FFMPVirtualGageBasinMetaData md : list)
-                    	/*vgblist.add(md);*/result.add(md.getLookupId());
-                    return /*vgblist;*/result;
+                        result.add(md.getLookupId());
+                    return result;
                 }
             }
         }
 
-        return /*new ArrayList<FFMPVirtualGageBasinMetaData>();*/new ArrayList<Long>();
+        return new ArrayList<Long>();
 
     }
 
@@ -2367,7 +2369,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
     public synchronized ArrayList<Long> getVgbLookupIdsByCounty(
                 String dataKey, Long pfaf, String huc, String rowName) {
 
-        	String stateCommaCnty = rowName;//.split(",")[1];
+        String stateCommaCnty = rowName;
 
             HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = vgbsInCounty.get(dataKey);
 
