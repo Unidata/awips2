@@ -26,6 +26,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.StormIDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
+import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket.GFMAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.StormIDPacket.StormIDPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 17, 2009 2000       askripsk     Initial creation
+ * 03/04/2013   DCS51      zwang        Handle GFM product
  * 
  * </pre>
  * 
@@ -286,8 +288,23 @@ public class RadarDataPoint implements ISerializableObject {
      */
     public <T extends GenericDataComponent> void addDisplayData(int type,
             T point) {
-        String stormID = point.getValue(DMDAttributeIDs.ASSOCIATE_STORM_ID
-                .toString());
+    	
+    	String stormID = "";
+    	// DMD
+    	if (type == 149) {
+    		stormID = point.getValue(DMDAttributeIDs.ASSOCIATE_STORM_ID
+    				         .toString());
+    	}
+    	// GFM
+    	else if (type == 140) {
+    		stormID = point.getValue(GFMAttributeIDs.DETECT_ID
+                    .toString());
+    		String deltaT = point.getValue(GFMAttributeIDs.FORECAST_DELTA_T
+                    .toString());
+
+    		stormID += ":";
+    		stormID += deltaT;
+    	}
 
         if (!"".equalsIgnoreCase(stormID)) {
             this.stormID = stormID;

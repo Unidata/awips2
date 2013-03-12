@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bundle editor="gov.noaa.nws.ncep.viz.rsc.fits.SolarImageEditor">
+<bundle editor="gov.noaa.nws.ncep.viz.rsc.solarimage.SolarImageEditor">
 	<displayList>
 	<displays xsi:type="defaultNonMapDisplay" tabTitle="STEREO" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="xyGraphDescriptor">
                  <resource>
-	                <loadProperties loadWithoutData="false">
+	                <loadProperties loadWithoutData="true">
+	                    <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
 	                	<capabilities>
                             <capability xsi:type="colorMapCapability">
                                 <colorMapParameters colorMapName="solar/Gray"/>
@@ -17,19 +18,16 @@
 					<properties isSystemResource="false"
 						isBlinking="false" isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-					<resourceData xsi:type="fitsResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<resourceData xsi:type="SolarImageResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 					    	<mapping key="pluginName">
-								<constraint constraintValue="fits" constraintType="EQUALS" />
+								<constraint constraintValue="solarimage" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="telescope">
-								<constraint constraintValue="STEREO_A" constraintType="EQUALS" />
+							<mapping key="satellite">
+								<constraint constraintValue="STEREO-A" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="instrument">
 								<constraint constraintValue="${instrument}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="detector">
-								<constraint constraintValue="${detector}" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="wavelength">
 								<constraint constraintValue="${wavelength}" constraintType="EQUALS" />
@@ -37,13 +35,14 @@
 						</metadataMap>
 					</resourceData>
 				</resource>
-                <timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="6000" forecastFilter="0"/>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="6000" forecastFilter="0"/>
             </descriptor>
         </displays>
 	<displays xsi:type="defaultNonMapDisplay" tabTitle="STEREO" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="xyGraphDescriptor">
                  <resource>
-	                <loadProperties loadWithoutData="false">
+	                <loadProperties loadWithoutData="true">
+	                	<perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="false" loadMode="VALID_TIME_SEQ"/>
 	                	<capabilities>
                             <capability xsi:type="colorMapCapability">
                                 <colorMapParameters colorMapName="solar/Gray"/>
@@ -55,19 +54,16 @@
 					<properties isSystemResource="false"
 						isBlinking="false" isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-					<resourceData xsi:type="fitsResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<resourceData xsi:type="SolarImageResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 					    	<mapping key="pluginName">
-								<constraint constraintValue="fits" constraintType="EQUALS" />
+								<constraint constraintValue="solarimage" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="telescope">
-								<constraint constraintValue="STEREO_B" constraintType="EQUALS" />
+							<mapping key="satellite">
+								<constraint constraintValue="STEREO-B" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="instrument">
 								<constraint constraintValue="${instrument}" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="detector">
-								<constraint constraintValue="${detector}" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="wavelength">
 								<constraint constraintValue="${wavelength}" constraintType="EQUALS" />
@@ -75,7 +71,9 @@
 						</metadataMap>
 					</resourceData>
 				</resource>
-                <!--timeMatcher xsi:type="d2dTimeMatcher" deltaFilter="0" forecastFilter="0"/-->
+				<!--   timeMatcher frameInterval="-1" timeRange="48" skipValue="0" numFrames="1" dominantResourceName="SPACE/STEREO-A-COR2/STEREO-A-COR2/DEFAULT">  -->
+				
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="LATEST" deltaFilter="0" forecastFilter="0"/>
             </descriptor>
         </displays>
 	</displayList>
