@@ -182,6 +182,9 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     				skewRsc.getRscHandler().setInteractiveTempPointCoordinate(c);
     				editor.refresh();
     			}
+    			else {
+    				skewRsc.getRscHandler().setPlotInteractiveTemp(false);
+    			}
     			return false;
     		} 
     		if (prefManager.handleLongClick(ZOOMIN_PREF, button)
@@ -273,8 +276,10 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
                 		else if(currentSkewTEditMode == NsharpConstants.SKEWT_EDIT_MODE_MOVELINE)
                 			display.getCursorControl().setCursor(movingCursor); 
                 	}
-                	else
+                	else{
+                		if(display.getCursorControl()!=null)
                 		display.getCursorControl().setCursor(null);
+    			}
     			}
     			//cursorInSkewT=true;
     			skewRsc.setCursorInSkewT(true);
@@ -371,6 +376,7 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
         if (skewRsc != null) {
             skewRsc.setCursorInSkewT(false);
         }
+        this.mode = Mode.CREATE;
 		return false;
 	}
  	public void disposeCursor(){

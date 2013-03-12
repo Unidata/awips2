@@ -20,12 +20,14 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.concurrent.CountDownLatch;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
@@ -64,6 +66,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * 01/27/13     1478      D. Hladky   revamped the cache file format to help NAS overloading
  * 02/01/13      1569    D. Hladky   Changed to reading aggregate records from pypies
  * Feb 28, 2013  1729      dhladky   Changed the way status messages are sent to the FFMP Dialog.
+ * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * </pre>
  * 
  * @author dhladky
@@ -81,8 +84,6 @@ public class FFMPDataLoader extends Thread {
 
     private Date mostRecentTime = null;
 
-    public boolean isDone = false;
-
     public LOADER_TYPE loadType = null;
 
     private String siteKey = null;
@@ -99,6 +100,8 @@ public class FFMPDataLoader extends Thread {
 
     private ArrayList<FFMPLoadListener> loadListeners = new ArrayList<FFMPLoadListener>();
 
+    private CountDownLatch latch;
+
     public FFMPDataLoader(FFMPResourceData resourceData, Date timeBack,
             Date mostRecentTime, LOADER_TYPE loadType,
             ArrayList<String> hucsToLoad) {
@@ -114,6 +117,7 @@ public class FFMPDataLoader extends Thread {
         this.resourceData = resourceData;
         this.runner = FFMPRunConfigurationManager.getInstance().getRunner(wfo);
         this.config = FFMPConfig.getInstance();
+        this.latch = new CountDownLatch(1);
 
         if ((loadType == LOADER_TYPE.INITIAL)
                 || (loadType == LOADER_TYPE.GENERAL)) {
@@ -121,6 +125,10 @@ public class FFMPDataLoader extends Thread {
         } else {
             this.setPriority(MIN_PRIORITY);
         }
+    }
+
+    public void waitFor() throws InterruptedException {
+        latch.await();
     }
 
     /**
@@ -143,7 +151,7 @@ public class FFMPDataLoader extends Thread {
 
     // kills the loader
     public void kill() {
-        isDone = true;
+        latch.countDown();
     }
 
     @Override
@@ -229,23 +237,23 @@ public class FFMPDataLoader extends Thread {
                 hucsToLoad.add(FFMPRecord.ALL);
             }
 
-            if (isDone) {
+            if (isDone()) {
                 return;
             }
 
             // rate
             if (rateURI != null) {
                 fireLoaderEvent(loadType, "Processing " + product.getRate(),
-                        isDone);
+                        isDone());
                 for (String phuc : hucsToLoad) {
                     monitor.processUri(isProductLoad, rateURI, siteKey,
                             product.getRate(), timeBack, phuc);
                 }
-                fireLoaderEvent(loadType, product.getRate(), isDone);
+                fireLoaderEvent(loadType, product.getRate(), isDone());
             }
 
             // qpes
-            fireLoaderEvent(loadType, "Processing " + product.getQpe(), isDone);
+            fireLoaderEvent(loadType, "Processing " + product.getQpe(), isDone());
             FFMPAggregateRecord qpeCache = null;
 
             if (loadType == LOADER_TYPE.INITIAL) {
@@ -272,13 +280,13 @@ public class FFMPDataLoader extends Thread {
                 }
             }
 
-            fireLoaderEvent(loadType, product.getQpe(), isDone);
+            fireLoaderEvent(loadType, product.getQpe(), isDone());
 
             int i = 0;
             for (NavigableMap<Date, List<String>> qpfURIs : qpfs) {
                 // qpf
                 fireLoaderEvent(loadType, "Processing " + product.getQpf(i),
-                        isDone);
+                        isDone());
                 FFMPAggregateRecord qpfCache = null;
 
                 if (loadType == LOADER_TYPE.INITIAL) {
@@ -329,13 +337,13 @@ public class FFMPDataLoader extends Thread {
                     }
                 }
 
-                fireLoaderEvent(loadType, product.getQpf(i), isDone);
+                fireLoaderEvent(loadType, product.getQpf(i), isDone());
 
                 i++;
             }
 
             fireLoaderEvent(loadType, "Processing " + product.getVirtual(),
-                    isDone);
+                    isDone());
             FFMPAggregateRecord vgbCache = null;
 
             if (loadType == LOADER_TYPE.INITIAL) {
@@ -358,7 +366,7 @@ public class FFMPDataLoader extends Thread {
                         product.getVirtual(), timeBack, FFMPRecord.ALL);
             }
 
-            fireLoaderEvent(loadType, product.getVirtual(), isDone);
+            fireLoaderEvent(loadType, product.getVirtual(), isDone());
 
             // process guidance all for all only, never uses cache files
             for (String type : productRun.getGuidanceTypes(product)) {
@@ -371,20 +379,20 @@ public class FFMPDataLoader extends Thread {
                             .get(guidSource.getSourceName());
 
                     fireLoaderEvent(loadType,
-                            "Processing " + guidSource.getSourceName(), isDone);
+                            "Processing " + guidSource.getSourceName(), isDone());
 
                     monitor.processUris(iguidURIs, isProductLoad, siteKey,
                             guidSource.getSourceName(), timeBack, FFMPRecord.ALL);
 
                     fireLoaderEvent(loadType, guidSource.getSourceName(),
-                            isDone);
+                            isDone());
 
                 }
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,"General Problem in Loading FFMP Data", e);
         } finally {
-            isDone = true;
+            latch.countDown();
             synchronized(this) {
                 this.notifyAll();
             }
@@ -399,7 +407,7 @@ public class FFMPDataLoader extends Thread {
 
         long endTime = (System.currentTimeMillis()) - time;
         System.out.println(loadType.loaderType + " Loader took: " + endTime / 1000 + " seconds");
-        fireLoaderEvent(loadType, message, isDone);
+        fireLoaderEvent(loadType, message, isDone());
     }
 
     /**
@@ -427,7 +435,7 @@ public class FFMPDataLoader extends Thread {
         if (FFMPMonitor.isRunning()) {
             return FFMPMonitor.getInstance();
         } else {
-            isDone = true;
+            latch.countDown();
             return null;
         }
     }
@@ -518,6 +526,10 @@ public class FFMPDataLoader extends Thread {
     private String getSourceSiteDataKey(SourceXML source, String pdataKey) {
         return source.getSourceName() + "-" + siteKey + "-"
         + pdataKey;
+    }
+
+    public boolean isDone() {
+        return latch.getCount() == 0;
     }
 
 }

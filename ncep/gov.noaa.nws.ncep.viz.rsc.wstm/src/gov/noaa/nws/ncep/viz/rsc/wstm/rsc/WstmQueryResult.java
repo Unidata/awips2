@@ -8,7 +8,6 @@
 
 package gov.noaa.nws.ncep.viz.rsc.wstm.rsc;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.*;
 
@@ -29,7 +28,9 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
  * ------------ ---------- ----------- --------------------------
  * 2011-10-03   456        G. Zhang    Initial creation.
  * 2011-12-21   581        B. Hebbard  Fix attempted cast of BigDecimal to Double (for LatLon) (TTR#319)
- * 
+ * 2013-01-31   976        Archana       Updated the queryPrefix string to include the 'name' field.
+ *                                                              Updated populateFipsMap() to use the 'name' field if the 'shortname' field
+ *                                                              is null  
  * </pre>
  * 
  * @author gzhang
@@ -50,7 +51,7 @@ public class WstmQueryResult {
 	
 	private StringBuilder query = new StringBuilder();	
 	
-	private	String queryPrefix = "select AsBinary(the_geom), AsBinary(the_geom_0_001), lat,lon,state_zone,shortname from mapdata.zone where ";	
+	private	String queryPrefix = "select AsBinary(the_geom), AsBinary(the_geom_0_001), lat,lon,state_zone, shortname, name from mapdata.zone where ";	
 	
 	private Map<String,String>		 fipsNameMap   = new HashMap<String,String>();
 	private Map<String, LatLonPoint> fipsLatLonMap = new HashMap<String, LatLonPoint>();
@@ -115,8 +116,13 @@ public class WstmQueryResult {
 		 */
 		for(Object[] o : results){
 			
-			if( o==null || o.length!=6 || o[2]==null || o[3]==null || o[4]==null || o[5]==null)
+			if( o==null || o.length!=7 || o[2]==null || o[3]==null || o[4]==null )
 				continue;
+			if ( o[5] == null  ){
+			           if (o[6] == null){
+			        	   continue; 			           //continue only if both the shortname as well as the name column is null    	   
+			           }
+         		}
 			
 			//geometry
 			ArrayList<Object[]> obs = new ArrayList<Object[]>();
@@ -129,7 +135,12 @@ public class WstmQueryResult {
 				continue;
 			
 			//zone name
-			String name = (String)o[5];
+			String name;
+			if ( o[5] != null ){
+			  name = (String)o[5];
+			}else{
+				name = (String)o[6];
+			}
 			
 			//put Z back as in PAZ008
 			String key = fips.substring(0,2)+"Z"+fips.substring(2);			
