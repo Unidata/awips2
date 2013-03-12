@@ -77,7 +77,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  */
 
 public class FFMPDataGenerator {
-    private FfmpTableConfig tableConfig;
+    private final FfmpTableConfig tableConfig;
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPDataGenerator.class);
@@ -86,23 +86,23 @@ public class FFMPDataGenerator {
 
     private final String NA = "NA";
 
-    private String siteKey;
+    private final String siteKey;
 
-    private String dataKey;
+    private final String dataKey;
 
-    private ProductXML product;
+    private final ProductXML product;
 
-    private Date paintRefTime;
+    private final Date paintRefTime;
 
-    private Date tableTime;
+    private final Date tableTime;
 
-    private Object centeredAggregationKey;
+    private final Object centeredAggregationKey;
 
-    private String huc;
+    private final String huc;
 
-    private ArrayList<DomainXML> domains;
+    private final ArrayList<DomainXML> domains;
 
-    private double sliderTime;
+    private final double sliderTime;
 
     private boolean isWorstCase = false;
 
@@ -220,7 +220,11 @@ public class FFMPDataGenerator {
                                             if (virtualBasin != null) {
                                                 for (Long id : ft
                                                         .getVirtualGageBasinLookupIds(
-                                                                siteKey, key)) {
+                                                                siteKey,
+                                                                key,
+                                                                huc,
+                                                                resource.basinTableDlg
+                                                                        .getRowName())) {
                                                     setFFMPRow(
                                                             virtualBasin
                                                                     .get(id),
@@ -287,7 +291,11 @@ public class FFMPDataGenerator {
                                             if (virtualBasin != null) {
                                                 for (Long id : ft
                                                         .getVirtualGageBasinLookupIds(
-                                                                siteKey, key)) {
+                                                                siteKey,
+                                                                key,
+                                                                huc,
+                                                                resource.basinTableDlg
+                                                                        .getRowName())) {
                                                     setFFMPRow(
                                                             virtualBasin
                                                                     .get(id),

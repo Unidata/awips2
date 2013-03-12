@@ -54,13 +54,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * @author djohnson
  * @version 1.0
  */
-class EdexBandwidthContextFactory implements BandwidthContextFactory {
+public class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     /**
      * Pluggable strategy for how to create the {@link BandwidthManager}.
      * Intentionally package-private.
      */
-    static interface IEdexBandwidthManagerCreator {
+    public static interface IEdexBandwidthManagerCreator {
 
         /**
          * Get the bandwidth manaager.
