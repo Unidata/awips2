@@ -10,35 +10,6 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
         @font-face { font-family: "WindSymbolFont";
                 src: url(../ncep/PlotModels/WindSymbols.svg#WindSymbols); }
        
-        @font-face { font-family: "StandardFont"; 
-                     src: url(../ncep/PlotModels/Standard.svg#Standard);  }
-       
-        @font-face { font-family: "CourierNormalFont";
-                     src: url(../ncep/PlotModels/CourierNormal.svg#CourierNormal); }
-        @font-face { font-family: "CourierItalicFont";
-                     src: url(../ncep/PlotModels/CourierItalic.svg#CourierItalic); }
-        @font-face { font-family: "CourierBoldFont";
-                     src: url(../ncep/PlotModels/CourierBold.svg#CourierBold); }
-        @font-face { font-family: "CourierBold-ItalicFont";
-                     src: url(../ncep/PlotModels/CourierBoldItalic.svg#CourierBoldItalic); }
-       
-        @font-face { font-family: "TimesNormalFont"; 
-                	 src: url(../ncep/PlotModels/TimesNormal.svg#TimesNormal); }
-        @font-face { font-family: "TimesItalicFont"; 
-                	 src: url(../ncep/PlotModels/TimesItalic.svg#TimesItalic); }
-        @font-face { font-family: "TimesBoldFont"; 
-                	 src: url(../ncep/PlotModels/TimesBold.svg#TimesBold); }
-        @font-face { font-family: "TimesBold-ItalicFont"; 
-                	 src: url(../ncep/PlotModels/TimesBoldItalic.svg#TimesBoldItalic); }
-       
-        @font-face { font-family: "HelveticaNormalFont"; 
-                	 src: url(../ncep/PlotModels/HelveticaNormal.svg#HelveticaNormal); }   
-        @font-face { font-family: "HelveticaItalicFont"; 
-                	 src: url(../ncep/PlotModels/HelveticaItalic.svg#HelveticaItalic); }          
-        @font-face { font-family: "HelveticaBoldFont"; 
-                	 src: url(../ncep/PlotModels/HelveticaBold.svg#HelveticaBold); }   
-        @font-face { font-family: "HelveticaBold-ItalicFont"; 
-                	 src: url(../ncep/PlotModels/HelveticaBoldItalic.svg#HelveticaBoldItalic); }          
        
         @font-face { font-family: "WxSymbolFont";                
                 	 src: url(../ncep/PlotModels/NcWxSymbols.svg#NcWxSymbols); }
@@ -61,21 +32,21 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
  -->
 <symbol overflow="visible" id="plotData" class="info">   
 
-    <text position="UL" x="-6px"  y="-10px" style="text-anchor: end;">err</text>     <!--Upper Left -->
-    <text position="ML" x="-6px"  y="0"     style="text-anchor: end;">err</text>      <!--Middle Left-->
-    <text position="LL" x="-6px"  y="15px"  style="text-anchor: end;">err</text>     <!--Lower Left -->
+    <text position="UL" x="-6px"  y="-10px" style="text-anchor: end;"> </text>     <!--Upper Left -->
+    <text position="ML" x="-6px"  y="0"     style="text-anchor: end;"> </text>      <!--Middle Left-->
+    <text position="LL" x="-6px"  y="15px"  style="text-anchor: end;"> </text>     <!--Lower Left -->
     
-    <text position="TC" x="0"      y="-21px" style="text-anchor: middle;">err</text>   <!--Top Center-->
-    <text position="UC" x="0"      y="-10px" style="text-anchor: middle;">err</text>   <!--Upper Center-->
+    <text position="TC" x="0"      y="-21px" style="text-anchor: middle;"> </text>   <!--Top Center-->
+    <text position="UC" x="0"      y="-10px" style="text-anchor: middle;"> </text>   <!--Upper Center-->
     
-    <text position="MC" x="0"      y="0"     style="text-anchor: middle;">err</text>   <!--Middle Center-->
+    <text position="MC" x="0"      y="0"     style="text-anchor: middle;"> </text>   <!--Middle Center-->
     
-    <text position="LC" x="0"      y="15px"  style="text-anchor: middle;">err</text>   <!--Lower Center-->
-    <text position="BC" x="0"      y="27px"  style="text-anchor: middle;">err</text>   <!--Bottom Center-->
+    <text position="LC" x="0"      y="15px"  style="text-anchor: middle;"> </text>   <!--Lower Center-->
+    <text position="BC" x="0"      y="27px"  style="text-anchor: middle;"> </text>   <!--Bottom Center-->
     
-    <text position="UR" x="8px"   y="-10px" style="text-anchor: start;">err</text>  <!--Upper Right -->
-    <text position="MR" x="8px"   y="0"     style="text-anchor: start;">err</text>  <!--Middle Right -->
-    <text position="LR" x="8px"   y="15px"  style="text-anchor: start;">err</text> <!--Lower Right -->
+    <text position="UR" x="8px"   y="-10px" style="text-anchor: start;"> </text>  <!--Upper Right -->
+    <text position="MR" x="8px"   y="0"     style="text-anchor: start;"> </text>  <!--Middle Right -->
+    <text position="LR" x="8px"   y="15px"  style="text-anchor: start;"> </text> <!--Lower Right -->
 
     <text position="SC" x="0"      y="0"     style="font-family: WxSymbolFont">arrow</text>   
     <!-- a group element for a possible wind barb symbol. -->    
@@ -85,5 +56,5 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 
 </symbol>
 </defs>
-<use id="wind" x="75" y="75" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+<use id="wind" x="95" y="76" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
 </svg>

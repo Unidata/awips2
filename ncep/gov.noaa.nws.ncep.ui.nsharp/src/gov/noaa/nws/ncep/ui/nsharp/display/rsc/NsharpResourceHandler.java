@@ -1013,7 +1013,7 @@ public class NsharpResourceHandler {
 				return 0;
 
 			}			
-			//System.out.println("t1="+s1tok1+" t2="+s1tok2);
+			//System.out.println("t1="+s1tok1+" t2="+s2tok1);
 			StringTokenizer st2 = new StringTokenizer(o2.getTimeDescription());
 			int tkCount2 = st2.countTokens();
 			//System.out.println("ElementComparatorTimeLine o2="+o2.elementDescription+"c2 = "+tkCount2);
@@ -1557,6 +1557,7 @@ public class NsharpResourceHandler {
 			String elmDesc = tempTimeLineArr[i].toString();
 			String stnId = elmDesc.substring(0,elmDesc.indexOf(" "));
 			String timeLine= elmDesc.substring(elmDesc.indexOf(" ")+1);
+			timeLine = timeLine.replace(" ", "-"); //fixed DR15325 - sorting time line issue in D2D
 			//add time line to stnTimeTable and set its index
 			addElementToTableAndLists(elmDesc,stnId,timeLine,stnInfo);
 		}
