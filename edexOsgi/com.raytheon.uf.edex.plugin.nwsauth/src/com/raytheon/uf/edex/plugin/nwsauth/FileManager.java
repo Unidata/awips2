@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -57,6 +58,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jan 09, 2013 1412       djohnson     Moved file writing from viz plugin to server-side.
  * Jan 17, 2013 1412       djohnson     Check files for having been modified each time data is requested, 
  *                                      in case they were written by another member of the cluster.
+ * Mar 12, 2013 1646       mpduff       Format the output.
  * 
  * </pre>
  * 
@@ -116,8 +118,10 @@ class FileManager {
                 .getLocalizationFile(context, lf.getName());
         try {
             JAXBManager jaxbManager = getJaxbManager();
-            jaxbManager.getJaxbContext().createMarshaller()
-                    .marshal(roleData, locFile.getFile());
+            Marshaller marshaller = jaxbManager.getJaxbContext()
+                    .createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(roleData, locFile.getFile());
             locFile.save();
 
         } catch (JAXBException e) {
