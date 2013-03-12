@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013 1543       djohnson     Initial creation
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions by routing to the NCF bandwidth manager.
+ * Mar 11, 2013 1645       djohnson     Add missing Spring file.
  * 
  * </pre>
  * 
@@ -58,6 +59,7 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
     static class WfoBandwidthManager extends BandwidthManager {
 
         private static final String[] WFO_BANDWIDTH_MANAGER_FILES = new String[] {
+                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
                 JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
