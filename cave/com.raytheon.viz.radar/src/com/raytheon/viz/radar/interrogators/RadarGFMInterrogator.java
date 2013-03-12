@@ -30,15 +30,15 @@ import javax.measure.unit.SI;
 
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
-import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket.GFMAttributeIDs;
+import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
+import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.geospatial.CRSCache;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -249,7 +249,7 @@ public class RadarGFMInterrogator extends RadarGraphicInterrogator implements
     	if (spd < R_EQ_ZERO) {
             dir = 0.0;
         } else {
-            dir = (double)(Math.toDegrees(Math.atan2(u, v)) + DEG_HALF_PI + 1.0E-3);  
+            dir = (Math.toDegrees(Math.atan2(u, v)) + DEG_HALF_PI + 1.0E-3);  
         }
     	   	
     	return dir;
