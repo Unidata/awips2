@@ -312,12 +312,12 @@ DisposeListener, IPartListener{
 		NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
 		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
 		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
-		/*try {
-		//	NsharpGridInventory.getInstance().initInventory(false);
+		try {
+			NsharpGridInventory.getInstance().initInventory(false);
 		} catch (VizException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		
 	}
 

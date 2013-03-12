@@ -23,6 +23,7 @@ import java.awt.Color;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -81,6 +82,8 @@ import com.vividsolutions.jts.io.ParseException;
  * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords().
  * 05/23/2012     785      Q. Zhou     Added getName for legend.
  * 17 Aug 2012    655      B. Hebbard  Added paintProps as parameter to IDisplayable draw
+ * 31-Jan-2013    976      Archana         Updated paintFrame() to not render any null strings
+ *                                                                Replaced the depreciated target.drawString() method with target.drawStrings().
  * </pre>
  * 
  * @author archana
@@ -222,10 +225,12 @@ implements INatlCntrsResource{
                              }
                              
          					if ( wstmRscAttr != null && wstmRscAttr.getEventEnable()){
+         						RGB colorOfEventRGB = wstmRscAttr.getColorOfEvent();
+         						Color colorOfEvent = new Color( colorOfEventRGB.red,
+         						                                                		      colorOfEventRGB.green,
+         								                                                      colorOfEventRGB.blue);
 							
-         					  Color[] symbolColor = {new Color(wstmRscAttr.getColorOfEvent().red,
-										wstmRscAttr.getColorOfEvent().green,
-										wstmRscAttr.getColorOfEvent().blue)};
+         					  Color[] symbolColor = {colorOfEvent };
 							   /*Retrieve the FIPS zones (names and centroid) to be rendered for the current WstmRscDataObject*/	
          					   List<FipsInfo> listOfFipsInfo =  eachWstmRscDataObject.aListOfFipsInfoObjects;
          					  
@@ -244,9 +249,18 @@ LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFi
 												pixCoord = new PixelCoordinate(descriptor
 																             .worldToPixel(worldC));
 												pixCoord.addToY(offsetY*1.75);
-										        target.drawString(font,  eachWstmRscDataObject.validTimePeriod, pixCoord.getX(), pixCoord.getY(), 0.0, 
-												                  TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
-														          VerticalAlignment.TOP, 0.0);  												
+												if ( eachWstmRscDataObject.validTimePeriod != null ){
+													  
+													DrawableString validTimePeriodString = new DrawableString(eachWstmRscDataObject.validTimePeriod,colorOfEventRGB);
+													validTimePeriodString.setCoordinates(pixCoord.getX(), pixCoord.getY());
+													validTimePeriodString.textStyle = TextStyle.NORMAL;
+													validTimePeriodString.horizontalAlignment = HorizontalAlignment.LEFT;
+													validTimePeriodString.verticallAlignment = VerticalAlignment.TOP;
+													target.drawStrings(validTimePeriodString);
+//										               target.drawString(font,  eachWstmRscDataObject.validTimePeriod, pixCoord.getX(), pixCoord.getY(), 0.0, 
+//												                                       TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
+//														                               VerticalAlignment.TOP, 0.0);  							
+												}
 
 											}
 							           }
@@ -266,9 +280,18 @@ LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFi
 
 											}
 							          }
-											target.drawString(font, wqr.getZoneName(eachFipsInfo.getFipsCode())/*eachFipsInfo.getZoneName()*/, pixCoord.getX(), pixCoord.getY(), 0.0, 
-													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
-													VerticalAlignment.TOP, 0.0);  
+							        	  String zoneName = wqr.getZoneName(eachFipsInfo.getFipsCode());
+							        	  if ( zoneName != null ){
+												DrawableString zoneNameString = new DrawableString(zoneName,colorOfEventRGB);
+												zoneNameString.setCoordinates(pixCoord.getX(), pixCoord.getY());
+												zoneNameString.textStyle = TextStyle.NORMAL;
+												zoneNameString.horizontalAlignment = HorizontalAlignment.LEFT;
+												zoneNameString.verticallAlignment = VerticalAlignment.TOP;
+												target.drawStrings(zoneNameString);							        		  
+//											target.drawString(font, wqr.getZoneName(eachFipsInfo.getFipsCode())/*eachFipsInfo.getZoneName()*/, pixCoord.getX(), pixCoord.getY(), 0.0, 
+//													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
+//													VerticalAlignment.TOP, 0.0);
+							        	  }
 							           }
 							          
 							          /*If the outline flag is enabled draw the outline else plot the marker at the centroid of the zone's area*/

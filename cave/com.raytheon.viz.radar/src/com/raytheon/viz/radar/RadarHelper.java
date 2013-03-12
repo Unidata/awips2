@@ -70,6 +70,8 @@ import com.raytheon.viz.awipstools.common.StormTrackData;
  * ------------ ---------- ----------- --------------------------
  * Feb 16, 2009            mnash       Initial creation
  * 03/07/2012   DR 14660   D. Friedman Added time-based getSTIData* functions.
+ * 03/01/2013   DR 15496   zwang       Handle the expanded GSM
+ *                                     Correct some status according to B14 ICD 
  * 
  * </pre>
  * 
@@ -138,19 +140,19 @@ public class RadarHelper {
     private static char DEGREE_SYMBOL = 0xB0;
 
     public static final String[] rdaOpStatusStr = {
-            "Automatic Calibration Disabled", "Online",
+            null, "Online",
             "Maintenance Action Required", "Maintenance Action Mandatory",
-            "Command Shutdown", "Inoperable", "Missing", "Wideband Disconnect" };
+            "Command Shutdown", "Inoperable", null, "Wideband Disconnect" };
 
     public static final String[] rpgNarrowbandStatus = {
             "Commanded Disconnect", "Narrowband Loadshed" };
 
     public static final String[] rdaStatusStr = { null, "Startup", "Standby",
-            "Restart", "Operate", "Missing", "Off-line Operate" };
+            "Restart", "Operate", null, "Off-line Operate" };
 
     public static final String[] rdaAlarmStr = { "Indeterminate",
             "Tower/Utilities", "Pedestal", "Transmitter",
-            "Receiver/Signal Processor", "RDA Control", "RDA Communications" };
+            "Receiver", "RDA Control", "RDA Communications", "Signal Processor" };
 
     public static final String[] dteStr = { null, "None", "Reflectivity",
             "Velocity", "Spectrum Width", "Dual Polarization" };
@@ -160,20 +162,23 @@ public class RadarHelper {
             "Commanded Shutdown" };
 
     public static final String[] rpgAlarmStr = { "No Alarms",
-            "Node Connectivity", null, "RPG Control Task Failure",
+            "Node Connectivity", "Wideband Failure", "RPG Control Task Failure",
             "Data Base Failure", null, "RPG Input Buffer Loadshed (Wideband)",
             null, "Product Storage Loadshed", null, null, null,
             "RPG/RPG Intercomputer Link Failure", "Redundant Channel Error",
             "Task Failure", "Media Failure" };
 
     public static final String[] rpgStatusStr = { "Restart", "Operate",
-            "Standby", null, "Test Mode" };
+            "Standby"};
 
     public static final String[] productAvailStr = { "Product Availability",
             "Degraded Availability", "Not Available" };
 
     public static final String[] rdaChannelStr = { "NWS Single Thread",
             "RDA 1", "RDA 2" };
+    
+    public static final String[] vcpInfoStr = { "AVSET",
+        "SAILS", "Site-Specific VCP" };
 
 	/**
 	 * The default maximimum difference in time used when retrieving STI data (15 minutes.)
