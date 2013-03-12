@@ -1099,6 +1099,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	}
     }
     public void registerMouseHandler(IInputHandler handler, IInputHandler.InputPriority priority) {
+    	if(skewtInputManager!=null)
         skewtInputManager.registerMouseHandler(handler, priority);
     }
     
@@ -1110,6 +1111,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
      */
     @Override
     public void registerMouseHandler(IInputHandler handler) {
+    	if(skewtInputManager != null)
         skewtInputManager.registerMouseHandler(handler);
     }
 
