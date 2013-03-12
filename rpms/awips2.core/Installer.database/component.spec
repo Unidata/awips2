@@ -11,6 +11,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 Prefix: %{_component_default_prefix}
 URL: N/A
 License: N/A
@@ -72,23 +73,6 @@ do
    cp -r %{_baseline_workspace}/${PATH_TO_DDL}/${dir}/* \
       ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql
 done
-
-# All Files To Exclude Are In share/sql/setup
-FILES_TO_EXCLUDE=( 'lwpostgis.sql' 'spatial_ref_sys.sql' 'uninstalldb.sh' \
-   'setup.sh' 'setup_developer.sh' 'setup_server.sh' 'postgresql.conf' )
-PATH_TO_EXCLUDE_FILES=${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql
-for file in ${FILES_TO_EXCLUDE[*]};
-do
-   if [ -f ${PATH_TO_EXCLUDE_FILES}/${file} ]; then
-      rm -f ${PATH_TO_EXCLUDE_FILES}/${file}
-   fi
-done
-
-# Copy Two Other Files To The Temporary Share Directory.
-cp -r %{_baseline_workspace}/${PATH_TO_DDL}/setup/lwpostgis.sql \
-   ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share
-cp -r %{_baseline_workspace}/${PATH_TO_DDL}/setup/spatial_ref_sys.sql \
-   ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share
    
 # Create our installation log file.
 touch ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/sql_install.log   
@@ -110,17 +94,6 @@ fi
 if [ "${1}" = "2" ]; then
    exit 0
 fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II Database Installation...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-POSTGRESQL_INSTALL="/awips2/postgresql"
-PSQL_INSTALL="/awips2/psql"
-AWIPS2_DATA_DIRECTORY="/awips2/data"
-echo -e "\e[1;34m         Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
-echo -e "\e[1;34m   PostgreSQL Install Root = ${POSTGRESQL_INSTALL}\e[m"
-echo -e "\e[1;34m         PSQL Install Root = ${PSQL_INSTALL}\e[m"
-echo -e "\e[1;34m   AWIPS II Data Directory = ${AWIPS2_DATA_DIRECTORY}\e[m"
 
 %post
 # Get Important Directories Again. Even Exporting Them The First Time Still
@@ -148,9 +121,6 @@ function printFailureMessage()
    
    exit 1
 }
-echo "--------------------------------------------------------------------------------"
-echo "\| Preparing the SQL Scripts..."
-echo "--------------------------------------------------------------------------------"
 
 AWIPS_DEFAULT_OWNER="awips"
 AWIPS_DEFAULT_USER="awips"
@@ -176,15 +146,10 @@ function is_postgresql_running()
 {
    NUM_PGSQL_COUNT=`/bin/netstat -l | /bin/grep -c "PGSQL.${AWIPS_DEFAULT_PORT}"`
    if [ ${NUM_PGSQL_COUNT} -gt 0 ]; then
-      echo "--------------------------------------------------------------------------------"
-      echo "\| Warning - PostgreSQL Is Already Running On Port ${AWIPS_DEFAULT_PORT}."
-      echo "--------------------------------------------------------------------------------"
+      echo "PostgreSQL is already running or PostgreSQL lock files exist!" > \
+         /awips2/database/sqlScripts/share/sql/sql_install.log
       printFailureMessage   
    fi
-
-   echo "--------------------------------------------------------------------------------"
-   echo "\| No Instances of PostgreSQL Were Found On Port ${AWIPS_DEFAULT_PORT}..."
-   echo "--------------------------------------------------------------------------------"
 }
 
 function create_sql_element()
@@ -241,26 +206,8 @@ function execute_initial_sql_script()
 
    # $1 == script to execute
    su ${AWIPS_DEFAULT_USER} -c \
-      "${PSQL_INSTALL}/bin/psql postgres -U ${AWIPS_DEFAULT_USER} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
+      "${PSQL_INSTALL}/bin/psql -d postgres -U ${AWIPS_DEFAULT_USER} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
       > ${SQL_LOG} 2>&1
-}
-
-function update_lwpostgis()
-{
-   echo ${POSTGRESQL_INSTALL} | sed 's/\//\\\//g' > .awips2_escape.tmp
-   POSTGRESQL_INSTALL_ESCAPED=`cat .awips2_escape.tmp`
-   rm -f .awips2_escape.tmp
-   perl -p -i -e "s/%{INSTALL_PATH}%/${POSTGRESQL_INSTALL_ESCAPED}/g" \
-      ${SHARE_DIR}/lwpostgis.sql
-}
-
-function update_createMapsDb()
-{
-   echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
-   AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
-   rm -f .awips2_escape.tmp
-   perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
-      ${SQL_SHARE_DIR}/createMapsDb.sql
 }
 
 function update_createDamcat()
@@ -307,96 +254,40 @@ function copy_addl_config()
    update_owner ${AWIPS2_DATA_DIRECTORY}/pg_hba.conf
 }
 
-echo "--------------------------------------------------------------------------------"
-echo "\| Determining If PostgreSQL Is Running..."
-echo "--------------------------------------------------------------------------------"
 is_postgresql_running
-echo ""
- 
-echo "--------------------------------------------------------------------------------"
-echo "\| Initializing the Database and Starting the Service..."
-echo "--------------------------------------------------------------------------------"
+
 init_db
 RC="$?"
 if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| ERROR - INITDB HAS FAILED."
-   echo "--------------------------------------------------------------------------------"
    printFailureMessage 
 fi
-echo "--------------------------------------------------------------------------------"
-echo "\| Copying Configuration Files and Setting Up SQL..."
-echo "--------------------------------------------------------------------------------"
-	
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating a Directory for the metadata Tablespace..."
-echo "--------------------------------------------------------------------------------"
+
 create_sql_element ${METADATA}
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating a Directory for the ihfs Tablespace..."
-echo "--------------------------------------------------------------------------------"
 create_sql_element ${IFHS}
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating a Directory for the damcat Tablespace..."
-echo "--------------------------------------------------------------------------------"
 create_sql_element ${DAMCAT}
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating a Directory for the hmdb Tablespace..."
-echo "--------------------------------------------------------------------------------"
 create_sql_element ${HMDB}
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating a Directory for the ebxml Tablespace..."
-echo "--------------------------------------------------------------------------------"
 create_sql_element ${EBXML}
-echo ""
-echo "--------------------------------------------------------------------------------"
-echo "\| Starting PostgreSQL..."
-echo "--------------------------------------------------------------------------------"
 control_pg_ctl "start"
-RC="$?"
 # Ensure that the database started.
-if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| ERROR - UNABLE TO START THE POSTGRESQL SERVER."
-   echo "--------------------------------------------------------------------------------"
+if [ $? -ne 0 ]; then
    printFailureMessage   
 fi
-echo ""
 
-echo "--------------------------------------------------------------------------------"
-echo "\| Run the Initial SQL Script..."
-echo "--------------------------------------------------------------------------------"
 execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql
 
-update_lwpostgis
-echo "--------------------------------------------------------------------------------"
-echo "\| Spatially Enabling the metadata Database..."
-echo "--------------------------------------------------------------------------------"
-execute_psql_sql_script ${SHARE_DIR}/lwpostgis.sql metadata
-execute_psql_sql_script ${SHARE_DIR}/spatial_ref_sys.sql metadata
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/postgis.sql metadata
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/spatial_ref_sys.sql metadata
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/rtpostgis.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating station Table..."
-echo "--------------------------------------------------------------------------------"
 execute_psql_sql_script ${SQL_SHARE_DIR}/create_subscription_tables.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/afoslookup.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/bit_table.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/collective.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/national_category.sql metadata
 
 # create the events schema
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata
 
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating shef Tables..."
-echo "--------------------------------------------------------------------------------"
 execute_psql_sql_script ${SQL_SHARE_DIR}/hd_ob83oax.sql metadata
 
 update_createDamcat
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating damcat Tables..."
-echo "--------------------------------------------------------------------------------"
 execute_psql_sql_script ${SQL_SHARE_DIR}/createDamcat.sql postgres
 execute_psql_sql_script ${SQL_SHARE_DIR}/dcob7oax.sql dc_ob7oax
 execute_psql_sql_script ${SQL_SHARE_DIR}/populateDamcatDatabase.sql dc_ob7oax
@@ -406,38 +297,12 @@ su ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_USER} ${SQL_SHARE_DIR} ${SQL_LOG}"
    
 update_createEbxml
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating ebxml Tables..."
-echo "--------------------------------------------------------------------------------"
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql postgres
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating VTEC Tables..."
-echo "--------------------------------------------------------------------------------"
 execute_psql_sql_script ${SQL_SHARE_DIR}/vtec_initial_setup.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/create_p_vtec_tables.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/populate_p_vtec_tables.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/populate_vtec_events_table.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/populate_vtec_afos_product_table.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/populate_event_product_index.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/populate_vtec_event_tracking_table.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/create_h_vtec_tables.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/populate_h_vtec_tables.sql metadata
 
-echo ""
-echo "--------------------------------------------------------------------------------"
-echo "\| Stopping PostgreSQL..."
-echo "--------------------------------------------------------------------------------"
 control_pg_ctl "stop"
 
-echo ""
-echo "--------------------------------------------------------------------------------"
-echo "\| Copy Additional Configuration Files..."
-echo "--------------------------------------------------------------------------------"
 copy_addl_config
-
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Database Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
 
 %preun
 if [ "${1}" = "1" ]; then
@@ -485,9 +350,6 @@ su ${DB_OWNER} -c \
    "${PG_CTL} status -D /awips2/data > /dev/null 2>&1"
 RC="$?"
 if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su ${DB_OWNER} -c \
       "${POSTMASTER} -D /awips2/data > /dev/null 2>&1 &"
    RC="$?"
@@ -514,17 +376,14 @@ do
       "${DROPDB} -U awips ${db}"
 done
 
-echo ""
 # Attempt To Drop The Tablespaces In Our List ...
 for tb in ${TBS_TO_DROP[*]};
 do
-   echo "Dropping Tablespace ... ${tb}"
    TB_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep ${tb} | awk '{print $5}'`
    su ${DB_OWNER} -c \
       "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ${tb}\""
       
    # remove the tablespace directory.
-   echo "Attempting To Remove Directory: ${TB_DIR}"
    if [ -d "${TB_DIR}" ]; then
       su ${DB_OWNER} -c "rmdir ${TB_DIR}"
    fi
@@ -532,18 +391,11 @@ done
 
 # Attempt To Stop PostgreSQL (If We Started It)
 if [ "${I_STARTED_POSTGRESQL}" = "Y" ]; then
-   echo ""
    su ${DB_OWNER} -c \
       "${PG_CTL} stop -D /awips2/data"   
 fi
 
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II Database Installation Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -558,7 +410,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/database/sqlScripts/share/sql/pg_hba.conf
 
 %defattr(755,awips,fxalpha,755)
-/awips2/database/sqlScripts/share/*.sql
 %dir /awips2/database/sqlScripts/share/sql
 /awips2/database/sqlScripts/share/sql/*.sql
 /awips2/database/sqlScripts/share/sql/*.sh

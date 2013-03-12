@@ -221,12 +221,12 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ldm"
       return 0
    fi
-   if [ "${1}" = "awips2-postgresql" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.postgresql"
+   if [ "${1}" = "awips2-postgres" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.postgres"
       return 0
    fi
-   if [ "${1}" = "awips2-psql" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.psql"
+   if [ "${1}" = "awips2-pgadmin3" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.pgadmin"
       return 0
    fi
    if [ "${1}" = "awips2-tools" ]; then
