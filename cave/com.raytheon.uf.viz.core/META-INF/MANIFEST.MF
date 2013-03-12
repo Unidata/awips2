@@ -92,6 +92,7 @@ Import-Package: com.raytheon.uf.common.alertmonitor,
  com.raytheon.uf.common.time.adapter,
  com.raytheon.uf.common.time.util,
  com.raytheon.uf.common.topo,
+ com.raytheon.uf.common.velocity,
  org.apache.log4j,
  org.apache.log4j.spi
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
