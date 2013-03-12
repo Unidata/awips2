@@ -122,6 +122,17 @@ if [ "${1}" = "-64bit" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-postgres" ]; then
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-pgadmin3"
+
+   exit 0
+fi
+
 if [ "${1}" = "-delta" ]; then
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -204,6 +215,8 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-notification"
    buildRPM "awips2-python-shapely"
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-pgadmin3"
    exit 0
 fi
 
