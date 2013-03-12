@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * 1-26-2009               mnash       Initial creation
  * 1-20-2010     DR 4059   Zihou Wang  Decode more GSM status
+ * 03/01/13      DR15496   zwang       Decode expanded GSM
  * </pre>
  * 
  * @author mnash
@@ -121,6 +122,9 @@ public class GSMBlock extends AbstractBlock implements ISerializableObject {
         @DynamicSerializeElement
         public int buildVersion;
 
+        @DynamicSerializeElement
+        public int vcpInfo;
+        
         /**
          * @return the mode
          */
@@ -420,7 +424,22 @@ public class GSMBlock extends AbstractBlock implements ISerializableObject {
         public void setBuildVersion(int buildVersion) {
             this.buildVersion = buildVersion;
         }
+        
+        /**
+         * @return the vcpSupInfo
+         */
+        public int getVcpInfo() {
+            return vcpInfo;
+        }
 
+        /**
+         * @param vcpSupInfo
+         *            the vcpSupInfo to set
+         */
+        public void setVcpInfo(int vcpInfo) {
+            this.vcpInfo = vcpInfo;
+        }
+        
         @Override
         public String toString() {
             return String
@@ -459,10 +478,9 @@ public class GSMBlock extends AbstractBlock implements ISerializableObject {
         message.operabilityStatus = in.readShort();
         message.volumeCoveragePattern = in.readShort();
         message.numCuts = in.readShort();
-        message.elevation = new double[20];
+        message.elevation = new double[25];
         for (int j = 0; j < 20; j++) {
             message.elevation[j] = in.readShort();
-
         }
         message.rdaStatus = in.readShort();
         message.rdaAlarms = in.readShort();
@@ -480,7 +498,17 @@ public class GSMBlock extends AbstractBlock implements ISerializableObject {
         message.rdaChannelNum = in.readShort();
         in.skip(4);
         message.buildVersion = in.readShort();
-
+        
+        // GSM size is increased to 200 bytes since Build 14.0
+        if (message.buildVersion >= 140) {
+        	for (int j = 0; j < 5; j++) {
+        		message.elevation[20+j] = in.readShort();
+        	}
+        	message.vcpInfo = in.readShort();
+        }
+        else {
+        	message.vcpInfo = 0;
+        }
     }
 
     @Override

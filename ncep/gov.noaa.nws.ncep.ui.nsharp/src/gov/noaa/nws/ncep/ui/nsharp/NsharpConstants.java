@@ -23,6 +23,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -180,8 +181,12 @@ public class NsharpConstants {
 
     public static double center = (left + right) / 2;
 
+    public  static RGB color_vanilla = new RGB(255,239,206);
     public  static RGB color_red = new RGB(255,0,0);//red
     public  static RGB color_green = new RGB(0,255,0);//green
+    public  static RGB color_darkgreen = new RGB(0x2f,0x4f,0x2f);//green
+    public  static RGB color_mdgreen = new RGB(0x34,0x80,0x17);//green
+    public  static RGB color_coral = new RGB(0xf0,0x80,0x80);
     public  static RGB color_lawngreen = new RGB(119,255,0);//green
     public  static RGB color_yellow_green = new RGB(154,205,50);//green
 	public  static RGB color_yellow = new RGB(255,255,0);//yellow
@@ -189,29 +194,77 @@ public class NsharpConstants {
 	public  static RGB color_cyan = new RGB(0,255,255); //cyan
 	public  static RGB color_cyan_md = new RGB(0,238,238); //cyan_md, cyan2
 	public  static RGB color_navy = new RGB(0,0,128); //navy
+	public  static RGB color_apricot = new RGB(251,206,177);
+	public  static RGB color_plum = new RGB(0xB9,0x3B,0x8F);
+	public  static RGB color_purple = new RGB(0x8E,0x35,0xEF);
 	public  static RGB color_violet = new RGB(125,0,255);//violet
 	public  static RGB color_violet_red = new RGB(208,32,144);//violet
 	public  static RGB color_violet_md = new RGB(208,32,144);//md-violet
-	public  static RGB color_white = new RGB(255,250,250);//white
+	public  static RGB color_white = new RGB(255,255,255);//white
+	public  static RGB color_brown = new RGB(166,104,41);//brown
 	public  static RGB color_black = new RGB(0,0,0);//black
+	public  static RGB color_orangered = new RGB(255,0x45, 0);//orangered
 	public  static RGB color_orange = new RGB(255,122, 66);//orange
 	public  static RGB color_darkorange = new RGB(255,140, 0);//orange
 	public  static RGB color_babypink = new RGB(249,207, 221);//
 	public  static RGB color_deeppink = new RGB(255,20, 147);//
 	public  static RGB color_hotpink = new RGB(255,105, 180);//
 	public  static RGB color_pink = new RGB(255, 192, 203);
+	public  static RGB color_blue = new RGB(0,0,255);
 	public  static RGB color_stellblue = new RGB(70,130,180);
 	public  static RGB color_royalblue = new RGB(65,105,225);
 	public  static RGB color_skyblue = new RGB(135,206,235);
-	public  static RGB color_lightblue = new RGB(173, 216, 230);
+	public  static RGB color_lightblue = new RGB(173, 223,255);
 	public  static RGB color_dodgerblue = new RGB(30,144,255);
 	public  static RGB color_chocolate = new RGB(210,105,30);
 	public  static RGB color_firebrick = new RGB(178,34,34);
 	public  static RGB color_gold = new RGB(255,215,0);
 	public  static RGB color_magenta = new RGB(255,0,255);
+	public  static RGB color_maroon = new RGB(0x80,0,0);
 	public static final RGB[] COLOR_ARRAY = {color_green, color_violet,color_yellow,color_hotpink,
 		color_stellblue,color_yellow_green,color_royalblue,color_violet_red,color_orange,color_deeppink,
 		color_dodgerblue, color_chocolate,color_navy};
+	
+	public static final HashMap<Integer, RGB> gempakColorToRGB = new HashMap<Integer, RGB>(){  
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		{
+			put(1,NsharpConstants.color_vanilla);
+			put(2,NsharpConstants.color_red);
+			put(3,NsharpConstants.color_green);
+			put(4,NsharpConstants.color_blue);
+			put(5,NsharpConstants.color_yellow);
+			put(6,NsharpConstants.color_cyan);
+			put(7,NsharpConstants.color_magenta);
+			put(8,NsharpConstants.color_brown);
+			put(9,NsharpConstants.color_coral);
+			put(10,NsharpConstants.color_apricot);
+			put(11,NsharpConstants.color_pink);
+			put(12,NsharpConstants.color_deeppink);
+			put(13,NsharpConstants.color_violet_md);
+			put(14,NsharpConstants.color_maroon);
+			put(15,NsharpConstants.color_firebrick);
+			put(16,NsharpConstants.color_orangered);
+			put(17,NsharpConstants.color_orange);
+			put(18,NsharpConstants.color_darkorange);
+			put(19,NsharpConstants.color_gold);
+			put(20,NsharpConstants.color_yellow_DK);
+			put(21,NsharpConstants.color_lawngreen);
+			put(22,NsharpConstants.color_mdgreen);
+			put(23,NsharpConstants.color_darkgreen);
+			put(24,NsharpConstants.color_blue);
+			put(25,NsharpConstants.color_lightblue);
+			put(26,NsharpConstants.color_skyblue);
+			put(27,NsharpConstants.color_cyan_md);
+			put(28,NsharpConstants.color_violet);
+			put(29,NsharpConstants.color_purple);
+			put(30,NsharpConstants.color_plum);
+			put(31,NsharpConstants.color_white);
+			put(32,NsharpConstants.color_black);
+		}
+	};
     // horizontal height line that will be drawn.
     public static final int[] HEIGHT_LEVEL_METERS = {/*16000,*/ 15000, 12000, 9000, 6000, 3000, 2000 };
     public static final int[] HEIGHT_LEVEL_FEET = {50000, 45000, 40000, 35000, 30000, 25000, 20000, 15000, 10000, 5000, 2500 };
@@ -658,13 +711,13 @@ public class NsharpConstants {
     }
 	
 	//Line configuration. Line name listing order in this array should be in order with constant defined below it.
-	public static String[] lineNameArray= {"Temperature", "Dew Point", "Parcel","Parcel Ascent","DCAPE","Virtual Temp","Wetbulb","Wind Barb","Overlay 1", "Overlay 2", "Compare 1", "Compare 2","Compare 3","Compare 4","Compare 5","Compare 6","Compare 7","Compare 8","Compare 9","Compare 10",
+	public static String[] lineNameArray= {"Temperature", "Dew Point", "Parcel Tv","Parcel","DCAPE","Virtual Temp","Wetbulb","Wind Barb","Overlay 1", "Overlay 2", "Compare 1", "Compare 2","Compare 3","Compare 4","Compare 5","Compare 6","Compare 7","Compare 8","Compare 9","Compare 10",
 											"Icing RH", "Icing Temp", "Icing EPI", "Turbulence Ln", "Turbulence WindShear"};
 	public static int LINE_TEMP = 0;
 	public static int LINE_DEWP = LINE_TEMP+1;
-	public static int LINE_PARCEL = LINE_DEWP+1;
-	public static int LINE_PARCEL_ASCENT = LINE_PARCEL+1;
-	public static int LINE_DCAPE =LINE_PARCEL_ASCENT+1;
+	public static int LINE_PARCEL_TV = LINE_DEWP+1;
+	public static int LINE_PARCEL = LINE_PARCEL_TV+1;
+	public static int LINE_DCAPE =LINE_PARCEL+1;
 	public static int LINE_VIRTUAL_TEMP =LINE_DCAPE+1;
 	public static int LINE_WETBULB = LINE_VIRTUAL_TEMP+1;
 	public static int LINE_WIND_BARB = LINE_WETBULB+1;
