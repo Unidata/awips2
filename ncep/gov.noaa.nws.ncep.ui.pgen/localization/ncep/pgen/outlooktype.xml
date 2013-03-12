@@ -96,9 +96,12 @@
 	</otlktype>
 	
 	<otlktype name="FIREOUTL" prefix="fire">
+		<label text="ELEVATED"		value="40"/>
 		<label text="CRITICAL"		value="60"/>
 		<label text="EXTREME"		value="80"/>
-		<label text="DRY-TSTM"		value="100"/>	
+		<label text="DRY-T"			value="100"/>
+		<label text="ISOLD DRY-T"		value="100"/>
+		<label text="SCT DRY-T"			value="100"/>
 	</otlktype>
 	
 	<otlktype name="CATG_SVR" prefix="category_severe">

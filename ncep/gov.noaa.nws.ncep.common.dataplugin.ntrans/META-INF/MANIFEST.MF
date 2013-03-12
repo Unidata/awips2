@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ntrans Plug-in 
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.ntrans
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.7",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.log4j;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ org.eclipse.ui;bundle-version="3.4.1",
+ org.eclipse.core.runtime;bundle-version="3.4.0"
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.ntrans,
+ gov.noaa.nws.ncep.common.dataplugin.ntrans.dao
+Bundle-Vendor: AWIPS II migration
+Import-Package: com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.decodertools.time,
+ com.raytheon.uf.edex.wmo.message,
+ org.junit
