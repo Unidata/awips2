@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.util.velocity;
+package com.raytheon.uf.common.velocity;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -29,7 +29,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 
 import com.raytheon.uf.common.util.FileUtil;
 
@@ -93,7 +92,7 @@ public class VelocityManager {
                     rootsToCheck += "," + root.getAbsolutePath();
                 }
                 p.setProperty("file.resource.loader.class",
-                        FileResourceLoader.class.getName());
+                        VelocityTemplateLoader.class.getName());
                 p.setProperty("file.resource.loader.path", rootsToCheck);
                 p.setProperty("velocimacro.permissions.allowInline", "true");
                 p.setProperty(
