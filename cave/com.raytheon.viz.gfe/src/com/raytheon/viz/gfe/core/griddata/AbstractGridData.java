@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
@@ -64,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/29/2008              chammack    Initial Class Skeleton.
  * 03/13/2008   879        rbell       Legacy conversion.
  * 06/10/2009   2159       rjpeter     Updated isValid to call gridSlice.isValid
+ * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * </pre>
  * 
  * @author chammack
@@ -337,7 +340,12 @@ public abstract class AbstractGridData implements IGridData {
         }
 
         // perform translation
-        return translateDataFrom(sourceGrid);
+        try {
+            return translateDataFrom(sourceGrid);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "Error translating data", e);
+            return false;
+        }
 
     }
 
@@ -350,7 +358,8 @@ public abstract class AbstractGridData implements IGridData {
     @Override
     public abstract IGridData clone() throws CloneNotSupportedException;
 
-    protected abstract boolean translateDataFrom(final IGridData source);
+    protected abstract boolean translateDataFrom(final IGridData source)
+            throws FactoryException, TransformException;
 
     /*
      * (non-Javadoc)

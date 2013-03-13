@@ -76,7 +76,8 @@ import com.raytheon.viz.ui.widgets.TimeRangeEntry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 5, 2012            randerso     Initial creation
+ * Dec  5, 2012            randerso    Initial creation
+ * Feb 15, 2013     #1629  randerso    Fix saving of default plugin to prefs
  * 
  * </pre>
  * 
@@ -292,7 +293,7 @@ public class GisDataStoreParametersDialog extends CaveJFACEDialog {
         String pluginName = prefs.getString(GIS_DATA_STORE_PLUGIN_PREF);
         if (!Arrays.asList(getPluginNames()).contains(pluginName)) {
             pluginName = getPluginNames()[0];
-            prefs.setToDefault(GIS_DATA_STORE_PLUGIN_PREF);
+            prefs.setValue(GIS_DATA_STORE_PLUGIN_PREF, pluginName);
             try {
                 prefs.save();
             } catch (IOException e1) {
