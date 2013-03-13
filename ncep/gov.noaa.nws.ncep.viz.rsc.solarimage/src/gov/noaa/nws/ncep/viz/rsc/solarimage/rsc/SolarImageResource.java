@@ -16,6 +16,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -25,18 +27,15 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
-import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.uf.viz.core.style.MatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
@@ -78,7 +77,7 @@ public class SolarImageResource extends
 
     private DataTime displayedDateTime;
 
-    private HashMap<DataTime, SolarImageDisplay> imageDisplayMap;
+    private final HashMap<DataTime, SolarImageDisplay> imageDisplayMap;
 
     private boolean log10scale = false;
     
@@ -86,9 +85,9 @@ public class SolarImageResource extends
     //sampling
     boolean sampling = false;  
     
-    private Sampling samplingRsc;
+    private final Sampling samplingRsc;
     
-    private IInputHandler inputAdapter = getSolarImageInputHandler();
+    private final IInputHandler inputAdapter = getSolarImageInputHandler();
 
     protected ReferencedCoordinate sampleCoord;
     
