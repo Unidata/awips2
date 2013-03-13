@@ -2,7 +2,7 @@
 <DerivedParameter name="Wind Wave Direction" abbreviation="WVdir" xmlns:ns2="group">
     <Method name="Vector">
     	<ConstantField value="20"/>
-        <Field abbreviation="WVDIR"/>
+        <Field abbreviation="WVDIR" unit="deg"/>
         <ConstantField value="1"/>
     </Method>
 </DerivedParameter>
