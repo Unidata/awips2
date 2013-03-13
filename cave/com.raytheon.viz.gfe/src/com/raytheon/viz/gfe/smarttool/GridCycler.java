@@ -59,6 +59,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 28, 2008            njensen     Initial creation
+ * Mar 13, 2013 1791       bsteffen    Implement bulk getGrids to improve
+ *                                     performance.
  * 
  * </pre>
  * 
@@ -186,6 +188,48 @@ public class GridCycler {
         MissingDataMode dataMode = MissingDataMode.valueOf(missingMode
                 .toUpperCase());
         return getCorrespondingResult(argParm, timeRange, mode, dataMode);
+    }
+
+    /**
+     * Performs the same basic function as getCorrespondingResult but operates
+     * on an array of timeRanges and returns an array of data(one entry for each
+     * corresponding timeRange).
+     * 
+     * @param argParm
+     *            the parm to get grids for
+     * @param timeRanges
+     *            the requested time ranges
+     * @param mode
+     *            "TimeWtAverage", "Average", "Min", "Max", "Sum" -- time
+     *            weighted average, average, min, max, or sum of corresponding
+     *            grids
+     * @return an IGridData[][] of the data
+     * @throws GFEOperationFailedException
+     */
+    public IGridData[][] getCorrespondingResult(Parm argParm,
+            TimeRange[] timeRanges, String mode)
+            throws GFEOperationFailedException {
+        // first step is to determine which grids need to be populated.
+        List<IGridData> grids = new ArrayList<IGridData>();
+        for (TimeRange timeRange : timeRanges) {
+            IGridData[] inv = argParm.getGridInventory(timeRange);
+            for (IGridData data : inv) {
+                if (!data.isPopulated()) {
+                    grids.add(data);
+                }
+            }
+        }
+        // next step populate any unpopulated.
+        if (!grids.isEmpty()) {
+            argParm.populateGrids(grids);
+        }
+        // finally just process each range individually.
+        IGridData[][] results = new IGridData[timeRanges.length][];
+        for (int i = 0; i < timeRanges.length; i += 1) {
+            results[i] = getCorrespondingResult(argParm, timeRanges[i],
+                    mode);
+        }
+        return results;
     }
 
     /**
