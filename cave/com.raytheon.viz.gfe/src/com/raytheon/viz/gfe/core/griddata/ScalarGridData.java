@@ -27,6 +27,9 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
+
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
@@ -52,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/29/2008              chammack    Initial Class Skeleton.
  * 03/13/2008   879        rbell       Legacy conversion.
  * 05/20/2009   #2159      rjpeter     Fixed doDelta
+ * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * </pre>
  * 
  * @author chammack
@@ -400,7 +404,8 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
     }
 
     @Override
-    protected boolean translateDataFrom(IGridData source) {
+    protected boolean translateDataFrom(IGridData source)
+            throws FactoryException, TransformException {
         if (!(source instanceof ScalarGridData)) {
             throw new IllegalArgumentException(
                     "Expected ScalarGridData as source.");
@@ -446,14 +451,9 @@ public class ScalarGridData extends OrderedGridData implements Cloneable {
             RemapGrid remap = new RemapGrid(scalarSource.getParm()
                     .getGridInfo().getGridLoc(), this.parm.getGridInfo()
                     .getGridLoc());
-            try {
-
-                Grid2DFloat scalarGrid = remap.remap(scalarSource.getGrid(),
-                        -99999.99f, maxLimit, minLimit, minLimit);
-                setGrid(scalarGrid);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Grid2DFloat scalarGrid = remap.remap(scalarSource.getGrid(),
+                    -99999.99f, maxLimit, minLimit, minLimit);
+            setGrid(scalarGrid);
         }
         return true;
     }
