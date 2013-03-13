@@ -22,8 +22,8 @@ package com.raytheon.uf.common.time.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.beanutils.Converter;
 
@@ -35,6 +35,8 @@ import org.apache.commons.beanutils.Converter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 9/17/08      1531       bphillip    Initial Creation
+ * Mar 13, 2013 1789       bsteffen    Move Calendar and Date parsing out of
+ *                                     ConvertUtil and also fix date parsing.
  * </pre>
  * 
  * @author bphillip
@@ -42,38 +44,48 @@ import org.apache.commons.beanutils.Converter;
  */
 public class DateConverter implements Converter {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    // Allows ConvertUtils to successfully convert:
+    // 1) TimeRange.getStart().toString()
+    // 2) TimeRange.getEnd().toString()
+    // 3) "BinOffset usage"
+    private static final String[] DATE_FORMATS = { "yyyy-MM-dd HH:mm:ss.S",
+            "EEE MMM dd HH:mm:ss z yyyy", "yyyy-MM-dd HH:mm:ss" };
 
-    private static final int QUEUE_SIZE = 20;
+    private ThreadLocal<SimpleDateFormat[]> formatHolder = new ThreadLocal<SimpleDateFormat[]>() {
 
-    private static Queue<SimpleDateFormat> formatters = new ConcurrentLinkedQueue<SimpleDateFormat>();
+        @Override
+        protected SimpleDateFormat[] initialValue() {
+            SimpleDateFormat[] value = new SimpleDateFormat[DATE_FORMATS.length];
+            for (int i = 0; i < value.length; i += 1) {
+                value[i] = new SimpleDateFormat(DATE_FORMATS[i]);
+            }
+            return value;
+        }
 
-    @SuppressWarnings("rawtypes")
+    };
+
     @Override
     public Object convert(Class clazz, Object value) {
         if (value instanceof String) {
-            SimpleDateFormat formatter = getDateFormat();
+            String valueString = (String) value;
             try {
-                return formatter.parseObject((String) value);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return null;
-            } finally {
-                if (formatter != null && formatters.size() < QUEUE_SIZE) {
-                    formatters.add(formatter);
+                // see if string is in ISO 8601
+                return DatatypeConverter.parseDateTime(valueString).getTime();
+            } catch (Exception e) {
+                // try the formats.
+            }
+
+            for (SimpleDateFormat format : formatHolder.get()) {
+                try {
+                    return format.parseObject(valueString);
+                } catch (ParseException e) {
+                    // try the next one.
                 }
             }
+            return null;
         }
         return null;
     }
 
-    private static SimpleDateFormat getDateFormat() {
-        SimpleDateFormat m = formatters.poll();
-        if (m == null) {
-            m = new SimpleDateFormat(DATE_FORMAT);
-        }
-
-        return m;
-    }
 
 }

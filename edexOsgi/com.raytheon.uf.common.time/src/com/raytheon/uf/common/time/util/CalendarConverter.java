@@ -26,8 +26,9 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.Converter;
+import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.beanutils.Converter;
 
 /**
  * Custom converter implementation for converting Calendar objects to and from
@@ -38,6 +39,8 @@ import org.apache.commons.beanutils.Converter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                         bphillip    Initial Creation
+ * Mar 13, 2013 1789       bsteffen    Move Calendar and Date parsing out of
+ *                                     ConvertUtil and also fix date parsing.
  * </pre>
  * 
  * @author bphillip
@@ -51,12 +54,18 @@ public class CalendarConverter implements Converter {
 
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Override
     public Object convert(Class type, Object value) {
 
         if (value instanceof String) {
             String date = (String) value;
+            try {
+                // see if string is in ISO 8601
+                return DatatypeConverter.parseDateTime(date).getTime();
+            } catch (Exception e) {
+                // try to match the pattern.
+            }
 
             Matcher m = DATE_PATTERN.matcher(date);
 
