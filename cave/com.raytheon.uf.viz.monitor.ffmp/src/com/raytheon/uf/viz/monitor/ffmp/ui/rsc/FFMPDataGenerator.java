@@ -217,19 +217,23 @@ public class FFMPDataGenerator {
                                             setFFMPRow(fbd.get(key), tData,
                                                     false, cwa);
 
-                                            if (virtualBasin != null) {
-                                                for (Long id : ft
-                                                        .getVirtualGageBasinLookupIds(
-                                                                siteKey, key)) {
-                                                    setFFMPRow(
-                                                            virtualBasin
-                                                                    .get(id),
-                                                            tData, true, domain
-                                                                    .getCwa());
-                                                }
-                                            }
-                                        }
-                                    }
+											if (virtualBasin != null) {
+												for (Long id : ft
+														.getVirtualGageBasinLookupIds(
+																siteKey,
+																key,
+																huc,
+																resource.basinTableDlg
+																		.getRowName())) {
+													setFFMPRow(
+															virtualBasin
+																	.get(id),
+															tData, true, domain
+																	.getCwa());
+												}
+											}
+										}
+									}
 
                                 } else {
                                     /*
@@ -281,22 +285,26 @@ public class FFMPDataGenerator {
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
 
-                                            setFFMPRow(fbd.get(key), tData,
-                                                    false, null);
-                                            // virtual basin
-                                            if (virtualBasin != null) {
-                                                for (Long id : ft
-                                                        .getVirtualGageBasinLookupIds(
-                                                                siteKey, key)) {
-                                                    setFFMPRow(
-                                                            virtualBasin
-                                                                    .get(id),
-                                                            tData, true, null);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+											setFFMPRow(fbd.get(key), tData,
+													false, null);
+											// virtual basin
+											if (virtualBasin != null) {
+												for (Long id : ft
+														.getVirtualGageBasinLookupIds(
+																siteKey,
+																key,
+																huc,
+																resource.basinTableDlg
+																		.getRowName())) {
+													setFFMPRow(
+															virtualBasin
+																	.get(id),
+															tData, true, null);
+												}
+											}
+										}
+									}
+								}
                             }
                         }
                         tData.sortData();
