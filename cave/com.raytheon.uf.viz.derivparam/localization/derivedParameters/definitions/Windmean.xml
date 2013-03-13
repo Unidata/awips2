@@ -25,7 +25,7 @@
 	</Method>
 	<Method name="Vector">
 		<Field abbreviation="WSmean" unit="kts"/>
-		<Field abbreviation="WDmean" unit="kts"/>
+		<Field abbreviation="WDmean" unit="deg"/>
 		<ConstantField value="1.0"/>
 	</Method>
 </DerivedParameter>

@@ -53,6 +53,11 @@
 	        <dataURI>/redbook/%/PENJ88/%</dataURI>
 	        <substitute key="wmo" value="PENJ88"/>
 	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Mesoscale Precip Discussion" id="mesoPrecipDisc">
+            <dataURI>/redbook/%/PENA01/%</dataURI>
+            <substitute key="wmo" value="PENA01"/>
+        </contribute>
 	    <contribute xsi:type="separator" id="separator1"/>
 	    <contribute xsi:type="subMenu" menuText="Day 1-3 Prob 4+ Inches Snow">
 	    	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 

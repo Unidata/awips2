@@ -63,7 +63,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.DescriptorMap;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -100,6 +99,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
  * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked. 
  * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes. 
+ * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
  * 
  * </pre>
  * 
@@ -862,18 +862,6 @@ public class ProcedureDlg extends CaveSWTDialog {
         // set the loop properties
         if (b.getLoopProperties() != null) {
             editor.setLoopProperties(b.getLoopProperties());
-        }
-
-        /*
-         * Check if the bundle was used to open the editor. If it was then we do
-         * not want to clear the display.
-         */
-        if (editor.getDisplayPanes()[0].getDescriptor() != b.getDisplays()[0]
-                .getDescriptor()) {
-            for (IDisplayPane pane : editor.getDisplayPanes()) {
-                pane.getRenderableDisplay().getDescriptor().getResourceList()
-                        .clear();
-            }
         }
 
         ProcedureLoadJob.getInstance().enqueue(b, editor);
