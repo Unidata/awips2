@@ -19,7 +19,7 @@
       <vmArgs>-Xincgc -Xmx1280M -Dosgi.instance.area.readOnly=true 
 -Dosgi.hook.configurators.exclude=org.eclipse.core.runtime.internal.adaptor.EclipseLogHook,org.eclipse.core.runtime.internal.adaptor.EclipseErrorHandler 
 -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass -Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=128m -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme -Dawips.mode=pypies -Dqpid.dest_syntax=BURL -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot; -Dlog4j.configuration=log4j-viz-core.xml</vmArgs>
-      <vmArgsWin>-Dfile.encoding=UTF-8</vmArgsWin>
+      <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>
    </launcherArgs>
 
    <windowImages/>
