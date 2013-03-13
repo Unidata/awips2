@@ -684,6 +684,10 @@
             <value><name>Sig River Flood Outlook</name></value>
         </entry>
         <entry>
+            <key>PENA01</key>
+            <value><name>Mesoscale Precip Discussion</name></value>
+        </entry>
+        <entry>
             <key>PEBG98</key>
             <value><name>6Hr QPF - Time Proj 36-42Hrs</name></value>
         </entry>
