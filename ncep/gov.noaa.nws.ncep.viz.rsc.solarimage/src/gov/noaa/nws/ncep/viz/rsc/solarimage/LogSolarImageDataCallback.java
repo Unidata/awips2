@@ -1,8 +1,11 @@
 package gov.noaa.nws.ncep.viz.rsc.solarimage;
 
 import gov.noaa.nws.ncep.common.dataplugin.solarimage.SolarImageRecord;
+
 import java.nio.FloatBuffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 
