@@ -29,7 +29,10 @@ import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.preciprate.PrecipRateRecord;
 import com.raytheon.uf.common.dataplugin.preciprate.dao.PrecipRateDao;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
+import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
+import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
+import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +50,7 @@ import com.raytheon.uf.edex.plugin.preciprate.common.PrecipRateConfig;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 01/25/10      3796       D. Hladky   Initial release
+ * 02/25/13     1660        D. Hladky   Fixed SCAN configuration bug.
  * 
  * </pre>
  * 
@@ -54,13 +58,18 @@ import com.raytheon.uf.edex.plugin.preciprate.common.PrecipRateConfig;
  * @version 1
  */
 
-public class PrecipRateGenerator extends CompositeProductGenerator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class PrecipRateGenerator extends CompositeProductGenerator implements
+MonitorConfigListener{
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateGenerator.class);
 
     private static final String genName = "PrecipRate";
 
     private static final String productType = "preciprate";
+    
+    /** run configuration manager **/
+    public SCANRunSiteConfigurationManager srcm = null;
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
@@ -77,11 +86,24 @@ public class PrecipRateGenerator extends CompositeProductGenerator {
     @Override
     protected void configureFilters() {
 
-        logger.debug(getGeneratorName() + " process Filter Config...");
-        icaos = new HashSet<String>(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.LOCAL_CONSTANT));
-        icaos.addAll(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.DIAL_CONSTANT));
+        statusHandler.handle(Priority.INFO, getGeneratorName()
+                + " process Filter Config...");
+
+        try {
+            getRunConfig().readConfigXml();
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't read PrecipRate(scan) configuration!!!", e);
+        }
+        boolean configValid = getRunConfig().isPopulated();
+
+        if (!configValid) {
+            statusHandler.handle(Priority.WARN,
+            "Configuration for PrecipRate(scan) is invalid!!!");
+            return;
+        }
+
+        icaos = new HashSet<String>(getRunConfig().getSiteNames());
     }
 
     @Override
@@ -96,7 +118,7 @@ public class PrecipRateGenerator extends CompositeProductGenerator {
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Couldn't create PrecipRate URIFilter.." + icao
-                                + " is not a know RADAR site.");
+                                + " is not a know RADAR site.", e);
                 iter.remove();
             }
         }
@@ -166,6 +188,28 @@ public class PrecipRateGenerator extends CompositeProductGenerator {
     @Override
     public boolean isRunning() {
         return getConfigManager().getPrecipRateState();
+    }
+
+    @Override
+    public void configChanged(MonitorConfigEvent fce) {
+        if (fce.getSource() instanceof SCANRunSiteConfigurationManager) {
+            statusHandler.handle(Priority.INFO,
+                    "Re-configuring PrecipRate URI filters...Run Site Config change");
+            resetFilters();
+        }
+    }
+    
+    /**
+     * run config manager
+     * 
+     * @return
+     */
+    public SCANRunSiteConfigurationManager getRunConfig() {
+        if (srcm == null) {
+            srcm = SCANRunSiteConfigurationManager.getInstance();
+            srcm.addListener(this);
+        }
+        return srcm;
     }
 
 }

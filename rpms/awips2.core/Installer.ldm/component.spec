@@ -191,7 +191,7 @@ cp -P %{_baseline_workspace}/${PATCH_DIR}/lib/* \
 cp -f %{_baseline_workspace}/${PATCH_DIR}/etc/* \
    ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1/etc
    
-# Merge pqact.conf.oax and pqact.conf.template to create
+# Merge pqact.conf.dev and pqact.conf.template to create
 # our pqact.conf file.
 pushd . > /dev/null 2>&1
 cd ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1/etc
@@ -199,8 +199,8 @@ if [ ! -f pqact.conf.template ]; then
    echo "ERROR: pqact.conf.template does not exist."
    exit 1
 fi
-if [ ! -f pqact.conf.oax ]; then
-   echo "ERROR: pqact.conf.oax does not exist."
+if [ ! -f pqact.conf.dev ]; then
+   echo "ERROR: pqact.conf.dev does not exist."
    exit 1
 fi
 
@@ -210,10 +210,10 @@ if [ ${RC} -ne 0 ]; then
    echo "ERROR: Unable to create the pqact.conf file."
    exit 1
 fi
-cat pqact.conf.oax >> pqact.conf
+cat pqact.conf.dev >> pqact.conf
 RC=$?
 if [ ${RC} -ne 0 ]; then
-   echo "ERROR: Unable to merge pqact.conf.oax and pqact.conf."
+   echo "ERROR: Unable to merge pqact.conf.dev and pqact.conf."
    exit 1
 fi
 popd > /dev/null 2>&1
