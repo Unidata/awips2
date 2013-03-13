@@ -12,11 +12,11 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.eclipse.core.runtime.Platform;
 
 /**
  * 
@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Platform;
  * Oct 12, 2010            mschenke     Initial creation
  * Jan 24, 2013 1522       bkowal       Halt initialization if a p2 installation 
  *                                      has been started
+ * Mar 05, 2013 1754       djohnson     Catch exceptions and allow as much of the Spring container to boot as possible.
  * 
  * </pre>
  * 
@@ -64,7 +65,8 @@ public class Activator implements BundleActivator {
 	 * @see
 	 * org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception {
+	@Override
+    public void start(BundleContext context) throws Exception {
 		if (this.isInstallOperation()) {
 			return;
 		}
@@ -137,16 +139,27 @@ public class Activator implements BundleActivator {
 						}
 					}
 
-					if (parentContexts.size() > 0) {
-						// Context with parent context
-						appCtx = new OSGIXmlApplicationContext(
-								new OSGIGroupApplicationContext(parentContexts),
-								files.toArray(new String[0]), bundle);
-					} else {
-						// No parent context required
-						appCtx = new OSGIXmlApplicationContext(
-								files.toArray(new String[0]), bundle);
-					}
+                    try {
+                        if (parentContexts.size() > 0) {
+                            // Context with parent context
+                            appCtx = new OSGIXmlApplicationContext(
+                                    new OSGIGroupApplicationContext(
+                                            parentContexts),
+                                    files.toArray(new String[0]), bundle);
+                        } else {
+                            // No parent context required
+                            appCtx = new OSGIXmlApplicationContext(
+                                    files.toArray(new String[0]), bundle);
+                        }
+                    } catch (Throwable t) {
+                        // No access to the statusHandler yet, so print the
+                        // stack trace to the console. By catching this, we also
+                        // allow as many beans as possible to continue to be
+                        // created
+                        System.err
+                                .println("Errors booting the Spring container.  CAVE will not be fully functional.");
+                        t.printStackTrace();
+                    }
 				}
 			}
 			contextMap.put(bundleName, appCtx);
@@ -161,7 +174,8 @@ public class Activator implements BundleActivator {
 	 * @see
 	 * org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception {
+	@Override
+    public void stop(BundleContext context) throws Exception {
 		plugin = null;
 	}
 
