@@ -149,6 +149,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 08 Feb 2013 12851   	   jzeng       Add menuToAddTo in create*Menu
  *                                     Create createEditorPopupMenu() 
  *                                     Add mouselistener in createTextControl() for StyledText	                                     
+ * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
  * 02/12/2013        #1597 randerso    Code cleanup. Fixed possible widget disposed errors on shut down.
  * 
  * </pre>
@@ -1156,7 +1157,6 @@ public class ProductEditorComp extends Composite implements
 
         boolean retVal = true;
         if (!textComp.isCorMode()) {
-            detachAttributionPhrase();
             retVal = changeTimes();
         }
 
@@ -1255,70 +1255,6 @@ public class ProductEditorComp extends Composite implements
             vtecList.add(vtec);
         }
         return vtecList;
-    }
-
-    /**
-     * get the list of VTEC Action Codes for this segment one Action code per
-     * VTEC line
-     */
-    private List<String> getVTECActionCodes(SegmentData segData,
-            ProductDataStruct pds) {
-
-        HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
-        TextIndexPoints tipVtec = segMap.get("vtec");
-        if (tipVtec == null) {
-            return new ArrayList<String>();
-        }
-
-        int lineCount = tipVtec.getEndIndex().x - tipVtec.getStartIndex().x;
-        ArrayList<String> actioncodes = new ArrayList<String>(lineCount);
-        for (int i = 0; i < lineCount; i++) {
-            String vtec = pds.getProductTextArray()[i
-                    + tipVtec.getStartIndex().x];
-            // extract the action code
-            String vline = vtec.split("/", 3)[1];
-            String ac = vline.split("\\.")[1];
-            actioncodes.add(ac);
-        }
-        return actioncodes;
-    }
-
-    private void detachAttributionPhrase() {
-        final String attributionPhraseRgx = "THE NATIONAL WEATHER SERVICE IN [A-Z0-9\\p{Punct}\\s]+?\\n\\n";
-        Pattern attribPattern = Pattern.compile(attributionPhraseRgx);
-        StyledTextComp stc = textComp;
-        ProductDataStruct pds = stc.getProductDataStruct();
-        List<SegmentData> segs = pds.getSegmentsArray();
-        for (SegmentData segData : segs) {
-            String newSegTxt = null;
-            String oldSegTxt = segData.getSementMap().get("ugc").getText();
-            TextIndexPoints oldSegTip = segData.getSementMap().get("ugc");
-            List<String> actioncodes = getVTECActionCodes(segData, pds);
-            if (actioncodes == null || actioncodes.isEmpty()) {
-                return;
-            }
-
-            if (actioncodes.contains("NEW") || actioncodes.contains("EXA")
-                    || actioncodes.contains("EXB")) {
-                continue;
-            } else {
-                // all actions in {"CON","CAN","UPG","EXT","EXP"}
-                // Not the first issuance, strip the attribution phrase from
-                // segment text.
-                Matcher matcher = attribPattern.matcher(oldSegTxt);
-                while (matcher.find()) {
-                    newSegTxt = matcher.replaceAll("");
-                    final int segNum = segs.indexOf(segData) + 1;
-                    statusHandler.handle(Priority.INFO,
-                            "Detached attribution phrase from segment data number "
-                                    + segNum);
-                }
-            }
-
-            if (newSegTxt != null) {
-                textComp.replaceText(oldSegTip, newSegTxt);
-            }
-        }
     }
 
     /**
