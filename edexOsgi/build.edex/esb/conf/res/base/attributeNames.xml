@@ -156,8 +156,6 @@
 	<GREEN>green</GREEN>
 	
 	<JSLIBRARY>jsLibraryDir</JSLIBRARY>
-	
-	<DEVMODE>edexDevMode</DEVMODE>
 
 	<LowLightVis>3</LowLightVis>
 	<IRDefault>7</IRDefault>
