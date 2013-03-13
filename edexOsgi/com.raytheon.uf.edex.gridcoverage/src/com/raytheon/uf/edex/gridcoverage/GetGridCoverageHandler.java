@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            bsteffen     Initial creation
+ * Mar 07, 2013 1771       bsteffen    fix gridcoverage duplicate checks.
  * 
  * </pre>
  * 
@@ -134,7 +135,7 @@ public class GetGridCoverageHandler implements
         Criteria crit = sess.createCriteria(coverage.getClass());
 
         crit.add(Restrictions.eq("nx", coverage.getNx()));
-        crit.add(Restrictions.eq("ny", coverage.getNx()));
+        crit.add(Restrictions.eq("ny", coverage.getNy()));
         crit.add(Restrictions.between("dx", coverage.getDx()
                 - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
                 + GridCoverage.SPATIAL_TOLERANCE));
@@ -161,7 +162,7 @@ public class GetGridCoverageHandler implements
             crit = sess.createCriteria(coverage.getClass());
 
             crit.add(Restrictions.eq("nx", coverage.getNx()));
-            crit.add(Restrictions.eq("ny", coverage.getNx()));
+            crit.add(Restrictions.eq("ny", coverage.getNy()));
             crit.add(Restrictions.between("dx", coverage.getDx()
                     - GridCoverage.SPATIAL_TOLERANCE, coverage.getDx()
                     + GridCoverage.SPATIAL_TOLERANCE));
