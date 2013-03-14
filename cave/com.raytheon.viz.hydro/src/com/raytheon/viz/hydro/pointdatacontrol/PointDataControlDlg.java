@@ -108,6 +108,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07 Feb 2013 1578        rferrel     Changes for non-blocking FilteringDlg.
  *                                     Changes for non-blocking PDC_SaveDlg.
  * 13 Mar 2013 1790        rferrel     Changes for non-blocking dialog.
+ *                                     Changes for non-blocking TabularDisplayDlg.
  * 
  * </pre>
  * 
@@ -538,7 +539,15 @@ public class PointDataControlDlg extends CaveSWTDialog {
     /** Use to vaidate show point entries. */
     private DecimalFormat entryFormat = new DecimalFormat();
 
-    /** Obtain the singleton instance. */
+    /** The tabular display dialog. */
+    TabularDisplayDlg tabDisplay;
+
+    /**
+     * Obtain the singleton instance.
+     * 
+     * @param shell
+     * @return instance
+     */
     public static synchronized PointDataControlDlg getInstance(Shell shell) {
         if (instance == null) {
             instance = new PointDataControlDlg(shell);
@@ -1713,7 +1722,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 manager.setDrawStation(false);
-                TabularDisplayDlg tabDisplay = new TabularDisplayDlg(shell);
+                if (tabDisplay == null) {
+                    tabDisplay = new TabularDisplayDlg(shell);
+                }
                 tabDisplay.open();
             }
         });
