@@ -64,7 +64,7 @@ ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
     DELETE from ${SCHEMA}.map_version WHERE table_name='${TABLE}';
     DROP TABLE IF EXISTS ${SCHEMA}.${TABLE}
 "
-${PGBINDIR}shp2pgsql -W LATIN1 -s 4326 -I ${SHAPEFILEPATH} ${SCHEMA}.${TABLE} | ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -f -
+${PGBINDIR}shp2pgsql -W LATIN1 -s 4326 -g the_geom -I ${SHAPEFILEPATH} ${SCHEMA}.${TABLE} | ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -f -
 ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
     INSERT INTO ${SCHEMA}.map_version (table_name, filename) values ('${TABLE}','${SHAPEFILENAME}');
     SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom_0','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
