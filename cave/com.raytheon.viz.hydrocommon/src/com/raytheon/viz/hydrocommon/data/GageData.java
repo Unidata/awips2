@@ -31,7 +31,6 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
-import com.raytheon.viz.hydrocommon.colorscalemgr.HydroColorManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -42,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05Nov2008    ---          dhladky     Initial Creation
+ * 14Mar2012    1790       rferrel      Fix Comparable to remove eclipse warnings.
  * 
  * </pre>
  * 
@@ -49,7 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class GageData implements Comparable {
+public class GageData implements Comparable<GageData> {
 
     public static final double MISSING = HydroConstants.MISSING_VALUE;
 
@@ -144,16 +144,14 @@ public class GageData implements Comparable {
      * Indicates whether to show this value or filter it.
      */
     private boolean use;
-    
-    private HydroColorManager colorManager = HydroColorManager.getInstance();
 
     /**
      * This is the riverstatus threat index. It may have the following values:
-     * "R" - MOFO stage/flow is at or above flood stage/flow. Red. 
-     * "Y" - MOFO stage/flow is at or above action stage/flow. Yellow. 
-     * "G" - MOFO stage/flow is below action stage/flow. Green. 
-     * "M" - MOFO stage/flow is available, but action or flood stage is missing.
-     * "Z" - Threat is not available. Missing.
+     * "R" - MOFO stage/flow is at or above flood stage/flow. Red. "Y" - MOFO
+     * stage/flow is at or above action stage/flow. Yellow. "G" - MOFO
+     * stage/flow is below action stage/flow. Green. "M" - MOFO stage/flow is
+     * available, but action or flood stage is missing. "Z" - Threat is not
+     * available. Missing.
      */
     private ThreatIndex threatIndex = null;
 
@@ -165,89 +163,92 @@ public class GageData implements Comparable {
     private double moderate_stage = MISSING;
 
     private double major_stage = MISSING;
-    
+
     private double minor_flow = MISSING;
 
     private double moderate_flow = MISSING;
 
     private double major_flow = MISSING;
-    
+
     /**
      * The display class of this station.
      */
-    private String dispClass = null; 
-    
+    private String dispClass = null;
+
     /**
      * Pixel value corresponding to the longitude.
      */
     private int x;
-    
+
     /**
      * Pixel value corresponding to the latitude.
      */
     private int y;
 
     /**
-     *  X direction shift of a station for decluttering purposes.
+     * X direction shift of a station for decluttering purposes.
      */
     int x_shift;
-    
+
     /**
-     *  Y direction shift of a station for decluttering purposes.
+     * Y direction shift of a station for decluttering purposes.
      */
     int y_shift;
-    
+
     /**
      * The coordinate of this gage.
      */
     private Coordinate coordinate = null;
-    
+
     public static final String OFFICIAL_RIVER = "F";
+
     public static final String RESERVOIR = "D";
+
     public static final String RIVER = "R";
+
     public static final String PRECIP = "P";
+
     public static final String SNOW = "S";
+
     public static final String TEMPERATURE = "T";
+
     public static final String OTHER = "O";
+
     public static final String UNKNOWN = "U";
 
     /** Percentage at which the site is at near flooding */
     private final int NEAR_FLOOD_PERCENTAGE = 75;
-    
+
     private boolean forecastSite = false;
-    
+
     private List<Colorvalue> colorSet = null;
-    
+
     public static enum ThreatIndex {
         /*
-         * "R" - MOFO stage/flow is at or above flood stage/flow. Red. 
-         * "Y" - MOFO stage/flow is at or above action stage/flow. Yellow. 
-         * "G" - MOFO stage/flow is below action stage/flow. Green. 
-         * "M" - MOFO stage/flow is available, but action or flood stage is missing.
-         * "Z" - Threat is not available. Missing.
+         * "R" - MOFO stage/flow is at or above flood stage/flow. Red. "Y" -
+         * MOFO stage/flow is at or above action stage/flow. Yellow. "G" - MOFO
+         * stage/flow is below action stage/flow. Green. "M" - MOFO stage/flow
+         * is available, but action or flood stage is missing. "Z" - Threat is
+         * not available. Missing.
          */
-        THREAT_MISSING_DATA("Z"),
-        THREAT_MISSING_STAGE("M"),
-        THREAT_NONE("G"),
-        THREAT_ACTION("Y"),
-        THREAT_FLOOD("R");
-        
+        THREAT_MISSING_DATA("Z"), THREAT_MISSING_STAGE("M"), THREAT_NONE("G"), THREAT_ACTION(
+                "Y"), THREAT_FLOOD("R");
+
         private String threatIndex;
-        
+
         ThreatIndex(String value) {
             threatIndex = value;
         }
-        
+
         public String getThreatIndex() {
             return threatIndex;
         }
     }
 
-
     public GageData() {
         getColorSet();
     }
-    
+
     /**
      * public constructor
      * 
@@ -298,7 +299,7 @@ public class GageData implements Comparable {
         if (data[13] != null) {
             setMajorFlow((Double) data[13]);
         }
-        
+
         getColorSet();
     }
 
@@ -503,7 +504,7 @@ public class GageData implements Comparable {
     public double getMajorStage() {
         return major_stage;
     }
-    
+
     /**
      * 
      * @param minorFlow
@@ -511,7 +512,7 @@ public class GageData implements Comparable {
     public void setMinorFlow(double minorFlow) {
         minor_flow = minorFlow;
     }
-    
+
     /**
      * 
      * @return
@@ -559,29 +560,29 @@ public class GageData implements Comparable {
      */
     public RGB getColor() {
         getColorSet();
-        
-        /* Default to No Data, 0 = no data*/
+
+        /* Default to No Data, 0 = no data */
         String colorName = colorSet.get(0).getColorname().getColorName();
         RGB returnColor = RGBColors.getRGBColor(colorName);
         if (threatIndex == null) {
-            return returnColor; 
+            return returnColor;
         }
-        
+
         switch (threatIndex) {
         case THREAT_MISSING_DATA:
             returnColor = RGBColors.getRGBColor(colorName);
             break;
-            
+
         case THREAT_MISSING_STAGE:
             colorName = colorSet.get(1).getColorname().getColorName();
             returnColor = RGBColors.getRGBColor(colorName);
             break;
-            
+
         case THREAT_NONE:
             colorName = colorSet.get(2).getColorname().getColorName();
             returnColor = RGBColors.getRGBColor(colorName);
             break;
-            
+
         case THREAT_ACTION:
             colorName = colorSet.get(3).getColorname().getColorName();
             returnColor = RGBColors.getRGBColor(colorName);
@@ -591,20 +592,21 @@ public class GageData implements Comparable {
             colorName = colorSet.get(4).getColorname().getColorName();
             returnColor = RGBColors.getRGBColor(colorName);
             break;
-            
+
         default:
             colorName = colorSet.get(0).getColorname().getColorName();
             returnColor = RGBColors.getRGBColor(colorName);
             break;
         }
-        
+
         return returnColor;
     }
-    
+
     private void getColorSet() {
         String userId = System.getProperty("user.name");
-        
-        colorSet = HydroDisplayManager.getInstance().getGageColorMap(userId, "HEIGHT", 3600);
+
+        colorSet = HydroDisplayManager.getInstance().getGageColorMap(userId,
+                "HEIGHT", 3600);
     }
 
     /**
@@ -615,7 +617,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param dur the dur to set
+     * @param dur
+     *            the dur to set
      */
     public void setDur(long dur) {
         this.dur = dur;
@@ -629,7 +632,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param ts the ts to set
+     * @param ts
+     *            the ts to set
      */
     public void setTs(String ts) {
         this.ts = ts;
@@ -643,7 +647,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param extremum the extremum to set
+     * @param extremum
+     *            the extremum to set
      */
     public void setExtremum(String extremum) {
         this.extremum = extremum;
@@ -657,7 +662,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param probability the probability to set
+     * @param probability
+     *            the probability to set
      */
     public void setProbability(double probability) {
         this.probability = probability;
@@ -671,7 +677,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param shefQualCode the shefQualCode to set
+     * @param shefQualCode
+     *            the shefQualCode to set
      */
     public void setShefQualCode(String shefQualCode) {
         this.shefQualCode = shefQualCode;
@@ -685,7 +692,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param quality_code the quality_code to set
+     * @param quality_code
+     *            the quality_code to set
      */
     public void setQuality_code(long quality_code) {
         this.quality_code = quality_code;
@@ -699,7 +707,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(double value) {
         this.value = value;
@@ -713,7 +722,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param value2 the value2 to set
+     * @param value2
+     *            the value2 to set
      */
     public void setValue2(double value2) {
         this.value2 = value2;
@@ -727,7 +737,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param validtime the validtime to set
+     * @param validtime
+     *            the validtime to set
      */
     public void setValidtime(Date validtime) {
         this.validtime = validtime;
@@ -741,7 +752,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param basistime the basistime to set
+     * @param basistime
+     *            the basistime to set
      */
     public void setBasistime(Date basistime) {
         this.basistime = basistime;
@@ -755,7 +767,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param use the use to set
+     * @param use
+     *            the use to set
      */
     public void setUse(boolean use) {
         this.use = use;
@@ -769,7 +782,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param threatIndex the threatIndex to set
+     * @param threatIndex
+     *            the threatIndex to set
      */
     public void setThreatIndex(ThreatIndex threatIndex) {
         this.threatIndex = threatIndex;
@@ -783,7 +797,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param dispClass the dispClass to set
+     * @param dispClass
+     *            the dispClass to set
      */
     public void setDispClass(String dispClass) {
         this.dispClass = dispClass;
@@ -797,7 +812,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param x the x to set
+     * @param x
+     *            the x to set
      */
     public void setX(int x) {
         this.x = x;
@@ -811,7 +827,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param y the y to set
+     * @param y
+     *            the y to set
      */
     public void setY(int y) {
         this.y = y;
@@ -825,7 +842,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param x_shift the x_shift to set
+     * @param x_shift
+     *            the x_shift to set
      */
     public void setX_shift(int x_shift) {
         this.x_shift = x_shift;
@@ -839,7 +857,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param y_shift the y_shift to set
+     * @param y_shift
+     *            the y_shift to set
      */
     public void setY_shift(int y_shift) {
         this.y_shift = y_shift;
@@ -853,7 +872,8 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param forecastSite the forecastSite to set
+     * @param forecastSite
+     *            the forecastSite to set
      */
     public void setForecastSite(boolean forecastSite) {
         this.forecastSite = forecastSite;
@@ -867,30 +887,31 @@ public class GageData implements Comparable {
     }
 
     /**
-     * @param coordinate the coordinate to set
+     * @param coordinate
+     *            the coordinate to set
      */
     public void setCoordinate(Coordinate coordinate) {
         this.coordinate = coordinate;
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(GageData o) {
         int retVal = 0;
-        
-        if (o instanceof GageData) {
-            if (lid.compareTo(((GageData) o).getLid()) > 0) {
-                retVal = 1;
-            } else if (lid.compareTo(((GageData) o).getLid()) == 0) {
-                retVal = 0;
-            } else {
-                retVal = -1;
-            }
+
+        if (lid.compareTo(((GageData) o).getLid()) > 0) {
+            retVal = 1;
+        } else if (lid.compareTo(((GageData) o).getLid()) == 0) {
+            retVal = 0;
+        } else {
+            retVal = -1;
         }
-        
+
         return retVal;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
