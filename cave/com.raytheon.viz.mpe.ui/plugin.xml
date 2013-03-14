@@ -240,8 +240,7 @@
             <command
                   commandId="com.raytheon.viz.mpe.ui.actions.addpseudo"
                   label="Add Pseudo Gage"
-                  mnemonic="A"
-                  style="toggle">
+                  mnemonic="A">
             </command>
             <command
                   commandId="com.raytheon.viz.mpe.ui.actions.gagetable"
@@ -251,8 +250,7 @@
             <command
                   commandId="com.raytheon.viz.mpe.ui.actions.display7x7"
                   label="Display 7 x 7..."
-                  mnemonic="D"
-                  style="toggle">
+                  mnemonic="D">
             </command>
             <separator
                   name="separator3"
@@ -264,24 +262,16 @@
                   mnemonic="B">
             </command>
             <command
-                  commandId="com.raytheon.viz.mpe.ui.actions.toggleGageDisplay"
+                  commandId="com.raytheon.viz.mpe.ui.actions.toggleGageIdDisplay"
                   label="Show Gage Identifiers"
                   mnemonic="I"
                   style="toggle">
-               <parameter
-                     name="Gage"
-                     value="Ids">
-               </parameter>
             </command>
             <command
-                  commandId="com.raytheon.viz.mpe.ui.actions.toggleGageDisplay"
+                  commandId="com.raytheon.viz.mpe.ui.actions.toggleGageValueDisplay"
                   label="Show Gage Values"
                   mnemonic="V"
                   style="toggle">
-               <parameter
-                     name="Gage"
-                     value="Values">
-               </parameter>
             </command>
             <menu
                   label="Show Missing Gages"
@@ -912,15 +902,6 @@
             name="Toggle MPE Info">
       </command>
       <command
-            id="com.raytheon.viz.mpe.ui.actions.toggleGageDisplay"
-            name="Show Gages">
-         <commandParameter
-               id="Gage"
-               name="Gage"
-               optional="false">
-         </commandParameter>
-      </command>
-      <command
             id="com.raytheon.viz.mpe.ui.actions.toggleGageMissing"
             name="Show Missing">
          <commandParameter
@@ -1031,6 +1012,32 @@
       <command
             id="com.raytheon.viz.mpe.ui.dialogs.postanalysis.SummedHourlyMpe"
             name="Launch Post Analysis">
+      </command>
+      <command
+            defaultHandler="com.raytheon.viz.mpe.ui.actions.ToggleGageValueDisplay"
+            id="com.raytheon.viz.mpe.ui.actions.toggleGageValueDisplay"
+            name="ToggleGageValueDisplay">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
+            defaultHandler="com.raytheon.viz.mpe.ui.actions.ToggleGageIdDisplay"
+            id="com.raytheon.viz.mpe.ui.actions.toggleGageIdDisplay"
+            name="Toggle Gage Id Display">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
+            id="com.raytheon.viz.mpe.ui.actions.ToggleGageTriangleDisplay"
+            name="Toggle Gage Triangle Display">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
       </command>
    </extension>
    <extension
@@ -1209,8 +1216,8 @@
             </activeWhen>
       </handler>
       <handler
-            class="com.raytheon.viz.mpe.ui.actions.ToggleGageDisplay"
-            commandId="com.raytheon.viz.mpe.ui.actions.toggleGageDisplay">
+            class="com.raytheon.viz.mpe.ui.actions.ToggleGageValueDisplay"
+            commandId="com.raytheon.viz.mpe.ui.actions.toggleGageValueDisplay">
             <activeWhen>
                <reference
                      definitionId="com.raytheon.viz.inMPEActionSet">
@@ -1393,6 +1400,24 @@
       <handler
             class="com.raytheon.viz.mpe.ui.actions.SummedHourlyMpeAction"
             commandId="com.raytheon.viz.mpe.ui.dialogs.postanalysis.SummedHourlyMpe">
+      </handler>
+      <handler
+            class="com.raytheon.viz.mpe.ui.actions.ToggleGageIdDisplay"
+            commandId="com.raytheon.viz.mpe.ui.actions.toggleGageIdDisplay">
+            <activeWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inMPEActionSet">
+               </reference>
+            </activeWhen>
+      </handler>
+      <handler
+            class="com.raytheon.viz.mpe.ui.actions.ToggleGageTriangleDisplay"
+            commandId="com.raytheon.viz.mpe.ui.actions.ToggleGageTriangleDisplay">
+            <activeWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inMPEActionSet">
+               </reference>
+            </activeWhen>
       </handler>
     </extension>
     <extension
