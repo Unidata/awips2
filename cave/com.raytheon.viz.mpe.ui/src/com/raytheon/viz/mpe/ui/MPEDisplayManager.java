@@ -43,6 +43,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
+import org.eclipse.ui.handlers.RegistryToggleState;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
@@ -97,6 +98,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 18, 2012            mschenke     Initial creation
+ * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
  * 
  * </pre>
  * 
@@ -391,15 +393,15 @@ public class MPEDisplayManager {
         return null;
     }
 
-    private Set<IEditTimeChangedListener> timeChangedListeners = new LinkedHashSet<IEditTimeChangedListener>();
+    private final Set<IEditTimeChangedListener> timeChangedListeners = new LinkedHashSet<IEditTimeChangedListener>();
 
-    private Set<IDisplayFieldChangedListener> fieldChangedListeners = new LinkedHashSet<IDisplayFieldChangedListener>();
+    private final Set<IDisplayFieldChangedListener> fieldChangedListeners = new LinkedHashSet<IDisplayFieldChangedListener>();
 
     private final IRenderableDisplay display;
 
     private DisplayFieldData displayedField;
 
-    private MPEFieldResourceData fieldResourceData = new MPEFieldResourceData();
+    private final MPEFieldResourceData fieldResourceData = new MPEFieldResourceData();
 
     private MPEFieldResource displayedFieldResource;
 
@@ -420,16 +422,7 @@ public class MPEDisplayManager {
         }
         editTime = getCurrentDisplayedDate();
 
-        displayedField = DisplayFieldData.rMosaic;
-        String baseRadarMosaic = AppsDefaults.getInstance().getToken(
-                "mpe_base_radar_mosaic");
-        if (baseRadarMosaic != null) {
-            DisplayFieldData fieldData = DisplayFieldData
-                    .fromString(baseRadarMosaic);
-            if (fieldData != null) {
-                displayedField = fieldData;
-            }
-        }
+        displayedField = DisplayFieldData.mMosaic;
 
         ChangeTimeProvider.update(this);
 
@@ -549,12 +542,14 @@ public class MPEDisplayManager {
     /**
      * @param gageDisplay
      *            the gageDisplay to set
+     * @param isOn
+     *            is set to draw
      */
-    public void toggleGageDisplay(GageDisplay gageDisplay) {
+    public void toggleGageDisplay(GageDisplay gageDisplay, boolean isOn) {
         List<MPEGageResource> rscs = display.getDescriptor().getResourceList()
                 .getResourcesByTypeAsType(MPEGageResource.class);
         for (MPEGageResource rsc : rscs) {
-            rsc.toggleGageDisplay(gageDisplay);
+            rsc.toggleGageDisplay(gageDisplay, isOn);
         }
         display.refresh();
     }
@@ -730,6 +725,14 @@ public class MPEDisplayManager {
                     listener.displayFieldChanged(oldField, fieldToDisplay);
                 }
             }
+
+            // reset gages
+            List<MPEGageResource> rscs = display.getDescriptor()
+                    .getResourceList()
+                    .getResourcesByTypeAsType(MPEGageResource.class);
+            for (MPEGageResource rsc : rscs) {
+                rsc.reloadGages();
+            }
         }
 
         displayedFieldResource.issueRefresh();
@@ -815,6 +818,42 @@ public class MPEDisplayManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Gets the current command toggle state.
+     * 
+     * @param commandId
+     *            The Command ID
+     * @return the toggle state, or false if command not found
+     */
+    public static Boolean getToggleState(String commandId) {
+        Command command = service.getCommand(commandId);
+        if (command != null) {
+            State state = command.getState(RegistryToggleState.STATE_ID);
+            if (state != null) {
+                return (Boolean) state.getValue();
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Set the toggle state.
+     * 
+     * @param commandId
+     *            The command Id to set the toggle state on
+     * @param toggleState
+     *            The toggle state value
+     */
+    public static void setToggleState(String commandId, boolean toggleState) {
+        Command command = service.getCommand(commandId);
+        if (command != null) {
+            State state = command.getState(RegistryToggleState.STATE_ID);
+            if (state != null) {
+                state.setValue(toggleState);
+            }
+        }
     }
 
     /**
