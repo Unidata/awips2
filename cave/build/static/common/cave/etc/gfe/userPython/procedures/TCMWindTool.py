@@ -36,6 +36,7 @@
 # ------------ ---------- -----------  --------------------------
 # 3/6/2013     15658      ryu          Merge in change from AWIPS I DR 21414, which fixed 
 #                                      makeMaxWindGrid() for when center is outside domain.
+# Mar 13, 2013 1793       bsteffen     Performance improvements for TCMWindTool
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -1109,8 +1110,6 @@ class Procedure (SmartScript.SmartScript):
     # fetches and returns all of the wind grids specified by the model
     # name.  Should be called before any new wind grids are created
     def getBackgroundGrids(self, modelName):
-        bgDict = {}
-
         siteID = self.getSiteID()
         if modelName == "Fcst":
             level = "SFC"
@@ -1126,9 +1125,8 @@ class Procedure (SmartScript.SmartScript):
 
 
         inv = self.getWEInventory(modelName, elementName, level)
-        for tr in inv:
-            bgDict[tr] = self.getGrids(modelName, elementName, level,
-                                       tr, mode="First")
+        bgDict = self.getGrids(modelName, elementName, level, inv,
+                                       mode="First")
         return bgDict
 
     def secondsToYYYYMMDDHH(self, baseTime):
@@ -1314,10 +1312,9 @@ class Procedure (SmartScript.SmartScript):
                 # inside RMW gets a linear slope to largest of max wind forecasts
                 if inRadius <= 1.0:
                     dSdR = (outSpeed - inSpeed) / (outRadius - inRadius)
-                    grid =  where(mask, inSpeed + (dSdR * distanceGrid), grid)
+                    grid[mask] = inSpeed + (dSdR * distanceGrid[mask])
                 else:  # outside RMW
-                    grid = where(mask, inSpeed * power((inRadius / distanceGrid), exponent),
-                             grid)
+                    grid[mask] = inSpeed * power((inRadius / distanceGrid[mask]), exponent)
 #                    grid = clip(grid, 0.0, 200.0)
         dirGrid = self.makeDirectionGrid(latGrid, lonGrid, center[0], center[1])
 
