@@ -30,7 +30,8 @@ import org.eclipse.ui.IWorkbenchCommandConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 29, 2012            mschenke     Initial creation
+ * Nov 29, 2012            mschenke    Initial creation
+ * Mar 19, 2013  1457      mpduff      Added gage toggle commands.
  * 
  * </pre>
  * 
@@ -39,12 +40,38 @@ import org.eclipse.ui.IWorkbenchCommandConstants;
  */
 
 public interface MPECommandConstants {
-
+    /**
+     * Font command id.
+     */
     public static final String FONT = "com.raytheon.viz.mpe.ui.actions.setfont";
 
+    /**
+     * Gage color command id.
+     */
     public static final String GAGE_COLOR = "com.raytheon.viz.mpe.ui.actions.toggleGageColor";
 
+    /**
+     * Gage missing command id.
+     */
     public static final String GAGE_MISSING_OPTION = "com.raytheon.viz.mpe.ui.actions.toggleGageMissing";
 
+    /**
+     * Display mode command id.
+     */
     public static final String DISPLAY_MODE = "com.raytheon.viz.mpe.ui.actions.toggleDisplayMode";
+
+    /**
+     * Toggle Gage Id Command ID.
+     */
+    public static final String TOGGLE_GAGEID_COMMAND_ID = "com.raytheon.viz.mpe.ui.actions.toggleGageIdDisplay";
+
+    /**
+     * Toggle gage triangle command ID.
+     */
+    public static final String TOGGLE_GAGE_TRIANGLE_COMMAND_ID = "com.raytheon.viz.mpe.ui.actions.ToggleGageTriangleDisplay";
+
+    /**
+     * Toggle gage value Command ID.
+     */
+    public static final String TOGGLE_GAGE_VALUE_COMMAND_ID = "com.raytheon.viz.mpe.ui.actions.toggleGageValueDisplay";
 }
