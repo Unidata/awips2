@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/04/09     3408       bphillip    Initial creation
+ * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
 public class QCDataQuery extends PointDataQuery {
 
 	/** List of query parameters for "querying" the netCDF file */
-	private List<String> queryParameters;
+	private final List<String> queryParameters;
 
 	/**
 	 * Constructs a new QCDataQuery
@@ -71,7 +72,8 @@ public class QCDataQuery extends PointDataQuery {
 		queryParameters = new ArrayList<String>();
 	}
 
-	public void addParameter(String name, String value, String operand) {
+	@Override
+    public void addParameter(String name, String value, String operand) {
 		queryParameters.add(name + "  " + value + "  " + operand);
 	}
 
@@ -82,13 +84,14 @@ public class QCDataQuery extends PointDataQuery {
 	 * @throws Exception
 	 *             if errors occur while retrieving the data
 	 */
-	public PointDataContainer execute() throws Exception {
+	@Override
+    public PointDataContainer execute() throws Exception {
 		List<PointDataContainer> containers = new ArrayList<PointDataContainer>();
 
 		// Gets the available files for querying
 		Map<String, File> pathMap = QCPaths.getPaths();
 		for (File dir : pathMap.values()) {
-			ArrayList<File> files = FileUtil.listFiles(dir, null, false);
+            List<File> files = FileUtil.listFiles(dir, null, false);
 
 			if (!files.isEmpty()) {
 				String[] fileParams = ((QCDao) dao).getParameters(files.get(0));
