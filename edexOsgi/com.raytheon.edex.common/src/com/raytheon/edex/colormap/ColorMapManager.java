@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.raytheon.edex.exception.ColorTableException;
 import com.raytheon.uf.common.colormap.CMapFilenameFilter;
@@ -52,6 +53,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 20, 2008			   dglazesk    JiBX replaced with JaXB
  * Aug 20, 2008			   dglazesk	   Updated for the new ColorMap interface
  * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
+ * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * 
  * </pre>
  * 
@@ -136,7 +138,7 @@ public class ColorMapManager {
      */
     public String[] listColorMaps() {
         File colormapsDir = new File(baseColormapDir);
-        ArrayList<File> files = FileUtil.listFiles(colormapsDir,
+        List<File> files = FileUtil.listFiles(colormapsDir,
                 new CMapFilenameFilter(), true);
         ArrayList<String> colormaps = new ArrayList<String>();
         for (int i = 0; i < files.size(); i++) {
