@@ -43,6 +43,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
@@ -57,6 +58,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * ------------ ---------- ----------- --------------------------
  * Mar 05, 2012   #361     dgilling     Initial creation
  * Mar 12, 2013   #1759    dgilling     Re-implement using IscScript.
+ * Mar 14, 2013 1794       djohnson    Consolidate common FilenameFilter implementations.
  * 
  * </pre>
  * 
@@ -70,12 +72,8 @@ public class IscReceiveSrv {
 
     private static final String METHOD_NAME = "main";
 
-    private static final FilenameFilter docFileFilter = new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-            return name.endsWith(".doc");
-        }
-    };
+    private static final FilenameFilter docFileFilter = FilenameFilters
+            .byFileExtension(".doc");
 
     private static final IPythonJobListener<String> jobListener = new IPythonJobListener<String>() {
 
@@ -249,7 +247,7 @@ public class IscReceiveSrv {
                         statusHandler.error("Unable to delete " + xmlFileName);
                     }
                 }
-                ArrayList<File> docFiles = FileUtil.listFiles(
+                List<File> docFiles = FileUtil.listFiles(
                         xmlFile.getParentFile(), docFileFilter, false);
                 for (File docFile : docFiles) {
                     docFile.delete();
