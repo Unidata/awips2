@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -42,7 +45,7 @@ import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
  * ------------ ---------- ----------- --------------------------
  * 04/17/2008   1088       chammack    Initial Creation.
  * 06/01/2012   DR 14555   D. Friedman Support new version of Velocity.
- * 03/12/2013   1638       njensen          Move to new plugin and rename
+ * 03/12/2013   1638       njensen     Move to new plugin and rename
  * 
  * 
  * </pre>
@@ -53,7 +56,7 @@ import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 
 public class VelocityTemplateLoader extends FileResourceLoader {
 
-    private String path;
+    private List<String> paths = new ArrayList<String>();
 
     /*
      * (non-Javadoc)
@@ -63,8 +66,7 @@ public class VelocityTemplateLoader extends FileResourceLoader {
      */
     @Override
     public long getLastModified(Resource resource) {
-        File file = new File(resource.getName());
-        return file.lastModified();
+        return resolvePath(resource.getName()).lastModified();
     }
 
     /*
@@ -74,11 +76,10 @@ public class VelocityTemplateLoader extends FileResourceLoader {
      * getResourceStream(java.lang.String)
      */
     @Override
-    public InputStream getResourceStream(String arg0)
+    public InputStream getResourceStream(String resource)
             throws ResourceNotFoundException {
         try {
-            FileInputStream fis = new FileInputStream(resolvePath(arg0));
-            return fis;
+            return new FileInputStream(resolvePath(resource));
         } catch (FileNotFoundException e) {
             throw new ResourceNotFoundException(e);
         }
@@ -92,8 +93,8 @@ public class VelocityTemplateLoader extends FileResourceLoader {
      * .apache.commons.collections.ExtendedProperties)
      */
     @Override
-    public void init(ExtendedProperties arg0) {
-        this.path = arg0.getString("path");
+    public void init(ExtendedProperties props) {
+        this.paths.addAll(Arrays.asList(props.getStringArray("path")));
     }
 
     /*
@@ -103,24 +104,29 @@ public class VelocityTemplateLoader extends FileResourceLoader {
      * isSourceModified(org.apache.velocity.runtime.resource.Resource)
      */
     @Override
-    public boolean isSourceModified(Resource arg0) {
-        File file = new File(arg0.getName());
-        return (file.lastModified() != arg0.getLastModified());
+    public boolean isSourceModified(Resource rsc) {
+        File file = resolvePath(rsc.getName());
+        return (file.lastModified() != rsc.getLastModified());
     }
 
     @Override
     public boolean resourceExists(String name) {
-        File f = new File(resolvePath(name));
-        return f.isFile();
+        return resolvePath(name).exists();
     }
 
-    private String resolvePath(String arg0) {
-        String dir = null;
-        if (arg0.startsWith(File.separator) || arg0.charAt(1) == ':') // Win32
-            dir = arg0;
-        else
-            dir = this.path + File.separator + arg0;
-        return dir;
+    private File resolvePath(String path) {
+        File file = new File(path);
+        if (file.isAbsolute()) {
+            // Absolute path, always use
+            return file;
+        }
+        for (String p : paths) {
+            File tmpFile = new File(p, path);
+            if (tmpFile.exists()) {
+                return tmpFile;
+            }
+        }
+        return file;
     }
 
 }
