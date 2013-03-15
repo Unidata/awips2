@@ -75,11 +75,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileGenerator;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
@@ -99,6 +100,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     Changes for non-blocking SaveDeleteComboDlg.
  *                                     Changes for non-blocking ShuffleZoneGroupsDialog.
  *                                     Changes for non-blocking ZoneColorEditorDlg.
+ * Mar 14, 2013 1794       djohnson    Consolidate common FilenameFilter implementations.
  * 
  * </pre>
  * 
@@ -114,7 +116,7 @@ public class ZoneCombinerComp extends Composite implements
     /**
      * Parent composite.
      */
-    private Composite parent;
+    private final Composite parent;
 
     /**
      * Tool bar that mimics a menu bar.
@@ -174,7 +176,7 @@ public class ZoneCombinerComp extends Composite implements
     /**
      * Product name.
      */
-    private String productName;
+    private final String productName;
 
     /**
      * Load sub menu. This gets generated when the program runs.
@@ -186,7 +188,7 @@ public class ZoneCombinerComp extends Composite implements
      */
     private ZoneSelector zoneSelector;
 
-    private IProductTab callBack;
+    private final IProductTab callBack;
 
     protected TextProductManager textProductMgr;
 
@@ -201,7 +203,7 @@ public class ZoneCombinerComp extends Composite implements
 
     Matcher matcher;
 
-    private String theSaved = "";
+    private final String theSaved = "";
 
     private Composite mapCompCtrl;
 
@@ -217,7 +219,7 @@ public class ZoneCombinerComp extends Composite implements
 
     private String currentComboFile = null;
 
-    private LocalizationFile comboDir;
+    private final LocalizationFile comboDir;
 
     private boolean includeAllZones = false;
 
@@ -802,8 +804,8 @@ public class ZoneCombinerComp extends Composite implements
                 .getProductDefinition(productName).get("subDomainUGCs");
 
         // First thing, give the zone resource a bounding geometry.
-        GridLocation gloc = DataManager.getCurrentInstance().getParmManager()
-                .compositeGridLocation();
+        GridLocation gloc = DataManagerUIFactory.getCurrentInstance()
+                .getParmManager().compositeGridLocation();
 
         zoneSelector = new ZoneSelector(controlComp, gloc, this);
 
@@ -855,25 +857,8 @@ public class ZoneCombinerComp extends Composite implements
         String comboDirName = "saved";
         String[] combos;
         File localFile;
-        FilenameFilter filter = new FilenameFilter() {
-
-            /**
-             * Accept any file whose name ends with ".py".
-             * 
-             * @param dir
-             *            The directory in which the file exists
-             * @param name
-             *            the file name
-             * @return true if name ends with ".py", false otherwise.
-             */
-            @Override
-            public boolean accept(File dir, String name) {
-                if (name.endsWith(".py")) {
-                    return true;
-                }
-                return false;
-            }
-        };
+        // Accept any file whose name ends with ".py".
+        FilenameFilter filter = FilenameFilters.byFileExtension(".py");
 
         if (level == null) {
             // Aggregate the filenames for all levels.
@@ -1083,10 +1068,12 @@ public class ZoneCombinerComp extends Composite implements
         }
     }
 
+    @Override
     public void setStatusText(String significance, String message) {
         callBack.updateStatus(significance, message);
     }
 
+    @Override
     public void applyButtonState(final boolean enabled) {
         if (this.applyZoneComboBtn != null
                 && !this.applyZoneComboBtn.isDisposed()) {
