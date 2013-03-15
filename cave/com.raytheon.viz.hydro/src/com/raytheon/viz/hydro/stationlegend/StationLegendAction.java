@@ -26,29 +26,40 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * TODO Add Description
+ * Acition to display the Station Legend help dialog.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 12, 2009            mpduff     Initial creation
- *
+ * Mar 15, 2013 1790       rferrel     Changes for non-blocking StationLegendDlg.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class StationLegendAction extends AbstractHandler {
+    private StationLegendDlg stationLegendDlg;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        StationLegendDlg stationLegendDlg = new StationLegendDlg(shell);
+        if (stationLegendDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            stationLegendDlg = new StationLegendDlg(shell);
+        }
         stationLegendDlg.open();
 
         return null;
