@@ -36,6 +36,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/07                  lvenable    Initial creation.
+ * 03/14/2012   1790        rferrel     Changes for non-blocking PointPrecipAccumDlg.
  * 
  * </pre>
  * 
@@ -44,17 +45,24 @@ import org.eclipse.ui.PlatformUI;
  */
 public class PointPrecipAccumAction extends AbstractHandler {
 
+    /** The dialog to display. */
+    private PointPrecipAccumDlg pointPrecipDlg;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        PointPrecipAccumDlg pointPrecipDlg = new PointPrecipAccumDlg(shell);
+        if (pointPrecipDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            pointPrecipDlg = new PointPrecipAccumDlg(shell);
+        }
         pointPrecipDlg.open();
-
-//        MessageBox messageBox = new MessageBox(shell, SWT.OK);
-//        messageBox.setText("Not Yet Implemented");
-//        messageBox.setMessage("This Function Is Not Yet Implemented");
-//        messageBox.open();
 
         return null;
     }
