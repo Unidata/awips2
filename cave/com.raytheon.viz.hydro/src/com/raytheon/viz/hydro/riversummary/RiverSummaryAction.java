@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 03/15/2013   1790        rferrel     Changes for non-blocking RiverSummaryDlg.
  * 
  * </pre>
  * 
@@ -46,15 +47,25 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class RiverSummaryAction extends AbstractHandler {
-    
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-	    RiverSummaryDlg riverSummaryDlg = new RiverSummaryDlg(shell);
-	    riverSummaryDlg.open();
+    private RiverSummaryDlg riverSummaryDlg;
 
-		return null;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (riverSummaryDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            riverSummaryDlg = new RiverSummaryDlg(shell);
+        }
+        riverSummaryDlg.open();
+
+        return null;
+    }
 
 }
