@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
-import com.raytheon.viz.hydrocommon.cresthistory.CrestHistoryData;
 import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
 import com.raytheon.viz.hydrocommon.datamanager.RiverDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -53,8 +52,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
  * 09 FEB 2011  4383	   lbousaidi   changed createStaffGageData
- * 									   
- * 									   	
+ * 15 MAR 2013  1790       rferrel     Made dialog non-blocking.
+ * 
  * 
  * </pre>
  * 
@@ -164,14 +163,12 @@ public class StaffGageDlg extends CaveSWTDialog {
      */
     private StaffGageData gageData;
 
+    /** Date Formatter. */
     private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
+    /** Value for missing staff gage data. */
     public static String MISSING = "0";
 
-    /**
-     * Canvas displaying the staff gage data.
-     */
-    // private StaffGageCanvasComp staffGageCanvas;
     /**
      * Constructor.
      * 
@@ -181,10 +178,16 @@ public class StaffGageDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public StaffGageDlg(Shell parent, String titleName) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Staff Gage for (" + titleName + ")");
+        setReturnValue(titleName);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -196,14 +199,25 @@ public class StaffGageDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         textFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
         textFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         createStaffGageData();
@@ -498,7 +512,7 @@ public class StaffGageDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -523,17 +537,17 @@ public class StaffGageDlg extends CaveSWTDialog {
         latLonTF.setText(gageData.getLatLon());
         basinTF.setText(gageData.getBasin());
         elevationTF.setText(gageData.getElevation());
-        if (gageData.getStream()!=null ) {
-        	streamTF.setText(gageData.getStream());
+        if (gageData.getStream() != null) {
+            streamTF.setText(gageData.getStream());
         }
-        if (gageData.getTidal() !=null) {
-        	tidalTF.setText(gageData.getTidal());
+        if (gageData.getTidal() != null) {
+            tidalTF.setText(gageData.getTidal());
         }
-        if (gageData.getCounty()!=null) {
-        	countyTF.setText(gageData.getCounty());
+        if (gageData.getCounty() != null) {
+            countyTF.setText(gageData.getCounty());
         }
-        if (gageData.getState()!=null) {
-        	stateTF.setText(gageData.getState());
+        if (gageData.getState() != null) {
+            stateTF.setText(gageData.getState());
         }
 
         String fmtStr = "%8S %11S";
@@ -558,21 +572,20 @@ public class StaffGageDlg extends CaveSWTDialog {
      * Gets the Staff Gage data
      */
     private void createStaffGageData() {
-        
+
         RiverDataManager rdm = RiverDataManager.getInstance();
-        DecimalFormat df = new DecimalFormat();        
-        
+        DecimalFormat df = new DecimalFormat();
+
         df.setMinimumIntegerDigits(1);
-        df.setMinimumFractionDigits(2);        
+        df.setMinimumFractionDigits(2);
         df.setGroupingUsed(false);
         df.setDecimalSeparatorAlwaysShown(false);
 
         gageData = new StaffGageData();
-        
-        //get Location information
+
+        // get Location information
         String lid = HydroDisplayManager.getInstance().getCurrentLid();
         RiverDataPoint rdp = rdm.getRiverDataPoint(lid);
-         
 
         if (rdp != null) {
             gageData.setName(rdp.getLocName());
@@ -592,8 +605,7 @@ public class StaffGageDlg extends CaveSWTDialog {
             gageData.setCounty(rdp.getCounty());
             gageData.setState(rdp.getState());
             if (rdp.getCrestTime() != null) {
-                gageData
-                        .setRecordDate(sdf.format(rdp.getCrestTime().getTime()));
+                gageData.setRecordDate(sdf.format(rdp.getCrestTime().getTime()));
             }
             if (rdp.getCrestValue() != HydroConstants.MISSING_VALUE) {
                 gageData.setRecordStage(df.format(rdp.getCrestValue()));
