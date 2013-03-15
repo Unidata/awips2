@@ -111,6 +111,7 @@
 		<exclude>qpf-ingest.xml</exclude>
 		<exclude>fssobs-ingest.xml</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
+        <exclude>.*sbn-simulator.*</exclude>
 	</mode>
 	<mode name="ingestGrib">
 		<include>time-common.xml</include>
@@ -202,6 +203,9 @@
         <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
+        <!-- TODO: These patterns can be commented out when this mode is productionized -->
+        <include>.*sbn-simulator.*</include>
+        <!-- END TODO -->
         <exclude>.*datadelivery-ncf.*</exclude>
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
@@ -297,6 +301,7 @@
 		<exclude>pointDataRetrievel-spring.xml</exclude>
 		<exclude>q2FileProcessor-spring.xml</exclude>
 		<exclude>satpre-spring.xml</exclude>
+        <exclude>.*sbn-simulator.*</exclude>
 	</mode>
 	<mode name="localization">
 		<include>auth-request.xml</include>
