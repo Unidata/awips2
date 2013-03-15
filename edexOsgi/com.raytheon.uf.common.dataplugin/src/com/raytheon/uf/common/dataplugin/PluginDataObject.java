@@ -466,15 +466,14 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     }
 
     /**
-     * Used to determine if a given subclass exposes the IDecoderGettable
-     * interface. Normally if the class does implement the interface then a
-     * reference to "this" is returned. Otherwise a null reference indicates
-     * that the interface is not implemented.
+     * TODO: Rework non-PointDataContainer plots and remove
      * 
-     * @return The IDecoderGettable interface implementation. Null reference if
-     *         not implemented.
+     * @return
      */
-    public abstract IDecoderGettable getDecoderGettable();
+    @Deprecated
+    public IDecoderGettable getDecoderGettable() {
+        return null;
+    }
 
     public void setDataURI(String dataURI) {
         this.dataURI = dataURI;
