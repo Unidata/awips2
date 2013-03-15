@@ -14,7 +14,7 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.hdf5.HDF5PluginFilenameFilter;
-import com.raytheon.uf.edex.pointdata.*;
+import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 public abstract class NcepPointDataPluginDao<T extends PluginDataObject> extends PointDataPluginDao<T>{
 
 	protected List<String> tableClassNameList= new ArrayList<String>();
@@ -84,7 +84,7 @@ public abstract class NcepPointDataPluginDao<T extends PluginDataObject> extends
 	 */
 	public void purgeAllData() throws PluginException {
 		purgeAllTables();
-		ArrayList<File> files = FileUtil.listFiles(new File(PLUGIN_HDF5_DIR),
+        List<File> files = FileUtil.listFiles(new File(PLUGIN_HDF5_DIR),
 				new HDF5PluginFilenameFilter(pluginName), true);
 		for (File file : files) {
 			file.delete();
