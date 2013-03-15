@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -55,6 +56,7 @@ import java.util.zip.GZIPOutputStream;
  * 02/15/2013        #1597 randerso    Fixed error when copying empty files
  * Feb 15, 2013 1638       mschenke    Moved EOL field from edex.common Util
  * Mar 11, 2013 1645       djohnson    Added file modification watcher.
+ * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * 
  * </pre>
  * 
@@ -114,7 +116,7 @@ public class FileUtil {
      *            whether or not to go into subdirectories
      * @return the files that match the filter
      */
-    public static ArrayList<File> listFiles(File directory,
+    public static List<File> listFiles(File directory,
             FilenameFilter filter, boolean recurse) {
         // List of files / directories
         ArrayList<File> files = new ArrayList<File>();
