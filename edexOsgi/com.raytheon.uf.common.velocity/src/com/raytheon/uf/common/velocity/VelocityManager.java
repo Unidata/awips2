@@ -86,14 +86,10 @@ public class VelocityManager {
             if (engine == null) {
                 engine = new VelocityEngine();
                 Properties p = new Properties();
-                String scriptDir = globalTemplateDir.getAbsolutePath();
-                String rootsToCheck = scriptDir;
-                for (File root : File.listRoots()) {
-                    rootsToCheck += "," + root.getAbsolutePath();
-                }
                 p.setProperty("file.resource.loader.class",
                         VelocityTemplateLoader.class.getName());
-                p.setProperty("file.resource.loader.path", rootsToCheck);
+                p.setProperty("file.resource.loader.path",
+                        globalTemplateDir.getAbsolutePath());
                 p.setProperty("velocimacro.permissions.allowInline", "true");
                 p.setProperty(
                         "velocimacro.permissions.allow.inline.to.replace.global",
