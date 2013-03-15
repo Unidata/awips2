@@ -22,6 +22,9 @@
  */
 package com.raytheon.viz.hydro.staffgage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -29,6 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -42,6 +46,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 17 Nov 2008     1628     dhladky     Little update.
+ * 15 Mar 2013  1790        rferrel     Changes for non-blocking StaffGageDlg.
  * 
  * </pre>
  * 
@@ -49,21 +54,42 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * 
  */
 public class StaffGageAction extends AbstractHandler {
+    Map<String, StaffGageDlg> dialogMap = new HashMap<String, StaffGageDlg>();
 
-    
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-	    // get the name for this gage...
-	    HydroDisplayManager manager = HydroDisplayManager.getInstance();
-	    if (manager.isCurrentLidSelected(shell)) {
-	       StaffGageDlg staffGageDlg = new StaffGageDlg(shell, manager.getCurrentLid());
-	       staffGageDlg.open();
-	    }
-	    // throws up dialog
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        // get the name for this gage...
+        HydroDisplayManager manager = HydroDisplayManager.getInstance();
+        if (manager.isCurrentLidSelected(shell)) {
+            String lid = manager.getCurrentLid();
+            StaffGageDlg staffGageDlg = dialogMap.get(lid);
+            if (staffGageDlg == null) {
+                staffGageDlg = new StaffGageDlg(shell, lid);
+                staffGageDlg.setCloseCallback(new ICloseCallback() {
 
-		return null;
-	}
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue != null) {
+                            dialogMap.remove(returnValue.toString());
+                        }
+                    }
+                });
+                dialogMap.put(lid, staffGageDlg);
+            }
+            staffGageDlg.open();
+        }
+        // throws up dialog
+
+        return null;
+    }
 
 }
