@@ -20,36 +20,36 @@
 
 package gov.noaa.nws.ncep.edex.plugin.ncgrib;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LatLonNcgridCoverage;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.NcgridCoverage;
+import gov.noaa.nws.ncep.edex.plugin.ncgrib.dao.NcgribDao;
+import gov.noaa.nws.ncep.edex.plugin.ncgrib.spatial.NcgribSpatialCache;
+import gov.noaa.nws.ncep.edex.plugin.ncgrib.util.NcgribModelCache;
+import gov.noaa.nws.ncep.edex.util.ncgrib.NccompositeModel;
+
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
-
-import gov.noaa.nws.ncep.edex.util.ncgrib.NccompositeModel;
-import gov.noaa.nws.ncep.edex.plugin.ncgrib.dao.NcgribDao;
-import gov.noaa.nws.ncep.edex.plugin.ncgrib.spatial.NcgribSpatialCache;
-import gov.noaa.nws.ncep.edex.plugin.ncgrib.util.NcgribModelCache;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.NcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LatLonNcgridCoverage;
 
 /**
  * The GridAssmebler class is part of the ingest process for grib data. Some
@@ -63,6 +63,7 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LatLonNcgr
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/09/10      4638        bphillip    Initial Creation
+ * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
  * 
  * </pre>
  * 
@@ -97,16 +98,11 @@ public class NcgridAssembler {
         
         //System.out.println(" load thin models commonPath=" + commonPath);
 
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                //System.out.println(" load thin models dir=" + dir.getPath() +"/" + name);
+        FilenameFilter filter = FilenameFilters.byFilters(
+                FilenameFilters.ACCEPT_FILES,
+                FilenameFilters.byFileExtension(".xml"));
 
-                return (!new File(dir.getPath() + File.separator + name)
-                        .isDirectory() && name.endsWith(".xml"));
-            }
-        };
-        ArrayList<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
+        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
                 filter, false);
 
         for (File file : thinnedModelFiles) {

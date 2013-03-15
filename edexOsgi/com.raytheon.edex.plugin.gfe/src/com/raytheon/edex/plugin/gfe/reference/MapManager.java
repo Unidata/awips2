@@ -73,6 +73,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -96,6 +97,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Jun 25, 2008     #1210   randerso    Modified to get directories from UtilityContext
  * Oct 13, 2008     #1607   njensen     Added genCombinationsFiles()
  * Sep 18, 2012     #1091   randerso    Changed to use Maps.py and localMaps.py
+ * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
  * 
  * </pre>
  * 
@@ -119,13 +121,13 @@ public class MapManager {
 
     private List<String> _mapErrors;
 
-    private Map<String, ArrayList<String>> editAreaMap = new HashMap<String, ArrayList<String>>();
+    private final Map<String, List<String>> editAreaMap = new HashMap<String, List<String>>();
 
-    private Map<String, Map<String, Object>> editAreaAttrs = new HashMap<String, Map<String, Object>>();
+    private final Map<String, Map<String, Object>> editAreaAttrs = new HashMap<String, Map<String, Object>>();
 
-    private List<String> iscMarkersID = new ArrayList<String>();
+    private final List<String> iscMarkersID = new ArrayList<String>();
 
-    private List<Coordinate> iscMarkers = new ArrayList<Coordinate>();
+    private final List<Coordinate> iscMarkers = new ArrayList<Coordinate>();
 
     private final String commonStaticConfigDir;
 
@@ -357,14 +359,9 @@ public class MapManager {
         }
 
         d = new File(FileUtil.join(commonStaticConfigDir, SAMPLE_SETS_DIR));
-        FilenameFilter filter = new FilenameFilter() {
 
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.trim().startsWith("ISC_Marker_Set");
-            }
-        };
         if (d.exists()) {
+            final FilenameFilter filter = FilenameFilters.byFilePrefix("ISC_Marker_Set");
             for (File file : FileUtil.listFiles(d, filter, false)) {
                 file.delete();
             }
