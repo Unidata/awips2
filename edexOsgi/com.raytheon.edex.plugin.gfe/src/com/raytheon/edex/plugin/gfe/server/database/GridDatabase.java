@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,7 @@ import com.raytheon.uf.common.time.TimeRange;
  *                                     in the gfeBaseDataDir.
  * 02/10/13     #1603      randerso    Moved removeFromDb, removeFromHDF5 and deleteModelHDF5
  *                                     methods down to IFPGridDatabase
+ * 03/15/13      #1795     njensen      Added updatePublishTime()
  * 
  * </pre>
  * 
@@ -438,6 +440,22 @@ public abstract class GridDatabase {
 
     public ServerResponse<?> updateGridHistory(ParmID parmId,
             Map<TimeRange, List<GridDataHistory>> history) {
+        throw new UnsupportedOperationException("Not implemented for class "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Updates the publish times in the database of all provided
+     * GridDataHistories. Does not alter the publish times in memory.
+     * 
+     * @param history
+     *            the histories to alter in the database
+     * @param publishTime
+     *            the publish time to update to
+     * @return
+     */
+    public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
+            Date publishTime) {
         throw new UnsupportedOperationException("Not implemented for class "
                 + this.getClass().getName());
     }
