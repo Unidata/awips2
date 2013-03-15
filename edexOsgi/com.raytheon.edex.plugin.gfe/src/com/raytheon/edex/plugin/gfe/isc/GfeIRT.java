@@ -59,6 +59,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/14/09     1995       bphillip    Initial creation
+ * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
  * 
  * </pre>
  * 
@@ -72,13 +73,13 @@ public class GfeIRT extends Thread {
             .getHandler(GfeIRT.class);
 
     /** The site ID associated with this IRT thread */
-    private String siteID;
+    private final String siteID;
 
     /** The MHS ID associated with this IRT thread */
-    private String mhsID;
+    private final String mhsID;
 
     /** The script file name */
-    private String scriptFile;
+    private final String scriptFile;
 
     /** The Python script object */
     private PythonScript script;
@@ -186,7 +187,7 @@ public class GfeIRT extends Thread {
                         return name.trim().matches("ISC_\\p{Alnum}{3}\\.xml");
                     }
                 };
-                ArrayList<File> editAreas = FileUtil.listFiles(editAreaDir,
+                List<File> editAreas = FileUtil.listFiles(editAreaDir,
                         filter, false);
 
                 String name = "";
