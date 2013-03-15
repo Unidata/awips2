@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -31,8 +32,11 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -62,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 15 Jan 2008  1802       askripsk    Changed to draw gages with missing data.
  * 08 Mar 2010  2486       mpduff      Changed to open with the river for the 
  *                                     selected site automatically selected.
+ * 15 Mar 2013  1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -74,7 +79,7 @@ public class RiverSummaryDlg extends CaveSWTDialog {
      * Maximum stage difference.
      */
     private static final int MAX_STAGE_DIFF = 100;
-    
+
     /**
      * Font used for SWT controls.
      */
@@ -93,7 +98,7 @@ public class RiverSummaryDlg extends CaveSWTDialog {
     /**
      * List of stream names that coincide with the streamList widget.
      */
-    private ArrayList<String> streamNameList = new ArrayList<String>();
+    private java.util.List<String> streamNameList = new ArrayList<String>();
 
     /**
      * Stage basis combo box.
@@ -183,17 +188,22 @@ public class RiverSummaryDlg extends CaveSWTDialog {
     /**
      * All rivers Data structure
      */
-    private LinkedHashMap<String, LinkedHashMap<String, RiverDataPoint>> riversData = null;
+    private Map<String, LinkedHashMap<String, RiverDataPoint>> riversData = null;
 
     /**
      * River Summary Data structure
      */
-    private LinkedHashMap<String, RiverDataPoint> riverData = null;
+    private Map<String, RiverDataPoint> riverData = null;
 
     /**
      * River datamanager instance
      */
     private RiverDataManager rsdm = null;
+
+    /**
+     * Location and size of the dialog.
+     */
+    Rectangle bounds;
 
     /**
      * Constructor.
@@ -202,16 +212,28 @@ public class RiverSummaryDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public RiverSummaryDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("River Summary");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
         canvasFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -272,8 +294,8 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                     }
                     i++;
                 }
-                setRiverData(rsdm.populateRiverData(riverKey, riversData
-                        .get(riverKey)));
+                setRiverData(rsdm.populateRiverData(riverKey,
+                        riversData.get(riverKey)));
                 // issue a paint event
                 riverSumCanvas.redraw();
             }
@@ -290,8 +312,8 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                     }
                     i++;
                 }
-                setRiverData(rsdm.populateRiverData(riverKey, riversData
-                        .get(riverKey)));
+                setRiverData(rsdm.populateRiverData(riverKey,
+                        riversData.get(riverKey)));
                 // issue a paint event
                 riverSumCanvas.redraw();
             }
@@ -459,7 +481,7 @@ public class RiverSummaryDlg extends CaveSWTDialog {
      */
     private void drawRiverSummaryCanvas(PaintEvent e) {
         e.gc.setFont(canvasFont);
-        
+
         // ticInterval is used to determine max and min stages to be
         // displayed by a particular station.
         int ticInterval = 5;
@@ -482,12 +504,9 @@ public class RiverSummaryDlg extends CaveSWTDialog {
 
         if (getRiverData() != null) {
             // must deal with x coordinate
-            // hardcoding an x offset of 175 to bring stations 
+            // hardcoding an x offset of 175 to bring stations
             // closer together, but this leaves empty space to the right
             int xoffset = 135;
-            // this evenly spaces the display which is not what is wanted
-//            int xoffset = (int) ((RIVER_SUM_CANVAS_WIDTH / getRiverData()
-//                    .size()) + 35.0);
             int x = 30; // starting point
             df.setMinimumIntegerDigits(1);
             df.setMaximumFractionDigits(2);
@@ -501,35 +520,36 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                     String valString = "";
                     String mileString = "";
                     String lidString = rdp.getLid();
-                    
+
                     // Get the max/min values
                     MaxMin maxMin = new MaxMin();
                     maxMin.checkValue(rdp.getFloodStage());
-                    
+
                     if (rdp.getActionStage() > 0.0) {
                         maxMin.checkValue(rdp.getActionStage());
                     }
-                    
+
                     maxMin.checkValue(rdp.getObsValue());
                     maxMin.checkValue(rdp.getFcstValue());
 
-                    // adjust minStage down to nearest number divisible by ticInterval
+                    // adjust minStage down to nearest number divisible by
+                    // ticInterval
                     double minStage = maxMin.getMinValue();
-                    
+
                     if (rdp.getFloodStage() > 100) {
                         minStage -= ticInterval;
-                        long longStage = (long) minStage/ticInterval;
+                        long longStage = (long) minStage / ticInterval;
                         minStage = longStage * ticInterval;
                     } else {
                         minStage = 0.0;
                     }
-                    
+
                     // adjust maxStage up to nearest number div by ticInterval
                     double maxStage = maxMin.getMaxValue();
                     maxStage += 2 * ticInterval;
-                    long longStage = (long) maxStage/ticInterval;
+                    long longStage = (long) maxStage / ticInterval;
                     maxStage = longStage * ticInterval;
-                    
+
                     // -------------------------------------------
                     // Draw bottom labels
                     // -------------------------------------------
@@ -540,7 +560,8 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                     } else {
                         mileString = "MSG River Mile";
                     }
-                    e.gc.drawString(lidString + " (" + mileString + ")", x, idYCoord, true);
+                    e.gc.drawString(lidString + " (" + mileString + ")", x,
+                            idYCoord, true);
 
                     if (stageBasisCbo.getSelectionIndex() == 0) {
                         // max of fcst and obs
@@ -571,14 +592,16 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                     e.gc.drawString(calString, x, dateYCoord, true);
 
                     double gageDiff = maxStage - minStage;
-                    
+
                     //
-                    //   check that station can be drawn
+                    // check that station can be drawn
                     //
-                    if ( (gageDiff < MAX_STAGE_DIFF) && (rdp.getFloodStage() > 0.0) ) {
+                    if ((gageDiff < MAX_STAGE_DIFF)
+                            && (rdp.getFloodStage() > 0.0)) {
                         // NOW!!!! do the call to draw the gage here.
-                        RiverGage.drawRiverGage(e.gc, rdp, x, FLOOD_LINE_YCOORD,
-                                value, minStage, maxStage, maxMin);
+                        RiverGage.drawRiverGage(e.gc, rdp, x,
+                                FLOOD_LINE_YCOORD, value, minStage, maxStage,
+                                maxMin);
                     } else {
                         // draw the gage value if no graph is drawn
                         if (Double.compare(value, HydroConstants.MISSING_VALUE) != 0) {
@@ -587,7 +610,7 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                             valString = "Missing";
                         }
                         e.gc.drawString(valString, x, stageYCoord, true);
-                        
+
                         String errorText = "";
                         if (rdp.getFloodStage() == 0.0) {
                             errorText = "MSG Flood Stage";
@@ -596,7 +619,7 @@ public class RiverSummaryDlg extends CaveSWTDialog {
                         }
                         e.gc.drawString(errorText, x, stageYCoord - 15, true);
                     }
-                    
+
                     x += xoffset;
                 }
             }
@@ -618,7 +641,6 @@ public class RiverSummaryDlg extends CaveSWTDialog {
         idYCoord = nameYCoord - canvasFontHeight - 2;
         dateYCoord = idYCoord - canvasFontHeight - 2;
         stageYCoord = dateYCoord - canvasFontHeight - 2;
-        // missingStageYCoord = stageYCoord - canvasFontHeight - 2;
 
         firstTime = false;
     }
@@ -641,11 +663,15 @@ public class RiverSummaryDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                bounds = shell.getBounds();
+                close();
             }
         });
     }
 
+    /**
+     * Populate teh stream list.
+     */
     private void fillStreamList() {
         rsdm = RiverDataManager.getInstance();
         riversData = rsdm.getRiverSummaryData();
@@ -668,6 +694,9 @@ public class RiverSummaryDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Set up data for the desired selection and redraw the canvas.
+     */
     private void setSelection() {
         String lid = HydroDisplayManager.getInstance().getCurrentLid();
         RiverDataPoint riverPoint = RiverDataManager.getInstance()
@@ -703,7 +732,7 @@ public class RiverSummaryDlg extends CaveSWTDialog {
      * 
      * @param riverData
      */
-    private void setRiverData(LinkedHashMap<String, RiverDataPoint> riverData) {
+    private void setRiverData(Map<String, RiverDataPoint> riverData) {
         this.riverData = riverData;
     }
 
@@ -712,8 +741,28 @@ public class RiverSummaryDlg extends CaveSWTDialog {
      * 
      * @return
      */
-    private LinkedHashMap<String, RiverDataPoint> getRiverData() {
+    private Map<String, RiverDataPoint> getRiverData() {
         return riverData;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        shell.addShellListener(new ShellAdapter() {
+
+            @Override
+            public void shellClosed(ShellEvent e) {
+                bounds = shell.getBounds();
+            }
+        });
+        if (bounds != null) {
+            shell.setBounds(bounds);
+        }
     }
 
 }
