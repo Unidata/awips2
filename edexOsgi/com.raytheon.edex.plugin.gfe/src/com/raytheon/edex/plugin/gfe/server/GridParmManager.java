@@ -90,6 +90,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     fixed error which caused D2D purging to remove 
  *                                     smartInit hdf5 data
  * 03/07/13      #1773     njensen     Logged commitGrid() times
+ * 03/15/13       #1795    njensen     Sped up commitGrid()
  * 
  * </pre>
  * 
@@ -711,10 +712,11 @@ public class GridParmManager {
                 histories.put(tr, histList);
             }
 
-            // update the histories into the source database, update the
+            // update the publish times in the source database, update the
             // notifications
             historyUpdateTimer.start();
-            sr.addMessages(sourceGP.updateGridHistory(histories));
+            sr.addMessages(sourceGP.updatePublishTime(histories.values(),
+                    (Date) nowTime.clone()));
             // System.out.println("Updated " + histories.size() + " histories");
             historyUpdateTimer.stop();
 
@@ -737,8 +739,14 @@ public class GridParmManager {
                     destHistList.get(i).replaceValues(srcHistList.get(i));
                 }
             }
+
+            // only need to update the publish time on the destination histories
+            // of grids that are not being saved (due to no changes), because
+            // the saveGridSlices() call below will update the publish time
+            // of the ones with changes
             historyUpdateTimer.start();
-            destGP.updateGridHistory(destHistory);
+            destGP.updatePublishTime(destHistory.values(),
+                    (Date) nowTime.clone());
             historyUpdateTimer.stop();
 
             // save data directly to the official database (bypassing
