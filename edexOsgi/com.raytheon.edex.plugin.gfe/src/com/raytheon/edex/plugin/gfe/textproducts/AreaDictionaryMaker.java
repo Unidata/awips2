@@ -48,8 +48,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 4, 2011             wldougher   Moved from MapManager
- * 
+ * May 4,  2011             wldougher   Moved from MapManager
+ * Mar 10  2013 15717       jzeng       Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author wldougher
@@ -99,11 +99,11 @@ public class AreaDictionaryMaker {
                 scriptFile.getParent());
         Map<String, Object> argMap = new HashMap<String, Object>();
 
-        LocalizationContext caveStaticConfig = pathMgr.getContext(
-                LocalizationContext.LocalizationType.CAVE_STATIC,
+        LocalizationContext commonStaticConfig = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
-        caveStaticConfig.setContextName(site);
-        File outputDirFile = pathMgr.getLocalizationFile(caveStaticConfig,
+        commonStaticConfig.setContextName(site);
+        File outputDirFile = pathMgr.getLocalizationFile(commonStaticConfig,
                 FileUtil.join("gfe", "userPython", "textUtilities", "regular"))
                 .getFile();
         outputDirFile.mkdir();

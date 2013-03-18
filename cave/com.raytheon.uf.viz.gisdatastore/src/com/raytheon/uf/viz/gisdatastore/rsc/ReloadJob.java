@@ -44,6 +44,23 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Point;
 
+/**
+ * Job to reload data from GIS data stores
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 31, 2012      #1326 randerso     Initial creation
+ * Feb 22, 2013      #1641 randerso     Added checks for using ID as label or shading attribute
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 class ReloadJob extends Job {
 
     private static final int QUEUE_LIMIT = 1;
@@ -199,11 +216,16 @@ class ReloadJob extends Job {
 
                 List<String> fields = new ArrayList<String>();
                 fields.add(req.geomField);
-                if (req.labelField != null && !fields.contains(req.labelField)) {
+                if (req.labelField != null
+                        && !fields.contains(req.labelField)
+                        && !req.labelField
+                                .equals(DataStoreResource.ID_ATTRIBUTE_NAME)) {
                     fields.add(req.labelField);
                 }
                 if (req.shadingField != null
-                        && !fields.contains(req.shadingField)) {
+                        && !fields.contains(req.shadingField)
+                        && !req.shadingField
+                                .equals(DataStoreResource.ID_ATTRIBUTE_NAME)) {
                     fields.add(req.shadingField);
                 }
 
@@ -306,6 +328,16 @@ class ReloadJob extends Job {
                         if (name.equals(req.shadingField)) {
                             shadingAttr = f.getAttribute(name);
                         }
+                    }
+
+                    if (DataStoreResource.ID_ATTRIBUTE_NAME
+                            .equals(req.labelField)) {
+                        labelAttr = id;
+                    }
+
+                    if (DataStoreResource.ID_ATTRIBUTE_NAME
+                            .equals(req.shadingField)) {
+                        shadingAttr = id;
                     }
 
                     if (labelAttr != null && g != null) {

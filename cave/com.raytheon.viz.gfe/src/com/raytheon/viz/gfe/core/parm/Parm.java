@@ -179,6 +179,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     no interaction with Parms after dispose
  *                                     is called.
  * 02/13/13     #1597      randerso    Removed debug logging to improve performance
+ * Mar 13, 2013 1792       bsteffen    Improve performance of gfe parm average
+ *                                     ant time weighted average.
  * </pre>
  * 
  * @author chammack
@@ -2068,12 +2070,17 @@ public abstract class Parm implements Comparable<Parm> {
             }
         } else if (getGridInfo().getGridType() == GridType.SCALAR) {
             Grid2DFloat grid = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
+            Grid2DFloat[] scalarGrids = new Grid2DFloat[gridCount];
+            for (int c = 0; c < gridCount; c++) {
+                scalarGrids[c] = ((ScalarGridSlice) grids[c].getGridSlice())
+                        .getScalarGrid();
+            }
             for (int i = 0; i < ge.getSpan(0); i++) {
                 for (int j = 0; j < ge.getSpan(1); j++) {
                     float value = 0.0f;
                     for (int k = 0; k < gridCount; k++) {
-                        value += ((ScalarWxValue) grids[k].getWxValue(i, j))
-                                .getValue() * gridTR.get(k).getDuration();
+                        value += scalarGrids[k].get(i, j)
+                                * gridTR.get(k).getDuration();
                     }
                     grid.set(i, j, value / totalDuration);
                 }
@@ -2091,7 +2098,7 @@ public abstract class Parm implements Comparable<Parm> {
             Grid2DFloat uGrid;
             Grid2DFloat vGrid;
             Grid2DFloat uSum = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
-            Grid2DFloat vSum = new Grid2DFloat(uSum);
+            Grid2DFloat vSum = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
             // sum
             for (int k = 0; k < gridCount; k++) {
                 VectorGridSlice vgs = (VectorGridSlice) grids[k].getGridSlice();
@@ -3615,12 +3622,16 @@ public abstract class Parm implements Comparable<Parm> {
             }
         } else if (this.gridInfo.getGridType() == GridType.SCALAR) {
             Grid2DFloat grid = new Grid2DFloat(gridSize.x, gridSize.y);
+            Grid2DFloat[] scalarGrids = new Grid2DFloat[gridCount];
+            for (int c = 0; c < gridCount; c++) {
+                scalarGrids[c] = ((ScalarGridSlice) grids[c].getGridSlice())
+                        .getScalarGrid();
+            }
             for (i = 0; i < gridSize.x; i++) {
                 for (j = 0; j < gridSize.y; j++) {
                     float value = 0.0f;
                     for (k = 0; k < gridCount; k++) {
-                        value += ((ScalarWxValue) grids[k].getWxValue(i, j))
-                                .getValue();
+                        value += scalarGrids[k].get(i, j);
                     }
                     grid.set(i, j, value / gridCount);
                 }
