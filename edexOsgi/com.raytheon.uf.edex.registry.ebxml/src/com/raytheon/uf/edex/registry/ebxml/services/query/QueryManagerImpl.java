@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.registry.ebxml.services.query;
 
 import java.math.BigInteger;
 
+import javax.xml.bind.JAXBException;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryExceptionType;
@@ -30,6 +32,9 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
@@ -68,14 +73,17 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 184        bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-
+@Transactional
 public class QueryManagerImpl implements QueryManager {
+
+    private boolean eagerFetch = false;
 
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(QueryManagerImpl.class);
@@ -204,6 +212,14 @@ public class QueryManagerImpl implements QueryManager {
 
         try {
             query.executeQuery(queryRequest, response);
+            if (eagerFetch) {
+                try {
+                    SerializationUtil.getJaxbManager().marshalToXml(response);
+                } catch (JAXBException e) {
+                    throw new EbxmlRegistryException(
+                            "Error eagerly fetching items", e);
+                }
+            }
         } catch (EbxmlRegistryException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
                     "Error executing query!", QueryExceptionType.class, "",
@@ -214,8 +230,7 @@ public class QueryManagerImpl implements QueryManager {
         timer.stop();
         String queryRequestId = queryRequest.getId();
         statusHandler.info("QueryManager executeQuery id [" + queryRequestId
-                + "] operation completed in "
-                + timer.getElapsedTime() + " ms");
+                + "] operation completed in " + timer.getElapsedTime() + " ms");
         response.setRequestId(queryRequestId);
         return response;
 
@@ -299,6 +314,10 @@ public class QueryManagerImpl implements QueryManager {
 
     public void setQueryTypeMgr(QueryTypeManager queryTypeMgr) {
         this.queryTypeMgr = queryTypeMgr;
+    }
+
+    public void setEagerFetch(boolean eagerFetch) {
+        this.eagerFetch = eagerFetch;
     }
 
 }

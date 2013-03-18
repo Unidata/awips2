@@ -89,7 +89,7 @@ public abstract class ExtensibleObjectType {
 
     @BatchSize(size = 500)
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
+    @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
     protected Set<SlotType> slot;
