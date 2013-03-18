@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
@@ -66,6 +67,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  *                                     StormTrackState.
  * 02-12-2013   1600       jsanchez    Changed the visibility of the method adjustAngle
  * 03-05-2013   1600       jsanchez    Returned the visibility of the method adjustAngle to protected.
+ * 15Mar2013    15693  mgamazaychikov  Added magnification to display state.
  * </pre>
  * 
  * @author mschenke
@@ -216,6 +218,9 @@ public abstract class AbstractStormTrackResource extends
                 .getOutlineWidth();
         displayState.lineStyle = getCapability(OutlineCapability.class)
                 .getLineStyle();
+        // set the magnification for the display state
+        displayState.magnification = getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue();
 
         PaintProperties newProps = new StormTrackProperties(paintProps,
                 displayState);

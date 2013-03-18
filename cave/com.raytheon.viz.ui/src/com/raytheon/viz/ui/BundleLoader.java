@@ -37,6 +37,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2013            mschenke     Initial creation
+ * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
  * 
  * </pre>
  * 
@@ -296,7 +297,11 @@ public class BundleLoader extends Job {
         VizApp.runSync(new Runnable() {
             @Override
             public void run() {
+                IRenderableDisplay oldDisplay = loadTo.getRenderableDisplay();
                 loadTo.setRenderableDisplay(loadFrom);
+                if (oldDisplay != null && oldDisplay != loadFrom) {
+                    oldDisplay.dispose();
+                }
             }
         });
     }

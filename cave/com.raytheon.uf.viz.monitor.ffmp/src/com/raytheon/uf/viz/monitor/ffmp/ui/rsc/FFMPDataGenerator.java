@@ -213,10 +213,15 @@ public class FFMPDataGenerator {
                                                 .getCwa()))
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
-
-                                            setFFMPRow(fbd.get(key), tData,
-                                                    false, cwa);
-
+                                            try {
+                                                setFFMPRow(fbd.get(key), tData,
+                                                        false, cwa);
+                                            } catch (Exception e) {
+                                                statusHandler.handle(
+                                                        Priority.PROBLEM,
+                                                        "Couldn't create table row"
+                                                                + e);
+                                            }
                                             if (virtualBasin != null) {
                                                 for (Long id : ft
                                                         .getVirtualGageBasinLookupIds(
@@ -225,11 +230,18 @@ public class FFMPDataGenerator {
                                                                 huc,
                                                                 resource.basinTableDlg
                                                                         .getRowName())) {
-                                                    setFFMPRow(
-                                                            virtualBasin
-                                                                    .get(id),
-                                                            tData, true, domain
-                                                                    .getCwa());
+                                                    try {
+                                                        setFFMPRow(
+                                                                virtualBasin
+                                                                        .get(id),
+                                                                tData, true,
+                                                                domain.getCwa());
+                                                    } catch (Exception e) {
+                                                        statusHandler
+                                                                .handle(Priority.PROBLEM,
+                                                                        "Couldn't create table row"
+                                                                                + e);
+                                                    }
                                                 }
                                             }
                                         }
@@ -262,7 +274,10 @@ public class FFMPDataGenerator {
                                                 setFFMPRow(fbd.get(key), tData,
                                                         isVGB, null);
                                             } catch (Exception e) {
-                                                e.printStackTrace();
+                                                statusHandler.handle(
+                                                        Priority.PROBLEM,
+                                                        "Couldn't create table row"
+                                                                + e);
                                             }
                                         }
                                     }
@@ -285,26 +300,34 @@ public class FFMPDataGenerator {
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
 
-                                            setFFMPRow(fbd.get(key), tData,
-                                                    false, null);
-                                            // virtual basin
-                                            if (virtualBasin != null) {
-                                                for (Long id : ft
+											setFFMPRow(fbd.get(key), tData,
+													false, null);
+											// virtual basin
+											if (virtualBasin != null) {
+												for (Long id : ft
                                                         .getVirtualGageBasinLookupIds(
                                                                 siteKey,
                                                                 key,
                                                                 huc,
                                                                 resource.basinTableDlg
                                                                         .getRowName())) {
-                                                    setFFMPRow(
-                                                            virtualBasin
-                                                                    .get(id),
-                                                            tData, true, null);
+                                                    try {
+                                                        setFFMPRow(
+                                                                virtualBasin
+                                                                        .get(id),
+                                                                tData, true,
+                                                                null);
+                                                    } catch (Exception e) {
+                                                        statusHandler
+                                                                .handle(Priority.PROBLEM,
+                                                                        "Couldn't create table row"
+                                                                                + e);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
+								}
                             }
                         }
                         tData.sortData();
