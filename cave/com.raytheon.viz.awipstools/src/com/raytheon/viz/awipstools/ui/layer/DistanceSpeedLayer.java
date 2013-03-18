@@ -51,7 +51,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * 02/15/2011   7975       bkowal      The Distance Speed Tools will
  *                                     operate independently of each other;
  *                                     the dialogs will have unique titles.
- * 05Mar2013	15693	mgamazaychikov Added magnification capability.
+ * 15Mar2013	15693	mgamazaychikov Added magnification capability.
  * 
  * </pre>
  * 
@@ -74,9 +74,7 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
             AwipsToolsResourceData<DistanceSpeedLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
-        /*
-    	 * 15693 - add magnification capability
-    	 */
+    	// add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
         this.determineDialogTitle();
         reopenDialog();
