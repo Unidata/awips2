@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="camel-servlet-2.4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="camel-jms-2.4.0.jar" sourcepath="apache-camel-2.4.0-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="camel-atom-2.4.0.jar" sourcepath="apache-camel-2.4.0-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="camel-bam-2.4.0.jar" sourcepath="apache-camel-2.4.0-src.zip"/>

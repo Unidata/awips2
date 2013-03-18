@@ -25,7 +25,6 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryPackageType;
 
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -43,6 +42,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -64,10 +64,10 @@ public class RegistryPackageSelector extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.DEPTH);
     }
 
+    private RegistryObjectTypeDao registryPackageDao;
+
     protected List<RegistryObjectType> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao(
-                RegistryPackageType.class);
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -87,7 +87,7 @@ public class RegistryPackageSelector extends CanonicalEbxmlQuery {
                 .getParameter(QueryConstants.REGISTRY_PACKAGE_IDS)) {
             packageIds.add((String) obj);
         }
-        return registryObjectDao.getById(packageIds);
+        return registryPackageDao.getById(packageIds);
     }
 
     @Override
@@ -98,6 +98,10 @@ public class RegistryPackageSelector extends CanonicalEbxmlQuery {
     @Override
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
+    }
+
+    public void setRegistryPackageDao(RegistryObjectTypeDao registryPackageDao) {
+        this.registryPackageDao = registryPackageDao;
     }
 
 }

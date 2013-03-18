@@ -64,7 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Federation")
+@Table(schema = "ebxml", name = "Federation")
 public class FederationType extends RegistryObjectType {
 
     @Transient
