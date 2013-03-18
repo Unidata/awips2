@@ -15,7 +15,7 @@ SITE:common_static/scan/SCANRunSiteConfig.xml
 BASE:cave_static/derivedParameters/DerivedParameterInterface.py
 
 # GFE protected files
-BASE:cave_static/gfe/userPython/textproducts/MultipleElementTable.py
+BASE:common_static/gfe/userPython/textproducts/MultipleElementTable.py
 
 BASE:edex_static/textproducts/templates/product/AFD.py
 BASE:edex_static/textproducts/templates/product/PFM.py
@@ -61,53 +61,53 @@ BASE:edex_static/textproducts/templates/utility/FireWxZones_EA_Site_MultiPil_Def
 BASE:edex_static/textproducts/templates/utility/MarineZones_EA_Site_MultiPil_Definition.py
 BASE:edex_static/textproducts/templates/utility/PublicZones_EA_Site_MultiPil_Definition.py
 
-BASE:cave_static/gfe/userPython/textUtilities/regular/VTECMessageType.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/CombinedPhrases.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/CommonUtils.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/ConfigurableIssuance.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/ConfigVariables.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/DiscretePhrases.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/EditAreaUtils.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/FirePhrases.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/Header.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/Holidays.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/Interfaces.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/MarinePhrases.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/ModuleAccessor.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/PhraseBuilder.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/SAF_Overrides.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/FWS_Overrides.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/SampleAnalysis.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/ScalarPhrases.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/SimpleTableUtils.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/StringUtils.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/TableBuilder.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/TextRules.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/TextUtils.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/TimeDescriptor.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/TimeRangeUtils.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/UnitConvertor.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/VectorRelatedPhrases.py
-BASE:cave_static/gfe/userPython/textUtilities/regular/WxPhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/VTECMessageType.py
+BASE:common_static/gfe/userPython/textUtilities/regular/CombinedPhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/CommonUtils.py
+BASE:common_static/gfe/userPython/textUtilities/regular/ConfigurableIssuance.py
+BASE:common_static/gfe/userPython/textUtilities/regular/ConfigVariables.py
+BASE:common_static/gfe/userPython/textUtilities/regular/DiscretePhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/EditAreaUtils.py
+BASE:common_static/gfe/userPython/textUtilities/regular/FirePhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/Header.py
+BASE:common_static/gfe/userPython/textUtilities/regular/Holidays.py
+BASE:common_static/gfe/userPython/textUtilities/regular/Interfaces.py
+BASE:common_static/gfe/userPython/textUtilities/regular/MarinePhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/ModuleAccessor.py
+BASE:common_static/gfe/userPython/textUtilities/regular/PhraseBuilder.py
+BASE:common_static/gfe/userPython/textUtilities/regular/SAF_Overrides.py
+BASE:common_static/gfe/userPython/textUtilities/regular/FWS_Overrides.py
+BASE:common_static/gfe/userPython/textUtilities/regular/SampleAnalysis.py
+BASE:common_static/gfe/userPython/textUtilities/regular/ScalarPhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/SimpleTableUtils.py
+BASE:common_static/gfe/userPython/textUtilities/regular/StringUtils.py
+BASE:common_static/gfe/userPython/textUtilities/regular/TableBuilder.py
+BASE:common_static/gfe/userPython/textUtilities/regular/TextRules.py
+BASE:common_static/gfe/userPython/textUtilities/regular/TextUtils.py
+BASE:common_static/gfe/userPython/textUtilities/regular/TimeDescriptor.py
+BASE:common_static/gfe/userPython/textUtilities/regular/TimeRangeUtils.py
+BASE:common_static/gfe/userPython/textUtilities/regular/UnitConvertor.py
+BASE:common_static/gfe/userPython/textUtilities/regular/VectorRelatedPhrases.py
+BASE:common_static/gfe/userPython/textUtilities/regular/WxPhrases.py
 
-BASE:cave_static/gfe/userPython/utilities/ISC_Utility.py
-BASE:cave_static/gfe/userPython/utilities/SmartScript.py
-BASE:cave_static/gfe/userPython/utilities/HazardUtils.py
-BASE:cave_static/gfe/userPython/utilities/WxMethods.py
+BASE:common_static/gfe/userPython/utilities/ISC_Utility.py
+BASE:common_static/gfe/userPython/utilities/SmartScript.py
+BASE:common_static/gfe/userPython/utilities/HazardUtils.py
+BASE:common_static/gfe/userPython/utilities/WxMethods.py
 
 # procedures
-BASE:cave_static/gfe/userPython/procedures/ISC_Discrepancies.py
-BASE:cave_static/gfe/userPython/procedures/PlotSPCWatches.py
-BASE:cave_static/gfe/userPython/procedures/PlotTPCEvents.py
-BASE:cave_static/gfe/userPython/procedures/HazardRecovery.py
-BASE:cave_static/gfe/userPython/procedures/SeparateHazards.py
-BASE:cave_static/gfe/userPython/procedures/ViewWCL.py
+BASE:common_static/gfe/userPython/procedures/ISC_Discrepancies.py
+BASE:common_static/gfe/userPython/procedures/PlotSPCWatches.py
+BASE:common_static/gfe/userPython/procedures/PlotTPCEvents.py
+BASE:common_static/gfe/userPython/procedures/HazardRecovery.py
+BASE:common_static/gfe/userPython/procedures/SeparateHazards.py
+BASE:common_static/gfe/userPython/procedures/ViewWCL.py
 
 # smart tools
-BASE:cave_static/gfe/userPython/smartTools/AdjustValue_Down.py
-BASE:cave_static/gfe/userPython/smartTools/AdjustValue_Up.py
-BASE:cave_static/gfe/userPython/smartTools/Assign_Value.py
-BASE:cave_static/gfe/userPython/smartTools/Smooth.py
+BASE:common_static/gfe/userPython/smartTools/AdjustValue_Down.py
+BASE:common_static/gfe/userPython/smartTools/AdjustValue_Up.py
+BASE:common_static/gfe/userPython/smartTools/Assign_Value.py
+BASE:common_static/gfe/userPython/smartTools/Smooth.py
 
 # smartInits
 BASE:edex_static/smartInit/AKNAM40.py
@@ -159,7 +159,7 @@ BASE:edex_static/smartInit/RTMA.py
 BASE:edex_static/smartInit/NamDNG5.py
 
 #gfeConfig files
-BASE:cave_static/gfe/userPython/gfeConfig/gfeConfig.py
+BASE:common_static/gfe/userPython/gfeConfig/gfeConfig.py
 
 # FFMP Files
 SITE:common_static/purge/ffmpPurgeRules.xml

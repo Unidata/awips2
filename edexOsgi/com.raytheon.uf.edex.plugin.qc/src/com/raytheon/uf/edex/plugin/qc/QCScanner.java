@@ -160,10 +160,13 @@ public class QCScanner {
                 String[] idVariablesNames = nc
                         .findGlobalAttribute("idVariables")
                         .getStringValue().split(",");
+                String[] timeVariableNames = nc
+                        .findGlobalAttribute("timeVariables")
+                        .getStringValue().split(",");
                 Variable[] idVariables = new Variable[idVariablesNames.length];
                 for (int i = 0; i < idVariables.length; ++i)
                     idVariables[i] = nc.findVariable(idVariablesNames[i]);
-                Variable vObsTime = nc.findVariable("observationTime");
+                Variable vObsTime = nc.findVariable(timeVariableNames[0]);
                 double vObsTimeFillValue = vObsTime.findAttribute("_FillValue").getNumericValue().doubleValue();
                 Double vObsTimeMissingValue = null;
                 Attribute a = vObsTime.findAttribute("missing_value");
