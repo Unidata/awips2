@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -101,6 +102,10 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.TARGET_OBJECT_ID);
         QUERY_PARAMETERS.add(QueryConstants.TARGET_OBJECT_TYPE);
     }
+
+    private ClassificationNodeDao classificationNodeDao;
+
+    private FindAssociations findAssociations;
 
     @Override
     protected List<RegistryObjectType> query(QueryType queryType,
@@ -140,14 +145,14 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
             throw new EbxmlRegistryException(
                     "Both sourceObjectType and targetObjectType MUST NOT be specified.");
         }
-        List<AssociationType> associations = new FindAssociations().query(
+        List<RegistryObjectType> associations = findAssociations.query(
                 queryType, queryResponse);
         List<String> ids = new ArrayList<String>();
-        for (AssociationType association : associations) {
+        for (RegistryObjectType association : associations) {
             if (sourceObjectId == null) {
-                ids.add(association.getSourceObject());
+                ids.add(((AssociationType) association).getSourceObject());
             } else {
-                ids.add(association.getTargetObject());
+                ids.add(((AssociationType) association).getTargetObject());
             }
         }
         return registryObjectDao.getById(ids);
@@ -156,7 +161,7 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
 
     private String getTypeClause(String associationType)
             throws EbxmlRegistryException {
-        ClassificationNodeType node = new ClassificationNodeDao()
+        ClassificationNodeType node = classificationNodeDao
                 .getByPath(associationType);
         if (node == null) {
             throw new EbxmlRegistryException(
@@ -179,6 +184,15 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
     @Override
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
+    }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
+    }
+
+    public void setFindAssociations(FindAssociations findAssociations) {
+        this.findAssociations = findAssociations;
     }
 
 }

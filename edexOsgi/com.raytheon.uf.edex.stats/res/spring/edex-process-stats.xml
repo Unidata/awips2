@@ -12,11 +12,21 @@
 
     <bean id="aggregateManager" class="com.raytheon.uf.edex.stats.AggregateManager">
         <constructor-arg value="${stats.period}"/>
+        <property name="aggregateDao" ref="aggregateRecordDao"/>
+        <property name="jaxbManager" ref="statsGroupingColumnJaxbManager"/>
     </bean>
 
    	<bean id="edexStatsRegistered" factory-bean="clusteredCamelContextMgr"
 		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="edexStats-camel"/>
+  	</bean>
+  	
+  	<bean id="aggregateRecordDao" class="com.raytheon.uf.edex.stats.dao.AggregateRecordDao">
+  		<property name="sessionFactory" ref="metadataSessionFactory"/>
+  	</bean>
+  	
+  	<bean id="statsGroupingColumnJaxbManager" class="com.raytheon.uf.common.serialization.JAXBManager">
+  		<constructor-arg value="com.raytheon.uf.common.stats.StatsGroupingColumn"/>
   	</bean>
 
     <camelContext id="edexStats-camel"
