@@ -271,6 +271,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
      * 
      * @return
      */
+    @Override
     @Deprecated
     public DataTime[] getFrames() {
         return getFramesInfo().frameTimes;
@@ -446,6 +447,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     /**
      * @return the timeMatcher
      */
+    @Override
     @XmlElement
     public AbstractTimeMatcher getTimeMatcher() {
         return timeManager.timeMatcher;
@@ -455,6 +457,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
      * @param timeMatcher
      *            the timeMatcher to set
      */
+    @Override
     public void setTimeMatcher(AbstractTimeMatcher timeMatcher) {
         this.timeManager.timeMatcher = timeMatcher;
     }
@@ -477,6 +480,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         return currInfo.getTimeForResource(rsc);
     }
 
+    @Override
     public void synchronizeTimeMatching(IDescriptor other) {
         if (other instanceof AbstractDescriptor) {
             timeManager = ((AbstractDescriptor) other).timeManager;
@@ -577,6 +581,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                 return;
             }
         }
+        DataTime oldTime, currTime;
+        boolean frameChanged = false;
         synchronized (timeManager) {
             DataTime[] oldTimes = timeManager.frames;
             int oldIdx = this.frameIndex;
@@ -598,12 +604,15 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             }
             FramesInfo currInfo = getFramesInfo();
             FramesInfo oldInfo = new FramesInfo(oldTimes, oldIdx);
-            DataTime oldTime = oldInfo.getCurrentFrame();
-            DataTime currTime = currInfo.getCurrentFrame();
+            oldTime = oldInfo.getCurrentFrame();
+            currTime = currInfo.getCurrentFrame();
             if ((oldTime != null && oldTime.equals(currTime) == false)
                     || (currTime != null && currTime.equals(oldTime) == false)) {
-                notifyFrameChanged(oldTime, currTime);
+                frameChanged = true;
             }
+        }
+        if (frameChanged) {
+            notifyFrameChanged(oldTime, currTime);
         }
     }
 

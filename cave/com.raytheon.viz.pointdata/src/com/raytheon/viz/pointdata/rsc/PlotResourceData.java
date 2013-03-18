@@ -36,8 +36,6 @@ import org.apache.batik.util.ParsedURL;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -67,9 +65,6 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class PlotResourceData extends AbstractRequestableResourceData {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PlotResourceData.class);
 
     public static final String PLOT_DIR = "plotModels" + File.separator;
 
@@ -412,4 +407,15 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     public void setPixelSampleDistance(int pixelSampleDistance) {
         this.pixelSampleDistance = pixelSampleDistance;
     }
+
+    @Override
+    public boolean isUpdatingOnMetadataOnly() {
+        return false;
+    }
+
+    @Override
+    public boolean isRetrieveData() {
+        return false;
+    }
+
 }

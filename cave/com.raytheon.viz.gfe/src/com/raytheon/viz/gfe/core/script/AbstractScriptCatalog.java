@@ -37,7 +37,13 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * @author wldougher
+ * SOFTWARE HISTORY
+ * Date          Ticket#    Engineer    Description
+ * ------------  ---------- ----------- --------------------------
+ *                          wldougher   Initial creation
+ * Mar 06  2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
+ *                                      for GFE localization files
+ *  @author wldougher
  * 
  */
 public abstract class AbstractScriptCatalog {
@@ -72,11 +78,11 @@ public abstract class AbstractScriptCatalog {
 
         this.pathManager = pathManager;
         LocalizationContext userCtx = pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         LocalizationContext siteCtx = pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationContext baseCtx = pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         String pathPrefix = getScriptTypePathPrefix();
         procDir = pathManager.getLocalizationFile(userCtx, pathPrefix);
         siteDir = pathManager.getLocalizationFile(siteCtx, pathPrefix);
