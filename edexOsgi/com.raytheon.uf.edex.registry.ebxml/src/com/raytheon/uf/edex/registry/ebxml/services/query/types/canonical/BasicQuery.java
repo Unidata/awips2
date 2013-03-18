@@ -24,10 +24,12 @@ import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -91,6 +93,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip    Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 
  * 
  * </pre>
  * 
@@ -104,6 +108,8 @@ public class BasicQuery extends CanonicalEbxmlQuery {
 
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
+
+    private RegistryObjectTypeDao<ClassificationNodeType> classificationDao;
 
     /* Initializes the list of parameters */
     static {
@@ -124,18 +130,19 @@ public class BasicQuery extends CanonicalEbxmlQuery {
 
         List<String> ids = new ArrayList<String>();
 
-        RegistryObjectTypeDao dao = new RegistryObjectTypeDao(
-                ClassificationType.class);
-
-        for (int i = 0; i < classifications.size(); i++) {
-            String subQuery = HqlQueryUtil.assembleSingleParamQuery(
-                    ClassificationType.class, "classifiedObject",
-                    HqlQueryUtil.EQUALS, classifications.get(i));
-            if (i == 0) {
-                ids = dao.executeHQLQuery(subQuery);
-            } else {
-                ids.retainAll(dao.executeHQLQuery(subQuery));
+        try {
+            for (int i = 0; i < classifications.size(); i++) {
+                String subQuery = HqlQueryUtil.assembleSingleParamQuery(
+                        ClassificationType.class, "classifiedObject",
+                        HqlQueryUtil.EQUALS, classifications.get(i));
+                if (i == 0) {
+                    ids = classificationDao.executeHQLQuery(subQuery);
+                } else {
+                    ids.retainAll(classificationDao.executeHQLQuery(subQuery));
+                }
             }
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Error executing BasicQuery!", e);
         }
 
         if (ids.isEmpty()) {
@@ -210,8 +217,12 @@ public class BasicQuery extends CanonicalEbxmlQuery {
                 params.getParameter(QueryConstants.CLASSIFICATIONS))) {
             return Collections.emptyList();
         }
-        return registryObjectDao.executeHQLQuery(query.substring(0,
-                query.length() - conjunction.length()));
+        try {
+            return registryObjectDao.executeHQLQuery(query.substring(0,
+                    query.length() - conjunction.length()));
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Error executing BasicQuery!", e);
+        }
 
     }
 
@@ -224,4 +235,10 @@ public class BasicQuery extends CanonicalEbxmlQuery {
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
     }
+
+    public void setClassificationDao(
+            RegistryObjectTypeDao<ClassificationNodeType> classificationDao) {
+        this.classificationDao = classificationDao;
+    }
+
 }

@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -70,13 +71,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "OrganizationType", propOrder = { "organization" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Organization")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Organization")
 public class OrganizationType extends PartyType {
 
     @XmlElement(name = "Organization")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<OrganizationType> organization;
 
     @XmlAttribute

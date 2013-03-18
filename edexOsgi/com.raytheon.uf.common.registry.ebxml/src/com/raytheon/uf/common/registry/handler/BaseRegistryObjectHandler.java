@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
@@ -51,12 +53,13 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Sep 17, 2012 1169       djohnson     Initial creation
  * Sep 21, 2012 1187       djohnson     Add bulk delete operations.
  * Oct 05, 2012 1195       djohnson     Remove executeQuery method, add getById.
+ * 3/18/2013    1802       bphillip     Implemented transaction boundaries
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
+@Transactional
 public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQuery<T>>
         implements IRegistryObjectHandler<T> {
 
@@ -195,8 +198,7 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
      * @throws RegistryHandlerException
      */
     protected static <T> void checkResponse(RegistryResponse<?> response,
-            T obj,
-            String operation) throws RegistryHandlerException {
+            T obj, String operation) throws RegistryHandlerException {
         if (response.getStatus() != OperationStatus.SUCCESS) {
             String message = "Unable to " + operation + " "
                     + obj.getClass().getName() + ".";
