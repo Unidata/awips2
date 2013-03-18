@@ -76,7 +76,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *                                       in the super class.
  *  06-09-10     #5620       bkowal      The tool will load in an editable state by
  *                                       default now.
- *  05Mar2013	15693	mgamazaychikov	 Added magnification capability.
+ *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
  * 
  * </pre>
  * 
@@ -106,9 +106,7 @@ public class DistanceBearingToolLayer extends
             LoadProperties loadProperties) {
         super(resourceData, loadProperties, true);
         getCapabilities().addCapability(new OutlineCapability());
-        /*
-    	 * 15693 - add magnification capability
-    	 */
+        // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
         deleteElementAction = new AbstractRightClickAction() {
             public void run() {
@@ -136,9 +134,7 @@ public class DistanceBearingToolLayer extends
         super.initInternal(target);
         setObjects(ToolsDataManager.getInstance().getDistanceBearings());
         gc = new GeodeticCalculator(descriptor.getCRS());
-        /*
-    	 * 15693 - initialize font for  magnification capability
-    	 */
+        // initialize font for  magnification capability
         labelFont = target.initializeFont(
                 target.getDefaultFont().getFontName(), 12.0f,
                 new Style[] { Style.BOLD });
@@ -173,9 +169,7 @@ public class DistanceBearingToolLayer extends
             }
         }
         String label = computeRangeAndAzimuth(line);
-        /*
-    	 * 15693 - set font for  magnification capability
-    	 */
+        // set font for  magnification capability
         labelFont.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
         double[] center = descriptor.worldToPixel(new double[] { line.p0.x,
