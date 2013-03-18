@@ -20,14 +20,9 @@
 package com.raytheon.uf.common.util;
 
 import java.lang.reflect.Field;
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Utilities for converting objects, originally taken from
@@ -40,6 +35,8 @@ import org.apache.commons.lang.time.DateUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 19, 2009            njensen     Initial creation
+ * Mar 13, 2013 1789       bsteffen    Move Calendar and Date parsing out of
+ *                                     ConvertUtil and also fix date parsing.
  * 
  * </pre>
  * 
@@ -89,35 +86,6 @@ public class ConvertUtil {
         }
         if (desiredClass.isEnum()) {
             return Enum.valueOf((Class<? extends Enum>) desiredClass, value);
-        }
-        if (desiredClass.equals(Calendar.class)) {
-            try {
-                // see if string is in ISO 8601
-                return DatatypeConverter.parseDateTime(value);
-            } catch (Exception e) {
-                // let convertUtils try
-            }
-        }
-        if (desiredClass.equals(Date.class)) {
-            try {
-                // see if string is in ISO 8601
-                return DatatypeConverter.parseDateTime(value).getTime();
-            } catch (Exception e) {
-                // try with DateUtils, convertUtils is unlikely
-                // to succeed
-            }
-
-            // Allows ConvertUtils to successfully convert:
-            // 1) TimeRange.getStart().toString()
-            // 2) TimeRange.getEnd().toString()
-            // 3) "BinOffset usage"
-            final String[] parsePatterns = { "yyyy-MM-dd hh:mm:ss.S",
-                    "EEE MMM dd hh:mm:ss z yyyy" };
-            try {
-                return DateUtils.parseDate(value, parsePatterns);
-            } catch (Exception e) {
-                // let convertUtils try
-            }
         }
         return ConvertUtils.convert(value, desiredClass);
     }
