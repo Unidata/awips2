@@ -444,8 +444,8 @@ public class Tool {
         if (grids.length == 0) {
             String message = "Smart Tool " + toolName
                     + ": No Grids To Edit for " + inputParm.expressionName();
-            throw new SmartToolException(message);
-            // AFPS.UserAlertMsg_send_mh(self.__msgHand, message, "A", "GFE")
+            statusHandler.handle(Priority.EVENTA, message);
+            return;
         }
         int numberOfGrids = grids.length;
 
