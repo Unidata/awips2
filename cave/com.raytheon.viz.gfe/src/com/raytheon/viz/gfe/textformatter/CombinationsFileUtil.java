@@ -61,6 +61,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2008            mnash     Initial creation
+ * Mar 07, 2013 15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author mnash
@@ -139,7 +140,7 @@ public class CombinationsFileUtil {
         String s = FileUtil.mangle(id) + ".xml";
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationFile lf = pm.getLocalizationFile(pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE), FileUtil
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE), FileUtil
                 .join(SAVED_COMBO_DIR, s));
         return lf;
     }
@@ -205,7 +206,7 @@ public class CombinationsFileUtil {
         IPathManager pm = PathManagerFactory.getPathManager();
 
         LocalizationContext baseContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
 
         // Strip any path components from comboName
         File comboFile = new File(comboName);
