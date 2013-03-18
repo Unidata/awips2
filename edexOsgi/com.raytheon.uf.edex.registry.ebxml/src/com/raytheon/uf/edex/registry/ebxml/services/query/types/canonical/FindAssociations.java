@@ -24,10 +24,11 @@ import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -74,6 +75,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -96,9 +98,11 @@ public class FindAssociations extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.TARGET_OBJECT_TYPE);
     }
 
+    private ClassificationNodeDao classificationNodeDao;
+
     private String getTypeClause(String associationType)
             throws EbxmlRegistryException {
-        ClassificationNodeType node = new ClassificationNodeDao()
+        ClassificationNodeType node = classificationNodeDao
                 .getByPath(associationType);
         if (node == null) {
             throw new EbxmlRegistryException(
@@ -110,9 +114,8 @@ public class FindAssociations extends CanonicalEbxmlQuery {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected List<AssociationType> query(QueryType queryType,
+    protected List<RegistryObjectType> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
         QueryParameters parameters = this.getParameterMap(queryType.getSlot(),
                 queryResponse);
@@ -146,58 +149,63 @@ public class FindAssociations extends CanonicalEbxmlQuery {
             clauses.add(" association.targetObject like '" + targetObjectId
                     + "'");
         }
-        if (sourceObjectType != null) {
-            List<String> ids = registryObjectDao
-                    .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
-                            + targetObjectType + "'");
-            if (ids.isEmpty()) {
-                return Collections.emptyList();
-            } else {
-                StringBuilder clause = new StringBuilder();
-                clause.append(" association.sourceObject in (");
-                for (int i = 0; i < ids.size(); i++) {
-                    clause.append("'" + ids.get(i) + "'");
-                    if (i != ids.size() - 1) {
-                        clause.append(",");
+        try {
+            if (sourceObjectType != null) {
+                List<String> ids = registryObjectDao
+                        .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
+                                + targetObjectType + "'");
+                if (ids.isEmpty()) {
+                    return Collections.emptyList();
+                } else {
+                    StringBuilder clause = new StringBuilder();
+                    clause.append(" association.sourceObject in (");
+                    for (int i = 0; i < ids.size(); i++) {
+                        clause.append("'" + ids.get(i) + "'");
+                        if (i != ids.size() - 1) {
+                            clause.append(",");
+                        }
                     }
+                    clause.append(") ");
+                    clauses.add(clause.toString());
                 }
-                clause.append(") ");
-                clauses.add(clause.toString());
             }
-        }
-        if (targetObjectType != null) {
-            List<String> ids = registryObjectDao
-                    .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
-                            + targetObjectType + "'");
-            if (ids.isEmpty()) {
-                return Collections.emptyList();
-            } else {
-                StringBuilder clause = new StringBuilder();
-                clause.append(" association.targetObject in (");
-                for (int i = 0; i < ids.size(); i++) {
-                    clause.append("'" + ids.get(i) + "'");
-                    if (i != ids.size() - 1) {
-                        clause.append(",");
+            if (targetObjectType != null) {
+                List<String> ids = registryObjectDao
+                        .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
+                                + targetObjectType + "'");
+                if (ids.isEmpty()) {
+                    return Collections.emptyList();
+                } else {
+                    StringBuilder clause = new StringBuilder();
+                    clause.append(" association.targetObject in (");
+                    for (int i = 0; i < ids.size(); i++) {
+                        clause.append("'" + ids.get(i) + "'");
+                        if (i != ids.size() - 1) {
+                            clause.append(",");
+                        }
                     }
+                    clause.append(") ");
+                    clauses.add(clause.toString());
                 }
-                clause.append(") ");
-                clauses.add(clause.toString());
             }
-        }
 
-        StringBuilder query = new StringBuilder();
-        if (clauses.isEmpty()) {
-            query.append("from AssociationType");
-        } else {
-            query.append("select association from AssociationType association where ");
-            for (int i = 0; i < clauses.size(); i++) {
-                query.append(clauses.get(i));
-                if (i != clauses.size() - 1) {
-                    query.append(conjunction);
+            StringBuilder query = new StringBuilder();
+            if (clauses.isEmpty()) {
+                query.append("from AssociationType");
+            } else {
+                query.append("select association from AssociationType association where ");
+                for (int i = 0; i < clauses.size(); i++) {
+                    query.append(clauses.get(i));
+                    if (i != clauses.size() - 1) {
+                        query.append(conjunction);
+                    }
                 }
             }
+            return registryObjectDao.executeHQLQuery(query);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException(
+                    "Error executing FindAssociations", e);
         }
-        return registryObjectDao.executeHQLQuery(query);
     }
 
     @Override
@@ -208,6 +216,11 @@ public class FindAssociations extends CanonicalEbxmlQuery {
     @Override
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
+    }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
     }
 
 }

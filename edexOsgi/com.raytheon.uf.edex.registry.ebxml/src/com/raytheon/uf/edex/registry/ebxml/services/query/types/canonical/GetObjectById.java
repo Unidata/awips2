@@ -27,7 +27,6 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
@@ -46,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -69,7 +69,6 @@ public class GetObjectById extends CanonicalEbxmlQuery {
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao();
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -94,7 +93,7 @@ public class GetObjectById extends CanonicalEbxmlQuery {
             ids.add(id);
         }
 
-        return registryObjectDao.getById(ids);
+        return (List<T>) registryObjectDao.getById(ids);
     }
 
     @Override
