@@ -5,7 +5,6 @@
 // Generated on: 2011.11.29 at 09:28:54 AM CST 
 //
 
-
 package com.raytheon.uf.edex.plugin.obs.ogc.metar.feature;
 
 import java.util.ArrayList;
@@ -31,11 +30,13 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
-
 /**
- * <p>Java class for metar complex type.
+ * <p>
+ * Java class for metar complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="metar">
@@ -84,145 +85,146 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "metar", propOrder = {
-    "report",
-    "nominalTime",
-    "timeObs",
-    "reportType",
-    "correction",
- "obsLocation",
-    "autoStationType",
-    "skyKey",
-    "skyCoverage",
-    "vertVisibility",
-    "skyLayerBase",
-    "visibility",
-    "weatherKey",
-    "weatherCondition",
-    "seaLevelPress",
-    "temperature",
-    "tempFromTenths",
-    "dewPoint",
-    "dewPointFromTenths",
-    "windDir",
-    "windSpeed",
-    "windGust",
-    "altimeterInPa",
-    "altimeter",
-    "minTemp24Hour",
-    "maxTemp24Hour",
-    "precip1Hour",
-    "precip3Hour",
-    "precip6Hour",
-    "precip24Hour",
-    "pressChangeChar",
-    "pressChange3Hour",
-    "refHour"
-})
+@XmlType(name = "metar", propOrder = { "report", "nominalTime", "timeObs",
+        "reportType", "correction", "obsLocation", "autoStationType", "skyKey",
+        "skyCoverage", "vertVisibility", "skyLayerBase", "visibility",
+        "weatherKey", "weatherCondition", "seaLevelPress", "temperature",
+        "tempFromTenths", "dewPoint", "dewPointFromTenths", "windDir",
+        "windSpeed", "windGust", "altimeterInPa", "altimeter", "minTemp24Hour",
+        "maxTemp24Hour", "precip1Hour", "precip3Hour", "precip6Hour",
+        "precip24Hour", "pressChangeChar", "pressChange3Hour", "refHour" })
+public class Metar extends AbstractFeatureType {
 
-public class Metar
-    extends AbstractFeatureType
-{
-
-	
     protected String report;
+
     protected String nominalTime;
+
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar timeObs;
+
     protected String reportType;
+
     protected String correction;
-	protected ObsLocation obsLocation;
+
+    protected ObsLocation obsLocation;
+
     protected String autoStationType;
+
     protected String skyKey;
+
     protected List<com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover> skyCoverage;
+
     protected Integer vertVisibility;
+
     protected Integer skyLayerBase;
+
     protected Float visibility;
+
     protected String weatherKey;
+
     protected List<com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition> weatherCondition;
+
     protected Float seaLevelPress;
+
     protected Integer temperature;
+
     protected Float tempFromTenths;
+
     protected Integer dewPoint;
+
     protected Float dewPointFromTenths;
+
     protected String windDir;
+
     protected Integer windSpeed;
+
     protected Integer windGust;
+
     protected Float altimeterInPa;
+
     protected Float altimeter;
+
     protected Float minTemp24Hour;
+
     protected Float maxTemp24Hour;
+
     protected Float precip1Hour;
+
     protected Float precip3Hour;
+
     protected Float precip6Hour;
+
     protected Float precip24Hour;
+
     protected String pressChangeChar;
+
     protected Float pressChange3Hour;
+
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar refHour;
-    
+
     private static final int intNullVal = -9999;
 
-	private static final float floatNullVal = -9999;
-	
-	private static final transient IUFStatusHandler statusHandler = UFStatus
-	.getHandler(Metar.class);
-    
-	// public non-creative constructor
-	public Metar() {
-		
-	}
-	
+    private static final float floatNullVal = -9999;
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Metar.class);
+
+    // public non-creative constructor
+    public Metar() {
+
+    }
+
     /**
      * copy constructor
+     * 
      * @param record
      */
     public Metar(MetarRecord record) {
-    	
-    	this.setReport(record.getReport());
-    	this.setNominalTime(record.getNominalTime());
-    	this.setTimeObs(getCalendar(record.getTimeObs()));
-    	this.setReportType(record.getReportType());
-    	this.setCorrection(record.getCorrection());
-    	this.setObsLocation(getObsLocation(record.getLocation()));
-    	this.setAutoStationType(record.getAutoStationType());
-    	this.setSkyKey(record.getSkyKey());
-    	this.setSkyCover(record.getSkyCoverage());
-		this.setVertVisibility(getInt(record.getVertVisibility(), intNullVal));
-		this.setSkyLayerBase(getInt(record.getSkyLayerBase(), intNullVal));
-		this.setVisibility(getFloat(record.getVisibility(), floatNullVal));
-		this.setWeatherKey(record.getWeatherKey());
-		this.setWeatherCondition(record.getWeatherCondition());
-		this.setSeaLevelPress(getFloat(record.getSeaLevelPress(), floatNullVal));
-		this.setTemperature(getInt(record.getTemperature(), intNullVal));
-		this.setTempFromTenths(getFloat(record.getTempFromTenths(), floatNullVal));
-		this.setDewPoint(getInt(record.getDewPoint(), intNullVal));
-		this.setDewPointFromTenths(getFloat(record.getDewPointFromTenths(),
-				floatNullVal));
-		this.setWindDir(record.getWindDir());
-		this.setWindSpeed(getInt(record.getWindSpeed(), intNullVal));
-		this.setWindGust(getInt(record.getWindGust(), intNullVal));
-		this.setAltimeterInPa(getFloat(record.getAltimeterInPa(), floatNullVal));
-		this.setAltimeter(getFloat(record.getAltimeter(), floatNullVal));
-		this.setMinTemp24Hour(getFloat(record.getMinTemp24Hour(), floatNullVal));
-		this.setMaxTemp24Hour(getFloat(record.getMaxTemp24Hour(), floatNullVal));
-		this.setPrecip1Hour(getFloat(record.getPrecip1Hour(), floatNullVal));
-		this.setPrecip3Hour(getFloat(record.getPrecip3Hour(), floatNullVal));
-		this.setPrecip6Hour(getFloat(record.getPrecip6Hour(), floatNullVal));
-		this.setPrecip24Hour(getFloat(record.getPrecip24Hour(), floatNullVal));
-		this.setPressChangeChar(record.getPressChangeChar());
-		this.setPressChange3Hour(getFloat(record.getPressChange3Hour(),
-				floatNullVal));
-		this.setRefHour(getCalendar(record.getRefHour()));
+
+        this.setReport(record.getReport());
+        this.setNominalTime(record.getNominalTime());
+        this.setTimeObs(getCalendar(record.getTimeObs()));
+        this.setReportType(record.getReportType());
+        this.setCorrection(record.getCorrection());
+        this.setObsLocation(getObsLocation(record.getLocation()));
+        this.setAutoStationType(record.getAutoStationType());
+        this.setSkyKey(record.getSkyKey());
+        this.setSkyCover(record.getSkyCoverage());
+        this.setVertVisibility(getInt(record.getVertVisibility(), intNullVal));
+        this.setSkyLayerBase(getInt(record.getSkyLayerBase(), intNullVal));
+        this.setVisibility(getFloat(record.getVisibility(), floatNullVal));
+        this.setWeatherKey(record.getWeatherKey());
+        this.setWeatherCondition(record.getWeatherCondition());
+        this.setSeaLevelPress(getFloat(record.getSeaLevelPress(), floatNullVal));
+        this.setTemperature(getInt(record.getTemperature(), intNullVal));
+        this.setTempFromTenths(getFloat(record.getTempFromTenths(),
+                floatNullVal));
+        this.setDewPoint(getInt(record.getDewPoint(), intNullVal));
+        this.setDewPointFromTenths(getFloat(record.getDewPointFromTenths(),
+                floatNullVal));
+        this.setWindDir(record.getWindDir());
+        this.setWindSpeed(getInt(record.getWindSpeed(), intNullVal));
+        this.setWindGust(getInt(record.getWindGust(), intNullVal));
+        this.setAltimeterInPa(getFloat(record.getAltimeterInPa(), floatNullVal));
+        this.setAltimeter(getFloat(record.getAltimeter(), floatNullVal));
+        this.setMinTemp24Hour(getFloat(record.getMinTemp24Hour(), floatNullVal));
+        this.setMaxTemp24Hour(getFloat(record.getMaxTemp24Hour(), floatNullVal));
+        this.setPrecip1Hour(getFloat(record.getPrecip1Hour(), floatNullVal));
+        this.setPrecip3Hour(getFloat(record.getPrecip3Hour(), floatNullVal));
+        this.setPrecip6Hour(getFloat(record.getPrecip6Hour(), floatNullVal));
+        this.setPrecip24Hour(getFloat(record.getPrecip24Hour(), floatNullVal));
+        this.setPressChangeChar(record.getPressChangeChar());
+        this.setPressChange3Hour(getFloat(record.getPressChange3Hour(),
+                floatNullVal));
+        this.setRefHour(getCalendar(record.getRefHour()));
     }
 
-	/**
+    /**
      * Gets the value of the report property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getReport() {
         return report;
@@ -232,9 +234,8 @@ public class Metar
      * Sets the value of the report property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setReport(String value) {
         this.report = value;
@@ -243,10 +244,8 @@ public class Metar
     /**
      * Gets the value of the nominalTime property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getNominalTime() {
         return nominalTime;
@@ -256,9 +255,8 @@ public class Metar
      * Sets the value of the nominalTime property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setNominalTime(String value) {
         this.nominalTime = value;
@@ -267,10 +265,8 @@ public class Metar
     /**
      * Gets the value of the timeObs property.
      * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * @return possible object is {@link XMLGregorianCalendar }
+     * 
      */
     public XMLGregorianCalendar getTimeObs() {
         return timeObs;
@@ -280,9 +276,8 @@ public class Metar
      * Sets the value of the timeObs property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *            allowed object is {@link XMLGregorianCalendar }
+     * 
      */
     public void setTimeObs(XMLGregorianCalendar value) {
         this.timeObs = value;
@@ -291,10 +286,8 @@ public class Metar
     /**
      * Gets the value of the reportType property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getReportType() {
         return reportType;
@@ -304,9 +297,8 @@ public class Metar
      * Sets the value of the reportType property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setReportType(String value) {
         this.reportType = value;
@@ -315,10 +307,8 @@ public class Metar
     /**
      * Gets the value of the correction property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getCorrection() {
         return correction;
@@ -328,9 +318,8 @@ public class Metar
      * Sets the value of the correction property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setCorrection(String value) {
         this.correction = value;
@@ -339,10 +328,8 @@ public class Metar
     /**
      * Gets the value of the obsLocation property.
      * 
-     * @return
-     *     possible object is
-     *     {@link ObsLocation }
-     *     
+     * @return possible object is {@link ObsLocation }
+     * 
      */
     public ObsLocation getObsLocation() {
         return obsLocation;
@@ -352,9 +339,8 @@ public class Metar
      * Sets the value of the obsLocation property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link ObsLocation }
-     *     
+     *            allowed object is {@link ObsLocation }
+     * 
      */
     public void setObsLocation(ObsLocation value) {
         this.obsLocation = value;
@@ -363,10 +349,8 @@ public class Metar
     /**
      * Gets the value of the autoStationType property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getAutoStationType() {
         return autoStationType;
@@ -376,9 +360,8 @@ public class Metar
      * Sets the value of the autoStationType property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setAutoStationType(String value) {
         this.autoStationType = value;
@@ -387,10 +370,8 @@ public class Metar
     /**
      * Gets the value of the skyKey property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getSkyKey() {
         return skyKey;
@@ -400,9 +381,8 @@ public class Metar
      * Sets the value of the skyKey property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setSkyKey(String value) {
         this.skyKey = value;
@@ -412,21 +392,21 @@ public class Metar
      * Gets the value of the skyCoverage property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the skyCoverage property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the skyCoverage property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getSkyCoverage().add(newItem);
+     * getSkyCoverage().add(newItem);
      * </pre>
      * 
      * 
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SkyCover }
+     * Objects of the following type(s) are allowed in the list {@link SkyCover }
      * 
      * 
      */
@@ -440,10 +420,8 @@ public class Metar
     /**
      * Gets the value of the vertVisibility property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getVertVisibility() {
         return vertVisibility;
@@ -453,9 +431,8 @@ public class Metar
      * Sets the value of the vertVisibility property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setVertVisibility(Integer value) {
         this.vertVisibility = value;
@@ -464,10 +441,8 @@ public class Metar
     /**
      * Gets the value of the skyLayerBase property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getSkyLayerBase() {
         return skyLayerBase;
@@ -477,9 +452,8 @@ public class Metar
      * Sets the value of the skyLayerBase property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setSkyLayerBase(Integer value) {
         this.skyLayerBase = value;
@@ -488,10 +462,8 @@ public class Metar
     /**
      * Gets the value of the visibility property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getVisibility() {
         return visibility;
@@ -501,9 +473,8 @@ public class Metar
      * Sets the value of the visibility property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setVisibility(Float value) {
         this.visibility = value;
@@ -512,10 +483,8 @@ public class Metar
     /**
      * Gets the value of the weatherKey property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getWeatherKey() {
         return weatherKey;
@@ -525,9 +494,8 @@ public class Metar
      * Sets the value of the weatherKey property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setWeatherKey(String value) {
         this.weatherKey = value;
@@ -537,15 +505,16 @@ public class Metar
      * Gets the value of the weatherCondition property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the weatherCondition property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the weatherCondition property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getWeatherCondition().add(newItem);
+     * getWeatherCondition().add(newItem);
      * </pre>
      * 
      * 
@@ -565,10 +534,8 @@ public class Metar
     /**
      * Gets the value of the seaLevelPress property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getSeaLevelPress() {
         return seaLevelPress;
@@ -578,9 +545,8 @@ public class Metar
      * Sets the value of the seaLevelPress property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setSeaLevelPress(Float value) {
         this.seaLevelPress = value;
@@ -589,10 +555,8 @@ public class Metar
     /**
      * Gets the value of the temperature property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getTemperature() {
         return temperature;
@@ -602,9 +566,8 @@ public class Metar
      * Sets the value of the temperature property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setTemperature(Integer value) {
         this.temperature = value;
@@ -613,10 +576,8 @@ public class Metar
     /**
      * Gets the value of the tempFromTenths property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getTempFromTenths() {
         return tempFromTenths;
@@ -626,9 +587,8 @@ public class Metar
      * Sets the value of the tempFromTenths property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setTempFromTenths(Float value) {
         this.tempFromTenths = value;
@@ -637,10 +597,8 @@ public class Metar
     /**
      * Gets the value of the dewPoint property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getDewPoint() {
         return dewPoint;
@@ -650,9 +608,8 @@ public class Metar
      * Sets the value of the dewPoint property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setDewPoint(Integer value) {
         this.dewPoint = value;
@@ -661,10 +618,8 @@ public class Metar
     /**
      * Gets the value of the dewPointFromTenths property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getDewPointFromTenths() {
         return dewPointFromTenths;
@@ -674,9 +629,8 @@ public class Metar
      * Sets the value of the dewPointFromTenths property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setDewPointFromTenths(Float value) {
         this.dewPointFromTenths = value;
@@ -685,10 +639,8 @@ public class Metar
     /**
      * Gets the value of the windDir property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getWindDir() {
         return windDir;
@@ -698,9 +650,8 @@ public class Metar
      * Sets the value of the windDir property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setWindDir(String value) {
         this.windDir = value;
@@ -709,10 +660,8 @@ public class Metar
     /**
      * Gets the value of the windSpeed property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getWindSpeed() {
         return windSpeed;
@@ -722,9 +671,8 @@ public class Metar
      * Sets the value of the windSpeed property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setWindSpeed(Integer value) {
         this.windSpeed = value;
@@ -733,10 +681,8 @@ public class Metar
     /**
      * Gets the value of the windGust property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getWindGust() {
         return windGust;
@@ -746,9 +692,8 @@ public class Metar
      * Sets the value of the windGust property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setWindGust(Integer value) {
         this.windGust = value;
@@ -757,10 +702,8 @@ public class Metar
     /**
      * Gets the value of the altimeterInPa property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getAltimeterInPa() {
         return altimeterInPa;
@@ -770,9 +713,8 @@ public class Metar
      * Sets the value of the altimeterInPa property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setAltimeterInPa(Float value) {
         this.altimeterInPa = value;
@@ -781,10 +723,8 @@ public class Metar
     /**
      * Gets the value of the altimeter property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getAltimeter() {
         return altimeter;
@@ -794,9 +734,8 @@ public class Metar
      * Sets the value of the altimeter property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setAltimeter(Float value) {
         this.altimeter = value;
@@ -805,10 +744,8 @@ public class Metar
     /**
      * Gets the value of the minTemp24Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getMinTemp24Hour() {
         return minTemp24Hour;
@@ -818,9 +755,8 @@ public class Metar
      * Sets the value of the minTemp24Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setMinTemp24Hour(Float value) {
         this.minTemp24Hour = value;
@@ -829,10 +765,8 @@ public class Metar
     /**
      * Gets the value of the maxTemp24Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getMaxTemp24Hour() {
         return maxTemp24Hour;
@@ -842,9 +776,8 @@ public class Metar
      * Sets the value of the maxTemp24Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setMaxTemp24Hour(Float value) {
         this.maxTemp24Hour = value;
@@ -853,10 +786,8 @@ public class Metar
     /**
      * Gets the value of the precip1Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getPrecip1Hour() {
         return precip1Hour;
@@ -866,9 +797,8 @@ public class Metar
      * Sets the value of the precip1Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setPrecip1Hour(Float value) {
         this.precip1Hour = value;
@@ -877,10 +807,8 @@ public class Metar
     /**
      * Gets the value of the precip3Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getPrecip3Hour() {
         return precip3Hour;
@@ -890,9 +818,8 @@ public class Metar
      * Sets the value of the precip3Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setPrecip3Hour(Float value) {
         this.precip3Hour = value;
@@ -901,10 +828,8 @@ public class Metar
     /**
      * Gets the value of the precip6Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getPrecip6Hour() {
         return precip6Hour;
@@ -914,9 +839,8 @@ public class Metar
      * Sets the value of the precip6Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setPrecip6Hour(Float value) {
         this.precip6Hour = value;
@@ -925,10 +849,8 @@ public class Metar
     /**
      * Gets the value of the precip24Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getPrecip24Hour() {
         return precip24Hour;
@@ -938,9 +860,8 @@ public class Metar
      * Sets the value of the precip24Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setPrecip24Hour(Float value) {
         this.precip24Hour = value;
@@ -949,10 +870,8 @@ public class Metar
     /**
      * Gets the value of the pressChangeChar property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getPressChangeChar() {
         return pressChangeChar;
@@ -962,9 +881,8 @@ public class Metar
      * Sets the value of the pressChangeChar property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setPressChangeChar(String value) {
         this.pressChangeChar = value;
@@ -973,10 +891,8 @@ public class Metar
     /**
      * Gets the value of the pressChange3Hour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getPressChange3Hour() {
         return pressChange3Hour;
@@ -986,9 +902,8 @@ public class Metar
      * Sets the value of the pressChange3Hour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setPressChange3Hour(Float value) {
         this.pressChange3Hour = value;
@@ -997,10 +912,8 @@ public class Metar
     /**
      * Gets the value of the refHour property.
      * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * @return possible object is {@link XMLGregorianCalendar }
+     * 
      */
     public XMLGregorianCalendar getRefHour() {
         return refHour;
@@ -1010,112 +923,116 @@ public class Metar
      * Sets the value of the refHour property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *            allowed object is {@link XMLGregorianCalendar }
+     * 
      */
     public void setRefHour(XMLGregorianCalendar value) {
         this.refHour = value;
     }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jvnet.jaxb2_commons.lang.CopyTo#createNewInstance()
-	 */
-	@Override
-	public Object createNewInstance() {
-		return new Metar();
-	}
-	
-	/**
-	 * @param weatherCondition
-	 * @return
-	 */
-	private com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition getWeatherConditionInternal(
-			WeatherCondition from) {
-		if (from == null) {
-			return null;
-		}
-		com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition to = new com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition(from);
-		return to;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jvnet.jaxb2_commons.lang.CopyTo#createNewInstance()
+     */
+    @Override
+    public Object createNewInstance() {
+        return new Metar();
+    }
 
-	/**
-	 * @param skyCoverage
-	 * @return
-	 */
-	private com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover getSkyCoverInternal(
-			SkyCover from) {
-		if (from == null) {
-			return null;
-		}
-		com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover to = new com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover(from);
-		return to;
-	}
+    /**
+     * @param weatherCondition
+     * @return
+     */
+    private com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition getWeatherConditionInternal(
+            WeatherCondition from) {
+        if (from == null) {
+            return null;
+        }
+        com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition to = new com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition(
+                from);
+        return to;
+    }
 
-	/**
-	 * @param obsLocation
-	 * @return
-	 */
-	private ObsLocation getObsLocation(SurfaceObsLocation from) {
-		if (from == null) {
-			return null;
-		}
-		ObsLocation to = new ObsLocation(from);
-		return to;
-	}
+    /**
+     * @param skyCoverage
+     * @return
+     */
+    private com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover getSkyCoverInternal(
+            SkyCover from) {
+        if (from == null) {
+            return null;
+        }
+        com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover to = new com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover(
+                from);
+        return to;
+    }
 
-	protected XMLGregorianCalendar getCalendar(Calendar cal) {
-		if (cal == null) {
-			return null;
-		}
-		GregorianCalendar gcal = new GregorianCalendar(cal.getTimeZone());
-		gcal.setTimeInMillis(cal.getTimeInMillis());
-		try {
-			return DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
-		} catch (DatatypeConfigurationException e) {
-			statusHandler.error("Unable to convert calendar. "+e.getMessage());
-			return null;
-		}
-	}
-	
-	private Integer getInt(int i, int nullVal) {
-		if (i == nullVal) {
-			return null;
-		}
-		return i;
-	}
+    /**
+     * @param obsLocation
+     * @return
+     */
+    private ObsLocation getObsLocation(SurfaceObsLocation from) {
+        if (from == null) {
+            return null;
+        }
+        ObsLocation to = new ObsLocation(from);
+        return to;
+    }
 
-	private Float getFloat(float f, float nullVal) {
-		if (f == nullVal) {
-			return null;
-		}
-		return f;
-	}
-	
-	/**
-	 * @param skyCoverage
-	 */
-	private void setSkyCover(Set<com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover> from) {
-		if (from != null) {
-			List<com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover> localSkyCover = getSkyCoverage();
-			for (com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover sc : from) {
-				localSkyCover.add(getSkyCoverInternal(sc));
-			}
-		}
-	}
-	
-	/**
-	 * @param weatherCondition
-	 */
-	private void setWeatherCondition(List<com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition> from) {
-		if (from != null) {
-			List<com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition> localWeatherCondition = getWeatherCondition();
-			for (com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition wc : from) {
-				localWeatherCondition.add(getWeatherConditionInternal(wc));
-			}
-		}
-	}
+    protected XMLGregorianCalendar getCalendar(Calendar cal) {
+        if (cal == null) {
+            return null;
+        }
+        GregorianCalendar gcal = new GregorianCalendar(cal.getTimeZone());
+        gcal.setTimeInMillis(cal.getTimeInMillis());
+        try {
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
+        } catch (DatatypeConfigurationException e) {
+            statusHandler
+                    .error("Unable to convert calendar. " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Integer getInt(int i, int nullVal) {
+        if (i == nullVal) {
+            return null;
+        }
+        return i;
+    }
+
+    private Float getFloat(float f, float nullVal) {
+        if (f == nullVal) {
+            return null;
+        }
+        return f;
+    }
+
+    /**
+     * @param skyCoverage
+     */
+    private void setSkyCover(
+            Set<com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover> from) {
+        if (from != null) {
+            List<com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.SkyCover> localSkyCover = getSkyCoverage();
+            for (com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover sc : from) {
+                localSkyCover.add(getSkyCoverInternal(sc));
+            }
+        }
+    }
+
+    /**
+     * @param weatherCondition
+     */
+    private void setWeatherCondition(
+            List<com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition> from) {
+        if (from != null) {
+            List<com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.WeatherCondition> localWeatherCondition = getWeatherCondition();
+            for (com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition wc : from) {
+                localWeatherCondition.add(getWeatherConditionInternal(wc));
+            }
+        }
+    }
 
 }

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<harvester xmlns:ns2="com.raytheon.uf.common.datadelivery.registry"
+	xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns3="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0"
+	xmlns:ns9="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:ns5="http://www.w3.org/2005/08/addressing"
+	xmlns:ns6="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:ns7="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0"
+	xmlns:ns8="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0">
+	<provider serviceType="WFS" name="METAROGC">
+		<connection>
+			<!-- for OGC it's your FQDN -->
+			<url>http://127.0.0.1:8085</url>
+		</connection>
+		<providerType>Point</providerType>
+		<projection type="LatLon">
+			<name>MetarLatLon</name>
+			<description>METAR Test LatLon Coverage</description>
+		</projection>
+	</provider>
+	<primaryRegistryHost>127.0.0.1</primaryRegistryHost>
+	<secondaryRegistryHost>127.0.0.1</secondaryRegistryHost>
+	<tertiaryRegistryHost>127.0.0.1</tertiaryRegistryHost>
+	<agent xsi:type="ogcAgent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<dateFormat>HHddMMMyyyy</dateFormat>
+		<layer name="metar">
+			<!-- Geographic constraint of metar layer data -->
+			<minx>-120.0</minx>
+			<maxx>-70.0</maxx>
+			<miny>20.0</miny>
+			<maxy>50.0</maxy>
+			<!-- Registry Parameters in metar layer -->
+			<parameter name="report" providerName="report" definition="Full METAR Report"
+				dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="nominalTime" providerName="nominalTime"
+				definition="Time of observation" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="reportType" providerName="reportType"
+				definition="WMO type of report" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="correction" providerName="correction"
+				definition="Correction" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="obsLocation" providerName="obsLocation"
+				definition="Location of Observation" dataType="POINT" units="Degrees"
+				missingValue="-9999" fillValue="-9999" baseType="ObsLocation">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="autoStationType" providerName="autoStationType"
+				definition="Automated Station Type" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="skyKey" providerName="skyKey" definition="Sky coverage key"
+				dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="skyCoverage" providerName="skyCoverage"
+				definition="Sky coverage" dataType="POINT" baseType="SkyCover"
+				units="%">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="vertVisibility" providerName="vertVisibility"
+				definition="Vertical Visibility" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="m">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="skyLayerBase" providerName="skyLayerBase"
+				definition="Sky Base Layer" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="visibility" providerName="visibility"
+				definition="Visibility" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="miles">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="weatherKey" providerName="weatherKey"
+				dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="weatherCondition" providerName="weatherCondition"
+				definition="WX coverage" dataType="POINT" baseType="WeatherCondition">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="seaLevelPress" providerName="seaLevelPress"
+				definition="Pressure at sea level" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature" providerName="temperature"
+				definition="Temperature at Surface" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="F">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="tempFromTenths" providerName="tempFromTenths"
+				definition="Temperature tenths of a degree" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="F">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewPoint" providerName="dewPoint"
+				definition="Dew Point Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="F">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewPointTempFromTenths" providerName="dewPointTempFromTenths"
+				definition="Dew Point Temperature tenths of a degree" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="F">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDir" providerName="windDir"
+				definition="Wind Direction" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="String" units="Deg">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed" providerName="windSpeed"
+				dataType="POINT" missingValue="-9999" fillValue="-9999" baseType="Integer"
+				units="kts">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust" providerName="windGust"
+				definition="Wind Gust speed" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="kts">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeterInPa" providerName="altimeterInPa"
+				definition="Altimeter Setting in Pascals" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter" providerName="altimeter"
+				definition="Altimeter Setting" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="in/Hg">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="minTemp24Hour" providerName="minTemp24Hour"
+				definition="Minimum Temperature last 24 Hours" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="F">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="maxTemp24Hour" providerName="maxTemp24Hour"
+				definition="Maximum Temperature last 24 Hours" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="F">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precip1Hour" providerName="precip1Hour"
+				definition="1 Hour Precipitation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="inch">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precip3Hour" providerName="precip3Hour"
+				definition="3 Hour Precipitation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="inch">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precip6Hour" providerName="precip6Hour"
+				definition="6 Hour Precipitation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="inch">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precip24Hour" providerName="precip24Hour"
+				definition="24 Hour Precipitation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="inch">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressChangeChar" providerName="pressChangeChar"
+				definition="Pressure change character" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressChange3Hour" providerName="pressChange3Hour"
+				definition="3 Hour Pressure Change" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+		</layer>
+	</agent>
+</harvester>
