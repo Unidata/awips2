@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.harvester.config;
+package com.raytheon.uf.common.datadelivery.harvester;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -20,12 +20,17 @@ package com.raytheon.uf.edex.datadelivery.harvester.config;
  * further licensing information.
  **/
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
+import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * DD OGC Agent
+ * DD Agent data provider
  * 
  * <pre>
  * 
@@ -40,51 +45,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
-public class OGCAgent extends Agent {
-
-    /**
-     * name path used for WFS
-     */
-    @XmlElement(name = "wfs")
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+@XmlSeeAlso({ CrawlAgent.class, OGCAgent.class })
+public abstract class Agent implements ISerializableObject {
+    
+    @XmlElement(name = "dateFormat", required = true)
     @DynamicSerializeElement
-    private String wfs = "wfs";
+    private String dateFormat = "HHddMMMyyyy";
 
-    /**
-     * name path used for WMS
-     */
-    @XmlElement(name = "wms")
-    @DynamicSerializeElement
-    private String wms = "wms";
-
-    /**
-     * name path used for WCS
-     */
-    @XmlElement(name = "wcs")
-    @DynamicSerializeElement
-    private String wcs = "wcs";
-
-    public String getWcs() {
-        return wcs;
+    public String getDateFormat() {
+        return dateFormat;
     }
-
-    public String getWfs() {
-        return wfs;
-    }
-
-    public String getWms() {
-        return wms;
-    }
-
-    public void setWcs(String wcs) {
-        this.wcs = wcs;
-    }
-
-    public void setWfs(String wfs) {
-        this.wfs = wfs;
-    }
-
-    public void setWms(String wms) {
-        this.wms = wms;
+    
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
     }
 
 }
