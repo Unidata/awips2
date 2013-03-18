@@ -49,7 +49,7 @@ from ufpy import UsageArgumentParser
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/17/10                      dgilling       Initial Creation.
-#    
+#    03/08/13        15717         jzeng          Change CAVE_STATIC to COMMON_STATIC
 # 
 #
 
@@ -65,20 +65,20 @@ CopyOnly = False
 Action = " move "
 
 BUFFER_SIZE = 512 * 1024
-LOCALIZATION_DICT = {"GFECONFIG": ("CAVE_STATIC", "gfe/userPython/gfeConfig"),
+LOCALIZATION_DICT = {"GFECONFIG": ("COMMON_STATIC", "gfe/userPython/gfeConfig"),
                      "EditArea": ("COMMON_STATIC", "gfe/editAreas"),
                      "EditAreaGroup": ("COMMON_STATIC", "gfe/editAreaGroups"),
                      "SampleSet": ("COMMON_STATIC", "gfe/sampleSets"),
-                     "ColorTable": ("CAVE_STATIC", "colormaps/GFE"),
+                     "ColorTable": ("COMMON_STATIC", "colormaps/GFE"),
                      "BUNDLE": ("COMMON_STATIC", "gfe/weGroups"),
                      "SELECTTR": ("COMMON_STATIC", "gfe/text/selecttr"),
-                     "Tool": ("CAVE_STATIC", "gfe/userPython/smartTools"),
-                     "Procedure": ("CAVE_STATIC", "gfe/userPython/procedures"),
-                     "TextProduct": ("CAVE_STATIC", "gfe/userPython/textProducts"),
-                     "TextUtility": ("CAVE_STATIC", "gfe/userPython/textUtilities/regular"),
-                     "Utility": ("CAVE_STATIC", "gfe/userPython/utilities"),
-                     "COMBODATA": ("CAVE_STATIC", "gfe/comboData"),
-                     "COMBINATIONS": ("CAVE_STATIC", "gfe/combinations")}
+                     "Tool": ("COMMON_STATIC", "gfe/userPython/smartTools"),
+                     "Procedure": ("COMMON_STATIC", "gfe/userPython/procedures"),
+                     "TextProduct": ("COMMON_STATIC", "gfe/userPython/textProducts"),
+                     "TextUtility": ("COMMON_STATIC", "gfe/userPython/textUtilities/regular"),
+                     "Utility": ("COMMON_STATIC", "gfe/userPython/utilities"),
+                     "COMBODATA": ("COMMON_STATIC", "gfe/comboData"),
+                     "COMBINATIONS": ("COMMON_STATIC", "gfe/combinations")}
 LOCALIZATION_LEVELS = ["BASE", "CONFIGURED", "SITE", "USER"]
 
 

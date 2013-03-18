@@ -21,7 +21,6 @@ package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -102,6 +101,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 28, 2009 2476       mpduff     Initial creation.
+ * Mar 08, 2013 15725      snaples    Updated to fix resort issues when editing value.
  * 
  * </pre>
  * 
@@ -1212,33 +1212,7 @@ public class GageTableDlg extends JFrame {
         public void tableChanged(TableModelEvent e) {
             GageTableDataManager dataManager = GageTableDataManager
                     .getInstance();
-            getContentPane().setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            int width = GageTableConstants.DEFAULT_WIDTH;
-
             if ((e != null) && (e.getType() == TableModelEvent.UPDATE)) {
-                table = null;
-                table = new JTable(tableModel);
-
-                JTableHeader header = table.getTableHeader();
-                header.addMouseListener(new ColumnHeaderListener());
-                // Disable autoCreateColumnsFromModel otherwise all the column
-                // customizations and adjustments will be lost when the model
-                // data is sorted
-                table.setAutoCreateColumnsFromModel(false);
-                table.setColumnSelectionAllowed(false);
-                table.setRowSelectionAllowed(true);
-                table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                // make the user's edits stored without need for type "return"
-                // key or click
-                // on JTable
-                table.putClientProperty("terminateEditOnFocusLost",
-                        Boolean.TRUE);
-
-                /* Center all table data */
-                JLabel renderer = ((JLabel) table
-                        .getDefaultRenderer(Object.class));
-                renderer.setHorizontalAlignment(SwingConstants.CENTER);
-
                 // Get the changed info
                 int cellRow = table.convertRowIndexToModel(e.getFirstRow());
                 int cellColumn = e.getColumn();
@@ -1271,7 +1245,6 @@ public class GageTableDlg extends JFrame {
                     // or 'm' or 'M' or "".
                     if (newValue.equals("")) {
                         rowData.setValueEdited(false);
-                        // rowData.setEditValue(-999.0);
                     } else {
                         if (newValue.equalsIgnoreCase("m")) {
                             rowData.setEditValue(-999.0);
@@ -1281,7 +1254,6 @@ public class GageTableDlg extends JFrame {
                         }
                         rowData.setValueEdited(true);
                     }
-                    // rowData.setValueEdited(true);
                     int indexOf = rowDataList.indexOf(rowData);
                     rowDataList.set(indexOf, rowData);
                     editMap.put(
@@ -1289,36 +1261,8 @@ public class GageTableDlg extends JFrame {
                             rowData);
                     dataChanged = true;
                 }
-                dataManager.setGageTableRowList(rowDataList);
-                gageTablePanel.remove(scrollPane);
-                scrollPane = new JScrollPane(table);
-                gageTablePanel.add(scrollPane);
-
-                List<GageTableColumn> columnList = dataManager
-                        .getColumnDataList();
-                ColumnHeaderToolTips tips = new ColumnHeaderToolTips();
-
-                for (int i = 0; i < columnList.size(); i++) {
-                    TableColumn col = table.getColumnModel().getColumn(i);
-                    col.setHeaderRenderer(new GageTableHeaderCellRenderer());
-                    col.setMinWidth(25);
-                    GageTableColumn c = columnList.get(i);
-
-                    if (dataManager.getColumnWidthMap().get(c.getName()) == null) {
-                        width = GageTableConstants.DEFAULT_WIDTH;
-                    } else {
-                        width = dataManager.getColumnWidthMap()
-                                .get(c.getName());
-                    }
-                    col.setPreferredWidth(width);
-                    tips.setToolTip(col, c.getToolTipText());
-                }
-
-                header.addMouseMotionListener(tips);
-
                 // Update the grid combobox
                 gridCombo.removeAllItems();
-                columnData = columnList;
                 populateGridCombo();
 
             } else {
@@ -1330,8 +1274,6 @@ public class GageTableDlg extends JFrame {
                             .setHeaderRenderer(new GageTableHeaderCellRenderer());
                 }
             }
-            // sortTable();
-            getContentPane().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -1370,7 +1312,12 @@ public class GageTableDlg extends JFrame {
         dispose();
     }
 
-    /**
+    public void setDataChanged(boolean dataChanged)
+    {
+    	this.dataChanged = dataChanged;
+    }
+
+	/**
      * Set the sort order of the columns.
      * 
      * @param settings
