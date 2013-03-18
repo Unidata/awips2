@@ -1948,6 +1948,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 }
             }
 
+            ffmpData.remove(siteDataKey);
+            statusHandler.info("Removing from memory: "+siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
@@ -2098,6 +2100,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
+            statusHandler.info("Removing from memory: "+qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }
