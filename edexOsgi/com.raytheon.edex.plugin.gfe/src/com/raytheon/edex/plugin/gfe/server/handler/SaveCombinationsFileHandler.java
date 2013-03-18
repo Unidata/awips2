@@ -47,7 +47,9 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 16, 2011            dgilling     Initial creation
+ * May 16,2011             dgilling     Initial creation
+ * Mar 06,2013  15717      jzeng        Change CAVE_STATIC to COMMON_STATIC 
+ *                                      for GFE localization files 
  * 
  * </pre>
  * 
@@ -73,7 +75,7 @@ public class SaveCombinationsFileHandler implements
             SaveCombinationsFileRequest request) throws Exception {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext localization = pm.getContextForSite(
-                LocalizationType.CAVE_STATIC, request.getSiteID());
+                LocalizationType.COMMON_STATIC, request.getSiteID());
 
         File localFile = pm.getFile(localization,
                 FileUtil.join(COMBO_FILE_DIR, request.getFileName()));
