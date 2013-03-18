@@ -32,11 +32,13 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PostalAddressType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RoleType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TelephoneNumberType;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.OrganizationDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.PartyDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.PersonDao;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RoleDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -51,18 +53,30 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/13/2013    1082       bphillip     Made transaction and modified to use spring injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+@Transactional
 public class RegistryWebAdmin {
 
     /** Static list of role types */
     private static final String[] ROLE_TYPES = new String[] {
             "RegistryAdministrator", "RegistryLocalAdministrator",
             "RegistryUser", "RegistryGuest" };
+
+    private PartyDao partyDao;
+
+    private ClassificationNodeDao classificationNodeDao;
+
+    private OrganizationDao organizationDao;
+
+    private PersonDao personDao;
+
+    private RoleDao roleDao;
 
     /**
      * Gets the array of address types from the registry
@@ -72,7 +86,7 @@ public class RegistryWebAdmin {
      *             If errors occur during database access
      */
     public String[] getAddressTypes() throws EbxmlRegistryException {
-        List<String> result = new ClassificationNodeDao().getAddressTypes();
+        List<String> result = classificationNodeDao.getAddressTypes();
         return result.toArray(new String[result.size()]);
     }
 
@@ -84,7 +98,7 @@ public class RegistryWebAdmin {
      *             If errors occur during database access
      */
     public String[] getTelephoneTypes() throws EbxmlRegistryException {
-        List<String> result = new ClassificationNodeDao().getTelephoneTypes();
+        List<String> result = classificationNodeDao.getTelephoneTypes();
         return result.toArray(new String[result.size()]);
     }
 
@@ -96,7 +110,7 @@ public class RegistryWebAdmin {
      *             If errors occur during database access
      */
     public String[] getEmailTypes() throws EbxmlRegistryException {
-        List<String> result = new ClassificationNodeDao().getEmailTypes();
+        List<String> result = classificationNodeDao.getEmailTypes();
         return result.toArray(new String[result.size()]);
     }
 
@@ -121,7 +135,7 @@ public class RegistryWebAdmin {
      */
     public String[] getOrganizationNames(String name)
             throws EbxmlRegistryException {
-        List<OrganizationType> orgs = new OrganizationDao()
+        List<OrganizationType> orgs = organizationDao
                 .getOrganizationByName(name);
         List<String> retVal = new ArrayList<String>(orgs.size());
         for (OrganizationType org : orgs) {
@@ -143,12 +157,11 @@ public class RegistryWebAdmin {
      */
     public String getOrganization(String name) throws EbxmlRegistryException {
         // Instantiate the necessary data access objects
-        PersonDao personDao = new PersonDao();
-        OrganizationDao orgDao = new OrganizationDao();
         StringBuffer retVal = new StringBuffer(1024);
 
         // Query the organization table for matching organization names
-        List<OrganizationType> orgs = orgDao.getOrganizationByName(name);
+        List<OrganizationType> orgs = organizationDao
+                .getOrganizationByName(name);
         if (orgs.size() == 1) {
             retVal.append("<b>" + orgs.size() + " Match</b>");
         } else {
@@ -227,12 +240,10 @@ public class RegistryWebAdmin {
 
         // Instantiate the necessary data access objects
         StringBuffer retVal = new StringBuffer(1024);
-        PersonDao dao = new PersonDao();
-        OrganizationDao orgDao = new OrganizationDao();
-        RoleDao roleDao = new RoleDao();
 
         // Query for users matching the given search criteria
-        List<PersonType> users = dao.getByFirstAndLastName(firstName, lastName);
+        List<PersonType> users = personDao.getByFirstAndLastName(firstName,
+                lastName);
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId().equals(RegistryUtil.DEFAULT_OWNER)) {
                 users.remove(i);
@@ -257,7 +268,8 @@ public class RegistryWebAdmin {
          */
         for (PersonType user : users) {
             String userId = user.getId();
-            OrganizationType userOrg = orgDao.getOrganizationForUser(userId);
+            OrganizationType userOrg = organizationDao
+                    .getOrganizationForUser(userId);
             RoleType userRole = roleDao.getUserRole(userId);
             retVal.append("<tr>");
             retVal.append("<td>")
@@ -305,93 +317,86 @@ public class RegistryWebAdmin {
          */
         objId = objId.replaceAll("%20", " ");
         Map<String, String> propMap = new HashMap<String, String>();
-        RegistryObjectTypeDao dao = new RegistryObjectTypeDao(PartyType.class);
-        ClassificationNodeDao nodeDao = new ClassificationNodeDao();
-        try {
-            dao.openSession();
-            PartyType party = dao.getById(objId);
 
-            if (party == null) {
-                return "";
-            }
+        PartyType party = partyDao.getById(objId);
 
-            propMap.put(WebFields.ID.field(), party.getId());
-            if (party instanceof PersonType) {
-                propMap.put(WebFields.FIRST_NAME.field(), ((PersonType) party)
-                        .getPersonName().getFirstName());
-                propMap.put(WebFields.MIDDLE_NAME.field(), ((PersonType) party)
-                        .getPersonName().getMiddleName());
-                propMap.put(WebFields.LAST_NAME.field(), ((PersonType) party)
-                        .getPersonName().getLastName());
-                OrganizationType userOrg = new OrganizationDao()
-                        .getOrganizationForUser(party.getId());
-                String orgId = "";
-                if (userOrg != null) {
-                    orgId = userOrg.getId();
-                }
-                RoleType role = new RoleDao().getUserRole(party.getId());
-                String roleId = "";
-                if (role != null) {
-                    roleId = role.getId();
-                }
-                propMap.put(WebFields.USER_ORG.field(), orgId);
-                propMap.put(WebFields.USER_ROLE.field(), roleId);
-            } else if (party instanceof OrganizationType) {
-                propMap.put(WebFields.ORGANIZATION_NAME.field(), party
-                        .getName().getLocalizedString().get(0).getValue());
-                PersonType primaryContact = new PersonDao()
-                        .getById(((OrganizationType) party).getPrimaryContact());
-                if (primaryContact == null) {
-                    propMap.put(WebFields.PRIMARY_CONTACT.field(),
-                            "Not Specified");
-                } else {
-                    propMap.put(WebFields.PRIMARY_CONTACT.field(), "<a id=\""
-                            + primaryContact.getId()
-                            + "\" onclick=\"getUserDetails(this.id)\">"
-                            + primaryContact.getPersonName().getLastName()
-                            + ", "
-                            + primaryContact.getPersonName().getFirstName()
-                            + "</a>");
-                }
-            }
-
-            if (!party.getPostalAddress().isEmpty()) {
-                PostalAddressType addr = party.getPostalAddress().get(0);
-                propMap.put(WebFields.ADDRESS_TYPE.field(),
-                        nodeDao.getCodeFromNode(addr.getType()));
-                propMap.put(WebFields.ADDRESS_1.field(), addr.getStreet());
-                propMap.put(WebFields.ADDRESS_2.field(), addr.getStreetNumber());
-                propMap.put(WebFields.CITY.field(), addr.getCity());
-                propMap.put(WebFields.STATE.field(), addr.getStateOrProvince());
-                propMap.put(WebFields.COUNTRY.field(), addr.getCountry());
-                propMap.put(WebFields.POSTAL_CODE.field(), addr.getPostalCode());
-            }
-
-            if (!party.getTelephoneNumber().isEmpty()) {
-                TelephoneNumberType phone = party.getTelephoneNumber().get(0);
-                propMap.put(WebFields.TELEPHONE_TYPE.field(),
-                        nodeDao.getCodeFromNode(phone.getType()));
-                propMap.put(WebFields.AREA_CODE.field(), phone.getAreaCode());
-
-                if (phone.getNumber().length() == 7) {
-                    propMap.put(WebFields.PHONE_1.field(), phone.getNumber()
-                            .substring(0, 3));
-                    propMap.put(WebFields.PHONE_2.field(), phone.getNumber()
-                            .substring(3));
-                }
-                propMap.put(WebFields.EXTENSION.field(), phone.getExtension());
-            }
-
-            if (!party.getEmailAddress().isEmpty()) {
-                EmailAddressType email = party.getEmailAddress().get(0);
-                propMap.put(WebFields.EMAIL_TYPE.field(),
-                        nodeDao.getCodeFromNode(email.getType()));
-                propMap.put(WebFields.EMAIL.field(), email.getAddress());
-            }
-        } finally {
-            dao.closeSession();
+        if (party == null) {
+            return "";
         }
-        return RegistryWebUtil.mapToString(propMap);
+
+        propMap.put(WebFields.ID.field(), party.getId());
+        if (party instanceof PersonType) {
+            propMap.put(WebFields.FIRST_NAME.field(), ((PersonType) party)
+                    .getPersonName().getFirstName());
+            propMap.put(WebFields.MIDDLE_NAME.field(), ((PersonType) party)
+                    .getPersonName().getMiddleName());
+            propMap.put(WebFields.LAST_NAME.field(), ((PersonType) party)
+                    .getPersonName().getLastName());
+            OrganizationType userOrg = organizationDao
+                    .getOrganizationForUser(party.getId());
+            String orgId = "";
+            if (userOrg != null) {
+                orgId = userOrg.getId();
+            }
+            RoleType role = roleDao.getUserRole(party.getId());
+            String roleId = "";
+            if (role != null) {
+                roleId = role.getId();
+            }
+            propMap.put(WebFields.USER_ORG.field(), orgId);
+            propMap.put(WebFields.USER_ROLE.field(), roleId);
+        } else if (party instanceof OrganizationType) {
+            propMap.put(WebFields.ORGANIZATION_NAME.field(), party.getName()
+                    .getLocalizedString().get(0).getValue());
+            PersonType primaryContact = personDao
+                    .getById(((OrganizationType) party).getPrimaryContact());
+            if (primaryContact == null) {
+                propMap.put(WebFields.PRIMARY_CONTACT.field(), "Not Specified");
+            } else {
+                propMap.put(WebFields.PRIMARY_CONTACT.field(), "<a id=\""
+                        + primaryContact.getId()
+                        + "\" onclick=\"getUserDetails(this.id)\">"
+                        + primaryContact.getPersonName().getLastName() + ", "
+                        + primaryContact.getPersonName().getFirstName()
+                        + "</a>");
+            }
+        }
+
+        if (!party.getPostalAddress().isEmpty()) {
+            PostalAddressType addr = party.getPostalAddress().get(0);
+            propMap.put(WebFields.ADDRESS_TYPE.field(),
+                    classificationNodeDao.getCodeFromNode(addr.getType()));
+            propMap.put(WebFields.ADDRESS_1.field(), addr.getStreet());
+            propMap.put(WebFields.ADDRESS_2.field(), addr.getStreetNumber());
+            propMap.put(WebFields.CITY.field(), addr.getCity());
+            propMap.put(WebFields.STATE.field(), addr.getStateOrProvince());
+            propMap.put(WebFields.COUNTRY.field(), addr.getCountry());
+            propMap.put(WebFields.POSTAL_CODE.field(), addr.getPostalCode());
+        }
+
+        if (!party.getTelephoneNumber().isEmpty()) {
+            TelephoneNumberType phone = party.getTelephoneNumber().get(0);
+            propMap.put(WebFields.TELEPHONE_TYPE.field(),
+                    classificationNodeDao.getCodeFromNode(phone.getType()));
+            propMap.put(WebFields.AREA_CODE.field(), phone.getAreaCode());
+
+            if (phone.getNumber().length() == 7) {
+                propMap.put(WebFields.PHONE_1.field(), phone.getNumber()
+                        .substring(0, 3));
+                propMap.put(WebFields.PHONE_2.field(), phone.getNumber()
+                        .substring(3));
+            }
+            propMap.put(WebFields.EXTENSION.field(), phone.getExtension());
+        }
+
+        if (!party.getEmailAddress().isEmpty()) {
+            EmailAddressType email = party.getEmailAddress().get(0);
+            propMap.put(WebFields.EMAIL_TYPE.field(),
+                    classificationNodeDao.getCodeFromNode(email.getType()));
+            propMap.put(WebFields.EMAIL.field(), email.getAddress());
+        }
+
+        return mapToString(propMap);
     }
 
     /**
@@ -403,7 +408,6 @@ public class RegistryWebAdmin {
      *             If errors occur during database access
      */
     public String[] getUserIdsAndNames() throws EbxmlRegistryException {
-        PersonDao personDao = new PersonDao();
 
         @SuppressWarnings("unchecked")
         List<Object[]> allUsers = (List<Object[]>) personDao.getAllUserNames();
@@ -415,4 +419,39 @@ public class RegistryWebAdmin {
         }
         return retVal.toArray(new String[] {});
     }
+
+    public String mapToString(Map<String, String> map) {
+        StringBuffer retVal = new StringBuffer();
+        int idx = 0;
+        for (String key : map.keySet()) {
+            retVal.append(key).append("===").append(map.get(key));
+            if (idx != map.size() - 1) {
+                retVal.append("_____");
+            }
+            idx++;
+        }
+        return retVal.toString();
+    }
+
+    public void setPartyDao(PartyDao partyDao) {
+        this.partyDao = partyDao;
+    }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
+    }
+
+    public void setOrganizationDao(OrganizationDao organizationDao) {
+        this.organizationDao = organizationDao;
+    }
+
+    public void setPersonDao(PersonDao personDao) {
+        this.personDao = personDao;
+    }
+
+    public void setRoleDao(RoleDao roleDao) {
+        this.roleDao = roleDao;
+    }
+
 }

@@ -31,13 +31,13 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-
 public abstract class CanonicalEbxmlQuery extends AbstractEbxmlQuery {
 
     public static final String QUERY_CANONICAL_PREFIX = EbxmlObjectUtil.EBXML_PREFIX
@@ -46,4 +46,5 @@ public abstract class CanonicalEbxmlQuery extends AbstractEbxmlQuery {
     public boolean isCanonical() {
         return true;
     }
+
 }
