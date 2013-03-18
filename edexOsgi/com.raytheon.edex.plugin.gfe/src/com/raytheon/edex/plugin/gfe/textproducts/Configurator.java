@@ -64,6 +64,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  *                                      to create textProducts and textUtilities.
  * Sep 07,2012  #1150       dgilling    Fix isConfigured to check for textProducts
  *                                      and textUtilities dirs.
+ * Mar 04,2013  15717       jzeng       Change CAVE_STATIC to COMMON_STATIC 
+ *                                      for GFE localization files                                
  * 
  * </pre>
  * 
@@ -105,13 +107,13 @@ public class Configurator {
 
         // destinationDirectory
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext caveStaticConfig = pathMgr.getContext(
-                LocalizationContext.LocalizationType.CAVE_STATIC,
+        LocalizationContext commonStaticConfig = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
-        caveStaticConfig.setContextName(siteID);
+        commonStaticConfig.setContextName(siteID);
 
         try {
-            destinationDirectory = pathMgr.getFile(caveStaticConfig,
+            destinationDirectory = pathMgr.getFile(commonStaticConfig,
                     FileUtil.join("gfe", "userPython")).getCanonicalPath();
         } catch (IOException e) {
             log.error("Unable to determine the destination directory", e);
