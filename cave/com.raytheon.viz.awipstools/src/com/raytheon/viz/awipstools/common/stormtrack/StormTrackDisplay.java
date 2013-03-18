@@ -48,17 +48,14 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.StormCoord;
-import com.raytheon.viz.awipstools.ui.layer.DistanceSpeedLayer;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -98,8 +95,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     when the track was created.
  *  10-27-2010  #6964      bkowal      The LineStyle is now passed as a parameter to
  *                                     the IGraphicsTarget drawWireframeShape method.
- *  05Mar2013	15693	mgamazaychikov Made sure that magnification capability works 
- *  								   for DispanceSpeedLayer
+ *  15Mar2013	15693	mgamazaychikov Made sure that magnification capability works.
  * 
  * </pre>
  * 
@@ -553,6 +549,8 @@ public class StormTrackDisplay implements IRenderable {
                 * paintProps.getZoomLevel();
 
         StormTrackState state = paintProps.getState();
+        // get the magnification from the state
+        float magnification = state.magnification;
 
         String text = String.format(dragTextFormat, state.displayType.dragWhat,
                 state.thingToDragTo);
@@ -573,7 +571,7 @@ public class StormTrackDisplay implements IRenderable {
             toUse = new Coordinate(last.x - (last.x - secondLast.x) / 2, last.y
                     - (last.y - secondLast.y) / 2);
         }
-        paintTextAtPoint(target, text, toUse, geomColor, circleSize * 3, 15.0);
+        paintTextAtPoint(target, text, toUse, geomColor, circleSize * 3, 15.0, magnification);
 
         if (mouseDownGeom != null) {
             // draw text using mouse geom
@@ -590,7 +588,7 @@ public class StormTrackDisplay implements IRenderable {
                         last.y - (last.y - secondLast.y) / 2);
             }
             paintTextAtPoint(target, text, toUse, state.color, circleSize * 3,
-                    15.0);
+                    15.0, magnification);
         }
 
     }
@@ -607,10 +605,10 @@ public class StormTrackDisplay implements IRenderable {
      * @throws VizException
      */
     private void paintTextAtPoint(IGraphicsTarget target, String text,
-            Coordinate point, RGB color, double radiusFromPoint, double angle)
+            Coordinate point, RGB color, double radiusFromPoint, double angle, float magnification)
             throws VizException {
         paintTextAtPoint(target, text, point, color, radiusFromPoint, angle,
-                HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM);
+                HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, magnification);
     }
 
     /**
@@ -631,7 +629,7 @@ public class StormTrackDisplay implements IRenderable {
      */
     private void paintTextAtPoint(IGraphicsTarget target, String text,
             Coordinate point, RGB color, double radiusFromPoint, double angle,
-            HorizontalAlignment hAlignment, VerticalAlignment vAlignment)
+            HorizontalAlignment hAlignment, VerticalAlignment vAlignment, float magnification)
             throws VizException {
         // get screen location of point
         double[] p1 = descriptor
@@ -640,27 +638,10 @@ public class StormTrackDisplay implements IRenderable {
         // get screen location of where to draw text using point
         double[] labelLoc = target.getPointOnCircle(p1[0], p1[1], 0.0,
                 radiusFromPoint, angle);
-
-        Double magnification = 1.0;
-        for (ResourcePair rp : descriptor.getResourceList()) {
-            if (rp != null) {
-            	/*
-            	 * 15693 - make sure magnification capability works for 
-            	 * 		   DistanceSpeedLayer
-            	 */
-				if (rp.getResource() instanceof DistanceSpeedLayer) {
-					magnification = rp.getResource()
-							.getCapability(MagnificationCapability.class)
-							.getMagnification();
-					break;
-				}
-                
-            }
-        }
-
         DrawableString str = new DrawableString(text, color);
         str.horizontalAlignment = hAlignment;
         str.verticallAlignment = vAlignment;
+        // set the string magnification
         str.magnification = magnification;
         str.setCoordinates(labelLoc[0], labelLoc[1]);
 
@@ -1248,6 +1229,8 @@ public class StormTrackDisplay implements IRenderable {
     private void paintLabels(IGraphicsTarget target,
             StormTrackProperties paintProps) throws VizException {
         StormTrackState state = paintProps.getState();
+        // get the magnification from the state
+        float magnification = state.magnification;
         // find a nice looking radius
         double radius = Math.max(currentTickLen, editableCircleSize * 2
                 * paintProps.getZoomLevel());
@@ -1310,11 +1293,11 @@ public class StormTrackDisplay implements IRenderable {
             String text = String.format(speedFormat, speedInKts, angle);
 
             paintTextAtPoint(target, text, state.dragMePoint.getCoordinate(),
-                    state.color, radius, screenAngle + 180, hMid, vMid);
+                    state.color, radius, screenAngle + 180, hMid, vMid, magnification);
 
             paintTextAtPoint(target, text,
                     state.futurePoints[state.futurePoints.length - 1].coord,
-                    state.color, radius, -90 + screenAngle, hEnd, vEnd);
+                    state.color, radius, -90 + screenAngle, hEnd, vEnd, magnification);
             break;
         }
 
@@ -1324,12 +1307,12 @@ public class StormTrackDisplay implements IRenderable {
             String time = this.timeFormat.format(new Date(
                     state.timePoints[0].time.getMatchValid()));
             paintTextAtPoint(target, time, state.timePoints[0].coord,
-                    state.color, radius, 180 + screenAngle, hMid, vMid);
+                    state.color, radius, 180 + screenAngle, hMid, vMid, magnification);
 
             time = this.timeFormat.format(new Date(state.futurePoints[0].time
                     .getMatchValid()));
             paintTextAtPoint(target, time, state.futurePoints[0].coord,
-                    state.color, radius, 180 + screenAngle, hMid, vMid);
+                    state.color, radius, 180 + screenAngle, hMid, vMid, magnification);
 
             // End time:
             Calendar currentTime = Calendar.getInstance();
@@ -1341,7 +1324,7 @@ public class StormTrackDisplay implements IRenderable {
                     .getTimeInMillis() + delta));
             paintTextAtPoint(target, time,
                     state.futurePoints[state.futurePoints.length - 1].coord,
-                    state.color, radius, -90 + screenAngle, hEnd, vEnd);
+                    state.color, radius, -90 + screenAngle, hEnd, vEnd, magnification);
             break;
         }
         }

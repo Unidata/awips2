@@ -41,6 +41,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * ------------ ---------- ----------- --------------------------
  * 09 Dec 2008             lvenable    Initial creation
  * 10 Nov 2010             njensen     Cache python
+ * 07 Mar 2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author lvenable
@@ -72,7 +73,7 @@ public class TextFmtParserUtil {
         if (python == null) {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext baseContext = pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File baseFile = pm.getFile(baseContext, "gfe" + File.separator
                     + "userPython" + File.separator + "utilities"
                     + File.separator + "ProductParser.py");
