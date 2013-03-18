@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
@@ -60,6 +61,7 @@ import com.vividsolutions.jts.geom.LineString;
  * 01/12/2010              mnash       Initial building of application
  * 01/26/2010   4127       mpduff      Implemented parsing of eavConfigTable.txt
  * 10/08/2010   5953       bgonzale    refactored EAV code out of layer class.
+ * 15Mar2013	15693	mgamazaychikov Added magnification capability.
  * 
  * </pre>
  * 
@@ -78,11 +80,13 @@ public class EstimatedActualVelocityLayer extends VRShearLayer {
      * @param props
      * @param descriptor
      */
-    public EstimatedActualVelocityLayer(
-            AwipsToolsResourceData<VRShearLayer> data, LoadProperties props,
-            MapDescriptor descriptor) {
-        super(data, props, descriptor);
-    }
+	public EstimatedActualVelocityLayer(
+			AwipsToolsResourceData<VRShearLayer> data, LoadProperties props,
+			MapDescriptor descriptor) {
+		super(data, props, descriptor);
+		// add magnification capability
+		getCapabilities().addCapability(new MagnificationCapability());
+	}
 
     @Override
     public String getName() {
