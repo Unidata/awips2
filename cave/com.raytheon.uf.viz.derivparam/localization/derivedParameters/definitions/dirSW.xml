@@ -2,7 +2,7 @@
 <DerivedParameter name="Secondary Wave Direction" abbreviation="dirSW" xmlns:ns2="group">
     <Method name="Vector">
     	<ConstantField value="20"/>
-        <Field abbreviation="DIRSW"/>
+        <Field abbreviation="DIRSW" unit="deg"/>
         <ConstantField value="1"/>
     </Method>
 </DerivedParameter>

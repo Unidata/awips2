@@ -35,11 +35,12 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Mar 21, 2008				njensen	Initial creation
- * Jul 9, 2009    2454      ryu     Put user and site's python scripts on path for import
- * 
+ * Date			Ticket#		Engineer	 Description
+ * ------------	----------	-----------	 --------------------------
+ * Mar 21, 2008				njensen	     Initial creation
+ * Jul 9, 2009  2454        ryu          Put user and site's python scripts on path for import
+ * Mar 06,2013  15717       jzeng        Change CAVE_STATIC to COMMON_STATIC 
+ *                                       for GFE localization files 
  * </pre>
  * 
  * @author njensen
@@ -50,7 +51,7 @@ public class SmartToolFactory {
 
     private static String getScriptPath() {
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.CAVE_STATIC,
+                .getContext(LocalizationType.COMMON_STATIC,
                         LocalizationLevel.BASE);
         String scriptPath = GfePyIncludeUtil.getUtilitiesLF(baseCtx).getFile()
                 .getPath();
