@@ -51,11 +51,12 @@ import com.raytheon.viz.gfe.PythonUtil;
  * Utilities for text products
  * 
  * <pre>
- * SOFTWARE HISTORY
+S * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Sept 23, 2008			askripsky	Initial creation
- * 
+ * Sep 23,2008			    askripsky	Initial creation
+ * Mar 06,2013  15717       jzeng       Change CAVE_STATIC to COMMON_STATIC 
+ *                                      for GFE localization files 
  * </pre>
  * 
  * @author askripsky
@@ -186,7 +187,7 @@ public class TextProductUtils {
 
         // Get context for the Site
         LocalizationContext cx = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
 
         // Build the path to the new file
         String path = (type.equals(PRODUCT) ? PRODUCTS_PATH : UTILITIES_PATH)
@@ -244,7 +245,7 @@ public class TextProductUtils {
         // Get path to template file
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext tx = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         File templateFile = pathMgr.getFile(tx, TEMPLATES_PATH);
 
         try {

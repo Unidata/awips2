@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
@@ -57,6 +58,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                       on if the tool orientation indicates clockwise rotation or
  *                                       counter-clockwise rotation. The order of the points will also
  *                                       no longer impact the sign that is displayed.
+ *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
  * 
  * </pre>
  * 
@@ -77,6 +79,8 @@ public class VRShearLayer extends ShearLayer {
     public VRShearLayer(AwipsToolsResourceData<VRShearLayer> data,
             LoadProperties props, MapDescriptor descriptor) {
         super(data, props, descriptor);
+        // add magnification capability
+        getCapabilities().addCapability(new MagnificationCapability());
     }
 
     /*
