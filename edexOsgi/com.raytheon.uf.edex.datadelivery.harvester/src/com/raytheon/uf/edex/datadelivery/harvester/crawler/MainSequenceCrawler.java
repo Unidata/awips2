@@ -10,14 +10,14 @@ import java.util.TreeSet;
 import java.util.concurrent.Executors;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.datadelivery.harvester.config.CrawlAgent;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 import com.raytheon.uf.edex.datadelivery.retrieval.LinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
 
