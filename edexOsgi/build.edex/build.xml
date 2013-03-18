@@ -18,7 +18,6 @@
 		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
 	
 	<target name="main" depends="clean">
-
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.common.base.feature" />
@@ -135,6 +134,39 @@
 			</classpath>
 		</java>
 	</target>
+
+        <target name="buildHybrid" depends="clean">
+                <echo message="feature=com.raytheon.uf.common.base.feature" />
+                <java
+                        classname="org.eclipse.core.launcher.Main"
+                        fork="true"
+                        failonerror="true">
+
+                        <arg value="-application" />
+                        <arg value="org.eclipse.ant.core.antRunner" />
+                        <arg value="-buildfile" />
+                        <arg value="${uframe.eclipse}/plugins/${pde.build.script}" />
+                        <arg value="-DbaseLocation=${uframe.eclipse}" />
+                        <arg value="-Dbuilder=${basedir}/edex" />
+                        <arg value="-DbuildDirectory=${basedir}/edex/tmp" />
+                        <arg value="-DtopLevelElementId=com.raytheon.uf.common.base.feature" />
+                        <arg value="-Dbase=${basedir}/edex" />
+                        <arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
+
+                        <arg value="-Dgenerate.p2.metadata=true" />
+                        <arg value="-Dp2.metadata.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
+                        <arg value="-Dp2.artifact.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
+                        <arg value="-Dp2.publish.artifacts=true" />
+                        <arg value="-DgenerateVersionsList=true" />
+
+                        <classpath>
+                                <pathelement 
+                                        location="${uframe.eclipse}/plugins/${eclipse.launcher.jar}" />
+                        </classpath>
+                </java>
+
+                <antcall target="clean" />
+        </target>
 	
 	<target name="clean">
 		<if>
