@@ -17,12 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -35,20 +37,14 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class AssociationDao extends RegistryObjectTypeDao {
-
-    /**
-     * Constructs a new AssociationDao
-     */
-    public AssociationDao() {
-        super(AssociationType.class);
-    }
+public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
 
     /**
      * Gets associations based on the association target and type
@@ -63,8 +59,13 @@ public class AssociationDao extends RegistryObjectTypeDao {
      */
     public List<AssociationType> getByTargetAndType(String target, String type)
             throws EbxmlRegistryException {
-        return executeHQLQuery("from AssociationType obj where obj.targetObject='"
-                + target + "' and obj.type='" + type + "'");
+        try {
+            return executeHQLQuery("from AssociationType obj where obj.targetObject='"
+                    + target + "' and obj.type='" + type + "'");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException(
+                    "Error getting by target and type", e);
+        }
     }
 
     /**
@@ -80,8 +81,12 @@ public class AssociationDao extends RegistryObjectTypeDao {
      */
     public List<AssociationType> getBySourceAndType(String source, String type)
             throws EbxmlRegistryException {
-        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                + source + "' and obj.type='" + type + "'");
+        try {
+            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                    + source + "' and obj.type='" + type + "'");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -99,11 +104,15 @@ public class AssociationDao extends RegistryObjectTypeDao {
      */
     public List<AssociationType> getBySourceTargetAndType(String source,
             String target, String type) throws EbxmlRegistryException {
-        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                + source
-                + "' and obj.type='"
-                + type
-                + "' and obj.targetObject='" + target + "'");
+        try {
+            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                    + source
+                    + "' and obj.type='"
+                    + type
+                    + "' and obj.targetObject='" + target + "'");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -117,11 +126,15 @@ public class AssociationDao extends RegistryObjectTypeDao {
      */
     public List<AssociationType> getAllAssociations(String objReferenced)
             throws EbxmlRegistryException {
-        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                + objReferenced
-                + "' or obj.targetObject='"
-                + objReferenced
-                + "'");
+        try {
+            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                    + objReferenced
+                    + "' or obj.targetObject='"
+                    + objReferenced
+                    + "'");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -135,8 +148,12 @@ public class AssociationDao extends RegistryObjectTypeDao {
      */
     public List<AssociationType> getAssociationsTo(String objReferenced)
             throws EbxmlRegistryException {
-        return executeHQLQuery("from AssociationType obj where obj.targetObject='"
-                + objReferenced + "'");
+        try {
+            return executeHQLQuery("from AssociationType obj where obj.targetObject='"
+                    + objReferenced + "'");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -150,8 +167,12 @@ public class AssociationDao extends RegistryObjectTypeDao {
      */
     public List<AssociationType> getAssociationsFrom(String objReferenced)
             throws EbxmlRegistryException {
-        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                + objReferenced + "'");
+        try {
+            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                    + objReferenced + "'");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -166,7 +187,14 @@ public class AssociationDao extends RegistryObjectTypeDao {
             throws EbxmlRegistryException {
         List<AssociationType> associations = getAllAssociations(objReferenced);
         if (!associations.isEmpty()) {
-            this.delete(associations);
+            for (AssociationType association : associations) {
+                this.delete(association);
+            }
         }
+    }
+
+    @Override
+    protected Class<AssociationType> getEntityClass() {
+        return AssociationType.class;
     }
 }

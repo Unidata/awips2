@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip    Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -81,6 +82,8 @@ public class ClassificationSchemeSelector extends CanonicalEbxmlQuery {
     static {
         QUERY_PARAMETERS.add(QueryConstants.CLASSIFICATION_SCHEME_ID);
     }
+
+    private RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao;
 
     @Override
     protected List<RegistryObjectType> query(QueryType queryType,
@@ -102,9 +105,7 @@ public class ClassificationSchemeSelector extends CanonicalEbxmlQuery {
          * a list as per the requirements of this canonical query described in
          * the class description
          */
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao(
-                ClassificationSchemeType.class);
-        ClassificationSchemeType classificationScheme = registryObjectDao
+        ClassificationSchemeType classificationScheme = classificationSchemeTypeDao
                 .getById((String) parameters
                         .getFirstParameter(QueryConstants.CLASSIFICATION_SCHEME_ID));
         getNodeList(classificationScheme, retVal);
@@ -143,4 +144,10 @@ public class ClassificationSchemeSelector extends CanonicalEbxmlQuery {
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
     }
+
+    public void setClassificationSchemeTypeDao(
+            RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao) {
+        this.classificationSchemeTypeDao = classificationSchemeTypeDao;
+    }
+
 }

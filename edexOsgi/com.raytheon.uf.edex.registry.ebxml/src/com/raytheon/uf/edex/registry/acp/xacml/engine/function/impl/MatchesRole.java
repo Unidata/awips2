@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/20/2012    724          bphillip    Initial Coding
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
@@ -56,6 +57,8 @@ public class MatchesRole extends XACMLFunction {
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MatchesRole.class);
+
+    private RoleDao roleDao;
 
     @Override
     protected String getFunctionId() {
@@ -120,7 +123,6 @@ public class MatchesRole extends XACMLFunction {
             String... contextKey) throws XACMLProcessingException {
         statusHandler.info("Evaluating matches-role function.");
 
-        RoleDao roleDao = new RoleDao();
         try {
             // Get the subject ID from the request object
             String subjectId = getSubjectId();
@@ -186,4 +188,9 @@ public class MatchesRole extends XACMLFunction {
         return subjectId;
 
     }
+
+    public void setRoleDao(RoleDao roleDao) {
+        this.roleDao = roleDao;
+    }
+
 }

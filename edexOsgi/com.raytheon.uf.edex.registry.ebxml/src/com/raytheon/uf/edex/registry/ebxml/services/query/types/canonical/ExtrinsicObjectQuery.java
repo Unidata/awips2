@@ -28,6 +28,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -72,15 +74,16 @@ public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.MIME_TYPES);
     }
 
+    private BasicQuery basicQuery;
+
+    @SuppressWarnings("unchecked")
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
         QueryParameters params = getParameterMap(queryType.getSlot(),
                 queryResponse);
-        registryObjectDao.setDaoClass(ExtrinsicObjectType.class);
-        @SuppressWarnings("unchecked")
-        List<T> results = (List<T>) new BasicQuery().query(queryType,
-                queryResponse);
+
+        List<T> results = (List<T>) basicQuery.query(queryType, queryResponse);
         List<String> ids = new ArrayList<String>();
         for (RegistryObjectType regObj : results) {
             ids.add(regObj.getId());
@@ -98,7 +101,11 @@ public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
         query.append(HqlQueryUtil.AND);
         HqlQueryUtil.assembleSingleParamClause(query, QueryConstants.MIME_TYPE,
                 HqlQueryUtil.IN, mimeTypes);
-        return registryObjectDao.executeHQLQuery(query);
+        try {
+            return (List<T>) registryObjectDao.executeHQLQuery(query);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error");
+        }
     }
 
     @Override
@@ -110,4 +117,9 @@ public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
     }
+
+    public void setBasicQuery(BasicQuery basicQuery) {
+        this.basicQuery = basicQuery;
+    }
+
 }
