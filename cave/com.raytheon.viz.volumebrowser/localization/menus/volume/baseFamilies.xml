@@ -94,8 +94,8 @@
 		<substitute key="frameCount" value="19"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-		menuText="RAP40" id="ruc" useReferenceTime="true">
-		<substitute key="modelName" value="RUC236"/>
+		menuText="RAP40" id="rap" useReferenceTime="true">
+		<substitute key="modelName" value="${RAPmodel}"/>
 		<substitute key="TP" value="TP3hr"/>
 		<substitute key="frameCount" value="9"/>
 	</contribute>
