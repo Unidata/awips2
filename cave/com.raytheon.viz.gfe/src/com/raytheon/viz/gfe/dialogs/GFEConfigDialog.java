@@ -83,8 +83,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket//    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009            randerso     Initial creation
- * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
- * 
+ * Oct 30, 2012 1298       rferrel      Code cleanup for non-blocking dialog.
+ * Mar 10, 2013 15717      jzeng        Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author randerso
@@ -380,7 +380,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     private void saveLastConfig() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         LocalizationFile lf = pathMgr.getLocalizationFile(context, LAST_CONFIG);
         File file = lf.getFile();
 
@@ -414,7 +414,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         LocalizationFile lf = pathMgr.getLocalizationFile(context, LAST_CONFIG);
         File file = lf.getFile();
 

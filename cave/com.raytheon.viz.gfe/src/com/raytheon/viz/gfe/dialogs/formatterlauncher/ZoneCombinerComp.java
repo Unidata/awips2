@@ -99,7 +99,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     Changes for non-blocking SaveDeleteComboDlg.
  *                                     Changes for non-blocking ShuffleZoneGroupsDialog.
  *                                     Changes for non-blocking ZoneColorEditorDlg.
- * 
+ * 07 Mar 2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author lvenable
@@ -264,7 +264,7 @@ public class ZoneCombinerComp extends Composite implements
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext baseCtx = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         comboDir = pathMgr.getLocalizationFile(baseCtx,
                 CombinationsFileUtil.COMBO_DIR_PATH);
         comboDir.addFileUpdatedObserver(this);
@@ -932,12 +932,12 @@ public class ZoneCombinerComp extends Composite implements
                 "saved", name + ".py");
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext userContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         LocalizationFile userFile = pm.getLocalizationFile(userContext,
                 searchName);
 
         if (AccessMgr.verifyDelete(userFile.getName(),
-                LocalizationType.CAVE_STATIC, false)) {
+                LocalizationType.COMMON_STATIC, false)) {
             if (userFile.isAvailableOnServer()) {
                 userFile.delete();
             } else if (userFile.exists()) {
@@ -978,7 +978,7 @@ public class ZoneCombinerComp extends Composite implements
         IPathManager pm = PathManagerFactory.getPathManager();
 
         LocalizationContext localization = pm.getContext(
-                LocalizationType.CAVE_STATIC, level);
+                LocalizationType.COMMON_STATIC, level);
         File localFile = pm.getFile(localization,
                 FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH, local));
         return localFile;

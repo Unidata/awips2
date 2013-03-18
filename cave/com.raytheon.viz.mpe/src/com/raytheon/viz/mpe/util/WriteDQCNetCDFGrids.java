@@ -44,6 +44,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 9, 2011            snaples     Initial creation
+ * Mar 5, 2013  15884      wkwock      gridPointLL and gridPointUR should be integer
  * 
  * </pre>
  * 
@@ -306,13 +307,13 @@ public class WriteDQCNetCDFGrids {
             cdf_grid_id.addAttribute(new Attribute("domainExtent", dims));
 
             dims = new ArrayList<Number>();
-            dims.add(ga.gridPointLL.x);
-            dims.add(ga.gridPointLL.y);
+            dims.add(ga.gridPointLL[0]);
+            dims.add(ga.gridPointLL[1]);
             cdf_grid_id.addAttribute(new Attribute("gridPointLL", dims));
 
             dims = new ArrayList<Number>();
-            dims.add(ga.gridPointUR.x);
-            dims.add(ga.gridPointUR.y);
+            dims.add(ga.gridPointUR[0]);
+            dims.add(ga.gridPointUR[1]);
             cdf_grid_id.addAttribute(new Attribute("gridPointUR", dims));
 
             cdf_grid_id.addAttribute(new Attribute("gridType", ga.gridType));
