@@ -69,7 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "InternationalStringValue")
+@Table(schema = "ebxml", name = "InternationalStringValue")
 public class InternationalStringValueType extends ValueType {
 
     @XmlElement(name = "Value")

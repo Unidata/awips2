@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "FloatValue")
+@Table(schema = "ebxml", name = "FloatValue")
 public class FloatValueType extends ValueType {
     @Column(name = COLUMN_NAME)
     @XmlElement(name = "Value")

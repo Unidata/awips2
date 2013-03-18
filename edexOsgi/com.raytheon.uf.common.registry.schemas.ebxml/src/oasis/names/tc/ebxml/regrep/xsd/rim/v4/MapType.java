@@ -27,7 +27,9 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -75,14 +77,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "MapType", propOrder = { "entry" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "MapType")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Map")
 public class MapType implements Serializable {
 
     private static final long serialVersionUID = 5533297201296624269L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "MapTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Map_sequence")
+    @GeneratedValue(generator = "MapTypeGenerator")
     @XmlTransient
     protected Integer key;
 
@@ -94,6 +97,7 @@ public class MapType implements Serializable {
     @DynamicSerializeElement
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE })
     @ManyToMany
+    @JoinTable(schema = "ebxml")
     protected List<EntryType> entry;
 
     /**
