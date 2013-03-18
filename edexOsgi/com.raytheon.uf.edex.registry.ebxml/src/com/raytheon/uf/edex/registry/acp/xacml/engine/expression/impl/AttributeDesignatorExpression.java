@@ -76,12 +76,15 @@ import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil.IDENTIFIER_T
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 public class AttributeDesignatorExpression implements XACMLExpression {
+
+    private XACMLContextHandler xacmlContextHandler;
 
     @Override
     public String getExpressionId() throws Exception {
@@ -390,7 +393,7 @@ public class AttributeDesignatorExpression implements XACMLExpression {
                     if (requestAttributeId.equals(requestedAttribute)
                             || XACMLObjectUtil
                                     .isAttributeRequest(requestedAttribute)) {
-                        return XACMLContextHandler.getInstance().getAttribute(
+                        return xacmlContextHandler.getAttribute(
                                 requestAttributeValue, requestedAttribute);
                     }
                 }
@@ -405,7 +408,7 @@ public class AttributeDesignatorExpression implements XACMLExpression {
                     if (requestAttributeId.equals(requestedAttribute)
                             || XACMLObjectUtil
                                     .isAttributeRequest(requestedAttribute)) {
-                        return XACMLContextHandler.getInstance().getAttribute(
+                        return xacmlContextHandler.getAttribute(
                                 requestAttributeValue, requestedAttribute);
                     }
                 }
@@ -419,7 +422,7 @@ public class AttributeDesignatorExpression implements XACMLExpression {
                 if (requestAttributeId.equals(requestedAttribute)
                         || XACMLObjectUtil
                                 .isAttributeRequest(requestedAttribute)) {
-                    return XACMLContextHandler.getInstance().getAttribute(
+                    return xacmlContextHandler.getAttribute(
                             requestAttributeValue, requestedAttribute);
                 }
             }
@@ -440,4 +443,9 @@ public class AttributeDesignatorExpression implements XACMLExpression {
                     "Unsupported Operation Type:  " + idType);
         }
     }
+
+    public void setXacmlContextHandler(XACMLContextHandler xacmlContextHandler) {
+        this.xacmlContextHandler = xacmlContextHandler;
+    }
+
 }

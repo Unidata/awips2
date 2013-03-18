@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "ExternalIdentifier")
+@Table(schema = "ebxml", name = "ExternalIdentifier")
 public class ExternalIdentifierType extends RegistryObjectType {
 
     @XmlAttribute
