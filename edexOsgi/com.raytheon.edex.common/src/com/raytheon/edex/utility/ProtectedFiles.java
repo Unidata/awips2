@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 25, 2010            mschenke     Initial creation
+ * Mar 07, 2013 15717      jzeng        minor change for LEVEL_HEADER
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public class ProtectedFiles {
     private static final String LEVEL_HEADER = "# The layout of this file is a line that starts with a # is treated as a\n"
             + "# comment and any other line is treated as a protected base file in the \n"
             + "# format: localization_type/subpath/to/file\n"
-            + "# A simple example would be: %s:cave_static/gfe/userPython/textProducts/AFD.py\n"
+            + "# A simple example would be: %s:common_static/gfe/userPython/textProducts/AFD.py\n"
             + "# Any entries in this file will only apply for users localized to the site\n";
 
     private static ProtectedFiles base = new ProtectedFiles(PathManagerFactory

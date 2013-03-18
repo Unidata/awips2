@@ -28,6 +28,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  *6/12/2008                 mnash       Initial creation
+ *03/07/2013    15717       jzeng       Change CAVE_STATIC to COMMON_STATIC
  *     
  * </pre>
  * 
@@ -101,7 +102,7 @@ public class CombinationsFileGenerator {
         ifpc.makeRequest(req);
 
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
+        LocalizationContext ctx = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
         pm.getFile(ctx, FileUtil.join("gfe", "combinations", filename));
     }
