@@ -61,7 +61,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 4, 2010            mnash     Initial creation
+ * Oct 04, 2010            mnash     Initial creation
+ * MAR 05, 2013 15313      kshresth  Added sampling for DMD
  * 
  * </pre>
  * 
@@ -71,6 +72,8 @@ import com.vividsolutions.jts.geom.Envelope;
 
 public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
         IRadarInterrogator {
+
+    private Map<String, String> _dataMap = new HashMap<String, String>();
 
     private DmdModifier modifier;
 
@@ -90,7 +93,6 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
     @Override
     public Map<String, String> sample(RadarRecord record, Coordinate latLon,
             ColorMapParameters params) {
-        Map<String, String> dataMap = new HashMap<String, String>();
         if (latLon == null) {
             return null;
         }
@@ -101,16 +103,16 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                     record.getCRS());
 
             mt.transform(input, 0, output, 0, 1);
-            dataMap.put("crsLocation", output == null ? "-1,-1" : output[0]
+            _dataMap.put("crsLocation", output == null ? "-1,-1" : output[0]
                     + "," + output[1]);
         } catch (Exception e) {
             return null;
         }
 
-        dataMap.put("ICAO", record.getIcao());
-        dataMap.put("Mnemonic", record.getMnemonic());
-        addParameters(record, latLon, dataMap);
-        return dataMap;
+        _dataMap.put("ICAO", record.getIcao());
+        _dataMap.put("Mnemonic", record.getMnemonic());
+        addParameters(record, latLon, _dataMap);
+        return _dataMap;
     }
 
     /*
@@ -242,43 +244,19 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                             baseHeight += "<";
                                         }
 
-                                        String baseHeightValue = GraphicDataUtil
-                                                .setupConverter(
-                                                        currFeature,
-                                                        DMDAttributeIDs.BASE_HEIGHT
-                                                                .toString(),
-                                                        -1, false);
-                                        if (!baseHeightValue.isEmpty()) {
-                                            baseHeightValue = formatter
-                                                    .format(new Double(
-                                                            baseHeightValue));
-                                        }
-                                        baseHeight += baseHeightValue
-                                                + GraphicDataUtil
-                                                        .getUnit(DMDAttributeIDs.BASE_HEIGHT);
-
-                                        if (!baseHeight.isEmpty()) {
-                                            rval.append(baseHeight + "Ag ");
-                                        }
+                                        baseHeight += GraphicDataUtil.setupConverter(currFeature,
+                                                DMDAttributeIDs.BASE_HEIGHT.toString(),
+                                                1, true);
+                                        rval.append(baseHeight+" ");
                                         break;
                                     case DEPTH:
                                         // Depth
                                         String depth = GraphicDataUtil
-                                                .setupConverter(currFeature,
-                                                        DMDAttributeIDs.DEPTH
-                                                                .toString(),
-                                                        -1, false);
-                                        if (!depth.isEmpty()) {
-                                            depth = formatter
-                                                    .format(new Double(depth));
-                                        }
-
-                                        depth += GraphicDataUtil
-                                                .getUnit(DMDAttributeIDs.DEPTH);
-
-                                        if (!depth.isEmpty()) {
-                                            rval.append(depth + " ");
-                                        }
+                                        .setupConverter(currFeature,
+                                                DMDAttributeIDs.DEPTH
+                                                        .toString(),
+                                                1,true);
+                                    rval.append(depth + " ");
                                         break;
                                     case RANK:
                                         // Rank
@@ -290,22 +268,17 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                                 && !ranks.isEmpty()) {
                                             tiltNum = ranks.split(",").length - 1;
                                         }
-                                        String rank = ranks.split(",")[tiltNum]
-                                                + currFeature
-                                                        .getValue(DMDAttributeIDs.STRENGTH_RANK_TYPE
-                                                                .toString());
-                                        if (!rank.isEmpty()) {
-                                            rval.append("r" + rank + " ");
-                                        }
+                                        String rank = ranks.split(",")[tiltNum];
+                                        rval.append("r" + rank + " ");
                                         break;
                                     case MSI:
                                         // MSI
-                                        String msi = currFeature
-                                                .getValue(DMDAttributeIDs.MSI
-                                                        .toString());
-                                        if (!msi.isEmpty()) {
-                                            rval.append(msi + "-msi ");
-                                        }
+                                    	String msi = GraphicDataUtil
+                                               .setupConverter(
+                                        	           currFeature,
+                                                       DMDAttributeIDs.MSI.toString(),
+                                                       1, true);
+                                            rval.append(msi + " ");
                                         break;
                                     case RV:
                                         // llrotv
@@ -314,14 +287,8 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                                         currFeature,
                                                         DMDAttributeIDs.BASE_ROTATIONAL_VEL
                                                                 .toString(),
-                                                        -1, false);
-                                        if (llrotv != null && !llrotv.isEmpty()) {
-                                            llrotv = formatter.format(Double
-                                                    .parseDouble(llrotv))
-                                                    + GraphicDataUtil
-                                                            .getUnit(DMDAttributeIDs.BASE_ROTATIONAL_VEL);
+                                                        1, true);
                                             rval.append(llrotv + " ");
-                                        }
                                         break;
                                     case G2G:
                                         // llg2g
@@ -330,14 +297,8 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                                         currFeature,
                                                         DMDAttributeIDs.BASE_GTG_VEL_DIFF
                                                                 .toString(),
-                                                        -1, false);
-                                        if (llg2g != null && !llg2g.isEmpty()) {
-                                            llg2g = formatter.format(Double
-                                                    .parseDouble(llg2g))
-                                                    + GraphicDataUtil
-                                                            .getUnit(DMDAttributeIDs.BASE_GTG_VEL_DIFF);
-                                            rval.append(llg2g + " ");
-                                        }
+                                                        1, true);
+                                           rval.append(llg2g + " ");
                                         break;
                                     case MRV:
                                         // mxrotv
@@ -346,14 +307,8 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                                         currFeature,
                                                         DMDAttributeIDs.MAX_ROTATIONAL_VEL
                                                                 .toString(),
-                                                        -1, false);
-                                        if (mxrotv != null && !mxrotv.isEmpty()) {
-                                            mxrotv = formatter.format(Double
-                                                    .parseDouble(mxrotv))
-                                                    + GraphicDataUtil
-                                                            .getUnit(DMDAttributeIDs.MAX_ROTATIONAL_VEL);
+                                                        1, true);
                                             rval.append(mxrotv + " ");
-                                        }
                                         break;
                                     case HMRV:
                                         // htmxrv
@@ -362,12 +317,8 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                                         currFeature,
                                                         DMDAttributeIDs.HEIGHT_MAX_ROTATIONAL_VEL
                                                                 .toString(),
-                                                        -1, false);
-                                        htmxrv += GraphicDataUtil
-                                                .getUnit(DMDAttributeIDs.HEIGHT_MAX_ROTATIONAL_VEL);
-                                        if (!htmxrv.equals("")) {
-                                            rval.append(htmxrv + "Ag ");
-                                        }
+                                                        1, true);
+                                        rval.append(htmxrv + " ");
                                         break;
                                     case LL_CONV:
                                         // Low-Level Convergence
