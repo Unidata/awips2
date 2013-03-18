@@ -65,7 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28May2010    2187       cjeanbap    Added StdTextProductFactory
  *                                      functionality.
  * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
- * 10Jan2012    15564      mgamazaychikov Set the awipsWanPil based on productText data
+ * 08Mar2013    15564   mgamazaychikov Set the awipsWanPil based on productText data
  * </pre>
  * 
  * @author lvenable

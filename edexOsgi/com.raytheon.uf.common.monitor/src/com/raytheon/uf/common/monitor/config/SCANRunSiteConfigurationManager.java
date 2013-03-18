@@ -20,6 +20,28 @@ import com.raytheon.uf.common.monitor.xml.SCANSiteRunConfigXML;
 import com.raytheon.uf.common.monitor.xml.SCANSiteXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+
+/**
+ * ScanRunSiteConfigurationManager
+ * 
+ * Holds the SCAN configuration
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 02/07/2009   2037       dhladky    Initial Creation.
+ * 02/25/13     1660       D. Hladky Fixed configuration bug in scan.
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
+
 
 public class SCANRunSiteConfigurationManager implements
         ILocalizationFileObserver {
@@ -27,6 +49,9 @@ public class SCANRunSiteConfigurationManager implements
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "scan" + File.separatorChar
             + "SCANRunSiteConfig.xml";
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+    .getHandler(SCANRunSiteConfigurationManager.class);
 
     /**
      * SCAN Configuration XML object.
@@ -49,7 +74,7 @@ public class SCANRunSiteConfigurationManager implements
         try {
             readConfigXml();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Can not read the SCAN configuration", e);
         }
 
     }
@@ -77,21 +102,19 @@ public class SCANRunSiteConfigurationManager implements
         File file = lf.getFile();
         // System.out.println("Reading -- " + file.getAbsolutePath());
         if (!file.exists()) {
-            System.out
-                    .println("WARNING [SCAN] SCANRunSiteConfigurationManager: "
+            statusHandler.handle(Priority.WARN, "SCANRunSiteConfigurationManager: "
                             + file.getAbsolutePath() + " does not exist.");
             try {
                 createValidConfig();
             } catch (Exception e) {
-                System.out
-                        .println("FATAL [SCAN] SCANRunSiteConfigurationManager: Couldn't create valid runnable configuration");
+                statusHandler.handle(Priority.ERROR,"SCANRunSiteConfigurationManager: Couldn't create valid runnable configuration");
             }
         }
 
         SCANSiteRunConfigXML configXmltmp = null;
 
-        configXmltmp = (SCANSiteRunConfigXML) SerializationUtil
-                .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+        configXmltmp = SerializationUtil
+                .jaxbUnmarshalFromXmlFile(SCANSiteRunConfigXML.class, file.getAbsolutePath());
 
         configXml = configXmltmp;
         isPopulated = true;
@@ -135,7 +158,8 @@ public class SCANRunSiteConfigurationManager implements
 
             lf = newXmlFile;
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.WARN, "SCANRunSiteConfigurationManager: "
+                    + newXmlFile.getName() + " couldn't be saved.", e);
         }
     }
 
@@ -153,7 +177,8 @@ public class SCANRunSiteConfigurationManager implements
                     }
                 }
             } catch (SerializationException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.WARN, "SCANRunSiteConfigurationManager: "
+                        + message.getFileName() + " couldn't be updated.", e);
             }
         }
 
@@ -236,42 +261,28 @@ public class SCANRunSiteConfigurationManager implements
          */
         List<String> localsites = RadarsInUseUtil.getSite(null,
                 RadarsInUseUtil.LOCAL_CONSTANT);
-        List<String> dialsites = RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.DIAL_CONSTANT);
-
         String modelDefault = "RUC130";
 
         configXml = new SCANSiteRunConfigXML();
 
         // run over list of available sites
+        int i = 0;
         for (String site : localsites) {
-            SCANSiteXML siteXML = new SCANSiteXML();
-            siteXML.setScanSite(site);
-            siteXML.setMenuLocation(RadarsInUseUtil.LOCAL_CONSTANT);
+            if (i < 12) { // no more than 12 radars in scan config
+                SCANSiteXML siteXML = new SCANSiteXML();
+                siteXML.setScanSite(site);
+                siteXML.setMenuLocation(RadarsInUseUtil.LOCAL_CONSTANT);
 
-            for (DATA_TYPE param : DATA_TYPE.values()) {
-                SCANModelParameterXML paramXML = new SCANModelParameterXML();
-                paramXML.setParameterName(param.getType());
-                paramXML.setModelName(modelDefault);
-                siteXML.addModelParameter(paramXML);
+                for (DATA_TYPE param : DATA_TYPE.values()) {
+                    SCANModelParameterXML paramXML = new SCANModelParameterXML();
+                    paramXML.setParameterName(param.getType());
+                    paramXML.setModelName(modelDefault);
+                    siteXML.addModelParameter(paramXML);
+                }
+
+                configXml.addSite(siteXML);
+                i++;
             }
-
-            configXml.addSite(siteXML);
-        }
-
-        for (String site : dialsites) {
-            SCANSiteXML siteXML = new SCANSiteXML();
-            siteXML.setScanSite(site);
-            siteXML.setMenuLocation(RadarsInUseUtil.DIAL_CONSTANT);
-
-            for (DATA_TYPE param : DATA_TYPE.values()) {
-                SCANModelParameterXML paramXML = new SCANModelParameterXML();
-                paramXML.setParameterName(param.getType());
-                paramXML.setModelName(modelDefault);
-                siteXML.addModelParameter(paramXML);
-            }
-
-            configXml.addSite(siteXML);
         }
 
         saveConfigXml();
