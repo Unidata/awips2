@@ -56,6 +56,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RegistryEvent.Action;
@@ -71,11 +74,11 @@ import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
 import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
 import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
 import com.raytheon.uf.edex.registry.ebxml.constants.StatusTypes;
+import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -95,13 +98,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * Sep 14, 2012 1169       djohnson     Throw exception when object exists during create only mode.
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-
+@Transactional
 public class LifecycleManagerImpl implements LifecycleManager {
 
     /** The logger */
@@ -119,7 +123,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
     private CatalogerImpl cataloger;
 
     /** The registry object data access object */
-    private RegistryObjectTypeDao registryObjectDao;
+    private RegistryObjectDao registryObjectDao;
 
     private AuditTrailManager auditTrailMgr;
 
@@ -258,13 +262,16 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 event.setAction(Action.DELETE);
                 event.setLid(obj.getLid());
                 event.setObjectType(objectType);
-                RegistrySessionManager.postEvent(event);
+                EventBus.publish(event);
+                // RegistrySessionManager.postEvent(event);
             }
 
+            EventBus.publish(new RegistryStatisticsEvent(obj.getObjectType(),
+                    obj.getStatus(), obj.getOwner(), avTimePerRecord));
             // all registry removals are logged for statistics
-            RegistrySessionManager.postEvent(new RegistryStatisticsEvent(obj
-                    .getObjectType(), obj.getStatus(), obj.getOwner(),
-                    avTimePerRecord));
+            // RegistrySessionManager.postEvent(new RegistryStatisticsEvent(obj
+            // .getObjectType(), obj.getStatus(), obj.getOwner(),
+            // avTimePerRecord));
         }
 
         return response;
@@ -373,15 +380,22 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
         // gives a close estimate to amount taken on each object
         // individually, this will be millis in most cases, hopefully
-        long avTimePerRecord = totalTime / objs.size();
-
-        for (RegistryObjectType obj : objs) {
-            RegistrySessionManager.postEvent(new InsertRegistryEvent(obj
-                    .getId(), obj.getLid(), obj.getObjectType()));
-            // also log a statistical event
-            RegistrySessionManager.postEvent(new RegistryStatisticsEvent(obj
-                    .getObjectType(), obj.getStatus(), obj.getOwner(),
-                    avTimePerRecord));
+        long avTimePerRecord = 0;
+        if (!objs.isEmpty()) {
+            avTimePerRecord = totalTime / objs.size();
+            for (RegistryObjectType obj : objs) {
+                EventBus.publish(new InsertRegistryEvent(obj.getId(), obj
+                        .getLid(), obj.getObjectType()));
+                // RegistrySessionManager.postEvent(new InsertRegistryEvent(obj
+                // .getId(), obj.getLid(), obj.getObjectType()));
+                // also log a statistical event
+                EventBus.publish(new RegistryStatisticsEvent(obj
+                        .getObjectType(), obj.getStatus(), obj.getOwner(),
+                        avTimePerRecord));
+                // RegistrySessionManager.postEvent(new RegistryStatisticsEvent(
+                // obj.getObjectType(), obj.getStatus(), obj.getOwner(),
+                // avTimePerRecord));
+            }
         }
 
         return response;
@@ -426,20 +440,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
 
         if (!object.getId().equals(originalId)) {
-            RegistryObjectType classResult = null;
-            try {
-                classResult = registryObjectDao.getById(object.getId());
-            } catch (EbxmlRegistryException e) {
-                throw EbxmlExceptionUtil
-                        .createMsgRegistryException(
-                                "Query error encountered while checking references for submitObjects",
-                                QueryExceptionType.class,
-                                "",
-                                "Query error encountered while checking references for submitObjects",
-                                "An error was encountered while querying for an object with an id of ["
-                                        + object.getId() + "]",
-                                ErrorSeverity.ERROR, e, statusHandler);
-            }
+            RegistryObjectType classResult = registryObjectDao.getById(object
+                    .getId());
+
             if (classResult == null) {
                 throw EbxmlExceptionUtil.createMsgRegistryException(
                         "Unresolved reference found",
@@ -551,134 +554,118 @@ public class LifecycleManagerImpl implements LifecycleManager {
             if (obj instanceof TaxonomyElementType) {
                 generatePaths((TaxonomyElementType) obj, "");
             }
-            try {
-                if (obj.getVersionInfo() == null) {
-                    VersionInfoType version = EbxmlObjectUtil
-                            .newVersionObject();
-                    obj.setVersionInfo(version);
-                }
-
-                switch (submitMode) {
-                case CREATE_OR_REPLACE:
-                    if (storedObjects.containsKey(obj.getId())) {
-                        VersionInfoType versionInfo = storedObjects.get(
-                                obj.getId()).getVersionInfo();
-                        obj.setVersionInfo(versionInfo);
-                        obj.setStatus(storedObjects.get(obj.getId())
-                                .getStatus());
-                        statusHandler.info("Object [" + obj.getId()
-                                + "] replaced in the registry.");
-                        registryObjectDao
-                                .delete(storedObjects.get(obj.getId()));
-                        objsUpdated.add(obj);
-
-                    } else {
-                        obj.setStatus(StatusTypes.APPROVED);
-                        obj.setVersionInfo(EbxmlObjectUtil.newVersionObject());
-                        statusHandler.info("Object [" + obj.getId()
-                                + "] added to the registry.");
-                        objsCreated.add(obj);
-                    }
-                    break;
-                case CREATE_OR_VERSION:
-                    if (storedObjects.containsKey(obj.getId())) {
-                        VersionInfoType versionInfo = dbObjects.get(0)
-                                .getVersionInfo();
-                        obj.setVersionInfo(EbxmlObjectUtil
-                                .getNewVersion(versionInfo));
-                        obj.setStatus(storedObjects.get(obj.getId())
-                                .getStatus());
-                        statusHandler.info("Object [" + obj.getId()
-                                + "] versioned in the registry.");
-                        obj.setId(EbxmlObjectUtil.getUUID());
-                        AssociationType versionAssociation = EbxmlObjectUtil.rimObjectFactory
-                                .createAssociationType();
-                        String idUUID = EbxmlObjectUtil.getUUID();
-                        versionAssociation.setId(idUUID);
-                        versionAssociation.setLid(idUUID);
-                        versionAssociation.setName(RegistryUtil
-                                .getInternationalString("Version Association"));
-                        versionAssociation.setDescription(RegistryUtil
-                                .getInternationalString(obj.getId()
-                                        + " Supersedes "
-                                        + dbObjects.get(0).getId()));
-                        versionAssociation
-                                .setOwner(dbObjects.get(0).getOwner());
-                        versionAssociation
-                                .setObjectType(RegistryObjectTypes.ASSOCIATION);
-                        versionAssociation.setSourceObject(obj.getId());
-                        versionAssociation.setTargetObject(dbObjects.get(0)
-                                .getId());
-                        versionAssociation.setStatus(StatusTypes.APPROVED);
-                        versionAssociation.setType(AssociationTypes.SUPERSEDES);
-                        versionAssociation.setVersionInfo(EbxmlObjectUtil
-                                .newVersionObject());
-                        registryObjectDao.save(versionAssociation);
-                        objsVersioned.add(obj);
-                        statusHandler
-                                .info("Supersedes association for new version of ["
-                                        + obj.getId()
-                                        + "] persisted to the registry");
-                    } else {
-                        if (!dbObjects.isEmpty()) {
-                            EbxmlExceptionUtil
-                                    .createRegistryException(
-                                            InvalidRequestExceptionType.class,
-                                            "",
-                                            "Invalid submit request",
-                                            "The submitted id does not exist, yet the lid does.  This is an invalid request",
-                                            ErrorSeverity.ERROR, statusHandler);
-                            continue;
-                        }
-                        obj.setStatus(StatusTypes.APPROVED);
-                        obj.setVersionInfo(EbxmlObjectUtil.newVersionObject());
-                        statusHandler.info("Object [" + obj.getId()
-                                + "] added to the registry.");
-                        objsCreated.add(obj);
-                    }
-                    break;
-                case CREATE_ONLY:
-                    if (storedObjects.containsKey(obj.getId())) {
-                        String message = "Object with id [" + obj.getId()
-                                + "] already exists";
-                        response.getException()
-                                .add(EbxmlExceptionUtil
-                                        .createRegistryException(
-                                                ObjectExistsExceptionType.class,
-                                                "",
-                                                message,
-                                                "The "
-                                                        + Mode.CREATE_ONLY
-                                                        + " submit mode only accepts new objects",
-                                                ErrorSeverity.ERROR,
-                                                statusHandler));
-
-                        throw EbxmlExceptionUtil
-                                .createMsgRegistryException(message,
-                                        ObjectExistsExceptionType.class, "",
-                                        message, "Error submitting object ["
-                                                + obj.getId() + "]",
-                                        ErrorSeverity.ERROR, null,
-                                        statusHandler);
-
-                    } else {
-                        obj.setVersionInfo(EbxmlObjectUtil.newVersionObject());
-                        obj.setStatus(StatusTypes.APPROVED);
-                        statusHandler.info("Object [" + obj.getId()
-                                + "] added to the registry.");
-                        objsCreated.add(obj);
-                    }
-
-                    break;
-                }
-                registryObjectDao.save(obj);
-            } catch (EbxmlRegistryException e) {
-                throw EbxmlExceptionUtil.createMsgRegistryException(
-                        "Database submission error", QueryExceptionType.class,
-                        "", "Database submission error",
-                        "Error submitting object [" + obj.getId() + "]",
-                        ErrorSeverity.ERROR, e, statusHandler);
+            if (obj.getVersionInfo() == null) {
+                VersionInfoType version = new VersionInfoType();
+                obj.setVersionInfo(version);
             }
+
+            switch (submitMode) {
+            case CREATE_OR_REPLACE:
+                if (storedObjects.containsKey(obj.getId())) {
+                    VersionInfoType versionInfo = storedObjects
+                            .get(obj.getId()).getVersionInfo();
+                    obj.setVersionInfo(versionInfo);
+                    obj.setStatus(storedObjects.get(obj.getId()).getStatus());
+                    statusHandler.info("Object [" + obj.getId()
+                            + "] replaced in the registry.");
+                    registryObjectDao.delete(storedObjects.get(obj.getId()));
+                    objsUpdated.add(obj);
+
+                } else {
+                    obj.setStatus(StatusTypes.APPROVED);
+                    obj.setVersionInfo(new VersionInfoType());
+                    statusHandler.info("Object [" + obj.getId()
+                            + "] added to the registry.");
+                    objsCreated.add(obj);
+                }
+                break;
+            case CREATE_OR_VERSION:
+                if (storedObjects.containsKey(obj.getId())) {
+                    VersionInfoType versionInfo = dbObjects.get(0)
+                            .getVersionInfo();
+                    obj.setVersionInfo(EbxmlObjectUtil
+                            .incrementVersion(versionInfo));
+                    obj.setStatus(storedObjects.get(obj.getId()).getStatus());
+                    statusHandler.info("Object [" + obj.getId()
+                            + "] versioned in the registry.");
+                    obj.setId(EbxmlObjectUtil.getUUID());
+                    AssociationType versionAssociation = EbxmlObjectUtil.rimObjectFactory
+                            .createAssociationType();
+                    String idUUID = EbxmlObjectUtil.getUUID();
+                    versionAssociation.setId(idUUID);
+                    versionAssociation.setLid(idUUID);
+                    versionAssociation.setName(RegistryUtil
+                            .getInternationalString("Version Association"));
+                    versionAssociation
+                            .setDescription(RegistryUtil
+                                    .getInternationalString(obj.getId()
+                                            + " Supersedes "
+                                            + dbObjects.get(0).getId()));
+                    versionAssociation.setOwner(dbObjects.get(0).getOwner());
+                    versionAssociation
+                            .setObjectType(RegistryObjectTypes.ASSOCIATION);
+                    versionAssociation.setSourceObject(obj.getId());
+                    versionAssociation
+                            .setTargetObject(dbObjects.get(0).getId());
+                    versionAssociation.setStatus(StatusTypes.APPROVED);
+                    versionAssociation.setType(AssociationTypes.SUPERSEDES);
+                    versionAssociation.setVersionInfo(new VersionInfoType());
+                    registryObjectDao.create(versionAssociation);
+                    objsVersioned.add(obj);
+                    statusHandler
+                            .info("Supersedes association for new version of ["
+                                    + obj.getId()
+                                    + "] persisted to the registry");
+                } else {
+                    if (!dbObjects.isEmpty()) {
+                        EbxmlExceptionUtil
+                                .createRegistryException(
+                                        InvalidRequestExceptionType.class,
+                                        "",
+                                        "Invalid submit request",
+                                        "The submitted id does not exist, yet the lid does.  This is an invalid request",
+                                        ErrorSeverity.ERROR, statusHandler);
+                        continue;
+                    }
+                    obj.setStatus(StatusTypes.APPROVED);
+                    obj.setVersionInfo(new VersionInfoType());
+                    statusHandler.info("Object [" + obj.getId()
+                            + "] added to the registry.");
+                    objsCreated.add(obj);
+                }
+                break;
+            case CREATE_ONLY:
+                if (storedObjects.containsKey(obj.getId())) {
+                    String message = "Object with id [" + obj.getId()
+                            + "] already exists";
+                    response.getException()
+                            .add(EbxmlExceptionUtil
+                                    .createRegistryException(
+                                            ObjectExistsExceptionType.class,
+                                            "",
+                                            message,
+                                            "The "
+                                                    + Mode.CREATE_ONLY
+                                                    + " submit mode only accepts new objects",
+                                            ErrorSeverity.ERROR, statusHandler));
+
+                    throw EbxmlExceptionUtil.createMsgRegistryException(
+                            message, ObjectExistsExceptionType.class, "",
+                            message, "Error submitting object [" + obj.getId()
+                                    + "]", ErrorSeverity.ERROR, null,
+                            statusHandler);
+
+                } else {
+                    obj.setVersionInfo(new VersionInfoType());
+                    obj.setStatus(StatusTypes.APPROVED);
+                    statusHandler.info("Object [" + obj.getId()
+                            + "] added to the registry.");
+                    objsCreated.add(obj);
+                }
+
+                break;
+            }
+            registryObjectDao.create(obj);
 
             // TODO: Implement proper cataloging of objects accorind to EbXML
             // spec
@@ -764,16 +751,16 @@ public class LifecycleManagerImpl implements LifecycleManager {
         this.validator = validator;
     }
 
-    public void setRegistryObjectDao(RegistryObjectTypeDao registryObjectDao) {
-        this.registryObjectDao = registryObjectDao;
-    }
-
     public void setAuditTrailMgr(AuditTrailManager auditTrailMgr) {
         this.auditTrailMgr = auditTrailMgr;
     }
 
     public void setCataloger(CatalogerImpl cataloger) {
         this.cataloger = cataloger;
+    }
+
+    public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
+        this.registryObjectDao = registryObjectDao;
     }
 
 }
