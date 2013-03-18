@@ -155,6 +155,9 @@
 			<param name="omit"
 				value="true" />
 		</antcall>
+		<!-- 
+			we will still build this for the MSFT Windows CAVE. 
+		-->
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.common.base.feature" />
@@ -460,20 +463,32 @@
 				</delete>
 			</then>
 		</if>
-
-                <!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
-                <if>
-                        <available
-                                file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
-                                type="dir" />
-                        <then>
-                                <delete includeemptydirs="true">
-                                        <fileset
-                                                dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
-                                        />
-                                </delete>
-                        </then>
-                </if>
+		<!-- Remove 'com.raytheon.uf.common.base.feature' -->
+		<if>
+			<available 
+				file="${basedir}/cave/p2/features/com.raytheon.uf.common.base.feature" 
+				type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset 
+						dir="${basedir}/cave/p2/features/com.raytheon.uf.common.base.feature" 
+					/>
+				</delete>
+			</then>
+		</if>
+        <!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
+        <if>
+            <available
+                file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
+                type="dir" />
+            <then>
+                <delete includeemptydirs="true">
+                    <fileset
+                        dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
+                    />
+                </delete>
+            </then>
+        </if>
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 
