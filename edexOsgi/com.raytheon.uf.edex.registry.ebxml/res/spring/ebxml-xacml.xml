@@ -618,7 +618,9 @@
 	<bean id="AnyURIEqual"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.function.impl.AnyURIEqual" />
 	<bean id="MatchesRole"
-		class="com.raytheon.uf.edex.registry.acp.xacml.engine.function.impl.MatchesRole" />
+		class="com.raytheon.uf.edex.registry.acp.xacml.engine.function.impl.MatchesRole">
+		<property name="roleDao" ref="roleDao" />
+	</bean>
 	<bean id="DoubleGreaterThanOrEqual"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.function.impl.DoubleGreaterThanOrEqual" />
 	<bean id="BooleanBag"
@@ -724,7 +726,9 @@
 	<bean id="FunctionExpression"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.FunctionExpression" />
 	<bean id="SubjectAttributeDesignatorExpression"
-		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.SubjectAttributeDesignatorExpression" />
+		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.SubjectAttributeDesignatorExpression">
+		<property name="xacmlContextHandler" ref="XACMLContextHandler" />
+	</bean>
 	<bean id="ApplyExpression"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.ApplyExpression" />
 	<bean id="AttributeSelectorExpression"
@@ -776,7 +780,9 @@
 	<bean id="EvironmentEvaluator"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.policy.impl.EvironmentEvaluator" />
 	<bean id="IdReferenceEvaluator"
-		class="com.raytheon.uf.edex.registry.acp.xacml.engine.policy.impl.IdReferenceEvaluator" />
+		class="com.raytheon.uf.edex.registry.acp.xacml.engine.policy.impl.IdReferenceEvaluator">
+		<property name="xacmlPolicyAdmin" ref="XACMLPolicyAdministrator" />
+	</bean>
 	<bean id="RuleEvaluator"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.policy.impl.RuleEvaluator" />
 	<bean id="ActionEvaluator"

@@ -27,6 +27,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -65,11 +67,11 @@ public class GetNotification extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.START_TIME);
     }
 
+    private RegistryObjectTypeDao<SubscriptionType> subscriptionDao;
+
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao subscriptionDao = new RegistryObjectTypeDao(
-                SubscriptionType.class);
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -94,7 +96,12 @@ public class GetNotification extends CanonicalEbxmlQuery {
                     QueryConstants.START_TIME, HqlQueryUtil.EQUALS,
                     startTime.toString());
         }
-        return subscriptionDao.executeHQLQuery(query);
+        try {
+            return (List<T>) subscriptionDao.executeHQLQuery(query);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException(
+                    "Error executing GetNotification!", e);
+        }
     }
 
     @Override
@@ -106,4 +113,10 @@ public class GetNotification extends CanonicalEbxmlQuery {
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
     }
+
+    public void setSubscriptionDao(
+            RegistryObjectTypeDao<SubscriptionType> subscriptionDao) {
+        this.subscriptionDao = subscriptionDao;
+    }
+
 }
