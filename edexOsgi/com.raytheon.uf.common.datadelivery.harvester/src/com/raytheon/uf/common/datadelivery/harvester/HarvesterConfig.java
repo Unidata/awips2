@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.harvester.config;
+package com.raytheon.uf.common.datadelivery.harvester;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
