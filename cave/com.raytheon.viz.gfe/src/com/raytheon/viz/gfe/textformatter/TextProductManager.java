@@ -59,6 +59,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * May 1, 2009            njensen     Initial creation
  * Jan 15, 2010  3395     ryu         Fix &quot;issued by&quot; functionality
+ * Mar 07, 2013  15717    jzeng       Change CAVE_STATIC to COMMON_STATIC
  * 
  * </pre>
  * 
@@ -100,11 +101,11 @@ public class TextProductManager {
     private void init() throws VizException, JepException {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext configContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         LocalizationContext siteContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationContext userContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
 
         lfConfigDir = pm.getLocalizationFile(configContext,
                 GfePyIncludeUtil.TEXT_PRODUCTS);

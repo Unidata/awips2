@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Jun 25, 2010            mschenke     Initial creation
  * Aug 20, 2012  #1081     dgilling     Don't pass -server and -site args
  *                                      to python script.
+ * Mar 10, 2013  #15717    jzeng        Change CAVE_STATIC to COMMON_STATIC                               
  * 
  * </pre>
  * 
@@ -96,7 +97,7 @@ public class GfeClient extends AbstractCAVEComponent {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
 
         LocalizationContext baseContext = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
 
         String pyVizDir = pathMgr.getFile(baseContext, "pyViz").getPath();
 
