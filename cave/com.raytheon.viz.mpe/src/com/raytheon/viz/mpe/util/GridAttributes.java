@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 9, 2011            snaples     Initial creation
+ * Mar 5, 2013  15884      wkwock      gridPointLL and gridPointUR should be integer
  * 
  * </pre>
  * 
@@ -119,9 +120,10 @@ public class GridAttributes {
             if (rfcid.length() != 0) {
                 commonGridAttributes.siteID = rfcid;
             }
-            commonGridAttributes.gridPointLL = new Coordinate(XOR, YOR);
-            commonGridAttributes.gridPointUR = new Coordinate(
-                    (XOR + hrap_grid.maxi), (YOR + hrap_grid.maxj));
+            commonGridAttributes.gridPointLL[0] = XOR;
+            commonGridAttributes.gridPointLL[1] = YOR;
+            commonGridAttributes.gridPointUR[0] = XOR + hrap_grid.maxi;
+            commonGridAttributes.gridPointUR[1] = YOR + hrap_grid.maxj;
 
             gridType = apps_defaults.getToken("mpe_dqc_gridtype");
             if (gridType.length() != 0) {
