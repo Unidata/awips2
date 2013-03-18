@@ -51,6 +51,8 @@ import org.opensaml.xacml.ctx.impl.RequestTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.ResourceTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.SubjectTypeImplBuilder;
 import org.opensaml.xacml.policy.ObligationType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.IRegistryRequest;
 import com.raytheon.uf.common.registry.IRegistryRequest.Action;
@@ -65,7 +67,7 @@ import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLNotApplicableExcep
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLProcessingException;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil;
 import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -85,36 +87,28 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
  * Oct 01, 2012 1187         djohnson    Commented out code throwing {@link ClassCastException}s.
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Service
+@Transactional
 public class XACMLContextHandler {
 
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(XACMLContextHandler.class);
 
-    /** The singleton instance */
-    private static XACMLContextHandler instance = new XACMLContextHandler();
-
     private QueryManagerImpl queryManager;
 
-    /**
-     * Private constructor
-     */
-    private XACMLContextHandler() {
+    private XACMLPolicyAdministrator xacmlPolicyAdmin;
 
-    }
+    private RegistryObjectDao registryObjectDao;
 
-    /**
-     * Gets the singleton instance of the XACMLContextHandler
-     * 
-     * @return The singleton instance of the XACMLContextHandler
-     */
-    public static XACMLContextHandler getInstance() {
-        return instance;
+    public XACMLContextHandler() {
+
     }
 
     /**
@@ -133,10 +127,8 @@ public class XACMLContextHandler {
 
         RequestType request = constructRequest(userName, object);
 
-        XACMLObject policy = XACMLPolicyAdministrator
-                .getInstance()
-                .getPolicyObject(
-                        "urn:oasis:names:tc:xacml:2.0:data-delivery:default-policySet");
+        XACMLObject policy = xacmlPolicyAdmin
+                .getPolicyObject("urn:oasis:names:tc:xacml:2.0:data-delivery:default-policySet");
         XACMLPolicyDecisionPoint pdp = new XACMLPolicyDecisionPoint(policy,
                 request);
 
@@ -325,7 +317,7 @@ public class XACMLContextHandler {
         for (ObjectRefType ref : refs) {
             ids.add(ref.getId());
         }
-        return new RegistryObjectTypeDao().getById(ids);
+        return registryObjectDao.getById(ids);
 
     }
 
@@ -353,14 +345,8 @@ public class XACMLContextHandler {
             attrName = attrTokens[attrTokens.length - 1];
         }
 
-        Object repoItem = null;
-        try {
-            repoItem = new RegistryObjectTypeDao().getById(objId.toString());
-        } catch (EbxmlRegistryException e) {
-            throw new XACMLProcessingException(
-                    "Unable to fetch attribute from repository object. Error querying for resource",
-                    e);
-        }
+        Object repoItem = registryObjectDao.getById(objId.toString());
+
         if (repoItem == null) {
             throw new XACMLProcessingException(
                     "Unable to fetch attribute from repository object. No object exists with id ["
@@ -385,6 +371,14 @@ public class XACMLContextHandler {
 
     public void setQueryManager(QueryManagerImpl queryManager) {
         this.queryManager = queryManager;
+    }
+
+    public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
+        this.registryObjectDao = registryObjectDao;
+    }
+
+    public void setXacmlPolicyAdmin(XACMLPolicyAdministrator xacmlPolicyAdmin) {
+        this.xacmlPolicyAdmin = xacmlPolicyAdmin;
     }
 
 }

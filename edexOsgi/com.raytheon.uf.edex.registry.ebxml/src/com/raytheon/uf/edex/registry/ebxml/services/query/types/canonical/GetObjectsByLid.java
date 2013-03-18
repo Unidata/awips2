@@ -27,6 +27,7 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -93,8 +95,12 @@ public class GetObjectsByLid extends CanonicalEbxmlQuery {
         }
         HqlQueryUtil.assembleSingleParamQuery(query, RegistryObjectType.class,
                 QueryConstants.LID, HqlQueryUtil.IN, lids);
-        query.append(" order by obj.lid asc,obj.versionInfo.versionNumber desc");
-        return registryObjectDao.executeHQLQuery(query);
+        query.append(" order by obj.lid asc,obj.versionInfo.versionName desc");
+        try {
+            return (List<T>) registryObjectDao.executeHQLQuery(query);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Error executing GetObjectsByLid");
+        }
     }
 
     @Override

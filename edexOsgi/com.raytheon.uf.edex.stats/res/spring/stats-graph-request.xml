@@ -9,5 +9,6 @@
     <bean factory-bean="handlerRegistry" factory-method="register">
     	<constructor-arg value="com.raytheon.uf.common.stats.GraphDataRequest"/>
      	<constructor-arg ref="statsGraphDataHandler"/>
+     	<property name="aggregateRecordDao" ref="aggregateRecordDao"/>
     </bean>
 </beans>
