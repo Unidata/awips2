@@ -115,7 +115,6 @@ public abstract class AbstractRequestableResourceData extends
                 PluginDataObject record = RecordFactory.getInstance()
                         .loadRecordFromUri(dataURI);
                 objectToSend = record;
-
             } else {
                 attribs.put("dataURI", message.dataURI);
                 objectToSend = Loader.loadData(attribs);
@@ -444,13 +443,8 @@ public abstract class AbstractRequestableResourceData extends
      */
     public PluginDataObject[] getLatestPluginDataObjects(DataTime[] desired,
             DataTime[] current) throws VizException {
-        if (desired == null || desired.length == 0 || !this.retrieveData) {
-            return new PluginDataObject[0];
-        }
-
-        // If resource is handling requests itself, do not send full record
-        // updates
-        if (isUpdatingOnMetadataOnly() || !isRequeryNecessaryOnTimeMatch()) {
+        if (desired == null || desired.length == 0 || !isRetrieveData()
+                || !isRequeryNecessaryOnTimeMatch()) {
             return new PluginDataObject[0];
         }
 

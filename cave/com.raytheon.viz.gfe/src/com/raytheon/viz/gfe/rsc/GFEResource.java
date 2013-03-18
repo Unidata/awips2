@@ -158,8 +158,9 @@ import com.vividsolutions.jts.geom.Envelope;
  * 03/01/2008              chammack    Initial Creation.
  * Aug 20, 2008            dglazesk    Update for the ColorMap interface change
  * Nov 23, 2011            mli         set vector lineStyle
- * May 11, 2012            njensen    Allow rsc to be recycled
+ * May 11, 2012            njensen     Allow rsc to be recycled
  * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
+ * Mar 04, 2013 1637       randerso    Fix time matching for ISC grids
  * 
  * </pre>
  * 
@@ -455,7 +456,14 @@ public class GFEResource extends
             PaintProperties paintProps) throws VizException {
 
         GFEPaintProperties myPaintProps = (GFEPaintProperties) paintProps;
-        this.curTime = myPaintProps.getDataTime();
+
+        // TODO: Time matching changes for Hazard Services broke display of ISC
+        // grids when in ISC mode with no Fcst grid present. This fixes the
+        // issue for now but will need to be resolved for Hazard Services
+
+        // this.curTime = myPaintProps.getDataTime();
+        this.curTime = new DataTime(this.dataManager.getSpatialDisplayManager()
+                .getSpatialEditorTime());
 
         if (curTime == null) {
             return;
@@ -585,8 +593,9 @@ public class GFEResource extends
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         vectorSlice = new VectorGridSlice();
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                new GridID(this.parm, this.curTime
-                                        .getValidPeriod().getStart()), true,
+                                new GridID(this.parm, this.dataManager
+                                        .getSpatialDisplayManager()
+                                        .getSpatialEditorTime()), true,
                                 vectorSlice);
                     }
 
@@ -655,8 +664,9 @@ public class GFEResource extends
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         scalarSlice = new ScalarGridSlice();
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                new GridID(this.parm, this.curTime
-                                        .getValidPeriod().getStart()), true,
+                                new GridID(this.parm, this.dataManager
+                                        .getSpatialDisplayManager()
+                                        .getSpatialEditorTime()), true,
                                 scalarSlice);
 
                     }
@@ -701,8 +711,9 @@ public class GFEResource extends
 
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         slice = new DiscreteGridSlice();
-                        GridID gid = new GridID(parm, this.curTime
-                                .getValidPeriod().getStart());
+                        GridID gid = new GridID(parm, this.dataManager
+                                .getSpatialDisplayManager()
+                                .getSpatialEditorTime());
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
                                 gid, true, slice);
                     }
@@ -784,8 +795,9 @@ public class GFEResource extends
 
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         slice = new WeatherGridSlice();
-                        GridID gid = new GridID(parm, this.curTime
-                                .getValidPeriod().getStart());
+                        GridID gid = new GridID(parm, this.dataManager
+                                .getSpatialDisplayManager()
+                                .getSpatialEditorTime());
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
                                 gid, true, slice);
                     }
