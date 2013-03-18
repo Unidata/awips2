@@ -28,8 +28,11 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.cwat.CWATRecord;
 import com.raytheon.uf.common.dataplugin.cwat.dao.CWATDao;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
+import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
+import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
+import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -37,8 +40,26 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.plugin.cwat.common.CWATConfig;
 
-public class CWATGenerator extends CompositeProductGenerator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+/**
+ * CWATGenerator Product
+ * 
+ * CWAT files for use in EDEX.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 02/25/13     1660       D. Hladky Fixed configuration bug in scan.
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
+
+public class CWATGenerator extends CompositeProductGenerator implements
+        MonitorConfigListener {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CWATGenerator.class);
 
     private static final String genName = "CWAT";
@@ -47,6 +68,9 @@ public class CWATGenerator extends CompositeProductGenerator {
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
+    
+    /** run configuration manager **/
+    public SCANRunSiteConfigurationManager srcm = null;
 
     /**
      * Public CWAT constructor
@@ -61,12 +85,24 @@ public class CWATGenerator extends CompositeProductGenerator {
     @Override
     protected void configureFilters() {
 
-        statusHandler.handle(Priority.INFO, "Process Filter Config...");
-        // read this from localization eventually
-        icaos = new HashSet<String>(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.LOCAL_CONSTANT));
-        icaos.addAll(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.DIAL_CONSTANT));
+        statusHandler.handle(Priority.INFO, getGeneratorName()
+                + " process Filter Config...");
+
+        try {
+            getRunConfig().readConfigXml();
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't read CWAT(scan) configuration!!!", e);
+        }
+        boolean configValid = getRunConfig().isPopulated();
+
+        if (!configValid) {
+            statusHandler.handle(Priority.WARN,
+            "Configuration for CWAT(scan) is invalid!!!");
+            return;
+        }
+
+        icaos = new HashSet<String>(getRunConfig().getSiteNames());
     }
 
     @Override
@@ -82,7 +118,7 @@ public class CWATGenerator extends CompositeProductGenerator {
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
                         "Couldn't create CWAT Filter.." + icao
-                                + " is not a viable RADAR site.");
+                                + " is not a viable RADAR site.", e);
                 iter.remove();
             }
         }
@@ -97,8 +133,7 @@ public class CWATGenerator extends CompositeProductGenerator {
                 cwa_config = new CWATConfig(genMessage, this);
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "CWAT Configuration parameters for run not met...");
-                e.printStackTrace();
+                        "CWAT Configuration parameters for run not met...",e);
                 return;
 
             }
@@ -148,5 +183,27 @@ public class CWATGenerator extends CompositeProductGenerator {
     @Override
     public boolean isRunning() {
         return getConfigManager().getCWATState();
+    }
+
+    @Override
+    public void configChanged(MonitorConfigEvent fce) {
+        if (fce.getSource() instanceof SCANRunSiteConfigurationManager) {
+            statusHandler.handle(Priority.INFO,
+                    "Re-configuring CWAT URI filters...Run Site Config change");
+            resetFilters();
+        }
+    }
+    
+    /**
+     * run config manager
+     * 
+     * @return
+     */
+    public SCANRunSiteConfigurationManager getRunConfig() {
+        if (srcm == null) {
+            srcm = SCANRunSiteConfigurationManager.getInstance();
+            srcm.addListener(this);
+        }
+        return srcm;
     }
 }

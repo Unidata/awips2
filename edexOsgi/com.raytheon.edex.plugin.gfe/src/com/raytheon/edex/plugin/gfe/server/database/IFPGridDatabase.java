@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +114,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     Added performance logging
  * 02/12/13     #1608      randerso    Changed to explicitly call deleteGroups
  * 03/07/13     #1737      njensen      Logged getGridData times
+ * 03/15/13     #1795      njensen      Added updatePublishTime()
  * 
  * </pre>
  * 
@@ -1174,6 +1176,7 @@ public class IFPGridDatabase extends GridDatabase {
     }
 
     @Override
+    @Deprecated
     public ServerResponse<?> updateGridHistory(ParmID parmId,
             Map<TimeRange, List<GridDataHistory>> history) {
         ServerResponse<?> sr = new ServerResponse<String>();
@@ -1188,7 +1191,6 @@ public class IFPGridDatabase extends GridDatabase {
                     "Unable to update grid history!!", e);
         }
         return sr;
-
     }
 
     /**
@@ -2481,8 +2483,25 @@ public class IFPGridDatabase extends GridDatabase {
                     Priority.PROBLEM,
                     "Error deleting GFE model data from hdf5 for "
                             + dbId.toString(), e);
-
         }
+    }
+
+    @Override
+    public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
+            Date publishTime) {
+        ServerResponse<?> sr = new ServerResponse<String>();
+        GFEDao dao = null;
+        try {
+            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
+            dao.updatePublishTime(history, publishTime);
+        } catch (PluginException e1) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e1);
+        } catch (DataAccessLayerException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to update grid history!", e);
+            sr.addMessage("Error updating history");
+        }
+        return sr;
     }
 
 }
