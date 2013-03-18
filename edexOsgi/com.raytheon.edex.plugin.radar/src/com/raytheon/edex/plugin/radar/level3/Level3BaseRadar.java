@@ -157,8 +157,6 @@ public class Level3BaseRadar {
 
     private TabularBlock tabularBlock;
 
-    private String alphanumericValues;
-
     private GSMBlock gsmBlock;
 
     private AlertAdaptationParameters aapMessage;
@@ -584,45 +582,6 @@ public class Level3BaseRadar {
         return tabBlock;
     }
 
-    private String readAlphanumericAddOn() throws IOException {
-        if (theRadarData.available() != 0 && symbologyBlock == null) {
-            short temp = theRadarData.readShort();
-            while (theRadarData.available() != 0 && temp != -1) {
-                temp = theRadarData.readShort();
-            }
-        }
-        if (theRadarData.available() != 0 && graphicBlock == null) {
-            short temp = theRadarData.readShort();
-            while (theRadarData.available() != 0 && temp != -1) {
-                temp = theRadarData.readShort();
-            }
-        }
-        if (theRadarData.available() != 0 && tabularBlock == null) {
-            short temp = theRadarData.readShort();
-            while (theRadarData.available() != 0 && temp != -1) {
-                temp = theRadarData.readShort();
-            }
-        }
-
-        int lineLen = theRadarData.available();
-        if (lineLen > 0) {
-            byte[] buf = new byte[lineLen];
-            theRadarData.readFully(buf);
-            String temp = new String(buf);
-            // PSM is found in all products that have useful Site Adaptation
-            // Parameters. For this reason, we are dropping every other set of
-            // Site Adaptation Parameters.
-            if (temp.contains("PSM")) {
-                temp = temp.substring(temp.indexOf("PSM"));
-            } else {
-                temp = "";
-            }
-            return temp;
-        } else {
-            return "";
-        }
-    }
-
     /**
      * 
      * @return
@@ -695,10 +654,6 @@ public class Level3BaseRadar {
      */
     public TabularBlock getTabularBlock() {
         return tabularBlock;
-    }
-
-    public String getAlphanumericValues() {
-        return alphanumericValues;
     }
 
     /**
@@ -828,7 +783,6 @@ public class Level3BaseRadar {
             symbologyBlock = readSymbologyBlock(symbologyBlockOffset);
             graphicBlock = readGraphicBlock(graphicBlockOffset);
             tabularBlock = readTabularBlock(tabularBlockOffset);
-            alphanumericValues = readAlphanumericAddOn();
         }
 
         if (tabularBlock != null) {
