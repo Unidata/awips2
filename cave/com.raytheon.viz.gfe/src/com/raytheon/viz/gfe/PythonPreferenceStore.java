@@ -55,6 +55,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2009            njensen     Initial creation
  * Jun 22, 2011  9897      ryu         allow new GFE config and send notification
+ * Mar 06  2013  15717     jzeng       Change CAVE_STATIC to COMMON_STATIC
+ *                                     for GFE localization files
  * 
  * </pre>
  * 
@@ -88,7 +90,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
 	public void loadConfiguration(String configName) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         String utilityDir = pathMgr.getFile(
-                pathMgr.getContext(LocalizationType.CAVE_STATIC,
+                pathMgr.getContext(LocalizationType.COMMON_STATIC,
                         LocalizationLevel.BASE),
                 com.raytheon.uf.common.util.FileUtil.join("gfe", "utility"))
                 .getPath();
