@@ -234,14 +234,6 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
-				value="com.raytheon.uf.viz.ncep.displays.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
-				value="com.raytheon.uf.viz.ncep.nsharp.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
 				value="com.raytheon.viz.avnfps.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -251,6 +243,14 @@
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.d2d.xy.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.ncep.displays.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.ncep.nsharp.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
