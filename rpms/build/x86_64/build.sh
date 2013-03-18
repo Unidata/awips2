@@ -134,6 +134,7 @@ if [ "${1}" = "-postgres" ]; then
 fi
 
 if [ "${1}" = "-delta" ]; then
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -164,6 +165,7 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -229,6 +231,7 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-viz" ]; then
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -239,6 +242,7 @@ if [ "${1}" = "-viz" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
+   buildRPM "awips2-common-base"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
