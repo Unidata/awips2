@@ -22,10 +22,10 @@ package com.raytheon.uf.common.dataplugin.radar.util;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.LinkedHashMap;
 
 import org.geotools.referencing.GeodeticCalculator;
 
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
+import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
@@ -55,6 +56,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2010            mnash     Initial creation
  * Dec 28, 2011 11705	   gzhang	 Fix SCAN missing Rows error	
+ * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
+ *                                     HDF5.
  * 
  * </pre>
  * 
@@ -429,7 +432,26 @@ public class RadarRecordUtil {
     
     public static Map<DHRValues, Double> getDHRValues(RadarRecord record) {
         Map<DHRValues, Double> map = new HashMap<DHRValues, Double>();
-        String text = record.getAlphanumericValues();
+        String text = null;
+        SymbologyBlock sb = record.getSymbologyBlock();
+        if (sb != null) {
+            // According to the ICD the alphanumeric data for DHR can be found
+            // in the second layer of the symbology block in a TextSymbolPacketn
+            // with code 1.
+            for (Layer layer : sb.getLayers()) {
+                for (SymbologyPacket packet : layer.getPackets()) {
+                    if (packet instanceof TextSymbolPacket) {
+                        TextSymbolPacket tsp = (TextSymbolPacket) packet;
+                        if (tsp.getTheText().contains("PSM")) {
+                            text = tsp.getTheText();
+                        }
+                    }
+                }
+            }
+        }
+        if (text == null) {
+            return map;
+        }
         int vi = 0;
         int nv = text.length() / 8;
         int precipCat = 0;
