@@ -60,8 +60,8 @@
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			menuText="RUC" id="rucsurface" useReferenceTime="true">
-			<substitute key="modelName" value="RUC236"/>
+			menuText="RAP" id="rapsurface" useReferenceTime="true">
+			<substitute key="modelName" value="${RAPmodel}"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 </menuTemplate>

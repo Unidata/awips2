@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
@@ -64,6 +65,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  *                                     retrieve the requested line style so
  *                                     that it can be stored in the 
  *                                     StormTrackState.
+ * 15Mar2013    15693  mgamazaychikov  Added magnification to display state.
  * 
  * </pre>
  * 
@@ -215,6 +217,9 @@ public abstract class AbstractStormTrackResource extends
                 .getOutlineWidth();
         displayState.lineStyle = getCapability(OutlineCapability.class)
                 .getLineStyle();
+        // set the magnification for the display state
+        displayState.magnification = getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue();
 
         PaintProperties newProps = new StormTrackProperties(paintProps,
                 displayState);
