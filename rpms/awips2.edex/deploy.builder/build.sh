@@ -172,7 +172,8 @@ do
    # do not build edex-datadelivery since it is now built differently from the other edex feature rpms
    # since this is currently the only case, the exclusion will be hard-coded
    
-   if [ ! "${edex_component}" = "edex-datadelivery" ]; then
+   if [ ! "${edex_component}" = "edex-datadelivery" ] &&
+      [ ! "${edex_component}" = "common-base" ]; then
       export COMPONENT_NAME="${edex_component}"
       buildRPM "Installer.edex-component"
    fi
