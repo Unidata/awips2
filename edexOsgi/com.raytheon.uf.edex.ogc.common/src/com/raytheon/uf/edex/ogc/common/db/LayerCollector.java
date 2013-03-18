@@ -26,30 +26,85 @@ package com.raytheon.uf.edex.ogc.common.db;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
+import com.raytheon.uf.common.datadelivery.harvester.OGCAgent;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.DataSetName;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.Levels;
+import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
+import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
-public class LayerCollector {
+/**
+ * 
+ * Layer Collector
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 08/09/2012   754       dhladky      initial creation, based on B Clements original
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
+
+public abstract class LayerCollector<L extends SimpleLayer> {
 
     protected LayerTransformer transformer;
+    
+    protected L layer;
+    
+    protected Coverage coverage;
+    
+    protected HashMap<String,Parameter> parameters = null;
 
-    protected Log log = LogFactory.getLog(this.getClass());
+    protected HarvesterConfig config = null;
+    
+    protected OGCAgent agent = null;
+    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+    .getHandler(LayerCollector.class);
 
     public LayerCollector(LayerTransformer transformer) {
-        this.transformer = transformer;
+        setTransformer(transformer);
+        this.config = (HarvesterConfig) HarvesterConfigurationManager.getOGCConfiguration();
+        setAgent((OGCAgent)config.getAgent());
+        storeProvider(config.getProvider());
+    }
+
+    public HarvesterConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(HarvesterConfig config) {
+        this.config = config;
     }
 
     public <T extends SimpleLayer> void clearLayers(Class<T> c)
@@ -73,7 +128,7 @@ public class LayerCollector {
                 sess.save(layer);
             } else {
                 if (list.size() > 1) {
-                    log.warn("Multiple layers found with same name, using first");
+                    statusHandler.warn("Multiple layers found with same name, using first");
                 }
                 T old = list.get(0);
                 Set<Date> times = old.getTimes();
@@ -111,8 +166,8 @@ public class LayerCollector {
                 }
                 sess.save(layer);
             } else {
-                if (list.size() > 1) {
-                    log.warn("Multiple layers found with same name, using first");
+                if (!list.isEmpty()) {
+                    statusHandler.warn("Multiple layers found with same name, using first");
                 }
                 T old = list.get(0);
                 update(old, layer);
@@ -261,6 +316,198 @@ public class LayerCollector {
         tmp.setTime(d);
         tmp = roundToHour(tmp, cutoff);
         return tmp.getTime();
+    }
+    
+    /**
+     * Find the DPA config
+     * @return
+     */
+    public HarvesterConfig getConfiguration() {
+        return config;
+    }
+        
+    protected Coverage getCoverage() {
+        return coverage;
+    }
+   
+    protected abstract L newLayer();
+    
+    protected abstract void setCoverage(String name);
+
+    /**
+     * Store the DataSetMetaData Object to the registry.
+     * 
+     * @param metaDatas
+     *            The DataSetMetaData Object to store.
+     */
+    public void storeMetaData(final List<DataSetMetaData> metaDatas,
+            final DataSet dataSet) {
+
+        IDataSetMetaDataHandler handler = DataDeliveryHandlers
+                .getDataSetMetaDataHandler();
+        Iterator<DataSetMetaData> iter = metaDatas.iterator();
+        int size = metaDatas.size();
+        for (int i = 1; i <= size; i++) {
+            statusHandler.info(String.format(
+                    "Attempting store of DataSetMetaData[%s/%s]", i, size));
+            final DataSetMetaData dsmd = iter.next();
+            final String url = dsmd.getUrl();
+
+            try {
+                handler.update(dsmd);
+                statusHandler.info("DataSetMetaData [" + url
+                        + "] successfully stored in Registry");
+            } catch (RegistryHandlerException e) {
+                statusHandler.info("DataSetMetaData [" + url
+                        + "] failed to store in Registry");
+
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param dataSetToStore
+     */
+    protected void storeDataSetName(DataSet dataSetToStore) {
+
+        DataSetName dsn = new DataSetName();
+        // Set the RegistryObject Id keys for this Object
+        // using the values from the DataSetMetaData Object.
+        dsn.setProviderName(dataSetToStore.getProviderName());
+        dsn.setDataSetType(dataSetToStore.getDataSetType());
+        dsn.setDataSetName(dataSetToStore.getDataSetName());
+
+        // Now add the parameter Objects so we can associate
+        // the DataSetName with parameters..
+        dsn.setParameters(dataSetToStore.getParameters());
+
+        try {
+            DataDeliveryHandlers.getDataSetNameHandler().update(dsn);
+            statusHandler.info("DataSetName object store complete, dataset ["
+                    + dsn.getDataSetName() + "]");
+        } catch (RegistryHandlerException e) {
+            statusHandler.error("DataSetName object store failed:", e);
+        }
+    }
+
+    /**
+     * @param dataSet
+     */
+    protected void storeDataSet(final DataSet dataSet) {
+
+        DataSet dataSetToStore = getDataSetToStore(dataSet);
+        final String dataSetName = dataSetToStore.getDataSetName();
+        IDataSetHandler handler = DataDeliveryHandlers.getDataSetHandler();
+        
+        try {
+            handler.update(dataSetToStore);
+            statusHandler.info("Dataset [" + dataSetName
+                    + "] successfully stored in Registry");
+            storeDataSetName(dataSet);
+
+        } catch (RegistryHandlerException e) {
+            statusHandler.info("Dataset [" + dataSetName
+                    + "] failed to store in Registry");
+        }
+    }
+    
+    /**
+     * Make sure our provider is contained in the Registry
+     * @param provider
+     */
+    protected void storeProvider(final Provider provider) {
+        
+        try {
+            DataDeliveryHandlers.getProviderHandler().update(provider);
+        } catch (RegistryHandlerException e) {
+            statusHandler.info("Provider [" + provider.getName()
+                    + "] failed to store in Registry");
+        }
+    }
+
+    /**
+     * Checks for a {@link DataSet} already existing with the same name in the
+     * Registry. If so, then combine the objects.
+     * 
+     * @param dataSet
+     *            the dataSet
+     * @return the dataSet instance that should be stored to the registry
+     */
+    protected DataSet getDataSetToStore(DataSet dataSet) {
+        try {
+            DataSet result = DataDeliveryHandlers.getDataSetHandler()
+                    .getByNameAndProvider(dataSet.getDataSetName(),
+                            dataSet.getProviderName());
+            if (result != null) {
+                dataSet.combine(result);
+            }
+        } catch (RegistryHandlerException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to retrieve dataset.", e);
+        }
+        return dataSet;
+    }
+
+    /**
+     * Store a parameter object to the registry. If necessary, also store the
+     * ParameterLevel Objects needed to successfully store the Parameter Object.
+     * 
+     * @param parameter
+     *            The Parameter Object to store.
+     */
+    protected void storeParameter(Parameter parameter) {
+
+        try {
+            DataDeliveryHandlers.getParameterHandler().update(parameter);
+        } catch (RegistryHandlerException e) {
+            statusHandler.info("Failed to store parameter ["
+                    + parameter.getName() + "]");
+        }
+    }
+
+    /**
+     * Get me my level types for this param
+     * 
+     * @param cp
+     * @return
+     */
+    public List<DataLevelType> getDataLevelTypes(Parameter cp) {
+        return cp.getLevelType();
+    }
+    
+    public abstract void setParameters(L layer);
+    
+    public abstract DataSet getDataSet();
+    
+    public abstract DataSetMetaData getDataSetMetaData();
+    
+    public abstract DataType getDataType();
+    
+    public abstract Levels getLevels(DataLevelType type, String collectionName);
+
+    public LayerTransformer getTransformer() {
+        return transformer;
+    }
+
+    public void setTransformer(LayerTransformer transformer) {
+        this.transformer = transformer;
+    }
+
+    public OGCAgent getAgent() {
+        return agent;
+    }
+
+    public void setAgent(OGCAgent agent) {
+        this.agent = agent;
+    }
+
+    public void setCoverage(Coverage coverage) {
+        this.coverage = coverage;
+    }
+
+    public HashMap<String, Parameter> getParameters() {
+        return parameters;
     }
 
 }
