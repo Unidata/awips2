@@ -69,6 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
  * 23 Feb 2011  5400       lbousaidi   fixed issues in color/value bar
+ * 11 Mar 2013  15065      lbousaidi   fixed issue with both color legend 
+ *                         disappearing after save	
  * </pre>
  * 
  * @author lvenable
@@ -807,6 +809,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                 String source = getSource();
                 updateColor(source);
                 updateUsedColorValueLabelBar();
+                updateUsedColorSetGroupText();
             }
         });
 
@@ -1468,8 +1471,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         // ArrayList<ColorScaleData> updatedColorSet = editColorData
         // .getColorScaleDataArray(source, durationCbo.getText() + "_"
         // + dataTypeCbo.getText());
-        if (updatedColorSet == null) {
-            updatedColorSet = new ArrayList<ColorScaleData>();
+       
+        if (updatedColorSet.size()==0) {          
+        	 updatedColorSet = editColorData
+        	    .getColorScaleDataArray(source, 0 + "_"
+                        + dataTypeCbo.getText());
         }
         int numCols = updatedColorSet.size();
 
@@ -1560,7 +1566,13 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         ArrayList<ColorScaleData> updatedColorSet = editColorData
                 .getUsedColorScaleDataArray(source, selectedDurationInSeconds
                         + "_" + dataTypeCbo.getText());
-
+        
+        //use default color
+        if (updatedColorSet.size() == 0 ) {       	
+        	 updatedColorSet = editColorData
+                  .getUsedColorScaleDataArray(source, 0
+                       + "_" + dataTypeCbo.getText());
+        }
         int numCols = updatedColorSet.size();
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -1877,7 +1889,10 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         Iterator<String> i = dataTypes.iterator();
         while (i.hasNext()) {
             String dt = i.next();
-            dataTypeCbo.add(colorManager.getDescription(dt));
+            //add a check in case there is a typo in dataType the it will be null
+            if (!dt.contains("null")) {            	            	
+               dataTypeCbo.add(colorManager.getDescription(dt));
+            }            
         }
 
         if (dataTypeCbo.getItemCount() == 0) {
@@ -1960,10 +1975,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         } else {
             createColorData(user);
         }
-
-        changeDuration();
-
-        setReturnValue(true);
+       
+        updateDurationCombo(); 
+        updateColorValueLabelBar();   
+        
+        setReturnValue(true);  
     }
 
     /**

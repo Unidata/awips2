@@ -41,6 +41,7 @@ import com.raytheon.viz.gfe.ui.AccessMgr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2010            dgilling     Initial creation
+ * Mar 07, 2013  15717     jzeng        Change CAVE_STATIC to COMMON_STATIC
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ public class TextProductDeleteAction extends Action {
     @Override
     public void run() {
         if (AccessMgr.verifyDelete(util.scripted(scriptName),
-                LocalizationType.CAVE_STATIC, false)) {
+                LocalizationType.COMMON_STATIC, false)) {
             try {
                 // Delete the script
                 util.delete(scriptName, LocalizationLevel.USER);

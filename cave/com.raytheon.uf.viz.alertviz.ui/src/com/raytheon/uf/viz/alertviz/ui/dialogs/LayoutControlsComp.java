@@ -73,6 +73,9 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * 03 Feb 2011  4617       cjeanbap    Add getSelectedLayoutTrayMode();
  * 24 Mar 2011	5853	   cjeanbap    Add createLayoutControls() to reloadConfig().
  * 02 May 2011  9067       cjeanbap    Remove createLayoutControls() from reloadConfig().
+ * 07 Feb 2013	15490	   Xiaochuan   Add configDialog to handle the updated setting 
+ * 									   on Category layers. 
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -201,6 +204,8 @@ public class LayoutControlsComp extends Composite implements MouseListener {
     private MenuItem menuItem;
 
     private INeedsSaveListener needsSaveListener;
+    
+    private AlertVisConfigDlg configDialog;
 
     /**
      * Constructor.
@@ -211,12 +216,13 @@ public class LayoutControlsComp extends Composite implements MouseListener {
      *            Configuration data.
      */
     public LayoutControlsComp(Composite parentComp, Configuration configData,
-            INeedsSaveListener needsSaveListener) {
+            INeedsSaveListener needsSaveListener, AlertVisConfigDlg configDialog) {
         super(parentComp, SWT.NONE);
 
         this.parentComp = parentComp;
         this.configData = configData;
         this.needsSaveListener = needsSaveListener;
+        this.configDialog = configDialog;
 
         init(configData);
     }
@@ -387,7 +393,7 @@ public class LayoutControlsComp extends Composite implements MouseListener {
                 selectedModeRecs = layoutRecs.getRectangles(selectedMode);
                 canvas.redraw();
                 updateCellNumbers();
-                // configData.getGlobalConfiguration().setMode(selectedMode);
+				configDialog.setNewConfig();
                 needsSaveListener.saveNeeded(true);
             }
         });
@@ -410,9 +416,6 @@ public class LayoutControlsComp extends Composite implements MouseListener {
         removeSelectionBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 int index = categoryList.getSelectionIndex();
-
-                // Category cat = categoryMap.get(getListIndexToKey());
-                // cat.setTextBox(0);
 
                 categoryMap.get(getListIndexToKey()).setTextBox(0);
 
