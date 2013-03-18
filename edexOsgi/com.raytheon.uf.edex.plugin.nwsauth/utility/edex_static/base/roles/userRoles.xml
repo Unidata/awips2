@@ -10,7 +10,7 @@
         <user id="ALL"/>
     </role>
 
-    <role roleId="com.raytheon.localization.site/cave_static/colormaps">
+    <role roleId="com.raytheon.localization.site/common_static/colormaps">
         <user id="ALL"/>
     </role>
 
