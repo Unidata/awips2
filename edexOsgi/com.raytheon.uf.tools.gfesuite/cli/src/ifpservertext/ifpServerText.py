@@ -23,7 +23,7 @@ import sys, os, pwd, string, getopt, logging
 import numpy
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.auth.resp import SuccessfulExecution
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetSingletonDbIdsRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetSingletonDbIdsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetSiteTimeZoneInfoRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GridLocRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization import LocalizationContext
@@ -50,6 +50,10 @@ from ufpy import ThriftClient
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/17/10                      dgilling       Initial Creation.
+#    03/06/13        15717         jzeng          change CAVE_STATIC to COMMON_STATIC
+#                                                 Change CAVE_STATIC to COMMON_STATIC 
+#                                                 for GFE localization files 
+#                                                 Change the package of requests
 #    
 # 
 #
@@ -106,19 +110,19 @@ class ifpServerText:
                        "ISCUtility": ".py"
                       }
     
-    LOCALIZATION_DICT = {"Config": ("CAVE_STATIC", "gfe/userPython/gfeConfig"),
+    LOCALIZATION_DICT = {"Config": ("COMMON_STATIC", "gfe/userPython/gfeConfig"),
                        "EditArea": ("COMMON_STATIC", "gfe/editAreas"),
                        "EditAreaGroup": ("COMMON_STATIC", "gfe/editAreaGroups"),
                        "SampleSet": ("COMMON_STATIC", "gfe/sampleSets"),
-                       "ColorTable": ("CAVE_STATIC", "colormaps/GFE"),
-                       "WeatherElementGroup": ("CAVE_STATIC", "gfe/weGroups"),
+                       "ColorTable": ("COMMON_STATIC", "colormaps/GFE"),
+                       "WeatherElementGroup": ("COMMON_STATIC", "gfe/weGroups"),
                        "SelectTR": ("COMMON_STATIC", "gfe/text/selecttr"),
-                       "Tool": ("CAVE_STATIC", "gfe/userPython/smartTools"),
-                       "Procedure": ("CAVE_STATIC", "gfe/userPython/procedures"),
-                       "TextProduct": ("CAVE_STATIC", "gfe/userPython/textProducts"),
-                       "TextUtility": ("CAVE_STATIC", "gfe/userPython/textUtilities/regular"),
-                       "Utility": ("CAVE_STATIC", "gfe/userPython/utilities"),
-                       "Combinations": ("CAVE_STATIC", "gfe/combinations"),
+                       "Tool": ("COMMON_STATIC", "gfe/userPython/smartTools"),
+                       "Procedure": ("COMMON_STATIC", "gfe/userPython/procedures"),
+                       "TextProduct": ("COMMON_STATIC", "gfe/userPython/textProducts"),
+                       "TextUtility": ("COMMON_STATIC", "gfe/userPython/textUtilities/regular"),
+                       "Utility": ("COMMON_STATIC", "gfe/userPython/utilities"),
+                       "Combinations": ("COMMON_STATIC", "gfe/combinations"),
                        "ISCUtility": ("COMMON_STATIC", "isc/utilities")
                        }
 
