@@ -15,7 +15,7 @@
 		<property name="record" value="com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord" />
 	</bean>
 	
-	<bean factory-bean="pluginRegistry" factory-method="register">
+	<bean id="registerObsPlugin" factory-bean="pluginRegistry" factory-method="register">
 		<constructor-arg ref="obsPluginName"/>
 		<constructor-arg ref="obsProperties"/>
 	</bean>
