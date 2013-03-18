@@ -46,6 +46,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            njensen     Initial creation
+ * Mar 7, 2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author njensen
@@ -66,7 +67,7 @@ public class ProcedureController extends BaseGfePyController {
         super(filePath, anIncludePath, classLoader, dataManager, "Procedure");
 
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.CAVE_STATIC,
+                .getContext(LocalizationType.COMMON_STATIC,
                         LocalizationLevel.BASE);
 
         proceduresDir = GfePyIncludeUtil.getProceduresLF(baseCtx);
