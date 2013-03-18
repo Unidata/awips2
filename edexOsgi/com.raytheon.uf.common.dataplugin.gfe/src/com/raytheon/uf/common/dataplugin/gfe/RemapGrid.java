@@ -34,11 +34,8 @@ import javax.media.jai.PlanarImage;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
@@ -48,11 +45,10 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -66,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 5/16/08      875        bphillip    Initial Creation.
  * 10/10/12     #1260      randerso    Added getters for source and destination glocs
+ * 02/19/13     #1637      randerso    Fixed remapping of byte grids
  * 
  * </pre>
  * 
@@ -73,9 +70,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class RemapGrid {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RemapGrid.class);
-
     /** The input grid location describing the source data */
     private GridLocation sourceGloc;
 
@@ -95,12 +89,23 @@ public class RemapGrid {
      *            The source grid location describing the source data
      * @param destinationGloc
      *            The destination grid location describing the destination data
+     * @throws FactoryException
      */
     public RemapGrid(GridLocation sourceGloc, GridLocation destinationGloc) {
-        this.sourceGloc = sourceGloc;
-        this.destinationGloc = destinationGloc;
+        this(sourceGloc, destinationGloc, false);
     }
 
+    /**
+     * Constructs a new RemapGrid with the given input and output grid locations
+     * 
+     * @param sourceGloc
+     *            The source grid location describing the source data
+     * @param destinationGloc
+     *            The destination grid location describing the destination data
+     * @param rescale
+     *            true if data is to be rescaled
+     * @throws FactoryException
+     */
     public RemapGrid(GridLocation sourceGloc, GridLocation destinationGloc,
             boolean rescale) {
         this.sourceGloc = sourceGloc;
@@ -160,12 +165,14 @@ public class RemapGrid {
      * @param outputFill
      *            The output fill value
      * @return The remapped Grid2DByte object
+     * @throws TransformException
+     * @throws FactoryException
      * @throws IllegalArgumentException
      *             If the input dimensions do not match the source dimensions or
      *             when problems occur during resampling
      */
     public Grid2DByte remap(final Grid2DByte input, byte inputFill,
-            byte outputFill) {
+            byte outputFill) throws FactoryException, TransformException {
 
         Grid2DByte retVal = null;
 
@@ -198,7 +205,7 @@ public class RemapGrid {
     }
 
     public Grid2DByte remap(final Grid2DByte input, int inputFill,
-            int outputFill) {
+            int outputFill) throws FactoryException, TransformException {
         return remap(input, (byte) inputFill, (byte) outputFill);
     }
 
@@ -436,64 +443,40 @@ public class RemapGrid {
 
     /**
      * Resamples the data from the input grid location to the destination grid
-     * location.
+     * location
      * 
      * @param input
      *            The input data
      * @return The resampled data
+     * @throws TransformException
+     * @throws FactoryException
      */
-    private Grid2DByte resample(final Grid2DByte input) {
+    private Grid2DByte resample(final Grid2DByte input)
+            throws FactoryException, TransformException {
 
-        if (input.getXdim() != sourceGloc.getNx()
-                || input.getYdim() != sourceGloc.getNy()) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Cannot resample data. Input data dimensions do not match the input grid location");
-            return input;
-        }
+        GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
 
-        int dx = destinationGloc.getNx();
-        int dy = destinationGloc.getNy();
-        Grid2DByte data = new Grid2DByte(dx, dy);
+        ByteBuffer data = input.getBuffer();
+        ByteBuffer resampledData = null;
 
-        Coordinate srcCoord = null;
-        int roundedX = 0;
-        int roundedY = 0;
-        try {
-            for (int x = 0; x < dx; x++) {
-                for (int y = 0; y < dy; y++) {
-                    srcCoord = getSourceCoord(x, y);
-                    roundedX = (int) Math.round(srcCoord.x);
-                    roundedY = (int) Math.round(srcCoord.y);
-                    if (roundedX < 0 || roundedY < 0
-                            || roundedX >= input.getXdim()
-                            || roundedY >= input.getYdim()) {
-                        data.set(x, y, 0);
-                    } else {
-                        data.set(x, y, input.get(roundedX, roundedY));
-                    }
-
-                }
+        GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
+        synchronized (this) {
+            if (interp == null) {
+                interp = new GridReprojection(sourceGeometry, destGeometry);
+                interp.computeTransformTable();
             }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error resampling byte data!", e);
         }
+        DataSource source = new ByteBufferWrapper(data, sourceGeometry);
+        resampledData = interp.reprojectedGrid(
+                new NearestNeighborInterpolation(), source,
+                new ByteBufferWrapper(destGeometry)).getBuffer();
 
-        return data;
-    }
+        // Remap the the output data into a Grid2DFloat object
 
-    private Coordinate getSourceCoord(int x, int y) throws Exception {
-        GridGeometry2D destGeom = MapUtil.getGridGeometry(destinationGloc);
-        GridGeometry2D srcGeom = MapUtil.getGridGeometry(sourceGloc);
+        Grid2DByte retVal = new Grid2DByte(destinationGloc.getNx(),
+                destinationGloc.getNy(), resampledData);
 
-        MathTransform destToCRS = destGeom.getGridToCRS();
-        MathTransform srcGridFromCRS = srcGeom.getCRSToGrid2D();
-
-        DirectPosition destLatLon = destToCRS.transform(new DirectPosition2D(x,
-                y), null);
-        DirectPosition srcCoord = srcGridFromCRS.transform(destLatLon, null);
-        return new Coordinate(srcCoord.getOrdinate(0), srcCoord.getOrdinate(1));
+        return retVal;
     }
 
     /**
@@ -550,6 +533,8 @@ public class RemapGrid {
             f1 = rasterData.getPixels(rasterData.getMinX(),
                     rasterData.getMinY(), rasterData.getWidth(),
                     rasterData.getHeight(), f1);
+
+            JAI.getDefaultInstance().getTileCache().flush();
         } else {
             GridGeometry2D destGeometry = MapUtil
                     .getGridGeometry(destinationGloc);
@@ -568,8 +553,6 @@ public class RemapGrid {
 
         Grid2DFloat retVal = new Grid2DFloat(destinationGloc.getNx(),
                 destinationGloc.getNy(), f1);
-
-        JAI.getDefaultInstance().getTileCache().flush();
 
         return retVal;
     }
