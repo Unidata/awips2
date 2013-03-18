@@ -25,6 +25,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -67,14 +68,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "EmailAddressType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "EmailAddress")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "EmailAddress")
 public class EmailAddressType extends ExtensibleObjectType implements
         Serializable {
     private static final long serialVersionUID = -2958054699149020163L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "EmailAddressTypeGenerator", schema = "ebxml", sequenceName = "ebxml.EmailAddress_sequence")
+    @GeneratedValue(generator = "EmailAddressTypeGenerator")
     @XmlTransient
     private Integer key;
 

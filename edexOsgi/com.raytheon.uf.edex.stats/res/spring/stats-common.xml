@@ -3,18 +3,26 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-   	       
-   	<bean id="statsDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+
+	<bean id="statsDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
 		<property name="pluginName" value="stats" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.stats" />
 		<property name="database" value="metadata" />
 	</bean>
 
-	<bean id="statsRegister" factory-bean="dbPluginRegistry" factory-method="register">
-		<constructor-arg value="stats"/>
-		<constructor-arg ref="statsDatabaseProperties"/>
+	<bean id="statsRegister" factory-bean="dbPluginRegistry"
+		factory-method="register">
+		<constructor-arg value="stats" />
+		<constructor-arg ref="statsDatabaseProperties" />
 	</bean>
 
-    <bean id="statsHandler" 
-       class="com.raytheon.uf.edex.stats.handler.StatsHandler"/>
+	<bean id="statsHandler" class="com.raytheon.uf.edex.stats.handler.StatsHandler">
+		<property name="statsDao" ref="statsDao" />
+	</bean>
+
+
+
+	<bean id="statsDao" class="com.raytheon.uf.edex.stats.dao.StatsDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
 </beans>
