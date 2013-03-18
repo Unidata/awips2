@@ -352,6 +352,16 @@ if [ "${1}" = "-viz" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-custom" ]; then
+   buildRPM "awips2-pypies"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
+
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"

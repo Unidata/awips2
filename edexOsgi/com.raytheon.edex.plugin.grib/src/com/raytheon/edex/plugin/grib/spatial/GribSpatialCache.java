@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Mar 07, 2013 1771        bsteffen    make subgridding deterministic.
  * 
  * 1/4/13		DR 15653	M.Porricelli Shift subgrid domain
  *                                       westward like AWIPSI
@@ -309,11 +310,14 @@ public class GribSpatialCache {
             double shiftX = 0;
             
             // Check whether 'shiftWest' flag is set in subgrid definition xml file
-            if (subGridDef.getShiftWest() != null) 
-            	shiftSubGridWest = subGridDef.getShiftWest();
+            boolean shiftThisSubGridWest = this.shiftSubGridWest;
+            if (subGridDef.getShiftWest() != null) {
+                shiftThisSubGridWest = subGridDef.getShiftWest();
+            }
             
-            if (shiftSubGridWest == true)
+            if (shiftThisSubGridWest == true) {
             	shiftX = subGridDef.getNx() / 5;
+            }
   
             double xCenterPoint = subGridCenterGridCoord.x - shiftX;
             double yCenterPoint = subGridCenterGridCoord.y;
