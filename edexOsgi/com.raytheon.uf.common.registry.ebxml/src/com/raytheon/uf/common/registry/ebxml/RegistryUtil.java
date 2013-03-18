@@ -184,8 +184,7 @@ public final class RegistryUtil {
     private static final Map<String, SlotConverter> SLOT_CONVERSION;
 
     static {
-        Map<String, SlotConverter> map = new HashMap<String, SlotConverter>(
-                11);
+        Map<String, SlotConverter> map = new HashMap<String, SlotConverter>(11);
         // Load the SLOT_CONVERTER map, have to use the String equivalent of the
         // key since Class is not comparable... (which keys have to be).
         map.put(Long.class.getName(), IntegerSlotConverter.INSTANCE);
@@ -198,7 +197,7 @@ public final class RegistryUtil {
         map.put(Double.class.getName(), DoubleSlotConverter.INSTANCE);
         map.put(float.class.getSimpleName(), DoubleSlotConverter.INSTANCE);
         map.put(double.class.getSimpleName(), DoubleSlotConverter.INSTANCE);
-        
+
         map.put(boolean.class.getSimpleName(), BooleanSlotConverter.INSTANCE);
         map.put(Boolean.class.getName(), BooleanSlotConverter.INSTANCE);
         map.put(Date.class.getName(), DateSlotConverter.INSTANCE);
@@ -454,10 +453,11 @@ public final class RegistryUtil {
 
                 RegistryObject ro = c.getAnnotation(RegistryObject.class);
 
-                // Use the specified object type name or the current class name as the Object type if not specified.
+                // Use the specified object type name or the current class name
+                // as the Object type if not specified.
                 Class<?> objectType = ro.objectType();
-                registryObjectType = (Object.class == objectType) ? c
-                        .getName() : objectType.getName();
+                registryObjectType = (Object.class == objectType) ? c.getName()
+                        : objectType.getName();
 
                 if (ro.storeContent()) {
                     // Store the Base64 encoded Object in a slot called
@@ -784,8 +784,7 @@ public final class RegistryUtil {
      * @return the response
      */
     public static <R extends RegistryResponse<S>, S> R getFailedResponse(
-            R response,
-            CommunicationException e) {
+            R response, CommunicationException e) {
         String message = e.getMessage();
         String errorMessage = (message
                 .indexOf(RegistryUtil.DATABASE_ERROR_MESSAGE) != -1) ? RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE

@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -70,13 +71,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "NotificationType", propOrder = { "event" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Notification")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Notification")
 public class NotificationType extends RegistryObjectType {
 
     @XmlElement(name = "Event", required = true)
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<AuditableEventType> event;
 
     @XmlAttribute(required = true)

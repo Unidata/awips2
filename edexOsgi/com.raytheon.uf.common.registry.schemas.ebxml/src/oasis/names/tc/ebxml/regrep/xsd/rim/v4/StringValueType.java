@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "StringValue")
+@Table(schema = "ebxml", name = "StringValue")
 public class StringValueType extends ValueType {
 
     @Column(name = COLUMN_NAME, columnDefinition = "text")

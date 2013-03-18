@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez     Initial creation
+ * 3/18/2013    1802       bphillip     Implemented transaction boundaries. Changed to extend parameterized PersistableDataObject
  * 
  * </pre>
  * 
@@ -55,7 +56,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class StatsRecord extends PersistableDataObject {
+public class StatsRecord extends PersistableDataObject<Integer> {
+
+    private static final long serialVersionUID = -2018725770414395081L;
+
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     @DynamicSerializeElement

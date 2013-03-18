@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.LinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
 /**
  * Harvest MetaData
@@ -61,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
  * Oct 03, 2012   1241      djohnson    Use registry handler.
  * Nov 09, 2012   1263      dhladky     Changed to Site Level
  * Feb 05, 2013   1580      mpduff      EventBus refactor.
+ * 3/18/2013    1802        bphillip    Modified to insert provider object after database is initialized
  * 
  * </pre>
  * 
@@ -68,7 +70,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
  * @version 1.0
  */
 
-public class CrawlMetaDataHandler {
+public class CrawlMetaDataHandler implements RegistryInitializedListener {
 
     public static final String DASH = "-";
 
@@ -140,13 +142,16 @@ public class CrawlMetaDataHandler {
 
     public CrawlMetaDataHandler(CommunicationStrategy communicationStrategy) {
         this.communicationStrategy = communicationStrategy;
-
         IPathManager pm = PathManagerFactory.getPathManager();
 
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.CONFIGURED);
         LocalizationFile lf = pm.getLocalizationFile(lc, PROCESSED_DIR);
         timesDir = lf.getFile();
+
+    }
+
+    public void executeAfterRegistryInit() {
 
         statusHandler
                 .info("<<<<<<<<<<<<<<<<<<<<< INITIALIZING CRAWL META DATA HANDLER >>>>>>>>>>>>>>>>>>>>>>");
