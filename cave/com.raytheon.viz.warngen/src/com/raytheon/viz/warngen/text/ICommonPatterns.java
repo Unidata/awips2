@@ -56,7 +56,7 @@ public interface ICommonPatterns {
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
     public static final String listOfAreaName = "^((" + LOCK_END
-            + "){0,1}((([\\w\\./'-]+\\s{1})+\\w{2}-)*(([\\w\\./'-]+\\s{1})+\\w{2}-)))";
+            + "){0,1}((([\\?\\(\\)\\w\\.,/'-]+\\s{1})+\\w{2}-)*(([\\?\\(\\)\\w\\.,/'-]+\\s{1})+\\w{2}-)))";
 
     // LOCK_END should not be found at the beginning of a first bullet since the
     // previous line should be blank.
