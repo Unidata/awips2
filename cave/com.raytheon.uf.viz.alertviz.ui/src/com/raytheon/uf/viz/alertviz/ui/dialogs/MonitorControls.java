@@ -24,6 +24,8 @@ import java.io.File;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -42,6 +44,10 @@ import com.raytheon.uf.viz.alertviz.config.MonitorMetadata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 19 Jan 2011             cjeanbap    Initial creation.
+ * 07 Feb 2013	15292	   Xiaochuan   Add modifyImageFile method, addModifyListener() 
+ * 									   on imageText to response user deletion the name 
+ * 									   of image file.
+ * 									   	
  * </pre>
  * 
  * @author cjeanbap
@@ -92,15 +98,16 @@ public class MonitorControls {
         monitorImageLabel.setLayoutData(gd);
 
         gd = new GridData(150, SWT.DEFAULT);
-        imageText = new Text(monitorComp, SWT.BORDER | SWT.SINGLE
-                | SWT.READ_ONLY);
+        imageText = new Text(monitorComp, SWT.BORDER | SWT.SINGLE);
+                
         imageText.setLayoutData(gd);
         imageText.setText("");
         imageText.setEnabled(true);
         imageText.setToolTipText("Image file not available...");
-        imageText.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-            }
+        imageText.addModifyListener(new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		modifyImageFile();
+			}
         });
 
         gd = new GridData(28, SWT.DEFAULT);
@@ -122,6 +129,24 @@ public class MonitorControls {
         omitMonitor = false;
     }
 
+    /**
+     * Delete image file name from Text field.
+     */
+    private void modifyImageFile()
+    {
+    	String newFile = imageText.getText();
+
+		if( newFile.equals(" ") || newFile.isEmpty()) {
+
+			if (monitorMetadata != null) {
+				String oldValue = monitorMetadata.getImageFile();
+                imageChanged = (oldValue != null);
+                monitorMetadata.setImageFile(null);
+				needsSaveListener.saveNeeded(true);
+			}
+		}
+    }
+    
     /**
      * Select the image file.
      */

@@ -38,6 +38,7 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012 1286       djohnson     Initial creation
+ * Mar 05, 2013 1754       djohnson     Test that infinite loop for request server does not occur.
  * 
  * </pre>
  * 
@@ -95,10 +96,10 @@ public class RequestRouterTest {
 
         verify(requestServerRouter).route(serverRequest);
     }
-    
+
     @Test
     public void testWithServiceSendsToRegisteredRouter() throws Exception {
-        
+
         RequestRouter.route(serverRequest, SERVICE1_KEY);
 
         verify(server1Router).route(serverRequest);
@@ -124,6 +125,13 @@ public class RequestRouterTest {
         verify(requestServerRouter).route(serverRequest);
         verify(server2Router, never()).route(serverRequest);
         verify(server1Router, never()).route(serverRequest);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testUnregisteredRequestRouterWillThrowIllegalStateException()
+            throws Throwable {
+        RequestRouterTest.clearRegistry();
+        RequestRouter.route(serverRequest, RequestRouter.REQUEST_SERVICE);
     }
 
     @Test(expected = RegistryException.class)
