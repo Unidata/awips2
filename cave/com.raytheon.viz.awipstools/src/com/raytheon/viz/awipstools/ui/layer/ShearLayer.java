@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.ui.input.EditableManager;
@@ -64,7 +65,7 @@ import com.vividsolutions.jts.operation.buffer.BufferOp;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * 15Mar2013	15693	mgamazaychikov	Added magnification capability.
  * 
  * </pre>
  * 
@@ -267,6 +268,9 @@ public class ShearLayer extends
         ds.font = null;
         ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
+        // set the magnification
+        ds.magnification = this.getCapability(MagnificationCapability.class)
+        .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 
@@ -416,6 +420,9 @@ public class ShearLayer extends
         ds.font = null;
         ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
+        // set the magnification
+        ds.magnification = this.getCapability(MagnificationCapability.class)
+        .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 

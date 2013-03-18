@@ -28,6 +28,7 @@
 	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
 	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
 	<substitute key="RAP13model" value="RUC130" />
+	<substitute key="RAPmodel" value="RUC236" />
     <include installTo="menu:volume?after=VolumeBundles" 
              fileName="menus/volume/baseFamilies.xml">
     </include>
