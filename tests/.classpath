@@ -85,5 +85,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="org.jep.linux32"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.harvester"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
