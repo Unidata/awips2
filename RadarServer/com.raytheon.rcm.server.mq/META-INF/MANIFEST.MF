@@ -7,7 +7,6 @@ Export-Package: com.raytheon.rcm.mqsrvr
 Require-Bundle: com.raytheon.rcm.server;bundle-version="1.0.0",
  org.apache.activemq;bundle-version="5.2.0",
  com.raytheon.rcm.lib;bundle-version="1.0.0",
- org.apache.tools.bzip2;bundle-version="1.0.0",
  javax.jms;bundle-version="1.0.0",
- org.apache.qpid;bundle-version="1.0.0"
-Import-Package: org.apache.tools.bzip2
+ org.apache.qpid;bundle-version="1.0.0",
+ org.itadaki.bzip2;bundle-version="0.9.1"
