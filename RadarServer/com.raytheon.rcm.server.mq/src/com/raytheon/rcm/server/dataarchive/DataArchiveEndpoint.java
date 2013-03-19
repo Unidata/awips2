@@ -43,7 +43,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.qpid.client.AMQConnectionFactory;
-import org.apache.tools.bzip2.CBZip2InputStream;
+import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.rcm.config.EndpointConfig;
 import com.raytheon.rcm.config.awips1.Awips1ProdDistInfoBuilder;
@@ -659,11 +659,7 @@ public class DataArchiveEndpoint extends RadarEventAdapter {
                     try {
                         InputStream ins = new ByteArrayInputStream(msg, 120,
                                 msg.length - 120);
-                        char c1 = (char) ins.read();
-                        char c2 = (char) ins.read();
-                        if (c1 != 'B' || c2 != 'Z')
-                            throw new IOException("Not a bzip2 stream");
-                        ins = new CBZip2InputStream(ins);
+                        ins = new BZip2InputStream(ins, false);
                         // ByteArrayOutputStream outs = new
                         // ByteArrayOutputStream(uncompressedSize);
                         uncompressed = new byte[uncompressedSize];
