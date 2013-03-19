@@ -101,51 +101,51 @@ public class Time implements ISerializableObject, Serializable {
 
     @XmlAttribute
     @DynamicSerializeElement
-    private int numTimes;
+    protected int numTimes;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private String start;
+    protected String start;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private String end;
+    protected String end;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private Double step;
+    protected Double step;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private String stepUnit;
+    protected String stepUnit;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private String format;
+    protected String format;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private String requestStart;
+    protected String requestStart;
 
     @XmlAttribute
     @DynamicSerializeElement
-    private String requestEnd;
+    protected String requestEnd;
 
     @XmlElements({ @XmlElement(name = "selectedTimeIndices", type = Integer.class) })
     @DynamicSerializeElement
-    private List<Integer> selectedTimeIndices = new ArrayList<Integer>();
+    protected List<Integer> selectedTimeIndices = new ArrayList<Integer>();
 
     @XmlElements({ @XmlElement(name = "cycleTimes", type = Integer.class) })
     @DynamicSerializeElement
-    private List<Integer> cycleTimes = new ArrayList<Integer>();
+    protected List<Integer> cycleTimes = new ArrayList<Integer>();
 
-    private Date startDate = null;
+    protected Date startDate = null;
 
-    private Date requestEndDate = null;
+    protected Date requestEndDate = null;
 
-    private Date endDate = null;
+    protected Date endDate = null;
 
-    private Date requestStartDate = null;
+    protected Date requestStartDate = null;
 
     public int getNumTimes() {
         return numTimes;
