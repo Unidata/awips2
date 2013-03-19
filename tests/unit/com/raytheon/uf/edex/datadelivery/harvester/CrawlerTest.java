@@ -30,12 +30,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.config.HarvesterConfigFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.domain.Durations;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfigFixture;
 import com.raytheon.uf.edex.datadelivery.harvester.crawler.Crawler;
 import com.raytheon.uf.edex.datadelivery.harvester.crawler.MainSequenceCommunicationStrategyDecorator;
 import com.raytheon.uf.edex.datadelivery.harvester.crawler.MainSequenceCrawler;
