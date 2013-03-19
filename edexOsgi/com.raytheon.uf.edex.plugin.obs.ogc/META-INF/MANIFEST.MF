@@ -24,7 +24,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.edex.wms;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- javax.persistence;bundle-version="1.0.0"
+ javax.persistence;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.harvester;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.obs.ogc.metar,
