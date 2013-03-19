@@ -28,8 +28,8 @@ package com.raytheon.edex.plugin.radar.dao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/06/09     1990       bphillip    Initial creation
- * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
- *                                     HDF5.
+ * Mar 18, 2013 1804       bsteffen    Reduce useless data stored in radar hdf5
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -43,12 +43,15 @@ import java.util.Map;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
+import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStoredData;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageProperties;
@@ -135,10 +138,10 @@ public class RadarDao extends PluginDao {
             dataStore.addDataRecord(bdr, sp);
         }
 
-        if (radarRec.getSymbologyData() != null) {
+        Map<RadarDataKey, RadarDataPoint> symData = radarRec.getSymbologyData();
+        if (symData != null && !symData.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).serialize(
-                    radarRec.getSymbologyData());
+                    SerializationType.Thrift).serialize(symData);
             ByteDataRecord bdr = new ByteDataRecord(
                     RadarStoredData.SYM_DATA_ID, radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
@@ -156,10 +159,11 @@ public class RadarDao extends PluginDao {
             dataStore.addDataRecord(bdr, sp);
         }
 
-        if (radarRec.getMapProductVals() != null) {
+        Map<MapValues, Map<String, Map<MapValues, String>>> mapProdVals = radarRec
+                .getMapProductVals();
+        if (mapProdVals != null && !mapProdVals.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).serialize(
-                    radarRec.getMapProductVals());
+                    SerializationType.Thrift).serialize(mapProdVals);
             ByteDataRecord bdr = new ByteDataRecord(
                     RadarStoredData.PRODUCT_VALS_ID, radarRec.getDataURI(),
                     data);
@@ -186,19 +190,21 @@ public class RadarDao extends PluginDao {
             dataStore.addDataRecord(rec, sp);
         }
 
-        if (radarRec.getMapRecordVals() != null) {
+        Map<MapValues, Map<MapValues, String>> mapRecVals = radarRec
+                .getMapRecordVals();
+        if (mapRecVals != null && !mapRecVals.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).serialize(
-                    radarRec.getMapRecordVals());
+                    SerializationType.Thrift).serialize(mapRecVals);
             ByteDataRecord bdr = new ByteDataRecord(
                     RadarStoredData.RECORD_VALS_ID, radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, sp);
         }
 
-        if (radarRec.getStormIDs() != null) {
+        Map<String, RadarDataKey> stormIds = radarRec.getStormIDs();
+        if (stormIds != null && !stormIds.isEmpty()) {
             byte[] data = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).serialize(radarRec.getStormIDs());
+                    SerializationType.Thrift).serialize(stormIds);
             ByteDataRecord bdr = new ByteDataRecord(
                     RadarStoredData.STORM_IDS_ID, radarRec.getDataURI(), data);
             bdr.setCorrelationObject(radarRec);
