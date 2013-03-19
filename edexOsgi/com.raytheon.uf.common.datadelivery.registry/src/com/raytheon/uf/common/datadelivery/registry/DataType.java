@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
 import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
 
 /**
  * Enumeration of data types.
@@ -33,6 +32,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * ------------ ---------- ----------- --------------------------
  * Aug 22, 2012 0743        djohnson     Initial creation
  * Nov 19, 2012 1166        djohnson     Clean up JAXB representation of registry objects.
+ * Feb 21, 2013 754         dhladky      Added point data type
  * 
  * </pre>
  * 
@@ -41,10 +41,10 @@ import javax.xml.bind.annotation.XmlEnumValue;
  */
 @XmlEnum
 public enum DataType {
-    @XmlEnumValue(DataType.GRID_STRING_VALUE)
-    GRID(DataType.GRID_STRING_VALUE);
+    GRID(DataType.GRID_STRING_VALUE), POINT(DataType.POINT_STRING_VALUE);
 
     private static final String GRID_STRING_VALUE = "Grid";
+    private static final String POINT_STRING_VALUE = "Point";
     
     private final String displayString;
 

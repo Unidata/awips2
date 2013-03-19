@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.harvester.config;
+package com.raytheon.uf.common.datadelivery.harvester;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -58,11 +58,7 @@ public class CrawlAgent extends Agent implements ISerializableObject {
     @XmlElement(name = "crawlDir")
     @DynamicSerializeElement
     private String crawlDir = "/awips2/crawl";
-
-    @XmlElement(name = "dateFormat")
-    @DynamicSerializeElement
-    private String dateFormat = "HHddMMMyyyy";
-
+ 
     @XmlElement(name = "ignore")
     @DynamicSerializeElement
     private List<String> ignore;
@@ -136,10 +132,6 @@ public class CrawlAgent extends Agent implements ISerializableObject {
         return crawlDir;
     }
 
-    public String getDateFormat() {
-        return dateFormat;
-    }
-
     public List<String> getIgnore() {
         return ignore;
     }
@@ -210,10 +202,6 @@ public class CrawlAgent extends Agent implements ISerializableObject {
 
     public void setCrawlDir(String crawlDir) {
         this.crawlDir = crawlDir;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
     }
 
     public void setIgnore(List<String> ignore) {

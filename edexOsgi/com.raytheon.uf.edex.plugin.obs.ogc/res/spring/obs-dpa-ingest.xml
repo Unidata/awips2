@@ -7,7 +7,7 @@
         <constructor-arg ref="obsPluginName" />
     </bean>
     
-    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform"/>
+    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform" depends-on="registerObsPlugin"/>
     	
 	<bean id="obsSeparator" class="com.raytheon.edex.plugin.obs.metar.MetarSeparator" />
 
@@ -23,7 +23,7 @@
 		<constructor-arg ref="obs-camel"/>
   	</bean>
   	
-  	<bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" >
+  	<bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" depends-on="registryManagerInstanceInitializer, registerDataDeliveryHandlers, registerRequestRegistryRouter, registerObsPlugin" >
 		<constructor-arg ref="metarLayerTransformer" />
 	</bean>
 
@@ -32,6 +32,18 @@
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
 		
+		<!--METAR file route -->
+		<endpoint id="metarFileEndpoint" uri="file:${edex.home}/data/sbn/metar?noop=true&amp;idempotent=false" />
+
+		<route id="metarFileConsumerRoute">
+			<from ref="metarFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>obs</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.obs" />
+		</route>
+
 		<!-- Begin METAR routes -->
  		<route id="metarIngestRoute">
 			<from uri="jms-generic:queue:Ingest.obs?destinationResolver=#qpidDurableResolver" />
@@ -57,7 +69,7 @@
 		
 		<route id="metarLayerRoute">
 			<from uri="quartz://metar/layers?cron=0+*+*+*+*+?" />
-			<bean ref="metarLayerCollector" method="updateDB" />
+			<bean ref="metarLayerCollector" method="buildLayerUpdate" />
 		</route>
 		
 		<route id="metarPurgeExpired">

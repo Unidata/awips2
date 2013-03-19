@@ -2,7 +2,7 @@ package com.raytheon.uf.edex.plugin.grib.ogc;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,17 +20,39 @@ import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.ogc.common.db.DefaultLayerCollector;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
+import com.raytheon.uf.edex.ogc.common.db.WCSLayerCollector;
 import com.vividsolutions.jts.geom.Envelope;
 
-public class GribLayerCollector extends
-        DefaultLayerCollector<GribLayer, GribRecord> {
+/**
+ * 
+ * Grib Layer Collector
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 08/09/2012   754       dhladky      Modified from a class written by Brian Clements
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
 
+public class GribLayerCollector extends
+        WCSLayerCollector<GribLayer, GribRecord> {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+    .getHandler(GribLayerCollector.class);
+    
     public GribLayerCollector(LayerTransformer transformer) {
         super(transformer, GribLayer.class, GribRecord.class);
+        this.layer = newLayer();
     }
 
     @Override
@@ -57,7 +79,7 @@ public class GribLayerCollector extends
             } else if (GribDimension.VERSION_DIM.equals(name)) {
                 values.add(String.valueOf(rec.getGridVersion()));
             } else {
-                log.warn("Unkown grib dimension: " + name);
+                statusHandler.warn("Unkown grib dimension: " + name);
             }
         }
     }
@@ -73,7 +95,7 @@ public class GribLayerCollector extends
         GribModel model = rec.getModelInfo();
         GridCoverage cov = model.getLocation();
         if (cov == null) {
-            log.warn("Recieved record without coverage!");
+            statusHandler.warn("Recieved record without coverage!");
             return false;
         }
         layer.setNx(cov.getNx());
@@ -87,7 +109,7 @@ public class GribLayerCollector extends
             layer.setTargetMaxy(env.getMaxY());
             layer.setCrs84Bounds(JTS.toGeometry(env));
         } catch (Exception e) {
-            log.error("Unable to get crs84 bounds", e);
+            statusHandler.error("Unable to get crs84 bounds", e);
             return false;
         }
         layer.setTimes(new TreeSet<Date>());
@@ -128,11 +150,11 @@ public class GribLayerCollector extends
     }
 
     @Override
-    protected void sendMetaData(HashMap<String, GribLayer> layermap,
+    public void sendMetaData(Map<String, ? extends SimpleLayer> layermap,
             Collection<? extends PluginDataObject> coll) {
-
-        for (Entry<String, GribLayer> entry : layermap.entrySet()) {
-            GribLayer layer = entry.getValue();
+        
+        for (Entry<String, ? extends SimpleLayer> entry : layermap.entrySet()) {
+            GribLayer layer = (GribLayer) entry.getValue();
 
             // for (GribDimension)
 
@@ -175,4 +197,9 @@ public class GribLayerCollector extends
      * 
      *         }
      */
+
+    @Override
+    public void setParameters(GribLayer layer) {
+        
+    }
 }
