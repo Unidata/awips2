@@ -13,14 +13,14 @@ import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.datadelivery.harvester.config.CrawlAgent;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 import com.raytheon.uf.edex.datadelivery.harvester.crawler.MainSequenceCrawler.ModelCrawlConfiguration;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.ConnectionUtil;
 import com.sleepycat.je.Environment;
