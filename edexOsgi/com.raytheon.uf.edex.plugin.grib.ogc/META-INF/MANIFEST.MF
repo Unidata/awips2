@@ -11,7 +11,6 @@ Require-Bundle: org.springframework;bundle-version="2.5.6",
  javax.persistence;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  org.apache.commons.logging;bundle-version="1.1.1",
- com.raytheon.uf.common.dataplugin.grib;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  org.hibernate;bundle-version="1.0.0",
@@ -23,7 +22,11 @@ Require-Bundle: org.springframework;bundle-version="2.5.6",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
- com.raytheon.uf.common.spatial;bundle-version="1.0.0"
+ com.raytheon.uf.common.spatial;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.harvester;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.grib;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.grib.ogc

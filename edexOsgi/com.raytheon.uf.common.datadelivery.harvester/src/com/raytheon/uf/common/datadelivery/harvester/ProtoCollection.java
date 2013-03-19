@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.harvester.config;
+package com.raytheon.uf.common.datadelivery.harvester;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
