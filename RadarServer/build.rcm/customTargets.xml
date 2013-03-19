@@ -72,7 +72,7 @@
                         <fileset dir="${buildDirectory}/../../" includes="com.raytheon.rcm*/**"/>
                 </copy>
 	    		<copy todir="${buildDirectory}/plugins">
-	    	    	<fileset dir="${buildDirectory}/../../" includes="org.apache.tools.bzip2*/**"/>
+	    	    	<fileset dir="${buildDirectory}/../../" includes="org.itadaki.bzip2*/**"/>
 	    	    </copy>
         		<copy todir="${buildDirectory}/plugins">
         		    	    	<fileset dir="${buildDirectory}/../../" includes="org.apache.*/**"/>
