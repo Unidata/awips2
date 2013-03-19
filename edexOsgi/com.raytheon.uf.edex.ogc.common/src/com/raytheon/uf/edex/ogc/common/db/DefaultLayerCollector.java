@@ -37,8 +37,23 @@ import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
+/**
+ * 
+ * Default Layer Collector
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 08/09/2012   754       dhladky      initial creation, based on B Clements original
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
+
 public abstract class DefaultLayerCollector<L extends SimpleLayer, R extends PluginDataObject>
-        extends LayerCollector {
+        extends LayerCollector<L> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefaultLayerCollector.class);
