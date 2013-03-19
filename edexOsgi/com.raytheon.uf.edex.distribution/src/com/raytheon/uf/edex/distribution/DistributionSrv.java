@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.distribution;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 09/01/2010   4293       cjeanbap    Logging of unknown Weather Products.
  * Feb 27, 2013 1638        mschenke   Cleaned up localization code to fix null pointer
  *                                     when no distribution files present
+ * Mar 19, 2013 1794       djohnson    PatternWrapper is immutable, add toString() to it for debugging.
  * 
  * </pre>
  * 
@@ -70,15 +70,38 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class DistributionSrv {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DistributionSrv.class);
 
     private static class PatternWrapper {
-        String plugin;
+        private final String plugin;
 
-        RequestPatterns patterns;
+        private final RequestPatterns patterns;
 
-        String route;
+        private final String route;
+
+        private final String displayString;
+
+        private PatternWrapper(String plugin, String route,
+                RequestPatterns patterns) {
+            this.plugin = plugin;
+            this.route = route;
+            this.patterns = patterns;
+            this.displayString = createDisplayString();
+        }
+
+        private String createDisplayString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("plugin=").append(plugin).append(", ");
+            sb.append("route=").append(route).append(", ");
+            sb.append("patterns=").append(patterns);
+            return sb.toString();
+        }
+
+        @Override
+        public String toString() {
+            return displayString;
+        }
     }
 
     protected transient Log logger = LogFactory.getLog("Ingest");
@@ -86,12 +109,12 @@ public class DistributionSrv {
     protected transient Log routeFailedLogger = LogFactory
             .getLog("RouteFailedLog");
 
-    private List<PatternWrapper> pluginPatterns = new ArrayList<PatternWrapper>(
+    private final List<PatternWrapper> pluginPatterns = new ArrayList<PatternWrapper>(
             100);
 
-    private ConcurrentMap<String, PatternWrapper> patternMap = new ConcurrentHashMap<String, PatternWrapper>();
+    private final ConcurrentMap<String, PatternWrapper> patternMap = new ConcurrentHashMap<String, PatternWrapper>();
 
-    private ConcurrentMap<String, Long> modifiedTimes = new ConcurrentHashMap<String, Long>();
+    private final ConcurrentMap<String, Long> modifiedTimes = new ConcurrentHashMap<String, Long>();
 
     public DistributionSrv() {
         for (File file : getDistributionFiles()) {
@@ -118,7 +141,9 @@ public class DistributionSrv {
                                         "Change to distribution file detected. "
                                                 + file.getName()
                                                 + " has been modified.  Reloading distribution patterns");
-                        wrapper.patterns = loadPatterns(file, plugin);
+                        wrapper = new PatternWrapper(wrapper.plugin,
+                                wrapper.route, loadPatterns(file, plugin));
+                        patternMap.put(plugin, wrapper);
                         modifiedTimes.put(file.getName(), file.lastModified());
                     } catch (DistributionException e) {
                         statusHandler.handle(Priority.PROBLEM,
@@ -168,18 +193,18 @@ public class DistributionSrv {
                             + " does not have an accompanying patterns file in localization.");
         }
 
-        PatternWrapper wrapper = new PatternWrapper();
-        wrapper.plugin = pluginName;
-        wrapper.route = destination;
         File modelFile = new File(path);
         File siteModelFile = new File(sitePath);
+        RequestPatterns patterns = null;
         if (siteModelFile.exists()) {
-            wrapper.patterns = loadPatterns(siteModelFile, pluginName);
+            patterns = loadPatterns(siteModelFile, pluginName);
         } else if (modelFile.exists()) {
-            wrapper.patterns = loadPatterns(modelFile, pluginName);
+            patterns = loadPatterns(modelFile, pluginName);
         } else {
-            wrapper.patterns = new RequestPatterns();
+            patterns = new RequestPatterns();
         }
+        PatternWrapper wrapper = new PatternWrapper(pluginName, destination,
+                patterns);
         patternMap.put(wrapper.plugin, wrapper);
         pluginPatterns.add(wrapper);
         return this;
@@ -252,8 +277,8 @@ public class DistributionSrv {
             throws DistributionException {
         RequestPatterns patternSet = null;
         try {
-            patternSet = (RequestPatterns) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(modelFile.getPath());
+            patternSet = SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(RequestPatterns.class, modelFile.getPath());
         } catch (Exception e) {
             throw new DistributionException("File "
                     + modelFile.getAbsolutePath()
