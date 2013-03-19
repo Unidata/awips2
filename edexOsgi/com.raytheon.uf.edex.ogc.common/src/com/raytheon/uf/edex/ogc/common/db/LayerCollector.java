@@ -1,33 +1,29 @@
-/*
- * The following software products were developed by Raytheon:
- *
- * ADE (AWIPS Development Environment) software
- * CAVE (Common AWIPS Visualization Environment) software
- * EDEX (Environmental Data Exchange) software
- * uFrame™ (Universal Framework) software
- *
- * Copyright (c) 2010 Raytheon Co.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/epl-v10.php
- *
- *
- * Contractor Name: Raytheon Company
- * Contractor Address:
- * 6825 Pine Street, Suite 340
- * Mail Stop B8
- * Omaha, NE 68106
- * 402.291.0100
- *
- */
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.edex.ogc.common.db;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -80,15 +76,13 @@ public abstract class LayerCollector<L extends SimpleLayer> {
     protected LayerTransformer transformer;
     
     protected L layer;
-    
-    protected Coverage coverage;
-    
-    protected HashMap<String,Parameter> parameters = null;
 
     protected HarvesterConfig config = null;
     
     protected OGCAgent agent = null;
-    
+
+    protected Map<String, Parameter> parameters = null;
+ 
     private static final transient IUFStatusHandler statusHandler = UFStatus
     .getHandler(LayerCollector.class);
 
@@ -325,43 +319,29 @@ public abstract class LayerCollector<L extends SimpleLayer> {
     public HarvesterConfig getConfiguration() {
         return config;
     }
-        
-    protected Coverage getCoverage() {
-        return coverage;
-    }
    
-    protected abstract L newLayer();
-    
-    protected abstract void setCoverage(String name);
-
     /**
-     * Store the DataSetMetaData Object to the registry.
-     * 
+     * Stroe Data objects
      * @param metaDatas
-     *            The DataSetMetaData Object to store.
+     * @param dataSet
      */
-    public void storeMetaData(final List<DataSetMetaData> metaDatas,
-            final DataSet dataSet) {
+    public void storeMetaData(final DataSetMetaData metaData) {
 
         IDataSetMetaDataHandler handler = DataDeliveryHandlers
                 .getDataSetMetaDataHandler();
-        Iterator<DataSetMetaData> iter = metaDatas.iterator();
-        int size = metaDatas.size();
-        for (int i = 1; i <= size; i++) {
-            statusHandler.info(String.format(
-                    "Attempting store of DataSetMetaData[%s/%s]", i, size));
-            final DataSetMetaData dsmd = iter.next();
-            final String url = dsmd.getUrl();
 
-            try {
-                handler.update(dsmd);
-                statusHandler.info("DataSetMetaData [" + url
-                        + "] successfully stored in Registry");
-            } catch (RegistryHandlerException e) {
-                statusHandler.info("DataSetMetaData [" + url
-                        + "] failed to store in Registry");
+        final String description = metaData.getDataSetDescription();
+        statusHandler.info("Attempting store of DataSetMetaData["+description+"]");
 
-            }
+        try {
+            handler.update(metaData);
+            statusHandler.info("DataSetMetaData [" + description
+                    + "] successfully stored in Registry");
+        } catch (RegistryHandlerException e) {
+            statusHandler.info("DataSetMetaData [" + description
+                    + "] failed to store in Registry");
+
+
         }
     }
 
@@ -476,16 +456,42 @@ public abstract class LayerCollector<L extends SimpleLayer> {
         return cp.getLevelType();
     }
     
-    public abstract void setParameters(L layer);
+    protected abstract L newLayer();
     
-    public abstract DataSet getDataSet();
+    protected abstract void setCoverage(L layer);
     
-    public abstract DataSetMetaData getDataSetMetaData();
+    protected abstract Coverage getCoverage();
+
+    public void setParameters(L layer) {
+        synchronized (layer) {
+            if (getParameters() == null || getParameters().isEmpty()) {
+                parameters = new HashMap<String, Parameter>();
+                for (Parameter parm : agent.getLayer(layer.getName())
+                        .getParameters()) {
+                    // place in map
+                    parameters.put(parm.getName(), parm);
+                    storeParameter(parm);
+                }
+            }
+        }
+    }
     
-    public abstract DataType getDataType();
+    public Map<String, Parameter> getParameters() {
+        return parameters;
+    }
+    
+    protected abstract void setDataSet(L layer);
+    
+    protected abstract DataSet getDataSet();
+    
+    protected abstract void setDataSetMetaData(L layer);
+    
+    protected abstract DataSetMetaData getDataSetMetaData();
+    
+    protected abstract DataType getDataType();
     
     public abstract Levels getLevels(DataLevelType type, String collectionName);
-
+  
     public LayerTransformer getTransformer() {
         return transformer;
     }
@@ -500,14 +506,6 @@ public abstract class LayerCollector<L extends SimpleLayer> {
 
     public void setAgent(OGCAgent agent) {
         this.agent = agent;
-    }
-
-    public void setCoverage(Coverage coverage) {
-        this.coverage = coverage;
-    }
-
-    public HashMap<String, Parameter> getParameters() {
-        return parameters;
     }
 
 }
