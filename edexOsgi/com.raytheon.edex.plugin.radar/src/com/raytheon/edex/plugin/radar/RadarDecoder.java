@@ -85,6 +85,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 2/14/2007    139         Phillippe   Initial check-in. Refactor of initial implementation.
  * Dec 17, 2007 600         bphillip    Added dao pool usage
  * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz() signature changed.
+ * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
+ *                                      HDF5.
  * </pre>
  * 
  * @author bphillip
@@ -409,8 +411,6 @@ public class RadarDecoder extends AbstractDecoder {
                         record.setMapRecordVals(recordVals);
                         record.setTabularBlock(tb);
                     }
-                    record.setAlphanumericValues(l3Radar
-                            .getAlphanumericValues());
                 }
 
                 try {
