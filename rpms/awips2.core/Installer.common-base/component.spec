@@ -22,7 +22,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 provides: awips2-common-base
-requires: awips2-base-component
+requires: awips2-base
 
 %description
 AWIPS II Common Base - Contains common plugins utilized by both EDEX and CAVE.
