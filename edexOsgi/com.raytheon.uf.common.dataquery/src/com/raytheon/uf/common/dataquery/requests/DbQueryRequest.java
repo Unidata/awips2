@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2010            mschenke     Initial creation
+ * Mar 19, 2013 1807       rferrel     Added orderBy to the toString.
  * 
  * </pre>
  * 
@@ -288,9 +289,20 @@ public class DbQueryRequest implements IServerRequest {
      */
     @Override
     public String toString() {
-        return "DbQueryRequest [database=" + database + ", entityClass="
-                + entityClass + ", fields=" + fields + ", distinct=" + distinct
-                + ", constraints=" + constraints + "]";
+        return "DbQueryRequest [database="
+                + database
+                + ", entityClass="
+                + entityClass
+                + ", fields="
+                + fields
+                + ", distinct="
+                + distinct
+                + ", constraints="
+                + constraints
+                + ", orderBy="
+                + (orderBy == null ? "null" : String.format(
+                        "[field=%s, mode=%s]", orderBy.field,
+                        orderBy.mode.toString())) + "]";
     }
 
 }
