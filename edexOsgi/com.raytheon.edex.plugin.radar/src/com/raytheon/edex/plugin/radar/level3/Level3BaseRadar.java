@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tools.bzip2.CBZip2InputStream;
+import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
@@ -731,13 +731,7 @@ public class Level3BaseRadar {
                 try {
                     theRadarData.reset();
                     theRadarData.readFully(msg);
-                    InputStream ins = new DataInputStream(theRadarData);
-                    char c1 = (char) ins.read();
-                    char c2 = (char) ins.read();
-                    if (c1 != 'B' || c2 != 'Z') {
-                        throw new IOException("Not a bzip2 stream");
-                    }
-                    ins = new CBZip2InputStream(ins);
+                    InputStream ins = new BZip2InputStream(theRadarData, false);
                     uncompressed = new byte[uncompressedSize];
                     ins.read(uncompressed);
                 } catch (IOException e) {
