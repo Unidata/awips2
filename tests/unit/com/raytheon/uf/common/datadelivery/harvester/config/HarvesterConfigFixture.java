@@ -17,11 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.harvester.config;
+package com.raytheon.uf.common.datadelivery.harvester.config;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Connection;
 import com.raytheon.uf.common.datadelivery.registry.Projection;
