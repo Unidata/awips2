@@ -26,6 +26,7 @@ Packager: Bryan Kowal
 AutoReq: no
 provides: %{_component_name}
 provides: awips2-base-component
+provides: awips2-base
 requires: awips2-java
 requires: awips2-python
 requires: openmotif
