@@ -35,6 +35,7 @@ import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.plugin.radar.level2.Level2BaseRadar;
 import com.raytheon.edex.plugin.radar.level3.Level3BaseRadar;
 import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
+import com.raytheon.edex.plugin.radar.util.RadarSpatialUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -87,6 +88,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz() signature changed.
  * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
  *                                      HDF5.
+ * Mar 19, 2013 1804        bsteffen    Cache db queries in radar decoder.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -202,7 +205,8 @@ public class RadarDecoder extends AbstractDecoder {
                 RadarRecord record = new RadarRecord();
                 record.setProductCode(l3Radar.getMessageCode());
                 record.setDataTime(new DataTime(l3Radar.getMessageTimestamp()));
-                RadarStation station = getStationById(l3Radar.getSourceId());
+                RadarStation station = RadarSpatialUtil
+                        .getRadarStationByRpgIdDec(l3Radar.getSourceId());
                 if (station == null) {
                     record.setIcao("unkn");
                     logger.error(headers.get("ingestfilename")
@@ -654,23 +658,6 @@ public class RadarDecoder extends AbstractDecoder {
         record.setNumRadials(precipPacket.getNumRows());
         record.setNumBins(precipPacket.getNumCols());
         record.setRawData(precipPacket.getPrecipData());
-    }
-
-    /**
-     * Retrieve the radar station from the dao for the rpg id given
-     * 
-     * @param rpg_id
-     * @return
-     */
-    private RadarStation getStationById(int rpg_id) {
-        try {
-            RadarStation station = radarStationDao.queryByRpgIdDec(String
-                    .format("%03d", rpg_id));
-            return station;
-        } catch (Exception e) {
-            logger.error("Error retrieving RadarStation for id: " + rpg_id, e);
-        }
-        return null;
     }
 
     /**
