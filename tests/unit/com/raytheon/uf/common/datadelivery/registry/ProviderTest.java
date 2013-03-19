@@ -31,10 +31,10 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.config.HarvesterConfigFixture;
 import com.raytheon.uf.common.time.domain.Durations;
 import com.raytheon.uf.common.time.domain.api.IDuration;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfigFixture;
 
 /**
  * Test {@link Provider}.
