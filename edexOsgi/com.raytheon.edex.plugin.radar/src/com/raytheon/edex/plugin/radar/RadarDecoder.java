@@ -86,9 +86,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 2/14/2007    139         Phillippe   Initial check-in. Refactor of initial implementation.
  * Dec 17, 2007 600         bphillip    Added dao pool usage
  * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz() signature changed.
- * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
- *                                      HDF5.
- * Mar 19, 2013 1804        bsteffen    Cache db queries in radar decoder.
+ * Mar 19, 2013 1804        bsteffen    Optimize decoder performance.
  * 
  * </pre>
  * 
@@ -547,12 +545,11 @@ public class RadarDecoder extends AbstractDecoder {
      */
     private void processSymbologyBlock(RadarRecord record,
             SymbologyBlock symbologyBlock) {
-
-        int errorCount = 0;
-
         if (symbologyBlock == null) {
             return;
         }
+        
+        int packetsKept = 0;
 
         List<Layer> packetsInLyrs = new ArrayList<Layer>();
         for (int layer = 0; layer < symbologyBlock.getNumLayers(); ++layer) {
@@ -589,20 +586,19 @@ public class RadarDecoder extends AbstractDecoder {
                     }
                 }
             }
+            packetsKept += packets.size();
             lyr.setPackets(packets.toArray(new SymbologyPacket[packets.size()]));
             packetsInLyrs.add(lyr);
 
         }
 
-        // remove the radial and raster from the symb block
-        symbologyBlock.setLayers(packetsInLyrs.toArray(new Layer[packetsInLyrs
-                .size()]));
-        record.setSymbologyBlock(symbologyBlock);
-        record.correlateSymbologyPackets();
-
-        if (errorCount > 0) {
-            logger.error("Radar file contains " + errorCount
-                    + " unrecognized symbology packet types.");
+        // remove the radial and raster from the symb block, only keep it if
+        // there are other packets.
+        if (packetsKept > 0) {
+            symbologyBlock.setLayers(packetsInLyrs
+                    .toArray(new Layer[packetsInLyrs.size()]));
+            record.setSymbologyBlock(symbologyBlock);
+            record.correlateSymbologyPackets();
         }
     }
 
