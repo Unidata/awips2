@@ -34,7 +34,7 @@
 		<constructor-arg ref="grib-camel"/>
   	</bean>
   	
-  	<bean id="gribLayerCollector" class="com.raytheon.uf.edex.plugin.grib.ogc.GribLayerCollector" >
+  	<bean id="gribLayerCollector" class="com.raytheon.uf.edex.plugin.grib.ogc.GribLayerCollector" depends-on="registryManagerInstanceInitializer, registerDataDeliveryHandlers, registerRequestRegistryRouter">
 		<constructor-arg ref="gribLayerTransformer" />
 	</bean>
 

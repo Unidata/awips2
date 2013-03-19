@@ -1,5 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.harvester.config;
-
+package com.raytheon.uf.edex.ogc.common.interfaces;
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -19,33 +18,31 @@ package com.raytheon.uf.edex.datadelivery.harvester.config;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+import java.util.Collection;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlSeeAlso;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 
 /**
- * DD Agent data provider
+ * 
+ * WCS Interface
  * 
  * <pre>
- * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 12 Sept, 2012   1038      dhladky     Initial creation
- * 
+ * 08/09/2012   754       dhladky      Initial
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
 
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-@XmlSeeAlso({ CrawlAgent.class, OGCAgent.class })
-public abstract class Agent implements ISerializableObject {
+public interface IWCSMetaData {
+
+    public void sendMetaData(Map<String, ? extends SimpleLayer> layermap,
+            Collection<? extends PluginDataObject> coll);
 
 }
+
