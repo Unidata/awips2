@@ -29,6 +29,8 @@ import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.dataquery.db.ReturnedField;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderBy;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.RequestField;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
@@ -48,6 +50,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2010            mschenke     Initial creation
+ * Mar 19, 2013 1807       rferrel     OrderBy now performed.
  * 
  * </pre>
  * 
@@ -56,6 +59,13 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  */
 public class DbQueryHandler implements IRequestHandler<DbQueryRequest> {
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
+     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
+     */
     @Override
     public DbQueryResponse handleRequest(DbQueryRequest request)
             throws Exception {
@@ -150,6 +160,11 @@ public class DbQueryHandler implements IRequestHandler<DbQueryRequest> {
             QueryParam param = new QueryParam(key,
                     constraint.getConstraintValue(), op);
             dbQuery.addQueryParam(param);
+        }
+
+        OrderBy orderBy = request.getOrderBy();
+        if (orderBy != null) {
+            dbQuery.addOrder(orderBy.getField(), orderBy.mode == OrderMode.ASC);
         }
 
         List<?> vals = new CoreDao(DaoConfig.forDatabase(dbName))
