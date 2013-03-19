@@ -19,22 +19,28 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import static com.raytheon.uf.common.util.Matchers.hasNoFiles;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 
 /**
- * Test {@link DeserializeRetrievedDataFromDirectory}.
+ * Test {@link DeserializeRetrievedDataFromIngest}.
  * 
  * <pre>
  * 
@@ -46,18 +52,21 @@ import com.raytheon.uf.common.util.TestUtil;
  * Feb 12, 2013 1543       djohnson     Can only test the retrieval response is now not null.
  * Feb 15, 2013 1543       djohnson     Some renames.
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
+ * Mar 19, 2013 1794       djohnson     Read from a queue rather than the file system.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class DeserializeRetrievedDataFromDirectoryTest {
+public class DeserializeRetrievedDataFromIngestTest {
     private final File directory = TestUtil
-            .setupTestClassDir(DeserializeRetrievedDataFromDirectoryTest.class);
+            .setupTestClassDir(DeserializeRetrievedDataFromIngestTest.class);
 
-    private final DeserializeRetrievedDataFromDirectory service = new DeserializeRetrievedDataFromDirectory(
-            directory);
+    private final ConcurrentLinkedQueue<String> retrievalQueue = new ConcurrentLinkedQueue<String>();
+
+    private final DeserializeRetrievedDataFromIngest service = new DeserializeRetrievedDataFromIngest(
+            retrievalQueue);
 
     @BeforeClass
     public static void classSetUp() {
@@ -65,28 +74,40 @@ public class DeserializeRetrievedDataFromDirectoryTest {
     }
 
     @Test
-    public void deserializesRetrievedDataFromAFileInTheTargetDirectory()
+    public void deserializesRetrievedDataFromTheQueue()
             throws Exception {
 
-        RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
-                .get();
+        addRetrievalToQueue();
 
-        new SerializeRetrievedDataToDirectory(directory,
-                new AlwaysSameWmoHeader("SMYG10 LYBM 280000"))
-                .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
-
-        final RetrievalResponseXml restored = service
-                .findRetrievals();
+        final RetrievalResponseXml restored = service.findRetrievals();
 
         // Just make sure the payload is present
         assertThat(restored.getRetrievalAttributePluginDataObjects().get(0)
                 .getRetrievalResponse(), is(notNullValue()));
     }
 
+
     @Test
-    public void deletesFileAfterRetrievingFromTheTargetDirectory()
+    public void removesFromQueueWhileRetrieving()
             throws Exception {
 
+        addRetrievalToQueue();
+
+        service.findRetrievals();
+
+        assertThat(retrievalQueue, is(empty()));
+    }
+
+    @Test
+    public void returnsNullWhenNothingInTheQueue() throws Exception {
+
+        final RetrievalResponseXml restored = service.findRetrievals();
+
+        assertNull(restored);
+    }
+
+    private void addRetrievalToQueue() throws SerializationException,
+            IOException {
         RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
@@ -94,25 +115,8 @@ public class DeserializeRetrievedDataFromDirectoryTest {
                 new AlwaysSameWmoHeader("SMYG10 LYBM 280000"))
                 .processRetrievedPluginDataObjects(retrievalPluginDataObjects);
 
-        service.findRetrievals();
-
-        assertThat(directory, hasNoFiles());
-    }
-
-    @Test
-    public void ignoresSubDirectories() throws Exception {
-
-        new File(directory, "subDir1").mkdirs();
-
-        service.findRetrievals();
-    }
-
-    @Test
-    public void returnsNullWhenNoFileInTheTargetDirectory() throws Exception {
-
-        final RetrievalResponseXml restored = service
-                .findRetrievals();
-
-        assertNull(restored);
+        final List<File> files = FileUtil.listFiles(directory,
+                FilenameFilters.ACCEPT_FILES, false);
+        retrievalQueue.add(FileUtil.file2String(files.get(0)));
     }
 }
