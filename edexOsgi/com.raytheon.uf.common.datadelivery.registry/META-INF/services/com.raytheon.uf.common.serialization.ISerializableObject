@@ -8,7 +8,10 @@ com.raytheon.uf.common.datadelivery.registry.DataSetName
 com.raytheon.uf.common.datadelivery.registry.Ensemble
 com.raytheon.uf.common.datadelivery.registry.GriddedCoverage
 com.raytheon.uf.common.datadelivery.registry.GriddedDataSet
+com.raytheon.uf.common.datadelivery.registry.PointDataSet
+com.raytheon.uf.common.datadelivery.registry.WFSPointDataSet
 com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData
+com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData
 com.raytheon.uf.common.datadelivery.registry.GriddedProjection
 com.raytheon.uf.common.datadelivery.registry.GroupDefinition
 com.raytheon.uf.common.datadelivery.registry.Levels
@@ -22,3 +25,5 @@ com.raytheon.uf.common.datadelivery.registry.Provider
 com.raytheon.uf.common.datadelivery.registry.Subscription
 com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle
 com.raytheon.uf.common.datadelivery.registry.Time
+com.raytheon.uf.common.datadelivery.registry.PointTime
+com.raytheon.uf.common.datadelivery.registry.GriddedTime

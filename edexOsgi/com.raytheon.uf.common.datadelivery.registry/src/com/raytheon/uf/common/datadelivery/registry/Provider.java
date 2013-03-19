@@ -78,7 +78,7 @@ public class Provider implements ISerializableObject {
 
         private static final String GRID_STRING_VALUE = "Grid";
 
-        private static final String POINT_STRING_VALUE = "point_data";
+        private static final String POINT_STRING_VALUE = "Point";
 
         private final String providerType;
 
