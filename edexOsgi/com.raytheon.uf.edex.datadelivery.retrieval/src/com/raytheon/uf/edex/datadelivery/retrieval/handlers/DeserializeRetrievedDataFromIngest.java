@@ -19,21 +19,18 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
 import com.raytheon.uf.edex.wmo.message.WMOMessage;
 
 /**
- * Deserializes the retrieved data in a directory.
+ * Deserializes the retrieved data in a retrievalQueue.
  * 
  * <pre>
  * 
@@ -43,30 +40,25 @@ import com.raytheon.uf.edex.wmo.message.WMOMessage;
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Mar 05, 2013 1647       djohnson     Remove WMO header.
+ * Mar 19, 2013 1794       djohnson     Read from a queue rather than the file system.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class DeserializeRetrievedDataFromDirectory implements IRetrievalsFinder {
+public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
 
-    private static final FileFilter NO_DIRECTORIES = new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-            return pathname.isFile();
-        }
-    };
-
-    private final File directory;
+    private final ConcurrentLinkedQueue<String> retrievalQueue;
 
     private final JAXBManager jaxbManager;
 
     /**
-     * @param directory
+     * @param retrievalQueue
      */
-    public DeserializeRetrievedDataFromDirectory(File directory) {
-        this.directory = directory;
+    public DeserializeRetrievedDataFromIngest(
+            ConcurrentLinkedQueue<String> retrievalQueue) {
+        this.retrievalQueue = retrievalQueue;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
                     OpenDapRetrievalResponse.class, Coverage.class);
@@ -81,22 +73,16 @@ public class DeserializeRetrievedDataFromDirectory implements IRetrievalsFinder 
      */
     @Override
     public RetrievalResponseXml findRetrievals() throws Exception {
+        String xml = retrievalQueue.poll();
 
-        final File[] files = directory.listFiles(NO_DIRECTORIES);
-
-        if (CollectionUtil.isNullOrEmpty(files)) {
+        if (xml == null) {
             return null;
-        }
-
-        final File file = files[0];
-        try {
-            WMOMessage message = new WMOMessage(FileUtil.file2bytes(file),
-                    new Headers());
+        } else {
+            WMOMessage message = new WMOMessage(xml, new Headers());
             return (RetrievalResponseXml) jaxbManager
                     .unmarshalFromXml(new String(message.getMessageBody()));
-        } finally {
-            file.delete();
         }
+
     }
 
 }
