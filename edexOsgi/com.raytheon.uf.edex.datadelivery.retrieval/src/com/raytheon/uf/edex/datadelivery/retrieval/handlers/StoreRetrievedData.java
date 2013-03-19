@@ -32,13 +32,16 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
+import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.TranslationException;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
 
@@ -89,10 +92,17 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
     @Override
     public void processRetrievedPluginDataObjects(
             RetrievalResponseXml retrievalPluginDataObjects)
-            throws Exception {
+            throws SerializationException, TranslationException {
         Map<String, PluginDataObject[]> pluginDataObjects = Maps.newHashMap();
-        final RetrievalRequestRecord requestRecord = retrievalDao
-                .getById(retrievalPluginDataObjects.getRequestRecord());
+        final RetrievalRequestRecordPK id = retrievalPluginDataObjects
+                .getRequestRecord();
+        final RetrievalRequestRecord requestRecord = retrievalDao.getById(id);
+
+        if (requestRecord == null) {
+            statusHandler.warn("Unable to find retrieval by id [" + id
+                    + "]!  Retrieval will not be processed...");
+            return;
+        }
 
         final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                 .getRetrievalAttributePluginDataObjects();

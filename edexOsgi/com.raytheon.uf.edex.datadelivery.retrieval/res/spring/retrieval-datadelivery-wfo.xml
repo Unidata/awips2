@@ -35,14 +35,15 @@
         <constructor-arg ref="retrievalDao" />
     </bean>
 
-    <!-- Pick up SBN retrievals from the drop-off directory -->
+    <!-- Pick up SBN retrievals from the drop-off point -->
+    <bean id="sbnRetrievalQueue" class="java.util.concurrent.ConcurrentLinkedQueue" />
     <bean id="sbnRetrievalTask"
         class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
         <constructor-arg value="SBN" />
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.DeserializeRetrievedDataFromDirectory">
-                <constructor-arg value="${sbn.retrieval.transfer.directory}" />
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.DeserializeRetrievedDataFromIngest">
+                <constructor-arg ref="sbnRetrievalQueue" />
             </bean>
         </constructor-arg>
         <constructor-arg>
