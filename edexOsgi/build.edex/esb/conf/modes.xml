@@ -312,28 +312,38 @@
         <exclude>.*datadelivery-registry.*</exclude>
         <includeMode>datadeliverytemplate</includeMode>
     </mode>
-	<mode name="dataprovideragent">
+	<mode name="dataProviderAgentTemplate" template="true">
 		<include>manualIngest*</include>
 		<include>time-common.xml</include>
 		<include>distribution-spring.xml</include>
 		<include>persist-ingest.xml</include>
 		<include>auth-common.xml</include>
-		<!-- grid specific services -->
+		<include>database-common.xml</include>
+		<!-- Remote connect to registry services -->
+		<include>datadelivery-standalone.xml</include>
+		<include>datadelivery-handlers.xml</include>
+		<include>datadelivery-handlers-impl.xml</include>
+		<include>request-router.xml</include>
+		<include>utility-request.xml</include>
+		<include>dpa-datadelivery.xml</include>
+		<!-- OGC/DPA services -->
+		<include>ogc-common.xml</include>
+		<include>.*-ogc-request.xml</include>
+	</mode>
+	<!-- This is a sample reference implmentation -->
+	<mode name="dataprovideragent">
+		<includeMode>dataProviderAgentTemplate</includeMode>
+		<!-- pointdata/obs specific services -->
+		<include>obs-common.xml</include>
+		<include>pointdata-common.xml</include>
+		<include>obs-dpa-ingest.xml</include>
+		<include>obs-ogc.xml</include>
+		<!-- grid specific services 
 		<include>grib-common.xml</include>
 		<include>grid-staticdata-process.xml</include>
 		<include>gridcoverage-.*.xml</include>
 		<include>grib-distribution.xml</include>
-		<include>grib-datadelivery.xml</include>
 		<include>level-common.xml</include>
-		<!-- pointdata/obs specific services -->
-		<include>pointdata-common.xml</include>
-		<include>obs-common.xml</include>
-		<include>obs-datadelivery.xml</include>
-		<!-- dpa services -->
-		<include>.*dpa.*</include>
-		<!-- OGC services -->
-		<include>.*ogc.*</include>
-		<!-- excluded services -->
-		<exclude>fssobs-common</exclude>
+		<include>parameter-common.xml</include>	-->
 	</mode>
 </edexModes>
