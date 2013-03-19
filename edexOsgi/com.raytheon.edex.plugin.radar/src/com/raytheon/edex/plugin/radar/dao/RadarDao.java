@@ -28,6 +28,8 @@ package com.raytheon.edex.plugin.radar.dao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/06/09     1990       bphillip    Initial creation
+ * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
+ *                                     HDF5.
  * </pre>
  * 
  * @author bphillip
@@ -160,17 +162,6 @@ public class RadarDao extends PluginDao {
                     radarRec.getMapProductVals());
             ByteDataRecord bdr = new ByteDataRecord(
                     RadarStoredData.PRODUCT_VALS_ID, radarRec.getDataURI(),
-                    data);
-            bdr.setCorrelationObject(radarRec);
-            dataStore.addDataRecord(bdr, sp);
-        }
-
-        if (radarRec.getAlphanumericValues() != null) {
-            byte[] data = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).serialize(
-                    radarRec.getAlphanumericValues());
-            ByteDataRecord bdr = new ByteDataRecord(
-                    RadarStoredData.ALPHANUMERIC_ID, radarRec.getDataURI(),
                     data);
             bdr.setCorrelationObject(radarRec);
             dataStore.addDataRecord(bdr, sp);
