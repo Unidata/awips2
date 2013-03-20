@@ -346,7 +346,7 @@ public class FipsUtil {
      * @param fips
      * @return
      */
-    private static ArrayList<String> getListCounties(String fips) {
+    public static ArrayList<String> getListCounties(String fips) {
         ArrayList<String> rval = new ArrayList<String>();
         String matchStr = "";
 
