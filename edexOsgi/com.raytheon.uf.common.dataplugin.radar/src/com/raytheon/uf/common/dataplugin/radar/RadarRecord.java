@@ -59,9 +59,9 @@ import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
+import com.raytheon.uf.common.dataplugin.radar.level3.DataLevelThreshold;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket.GFMAttributeIDs;
-import com.raytheon.uf.common.dataplugin.radar.level3.DataLevelThreshold;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
 import com.raytheon.uf.common.dataplugin.radar.level3.GenericDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
@@ -119,6 +119,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10/09/2007   465         randerso    Updated to better represent level 3 data                                   
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 03/04/2013   DCS51       zwang       Handle MIGFA product
+ * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
+ *                                      HDF5.
  * </pre>
  * 
  * @author bphillip
@@ -1032,14 +1034,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
      */
     public GSMMessage getGsmMessage() {
         return getStoredData().getGsmMessage();
-    }
-
-    public String getAlphanumericValues() {
-        return getStoredData().getAlphanumericValues();
-    }
-
-    public void setAlphanumericValues(String alphanumericValues) {
-        getStoredData().setAlphanumericValues(alphanumericValues);
     }
 
     public short getProductDependentValue(int value) {
