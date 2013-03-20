@@ -30,6 +30,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    01/25/13        1447          dgilling       Initial Creation.
+#    03/19/13        1447          dgilling       Merge A1 DR 21434.
 # 
 #
 
@@ -173,6 +174,32 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
         currentYear = time.gmtime(self._time)[0]
         terminations = ('CAN', 'EXP', 'UPG')
+        
+        # Remove all records from the received table for events that
+        # have been cancelled and compacted in our active table
+        for rec in activeTable:
+            if rec['act'] not in terminations:
+                continue
+            
+            recYear = time.gmtime(rec['issueTime'])[0]
+
+            # check if there are other related records
+            single = True
+            for rec2 in activeTable:
+                if self.hazardCompare(rec2, rec, compare2):
+                    rec2Year = time.gmtime(rec2['issueTime'])[0]
+                    if recYear == rec2Year and rec != rec2:
+                        single = False
+                        break
+            
+            if single:
+                # remove all records for this event from the received table
+                for othRec in otherTable[::-1]:
+                    if self.hazardCompare(rec, othRec, compare2):
+                        othRecYear = time.gmtime(othRec['issueTime'])[0]
+                        if othRecYear == recYear:
+                            otherTable.remove(othRec)
+
 
         # we process each entry in the other (received) table
         for othRec in otherTable:
@@ -186,20 +213,6 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                 continue
 
             othRecYear = time.gmtime(othRec['issueTime'])[0]
-
-            # check our active table for this event. if there is only one record
-            # and it is a canceled event, then we keep it that way.
-
-            matches = []
-            for rec in activeTable:
-                if self.hazardCompare(rec, othRec, compare2):
-                    atRecYear = time.gmtime(rec['issueTime'])[0]
-                    if othRecYear == atRecYear:
-                        matches.append(rec)
-            
-            if len(matches) == 1 and matches[0]['act'] in terminations:
-                # done with this remote record
-                continue
 
             # if the remote table has a single canceled record, 
             # copy the record if needed and remove the rest for the event
@@ -245,10 +258,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
                 if not found:
                     # add the remote record
-                    if len(matches) > 0:
-                        newRplaceEntriesAct.append(othRec)
-                    else:
-                        missingEntriesAct.append(othRec)
+                    missingEntriesAct.append(othRec)
                     activeTable.append(othRec)
                     changed = True
 
@@ -257,12 +267,8 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                     if chgRec not in changes:
                         changes.append(chgRec)
 
-                # done with this remote record
-                continue
-
-
             # currently active events
-            if othRec['endTime'] >= self._time:
+            elif othRec['endTime'] >= self._time:
 
                 # find a match in otherTable that is in our active table
                 # and replace it if newer, but only if it is from the same
@@ -289,8 +295,8 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                 # if a match wasn't found, then we may need to add the record
                 # into our active table
                 if found == 0:
-                    activeTable.append(othRec)   #add the record
                     missingEntriesAct.append(othRec)
+                    activeTable.append(othRec)   #add the record
                     chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'])
                     if chgRec not in changes:
                         changes.append(chgRec)
@@ -300,7 +306,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
                 othRecYear = time.gmtime(othRec['issueTime'])[0]
                 if currentYear != othRecYear:
-                    continue   #only care about this years
+                    continue   #only care about this year
 
                 # find the highest ETN for the current year per phen/sig
                 # in active table and compare to the other table. If found
@@ -325,8 +331,8 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
                 #if phen/sig not found, then add it
                 if maxETN is None:
-                    activeTable.append(othRec) #add the record
                     missingEntriesPast.append(othRec)
+                    activeTable.append(othRec) #add the record
                     chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'])
                     if chgRec not in changes:
                         changes.append(chgRec)
