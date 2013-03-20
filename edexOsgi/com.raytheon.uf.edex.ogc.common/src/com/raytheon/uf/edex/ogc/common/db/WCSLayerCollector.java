@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
@@ -168,9 +169,26 @@ public abstract class WCSLayerCollector<L extends SimpleLayer, R extends PluginD
         }
     }
     
-    protected void setCoverage(String name) {
-        //TODO:  NOt yet implemented
 
+    protected void setCoverage(L layer) {
+        //TODO:  NOt yet implemented
+    }
+    
+
+    @Override
+    protected Coverage getCoverage() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected void setDataSet(L layer) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected void setDataSetMetaData(L layer) {
+        // TODO Auto-generated method stub
     }
     
     /**
