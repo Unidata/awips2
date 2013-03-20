@@ -15,6 +15,7 @@ Packager: Bryan Kowal
 
 provides: awips2-edex
 provides: awips2-base-component
+provides: awips2-base
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
