@@ -137,12 +137,7 @@ public class PixelCoverage {
      * @return
      */
     public boolean intersects(IExtent extent) {
-        if (mesh == null || true) {
-            // TODO: Figure out mesh intersection algorithm
-            return this.extent.intersects(extent);
-        } else {
-            return mesh.intersects(extent);
-        }
+        return this.extent.intersects(extent);
     }
 
     /**
