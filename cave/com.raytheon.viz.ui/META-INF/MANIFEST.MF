@@ -14,7 +14,10 @@ Require-Bundle: com.raytheon.viz.core,
  org.apache.commons.lang,
  com.raytheon.uf.viz.core,
  org.eclipse.core.expressions,
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
 Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.actions,
  com.raytheon.viz.ui.cmenu,
@@ -24,7 +27,6 @@ Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.editor,
  com.raytheon.viz.ui.input,
  com.raytheon.viz.ui.input.preferences,
- com.raytheon.viz.ui.jobs,
  com.raytheon.viz.ui.keys,
  com.raytheon.viz.ui.panes,
  com.raytheon.viz.ui.parameter.converters,
@@ -37,5 +39,4 @@ Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.widgets,
  com.raytheon.viz.ui.widgets.duallist
 Bundle-Vendor: Raytheon
-Import-Package: com.raytheon.uf.common.message.response
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
