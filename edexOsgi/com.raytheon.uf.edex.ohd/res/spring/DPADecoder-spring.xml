@@ -44,7 +44,7 @@
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile"  />
-					<bean ref="radarDecompressor" method="decompressToFile" />
+					<bean ref="radarDecompressor" method="decompressWithHeader" />
 					<bean ref="dpaDecodeSrv" method="process"/>
 					<!-- Uncomment when dpaDecodeSrv route properly handles only its own files
 					<bean ref="processUtil" method="log"/>
