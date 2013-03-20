@@ -56,122 +56,121 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  */
 public class QCDataQuery extends PointDataQuery {
 
-	/** List of query parameters for "querying" the netCDF file */
-	private final List<String> queryParameters;
+    /** List of query parameters for "querying" the netCDF file */
+    private final List<String> queryParameters;
 
-	/**
-	 * Constructs a new QCDataQuery
-	 * 
-	 * @throws DataAccessLayerException
-	 *             If errors occur while retrieving the data access object
-	 * @throws PluginException
-	 *             If the data access object is of the wrong type
-	 */
-	public QCDataQuery() throws DataAccessLayerException, PluginException {
-		super("qc");
-		queryParameters = new ArrayList<String>();
-	}
+    /**
+     * Constructs a new QCDataQuery
+     * 
+     * @throws DataAccessLayerException
+     *             If errors occur while retrieving the data access object
+     * @throws PluginException
+     *             If the data access object is of the wrong type
+     */
+    public QCDataQuery() throws DataAccessLayerException, PluginException {
+        super("qc");
+        queryParameters = new ArrayList<String>();
+    }
 
-	@Override
+    @Override
     public void addParameter(String name, String value, String operand) {
-		queryParameters.add(name + "  " + value + "  " + operand);
-	}
+        queryParameters.add(name + "  " + value + "  " + operand);
+    }
 
-	/**
-	 * Executes the query and returns the data in a PointDataContainer
-	 * 
-	 * @return The data in a PointDataContainer
-	 * @throws Exception
-	 *             if errors occur while retrieving the data
-	 */
-	@Override
+    /**
+     * Executes the query and returns the data in a PointDataContainer
+     * 
+     * @return The data in a PointDataContainer
+     * @throws Exception
+     *             if errors occur while retrieving the data
+     */
+    @Override
     public PointDataContainer execute() throws Exception {
-		List<PointDataContainer> containers = new ArrayList<PointDataContainer>();
+        List<PointDataContainer> containers = new ArrayList<PointDataContainer>();
 
-		// Gets the available files for querying
-		Map<String, File> pathMap = QCPaths.getPaths();
-		for (File dir : pathMap.values()) {
+        // Gets the available files for querying
+        Map<String, File> pathMap = QCPaths.getPaths();
+        for (File dir : pathMap.values()) {
             List<File> files = FileUtil.listFiles(dir, null, false);
 
-			if (!files.isEmpty()) {
-				String[] fileParams = ((QCDao) dao).getParameters(files.get(0));
-				Set<String> attribSet = new HashSet<String>(
-						Arrays.asList(attribs));
-				attribSet.retainAll(Arrays.asList(fileParams));
-				List<String> attributes = new ArrayList<String>();
-				attributes.addAll(attribSet);
-				for (File file : files) {
-					PointDataContainer pdc = ((QCDao) dao).getPointData(file,
-							attributes, queryParameters);
-					if (pdc == null) {
-						return null;
-					}
-					if (pdc.getAllocatedSz() != 0) {
-						containers.add(pdc);
-					}
-				}
-			}
-		}
+            if (!files.isEmpty()) {
+                String[] fileParams = ((QCDao) dao).getParameters(files.get(0));
+                Set<String> attribSet = new HashSet<String>(
+                        Arrays.asList(attribs));
+                attribSet.retainAll(Arrays.asList(fileParams));
+                List<String> attributes = new ArrayList<String>();
+                attributes.addAll(attribSet);
+                for (File file : files) {
+                    PointDataContainer pdc = ((QCDao) dao).getPointData(file,
+                            attributes, queryParameters);
+                    if (pdc == null) {
+                        return null;
+                    }
+                    if (pdc.getAllocatedSz() != 0) {
+                        containers.add(pdc);
+                    }
+                }
+            }
+        }
 
-		if (containers.size() == 0)
-			return null;
+        if (containers.size() == 0)
+            return null;
 
-		PointDataContainer c0 = containers.get(0);
+        PointDataContainer c0 = containers.get(0);
 
-		for (int i = 1; i < containers.size(); i++) {
-			c0.combine(containers.get(i));
-		}
-		return c0;
-	}
+        for (int i = 1; i < containers.size(); i++) {
+            c0.combine(containers.get(i));
+        }
+        return c0;
+    }
 
-	@Override
-	public ResponseMessageCatalog getAvailableParameters() throws Exception {
-		String[] p = new String[0];
-		Map<String, List<Integer[]>> fnameMap = getRetrievalMap(1);
+    @Override
+    public ResponseMessageCatalog getAvailableParameters() throws Exception {
+        String[] p = new String[0];
+        Map<String, List<Integer[]>> fnameMap = getRetrievalMap(1);
 
-		if (fnameMap.size() > 0) {
+        if (fnameMap.size() > 0) {
 
-			Iterator<String> str = fnameMap.keySet().iterator();
-			p = ((QCDao) dao).getParameters(new File(str.next()));
-		}
-		ResponseMessageCatalog cat = new ResponseMessageCatalog();
-		cat.setValues(p);
+            Iterator<String> str = fnameMap.keySet().iterator();
+            p = ((QCDao) dao).getParameters(new File(str.next()));
+        }
+        ResponseMessageCatalog cat = new ResponseMessageCatalog();
+        cat.setValues(p);
 
-		return cat;
-	}
+        return cat;
+    }
 
-	@SuppressWarnings("unchecked")
-	private Map<String, List<Integer[]>> getRetrievalMap(int limit)
-			throws Exception {
+    private Map<String, List<Integer[]>> getRetrievalMap(int limit)
+            throws Exception {
 
-		String[] fnameKeys = dao.getKeysRequiredForFileName();
-		tq.addReturnedField("pointDataView.curIdx", null);
-		tq.addReturnedField("id", null);
-		tq.setCount(limit);
-		for (String fnameKey : fnameKeys) {
-			tq.addReturnedField(fnameKey, null);
-		}
-		List<?> results = tq.execute();
+        String[] fnameKeys = dao.getKeysRequiredForFileName();
+        query.addReturnedField("pointDataView.curIdx");
+        query.addReturnedField("id");
+        query.setMaxResults(limit);
+        for (String fnameKey : fnameKeys) {
+            query.addReturnedField(fnameKey);
+        }
+        List<?> results = dao.queryByCriteria(query);
 
-		Map<String, List<Integer[]>> fnameMap = new HashMap<String, List<Integer[]>>();
+        Map<String, List<Integer[]>> fnameMap = new HashMap<String, List<Integer[]>>();
 
-		Map<String, Object> workingMap = new HashMap<String, Object>();
-		for (Object o : results) {
-			Object[] oArr = (Object[]) o;
-			workingMap.clear();
-			for (int i = 0; i < fnameKeys.length; i++) {
-				workingMap.put(fnameKeys[i], oArr[i + 2]);
-			}
+        Map<String, Object> workingMap = new HashMap<String, Object>();
+        for (Object o : results) {
+            Object[] oArr = (Object[]) o;
+            workingMap.clear();
+            for (int i = 0; i < fnameKeys.length; i++) {
+                workingMap.put(fnameKeys[i], oArr[i + 2]);
+            }
 
-			String fileName = dao.getPointDataFileName(workingMap);
-			List<Integer[]> ints = fnameMap.get(fileName);
-			if (ints == null) {
-				ints = new ArrayList<Integer[]>(500);
-				fnameMap.put(fileName, ints);
-			}
-			ints.add(new Integer[] { (Integer) oArr[0], (Integer) oArr[1] });
-		}
+            String fileName = dao.getPointDataFileName(workingMap);
+            List<Integer[]> ints = fnameMap.get(fileName);
+            if (ints == null) {
+                ints = new ArrayList<Integer[]>(500);
+                fnameMap.put(fileName, ints);
+            }
+            ints.add(new Integer[] { (Integer) oArr[0], (Integer) oArr[1] });
+        }
 
-		return fnameMap;
-	}
+        return fnameMap;
+    }
 }

@@ -126,6 +126,13 @@
          unpack="false"/>
 
    <plugin
+         id="com.raytheon.uf.edex.pointdata"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.raytheon.uf.edex.purgesrv"
          download-size="0"
          install-size="0"
@@ -160,18 +167,6 @@
 
    <plugin
          id="org.apache.commons.management"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.mina"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.qpid"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
