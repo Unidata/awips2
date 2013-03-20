@@ -255,7 +255,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
      * @return
      */
     protected WorkbenchAdvisor getWorkbenchAdvisor() {
-        return new VizWorkbenchAdvisor();
+        return new AWIPSWorkbenchAdvisor();
     }
 
     /**
