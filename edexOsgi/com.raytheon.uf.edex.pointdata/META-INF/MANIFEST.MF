@@ -16,7 +16,6 @@ Require-Bundle: com.raytheon.uf.common.pointdata;bundle-version="1.12.1174";visi
  com.raytheon.uf.common.derivparam;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.edex.common;bundle-version="1.12.1174",
- com.raytheon.edex.uengine;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
  javax.measure;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.pointdata,
