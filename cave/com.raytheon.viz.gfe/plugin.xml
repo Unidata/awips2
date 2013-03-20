@@ -1875,7 +1875,7 @@
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.config.ConfigAdapter"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Config Files"
           value="gfe/userPython/gfeConfig">
     </path>
@@ -1907,7 +1907,7 @@
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.procedures.ProceduresAdapter"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Procedures"
           value="gfe/userPython/procedures">
     </path>
@@ -1915,7 +1915,7 @@
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.smarttool.SmartToolAdapter"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Smart Tools"
           value="gfe/userPython/smartTools">
     </path>
@@ -1923,7 +1923,7 @@
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.textproduct.TextProductAdapter"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Text Products"
           recursive="false"
           value="gfe/userPython/textProducts">
@@ -1940,7 +1940,7 @@
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.textproduct.TextUtilityAdapter"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Text Utilities"
           recursive="false"
           value="gfe/userPython/textUtilities/regular">
@@ -1949,7 +1949,7 @@
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.smarttool.UtilityAdapter"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Utilities"
           value="gfe/userPython/utilities">
     </path>
@@ -1962,7 +1962,7 @@
     <path
           application="GFE"
           extensionFilter=".xml"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Weather Element Groups"
           recursive="true"
           value="gfe/weGroups">
