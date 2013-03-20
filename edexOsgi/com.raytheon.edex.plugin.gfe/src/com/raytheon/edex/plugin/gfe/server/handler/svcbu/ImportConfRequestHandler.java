@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ImportConfRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -33,7 +35,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 20, 2013   1447     dgilling     Support troubleshooting mode
+ *                                      added to match A1 DR 21404.
  * 
  * </pre>
  * 
@@ -49,7 +53,8 @@ public class ImportConfRequestHandler implements
 
         ServerResponse<String> sr = new ServerResponse<String>();
         SvcBackupUtil.execute("request_configuration", request.getPrimarySite()
-                .toLowerCase(), request.getFailedSite().toLowerCase());
+                .toLowerCase(), request.getFailedSite().toLowerCase(), Integer
+                .toString(BooleanUtils.toInteger(request.isTrMode())));
         return sr;
     }
 }
