@@ -654,7 +654,7 @@
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
           application="CAVE"
-          localizationType="COMMON_STATIC"
+          localizationType="CAVE_STATIC"
           name="Color Maps"
           value="colormaps" 
           recursive="true">
