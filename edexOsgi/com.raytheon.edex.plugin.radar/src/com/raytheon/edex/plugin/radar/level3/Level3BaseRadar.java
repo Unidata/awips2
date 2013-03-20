@@ -35,11 +35,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tools.bzip2.CBZip2InputStream;
+import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
+import com.raytheon.edex.plugin.radar.util.RadarSpatialUtil;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertAdaptationParameters;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertMessage;
@@ -156,8 +156,6 @@ public class Level3BaseRadar {
     private GraphicBlock graphicBlock;
 
     private TabularBlock tabularBlock;
-
-    private String alphanumericValues;
 
     private GSMBlock gsmBlock;
 
@@ -584,45 +582,6 @@ public class Level3BaseRadar {
         return tabBlock;
     }
 
-    private String readAlphanumericAddOn() throws IOException {
-        if (theRadarData.available() != 0 && symbologyBlock == null) {
-            short temp = theRadarData.readShort();
-            while (theRadarData.available() != 0 && temp != -1) {
-                temp = theRadarData.readShort();
-            }
-        }
-        if (theRadarData.available() != 0 && graphicBlock == null) {
-            short temp = theRadarData.readShort();
-            while (theRadarData.available() != 0 && temp != -1) {
-                temp = theRadarData.readShort();
-            }
-        }
-        if (theRadarData.available() != 0 && tabularBlock == null) {
-            short temp = theRadarData.readShort();
-            while (theRadarData.available() != 0 && temp != -1) {
-                temp = theRadarData.readShort();
-            }
-        }
-
-        int lineLen = theRadarData.available();
-        if (lineLen > 0) {
-            byte[] buf = new byte[lineLen];
-            theRadarData.readFully(buf);
-            String temp = new String(buf);
-            // PSM is found in all products that have useful Site Adaptation
-            // Parameters. For this reason, we are dropping every other set of
-            // Site Adaptation Parameters.
-            if (temp.contains("PSM")) {
-                temp = temp.substring(temp.indexOf("PSM"));
-            } else {
-                temp = "";
-            }
-            return temp;
-        } else {
-            return "";
-        }
-    }
-
     /**
      * 
      * @return
@@ -697,10 +656,6 @@ public class Level3BaseRadar {
         return tabularBlock;
     }
 
-    public String getAlphanumericValues() {
-        return alphanumericValues;
-    }
-
     /**
      * Goes through the radar header and reads in all the important fields.
      * 
@@ -761,24 +716,7 @@ public class Level3BaseRadar {
         productVersion = theRadarData.readByte();
 
         productSpotBlank = theRadarData.readByte();
-        if (afosId == "") {
-            if ("".equals(radarLoc)) {
-                RadarStationDao stat = new RadarStationDao();
-                try {
-                    RadarStation loc = stat.queryByRpgIdDec(String
-                            .valueOf(theSourceId));
-                    if (loc != null) {
-                        radarLoc = loc.getRdaId();
-                        radarLoc = radarLoc.substring(1);
-                    }
-                } catch (DataAccessLayerException e) {
-                    theHandler.handle(Priority.ERROR,
-                            "Unable to query database for radar location", e);
-                }
-            }
-            afosId = RadarTextProductUtil
-                    .createAfosId(theProductCode, radarLoc);
-        }
+        lookupAfosId();
         int symbologyBlockOffset = theRadarData.readInt() * 2;
         int graphicBlockOffset = theRadarData.readInt() * 2;
         int tabularBlockOffset = theRadarData.readInt() * 2;
@@ -793,13 +731,7 @@ public class Level3BaseRadar {
                 try {
                     theRadarData.reset();
                     theRadarData.readFully(msg);
-                    InputStream ins = new DataInputStream(theRadarData);
-                    char c1 = (char) ins.read();
-                    char c2 = (char) ins.read();
-                    if (c1 != 'B' || c2 != 'Z') {
-                        throw new IOException("Not a bzip2 stream");
-                    }
-                    ins = new CBZip2InputStream(ins);
+                    InputStream ins = new BZip2InputStream(theRadarData, false);
                     uncompressed = new byte[uncompressedSize];
                     ins.read(uncompressed);
                 } catch (IOException e) {
@@ -828,7 +760,6 @@ public class Level3BaseRadar {
             symbologyBlock = readSymbologyBlock(symbologyBlockOffset);
             graphicBlock = readGraphicBlock(graphicBlockOffset);
             tabularBlock = readTabularBlock(tabularBlockOffset);
-            alphanumericValues = readAlphanumericAddOn();
         }
 
         if (tabularBlock != null) {
@@ -911,24 +842,9 @@ public class Level3BaseRadar {
         }
 
         tabularBlock.setString(builder.toString());
-        if (afosId == "") {
-            if ("".equals(radarLoc)) {
-                RadarStationDao stat = new RadarStationDao();
-                try {
-                    RadarStation loc = stat.queryByRpgIdDec(String
-                            .valueOf(theSourceId));
-                    if (loc != null) {
-                        radarLoc = loc.getRdaId();
-                        radarLoc = radarLoc.substring(1);
-                    }
-                } catch (DataAccessLayerException e) {
-                    theHandler.handle(Priority.ERROR,
-                            "Unable to query database for radar location", e);
-                }
-            }
-            afosId = RadarTextProductUtil
-                    .createAfosId(theMessageCode, radarLoc);
-        }
+        
+        lookupAfosId();
+        
         if (RadarTextProductUtil.radarTable.keySet().contains(theMessageCode)) {
             byte[] wmoid = wmoHeader.getBytes();
             WMOHeader header = new WMOHeader(wmoid, headers);
@@ -944,6 +860,29 @@ public class Level3BaseRadar {
                             "Could not store text product", e);
                 }
             }
+        }
+    }
+
+    /**
+     * Set the afosId and radarLoc based off the sourceId.
+     */
+    private void lookupAfosId() {
+        if (afosId.isEmpty()) {
+            if (radarLoc.isEmpty()) {
+                try {
+                    RadarStation loc = RadarSpatialUtil
+                            .getRadarStationByRpgIdDec(theSourceId);
+                    if (loc != null) {
+                        radarLoc = loc.getRdaId();
+                        radarLoc = radarLoc.substring(1);
+                    }
+                } catch (DataAccessLayerException e) {
+                    theHandler.handle(Priority.ERROR,
+                            "Unable to query database for radar location", e);
+                }
+            }
+            afosId = RadarTextProductUtil
+                    .createAfosId(theMessageCode, radarLoc);
         }
     }
 

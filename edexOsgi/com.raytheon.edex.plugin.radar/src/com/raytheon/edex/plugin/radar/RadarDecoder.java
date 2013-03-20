@@ -35,6 +35,7 @@ import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.plugin.radar.level2.Level2BaseRadar;
 import com.raytheon.edex.plugin.radar.level3.Level3BaseRadar;
 import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
+import com.raytheon.edex.plugin.radar.util.RadarSpatialUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -85,6 +86,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 2/14/2007    139         Phillippe   Initial check-in. Refactor of initial implementation.
  * Dec 17, 2007 600         bphillip    Added dao pool usage
  * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz() signature changed.
+ * Mar 19, 2013 1804        bsteffen    Optimize decoder performance.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -200,7 +203,8 @@ public class RadarDecoder extends AbstractDecoder {
                 RadarRecord record = new RadarRecord();
                 record.setProductCode(l3Radar.getMessageCode());
                 record.setDataTime(new DataTime(l3Radar.getMessageTimestamp()));
-                RadarStation station = getStationById(l3Radar.getSourceId());
+                RadarStation station = RadarSpatialUtil
+                        .getRadarStationByRpgIdDec(l3Radar.getSourceId());
                 if (station == null) {
                     record.setIcao("unkn");
                     logger.error(headers.get("ingestfilename")
@@ -409,8 +413,6 @@ public class RadarDecoder extends AbstractDecoder {
                         record.setMapRecordVals(recordVals);
                         record.setTabularBlock(tb);
                     }
-                    record.setAlphanumericValues(l3Radar
-                            .getAlphanumericValues());
                 }
 
                 try {
@@ -543,12 +545,11 @@ public class RadarDecoder extends AbstractDecoder {
      */
     private void processSymbologyBlock(RadarRecord record,
             SymbologyBlock symbologyBlock) {
-
-        int errorCount = 0;
-
         if (symbologyBlock == null) {
             return;
         }
+        
+        int packetsKept = 0;
 
         List<Layer> packetsInLyrs = new ArrayList<Layer>();
         for (int layer = 0; layer < symbologyBlock.getNumLayers(); ++layer) {
@@ -585,20 +586,19 @@ public class RadarDecoder extends AbstractDecoder {
                     }
                 }
             }
+            packetsKept += packets.size();
             lyr.setPackets(packets.toArray(new SymbologyPacket[packets.size()]));
             packetsInLyrs.add(lyr);
 
         }
 
-        // remove the radial and raster from the symb block
-        symbologyBlock.setLayers(packetsInLyrs.toArray(new Layer[packetsInLyrs
-                .size()]));
-        record.setSymbologyBlock(symbologyBlock);
-        record.correlateSymbologyPackets();
-
-        if (errorCount > 0) {
-            logger.error("Radar file contains " + errorCount
-                    + " unrecognized symbology packet types.");
+        // remove the radial and raster from the symb block, only keep it if
+        // there are other packets.
+        if (packetsKept > 0) {
+            symbologyBlock.setLayers(packetsInLyrs
+                    .toArray(new Layer[packetsInLyrs.size()]));
+            record.setSymbologyBlock(symbologyBlock);
+            record.correlateSymbologyPackets();
         }
     }
 
@@ -654,23 +654,6 @@ public class RadarDecoder extends AbstractDecoder {
         record.setNumRadials(precipPacket.getNumRows());
         record.setNumBins(precipPacket.getNumCols());
         record.setRawData(precipPacket.getPrecipData());
-    }
-
-    /**
-     * Retrieve the radar station from the dao for the rpg id given
-     * 
-     * @param rpg_id
-     * @return
-     */
-    private RadarStation getStationById(int rpg_id) {
-        try {
-            RadarStation station = radarStationDao.queryByRpgIdDec(String
-                    .format("%03d", rpg_id));
-            return station;
-        } catch (Exception e) {
-            logger.error("Error retrieving RadarStation for id: " + rpg_id, e);
-        }
-        return null;
     }
 
     /**

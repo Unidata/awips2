@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bzip2
+Bundle-SymbolicName: org.itadaki.bzip2
+Bundle-Version: 0.9.1
+Bundle-ClassPath: jbzip2-0.9.1.jar,
+ .
+Export-Package: org.itadaki.bzip2
