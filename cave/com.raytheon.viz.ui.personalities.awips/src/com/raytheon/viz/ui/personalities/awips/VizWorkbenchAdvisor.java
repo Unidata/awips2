@@ -45,6 +45,7 @@ import org.eclipse.ui.contexts.IContextService;
 import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
+import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
@@ -55,7 +56,8 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
- * Mar 5, 2013     1753     njensen    Added shutdown printout
+ * Mar 5, 2013     1753     njensen     Added shutdown printout
+ * Mar 20, 2013    1638     mschenke    Added overrideable method for dynamic menu creation
  * 
  * </pre>
  * 
@@ -73,6 +75,8 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     protected CloseNonRestorableDetachedViewsListener detachedViewsListener;
 
     protected boolean singlePerspective;
+
+    private boolean createdMenus = false;
 
     public VizWorkbenchAdvisor() {
         performanceListener = CaveCommandExecutionListener.getInstance();
@@ -292,8 +296,11 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     @Override
     public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
             IWorkbenchWindowConfigurer configurer) {
-        return new VizWorkbenchWindowAdvisor(configurer, singlePerspective,
-                true);
+        if (createdMenus == false) {
+            createdMenus = true;
+            createDynamicMenus();
+        }
+        return new VizWorkbenchWindowAdvisor(configurer, singlePerspective);
     }
 
     /*
@@ -330,6 +337,8 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     public void postStartup() {
         super.postStartup();
 
+        // createDynamicMenus();
+
         Boolean log = Activator.getDefault().getPreferenceStore()
                 .getBoolean(PreferenceConstants.P_LOG_PERF);
 
@@ -339,6 +348,14 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         IContextService service = (IContextService) PlatformUI.getWorkbench()
                 .getService(IContextService.class);
         service.activateContext("com.raytheon.uf.viz.application.awips");
+    }
+
+    /**
+     * Uses {@link DiscoverMenuContributions} to create dynamic menu
+     * contributions
+     */
+    protected void createDynamicMenus() {
+        DiscoverMenuContributions.discoverContributions();
     }
 
     /**
