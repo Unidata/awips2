@@ -39,8 +39,6 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            njensen     Initial creation
  * Feb 25, 2010  4108     ryu         Add user/site directories to include path
- * Mar 06, 2013  15717    jzeng       Change CAVE_STATIC to COMMON_STATIC
- *                                    for GFE localization files
  * 
  * </pre>
  * 
@@ -53,7 +51,7 @@ public class ProcedureFactory {
     private static ProcedureController buildInstance(DataManager dataMgr,
             boolean ui) throws JepException {
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.COMMON_STATIC,
+                .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE);
 
         String baseUtil = GfePyIncludeUtil.getUtilitiesLF(baseCtx).getFile()
