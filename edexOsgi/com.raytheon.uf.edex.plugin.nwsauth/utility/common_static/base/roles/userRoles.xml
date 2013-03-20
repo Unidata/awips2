@@ -5,7 +5,7 @@
    <permission id="com.raytheon.localization.site/common_static/purge">
    </permission>
 
-   <permission id="com.raytheon.localization.site/common_static/colormaps">
+   <permission id="com.raytheon.localization.site/cave_static/colormaps">
    </permission>
 
    <permission id="com.raytheon.localization.site/cave_static/ffmp">
@@ -93,7 +93,7 @@
 
    <user userId="ALL">
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
-      <userPermission>com.raytheon.localization.site/common_static/colormaps</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/colormaps</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/ffmp</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/fog</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/fog</userPermission>
