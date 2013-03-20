@@ -46,7 +46,6 @@ import com.raytheon.viz.gfe.GFEOperationFailedException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2009            njensen     Initial creation
- * Mar 07  2013  15717     jzeng       Change CAVE_STATIC to COMMON_STATIC
  * 
  * </pre>
  * 
@@ -67,7 +66,7 @@ public class TextFileUtil {
             file = PATH_MGR.getStaticLocalizationFile(name);
             if (file == null) {
                 LocalizationContext ctx = PATH_MGR.getContext(
-                        LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                        LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
                 file = PATH_MGR.getLocalizationFile(ctx, name);
             }
         }
@@ -82,7 +81,7 @@ public class TextFileUtil {
 
         if (name != null) {
             LocalizationContext ctx = PATH_MGR.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
             file = PATH_MGR.getLocalizationFile(ctx, name);
         }
         return file;
