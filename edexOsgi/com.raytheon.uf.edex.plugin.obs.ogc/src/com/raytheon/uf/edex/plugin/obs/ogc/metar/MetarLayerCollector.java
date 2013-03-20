@@ -23,7 +23,6 @@ package com.raytheon.uf.edex.plugin.obs.ogc.metar;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -31,7 +30,6 @@ import java.util.TreeSet;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
-import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -194,42 +192,28 @@ public class MetarLayerCollector extends WFSLayerCollector<MetarLayer> {
     public MetarLayer newLayer() {
     
         layer = new MetarLayer();
-        layer.setName("metar");
-        // set the coverage for this layer
-        setCoverage(layer.getName());
-        Coordinate lowerRight = getCoverage().getLowerRight();
-        Coordinate upperLeft = getCoverage().getUpperLeft();
-        ReferencedEnvelope env = new ReferencedEnvelope(upperLeft.x, lowerRight.x, lowerRight.y, upperLeft.y,
-                MapUtil.LATLON_PROJECTION);
-        layer.setCrs84Bounds(JTS.toGeometry((Envelope) env));
-        layer.setTargetCrsCode("CRS:84");
-        layer.setTargetMaxx(env.getMaxX());
-        layer.setTargetMaxy(env.getMaxY());
-        layer.setTargetMinx(env.getMinX());
-        layer.setTargetMiny(env.getMinY());
-        layer.setTimes(new TreeSet<Date>());
         
-        // create parameters
-        setParameters(layer);
-        // create a point data set metadata object
-        setPointDataSetMetaData(layer);
-        // install main dataset on registry
-        storeDataSet(getDataSet());
+        synchronized (layer) {
+            layer.setName("metar");
+            // create the main point data set
+            setDataSet(layer);
+            Coordinate lowerRight = getCoverage().getLowerRight();
+            Coordinate upperLeft = getCoverage().getUpperLeft();
+            ReferencedEnvelope env = new ReferencedEnvelope(upperLeft.x,
+                    lowerRight.x, lowerRight.y, upperLeft.y,
+                    MapUtil.LATLON_PROJECTION);
+            layer.setCrs84Bounds(JTS.toGeometry((Envelope) env));
+            layer.setTargetCrsCode("CRS:84");
+            layer.setTargetMaxx(env.getMaxX());
+            layer.setTargetMaxy(env.getMaxY());
+            layer.setTargetMinx(env.getMinX());
+            layer.setTargetMiny(env.getMinY());
+            layer.setTimes(new TreeSet<Date>());
+            // install main dataset name on registry
+            storeDataSet(getDataSet());
+        }
 
         return layer;
-    }
-
-    @Override
-    public void setParameters(MetarLayer layer) {
-
-        if (getParameters() == null || getParameters().isEmpty()) {
-            parameters = new HashMap<String, Parameter>();
-            for (Parameter parm: agent.getLayer(layer.getName()).getParameters()) {
-                // place in map
-                parameters.put(parm.getName(), parm);
-                storeParameter(parm);
-            }
-        }
     }
 
 }
