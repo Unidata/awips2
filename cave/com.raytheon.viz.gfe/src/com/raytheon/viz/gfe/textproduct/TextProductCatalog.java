@@ -35,14 +35,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.viz.gfe.core.script.AbstractScriptCatalog;
 
 /**
- *  SOFTWARE HISTORY
- * Date          Ticket#    Engineer    Description
- * ------------  ---------- ----------- --------------------------
- *                          wldougher   Initial creation
- * Mar 06  2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
- *                                      for GFE localization files
- * 
- * 
  * @author wldougher
  * 
  */
@@ -86,7 +78,7 @@ public class TextProductCatalog extends AbstractScriptCatalog {
                 getScriptTypePathPrefix() + File.separator + "configured",
                 getExtensions(), false, true);
         LocalizationFile[] userProducts = pathManager.listFiles(pathManager
-                .getContext(LocalizationType.COMMON_STATIC,
+                .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.USER), getScriptTypePathPrefix(),
                 getExtensions(), false, true);
 
@@ -139,7 +131,7 @@ public class TextProductCatalog extends AbstractScriptCatalog {
 
         path = getScriptTypePathPrefix() + File.separator + scriptName;
         result = pathManager.getLocalizationFile(pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER), path);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER), path);
         if (result != null && !result.exists()) {
             result = null;
         }
@@ -148,7 +140,7 @@ public class TextProductCatalog extends AbstractScriptCatalog {
             path = GfePyIncludeUtil.TEXT_PRODUCTS + File.separator + scriptName;
             result = pathManager
                     .getLocalizationFile(pathManager.getContext(
-                            LocalizationType.COMMON_STATIC,
+                            LocalizationType.CAVE_STATIC,
                             LocalizationLevel.SITE), path);
         }
         if (result != null && !result.exists()) {
@@ -158,7 +150,7 @@ public class TextProductCatalog extends AbstractScriptCatalog {
         if (result == null) {
             path = GfePyIncludeUtil.TEXT_PRODUCTS + File.separator + scriptName;
             result = pathManager.getLocalizationFile(
-                    pathManager.getContext(LocalizationType.COMMON_STATIC,
+                    pathManager.getContext(LocalizationType.CAVE_STATIC,
                             LocalizationLevel.CONFIGURED), path);
         }
         if (result != null && !result.exists()) {
@@ -197,9 +189,9 @@ public class TextProductCatalog extends AbstractScriptCatalog {
 
         this.pathManager = pathManager;
         LocalizationContext userCtx = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         LocalizationContext siteCtx = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         String pathPrefix = getScriptTypePathPrefix();
         userDir = pathManager.getLocalizationFile(userCtx, pathPrefix);
         siteConfDir = pathManager.getLocalizationFile(siteCtx, pathPrefix

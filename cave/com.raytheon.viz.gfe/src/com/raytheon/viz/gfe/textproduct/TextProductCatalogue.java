@@ -39,8 +39,6 @@ import com.raytheon.viz.gfe.core.msgs.ITextProductListChangedListener;
  * Date          Ticket#    Engineer    Description
  * ------------  ---------- ----------- --------------------------
  * Sep 19, 2008  1562       askripsky   Initial creation
- * Mar 06  2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
- *                                      for GFE localization files
  * 
  * </pre>
  * 
@@ -100,7 +98,7 @@ public class TextProductCatalogue {
 
         // Retrieve the current set of Utilities from the Base
         LocalizationContext baseContext = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
 
         LocalizationFile[] baseUtilitiesFiles = pathMgr.listFiles(baseContext,
                 TextProductUtils.UTILITIES_PATH,
@@ -108,7 +106,7 @@ public class TextProductCatalogue {
 
         // Retrieve the current set of Utilities from the Site
         LocalizationContext siteContext = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
 
         LocalizationFile[] siteUtilitiesFiles = pathMgr.listFiles(siteContext,
                 TextProductUtils.UTILITIES_PATH,
@@ -140,7 +138,7 @@ public class TextProductCatalogue {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
 
         LocalizationContext siteContext = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
 
         // Gets the the current products
         LocalizationFile[] productsFiles = pathMgr.listFiles(siteContext,
