@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2010            mschenke     Initial creation
+ * Mar 19, 2013    1808   njensen      Perspective specific behavior takes priority
  * 
  * </pre>
  * 
@@ -71,8 +72,18 @@ public class NewAbstractEditor extends AbstractHandler {
     @Override
     public AbstractEditor execute(ExecutionEvent event)
             throws ExecutionException {
+        // allow perspective specific behavior first if available
         IWorkbenchWindow window = VizWorkbenchManager.getInstance()
                 .getCurrentWindow();
+        AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getInstance(
+                window).getActivePerspectiveManager();
+        if (mgr != null) {
+            AbstractEditor editor = mgr.openNewEditor();
+            if (editor != null) {
+                return editor;
+            }
+        }
+
         IEditorPart part = VizWorkbenchManager.getInstance().getActiveEditor(
                 window);
         if (part instanceof AbstractEditor) {
@@ -97,18 +108,12 @@ public class NewAbstractEditor extends AbstractHandler {
             }
             return ae;
         } else {
-            AbstractVizPerspectiveManager mgr = VizPerspectiveListener
-                    .getInstance(window).getActivePerspectiveManager();
+            String msg = "Opening new empty editor not supported by perspective";
             if (mgr != null) {
-                AbstractEditor editor = mgr.openNewEditor();
-                if (editor == null) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Opening new empty editor not supported by perspective: "
-                                    + mgr.getPerspectiveId(), new VizException(
-                                    "Operation not supported"));
-                }
-                return editor;
+                msg += ": " + mgr.getPerspectiveId();
             }
+            statusHandler.handle(Priority.PROBLEM, msg, new VizException(
+                    "Operation not supported"));
         }
         return null;
     }
