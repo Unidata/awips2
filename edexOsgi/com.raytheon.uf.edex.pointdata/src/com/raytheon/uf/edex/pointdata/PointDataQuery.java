@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.uengine.tasks.query.TableQuery;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -43,6 +42,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao.LevelRequest;
 
 /**
@@ -63,9 +63,9 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao.LevelRequest;
 
 public class PointDataQuery {
 
-    protected PointDataPluginDao<?> dao;
+    protected DatabaseQuery query;
 
-    protected TableQuery tq;
+    protected PointDataPluginDao<?> dao;
 
     protected String[] attribs;
 
@@ -73,9 +73,6 @@ public class PointDataQuery {
 
     public PointDataQuery(final String plugin) throws DataAccessLayerException,
             PluginException {
-        this.tq = new TableQuery(PluginFactory.getInstance()
-                .getDatabase(plugin), PluginFactory.getInstance()
-                .getPluginRecordClass(plugin).getName());
         try {
             PluginDao pd = PluginFactory.getInstance().getPluginDao(plugin);
             if (!(pd instanceof PointDataPluginDao)) {
@@ -83,6 +80,7 @@ public class PointDataQuery {
                         + " DAO is not a point data DAO");
             }
             this.dao = (PointDataPluginDao<?>) pd;
+            this.query = new DatabaseQuery(pd.getDaoClass());
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataAccessLayerException(
@@ -105,8 +103,7 @@ public class PointDataQuery {
             operand = "=";
         }
 
-        tq.addParameter(name, value, operand);
-
+        query.addQueryParam(name, value, operand);
     }
 
     public void requestAllLevels() {
@@ -171,10 +168,10 @@ public class PointDataQuery {
             final int limit) throws Exception {
 
         for (String field : fields) {
-            tq.addReturnedField(field, null);
+            query.addReturnedField(field);
         }
-        tq.setCount(limit);
-        List<?> queryResults = tq.execute();
+        query.setMaxResults(limit);
+        List<?> queryResults = dao.queryByCriteria(query);
 
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 
@@ -365,4 +362,3 @@ public class PointDataQuery {
         return masterPDC;
     }
 }
-
