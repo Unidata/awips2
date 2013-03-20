@@ -120,6 +120,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * 02/20/13     1635       D. Hladky   Added some finally methods to increase dead lock safety.  Reduced wait times for threads.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
+ * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
  * </pre>
  * 
  * @author dhladky
@@ -702,40 +703,51 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 fftiSources.add(ffmp.getFFTISource());
                                 ffti.processFFTI();
                             }
-         
-							// Do the accumulation now, more memory efficient.
-							// Only one piece in memory at a time
-							for (String attribute : ffmp.getAttributes()) {
-								if (attribute.equals(ATTRIBUTE.ACCUM
-										.getAttribute())) {
-									FFTIAccum accum = getAccumulationForSite(
-											ffmpProduct.getDisplayName(),
-											siteKey, dataKey,
-											fftiSource.getDurationHour(),
-											ffmpProduct.getUnit(siteKey));
-									if (statusHandler
-											.isPriorityEnabled(Priority.DEBUG)) {
-										statusHandler
-												.debug("Accumulating FFTI for source: "
-														+ ffmpProduct
-																.getDisplayName()
-														+ " site: "
-														+ siteKey
-														+ " data: "
-														+ dataKey
-														+ " duration: "
-														+ fftiSource
-																.getDurationHour()
-														+ " accumulation: "
-														+ accum.getAccumulation());
-									}
-								}
-							}
+
+                            // Do the accumulation now, more memory efficient.
+                            // Only one piece in memory at a time
+                            for (String attribute : ffmp.getAttributes()) {
+                                if (attribute.equals(ATTRIBUTE.ACCUM
+                                        .getAttribute())) {
+                                    FFTIAccum accum = getAccumulationForSite(
+                                            ffmpProduct.getDisplayName(),
+                                            siteKey, dataKey,
+                                            fftiSource.getDurationHour(),
+                                            ffmpProduct.getUnit(siteKey));
+                                    if (statusHandler
+                                            .isPriorityEnabled(Priority.DEBUG)) {
+                                        statusHandler
+                                                .debug("Accumulating FFTI for source: "
+                                                        + ffmpProduct
+                                                                .getDisplayName()
+                                                        + " site: "
+                                                        + siteKey
+                                                        + " data: "
+                                                        + dataKey
+                                                        + " duration: "
+                                                        + fftiSource
+                                                                .getDurationHour()
+                                                        + " accumulation: "
+                                                        + accum.getAccumulation());
+                                    }
+                                }
+                            }
                         }
-                    }  // record not null
-                } // end sitekey for loop
-            }  // end datakey loop
-        } // end process
+                        
+                        SourceXML source = getSourceConfig().getSource(
+                                ffmpRec.getSourceName());
+
+                        if (!source.getSourceType().equals(
+                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                            String sourceSiteDataKey = getSourceSiteDataKey(source,
+                                    dataKey, ffmpRec);
+                            ffmpData.remove(sourceSiteDataKey);
+                            statusHandler.info("Removing from memory: "+sourceSiteDataKey);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -1817,6 +1829,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             ffmpData.remove(siteDataKey);
+            statusHandler.info("Removing from memory: "+siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
@@ -1967,6 +1980,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
+            statusHandler.info("Removing from memory: "+qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }
@@ -2002,5 +2016,34 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         }
         
     }
+
     
-  }
+    /**
+     * Find siteSourceDataKey
+     * 
+     * @param source
+     * @param dataKey
+     * @param ffmpRec
+     * @return
+     */
+    private String getSourceSiteDataKey(SourceXML source, String dataKey, FFMPRecord ffmpRec) {
+ 
+        String sourceName = source.getSourceName();
+        String sourceSiteDataKey = null;
+        
+        if (source.getSourceType().equals(
+                SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            sourceName = source.getDisplayName();
+            sourceSiteDataKey = sourceName;
+       
+        } else {
+            sourceName = ffmpRec.getSourceName();
+            sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
+                    + "-" + dataKey;
+        }
+        
+        return sourceSiteDataKey;
+    }
+
+}
+
