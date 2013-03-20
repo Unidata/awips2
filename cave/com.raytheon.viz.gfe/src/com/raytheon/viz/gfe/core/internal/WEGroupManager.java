@@ -63,8 +63,7 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 5, 2008				chammack	Initial creation
- * Mar 06,2013  15717       jzeng       Change CAVE_STATIC to COMMON_STATIC 
- *                                      for GFE localization files 
+ * 
  * </pre>
  * 
  * @author chammack
@@ -97,7 +96,7 @@ public class WEGroupManager implements IWEGroupManager,
 
         IPathManager pathManager = PathManagerFactory.getPathManager();
         weGroupDir = pathManager.getLocalizationFile(pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
                 WEGROUP_DIR);
         weGroupDir.addFileUpdatedObserver(this);
 
@@ -134,7 +133,7 @@ public class WEGroupManager implements IWEGroupManager,
         IPathManager pathManager = PathManagerFactory.getPathManager();
 
         LocalizationContext[] contexts = pathManager
-                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
+                .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC);
         LocalizationFile[] files = pathManager.listFiles(contexts, WEGROUP_DIR,
                 new String[] { ".xml" }, false, true);
 
@@ -363,7 +362,7 @@ public class WEGroupManager implements IWEGroupManager,
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+        LocalizationContext lc = pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.USER);
 
         LocalizationFile file = pm.getLocalizationFile(lc,

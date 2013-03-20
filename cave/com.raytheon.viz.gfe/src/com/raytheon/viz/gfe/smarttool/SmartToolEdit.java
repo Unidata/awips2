@@ -53,8 +53,7 @@ import com.raytheon.viz.gfe.PythonUtil;
  * ------------	----------	-----------	--------------------------
  * Mar 20, 2008				njensen	    Initial creation
  * Sep 25, 2008 1562        askripsky   Moved methods out to
- * Mar 06, 2013 15717       jzeng        Change CAVE_STATIC to COMMON_STATIC 
- *                                      for GFE localization files 
+ * 
  * </pre>
  * 
  * @author njensen
@@ -75,7 +74,7 @@ public class SmartToolEdit {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext tx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
         File templateFile = PathManagerFactory.getPathManager().getFile(tx,
                 SmartToolConstants.TEMPLATES_DIR);
 
@@ -94,7 +93,7 @@ public class SmartToolEdit {
             template = Velocity.getTemplate("smartTool.vm");
 
             LocalizationContext cx = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
             localizationFile = PathManagerFactory.getPathManager()
                     .getLocalizationFile(
                             cx,
@@ -138,7 +137,7 @@ public class SmartToolEdit {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext tx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
         File templateFile = pathMgr.getFile(tx,
                 SmartToolConstants.TEMPLATES_DIR);
 
@@ -156,7 +155,7 @@ public class SmartToolEdit {
             template = Velocity.getTemplate("utility.vm");
 
             LocalizationContext cx = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
             localizationFile = PathManagerFactory.getPathManager()
                     .getLocalizationFile(
                             cx,
