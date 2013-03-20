@@ -39,6 +39,8 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2012    15322   jsanchez     Initial creation
  * Jan  8, 2013    15664   Qinglu Lin   Updated body().
+ * Mar 13, 2013    15892   D. Friedman  Fix headline locking. Do not
+ *                                      lock "AND" or "FOR".
  * 
  * </pre>
  * 
@@ -51,10 +53,8 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      */
     @Override
     public void body() {
-    	if (action != WarningAction.COR)
-    		headlines();
-    	else
-    		super.body();
+		headlines();
+		super.body();
     }
 
     /**
@@ -66,7 +66,7 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
         // should be blank.
         Pattern headlinePtrn = Pattern
                 .compile(
-                        "^\\.\\.\\.(A|THE) (.*) (WARNING|ADVISORY) .*(REMAINS|EXPIRE|CANCELLED).*(\\.\\.\\.)$",
+                        "^\\.\\.\\.(AN?|THE) (.*) (WARNING|ADVISORY) .*(REMAINS|EXPIRE|CANCELLED).*(\\.\\.\\.)$",
                         Pattern.MULTILINE);
         Matcher m = headlinePtrn.matcher(text);
 
@@ -187,16 +187,8 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
                     + LOCK_START + "..." + LOCK_END;
         }
         // Locks warning type (i.e. SEVERE THUNDERSTORM)
-        headline = headline.replaceAll("(A|THE) (" + warningType + ")",
-                LOCK_START + "$0" + LOCK_END);
-
-        // Locks the 'FOR' in the headline
-        headline = headline.replaceFirst(" FOR ", " " + LOCK_START + "FOR"
-                + LOCK_END + " ");
-
-        // Locks the 'AND' in the headline
-        headline = headline.replaceFirst(" AND ", " " + LOCK_START + "AND"
-                + LOCK_END + " ");
+        headline = headline.replaceAll("(AN?|THE)( [\\w\\s]*?)(" + warningType + ")",
+                LOCK_START + "$1" + LOCK_END + "$2" + LOCK_START + "$3" + LOCK_END);
 
         return headline;
     }
