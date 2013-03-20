@@ -7,10 +7,11 @@ fi
 
 # $1 = Primary site
 # $2 = Failed site
+# $3 = enable/disable troubleshooting mode
 
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
 then
-   log_msg "Incorrect number of arguments\nCorrect usage: request_configuration primary_site failed_site"
+   log_msg "Incorrect number of arguments\nCorrect usage: request_configuration primary_site failed_site trMode"
    exit 1
 fi
 
@@ -32,6 +33,10 @@ then
 fi
 
 touch ${LOCK_DIR}/importConfiguration
+if [ $3 -eq 1 ]; then
+  touch ${LOCK_DIR}/trMode
+  log_msg "You are in troubleshooting mode - no ISC/VTEC will be available"
+fi
 
 log_msg Contacting central server to get configuration for ${2}
 log_msg 0
@@ -42,6 +47,7 @@ if [ -n "${SVCBU_WMO_HEADER}" ]; then
     if [ $exitValue -ne 0 ]; then
 		log_msg "msg_send failed while requesting configuration for ${CAPS_SITE}`date`"
 		rm -f ${LOCK_DIR}/importConfiguration
+		rm -f ${LOCK_DIR}/trMode
 		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
 		exit 1
     fi
@@ -51,6 +57,7 @@ else
     if [ $exitValue -ne 0 ]; then
 		log_msg "msg_send failed while requesting configuration for ${2}`date`"
 		rm -f ${LOCK_DIR}/importConfiguration
+		rm -f ${LOCK_DIR}/trMode
 		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
 		exit 1
     fi
