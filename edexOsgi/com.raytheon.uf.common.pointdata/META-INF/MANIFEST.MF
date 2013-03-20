@@ -3,6 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: PointData
 Bundle-SymbolicName: com.raytheon.uf.common.pointdata
 Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.accumulate,
