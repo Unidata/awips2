@@ -48,10 +48,9 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * May 4, 2011              wldougher   Moved from MapManager
- * Mar 6, 2013  15717       jzeng       Changed CAVE_STATIC to COMMON_STATIC
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 4, 2011            wldougher     Moved from MapManager
  * 
  * </pre>
  * 
@@ -102,15 +101,15 @@ public class CombinationsFileMaker {
         String includePath = GfePyIncludeUtil.getCommonPythonIncludePath();
         Map<String, Object> argMap = new HashMap<String, Object>();
 
-        LocalizationContext commonStaticConfig = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
+        LocalizationContext caveStaticConfig = pathMgr.getContext(
+                LocalizationContext.LocalizationType.CAVE_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
-        commonStaticConfig.setContextName(site);
+        caveStaticConfig.setContextName(site);
 
         String definitionDir = pathMgr
-                .getLocalizationFile(commonStaticConfig,
+                .getLocalizationFile(caveStaticConfig,
                         GfePyIncludeUtil.REGULAR).getFile().getPath();
-        File outputDirFile = pathMgr.getLocalizationFile(commonStaticConfig,
+        File outputDirFile = pathMgr.getLocalizationFile(caveStaticConfig,
                 FileUtil.join("gfe", "combinations")).getFile();
         outputDirFile.mkdir();
         argMap.put("outputDir", outputDirFile.getPath());
