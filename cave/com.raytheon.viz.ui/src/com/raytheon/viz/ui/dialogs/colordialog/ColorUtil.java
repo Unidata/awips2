@@ -53,7 +53,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jul 18, 2007            njensen     Initial creation	
  * Aug 20, 2008			   dglazesk    Updated for the new ColorMap interface
  * 									   and for the JiBX to JaXB transition
- * Mar 07, 2013  15717     jzeng       Change CAVE_STATIC to COMMON_STATIC
  * 
  * </pre>
  * 
@@ -167,14 +166,14 @@ public class ColorUtil {
         File path = null;
         IPathManager pm = PathManagerFactory.getPathManager();
         if (aSiteContext) {
-            path = pm.getFile(pm.getContext(LocalizationType.COMMON_STATIC,
+            path = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
                     LocalizationLevel.SITE), COLORMAPS_DIR + File.separator
                     + filename);
 
             checkDir(path.getParentFile());
 
         } else {
-            path = pm.getFile(pm.getContext(LocalizationType.COMMON_STATIC,
+            path = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
                     LocalizationLevel.USER), COLORMAPS_DIR + File.separator
                     + filename);
             checkDir(path.getParentFile());
@@ -206,13 +205,13 @@ public class ColorUtil {
         File path = null;
         IPathManager pm = PathManagerFactory.getPathManager();
         if (aSiteContext) {
-            path = pm.getFile(pm.getContext(LocalizationType.COMMON_STATIC,
+            path = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
                     LocalizationLevel.SITE), COLORMAPS_DIR + File.separator
                     + filename);
 
             return path.exists();
         } else {
-            path = pm.getFile(pm.getContext(LocalizationType.COMMON_STATIC,
+            path = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
                     LocalizationLevel.USER), COLORMAPS_DIR + File.separator
                     + filename);
             return path.exists();
@@ -259,10 +258,10 @@ public class ColorUtil {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = null;
         if (aSiteContext) {
-            context = pathMgr.getContext(LocalizationType.COMMON_STATIC,
+            context = pathMgr.getContext(LocalizationType.CAVE_STATIC,
                     LocalizationLevel.SITE);
         } else {
-            context = pathMgr.getContext(LocalizationType.COMMON_STATIC,
+            context = pathMgr.getContext(LocalizationType.CAVE_STATIC,
                     LocalizationLevel.USER);
         }
         // use / for standard localization of File.separator
@@ -294,7 +293,7 @@ public class ColorUtil {
         }
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationFile lfile = pm.getLocalizationFile(pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
                 COLORMAPS_DIR + File.separator + filename);
         File file = lfile.getFile();
 

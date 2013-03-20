@@ -69,7 +69,6 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2008            njensen     Initial creation
- * Mar 07 2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
  * </pre>
  * 
  * @author njensen
@@ -103,7 +102,7 @@ public class SmartToolController extends BaseGfePyController {
         super(filePath, anIncludePath, classLoader, dataManager, "Tool");
 
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.COMMON_STATIC,
+                .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE);
 
         smartToolDir = GfePyIncludeUtil.getSmartToolsLF(baseCtx);
