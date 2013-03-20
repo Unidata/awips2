@@ -27,12 +27,12 @@ import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.swt.events.DisposeEvent;
@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
+import com.raytheon.viz.mpe.MPECommandConstants;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
 import com.raytheon.viz.mpe.ui.Activator;
@@ -93,6 +94,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Aug 17, 2012  15271    snaples      Added check to add only PP gages
  * Sep 5, 2012   15079    snaples      Added constant for Milli to inches conversion factor
  * Feb 12, 2013  15773    snaples      Updated addPoints to display PC gages when token is set to use PC data.
+ * Mar 14, 2013  1457     mpduff       Fixed various bugs.
  * 
  * </pre>
  * 
@@ -106,8 +108,6 @@ public class MPEGageResource extends AbstractMPEInputResource implements
     private static final String GAGE_TRIANGLES = "GAGETRIANGLES%sz";
 
     private static final double POINT_RADIUS = 2;
-
-    private static final RGB WHITE = new RGB(255, 255, 255);
 
     private final SimpleDateFormat sdf;
 
@@ -132,32 +132,56 @@ public class MPEGageResource extends AbstractMPEInputResource implements
     private IWireframeShape gageTriangles;
 
     private MPEFontFactory fontFactory;
-    
+
     private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-
-    private Set<GageDisplay> displayTypes = new HashSet<GageDisplay>();
+    private final Map<GageDisplay, Boolean> displayTypes = new HashMap<GageDisplay, Boolean>();
 
     /**
+     * Constructor.
+     * 
      * @param resourceData
+     *            The resourceData
      * @param loadProperties
+     *            The loadProperties
      */
     public MPEGageResource(GenericResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         sdf = new SimpleDateFormat("yyyyMMddHH");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        setStates();
+    }
+
+    /**
+     * Set the state of the Gage display for values and Ids
+     */
+    private void setStates() {
+        boolean stateSetting = MPEDisplayManager
+                .getToggleState(MPECommandConstants.TOGGLE_GAGE_VALUE_COMMAND_ID);
+        displayTypes.put(GageDisplay.Values, stateSetting);
+
+        stateSetting = MPEDisplayManager
+                .getToggleState(MPECommandConstants.TOGGLE_GAGEID_COMMAND_ID);
+        displayTypes.put(GageDisplay.Ids, stateSetting);
+
+        // Triangles default to off
+        MPEDisplayManager.setToggleState(
+                MPECommandConstants.TOGGLE_GAGE_TRIANGLE_COMMAND_ID, false);
+        displayTypes.put(GageDisplay.Triangles, false);
     }
 
     /**
      * Toggles visibility of {@link GageDisplay} type
      * 
      * @param display
+     *            The GageDisplay
+     * @param isOn
+     *            true if on
      */
-    public void toggleGageDisplay(GageDisplay display) {
-        if (displayTypes.remove(display) == false) {
-            displayTypes.add(display);
-        }
+    public void toggleGageDisplay(GageDisplay display, boolean isOn) {
+        displayTypes.put(display, isOn);
     }
 
     @Override
@@ -215,8 +239,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        // set the plot draw or no draw values
-        if (displayTypes.isEmpty()) {
+        if (!displayTypes.containsValue(Boolean.TRUE)) {
             // Nothing to paint
             return;
         }
@@ -230,15 +253,15 @@ public class MPEGageResource extends AbstractMPEInputResource implements
             }
         }
 
-        if (displayTypes.contains(GageDisplay.Ids)
-                || displayTypes.contains(GageDisplay.Values)) {
+        if (displayTypes.get(GageDisplay.Ids)
+                || displayTypes.get(GageDisplay.Values)) {
             paintPlotInfo(target, paintProps,
-                    displayTypes.contains(GageDisplay.Ids),
-                    displayTypes.contains(GageDisplay.Values));
+                    displayTypes.get(GageDisplay.Ids),
+                    displayTypes.get(GageDisplay.Values));
         }
 
         try {
-            if (displayTypes.contains(GageDisplay.Triangles)) {
+            if (displayTypes.get(GageDisplay.Triangles)) {
                 paintTriangles(target, paintProps);
             }
         } catch (Exception e) {
@@ -264,7 +287,6 @@ public class MPEGageResource extends AbstractMPEInputResource implements
             String fileName = String.format(GAGE_TRIANGLES,
                     sdf.format(lastDate));
             File file = new File(dir, fileName);
-
             if (!file.exists()) {
                 return;
             }
@@ -327,18 +349,19 @@ public class MPEGageResource extends AbstractMPEInputResource implements
 
         MPEDisplayManager.GageMissingOptions gm = MPEDisplayManager
                 .getGageMissing();
-        boolean displayIsEdit = displayMgr.getCurrentEditDate().equals(
-                paintProps.getDataTime().getRefTime());
+        boolean displayIsEdit = false;
+        if (paintProps.getDataTime() != null
+                && displayMgr.getCurrentEditDate() != null) {
+            displayIsEdit = displayMgr.getCurrentEditDate().equals(
+                    paintProps.getDataTime().getRefTime());
+        }
         boolean xor = MPEDisplayManager.getGageColor() == GageColor.Contrast
                 && displayIsEdit;
 
         for (Coordinate point : dataMap.keySet()) {
             if (extent.contains(new double[] { point.x, point.y })) {
                 MPEGageData gageData = dataMap.get(point);
-                RGB gageColor = WHITE;
-                if (displayIsEdit) {
-                    gageColor = getGageColor(gageData);
-                }
+                RGB gageColor = getGageColor(gageData);
 
                 boolean isReportedMissing = gageData.isReported_missing();
                 boolean isMissing = ((gageData.getGval() == -999.f || gageData
@@ -383,6 +406,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
                             }
                         }
                     }
+
                     if (isGageIdsDisplayed) {
                         gageId = gageData.getId();
 
@@ -421,7 +445,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
 
     private RGB getGageColor(MPEGageData gageData) {
         RGB gageColor = new RGB(255, 255, 255);
-        if (displayTypes.isEmpty() == false) {
+        if (displayTypes.containsValue(Boolean.TRUE)) {
             MPEDisplayManager.GageColor gc = MPEDisplayManager.getGageColor();
             switch (gc) {
             case Solid:
@@ -449,9 +473,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
                 if (gageData.getId().contains("PSEUDO")) {
                     fltVal = (float) (gageData.getGval() / MILLICVT);
                 }
-                // System.out.println("--- fltVal = " + fltVal);
                 gageColor = getColorByValue(fltVal);
-                // gageColor = getColorByValue(gageData.getGval());
                 break;
 
             default:
@@ -475,14 +497,15 @@ public class MPEGageResource extends AbstractMPEInputResource implements
         boolean process_PC = false;
         if (processpc.equalsIgnoreCase("ON")) {
             process_PC = true;
-        } 
+        }
 
         if (!gages.isEmpty()) {
             for (ListIterator<MPEGageData> it = gages.listIterator(); it
                     .hasNext();) {
                 MPEGageData gageData = it.next();
                 // DR15773 Use PC gages only when token set to ON.
-                if ((gageData.getPe().equalsIgnoreCase("PC")) && (process_PC == false)) {
+                if ((gageData.getPe().equalsIgnoreCase("PC"))
+                        && (process_PC == false)) {
                     continue;
                 }
                 Coordinate latLon = gageData.getLatLon();
