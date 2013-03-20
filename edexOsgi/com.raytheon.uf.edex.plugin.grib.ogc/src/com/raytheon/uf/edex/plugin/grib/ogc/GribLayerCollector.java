@@ -14,6 +14,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
@@ -197,9 +198,4 @@ public class GribLayerCollector extends
      * 
      *         }
      */
-
-    @Override
-    public void setParameters(GribLayer layer) {
-        
-    }
 }
