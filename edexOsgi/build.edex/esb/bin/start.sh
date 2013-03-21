@@ -94,7 +94,7 @@ export AMQP_SPEC=$awips_home/python/share/amqp/amqp.0-10.xml
 #read and interpret the command line arguments
 #-------------------------------------------------------------------------
 CONSOLE_FLAG=on
-CONSOLE_LOGLEVEL=INFO
+CONSOLE_LOGLEVEL=DEBUG
 DEBUG_FLAG=off
 PROFILE_FLAG=off
 HIGH_MEM_FLAG=off
