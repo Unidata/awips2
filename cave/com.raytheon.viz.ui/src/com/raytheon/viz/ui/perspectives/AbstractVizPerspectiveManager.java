@@ -78,7 +78,6 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * @author randerso
  * @version 1.0
  */
-
 public abstract class AbstractVizPerspectiveManager implements
         IBackgroundColorChangedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -139,13 +138,17 @@ public abstract class AbstractVizPerspectiveManager implements
             // update editor on last selected modal tool
             if (part instanceof IEditorPart
                     && part instanceof IDisplayPaneContainer) {
-                AbstractVizPerspectiveManager mgr = VizPerspectiveListener
-                        .getCurrentPerspectiveManager();
-                if (mgr != null) {
-                    for (AbstractModalTool tool : mgr.getToolManager()
-                            .getSelectedModalTools()) {
-                        if (tool.getCurrentEditor() == part) {
-                            tool.deactivate();
+                IWorkbenchPart newPart = part.getSite().getPage()
+                        .getActivePart();
+                if (newPart instanceof IEditorPart) {
+                    AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+                            .getCurrentPerspectiveManager();
+                    if (mgr != null) {
+                        for (AbstractModalTool tool : mgr.getToolManager()
+                                .getSelectedModalTools()) {
+                            if (tool.getCurrentEditor() == part) {
+                                tool.deactivate();
+                            }
                         }
                     }
                 }
@@ -344,7 +347,7 @@ public abstract class AbstractVizPerspectiveManager implements
         if (activeEditor != null) {
             page.bringToTop(activeEditor.getPart(false));
             activeEditor = null;
-        }
+    }
 
         // Activate any perspective dialogs
         activateDialogs();
