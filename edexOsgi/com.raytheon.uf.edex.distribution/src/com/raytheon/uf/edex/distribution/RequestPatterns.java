@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.distribution;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -35,25 +36,26 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
- * A container of regular expressions, both original strings and
- * the compiled patterns.  Used by the DistributionSrv bean to 
- * store regex patterns for plugins.  It is important to note that 
- * no validation is done on duplicate regex patterns.
+ * A container of regular expressions, both original strings and the compiled
+ * patterns. Used by the DistributionSrv bean to store regex patterns for
+ * plugins. It is important to note that no validation is done on duplicate
+ * regex patterns.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2009            brockwoo     Initial creation
  * May 16, 2011 7317       cjeanbap     Added try-catch statement
  *                                      for PatternSyntaxException.
- *
+ * Mar 19, 2013 1794       djohnson     Add toString() for debugging.
+ * 
  * </pre>
- *
+ * 
  * @author brockwoo
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlRootElement(name = "requestPatterns")
@@ -64,9 +66,9 @@ public class RequestPatterns implements ISerializableObject{
      * List of patterns requested by a plugin.
      */
     @XmlElements( { @XmlElement(name = "regex", type = String.class) })
-    private ArrayList<String> patterns;
+    private List<String> patterns = new ArrayList<String>();
     
-    private ArrayList<Pattern> compiledPatterns;
+    private final List<Pattern> compiledPatterns = new ArrayList<Pattern>();
     
     protected transient Log patternFailedLogger = LogFactory.getLog("PatternFailedLog");
     
@@ -74,8 +76,6 @@ public class RequestPatterns implements ISerializableObject{
      * Creates a new instance of the container.
      */
     public RequestPatterns(){
-        this.patterns = new ArrayList<String>();
-        this.compiledPatterns = new ArrayList<Pattern>();
     }
 
     /**
@@ -83,7 +83,7 @@ public class RequestPatterns implements ISerializableObject{
      * 
      * @return a list of regex pattern strings
      */
-    public ArrayList<String> getPatterns() {
+    public List<String> getPatterns() {
         return patterns;
     }
 
@@ -92,7 +92,7 @@ public class RequestPatterns implements ISerializableObject{
      * 
      * @param patterns an arraylist of regex strings
      */
-    public void setPatterns(ArrayList<String> patterns) {
+    public void setPatterns(List<String> patterns) {
         this.patterns = patterns;
     }
     
@@ -139,5 +139,10 @@ public class RequestPatterns implements ISerializableObject{
             }
         }
         return isFound;
+    }
+
+    @Override
+    public String toString() {
+        return patterns.toString();
     }
 }
