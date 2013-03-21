@@ -36,7 +36,8 @@ import org.junit.Test;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 04, 2013  1441      djohnson     Initial creation
+ * Jan 04, 2013 1441       djohnson     Initial creation
+ * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * 
  * </pre>
  * 
@@ -55,7 +56,7 @@ public class ServiceLoaderUtilTest {
         };
 
         NoServiceLoaderConfigFile loaded = ServiceLoaderUtil.load(
-                NoServiceLoaderConfigFile.class,
+                ServiceLoaderUtilTest.class, NoServiceLoaderConfigFile.class,
                 defaultImplementation);
 
         assertThat(loaded, is(sameInstance(defaultImplementation)));
@@ -67,7 +68,7 @@ public class ServiceLoaderUtilTest {
         };
 
         HasServiceLoaderConfigFile loaded = ServiceLoaderUtil.load(
-                HasServiceLoaderConfigFile.class,
+                ServiceLoaderUtilTest.class, HasServiceLoaderConfigFile.class,
                 defaultImplementation);
 
         assertThat(loaded, is(not(sameInstance(defaultImplementation))));
