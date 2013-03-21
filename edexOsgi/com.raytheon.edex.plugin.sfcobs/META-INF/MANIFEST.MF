@@ -17,4 +17,5 @@ Import-Package: com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.dataplugin.sfcobs.dao,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.edex.pointdata
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.common.status
