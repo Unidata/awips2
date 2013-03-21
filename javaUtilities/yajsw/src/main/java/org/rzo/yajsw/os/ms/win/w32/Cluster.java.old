@@ -1,0 +1,331 @@
+package org.rzo.yajsw.os.ms.win.w32;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.rzo.yajsw.os.ms.win.w32.WindowsXPProcess.MyKernel32;
+
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
+import com.sun.jna.WString;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.win32.StdCallLibrary;
+
+public class Cluster
+{
+	public interface Clusapi extends StdCallLibrary
+	{
+		Clusapi	INSTANCE	= (Clusapi) Native.loadLibrary("ClusApi", Clusapi.class);
+
+		/*
+		 * HCLUSTER WINAPI OpenCluster( __in_opt LPCWSTR lpszClusterName );
+		 */
+		Pointer OpenCluster(WString lpszClusterName);
+
+		/*
+		 * BOOL WINAPI CloseCluster( __in HCLUSTER hCluster );
+		 */
+		boolean CloseCluster(Pointer hCluster);
+
+		/*
+		 * HCHANGE WINAPI CreateClusterNotifyPort( __in HCHANGE hChange, __in
+		 * HCLUSTER hCluster, __in DWORD dwFilter, __in DWORD_PTR dwNotifyKey );
+		 */
+		Pointer CreateClusterNotifyPort(Pointer hChange, Pointer hCluster, int dwFilter, IntByReference dwNotifyKey);
+
+		static int	CLUSTER_CHANGE_GROUP_STATE	= 0x00001000;
+
+		/*
+		 * DWORD WINAPI GetClusterNotify( __in HCHANGE hChange, __out DWORD_PTR
+		 * *lpdwNotifyKey, __out LPDWORD lpdwFilterType, __out LPWSTR lpszName,
+		 * __inout LPDWORD lpcchName, __in_opt DWORD dwMilliseconds );
+		 */
+		int GetClusterNotify(Pointer hChange, IntByReference lpdwNotifyKey, IntByReference lpdwFilterType, Memory lpszName, IntByReference lpcchName,
+				int dwMilliseconds);
+
+		/*
+		 * BOOL WINAPI CloseClusterNotifyPort( __in HCHANGE hChange );
+		 */
+		boolean CloseClusterNotifyPort(Pointer hChange);
+
+		/*
+		 * HNODE WINAPI OpenClusterNode( __in HCLUSTER hCluster, __in LPCWSTR
+		 * lpszNodeName );
+		 */
+		Pointer OpenClusterNode(Pointer hCluster, WString lpszNodeName);
+
+		/*
+		 * BOOL WINAPI CloseClusterNode( __in HNODE hNode );
+		 */
+		boolean CloseClusterNode(Pointer hNode);
+
+		/*
+		 * CLUSTER_NODE_STATE WINAPI GetClusterNodeState( __in HNODE hNode );
+		 */
+		int GetClusterNodeState(Pointer hNode);
+
+		/*
+		 * HCLUSENUM WINAPI ClusterOpenEnum( __in HCLUSTER hCluster, __in DWORD
+		 * dwType );
+		 */
+		Pointer ClusterOpenEnum(Pointer hCluster, int dwType);
+
+		Pointer ClusterNodeOpenEnum(Pointer hNode, int dwType);
+
+		static int	CLUSTER_ENUM_NODE			= 1;
+		static int	CLUSTER_ENUM_RESOURCE		= 4;
+		static int	CLUSTER_ENUM_NETINTERFACE	= 32;
+		static int	CLUSTER_ENUM_GROUP			= 8;
+
+		/*
+		 * DWORD WINAPI ClusterCloseEnum( __in HCLUSENUM hEnum );
+		 */
+		int ClusterCloseEnum(Pointer hEnum);
+
+		/*
+		 * DWORD WINAPI ClusterEnum( __in HCLUSENUM hEnum, __in DWORD dwIndex,
+		 * __out LPDWORD lpdwType, __out LPWSTR lpszName, __inout LPDWORD
+		 * lpcchName );
+		 */
+		int ClusterEnum(Pointer hEnum, int dwIndex, IntByReference lpdwType, Memory lpszName, IntByReference lpcchName);
+
+		int ClusterNodeEnum(Pointer hEnum, int dwIndex, IntByReference lpdwType, Memory lpszName, IntByReference lpcchName);
+
+		/*
+		 * HRESOURCE WINAPI OpenClusterResource( __in HCLUSTER hCluster, __in
+		 * LPCWSTR lpszResourceName );
+		 */
+		Pointer OpenClusterResource(Pointer hCluster, WString lpszResourceName);
+
+		/*
+		 * HGROUP WINAPI OpenClusterGroup( __in HCLUSTER hCluster, __in LPCWSTR
+		 * lpszGroupName );
+		 */
+		Pointer OpenClusterGroup(Pointer hCluster, WString lpszGroupName);
+
+		/*
+		 * CLUSTER_GROUP_STATE WINAPI GetClusterGroupState( __in HGROUP hGroup,
+		 * __out_opt LPWSTR lpszNodeName, __inout_opt LPDWORD lpcchNodeName );
+		 */
+		int GetClusterGroupState(Pointer hGroup, Memory lpszNodeName, IntByReference lpcchNodeName);
+
+	}
+
+	ArrayList	_listeners	= new ArrayList();
+	boolean		_stopped	= false;
+
+	public String getActiveNode()
+	{
+		String activeNode = null;
+
+		try
+		{
+			Pointer cluster = Clusapi.INSTANCE.OpenCluster(null);
+			Pointer hEnum = Clusapi.INSTANCE.ClusterOpenEnum(cluster, Clusapi.CLUSTER_ENUM_GROUP);
+			int dwIndex = 0;
+			IntByReference lpdwType = new IntByReference();
+			IntByReference lpcchName = new IntByReference();
+			Memory lpszName = new Memory(256);
+			lpszName.clear();
+			lpcchName.setValue(256);
+			int result = 0;
+			do
+			{
+				result = Clusapi.INSTANCE.ClusterEnum(hEnum, dwIndex, lpdwType, lpszName, lpcchName);
+				if (result == 0)
+				{
+					String group = lpszName.getString(0, true);
+					String node = getGroupActiveNode(cluster, group);
+					if (node != null)
+					{
+						activeNode = node;
+					}
+				}
+				dwIndex++;
+			}
+			while (result == 0);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return activeNode;
+
+	}
+
+	private String getGroupActiveNode(Pointer cluster, String groupName)
+	{
+		String activeNode = null;
+		try
+		{
+			Pointer hGroup = Clusapi.INSTANCE.OpenClusterGroup(cluster, new WString(groupName));
+
+			IntByReference lpcchNodeName = new IntByReference();
+			Memory lpszNodeName = new Memory(256);
+			lpszNodeName.clear();
+			lpcchNodeName.setValue(256);
+
+			int result = Clusapi.INSTANCE.GetClusterGroupState(hGroup, lpszNodeName, lpcchNodeName);
+			if (result == 0)
+				activeNode = lpszNodeName.getString(0, true);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+
+		return activeNode;
+	}
+
+	public Map<String, String> getGroupInfo()
+	{
+		Pointer hCluster = Clusapi.INSTANCE.OpenCluster(null);
+		if (hCluster == null)
+			throw new RuntimeException("Clusapi call to OpenClusterGroup returned err code " + Native.getLastError());
+
+		Pointer hEnum = Clusapi.INSTANCE.ClusterOpenEnum(hCluster, Clusapi.CLUSTER_ENUM_GROUP);
+		if (hEnum == null)
+			throw new RuntimeException("Clusapi call to ClusterOpenEnum returned err code " + Native.getLastError());
+
+		Map<String, String> result = new HashMap<String, String>();
+
+		try
+		{
+			IntByReference lpdwType = new IntByReference();
+			IntByReference lpcchName = new IntByReference(0);
+			Memory lpszName = new Memory(256);
+
+			int dwIndex = 0;
+
+			int returnValue = 0;
+			do
+			{
+				lpdwType.setValue(0);
+				lpcchName.setValue(0);
+				lpszName.clear();
+				lpcchName.setValue(256);
+
+				returnValue = Clusapi.INSTANCE.ClusterEnum(hEnum, dwIndex, lpdwType, lpszName, lpcchName);
+
+				if (returnValue == 0)
+				{
+					String group = lpszName.getString(0, true);
+					String node = getGroupActiveNode(hCluster, group);
+					if (node != null)
+						result.put(group, node);
+				}
+
+				if (!(returnValue == 259 || returnValue == 0))
+					System.out.println("strange returnValue from ClusApi " + returnValue);
+
+				dwIndex++;
+			}
+			while (returnValue == 0);
+		}
+		catch (Exception ex)
+		{
+			System.out.println("Error while getting Cluster group information");
+			ex.printStackTrace();
+
+		}
+		finally
+		{
+			MyKernel32.INSTANCE.CloseHandle(hEnum);
+			MyKernel32.INSTANCE.CloseHandle(hCluster);
+		}
+		return Collections.unmodifiableMap(result);
+	}
+
+	public void start()
+	{
+		if (!_stopped)
+			return;
+		Pointer cluster = null;
+		Pointer hChange = null;
+		// the cluster may not be up yet -> sleep and try again.
+		while (cluster == null || hChange == null)
+		{
+			try
+			{
+				cluster =  Clusapi.INSTANCE.OpenCluster(null);
+				IntByReference dwNotifyKey = new IntByReference();
+				dwNotifyKey.setValue(0);
+				hChange = Clusapi.INSTANCE.CreateClusterNotifyPort(Pointer.createConstant(-1), cluster, Clusapi.CLUSTER_CHANGE_GROUP_STATE,
+						dwNotifyKey);
+			}
+			catch (Throwable ex)
+			{
+				ex.printStackTrace();
+			}
+			if (cluster == null || hChange == null)
+				try
+				{
+					Thread.sleep(5000);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+					return;
+				}
+		}
+		final Pointer change = hChange;
+		Runnable check = new Runnable()
+		{
+			public void run()
+			{
+				while (!_stopped)
+				{
+					IntByReference lpdwNotifyKey = new IntByReference();
+					IntByReference lpdwFilterType = new IntByReference();
+					IntByReference lpcchName = new IntByReference();
+					Memory lpszName = new Memory(256);
+					lpcchName.setValue(256);
+					int dwMilliseconds = 10000;
+					int result = Clusapi.INSTANCE.GetClusterNotify(change, lpdwNotifyKey, lpdwFilterType, lpszName, lpcchName, dwMilliseconds);
+					if (result == 0)
+					{
+						String activeNode = getActiveNode();
+						System.out.println("cluster change " + activeNode);
+						if (activeNode != null)
+							doListeners(activeNode);
+					}
+				}
+			}
+		};
+		new Thread(check).start();
+	}
+
+	private void doListeners(String activeNode)
+	{
+		for (Iterator it = _listeners.iterator(); it.hasNext();)
+		{
+			ClusterNodeChangeListener l = (ClusterNodeChangeListener) it.next();
+			l.nodeChanged();
+		}
+	}
+
+	public void addNodeChangeListener(ClusterNodeChangeListener listener)
+	{
+		_listeners.add(listener);
+	}
+
+	public void stop()
+	{
+		_stopped = true;
+	}
+
+	public static void main(String[] args) throws UnknownHostException
+	{
+		Cluster c = new Cluster();
+		System.out.println(c.getActiveNode());
+		c.start();
+	}
+
+}
