@@ -25,6 +25,10 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -36,10 +40,11 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *                            fgriffit Initial Creation.
- * 20080408           1039     jkorman Added traceId for tracing data.
- * Nov 11, 2008               chammack Refactored for Camel
- * 02/06/09     1990       bphillip     Refactored to use plugin daos
+ *                         fgriffit    Initial Creation.
+ * 20080408     1039       jkorman     Added traceId for tracing data.
+ * Nov 11, 2008            chammack    Refactored for Camel
+ * 02/06/09     1990       bphillip    Refactored to use plugin daos
+ * Mar 19, 2013 1785       bgonzale    Added performance status to indexOne and index.
  * </pre>
  * 
  * @author Frank Griffith
@@ -52,6 +57,9 @@ public class IndexSrv {
     private String txFactory;
 
     private Log logger = LogFactory.getLog(getClass());
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("DataBase:");
 
     /** The default constructor */
     public IndexSrv() {
@@ -73,9 +81,14 @@ public class IndexSrv {
      */
     public PluginDataObject indexOne(PluginDataObject record)
             throws PluginException {
-        PluginDao dao = PluginFactory.getInstance().getPluginDao(
-                record.getPluginName());
+        String pluginName = record.getPluginName();
+        PluginDao dao = PluginFactory.getInstance().getPluginDao(pluginName);
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         dao.persistToDatabase(record);
+        timer.stop();
+        perfLog.logDuration(pluginName + ": Saved a record: Time to Save",
+                timer.getElapsedTime());
         if (logger.isDebugEnabled()) {
             logger.debug("Persisted: " + record + " to database");
         }
@@ -100,10 +113,16 @@ public class IndexSrv {
         }
 
         try {
-            PluginDao dao = PluginFactory.getInstance().getPluginDao(
-                    record[0].getPluginName());
+            String pluginName = record[0].getPluginName();
+            PluginDao dao = PluginFactory.getInstance().getPluginDao(pluginName);
             EDEXUtil.checkPersistenceTimes(record);
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
             PluginDataObject[] persisted = dao.persistToDatabase(record);
+            timer.stop();
+            perfLog.logDuration(pluginName + ": Saved " + persisted.length
+                    + " record(s): Time to Save",
+                    timer.getElapsedTime());
             if (logger.isDebugEnabled()) {
                 for (PluginDataObject rec : record) {
                     logger.debug("Persisted: " + rec + " to database");
