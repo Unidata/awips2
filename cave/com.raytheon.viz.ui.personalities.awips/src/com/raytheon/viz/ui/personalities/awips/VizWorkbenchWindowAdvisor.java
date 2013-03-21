@@ -32,7 +32,6 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
-import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
 import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
 import com.raytheon.viz.ui.dialogs.ModeListener;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -48,6 +47,7 @@ import com.raytheon.viz.ui.statusline.VizActionBarAdvisor;
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
  * Oct 21, 2008   #1450     randerso    Fixed to support multipane editors
+ * Mar 20, 2013    1638     mschenke    Removed call to DiscoverMenuContributions as now handled in VizWorkbenchAdvisor
  * 
  * </pre>
  * 
@@ -68,10 +68,9 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
      * @param configurer
      */
     public VizWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer,
-            boolean singlePerspective, boolean createMenuJob) {
+            boolean singlePerspective) {
         super(configurer);
         this.singlePerspective = singlePerspective;
-        DiscoverMenuContributions.discoverContributions(createMenuJob);
     }
 
     /*
