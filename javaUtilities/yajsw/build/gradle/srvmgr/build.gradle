@@ -1,0 +1,32 @@
+projectHome = '../../..'
+
+sourceSets.main.java.srcDirs = ["$projectHome/src/srvmgr/java"]
+
+dependencies {
+    compile project(':wrapper')
+    compile project(':ahessian')
+}
+
+dependencies {
+    compile group: 'netty', 							name: 'netty', 										version: "$netty_version"
+    compile group: 'glazedlists', 				name: 'glazedlists', 							version: "$glazedlists_version"
+    compile group: 'commons-beanutils', 	name: 'commons-beanutils', 				version: "$commons_beanutils_version"
+    compile group: 'commons-configuration', name: 'commons-configuration', 	version: "$commons_configuration_version"
+    compile group: 'groovy-all', 					name: 'groovy-all', 							version: "$groovy_all_version"
+    compile group: 'jna', 								name: 'jna', 											version: "$jna_version"
+    compile group: 'platform', 						name: 'platform', 								version: "$platform_version"
+    compile group: 'abeille', 						name: 'formsrt', 									version: "$formsrt_version"
+    compile group: 'forms', 							name: 'forms', 										version: "$forms_version"
+    
+}
+
+//println '---------------------------'
+//println 'dependency jars:'
+//println '---------------------------'
+//configurations.compile.each { File file -> println file.absolutePath }
+//println '---------------------------'
+
+// name of jar
+jar.baseName = 'srvmgr'
+
+// use default manifest
