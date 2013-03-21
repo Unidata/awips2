@@ -33,6 +33,10 @@ import com.raytheon.uf.common.datastorage.DuplicateRecordStorageException;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -44,9 +48,10 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 31, 2008            chammack     Initial creation
+ * Oct 31, 2008            chammack    Initial creation
  * 02/06/09     1990       bphillip    Refactored to use plugin specific daos
  * Nov 02, 2012 1302       djohnson    Remove unused method, fix formatting.
+ * Mar 19, 2013 1785       bgonzale    Added performance status to persist.
  * </pre>
  * 
  * @author chammack
@@ -62,6 +67,9 @@ public class PersistSrv {
         return instance;
     }
 
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("HDF5:");
+
     private PersistSrv() {
     }
 
@@ -75,9 +83,16 @@ public class PersistSrv {
         EDEXUtil.checkPersistenceTimes(pdo);
 
         try {
-            PluginDao dao = PluginFactory.getInstance().getPluginDao(
-                    pdo[0].getPluginName());
+            String pluginName = pdo[0].getPluginName();
+            PluginDao dao = PluginFactory.getInstance()
+                    .getPluginDao(pluginName);
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
             StorageStatus ss = dao.persistToHDF5(pdo);
+            timer.stop();
+            perfLog.logDuration(pluginName + ": Persisted " + pdo.length
+                    + " record(s): Time to Persist",
+                    timer.getElapsedTime());
             StorageException[] se = ss.getExceptions();
             pdoList.addAll(Arrays.asList(pdo));
             if (se != null) {
