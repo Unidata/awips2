@@ -1,35 +1,45 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
+ - This software was developed and / or modified by Raytheon Company,
+ - pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ - 
+ - U.S. EXPORT CONTROLLED TECHNICAL DATA
+ - This software product contains export-restricted data whose
+ - export/transfer/disclosure is restricted by U.S. law. Dissemination
+ - to non-U.S. persons whether in the United States or abroad requires
+ - an export license or other authorization.
+ - 
+ - Contractor Name:        Raytheon Company
+ - Contractor Address:     6825 Pine Street, Suite 340
+ -                         Mail Stop B8
+ -                         Omaha, NE 68106
+ -                         402.291.0100
+ - 
+ - See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ - further licensing information.
+ -->
+<!--
+ - Virtual host configuration for edex
  -
- - Licensed to the Apache Software Foundation (ASF) under one
- - or more contributor license agreements.  See the NOTICE file
- - distributed with this work for additional information
- - regarding copyright ownership.  The ASF licenses this file
- - to you under the Apache License, Version 2.0 (the
- - "License"); you may not use this file except in compliance
- - with the License.  You may obtain a copy of the License at
- -
- -   http://www.apache.org/licenses/LICENSE-2.0
- -
- - Unless required by applicable law or agreed to in writing,
- - software distributed under the License is distributed on an
- - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- - KIND, either express or implied.  See the License for the
- - specific language governing permissions and limitations
- - under the License.
- -
+ - 
+ - SOFTWARE HISTORY
+ - 
+ - Date         Ticket#    Engineer    Description
+ - ============ ========== =========== ==========================
+ - Mar 18, 2013 1814       rjpeter     Initial Creation
+ - 
  -->
 <broker>
     <prefix>${QPID_HOME}</prefix>
     <work>${QPID_WORK}</work>
     <conf>${prefix}/etc</conf>
 
-    <plugin-directory>${QPID_HOME}/lib/plugins</plugin-directory>
+    <plugin-directory>${QPID_HOME}/lib/opt</plugin-directory>
     <cache-directory>${QPID_WORK}/cache</cache-directory>
     
     <connector>
         <!-- To enable SSL edit the keystorePath and keystorePassword
-	     and set enabled to true. 
+         and set enabled to true. 
              To disable Non-SSL port set sslOnly to true -->
         <ssl>
             <enabled>false</enabled>
@@ -57,13 +67,20 @@
             <keyStorePath>${conf}/qpid.keystore</keyStorePath>
             <keyStorePassword>password</keyStorePassword>
         </ssl>
+        <http>
+            <enabled>true</enabled>
+            <port>8180</port>
+            <basic-auth>false</basic-auth>
+            <sasl-auth>false</sasl-auth>
+            <session-timeout>600</session-timeout>
+        </http>
         <https>
             <enabled>false</enabled>
         </https>
     </management>
     <advanced>
         <framesize>65535</framesize>
-        <locale>en_US</locale>	
+        <locale>en_US</locale>
     </advanced>
 
     <security>
@@ -102,5 +119,3 @@
     <status-updates>ON</status-updates>
 
 </broker>
-
-
