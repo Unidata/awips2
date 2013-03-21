@@ -45,7 +45,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ServiceLoaderUtil;
 
-
 /**
  * Lookup table manager
  * 
@@ -57,6 +56,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Mar 7, 2011    357      dhladky     Initial creation
  * Oct 27, 2012   1163     dhladky     Improved, dynamically create files, Added Units
  * Jan 18, 2013   1513     dhladky     Level lookup refit.
+ * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * 
  * </pre>
  * 
@@ -140,10 +140,12 @@ public class LookupManager {
     private UnitLookup unitLookup = null;
 
     private final LevelXmlWriter levelXmlWriter = ServiceLoaderUtil.load(
+            LookupManager.class,
             LevelXmlWriter.class, new LocalizationXmlWriter());
 
     private final ParameterXmlWriter parameterXmlWriter = ServiceLoaderUtil
-            .load(ParameterXmlWriter.class, new LocalizationXmlWriter());
+            .load(LookupManager.class, ParameterXmlWriter.class,
+                    new LocalizationXmlWriter());
 
     /* Private Constructor */
     private LookupManager() {
