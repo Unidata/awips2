@@ -1,0 +1,50 @@
+Manifest-Version: 1.0
+Class-Path-Wrapper-Core: 
+ ./wrapperApp.jar 
+ ./lib/core/yajsw/ahessian.jar 
+ ./lib/core/netty/netty-3.5.1.Final.jar 
+ ./lib/core/jna/jna-3.4.1.jar 
+ ./lib/core/jna/platform-3.4.1.jar 
+ ./lib/core/commons/commons-configuration-1.8.jar 
+ ./lib/core/commons/commons-vfs2-2.0.jar 
+ ./lib/core/groovy/groovy-all-1.8.6.jar 
+ ./lib/core/commons/commons-collections-3.2.jar 
+ ./lib/core/commons/commons-io-1.3.1.jar 
+ ./lib/core/commons/commons-lang-2.4.jar 
+ ./lib/core/commons/commons-logging-1.1.jar 
+ ./lib/core/commons/commons-cli-2-SNAPSHOT.jar 
+ ./lib/core/regex/jrexx-1.1.1.jar
+  
+Class-Path-Wrapper-Extended: 
+ ./lib/extended/commons/commons-httpclient-3.0.1.jar 
+ ./lib/extended/commons/commons-codec-1.3.jar 
+ ./lib/extended/yajsw/hessian4.jar 
+ ./lib/extended/hessian/hessian-4.0.2.jar   
+ ./lib/extended/hessian/servlet-api.jar 
+ ./lib/extended/glazedlists/glazedlists-1.8.0_java15.jar 
+ ./lib/extended/glazedlists/commons-beanutils-1.8.2.jar 
+ ./lib/extended/quartz/quartz-1.8.0.jar 
+ ./lib/extended/quartz/jta-spec1_0_1.jar 
+ ./lib/extended/velocity/velocity-1.6.3.jar 
+ ./lib/extended/jgoodies/forms-1.2.0.jar 
+ ./lib/extended/vfs-webdav/jackrabbit-webdav-1.5.6.jar 
+ ./lib/extended/vfs-webdav/xercesImpl.jar 
+ ./lib/extended/vfs-webdav/slf4j-jdk14-1.5.0.jar 
+ ./lib/extended/vfs-webdav/slf4j-api-1.5.0.jar 
+ ./lib/extended/srvmgr-client/commons-beanutils-1.8.2.jar 
+ ./lib/extended/srvmgr-client/glazedlists-1.8.0_java15.jar 
+ ./lib/extended/abeille/formsrt.jar
+  
+Class-Path-App: 
+ ./wrapper.jar 
+ ./lib/core/netty/netty-3.5.1.Final.jar 
+ ./lib/core/commons/commons-configuration-1.8.jar  
+ ./lib/core/commons/commons-vfs2-2.0.jar 
+ ./lib/core/groovy/groovy-all-1.8.6.jar 
+ ./lib/core/commons/commons-collections-3.2.jar 
+ ./lib/core/commons/commons-io-1.3.1.jar 
+ ./lib/core/commons/commons-lang-2.4.jar 
+ ./lib/core/commons/commons-logging-1.1.jar
+ 
+Main-Class: org.rzo.yajsw.boot.WrapperExeBooter
+
