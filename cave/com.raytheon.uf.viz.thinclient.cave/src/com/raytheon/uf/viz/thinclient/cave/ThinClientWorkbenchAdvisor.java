@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.thinclient.cave;
 import org.eclipse.jface.preference.IPreferencePage;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
-import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import com.raytheon.uf.viz.thinclient.cave.preferences.DynamicPreferenceNode;
 import com.raytheon.uf.viz.thinclient.cave.preferences.DynamicPreferenceNode.IPreferencePageFactory;
@@ -32,7 +30,6 @@ import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientConnectionPrefe
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientPreferencePage;
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientServerPreferences;
 import com.raytheon.viz.ui.personalities.awips.VizWorkbenchAdvisor;
-import com.raytheon.viz.ui.personalities.awips.VizWorkbenchWindowAdvisor;
 
 /**
  * Thin Client workbench advisor, adds the thin client preference page
@@ -43,7 +40,8 @@ import com.raytheon.viz.ui.personalities.awips.VizWorkbenchWindowAdvisor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 21, 2011            mschenke     Initial creation
+ * Oct 21, 2011            mschenke    Initial creation
+ * Mar 20, 2013       1638 mschenke    Removed overriding of createWorkbenchWindowAdvisor as not needed
  * 
  * </pre>
  * 
@@ -52,13 +50,6 @@ import com.raytheon.viz.ui.personalities.awips.VizWorkbenchWindowAdvisor;
  */
 
 public class ThinClientWorkbenchAdvisor extends VizWorkbenchAdvisor {
-
-    @Override
-    public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
-            IWorkbenchWindowConfigurer configurer) {
-        return new VizWorkbenchWindowAdvisor(configurer, singlePerspective,
-                false);
-    }
 
     /*
      * (non-Javadoc)
