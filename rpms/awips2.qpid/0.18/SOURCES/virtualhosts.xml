@@ -1,23 +1,33 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
+ - This software was developed and / or modified by Raytheon Company,
+ - pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ - 
+ - U.S. EXPORT CONTROLLED TECHNICAL DATA
+ - This software product contains export-restricted data whose
+ - export/transfer/disclosure is restricted by U.S. law. Dissemination
+ - to non-U.S. persons whether in the United States or abroad requires
+ - an export license or other authorization.
+ - 
+ - Contractor Name:        Raytheon Company
+ - Contractor Address:     6825 Pine Street, Suite 340
+ -                         Mail Stop B8
+ -                         Omaha, NE 68106
+ -                         402.291.0100
+ - 
+ - See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ - further licensing information.
+ -->
+<!--
+ - Virtual host configuration for edex
  -
- - Licensed to the Apache Software Foundation (ASF) under one
- - or more contributor license agreements.  See the NOTICE file
- - distributed with this work for additional information
- - regarding copyright ownership.  The ASF licenses this file
- - to you under the Apache License, Version 2.0 (the
- - "License"); you may not use this file except in compliance
- - with the License.  You may obtain a copy of the License at
- -
- -   http://www.apache.org/licenses/LICENSE-2.0
- -
- - Unless required by applicable law or agreed to in writing,
- - software distributed under the License is distributed on an
- - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- - KIND, either express or implied.  See the License for the
- - specific language governing permissions and limitations
- - under the License.
- -
+ - 
+ - SOFTWARE HISTORY
+ - 
+ - Date         Ticket#    Engineer    Description
+ - ============ ========== =========== ==========================
+ - Mar 18, 2013 1814       rjpeter     Initial Creation
+ - 
  -->
 <virtualhosts>
     <default>edex</default>
@@ -29,6 +39,63 @@
                 <class>org.apache.qpid.server.store.derby.DerbyMessageStore</class>
                 <environment-path>${QPID_WORK}/messageStore</environment-path>
             </store>
+            <slow-consumer-detection>
+                    <!-- Only check every 5 minutes -->
+                    <delay>5</delay>
+                    <timeunit>minutes</timeunit>
+            </slow-consumer-detection>
+            <queues>
+                <!-- Define default exchange -->
+                <exchange>amq.direct</exchange>
+
+                <!-- Set threshold values for queue monitor alerting to log --> 
+                <!-- If a queue has more than this in memory print an error message -->
+                <maximumQueueDepth>5294080</maximumQueueDepth>  <!-- 5Mb (QPID appears to use   X * 1024^2 + X * 10 * 1024) -->
+
+                <!-- Logs if any message is this large -->
+                <maximumMessageSize>2117632</maximumMessageSize> <!-- 2Mb -->
+
+                <!-- Logs a message if any message is on queue for more than 5 minutes -->
+                <maximumMessageAge>300000</maximumMessageAge>  <!-- 5 min -->
+
+                <!-- Logs a message if there are more that 15k messages on queue -->
+                <maximumMessageCount>15000</maximumMessageCount>
+                <durable>true</durable>
+
+<!--            Configure queues
+                <queue>
+                    <name>external.dropbox</name>
+                    <external..dropbox>
+                       <durable>true</durable>
+                    </external..dropbox>
+                </queue>
+-->
+            </queues>
+            <topics>
+                <slow-consumer-detection>
+                    <!-- The maximum depth in bytes before -->
+                    <!-- the policy will be applied-->
+                    <!--depth>4235264</depth-->
+
+                    <!-- The maximum message age in milliseconds -->
+                    <!-- before the policy will be applied -->
+                    <messageAge>600000</messageAge>
+
+                    <!-- The maximum number of message before -->
+                    <!-- which the policy will be applied-->
+                    <messageCount>5000</messageCount>
+
+                    <!-- Policy Selection -->
+                    <policy>
+                        <name>topicDelete</name>
+                        <topicDelete>
+                            <!-- Uncomment to enable deletion of durable subscriptions that fall behind -->
+                            <!--delete-persistent/-->
+                        </topicDelete>
+                    </policy>
+                </slow-consumer-detection>
+                <!-- Slow Consumer disconnect could be configured per topic.  Use global configuration for now -->
+            </topics>
         </edex>
     </virtualhost>
 </virtualhosts>
