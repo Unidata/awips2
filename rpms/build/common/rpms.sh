@@ -183,6 +183,7 @@ function buildLocalizationRPMs()
       fi
       export LOCALIZATION_DIRECTORY="${localization}"
       export COMPONENT_NAME="awips2-localization-${site}"
+      export site=${site}
 
       echo "Building localization rpm for site: ${site}."
 
@@ -193,6 +194,7 @@ function buildLocalizationRPMs()
          --define '_component_name %(echo ${COMPONENT_NAME})' \
          --define '_baseline_workspace %(echo ${WORKSPACE})' \
          --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
+         --define '_localization_site %(echo ${site})' \
          --buildroot ${AWIPSII_BUILD_ROOT} \
          ${localization_SPECIFICATION}
       RC=$?
