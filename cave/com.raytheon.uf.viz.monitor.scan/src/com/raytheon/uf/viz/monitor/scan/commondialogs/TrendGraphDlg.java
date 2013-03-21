@@ -35,10 +35,25 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.monitor.scan.TrendGraphData;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogAction
-{
+/**
+ * Scan/DMD Trend Graph Dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 21, 2013   1812        mpduff   Redraw now updates with new data.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
+public class TrendGraphDlg extends CaveSWTDialog {
 
-    private ScanTables scanTable;
+    private final ScanTables scanTable;
 
     private Combo identCbo;
 
@@ -50,24 +65,34 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
 
     private TrendGraphCanvas trendGraphCanvas;
 
-    private ITrendGraphUpdate updateCallback;
+    private final ITrendGraphUpdate updateCallback;
 
-    private IRequestTrendGraphData requestDataCallback;
+    private final IRequestTrendGraphData requestDataCallback;
 
-//    private LinkedHashMap<Date, Double> dataMap;
-    
     private TrendGraphData trendGraphData;
 
-    private String[] identArray;
+    private final String[] identArray;
 
-    private Integer vcp;
+    private final Integer vcp;
 
+    /**
+     * Constructor.
+     * 
+     * @param parentShell
+     * @param scanTable
+     * @param ident
+     * @param attrName
+     * @param updateCallback
+     * @param requestDataCallback
+     * @param identArray
+     * @param vcp
+     */
     public TrendGraphDlg(Shell parentShell, ScanTables scanTable, String ident,
             String attrName, ITrendGraphUpdate updateCallback,
             IRequestTrendGraphData requestDataCallback, String[] identArray,
-            Integer vcp)
-    {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+            Integer vcp) {
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
         setText(scanTable.name() + " Trend Graph");
 
         this.scanTable = scanTable;
@@ -76,7 +101,7 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
         this.updateCallback = updateCallback;
         this.requestDataCallback = requestDataCallback;
         this.identArray = identArray;
-        this.vcp=vcp;
+        this.vcp = vcp;
     }
 
     @Override
@@ -92,7 +117,7 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
     protected void initializeComponents(Shell shell) {
         trendGraphData = requestDataCallback.requestTrendGraphData(scanTable,
                 attrName, ident);
-        
+
         createTopControls();
         createGraphCanvas();
     }
@@ -135,8 +160,8 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
 
     private void createGraphCanvas() {
         trendGraphCanvas = new TrendGraphCanvas(shell, trendGraphData,
-                requestDataCallback.getCurrentDate(), scanTable,
-                attrName,vcp,requestDataCallback,ident);
+                requestDataCallback.getCurrentDate(), scanTable, attrName, vcp,
+                requestDataCallback, ident);
     }
 
     private void populateIdentCombo() {
@@ -165,8 +190,8 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
 
         trendGraphData = requestDataCallback.requestTrendGraphData(scanTable,
                 attrName, ident);
-        trendGraphCanvas.updateAttribute(attrName, trendGraphData, requestDataCallback
-                .getCurrentDate());
+        trendGraphCanvas.updateAttribute(attrName, trendGraphData,
+                requestDataCallback.getCurrentDate());
         trendGraphCanvas.setIndent(ident);
     }
 
@@ -177,31 +202,33 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
 
         trendGraphData = requestDataCallback.requestTrendGraphData(scanTable,
                 attrName, ident);
-        trendGraphCanvas.updateAttribute(attrName, trendGraphData, requestDataCallback
-                .getCurrentDate());
+        trendGraphCanvas.updateAttribute(attrName, trendGraphData,
+                requestDataCallback.getCurrentDate());
     }
-    
+
     /**
-     * Update the trend graph data so the latest data can be displayed. 
+     * Update the trend graph data so the latest data can be displayed.
+     * 
      * @return true if item is to be disposed
      */
-    public boolean updateTrendGraph()
-    {
+    public boolean updateTrendGraph() {
         trendGraphData = requestDataCallback.requestTrendGraphData(scanTable,
                 attrName, ident);
-        trendGraphCanvas.updateAttribute(attrName, trendGraphData, requestDataCallback
-                .getCurrentDate());
-        
+        trendGraphCanvas.updateAttribute(attrName, trendGraphData,
+                requestDataCallback.getCurrentDate());
+
         if (requestDataCallback.cellValid(this.ident) == false) {
             return true;
         }
-        
+
         return false;
     }
-    
-    public void redrawTrendGraph()
-    {
-        trendGraphCanvas.redrawCanvas();
+
+    /**
+     * Redraw the graphs with updated data.
+     */
+    public void redrawTrendGraph() {
+        updateTrendGraph();
     }
 
     public void displayDialog() {
@@ -211,24 +238,12 @@ public class TrendGraphDlg extends CaveSWTDialog //implements ICommonDialogActio
     public boolean dialogIsDisposed() {
         return shell.isDisposed();
     }
-    
+
     /**
      * Overriding the dispose method to notify that the trend graph is closing.
      */
     @Override
-    protected void disposed()
-    {
+    protected void disposed() {
         this.updateCallback.trendGraphClosing(this);
     }
-
-//    @Override
-//    public void closeDialog() {
-//        this.updateCallback.trendGraphClosing(this);
-//        shell.dispose();
-//    }
-//
-//    @Override
-//    public boolean isDisposed() {
-//        return shell.isDisposed();
-//    }
 }
