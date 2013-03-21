@@ -67,7 +67,7 @@ cp -r %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE
 
 # Copy The SQL Scripts That The Database RPM Will Need To The
 # Temporary Directory.
-DIRS_TO_COPY=('damcat' 'hmdb' 'migrated' 'setup' 'SHEF' 'vtec' 'ebxml' 'events')
+DIRS_TO_COPY=('hmdb' 'migrated' 'setup' 'vtec' 'ebxml' 'events')
 for dir in ${DIRS_TO_COPY[*]};
 do
    cp -r %{_baseline_workspace}/${PATH_TO_DDL}/${dir}/* \
@@ -210,15 +210,6 @@ function execute_initial_sql_script()
       > ${SQL_LOG} 2>&1
 }
 
-function update_createDamcat()
-{
-   echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
-   AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
-   rm -f .awips2_escape.tmp
-   perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
-      ${SQL_SHARE_DIR}/createDamcat.sql
-}
-
 function update_createEbxml()
 {
    echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
@@ -285,13 +276,6 @@ execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
 # create the events schema
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata
 
-execute_psql_sql_script ${SQL_SHARE_DIR}/hd_ob83oax.sql metadata
-
-update_createDamcat
-execute_psql_sql_script ${SQL_SHARE_DIR}/createDamcat.sql postgres
-execute_psql_sql_script ${SQL_SHARE_DIR}/dcob7oax.sql dc_ob7oax
-execute_psql_sql_script ${SQL_SHARE_DIR}/populateDamcatDatabase.sql dc_ob7oax
-
 update_createHMDB
 su ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_USER} ${SQL_SHARE_DIR} ${SQL_LOG}"
@@ -305,95 +289,6 @@ control_pg_ctl "stop"
 copy_addl_config
 
 %preun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-
-# Ensure that our data directory exists.
-if [ ! -d /awips2/data ]; then
-   exit 0
-fi
-
-# We Need PostgreSQL  
-
-POSTGRESQL_INSTALL="/awips2/postgresql"
-PSQL_INSTALL="/awips2/psql"
-
-POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
-if [ ! -f ${POSTMASTER} ]; then
-   exit 0
-fi
-PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
-if [ ! -f ${PG_CTL} ]; then
-   exit 0
-fi
-DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
-if [ ! -f ${DROPDB} ]; then
-   exit 0
-fi
-PG_RESTORE="${POSTGRESQL_INSTALL}/bin/pg_restore"
-if [ ! -f ${PG_RESTORE} ]; then
-   exit 0
-fi
-PSQL="${PSQL_INSTALL}/bin/psql"
-if [ ! -f ${PSQL} ]; then
-   exit 0
-fi
-# Determine who owns the PostgreSQL Installation
-DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
-# Our log file
-SQL_LOG="${RPM_INSTALL_PREFIX}/static/database.maps/maps.log"
-
-# Determine if PostgreSQL is running.
-I_STARTED_POSTGRESQL="N"
-su ${DB_OWNER} -c \
-   "${PG_CTL} status -D /awips2/data > /dev/null 2>&1"
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   su ${DB_OWNER} -c \
-      "${POSTMASTER} -D /awips2/data > /dev/null 2>&1 &"
-   RC="$?"
-   if [ ! "${RC}" = "0" ]; then
-      echo "Failed To Start The PostgreSQL Server."
-      exit 1
-   fi
-   # Give PostgreSQL Time To Start.
-   sleep 10
-   I_STARTED_POSTGRESQL="Y"
-   echo ""
-fi
-
-# Drop Databases The Official PostgreSQL Way. The User Is Responsible
-# For Cleaning Up The Data Directory That Was Given To: 'initdb'.
-DBS_TO_DROP=( 'dc_ob7oax' 'fxatext' 'hd_ob83oax' 'hmdb' 'metadata' )
-TBS_TO_DROP=( 'damcat' 'hmdb' 'metadata' 'pgdata_ihfs' )
-
-# Attempt To Drop The Databases In Our List ...
-for db in ${DBS_TO_DROP[*]};
-do
-   echo "Dropping Database ... ${db}"
-   su ${DB_OWNER} -c \
-      "${DROPDB} -U awips ${db}"
-done
-
-# Attempt To Drop The Tablespaces In Our List ...
-for tb in ${TBS_TO_DROP[*]};
-do
-   TB_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep ${tb} | awk '{print $5}'`
-   su ${DB_OWNER} -c \
-      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ${tb}\""
-      
-   # remove the tablespace directory.
-   if [ -d "${TB_DIR}" ]; then
-      su ${DB_OWNER} -c "rmdir ${TB_DIR}"
-   fi
-done
-
-# Attempt To Stop PostgreSQL (If We Started It)
-if [ "${I_STARTED_POSTGRESQL}" = "Y" ]; then
-   su ${DB_OWNER} -c \
-      "${PG_CTL} stop -D /awips2/data"   
-fi
 
 %postun
 
