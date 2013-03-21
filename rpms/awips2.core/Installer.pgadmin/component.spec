@@ -119,6 +119,9 @@ fi
 
 rm -rf ${RPM_BUILD_ROOT}/${PGADMIN_BUILD_DIR}
 
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
 %files
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
