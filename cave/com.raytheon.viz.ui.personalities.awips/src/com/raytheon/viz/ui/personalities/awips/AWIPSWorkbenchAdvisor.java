@@ -17,22 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.ui.menus;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+package com.raytheon.viz.ui.personalities.awips;
 
 import com.raytheon.uf.common.menus.MenuCreationRequest;
-import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
- * Job to create the menus on demand in CAVE
+ * AWIPS {@link VizWorkbenchAdvisor} that reqeusts menu creation service to run
+ * before discovering dynamic menus
  * 
  * <pre>
  * 
@@ -40,43 +36,28 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 23, 2011            mnash     Initial creation
+ * Mar 20, 2013            mschenke     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author mschenke
  * @version 1.0
  */
 
-public class MenuCreationJob extends Job {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MenuCreationJob.class);
+public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
 
-    private String site = "";
-
-    /**
-     * 
-     */
-    public MenuCreationJob(String site) {
-        super("Building CAVE menus for " + site + "...");
-        this.site = site;
-    }
-
-    /**
-     * Run the menu generation code
-     */
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
+    protected void createDynamicMenus() {
         // create the request to send to EDEX to generate the menus
         MenuCreationRequest request = new MenuCreationRequest();
-        request.setSite(site);
+        request.setSite(LocalizationManager.getInstance().getSite());
         try {
             ThriftClient.sendRequest(request);
-        } catch (VizException e1) {
-            statusHandler
-                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
-            return Status.CANCEL_STATUS;
+        } catch (VizException e) {
+            UFStatus.getHandler(AWIPSWorkbenchAdvisor.class).handle(
+                    Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        return Status.OK_STATUS;
+        super.createDynamicMenus();
     }
+
 }
