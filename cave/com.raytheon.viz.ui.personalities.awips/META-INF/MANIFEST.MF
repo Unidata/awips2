@@ -17,6 +17,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.0.0",
  org.eclipse.core.resources;bundle-version="3.6.0",
  com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
+ com.raytheon.uf.common.menus;bundle-version="1.12.1174",
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
  com.raytheon.viz.alerts;bundle-version="1.12.1174",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174"
