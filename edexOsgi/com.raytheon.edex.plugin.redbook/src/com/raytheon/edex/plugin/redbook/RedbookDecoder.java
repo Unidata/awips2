@@ -30,6 +30,10 @@ import com.raytheon.edex.plugin.redbook.dao.RedbookDao;
 import com.raytheon.edex.plugin.redbook.decoder.RedbookParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -49,6 +53,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20090327           2019 jkorman     Added code to check for non-redbook data.
  * 20120524           #647 dgilling    Update persistence time in 
  *                                     createdBackDatedVersionIfNeeded.
+ * Mar 19, 2013       1785 bgonzale    Added performance status handler and added
+ *                                     status to decode.
  * </pre>
  * 
  * @author jkorman
@@ -79,13 +85,16 @@ public class RedbookDecoder extends AbstractDecoder {
 
     private static final String GIF87A_SIG = "GIF87a";
 
-    private static final String GIF89A_SIG = "GIF89a";
+    // This sig is currently not used.
+    // private static final String GIF89A_SIG = "GIF89a";
 
     private static final String DIFAX_SIG = "DFAX";
 
     // Name of the plugin controlling this decoder.
     private final String PLUGIN_NAME;
 
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("Redbook:");
     private String traceId = null;
 
     /**
@@ -117,6 +126,9 @@ public class RedbookDecoder extends AbstractDecoder {
 
             WMOHeader wmoHeader = new WMOHeader(rawMessage, headers);
             if (wmoHeader.isValid()) {
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
+
                 int start = wmoHeader.getMessageDataStart();
 
                 int len = rawMessage.length - start;
@@ -145,6 +157,8 @@ public class RedbookDecoder extends AbstractDecoder {
                                 e);
                     }
                 }
+                timer.stop();
+                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
             } else {
                 logger.error(traceId + "- No valid WMO header found in data.");
             }
