@@ -1,0 +1,127 @@
+#!/bin/bash
+#
+# qpidd  This shell script takes care of starting and stopping
+#                the AWIPS qpid instance.
+#
+# chkconfig: - 99 10
+# description: Qpid messaging broker used by the AWIPS 2 instance
+# processname: qpid-server
+# config: /awips2/qpid/etc/config.xml
+
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+RETVAL=0
+prog="qpid-server"
+
+# Who to run QPID as, usually "awips".  (NOT "root")
+QPIDUSER=awips
+
+# Todays date in format of YYYYMMDD.
+TODAY=`/bin/date +%Y%m%d`
+
+QPID_HOME=/awips2/qpid
+
+QPID_JAVA_MEM=-Xmx3072m
+
+start() {
+   isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
+   if [ $isRunning -eq 1 ]; then
+      echo "WARNING: QPID already running, not starting another instance"
+      return 1
+   fi
+
+   DAEMON="${QPID_HOME}/bin/qpid-server"
+   
+   QPIDSTARTLOG=${QPID_HOME}/log/start-qpid-$TODAY.log
+   su $QPIDUSER -c "$DAEMON" >> $QPIDSTARTLOG 2>&1 &
+   sleep 5
+   checkStatus
+}
+
+stop() {
+   isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
+
+   if [ $isRunning -eq 1 ]; then
+      pid=`ps -e -o pid,args | grep org.apache.qpid.server.Main | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
+      kill $pid
+
+      CNT=0
+      while [[ "X$pid" != "X" ]]; do
+         if [ "$CNT" -ge "15" ]; then
+            echo "QPID did not shut down gracefully in 15 seconds, force shutting down"
+            kill -9 $pid
+         else
+            let CNT=${CNT}+1
+         fi
+
+         sleep 1
+         pid=`ps -e -o pid,args | grep org.apache.qpid.server.Main | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
+      done
+   else
+      echo "QPID is not running"
+   fi
+  
+}
+
+checkStatus() {
+   isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
+   if [ $isRunning -eq 1 ]; then
+      pid=`ps -e -o pid,args | grep org.apache.qpid.server.Main | grep "PNAME=QPBRKR " | grep -e "^ *\([0-9]\+\)" -o`
+      echo "QPID is running (PID $pid)"
+   else
+      echo "QPID is not running"
+   fi
+}
+
+# Verify root user
+checkUser() {
+   REQUIREDUSER="root"
+   CURUSER=`whoami`
+   if [ "$CURUSER" != "$REQUIREDUSER" ]; then
+      echo "Insufficient privileges: must run script as $REQUIREDUSER"
+      exit 1
+   fi
+}
+
+# See how we were called.
+case $1 in
+   start)
+      checkUser
+      echo "Starting QPID"
+      start
+      RETVAL=$?
+      ;;
+   stop)
+      checkUser
+      echo "Stopping QPID"
+      stop
+      RETVAL=$?
+      ;;
+   restart)
+      checkUser
+      echo "Stopping QPID"
+      stop
+      echo "Starting QPID"
+      start
+      RETVAL=$?
+      ;;
+   status)
+      checkStatus
+      RETVAL=$?
+      ;;
+   *)
+      # Print help
+      echo "Usage: $0 {start|stop|restart|reload|status}" 1>&2
+      exit 1
+      ;;
+esac
+
+exit $RETVAL
