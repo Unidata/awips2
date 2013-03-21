@@ -20,6 +20,7 @@
 package com.raytheon.viz.core.gl.dataformat;
 
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 
 /**
  * Factory class for getting GLColorMapDataFormat objects given the ColorMapData
@@ -32,6 +33,8 @@ import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2011            mschenke     Initial creation
+ * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
+ *                                     format for offscreen textures.
  * 
  * </pre>
  * 
@@ -43,8 +46,13 @@ public class GLColorMapDataFormatFactory {
 
     public static AbstractGLColorMapDataFormat getGLColorMapDataFormat(
             ColorMapData colorMapData) {
+        return getGLColorMapDataFormat(colorMapData.getDataType());
+    }
+
+    public static AbstractGLColorMapDataFormat getGLColorMapDataFormat(
+            ColorMapDataType colorMapDataType) {
         AbstractGLColorMapDataFormat dataFormat = null;
-        switch (colorMapData.getDataType()) {
+        switch (colorMapDataType) {
         case BYTE: {
             dataFormat = new GLByteDataFormat();
             break;
