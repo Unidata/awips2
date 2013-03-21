@@ -33,9 +33,13 @@ import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.python.decoder.PythonDecoder;
 
 /**
@@ -47,6 +51,8 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  * ------------ ---------- ----------- --------------------------
  * 3/12/10      4758       bphillip     Initial creation
  * 02/12/2013   1615       bgonzale     public decode method to a Processor exchange method.
+ * Mar 19, 2013 1785       bgonzale     Added performance status handler and added status
+ *                                      to process.
  * </pre>
  * 
  * @author njensen
@@ -56,6 +62,11 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
 public class GribDecoder implements Processor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribDecoder.class);
+
+    private static final String[] DecoderNames = { "Grib1", "Grib2" };
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("");
 
     /**
      * @see org.apache.camel.Processor.process(Exchange)
@@ -72,16 +83,22 @@ public class GribDecoder implements Processor {
         int edition = 0;
         GridRecord[] records = null;
         try {
+            ITimer timer = TimeUtil.getTimer();
+            String decoderName;
+
             raf = new RandomAccessFile(file.getAbsolutePath(), "r");
             raf.order(RandomAccessFile.BIG_ENDIAN);
             edition = GribChecker.getEdition(raf);
             exchange.getIn().setHeader(DATA_TYPE, GRIB + edition);
 
+            timer.start();
             switch (edition) {
             case 1:
+                decoderName = DecoderNames[0];
                 records = new Grib1Decoder().decode(file.getAbsolutePath());
                 break;
             case 2:
+                decoderName = DecoderNames[1];
                 records = decodeGrib2(file);
                 break;
             default:
@@ -108,6 +125,9 @@ public class GribDecoder implements Processor {
                     record.constructDataURI();
                 }
             }
+            timer.stop();
+            perfLog.logDuration(decoderName + ": Time to Decode",
+                    timer.getElapsedTime());
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Failed to decode file: ["
                     + file.getAbsolutePath() + "]", e);
