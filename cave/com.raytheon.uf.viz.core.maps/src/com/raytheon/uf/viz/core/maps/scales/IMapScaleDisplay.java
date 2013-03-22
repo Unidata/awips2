@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.core.maps.scales;
 
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+
 /**
  * Interface for display containing a scale
  * 
@@ -44,4 +46,10 @@ public interface IMapScaleDisplay {
      */
     public String getScaleName();
 
+    /**
+     * Changes the scale of the display
+     * 
+     * @param scale
+     */
+    public void changeScale(MapScale scale);
 }

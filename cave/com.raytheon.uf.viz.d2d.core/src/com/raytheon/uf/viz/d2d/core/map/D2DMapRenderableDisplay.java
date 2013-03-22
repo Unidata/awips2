@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.d2d.core.map;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
-import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -40,10 +38,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
-import com.raytheon.uf.viz.core.maps.scales.IMapScaleDisplay;
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
-import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.maps.scales.MapScaleRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
@@ -56,7 +51,6 @@ import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
 import com.raytheon.uf.viz.d2d.core.sampling.CloudHeightResourceData;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.viz.core.imagery.ImageCombiner;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
 
 /**
  * Implementation of a D2D-specific map renderable display
@@ -68,6 +62,7 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  * ------------ ---------- ----------- --------------------------
  * Feb 9, 2009             njensen     Initial creation
  * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
+ * Mar 22, 2013       1638 mschenke    Moved map scale code to MapScaleRenderableDisplay
  * 
  * </pre>
  * 
@@ -76,8 +71,8 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
-        ID2DRenderableDisplay, IMapScaleDisplay {
+public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
+        implements ID2DRenderableDisplay {
 
     private static final CloudHeightResourceData cloudHeightData = new CloudHeightResourceData();
 
@@ -91,11 +86,6 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
     @XmlAttribute
     protected double density = ((Double) VizGlobalsManager.getCurrentInstance()
             .getPropery(VizConstants.DENSITY_ID)).doubleValue();
-
-    /** The current display scale */
-    @XmlAttribute
-    protected String scale = (String) VizGlobalsManager.getCurrentInstance()
-            .getPropery(VizConstants.SCALE_ID);
 
     protected DataScaleListener scaleListener = null;
 
@@ -265,27 +255,10 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
     }
 
     @Override
-    public void clear() {
-        descriptor.getResourceList().clear();
-        File scaleFile = MapScales.getInstance().getScaleByName(getScale())
-                .getFile();
-        Bundle bundle = (Bundle) LoadSerializedXml.deserialize(scaleFile);
-        for (AbstractRenderableDisplay ard : bundle.getDisplays()) {
-            descriptor.getResourceList().addAll(
-                    ard.getDescriptor().getResourceList());
-            ard.getDescriptor().getResourceList().clear();
-            break;
-        }
-        descriptor.getResourceList().instantiateResources(descriptor, true);
-        scaleToClientArea(getBounds());
-    }
-
-    @Override
     public Map<String, Object> getGlobalsMap() {
         Map<String, Object> globals = super.getGlobalsMap();
         globals.put(VizConstants.FRAMES_ID, new Integer(getDescriptor()
                 .getNumberOfFrames()));
-        globals.put(VizConstants.SCALE_ID, scale);
         globals.put(VizConstants.DENSITY_ID, new Double(density));
         globals.put(VizConstants.MAGNIFICATION_ID, new Double(magnification));
         globals.put(VizConstants.LOADMODE_ID, ((D2DTimeMatcher) getDescriptor()
@@ -356,16 +329,6 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
             combinerListener = new ImageCombiner(getDescriptor());
         }
         return combinerListener;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.maps.scales.IMapScaleDisplay#getScaleName()
-     */
-    @Override
-    public String getScaleName() {
-        return getScale();
     }
 
 }
