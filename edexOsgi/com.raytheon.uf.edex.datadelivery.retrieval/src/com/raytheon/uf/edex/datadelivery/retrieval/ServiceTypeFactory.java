@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory;
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012 955        djohnson     Initial creation
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory;
  */
 
 public final class ServiceTypeFactory {
-    
+
     /**
      * Default {@link IServiceFactoryLookup} to be used in production code.
      */
@@ -74,7 +75,7 @@ public final class ServiceTypeFactory {
     }
 
     private static final IServiceFactoryLookup SERVICE_FACTORY_LOOKUP = ServiceLoaderUtil
-            .load(IServiceFactoryLookup.class,
+            .load(ServiceTypeFactory.class, IServiceFactoryLookup.class,
                     new ServiceTypeFactoryLookup());
 
     private ServiceTypeFactory() {
