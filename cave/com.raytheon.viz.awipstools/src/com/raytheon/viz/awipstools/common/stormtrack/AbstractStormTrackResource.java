@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -95,7 +95,7 @@ public abstract class AbstractStormTrackResource extends
     private int lastFrameCount = -1;
 
     public AbstractStormTrackResource(
-            AwipsToolsResourceData<? extends AbstractStormTrackResource> resourceData,
+            GenericToolsResourceData<? extends AbstractStormTrackResource> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties);
         setDescriptor(descriptor);

@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
 
 /**
@@ -44,7 +44,7 @@ import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
  * @version 1
  */
 public class BaselinesToolAction extends
-        AbstractMapToolAction<InteractiveBaselinesLayer> {
+        AbstractGenericToolAction<InteractiveBaselinesLayer> {
 
     /*
      * (non-Javadoc)
@@ -53,8 +53,8 @@ public class BaselinesToolAction extends
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<InteractiveBaselinesLayer> getResourceData() {
-        return new AwipsToolsResourceData<InteractiveBaselinesLayer>(
+    protected GenericToolsResourceData<InteractiveBaselinesLayer> getResourceData() {
+        return new GenericToolsResourceData<InteractiveBaselinesLayer>(
                 "Interactive Baselines", InteractiveBaselinesLayer.class);
 
     }
