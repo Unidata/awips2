@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.DistanceBearingToolLayer;
 
 /**
@@ -42,7 +42,7 @@ import com.raytheon.viz.awipstools.ui.layer.DistanceBearingToolLayer;
  * @version 1
  */
 public class DistanceBearingToolAction extends
-        AbstractMapToolAction<DistanceBearingToolLayer> {
+        AbstractGenericToolAction<DistanceBearingToolLayer> {
 
     /*
      * (non-Javadoc)
@@ -51,8 +51,8 @@ public class DistanceBearingToolAction extends
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<DistanceBearingToolLayer> getResourceData() {
-        return new AwipsToolsResourceData<DistanceBearingToolLayer>(
+    protected GenericToolsResourceData<DistanceBearingToolLayer> getResourceData() {
+        return new GenericToolsResourceData<DistanceBearingToolLayer>(
                 DistanceBearingToolLayer.DEFAULT_NAME,
                 DistanceBearingToolLayer.class);
     }

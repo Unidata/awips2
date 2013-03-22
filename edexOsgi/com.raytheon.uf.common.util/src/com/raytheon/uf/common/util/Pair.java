@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.gfe.type;
+package com.raytheon.uf.common.util;
 
 /**
- * TODO Add Description
+ * Generic Pair object
  * 
  * <pre>
  * 
@@ -28,76 +28,41 @@ package com.raytheon.uf.common.dataplugin.gfe.type;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 18, 2011            randerso     Initial creation
+ * Mar 21, 2013       1638 mschenke    Initial creation
  * 
  * </pre>
  * 
- * @author randerso
+ * @author mschenke
  * @version 1.0
  */
 
-public class Pair<A, B> {
+public class Pair<F, S> {
 
-    private A first;
+    private F first;
 
-    private B second;
+    private S second;
 
-    public Pair(A first, B second) {
+    public Pair(F first, S second) {
         this.first = first;
         this.second = second;
     }
 
-    /**
-     * @return the first
-     */
-    public A getFirst() {
+    public F getFirst() {
         return first;
     }
 
-    /**
-     * @param first
-     *            the first to set
-     */
-    public void setFirst(A first) {
+    public void setFirst(F first) {
         this.first = first;
     }
 
-    /**
-     * @return the second
-     */
-    public B getSecond() {
+    public S getSecond() {
         return second;
     }
 
-    /**
-     * @param second
-     *            the second to set
-     */
-    public void setSecond(B second) {
+    public void setSecond(S second) {
         this.second = second;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("(");
-        sb.append(first);
-        sb.append(", ");
-        sb.append(second);
-        sb.append(")");
-        return sb.toString();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -107,37 +72,25 @@ public class Pair<A, B> {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Pair other = (Pair) obj;
         if (first == null) {
-            if (other.first != null) {
+            if (other.first != null)
                 return false;
-            }
-        } else if (!first.equals(other.first)) {
+        } else if (!first.equals(other.first))
             return false;
-        }
         if (second == null) {
-            if (other.second != null) {
+            if (other.second != null)
                 return false;
-            }
-        } else if (!second.equals(other.second)) {
+        } else if (!second.equals(other.second))
             return false;
-        }
         return true;
     }
 
