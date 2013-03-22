@@ -47,7 +47,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
@@ -92,7 +92,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     private GeodeticCalculator gc;
 
-	public HomeToolLayer(AwipsToolsResourceData<HomeToolLayer> resourceData,
+	public HomeToolLayer(GenericToolsResourceData<HomeToolLayer> resourceData,
 			LoadProperties loadProperties) {
 		super(resourceData, loadProperties, false);
 		// add magnification capability
