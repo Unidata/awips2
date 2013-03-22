@@ -63,20 +63,19 @@ public class MapScalePopulator extends CompoundContributionItem {
     protected IContributionItem[] getContributionItems() {
         MenuManager menuMgr = new MenuManager("Scales", "mapControls");
         IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
-        // Load scales if we have d2d map renderable display on editor or, there
-        // is no editor opened in the d2d perspective
         if ((cont != null && (cont.getActiveDisplayPane()
                 .getRenderableDisplay() instanceof IMapScaleDisplay))
                 || EditorUtil.getActiveEditor() == null) {
             for (MapScale scale : MapScales.getInstance().getScales()) {
                 Map<String, String> parms = new HashMap<String, String>();
-                parms.put("scale", scale.getDisplayName());
+                parms.put(MapScaleHandler.SCALE_NAME_ID, scale.getDisplayName());
                 CommandContributionItem item = new CommandContributionItem(
                         new CommandContributionItemParameter(
                                 PlatformUI.getWorkbench(), null,
-                                "com.raytheon.viz.ui.setScale", parms, null,
-                                null, null, scale.getDisplayName(), null, null,
-                                CommandContributionItem.STYLE_PUSH, null, true));
+                                MapScaleHandler.SET_SCALE_COMMAND_ID, parms,
+                                null, null, null, scale.getDisplayName(), null,
+                                null, CommandContributionItem.STYLE_PUSH, null,
+                                true));
                 menuMgr.add(item);
             }
         }
