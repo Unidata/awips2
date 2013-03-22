@@ -40,7 +40,6 @@ Export-Package: com.raytheon.uf.common.dataplugin.gfe,
  com.raytheon.uf.common.dataplugin.gfe.slice,
  com.raytheon.uf.common.dataplugin.gfe.textproduct,
  com.raytheon.uf.common.dataplugin.gfe.time,
- com.raytheon.uf.common.dataplugin.gfe.type,
  com.raytheon.uf.common.dataplugin.gfe.util,
  com.raytheon.uf.common.dataplugin.gfe.weather,
  com.raytheon.uf.common.dataplugin.gfe.weatherelement

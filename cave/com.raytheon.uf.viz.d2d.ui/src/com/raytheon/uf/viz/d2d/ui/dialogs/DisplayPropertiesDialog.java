@@ -49,13 +49,13 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
 import com.raytheon.uf.viz.d2d.core.time.LoadMode;
 import com.raytheon.uf.viz.d2d.ui.DensityPopulator;
 import com.raytheon.uf.viz.d2d.ui.MagnificationPopulator;
@@ -77,6 +77,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            bgonzale     Initial creation
  * Oct 16, 2012 1229       rferrel     Made dialog non-blocking.
+ * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
  * 
  * </pre>
  * 
