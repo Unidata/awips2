@@ -40,14 +40,14 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.ColorUtil;
 
 /**
- * TODO Add Description
+ * Generic tool resource data, constructs resource using reflection
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * Mar 21, 2013       1638 mschenke    Renamed to better represent purpose
  * 
  * </pre>
  * 
@@ -55,10 +55,10 @@ import com.raytheon.viz.core.ColorUtil;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class AwipsToolsResourceData<T extends AbstractVizResource<AbstractResourceData, MapDescriptor>>
+public class GenericToolsResourceData<T extends AbstractVizResource<?, ?>>
         extends AbstractResourceData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AwipsToolsResourceData.class);
+            .getHandler(GenericToolsResourceData.class);
 
     /**
      * The name of the tools resource layer.
@@ -71,7 +71,7 @@ public class AwipsToolsResourceData<T extends AbstractVizResource<AbstractResour
      */
     private Class<? extends T> classT;
 
-    public AwipsToolsResourceData() {
+    public GenericToolsResourceData() {
         this.nameGenerator = new AbstractNameGenerator() {
             @Override
             public String getName(AbstractVizResource<?, ?> resource) {
@@ -83,7 +83,7 @@ public class AwipsToolsResourceData<T extends AbstractVizResource<AbstractResour
     /**
      * 
      */
-    public AwipsToolsResourceData(String aName, Class<? extends T> classT) {
+    public GenericToolsResourceData(String aName, Class<? extends T> classT) {
         this();
         this.name = aName;
         this.classT = classT;
@@ -147,7 +147,7 @@ public class AwipsToolsResourceData<T extends AbstractVizResource<AbstractResour
      */
     @Override
     public void update(Object updateData) {
-        // TODO Auto-generated method stub
+        // Nothing to update
     }
 
     @Override
@@ -155,11 +155,11 @@ public class AwipsToolsResourceData<T extends AbstractVizResource<AbstractResour
         if (this == obj) {
             return true;
         }
-        if (obj == null || obj instanceof AwipsToolsResourceData == false) {
+        if (obj == null || obj instanceof GenericToolsResourceData == false) {
             return false;
         }
 
-        AwipsToolsResourceData other = (AwipsToolsResourceData) obj;
+        GenericToolsResourceData<?> other = (GenericToolsResourceData<?>) obj;
 
         if (this.name != null && other.name == null) {
             return false;

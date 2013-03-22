@@ -40,6 +40,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.stream.AbstractLocalizationStreamRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamGetRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
@@ -64,59 +65,17 @@ public class LocalizationStreamHandler
         extends
         AbstractPrivilegedLocalizationRequestHandler<AbstractLocalizationStreamRequest> {
 
-    private class Pair {
-        LocalizationContext context;
-
-        String fileName;
-
-        private Pair(LocalizationContext context, String fileName) {
-            this.context = context;
-            this.fileName = fileName;
+    private static class StreamPair extends Pair<LocalizationContext, String> {
+        /**
+         * @param context
+         * @param fileName
+         */
+        public StreamPair(LocalizationContext context, String fileName) {
+            super(context, fileName);
         }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + getOuterType().hashCode();
-            result = prime * result
-                    + ((context == null) ? 0 : context.hashCode());
-            result = prime * result
-                    + ((fileName == null) ? 0 : fileName.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Pair other = (Pair) obj;
-            if (!getOuterType().equals(other.getOuterType()))
-                return false;
-            if (context == null) {
-                if (other.context != null)
-                    return false;
-            } else if (!context.equals(other.context))
-                return false;
-            if (fileName == null) {
-                if (other.fileName != null)
-                    return false;
-            } else if (!fileName.equals(other.fileName))
-                return false;
-            return true;
-        }
-
-        private LocalizationStreamHandler getOuterType() {
-            return LocalizationStreamHandler.this;
-        }
-
     }
 
-    private Map<Pair, File> fileMap = new HashMap<Pair, File>();
+    private Map<StreamPair, File> fileMap = new HashMap<StreamPair, File>();
 
     /*
      * (non-Javadoc)
@@ -128,7 +87,8 @@ public class LocalizationStreamHandler
     @Override
     public Object handleRequest(AbstractLocalizationStreamRequest request)
             throws Exception {
-        Pair pair = new Pair(request.getContext(), request.getFileName());
+        StreamPair pair = new StreamPair(request.getContext(),
+                request.getFileName());
         File file = fileMap.get(pair);
 
         if (file == null) {

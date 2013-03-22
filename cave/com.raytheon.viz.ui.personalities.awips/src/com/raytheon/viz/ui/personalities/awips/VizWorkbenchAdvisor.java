@@ -23,6 +23,9 @@ package com.raytheon.viz.ui.personalities.awips;
 //import gov.noaa.nws.ost.awips.viz.CaveCommandExecutionListener;
 //import gov.noaa.nws.ost.awips.viz.CaveJobChangeListener;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.commands.IExecutionListener;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
@@ -47,6 +50,7 @@ import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
 import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * Workbench Advisor
@@ -178,64 +182,16 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     private void removeExtraPerspectives() {
         IPerspectiveRegistry reg = PlatformUI.getWorkbench()
                 .getPerspectiveRegistry();
-        IPerspectiveDescriptor ipydev = reg
-                .findPerspectiveWithId("org.python.pydev.ui.PythonPerspective");
-        if (ipydev != null) {
-            org.eclipse.ui.internal.registry.PerspectiveDescriptor pydev = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) ipydev;
-
-            IExtension ext = pydev.getConfigElement().getDeclaringExtension();
-            ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                    .removeExtension(ext, new Object[] { ipydev });
-        }
-
-        IPerspectiveDescriptor isync = reg
-                .findPerspectiveWithId("org.eclipse.team.ui.TeamSynchronizingPerspective");
-        if (isync != null) {
-            org.eclipse.ui.internal.registry.PerspectiveDescriptor sync = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) isync;
-
-            IExtension ext = sync.getConfigElement().getDeclaringExtension();
-            ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                    .removeExtension(ext, new Object[] { isync });
-        }
-
-        IPerspectiveDescriptor idebug = reg
-                .findPerspectiveWithId("org.eclipse.debug.ui.DebugPerspective");
-        if (idebug != null) {
-            org.eclipse.ui.internal.registry.PerspectiveDescriptor debug = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) idebug;
-
-            IExtension ext = debug.getConfigElement().getDeclaringExtension();
-            ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                    .removeExtension(ext, new Object[] { idebug });
-        }
-
-        IPerspectiveDescriptor ijava = reg
-                .findPerspectiveWithId("org.eclipse.jdt.ui.JavaPerspective");
-        if (ijava != null) {
-            org.eclipse.ui.internal.registry.PerspectiveDescriptor java = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) ijava;
-
-            IExtension ext = java.getConfigElement().getDeclaringExtension();
-            ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                    .removeExtension(ext, new Object[] { ijava });
-        }
-
-        IPerspectiveDescriptor ijavaBrowse = reg
-                .findPerspectiveWithId("org.eclipse.jdt.ui.JavaBrowsingPerspective");
-        if (ijavaBrowse != null) {
-            org.eclipse.ui.internal.registry.PerspectiveDescriptor java = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) ijavaBrowse;
-
-            IExtension ext = java.getConfigElement().getDeclaringExtension();
-            ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                    .removeExtension(ext, new Object[] { ijavaBrowse });
-        }
-
-        IPerspectiveDescriptor ijavaHier = reg
-                .findPerspectiveWithId("org.eclipse.jdt.ui.JavaHierarchyPerspective");
-        if (ijavaHier != null) {
-            org.eclipse.ui.internal.registry.PerspectiveDescriptor java = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) ijavaHier;
-
-            IExtension ext = java.getConfigElement().getDeclaringExtension();
-            ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                    .removeExtension(ext, new Object[] { ijavaHier });
+        Set<String> managed = new HashSet<String>(
+                VizPerspectiveListener.getManagedPerspectives());
+        for (IPerspectiveDescriptor perspective : reg.getPerspectives()) {
+            if (managed.contains(perspective.getId()) == false) {
+                org.eclipse.ui.internal.registry.PerspectiveDescriptor sync = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) perspective;
+                IExtension ext = sync.getConfigElement()
+                        .getDeclaringExtension();
+                ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
+                        .removeExtension(ext, new Object[] { perspective });
+            }
         }
     }
 
@@ -336,8 +292,6 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     @Override
     public void postStartup() {
         super.postStartup();
-
-        // createDynamicMenus();
 
         Boolean log = Activator.getDefault().getPreferenceStore()
                 .getBoolean(PreferenceConstants.P_LOG_PERF);
