@@ -15,8 +15,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.awipstools;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
- com.raytheon.viz.ui.tools.map;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.points,

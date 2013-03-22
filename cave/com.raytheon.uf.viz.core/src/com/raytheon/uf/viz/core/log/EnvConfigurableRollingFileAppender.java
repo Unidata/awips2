@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.alertviz;
+package com.raytheon.uf.viz.core.log;
 
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.helpers.LogLog;
@@ -32,7 +32,8 @@ import org.apache.log4j.helpers.LogLog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 10, 2012            bgonzale     Initial creation
+ * Sep 10, 2012            bgonzale    Initial creation
+ * Mar 21, 2013       1638 mschenke    Moved from alertviz to core
  * 
  * </pre>
  * 

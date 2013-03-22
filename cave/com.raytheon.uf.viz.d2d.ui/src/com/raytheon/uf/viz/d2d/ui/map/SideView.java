@@ -52,6 +52,9 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -60,9 +63,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.PartId;
 import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
@@ -95,6 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                              now include a legend
  *      Nov 20, 2012   DR 15524    M.Porricelli Changed so interactive screens still editable when
  *                                              swapped to side panel
+ *      Mar 21, 2013       1638     mschenke    Changed map scales not tied to d2d
  * 
  * </pre>
  * 
