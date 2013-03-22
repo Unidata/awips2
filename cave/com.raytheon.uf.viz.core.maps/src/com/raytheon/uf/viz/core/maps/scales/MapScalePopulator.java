@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.d2d.ui;
+package com.raytheon.uf.viz.core.maps.scales;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,20 +30,20 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.d2d.core.map.D2DMapRenderableDisplay;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
- * TODO Add Description
+ * UI populator for map scales
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 7, 2010            mschenke     Initial creation
+ * Oct 7, 2010             mschenke    Initial creation
+ * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
+ * 
  * 
  * </pre>
  * 
@@ -66,7 +66,7 @@ public class MapScalePopulator extends CompoundContributionItem {
         // Load scales if we have d2d map renderable display on editor or, there
         // is no editor opened in the d2d perspective
         if ((cont != null && (cont.getActiveDisplayPane()
-                .getRenderableDisplay() instanceof D2DMapRenderableDisplay))
+                .getRenderableDisplay() instanceof IMapScaleDisplay))
                 || EditorUtil.getActiveEditor() == null) {
             for (MapScale scale : MapScales.getInstance().getScales()) {
                 Map<String, String> parms = new HashMap<String, String>();
