@@ -24,8 +24,8 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 
 /**
  * Simple action for loading the warngen layer
@@ -45,7 +45,7 @@ import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
  * @version 1.0
  */
 
-public class WarngenAction extends AbstractMapToolAction<WarngenLayer> {
+public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
     /*
      * (non-Javadoc)
      * 
@@ -53,8 +53,8 @@ public class WarngenAction extends AbstractMapToolAction<WarngenLayer> {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<WarngenLayer> getResourceData() {
-        return new AwipsToolsResourceData<WarngenLayer>(
+    protected GenericToolsResourceData<WarngenLayer> getResourceData() {
+        return new GenericToolsResourceData<WarngenLayer>(
                 "Interactive Warngen", WarngenLayer.class);
     }
 
