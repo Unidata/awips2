@@ -17,9 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.d2d.core.map;
+package com.raytheon.uf.viz.core.maps.scales;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -28,14 +30,22 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.ui.IWorkbenchWindow;
+
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.procedures.Procedure;
+import com.raytheon.viz.ui.actions.LoadSerializedXml;
 
 /**
  * Serializable object representation of map scales
@@ -45,7 +55,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 7, 2010            mschenke     Initial creation
+ * Oct 7, 2010             mschenke    Initial creation
+ * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
  * 
  * </pre>
  * 
@@ -134,7 +145,7 @@ public class MapScales implements ISerializableObject {
     private static final String SCALES_DIR = "bundles" + File.separator
             + "scales" + File.separator;
 
-    private static final String fileName = SCALES_DIR + "scalesInfo.xml";
+    public static final String FILE_NAME = SCALES_DIR + "scalesInfo.xml";
 
     private static ILocalizationFileObserver listener = new ILocalizationFileObserver() {
         @Override
@@ -156,6 +167,36 @@ public class MapScales implements ISerializableObject {
         return instance;
     }
 
+    public static void loadScales(IWorkbenchWindow window) throws VizException {
+        Procedure procedure = new Procedure();
+        List<Bundle> bundles = new ArrayList<Bundle>();
+        for (MapScale scale : MapScales.getInstance().getScales()) {
+            String editorId = null;
+            for (PartId partId : scale.getPartIds()) {
+                if (partId.isView() == false) {
+                    editorId = partId.getId();
+                    break;
+                }
+            }
+            if (editorId != null) {
+                File file = scale.getFile();
+                try {
+                    Bundle b = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                            Bundle.class, file);
+                    b.setEditor(editorId);
+                    bundles.add(b);
+                } catch (SerializationException e) {
+                    statusHandler.handle(
+                            Priority.PROBLEM,
+                            "Error deserializing bundle: "
+                                    + file.getAbsolutePath(), e);
+                }
+            }
+        }
+        procedure.setBundles(bundles.toArray(new Bundle[bundles.size()]));
+        LoadSerializedXml.loadProcedureToScreen(procedure, window);
+    }
+
     private static synchronized void fileUpdated() {
         instance = null;
     }
@@ -165,18 +206,18 @@ public class MapScales implements ISerializableObject {
             locFile.removeFileUpdatedObserver(listener);
         }
         locFile = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(fileName);
+                .getStaticLocalizationFile(FILE_NAME);
         locFile.addFileUpdatedObserver(listener);
         File file = locFile.getFile();
         if (file == null) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Could not find any version of scale file: " + fileName);
+                    "Could not find any version of scale file: " + FILE_NAME);
         } else {
             try {
                 instance = JAXB.unmarshal(file, MapScales.class);
             } catch (RuntimeException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Could not parse scale file: " + fileName, e);
+                        "Could not parse scale file: " + FILE_NAME, e);
             }
         }
     }

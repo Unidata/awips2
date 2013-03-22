@@ -17,41 +17,31 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.action;
-
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.viz.awipstools.ui.layer.EstimatedActualVelocityLayer;
-import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
+package com.raytheon.uf.viz.core.maps.scales;
 
 /**
- * TODO Add Description
+ * Interface for display containing a scale
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * Mar 21, 2013            mschenke    Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author mschenke
  * @version 1.0
  */
 
-public class EstimatedActualVelocityAction extends ShearAction {
+public interface IMapScaleDisplay {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
+    /**
+     * Returns the name of the scale to be used in
+     * {@link MapScales#getScaleByName(String)}
      */
-    @Override
-    protected GenericToolsResourceData<ShearLayer> getResourceData() {
-        return new GenericToolsResourceData<ShearLayer>(
-                EstimatedActualVelocityLayer.EST_ACT_VEL_LOCATION,
-                EstimatedActualVelocityLayer.class);
-    }
+    public String getScaleName();
 
 }
