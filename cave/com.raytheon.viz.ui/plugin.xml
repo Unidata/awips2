@@ -216,7 +216,8 @@
     </command>
     <command
            id="com.raytheon.viz.ui.scalebutton"
-           name="Update Scale Button">
+           name="Update Scale Button"
+           defaultHandler="com.raytheon.viz.ui.actions.ScaleButtonHandler">
     </command>
     <command
            id="com.raytheon.viz.ui.setScale"
