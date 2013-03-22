@@ -1378,8 +1378,8 @@
          <menuContribution
                locationURI="menu:com.raytheon.viz.ui.scale">
            <dynamic
-                 class="com.raytheon.uf.viz.d2d.ui.MapScalePopulator"
-                 id="com.raytheon.uf.viz.d2d.ui.mapScalePopulator">
+                 class="com.raytheon.uf.viz.core.maps.scales.MapScalePopulator"
+                 id="com.raytheon.uf.viz.d2d.ui.mapScales">
            </dynamic>
          </menuContribution>
        </extension>
