@@ -39,6 +39,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.ServiceLoaderUtil;
+import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.INotAuthHandler;
 
@@ -53,6 +54,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * May 21, 2010            mschenke     Initial creation
  * Nov 06, 2012 1302       djohnson     Add ability to retrieve the {@link IUserManager}.
  * Jan 04, 2013 1451       djohnson     Move static block code to an implementation of an interface.
+ * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * 
  * </pre>
  * 
@@ -68,14 +70,15 @@ public class UserController {
      */
     private static class ExtensionPointManagerLoader implements
             IUserManagerLoader {
-        
-        private static final IUFStatusHandler statusHandler = UFStatus.getHandler(
-                ExtensionPointManagerLoader.class, "CAVE");
-        
+
+        private static final IUFStatusHandler statusHandler = UFStatus
+                .getHandler(ExtensionPointManagerLoader.class,
+                        VizConstants.CAVE);
+
         private static final String EXTENSION_POINT = "com.raytheon.uf.viz.core.userManager";
 
         private static final ExtensionPointManagerLoader INSTANCE = new ExtensionPointManagerLoader();
-        
+
         private ExtensionPointManagerLoader() {
         }
 
@@ -176,12 +179,12 @@ public class UserController {
         // If a service loader config file for the interface is present on the
         // classpath, it can change the implementation, such as in a test case
         IUserManagerLoader userManagerLoader = ServiceLoaderUtil.load(
-                IUserManagerLoader.class, ExtensionPointManagerLoader.INSTANCE);
+                UserController.class, IUserManagerLoader.class,
+                ExtensionPointManagerLoader.INSTANCE);
 
         // manager is now final, it can't be changed once it is initialized
         manager = userManagerLoader.getUserManager();
     }
-
 
     public static IUser getUserObject() {
         return manager.getUserObject();

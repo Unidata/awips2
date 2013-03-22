@@ -17,43 +17,32 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core;
+package com.raytheon.uf.common.datadelivery.request;
 
 /**
- * TODO Add Description
+ * Interface defining a way to check if phase3 code is enabled.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2009            njensen     Initial creation
+ * Mar 21, 2013 1794       djohnson     Initial creation.
  * 
  * </pre>
  * 
- * @author njensen
+ * @author djohnson
  * @version 1.0
  */
 
-public class VizConstants {
-
-    public static final String VIEW_2D = "2D";
-
-    public static final String VIEW_3D = "3D";
-
-    public static final String SCALE_ID = "scale";
-
-    public static final String FRAMES_ID = "frames";
-
-    public static final String FRAME_COUNT_ID = "frameCount";
-
-    public static final String DENSITY_ID = "density";
-
-    public static final String MAGNIFICATION_ID = "magnification";
-
-    public static final String LOADMODE_ID = "loadmode";
-
-    public static final String LOOPING_ID = "looping";
-
-    public static final String CAVE = "CAVE";
+public interface IPhase3Initializer {
+    /**
+     * Checks whether or not the phase 3 code is enabled at runtime. Should only
+     * return true if components from the 5-Data_Delivery repository are
+     * installed.
+     * 
+     * @return true if the phase 3 code is enabled
+     */
+    boolean isPhase3CodeEnabled();
 }
