@@ -49,6 +49,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -85,6 +86,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jan 04, 2013 1420       mpduff       Pass cycles in for rules.
  * Jan 18, 2013 1414       bsteffen     Add ensemble tab.
  * Jan 28, 2013 1533       djohnson     Update the calculated dataset size after loading subset xml.
+ * Mar 21, 2013 1794       djohnson     Add option to create a shared subscription, if phase3 code is available.
+ * 
  * 
  * </pre>
  * 
@@ -253,8 +256,9 @@ public class GriddedSubsetManagerDlg
      * {@inheritDoc}
      */
     @Override
-    protected <T extends Subscription> T createSubscription(T sub) {
-        T subscription = super.createSubscription(sub);
+    protected <T extends Subscription> T createSubscription(T sub,
+            Network defaultRoute) {
+        T subscription = super.createSubscription(sub, defaultRoute);
         if (subscription == null) {
             return null;
         }
