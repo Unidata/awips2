@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.d2d.ui.perspectives;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +28,6 @@ import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -43,8 +39,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.Procedure;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
@@ -55,9 +50,6 @@ import com.raytheon.uf.viz.core.rsc.sampling.actions.SampleAction;
 import com.raytheon.uf.viz.d2d.core.legend.ChangeLegendModeAction;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.PartId;
 import com.raytheon.uf.viz.d2d.ui.actions.BlinkToggleAction;
 import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.uf.viz.d2d.ui.map.actions.AllPanelSampleAction;
@@ -70,7 +62,6 @@ import com.raytheon.uf.viz.d2d.ui.map.actions.SinglePanelLayoutMenuAction;
 import com.raytheon.uf.viz.d2d.ui.map.actions.SkipFramesAction;
 import com.raytheon.uf.viz.d2d.ui.map.actions.SkipFramesAction.SkipFrameMode;
 import com.raytheon.uf.viz.d2d.ui.map.actions.SwapWithLargePaneAction;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
 import com.raytheon.viz.ui.actions.SelectPaneAction;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.LoopingAction;
@@ -95,6 +86,7 @@ import com.raytheon.viz.ui.statusline.FrameCountDisplay;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/27/2010              mschenke    Initial Creation.
+ * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
  * </pre>
  * 
  * @author mschenke
@@ -121,34 +113,8 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
     @Override
     public void open() {
         contextActivator = new D2DContextActivator(page);
-        Procedure procedure = new Procedure();
-        List<Bundle> bundles = new ArrayList<Bundle>();
-        for (MapScale scale : MapScales.getInstance().getScales()) {
-            String editorId = null;
-            for (PartId partId : scale.getPartIds()) {
-                if (partId.isView() == false) {
-                    editorId = partId.getId();
-                    break;
-                }
-            }
-            if (editorId != null) {
-                File file = scale.getFile();
-                try {
-                    Bundle b = (Bundle) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(file);
-                    b.setEditor(editorId);
-                    bundles.add(b);
-                } catch (SerializationException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Error deserializing bundle: "
-                                    + file.getAbsolutePath(), e);
-                }
-            }
-        }
-        procedure.setBundles(bundles.toArray(new Bundle[bundles.size()]));
         try {
-            LoadSerializedXml.loadProcedureToScreen(procedure, true);
+            MapScales.loadScales(perspectiveWindow);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error loading bundles to screen", e);
