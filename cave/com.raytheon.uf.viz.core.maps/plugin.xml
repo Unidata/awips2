@@ -56,6 +56,10 @@
          class="com.raytheon.uf.viz.core.maps.actions.LoadMap"
          commandId="com.raytheon.uf.viz.core.maps.actions.LoadMap">
       </handler>
+      <handler
+      	 class="com.raytheon.uf.viz.core.maps.scales.MapScaleHandler"
+      	 commandId="com.raytheon.viz.ui.setScale">
+      </handler>
    </extension>
    <extension
          point="com.raytheon.viz.ui.contextualMenu">
@@ -109,5 +113,15 @@
             recursive="false"
             value="mapStyles">
       </path>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+   		<menuContribution
+               locationURI="menu:com.raytheon.viz.ui.scale">
+           <dynamic
+                 class="com.raytheon.uf.viz.core.maps.scales.MapScalePopulator"
+                 id="com.raytheon.uf.viz.core.maps.mapScales">
+           </dynamic>
+         </menuContribution>
    </extension>
 </plugin>
