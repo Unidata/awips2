@@ -23,8 +23,8 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.TimeOfArrivalLayer;
 
 /**
@@ -43,11 +43,11 @@ import com.raytheon.viz.awipstools.ui.layer.TimeOfArrivalLayer;
  */
 
 public class TimeOfArrivalAction extends
-        AbstractMapToolAction<TimeOfArrivalLayer> {
+        AbstractGenericToolAction<TimeOfArrivalLayer> {
 
     private TimeOfArrivalLayer layer = null;
 
-    private AwipsToolsResourceData<TimeOfArrivalLayer> data = null;
+    private GenericToolsResourceData<TimeOfArrivalLayer> data = null;
 
     /*
      * (non-Javadoc)
@@ -56,9 +56,9 @@ public class TimeOfArrivalAction extends
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<TimeOfArrivalLayer> getResourceData() {
+    protected GenericToolsResourceData<TimeOfArrivalLayer> getResourceData() {
         if (data == null) {
-            data = new AwipsToolsResourceData<TimeOfArrivalLayer>(
+            data = new GenericToolsResourceData<TimeOfArrivalLayer>(
                     TimeOfArrivalLayer.NAME, TimeOfArrivalLayer.class);
         }
         return data;

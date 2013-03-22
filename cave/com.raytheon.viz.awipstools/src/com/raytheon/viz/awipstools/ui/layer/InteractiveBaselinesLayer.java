@@ -45,7 +45,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -109,7 +109,7 @@ public class InteractiveBaselinesLayer extends
      * @param loadProperties
      */
     public InteractiveBaselinesLayer(
-            AwipsToolsResourceData<InteractiveBaselinesLayer> resourceData,
+            GenericToolsResourceData<InteractiveBaselinesLayer> resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         getCapability(EditableCapability.class).setEditable(true);
