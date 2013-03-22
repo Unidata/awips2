@@ -78,7 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     &quot;right-click-to-move&quot; functionality will
  *                                     not allow the legend to change.
  * 07-21-2010              bkowal      We will now display the standard SWT &quot;hand&quot;
- *                                     cursor instead of the reversed arrow cursor.
+ * Mar 21, 2013       1638 mschenke    Changed to use generic tool data
  * 
  * </pre>
  * 
@@ -129,13 +129,13 @@ public abstract class AbstractMovableToolLayer<T> extends
     protected boolean rightClickMovesToCoord;
 
     protected AbstractMovableToolLayer(
-            AwipsToolsResourceData<? extends AbstractMovableToolLayer<T>> resourceData,
+            GenericToolsResourceData<? extends AbstractMovableToolLayer<T>> resourceData,
             LoadProperties loadProperties) {
         this(resourceData, loadProperties, true);
     }
 
     protected AbstractMovableToolLayer(
-            AwipsToolsResourceData<? extends AbstractMovableToolLayer<T>> resourceData,
+            GenericToolsResourceData<? extends AbstractMovableToolLayer<T>> resourceData,
             LoadProperties loadProperties, boolean editable) {
         super(resourceData, loadProperties);
         getCapability(EditableCapability.class).setEditable(editable);

@@ -33,7 +33,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -64,7 +64,7 @@ public class FeatureFollowingZoomLayer extends
     private int lastFrame = -1;
 
     public FeatureFollowingZoomLayer(
-            AwipsToolsResourceData<DistanceSpeedLayer> resourceData,
+            GenericToolsResourceData<DistanceSpeedLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties);
         // add magnification capability

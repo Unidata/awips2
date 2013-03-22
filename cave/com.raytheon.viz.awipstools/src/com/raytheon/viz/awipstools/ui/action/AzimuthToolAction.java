@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.AzimuthToolLayer;
 
 /**
@@ -44,7 +44,7 @@ import com.raytheon.viz.awipstools.ui.layer.AzimuthToolLayer;
  * @author ebabin
  * @version 1
  */
-public class AzimuthToolAction extends AbstractMapToolAction<AzimuthToolLayer> {
+public class AzimuthToolAction extends AbstractGenericToolAction<AzimuthToolLayer> {
 
     /*
      * (non-Javadoc)
@@ -53,8 +53,8 @@ public class AzimuthToolAction extends AbstractMapToolAction<AzimuthToolLayer> {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<AzimuthToolLayer> getResourceData() {
-        return new AwipsToolsResourceData<AzimuthToolLayer>(
+    protected GenericToolsResourceData<AzimuthToolLayer> getResourceData() {
+        return new GenericToolsResourceData<AzimuthToolLayer>(
                 AzimuthToolLayer.AZIMUTH_LOCATION, AzimuthToolLayer.class);
     }
 
