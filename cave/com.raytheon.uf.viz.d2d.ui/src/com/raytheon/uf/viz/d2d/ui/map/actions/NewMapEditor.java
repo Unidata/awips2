@@ -29,12 +29,10 @@ import org.eclipse.core.commands.ExecutionException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.PartId;
-import com.raytheon.uf.viz.d2d.ui.Activator;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -46,6 +44,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2007            chammack    Initial Creation.
+ * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
  * 
  * </pre>
  * 
@@ -53,7 +52,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1.0
  */
 public class NewMapEditor extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(NewMapEditor.class);
+    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(NewMapEditor.class);
 
     /*
      * (non-Javadoc)
