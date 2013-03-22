@@ -32,10 +32,10 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
-import com.raytheon.viz.ui.tools.map.AbstractMapTool;
+import com.raytheon.viz.ui.tools.AbstractTool;
 
 /**
  * A class which represents an action for loading a tool which is a single
@@ -47,7 +47,7 @@ import com.raytheon.viz.ui.tools.map.AbstractMapTool;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * Mar 21, 2013       1638 mschenke    Renamed to better represent purpose
  * 
  * </pre>
  * 
@@ -55,12 +55,12 @@ import com.raytheon.viz.ui.tools.map.AbstractMapTool;
  * @version 1.0
  * @param <T>
  */
-public abstract class AbstractMapToolAction<T extends AbstractVizResource<AbstractResourceData, MapDescriptor>>
-        extends AbstractMapTool {
+public abstract class AbstractGenericToolAction<T extends AbstractVizResource<AbstractResourceData, MapDescriptor>>
+        extends AbstractTool {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AbstractMapToolAction.class);
+            .getHandler(AbstractGenericToolAction.class);
 
-    protected AwipsToolsResourceData<T> data;
+    protected GenericToolsResourceData<T> data;
 
     /*
      * (non-Javadoc)
@@ -107,7 +107,7 @@ public abstract class AbstractMapToolAction<T extends AbstractVizResource<Abstra
         return data.construct(loadProperties, descriptor);
     }
 
-    protected abstract AwipsToolsResourceData<T> getResourceData();
+    protected abstract GenericToolsResourceData<T> getResourceData();
 
     protected IDisplayPane[] getSelectedPanes() {
         if (this.editor == null) {
