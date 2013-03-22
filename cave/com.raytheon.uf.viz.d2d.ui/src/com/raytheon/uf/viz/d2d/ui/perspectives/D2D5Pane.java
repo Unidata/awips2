@@ -30,9 +30,9 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.PartId;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
 import com.raytheon.uf.viz.d2d.ui.actions.ChangeD2DLayoutAction;
 import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.viz.ui.UiUtil;
@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.UiUtil;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
+ * Mar 21, 2013       1638  mschenke    Changed map scales not tied to d2d
  * 
  * </pre>
  * 
