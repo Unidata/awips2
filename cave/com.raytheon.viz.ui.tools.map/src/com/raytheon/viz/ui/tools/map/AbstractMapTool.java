@@ -64,7 +64,7 @@ public abstract class AbstractMapTool extends AbstractTool {
      */
     protected AbstractVizResource<?, ?> getResource(
             Class<? extends AbstractVizResource<?, ?>> resourceClass,
-            Class<? extends AbstractMapTool> resourceAction)
+            Class<? extends AbstractTool> resourceAction)
             throws ExecutionException {
 
         AbstractVizResource<?, ?> resourceLayer = containsResource(resourceClass);
