@@ -45,7 +45,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
@@ -112,7 +112,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     Map<Integer, IFont> fonts;
 
     public PointsToolLayer(
-            AwipsToolsResourceData<PointsToolLayer> resourceData,
+            GenericToolsResourceData<PointsToolLayer> resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         this.dataManager = PointsDataManager.getInstance();

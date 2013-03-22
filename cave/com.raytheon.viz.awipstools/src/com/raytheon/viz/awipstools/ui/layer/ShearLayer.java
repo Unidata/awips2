@@ -47,7 +47,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -89,7 +89,7 @@ public class ShearLayer extends
 
     private float endCircleRadius;
 
-    public ShearLayer(AwipsToolsResourceData<VRShearLayer> data,
+    public ShearLayer(GenericToolsResourceData<VRShearLayer> data,
             LoadProperties props, MapDescriptor descriptor) {
         super(data, props);
         setDescriptor(descriptor);
