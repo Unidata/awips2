@@ -11,11 +11,11 @@ Require-Bundle: org.eclipse.ui,
  javax.media.opengl,
  org.geotools,
  javax.vecmath,
- com.raytheon.edex.common,
  com.raytheon.uf.common.colormap;bundle-version="1.0.0",
  com.raytheon.uf.viz.core,
  com.raytheon.uf.common.util;bundle-version="1.0.0",
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.core.gl,

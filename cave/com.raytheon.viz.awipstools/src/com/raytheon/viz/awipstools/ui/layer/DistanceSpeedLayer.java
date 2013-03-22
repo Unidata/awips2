@@ -29,7 +29,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.LabelMode;
@@ -71,7 +71,7 @@ public class DistanceSpeedLayer extends AbstractStormTrackResource {
     private DistanceSpeedDialog dialog;
 
     public DistanceSpeedLayer(
-            AwipsToolsResourceData<DistanceSpeedLayer> resourceData,
+            GenericToolsResourceData<DistanceSpeedLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
     	// add magnification capability
