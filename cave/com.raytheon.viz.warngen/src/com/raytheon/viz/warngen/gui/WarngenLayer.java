@@ -97,7 +97,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
@@ -404,7 +404,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public WarngenLayer(
-            AwipsToolsResourceData<? extends AbstractStormTrackResource> resourceData,
+            GenericToolsResourceData<? extends AbstractStormTrackResource> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
         displayState.displayType = DisplayType.POINT;

@@ -21,4 +21,3 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.gisdatastore,
  com.raytheon.uf.viz.gisdatastore.rsc,
  com.raytheon.uf.viz.gisdatastore.ui
-Import-Package: com.raytheon.uf.common.dataplugin.gfe.type

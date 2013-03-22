@@ -29,8 +29,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
@@ -43,6 +41,8 @@ import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
+import com.raytheon.uf.viz.core.maps.scales.IMapScaleDisplay;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
@@ -66,7 +66,8 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2009            njensen     Initial creation
+ * Feb 9, 2009             njensen     Initial creation
+ * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
  * 
  * </pre>
  * 
@@ -76,9 +77,7 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
-        ID2DRenderableDisplay {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(D2DMapRenderableDisplay.class);
+        ID2DRenderableDisplay, IMapScaleDisplay {
 
     private static final CloudHeightResourceData cloudHeightData = new CloudHeightResourceData();
 
@@ -357,6 +356,16 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
             combinerListener = new ImageCombiner(getDescriptor());
         }
         return combinerListener;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.maps.scales.IMapScaleDisplay#getScaleName()
+     */
+    @Override
+    public String getScaleName() {
+        return getScale();
     }
 
 }

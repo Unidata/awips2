@@ -59,7 +59,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackDisplay;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
@@ -247,7 +247,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
     };
 
     public TimeOfArrivalLayer(
-            AwipsToolsResourceData<TimeOfArrivalLayer> resourceData,
+            GenericToolsResourceData<TimeOfArrivalLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
         // add magnification capability
