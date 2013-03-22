@@ -35,7 +35,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -47,6 +46,7 @@ import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 
 /**
  * Base class for GFE grid databases. This class maintains the location of the
