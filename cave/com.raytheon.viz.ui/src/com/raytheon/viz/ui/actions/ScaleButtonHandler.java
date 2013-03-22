@@ -20,7 +20,7 @@
 /**
  * 
  */
-package com.raytheon.uf.viz.d2d.ui.map.actions;
+package com.raytheon.viz.ui.actions;
 
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.IElementUpdater;
@@ -28,7 +28,6 @@ import org.eclipse.ui.menus.UIElement;
 
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
-import com.raytheon.viz.ui.actions.AbstractGlobalsButtonHandler;
 
 /**
  * Updates the scale
