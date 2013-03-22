@@ -20,8 +20,8 @@
 
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.common.DistanceTool;
 
 /**
@@ -40,7 +40,7 @@ import com.raytheon.viz.awipstools.common.DistanceTool;
  * @author bphillip
  * 
  */
-public class DistanceToolAction extends AbstractMapToolAction<DistanceTool> {
+public class DistanceToolAction extends AbstractGenericToolAction<DistanceTool> {
 
     /*
      * (non-Javadoc)
@@ -49,8 +49,8 @@ public class DistanceToolAction extends AbstractMapToolAction<DistanceTool> {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<DistanceTool> getResourceData() {
-        return new AwipsToolsResourceData<DistanceTool>("Distance Scale",
+    protected GenericToolsResourceData<DistanceTool> getResourceData() {
+        return new GenericToolsResourceData<DistanceTool>("Distance Scale",
                 DistanceTool.class);
     }
 }

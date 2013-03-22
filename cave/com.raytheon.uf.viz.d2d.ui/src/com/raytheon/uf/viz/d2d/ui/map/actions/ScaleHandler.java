@@ -40,10 +40,10 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.d2d.core.map.D2DMapRenderableDisplay;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ----------  ----------- --------------------------
  * Jul 24, 2007             randerso    Initial Creation.
  * Oct 21, 2008   #1450     randerso    Fixed to support multipane editors
+ * Mar 21, 2013       1638  mschenke    Changed map scales not tied to d2d
  * 
  * </pre>
  * 

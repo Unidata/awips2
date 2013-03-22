@@ -17,21 +17,22 @@
  * Use or disclosure of data contained in this source code file is subject to
  * the export restrictions set forth in the Master Rights File.
  ******************************************************************************************/
-package com.raytheon.viz.awipstools.ui.action;
+package com.raytheon.viz.awipstools;
 
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
-import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
 
 /**
- * Action for feature follow zoom
+ * {@link GenericToolsResourceData} was renamed. This class is here to maintain
+ * serialization compatibility
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * Mar 21, 2013       1638 mschenke    Created for serialization purposes
  * 
  * </pre>
  * 
@@ -39,18 +40,7 @@ import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
  * @version 1.0
  */
 
-public class FeatureFollowingZoomAction extends
-        AbstractGenericToolAction<FeatureFollowingZoomLayer> {
+public class AwipsToolsResourceData<T extends AbstractVizResource<?, ?>>
+        extends GenericToolsResourceData<T> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<FeatureFollowingZoomLayer> getResourceData() {
-        return new GenericToolsResourceData<FeatureFollowingZoomLayer>(
-                "Feature Following Zoom", FeatureFollowingZoomLayer.class);
-    }
 }

@@ -28,4 +28,5 @@ Export-Package: com.raytheon.uf.viz.core.maps,
  com.raytheon.uf.viz.core.maps.actions,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.maps.menus,
- com.raytheon.uf.viz.core.maps.rsc
+ com.raytheon.uf.viz.core.maps.rsc,
+ com.raytheon.uf.viz.core.maps.scales
