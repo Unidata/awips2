@@ -26,30 +26,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
 import org.opensaml.xacml.XACMLObject;
 import org.opensaml.xacml.policy.PolicySetType;
 import org.opensaml.xacml.policy.PolicyType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLParser;
 import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
 import com.raytheon.uf.edex.registry.ebxml.constants.StatusTypes;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
-import com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager;
+import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -63,19 +63,19 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Service
+@Transactional
 public class XACMLPolicyAdministrator {
 
     /** The status handler */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(XACMLPolicyAdministrator.class);
-
-    /** The singleton instance */
-    private static final XACMLPolicyAdministrator instance = new XACMLPolicyAdministrator();
 
     /** The map of policies known to the system */
     private Map<String, PolicyType> policyMap = new HashMap<String, PolicyType>();
@@ -83,27 +83,15 @@ public class XACMLPolicyAdministrator {
     /** The map of policy sets known to the system */
     private Map<String, PolicySetType> policySetMap = new HashMap<String, PolicySetType>();
 
-    /**
-     * Gets the singleton instance of the XACMLPolicyAdministrator
-     * 
-     * @return The singleton instance of the XACMLPolicyAdministrator
-     */
-    public static XACMLPolicyAdministrator getInstance() {
-        return instance;
-    }
+    private ExtrinsicObjectDao extrinsicObjectDao;
+
+    private LifecycleManagerImpl lcm;
 
     /**
      * Private constructor
      */
-    private XACMLPolicyAdministrator() {
-        try {
-            RegistrySessionManager.openSession();
-            loadAccessControlPolicies();
-        } catch (MsgRegistryException e) {
-            e.printStackTrace();
-        } finally {
-            RegistrySessionManager.closeSession();
-        }
+    public XACMLPolicyAdministrator() {
+
     }
 
     /**
@@ -116,14 +104,16 @@ public class XACMLPolicyAdministrator {
      * @throws EbxmlRegistryException
      */
     public XACMLObject getPolicyObject(String id) throws EbxmlRegistryException {
-        XACMLObject policyObject = (XACMLObject) XACMLParser
-                .getInstance()
+        List<ExtrinsicObjectType> policies = extrinsicObjectDao.getByLid(id);
+        if (policies.isEmpty()) {
+            throw new EbxmlRegistryException("No policy exists with id [" + id
+                    + "]");
+        }
+
+        XACMLObject policyObject = (XACMLObject) XACMLParser.getInstance()
                 .unmarshallXacmlObjectFromText(
-                        new String(
-                                ((ExtrinsicObjectType) new RegistryObjectTypeDao(
-                                        ExtrinsicObjectType.class).getByLid(id))
-                                        .getRepositoryItem(), Charset
-                                        .forName("UTF-8")));
+                        new String(policies.get(0).getRepositoryItem(), Charset
+                                .forName("UTF-8")));
         if ((policyObject instanceof PolicyType)
                 || (policyObject instanceof PolicySetType)) {
             return policyObject;
@@ -146,12 +136,16 @@ public class XACMLPolicyAdministrator {
     public PolicyType getPolicy(String policyId) throws EbxmlRegistryException {
         PolicyType policy = policyMap.get(policyId);
         if (policy == null) {
-            ExtrinsicObjectType policyObj = new RegistryObjectTypeDao(
-                    ExtrinsicObjectType.class).getByLid(policyId);
+            List<ExtrinsicObjectType> policies = extrinsicObjectDao
+                    .getByLid(policyId);
+            if (policies.isEmpty()) {
+                throw new EbxmlRegistryException("No policy exists with id ["
+                        + policyId + "]");
+            }
             policy = (PolicyType) XACMLParser.getInstance()
                     .unmarshallXacmlObjectFromText(
-                            new String(policyObj.getRepositoryItem(), Charset
-                                    .forName("UTF-8")));
+                            new String(policies.get(0).getRepositoryItem(),
+                                    Charset.forName("UTF-8")));
         }
         return policy;
     }
@@ -169,12 +163,16 @@ public class XACMLPolicyAdministrator {
             throws EbxmlRegistryException {
         PolicySetType policySet = policySetMap.get(policySetId);
         if (policySet == null) {
-            ExtrinsicObjectType policyObj = new RegistryObjectTypeDao(
-                    ExtrinsicObjectType.class).getByLid(policySetId);
+            List<ExtrinsicObjectType> policySets = extrinsicObjectDao
+                    .getByLid(policySetId);
+            if (policySets.isEmpty()) {
+                throw new EbxmlRegistryException("No policy exists with id ["
+                        + policySetId + "]");
+            }
             policySet = (PolicySetType) XACMLParser.getInstance()
                     .unmarshallXacmlObjectFromText(
-                            new String(policyObj.getRepositoryItem(), Charset
-                                    .forName("UTF-8")));
+                            new String(policySets.get(0).getRepositoryItem(),
+                                    Charset.forName("UTF-8")));
         }
         return policySet;
     }
@@ -187,9 +185,6 @@ public class XACMLPolicyAdministrator {
      *             policy sets
      */
     public void loadAccessControlPolicies() throws MsgRegistryException {
-        @SuppressWarnings("rawtypes")
-        LifecycleManager lcm = ((EDEXRegistryManager) EDEXUtil
-                .getESBComponent("edexRegistryManager")).getLifeCycleManager();
         LocalizationFile[] files = PathManagerFactory.getPathManager()
                 .listStaticFiles("ebxml/acp", new String[] { ".xml" }, true,
                         true);
@@ -248,7 +243,7 @@ public class XACMLPolicyAdministrator {
                 regObj.setOwner(RegistryUtil.DEFAULT_OWNER);
                 regObj.setRepositoryItem(serializedPolicy);
                 regObj.setMimeType("text/xml; charset=UTF-8");
-                regObj.setVersionInfo(EbxmlObjectUtil.newVersionObject());
+                regObj.setVersionInfo(new VersionInfoType());
                 regObjs.add(regObj);
             } catch (Exception e) {
                 statusHandler.fatal(
@@ -259,4 +254,13 @@ public class XACMLPolicyAdministrator {
                 .createRegistryObjectList(regObjs));
         lcm.submitObjects(submitRequest);
     }
+
+    public void setExtrinsicObjectDao(ExtrinsicObjectDao extrinsicObjectDao) {
+        this.extrinsicObjectDao = extrinsicObjectDao;
+    }
+
+    public void setLcm(LifecycleManagerImpl lcm) {
+        this.lcm = lcm;
+    }
+
 }

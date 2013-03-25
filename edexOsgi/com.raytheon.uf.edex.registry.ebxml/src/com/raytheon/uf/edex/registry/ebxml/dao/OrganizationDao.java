@@ -17,6 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -37,19 +39,23 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class OrganizationDao extends RegistryObjectTypeDao {
+public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
+
+    /** The Association data access object */
+    private AssociationDao associationDao;
 
     /**
-     * Creates a new organization data access object
+     * Creates a new Organization Dao
      */
     public OrganizationDao() {
-        super(OrganizationType.class);
+
     }
 
     /**
@@ -61,7 +67,11 @@ public class OrganizationDao extends RegistryObjectTypeDao {
      */
     public List<OrganizationType> getAllOrganizations()
             throws EbxmlRegistryException {
-        return executeHQLQuery("from OrganizationType");
+        try {
+            return executeHQLQuery("from OrganizationType");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -76,10 +86,15 @@ public class OrganizationDao extends RegistryObjectTypeDao {
      */
     public List<OrganizationType> getOrganizationByName(String name)
             throws EbxmlRegistryException {
-        List<OrganizationType> orgs = executeHQLQuery("select obj from OrganizationType obj inner join obj.name.localizedString as theName where lower(obj.id) like '%"
-                + name.toLowerCase()
-                + "%' or lower(theName.value) like '%"
-                + name.toLowerCase() + "%' order by obj.id asc");
+        List<OrganizationType> orgs;
+        try {
+            orgs = executeHQLQuery("select obj from OrganizationType obj inner join obj.name.localizedString as theName where lower(obj.id) like '%"
+                    + name.toLowerCase()
+                    + "%' or lower(theName.value) like '%"
+                    + name.toLowerCase() + "%' order by obj.id asc");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
         return orgs;
     }
 
@@ -94,12 +109,22 @@ public class OrganizationDao extends RegistryObjectTypeDao {
      */
     public OrganizationType getOrganizationForUser(String user)
             throws EbxmlRegistryException {
-        List<AssociationType> associations = new AssociationDao()
-                .getBySourceAndType(user, AssociationTypes.EMPLOYEE_OF);
+        List<AssociationType> associations = associationDao.getBySourceAndType(
+                user, AssociationTypes.EMPLOYEE_OF);
         if (associations.isEmpty()) {
             return null;
         } else {
             return getById(associations.get(0).getTargetObject());
         }
     }
+
+    public void setAssociationDao(AssociationDao associationDao) {
+        this.associationDao = associationDao;
+    }
+
+    @Override
+    protected Class<OrganizationType> getEntityClass() {
+        return OrganizationType.class;
+    }
+
 }

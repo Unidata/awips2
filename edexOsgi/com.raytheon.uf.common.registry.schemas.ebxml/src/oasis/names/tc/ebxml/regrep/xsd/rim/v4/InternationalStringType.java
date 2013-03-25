@@ -29,7 +29,9 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -78,20 +80,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @XmlType(name = "InternationalStringType", propOrder = { "localizedString" })
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-@Table(name = "IntlString")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Table(schema = "ebxml", name = "InternationalString")
 public class InternationalStringType implements Serializable {
 
     private static final long serialVersionUID = 2414977045816695691L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "InternationalStringTypeGenerator", schema = "ebxml", sequenceName = "ebxml.InternationalString_sequence")
+    @GeneratedValue(generator = "InternationalStringTypeGenerator")
     @XmlTransient
     private Integer key;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @XmlElement(name = "LocalizedString")
     @DynamicSerializeElement
+    @JoinTable(schema = "ebxml")
     protected List<LocalizedStringType> localizedString;
 
     /**

@@ -5,7 +5,6 @@ import com.raytheon.uf.common.datadelivery.event.notification.DeleteNotification
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.datadelivery.event.notification.NotificationDao;
 
 /**
  * 
@@ -18,6 +17,7 @@ import com.raytheon.uf.edex.datadelivery.event.notification.NotificationDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2012            jsanchez     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
  * 
  * </pre>
  * 
@@ -31,6 +31,10 @@ public class DeleteNotificationHandler extends AbstractHandler implements
             .getHandler(DeleteNotificationHandler.class);
 
     private String uri;
+
+    public DeleteNotificationHandler() {
+        super();
+    }
 
     /**
      * Create a new object
@@ -48,8 +52,7 @@ public class DeleteNotificationHandler extends AbstractHandler implements
     @Override
     public DeleteNotificationResponse handleRequest(
             DeleteNotificationRequest request) throws Exception {
-        NotificationDao dao = new NotificationDao();
-        int rowsDeleted = dao.deleteRecords(request.getIds());
+        int rowsDeleted = notificationDao.deleteRecords(request.getIds());
 
         DeleteNotificationResponse response = new DeleteNotificationResponse();
         response.setIds(request.getIds());

@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean name="RegistryNotificationManager"
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistryNotificationManager" />
+
+	<bean name="RegistrySubscriptionManager"
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager">
+		<property name="queryManager" ref="queryServiceImpl" />
+		<property name="subscriptionDao" ref="subscriptionTypeDao" />
+		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
+		<property name="notificationManager" ref="RegistryNotificationManager" />
+	</bean>
+	
+	<camelContext id="ebxml-notification" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<endpoint id="processSubscriptions"
+			uri="clusteredquartz://ebxml/processSubscriptions/?cron=0/10 * * * * ?" />
+
+		<route id="sendRegistryNotifications">
+			<from uri="processSubscriptions" />
+			<bean ref="RegistrySubscriptionManager" method="processSubscriptions" />
+		</route>
+	</camelContext>
+
+
+</beans>
