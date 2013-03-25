@@ -33,6 +33,7 @@ import org.hibernate.criterion.Property;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -49,6 +50,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -73,12 +75,11 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.MEMBER_ID);
     }
 
+    private RegistryObjectTypeDao<RegistryPackageType> registryPackageDao;
+
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao regPackageDao = new RegistryObjectTypeDao(
-                RegistryPackageType.class);
-        RegistryObjectTypeDao regDao = new RegistryObjectTypeDao();
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -92,7 +93,7 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
         String id = parameters.getFirstParameter(QueryConstants.MEMBER_ID);
         List<String> ids = new ArrayList<String>();
         if (id.contains("_") || id.contains("%")) {
-            List<String> matchingIds = regDao.getMatchingIds(id);
+            List<String> matchingIds = registryObjectDao.getMatchingIds(id);
             if (matchingIds.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -107,7 +108,12 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
         theQuery.createAlias("registryObjectList", "registryObjectList");
         theQuery.createAlias("registryObjectList.registryObject", "regObject");
         theQuery.add(Property.forName("regObject.id").in(ids));
-        return regPackageDao.executeCriteriaQuery(theQuery);
+        try {
+            return registryPackageDao.executeCriteriaQuery(theQuery);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException(
+                    "Error executing GetRegistryPackages!", e);
+        }
     }
 
     @Override
@@ -119,4 +125,10 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
     }
+
+    public void setRegistryPackageDao(
+            RegistryObjectTypeDao<RegistryPackageType> registryPackageDao) {
+        this.registryPackageDao = registryPackageDao;
+    }
+
 }

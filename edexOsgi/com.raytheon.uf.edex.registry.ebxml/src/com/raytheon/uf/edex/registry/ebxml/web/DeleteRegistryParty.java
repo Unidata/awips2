@@ -27,12 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PartyType;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.registry.ebxml.dao.PartyDao;
 
 /**
  * 
@@ -46,12 +47,14 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/31/2012    #724       bphillip     Initial creation
+ * 3/13/2013    1082       bphillip     Made transactional
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+@Transactional
 public class DeleteRegistryParty extends javax.servlet.http.HttpServlet
         implements javax.servlet.Servlet {
 
@@ -64,6 +67,13 @@ public class DeleteRegistryParty extends javax.servlet.http.HttpServlet
     /** The page to display upon failure */
     private static final String ERROR_RESPONSE_PAGE = "deletePartyFailure";
 
+    // FIXME: Add spring support to servlets
+
+    private PartyDao partyDao = (PartyDao) EDEXUtil.getESBComponent("partyDao");
+
+    private RegistryWebUtil webUtil = (RegistryWebUtil) EDEXUtil
+            .getESBComponent("webUtil");
+
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DeleteRegistryParty.class);
@@ -75,13 +85,11 @@ public class DeleteRegistryParty extends javax.servlet.http.HttpServlet
             String partyId = request.getParameter(WebFields.ID.fieldName());
             String objectType = request.getParameter(WebFields.OBJ_TYPE
                     .fieldName());
-            RegistryObjectTypeDao dao = new RegistryObjectTypeDao(
-                    PartyType.class);
             PartyType existingParty = null;
 
             // The EDEX internal user cannot be modified
             if (partyId.equals(RegistryUtil.DEFAULT_OWNER)) {
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Cannot remove EDEX Internal User");
             }
@@ -90,15 +98,11 @@ public class DeleteRegistryParty extends javax.servlet.http.HttpServlet
              * Check if the party exists. If not, the party obviously cannot be
              * deleted
              */
-            try {
-                existingParty = dao.getById(partyId);
-            } catch (EbxmlRegistryException e) {
-                RegistryWebUtil.sendErrorResponse(request, response,
-                        ERROR_RESPONSE_PAGE, partyId, objectType,
-                        e.getLocalizedMessage());
-            }
+
+            existingParty = partyDao.getById(partyId);
+
             if (existingParty == null) {
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Unable to delete " + objectType + " " + partyId + ". "
                                 + objectType + " does not exist");
@@ -108,27 +112,32 @@ public class DeleteRegistryParty extends javax.servlet.http.HttpServlet
              * Remove any associations to the party
              */
             try {
-                RegistrySessionManager.openSession();
-                RegistryWebUtil.removeAssociations(existingParty);
-                RegistryWebUtil.removeParty(existingParty);
+                webUtil.removeAssociations(existingParty);
+                webUtil.removeParty(existingParty);
             } catch (Exception e) {
                 statusHandler.error("Error modifying user", e);
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Error removing associations to " + objectType + "\n"
                                 + e.getLocalizedMessage());
-            } finally {
-                RegistrySessionManager.closeSession();
             }
 
             // Send back a successful response to the requester
-            RegistryWebUtil.sendSuccessResponse(request, response,
+            webUtil.sendSuccessResponse(request, response,
                     SUCCESS_RESPONSE_PAGE, partyId, objectType);
         } catch (ServletException e) {
             statusHandler.error("Error generating response", e);
             response.sendError(1,
                     "Error generating response: " + e.getLocalizedMessage());
         }
+    }
+
+    public void setPartyDao(PartyDao partyDao) {
+        this.partyDao = partyDao;
+    }
+
+    public void setWebUtil(RegistryWebUtil webUtil) {
+        this.webUtil = webUtil;
     }
 
 }

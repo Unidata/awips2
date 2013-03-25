@@ -69,7 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "VocabularyTermValue")
+@Table(schema = "ebxml", name = "VocabularyTermValue")
 public class VocabularyTermValueType extends ValueType {
 
     @XmlElement(name = "Value")
