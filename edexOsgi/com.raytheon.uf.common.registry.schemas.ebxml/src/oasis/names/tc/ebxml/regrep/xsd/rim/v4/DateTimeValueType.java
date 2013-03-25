@@ -70,7 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "DateTimeValue")
+@Table(schema = "ebxml", name = "DateTimeValue")
 public class DateTimeValueType extends ValueType {
 
     @Column(name = "DateTimeValue")

@@ -22,9 +22,12 @@ package com.raytheon.uf.edex.stats.handler;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.stats.GraphDataRequest;
@@ -34,9 +37,7 @@ import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
 import com.raytheon.uf.common.stats.xml.StatisticsEvent;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.stats.dao.AggregateRecordDao;
 import com.raytheon.uf.edex.stats.data.StatsDataAccumulator;
 import com.raytheon.uf.edex.stats.util.ConfigLoader;
 
@@ -57,11 +58,10 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * @author mpduff
  * @version 1.0
  */
-
+@Transactional
 public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
     /** Aggregate Record DAO */
-    private final CoreDao dao = new CoreDao(DaoConfig.forClass("metadata",
-            AggregateRecord.class));
+    private AggregateRecordDao aggregateRecordDao;
 
     private static final String START_DATE = "startDate";
 
@@ -123,23 +123,27 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
      */
     private GraphDataResponse getGraphData(GraphDataRequest request)
             throws Exception {
+        Map<String, Object> params = new HashMap<String, Object>();
+        StringBuffer query = new StringBuffer();
+        query.append("from AggregateRecord rec where rec.startDate >= :startDate and rec.endDate <= :endDate");
         GraphDataResponse response = new GraphDataResponse();
-        DatabaseQuery query = new DatabaseQuery(AggregateRecord.class.getName());
         Calendar start = convertToCalendar(request.getTimeRange().getStart());
         Calendar end = convertToCalendar(request.getTimeRange().getEnd());
-        query.addQueryParam(START_DATE, start, QueryOperand.GREATERTHANEQUALS);
-        query.addQueryParam(END_DATE, end, QueryOperand.LESSTHANEQUALS);
+        params.put(START_DATE, start);
+        params.put(END_DATE, end);
 
         if (request.getEventType() != null) {
-            query.addQueryParam(EVENT_TYPE, request.getEventType(),
-                    QueryOperand.EQUALS);
+            query.append(" and rec.eventType = :eventType");
+            params.put(EVENT_TYPE, request.getEventType());
         }
 
         if (request.getField() != null) {
-            query.addQueryParam(FIELD, request.getField(), QueryOperand.EQUALS);
+            query.append(" and rec.field = :field");
+            params.put(FIELD, request.getField());
         }
 
-        List<?> results = dao.queryByCriteria(query);
+        List<?> results = aggregateRecordDao.executeHQLQuery(query.toString(),
+                params);
 
         if (!results.isEmpty()) {
             List<AggregateRecord> arList = new ArrayList<AggregateRecord>();
@@ -214,6 +218,10 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
         }
 
         return unit;
+    }
+
+    public void setAggregateRecordDao(AggregateRecordDao aggregateRecordDao) {
+        this.aggregateRecordDao = aggregateRecordDao;
     }
 
 }
