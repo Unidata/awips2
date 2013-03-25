@@ -167,30 +167,17 @@ class Procedure (SmartScript.SmartScript):
         # any grids.  We need to do this because the GFE caches the original
         # version of all grids and there's no way yet to turn this off.
 
-        minTDict = {}
-        maxTDict = {}
-        tDict = {}
-        tdDict = {}
-
         minTRList = self.getWEInventory("MinT")
-        for tr in minTRList:
-            grid = self.getGrids(MODEL, "MinT", LEVEL, tr, mode = "First")
-            minTDict[tr] = grid
+        minTDict = self.getGrids(MODEL, "MinT", LEVEL, minTRList, mode = "First")
         
         maxTRList = self.getWEInventory("MaxT")
-        for tr in maxTRList:
-            grid = self.getGrids(MODEL, "MaxT", LEVEL, tr, mode = "First")
-            maxTDict[tr] = grid
+        maxTDict = self.getGrids(MODEL, "MaxT", LEVEL, maxTRList, mode = "First")
         
         TTRList = self.getWEInventory("T")
-        for tr in TTRList:
-            grid = self.getGrids(MODEL, "T", LEVEL, tr, mode = "First")
-            tDict[tr] = grid
+        tDict = self.getGrids(MODEL, "T", LEVEL, TTRList, mode = "First")
         
         TdTRList = self.getWEInventory("Td")
-        for tr in TdTRList:
-            grid = self.getGrids(MODEL, "Td", LEVEL, tr, mode = "First")
-            tdDict[tr] = grid
+        tdDict = self.getGrids(MODEL, "Td", LEVEL, TdTRList, mode = "First")
         
         # get the all locks by other users, so we can detect they are locked
         # before attempting to modify them

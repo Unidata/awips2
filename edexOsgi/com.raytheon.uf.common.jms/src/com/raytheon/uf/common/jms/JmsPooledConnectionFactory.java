@@ -1,6 +1,7 @@
 package com.raytheon.uf.common.jms;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,16 +64,16 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
     private String provider = "QPID";
 
     // connections in use, key is "threadId-threadName"
-    private Map<String, JmsPooledConnection> inUseConnections = new HashMap<String, JmsPooledConnection>();
+    private final Map<String, JmsPooledConnection> inUseConnections = new HashMap<String, JmsPooledConnection>();
 
     // connections that were recently returned, key is "threadId-threadName"
-    private Map<String, AvailableJmsPooledObject<JmsPooledConnection>> pendingConnections = new HashMap<String, AvailableJmsPooledObject<JmsPooledConnection>>();
+    private final Map<String, AvailableJmsPooledObject<JmsPooledConnection>> pendingConnections = new HashMap<String, AvailableJmsPooledObject<JmsPooledConnection>>();
 
     // connections that have been released from pendingConnections and are
     // awaiting being closed.
-    private LinkedList<AvailableJmsPooledObject<JmsPooledConnection>> availableConnections = new LinkedList<AvailableJmsPooledObject<JmsPooledConnection>>();
+    private final Deque<AvailableJmsPooledObject<JmsPooledConnection>> availableConnections = new LinkedList<AvailableJmsPooledObject<JmsPooledConnection>>();
 
-    private ConcurrentLinkedQueue<JmsPooledConnection> deadConnections = new ConcurrentLinkedQueue<JmsPooledConnection>();
+    private final ConcurrentLinkedQueue<JmsPooledConnection> deadConnections = new ConcurrentLinkedQueue<JmsPooledConnection>();
 
     private int reconnectInterval = 30000;
 
@@ -350,13 +351,13 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
             }
         }
 
-        for (AvailableJmsPooledObject<JmsPooledConnection> wrapper : connectionsToProcess) {
-            wrapper.reset();
-            // putting to available pool
-            JmsPooledConnection conn = wrapper.getPooledObject();
-            conn.setKey(null);
+        synchronized (availableConnections) {
+            for (AvailableJmsPooledObject<JmsPooledConnection> wrapper : connectionsToProcess) {
+                wrapper.reset();
 
-            synchronized (availableConnections) {
+                // putting to available pool
+                JmsPooledConnection conn = wrapper.getPooledObject();
+                conn.setKey(null);
                 availableConnections.add(wrapper);
             }
         }
@@ -372,10 +373,9 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
                 // available sessions added based on time, so oldest is front of
                 // queue
                 if (wrapper.expired(curTime, connectionHoldTime)
-                        || availableConnections.size() > maxSpareConnections) {
+                        || (availableConnections.size() > maxSpareConnections)) {
                     // not immediately closing connection so that we minimize
-                    // time
-                    // in sync block
+                    // time in sync block
                     deadConnections.add(wrapper.getPooledObject());
                     iter.remove();
                 } else {
@@ -409,15 +409,17 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
             connectionsToProcess = new ArrayList<AvailableJmsPooledObject<JmsPooledConnection>>(
                     pendingConnections.values());
         }
+
         synchronized (availableConnections) {
             connectionsToProcess.addAll(availableConnections);
         }
+
         for (AvailableJmsPooledObject<JmsPooledConnection> wrapper : connectionsToProcess) {
             resourcesClosed += wrapper.getPooledObject()
                     .closeOldPooledResources(resourceRetention);
         }
 
-        if (connectionsClosed > 0 || resourcesClosed > 0) {
+        if ((connectionsClosed > 0) || (resourcesClosed > 0)) {
             statusHandler.handle(
                     Priority.INFO,
                     "Closed unused jms pooled resources: connections closed: "

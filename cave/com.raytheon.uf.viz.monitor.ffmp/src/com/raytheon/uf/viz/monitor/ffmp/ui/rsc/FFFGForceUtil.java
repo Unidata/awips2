@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2011            mpduff     Initial creation
+ * 01/14/13     1569       dhladky    changed arraylist to list
  * 
  * </pre>
  * 
@@ -49,9 +51,9 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
 public class FFFGForceUtil {
     private boolean forced = false;
 
-    private ArrayList<Long> forcedPfafList = new ArrayList<Long>();
+    private List<Long> forcedPfafList = new ArrayList<Long>();
 
-    private ArrayList<Long> pfafList = new ArrayList<Long>();
+    private List<Long> pfafList = new ArrayList<Long>();
 
     private FFMPResource resource;
 
@@ -115,7 +117,7 @@ public class FFFGForceUtil {
         forceIt(ft, cBasin);
     }
 
-    public void calculateForcings(ArrayList<Long> pfafList, FFMPTemplates ft,
+    public void calculateForcings(List<Long> pfafList, FFMPTemplates ft,
             FFMPBasin cBasin) {
         this.pfafList = pfafList;
         forceIt(ft, cBasin);
@@ -213,15 +215,15 @@ public class FFFGForceUtil {
     }
 
     private ArrayList<Long> getForcedBasins(String source,
-            ArrayList<Long> pfafList, FFMPTemplates ft) {
+            List<Long> pfafList2, FFMPTemplates ft) {
         FFFGDataMgr fdm = FFFGDataMgr.getInstance();
         ArrayList<Long> forcedList = new ArrayList<Long>();
         long prevCtyFips = 0l;
-        for (int i = 0; i < pfafList.size(); i++) {
-            if (pfafList.get(i) == null) {
+        for (int i = 0; i < pfafList2.size(); i++) {
+            if (pfafList2.get(i) == null) {
                 continue;
             }
-            long pfaf = pfafList.get(i);
+            long pfaf = pfafList2.get(i);
             long countyFips = ft.getCountyFipsByPfaf(pfaf);
             
             if (countyFips != prevCtyFips) {
@@ -240,8 +242,8 @@ public class FFFGForceUtil {
         return forcedList;
     }
     
-    public float getAvgForcedValue(ArrayList<Long> pfafList, 
-            ArrayList<Long> forcedPfafs, 
+    public float getAvgForcedValue(List<Long> pfafList, 
+            List<Long> forcedPfafs, 
             FFMPGuidanceInterpolation interpolation,
             long expiration, FFMPTemplates templates) {
         float tvalue = 0.0f;
@@ -283,7 +285,7 @@ public class FFFGForceUtil {
     /**
      * @return the forcedPfafList
      */
-    public ArrayList<Long> getForcedPfafList() {
+    public List<Long> getForcedPfafList() {
         return forcedPfafList;
     }
 
@@ -298,7 +300,7 @@ public class FFFGForceUtil {
     /**
      * @return the pfafList
      */
-    public ArrayList<Long> getPfafList() {
+    public List<Long> getPfafList() {
         return pfafList;
     }
 

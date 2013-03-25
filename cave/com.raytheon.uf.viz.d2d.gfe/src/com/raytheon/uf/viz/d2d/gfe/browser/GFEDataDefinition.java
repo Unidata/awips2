@@ -27,13 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
-import com.raytheon.uf.viz.d2d.gfe.GFEUtil;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
@@ -60,22 +59,11 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
 public class GFEDataDefinition extends
         AbstractRequestableProductBrowserDataDefinition<GFEGridResourceData> {
 
-    public static final String SITE_ID = "siteId";
-
-    public static final String DB_TYPE = "dbType";
-
-    public static final String MODEL_NAME = "modelName";
-
-    public static final String MODEL_TIME = "modelTime";
-
-    public static final String PARM_NAME = "parmName";
-
-    public static final String PARM_LEVEL = "parmLevel";
-
     public GFEDataDefinition() {
         productName = "gfe";
         displayName = "GFE";
-        order = new String[] { SITE_ID, MODEL_NAME, PARM_NAME, PARM_LEVEL };
+        order = new String[] { GFEDataAccessUtil.SITE_ID, GFEDataAccessUtil.MODEL_NAME,
+                GFEDataAccessUtil.PARM_NAME, GFEDataAccessUtil.PARM_LEVEL };
         order = getOrder();
         loadProperties = new GridLoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -111,7 +99,7 @@ public class GFEDataDefinition extends
      */
     @Override
     public List<String> buildProductList(List<String> historyList) {
-        String[] parameters = queryData(GFEUtil.PARM_ID,
+        String[] parameters = queryData(GFEDataAccessUtil.PARM_ID,
                 getProductParameters(new String[0], null));
         List<String> result = new ArrayList<String>();
         for (String orderString : order) {
@@ -131,7 +119,7 @@ public class GFEDataDefinition extends
         if (!isEnabled()) {
             return null;
         }
-        String[] parameters = queryData(GFEUtil.PARM_ID,
+        String[] parameters = queryData(GFEDataAccessUtil.PARM_ID,
                 getProductParameters(new String[0], null));
 
         if (parameters != null) {
@@ -149,7 +137,7 @@ public class GFEDataDefinition extends
     @Override
     protected String[] queryData(String param,
             HashMap<String, RequestConstraint> queryList) {
-        return super.queryData(GFEUtil.PARM_ID, queryList);
+        return super.queryData(GFEDataAccessUtil.PARM_ID, queryList);
     }
 
     @Override
@@ -160,17 +148,17 @@ public class GFEDataDefinition extends
             String label = value;
             try {
                 ParmID parmId = new ParmID(value);
-                if (param.equals(SITE_ID)) {
+                if (param.equals(GFEDataAccessUtil.SITE_ID)) {
                     label = parmId.getDbId().getSiteId();
-                } else if (param.equals(MODEL_NAME)) {
+                } else if (param.equals(GFEDataAccessUtil.MODEL_NAME)) {
                     label = parmId.getDbId().getModelName();
-                } else if (param.equals(MODEL_TIME)) {
+                } else if (param.equals(GFEDataAccessUtil.MODEL_TIME)) {
                     label = parmId.getDbId().getModelTime();
-                } else if (param.equals(DB_TYPE)) {
+                } else if (param.equals(GFEDataAccessUtil.DB_TYPE)) {
                     label = parmId.getDbId().getDbType();
-                } else if (param.equals(PARM_NAME)) {
+                } else if (param.equals(GFEDataAccessUtil.PARM_NAME)) {
                     label = parmId.getParmName();
-                } else if (param.equals(PARM_LEVEL)) {
+                } else if (param.equals(GFEDataAccessUtil.PARM_LEVEL)) {
                     label = parmId.getParmLevel();
                 }
             } catch (Exception e) {
@@ -190,37 +178,20 @@ public class GFEDataDefinition extends
         if (order == null) {
             order = this.order;
         }
-        String siteId = "%";
-        String modelName = "%";
-        String modelTime = "%";
-        String dbType = "%";
-        String parmName = "%";
-        String parmLevel = "%";
 
-        HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(PLUGIN_NAME, new RequestConstraint(productName));
+        Map<String, String> parmIdComponents = new HashMap<String, String>();
         if (selection.length > 1) {
             String[] usedSelection = realignSelection(selection);
             for (int i = 0; i < usedSelection.length; i++) {
-                if (order[i].equals(SITE_ID)) {
-                    siteId = usedSelection[i];
-                } else if (order[i].equals(MODEL_NAME)) {
-                    modelName = usedSelection[i];
-                } else if (order[i].equals(MODEL_TIME)) {
-                    modelTime = usedSelection[i];
-                } else if (order[i].equals(DB_TYPE)) {
-                    dbType = usedSelection[i];
-                } else if (order[i].equals(PARM_NAME)) {
-                    parmName = usedSelection[i];
-                } else if (order[i - 1].equals(PARM_LEVEL)) {
-                    parmLevel = usedSelection[i];
-                }
+                parmIdComponents.put(order[i], usedSelection[i]);
             }
         }
-        String parmId = String.format(GFEUtil.PARM_ID_FORMAT, parmName,
-                parmLevel, siteId, dbType, modelName, modelTime);
-        queryList.put(GFEUtil.PARM_ID, new RequestConstraint(parmId,
-                ConstraintType.LIKE));
+
+        HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
+        queryList.put(PLUGIN_NAME, new RequestConstraint(productName));
+
+        queryList.put(GFEDataAccessUtil.PARM_ID,
+                GFEDataAccessUtil.createParmIdConstraint(parmIdComponents));
         return queryList;
     }
 
