@@ -41,12 +41,15 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 public class IdReferenceEvaluator extends ElementEvaluator<IdReferenceType> {
+
+    private XACMLPolicyAdministrator xacmlPolicyAdmin;
 
     @Override
     public String getId() {
@@ -59,8 +62,7 @@ public class IdReferenceEvaluator extends ElementEvaluator<IdReferenceType> {
         XACMLObject policyObject = null;
         try {
             // Get the policy or policy set object referenced
-            policyObject = XACMLPolicyAdministrator.getInstance().getPolicy(
-                    obj.getValue());
+            policyObject = xacmlPolicyAdmin.getPolicy(obj.getValue());
         } catch (EbxmlRegistryException e) {
             throw new XACMLProcessingException(
                     "Error retrieving policy object with id [" + obj.getValue()
@@ -72,6 +74,10 @@ public class IdReferenceEvaluator extends ElementEvaluator<IdReferenceType> {
                             + "]");
         }
         return evaluateElement(policyObject);
+    }
+
+    public void setXacmlPolicyAdmin(XACMLPolicyAdministrator xacmlPolicyAdmin) {
+        this.xacmlPolicyAdmin = xacmlPolicyAdmin;
     }
 
 }

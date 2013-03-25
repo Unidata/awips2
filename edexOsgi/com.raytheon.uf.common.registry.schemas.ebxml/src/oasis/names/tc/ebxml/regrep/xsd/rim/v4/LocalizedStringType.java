@@ -24,6 +24,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -70,12 +71,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "LocalizedStringType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "LocalizedStrings")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "LocalizedString")
 public class LocalizedStringType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "LocalizedStringTypeGenerator", schema = "ebxml", sequenceName = "ebxml.LocalizedString_sequence")
+    @GeneratedValue(generator = "LocalizedStringTypeGenerator")
     @XmlTransient
     private Integer key;
 

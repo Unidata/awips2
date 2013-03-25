@@ -23,18 +23,14 @@
 
         <route id="thriftService">
             <from ref="ebxmlThriftService" />
-            <bean ref="webservice" method="openSession"/>
             <bean ref="routeWrapper" method="executeThrift"/>
-            <bean ref="webservice" method="closeSession"/>
         </route>
 
     </camelContext>
 
-    <bean id="webservice" class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager"/>
-
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.registry.IRegistryRequest"/>
-        <constructor-arg ref="webservice"/>
+        <constructor-arg ref="edexRegistryManager"/>
     </bean>
     
     <bean id="roleStorage"

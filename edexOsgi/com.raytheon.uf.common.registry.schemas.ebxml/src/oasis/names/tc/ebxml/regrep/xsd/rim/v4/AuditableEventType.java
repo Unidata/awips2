@@ -26,6 +26,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -76,12 +77,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "AuditableEventType", propOrder = { "action" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "AuditableEvent")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "AuditableEvent")
 public class AuditableEventType extends RegistryObjectType {
     @XmlElement(name = "Action", required = true)
     @DynamicSerializeElement
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<ActionType> action;
 
     @Column

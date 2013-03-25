@@ -42,9 +42,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.VersionInfoTypeDao;
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-
 /**
  * General utility class containing the ebXML object factories.
  * 
@@ -55,6 +52,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 184        bphillip     Initial creation
+ * 3/18/2013    1082       bphillip     Removed utility methods for VersionInfoType
  * 
  * </pre>
  * 
@@ -106,39 +104,6 @@ public class EbxmlObjectUtil {
      */
     public static String getUUID() {
         return UUID.randomUUID().toString();
-    }
-
-    /**
-     * Populates a VersionInfoType object with the next version number. Version
-     * numbering starts at 1.
-     * 
-     * @param version
-     *            The version object to increment
-     * @throws EbxmlRegistryException
-     */
-    public static VersionInfoType getNewVersion(VersionInfoType existingVersion)
-            throws EbxmlRegistryException {
-        String newVersion = String.valueOf(Integer.parseInt(existingVersion
-                .getVersionName()) + 1);
-
-        VersionInfoType versionObj = rimObjectFactory.createVersionInfoType();
-        versionObj.setVersionName(newVersion);
-        versionObj.setUserVersionName("1");
-        return new VersionInfoTypeDao().sync(versionObj);
-    }
-
-    /**
-     * Creates a new VersionInfoType object with the default version numbers
-     * 
-     * @return The new VersionInfoType object
-     * @throws EbxmlRegistryException
-     */
-    public static VersionInfoType newVersionObject()
-            throws EbxmlRegistryException {
-        VersionInfoType version = rimObjectFactory.createVersionInfoType();
-        version.setVersionName("1");
-        version.setUserVersionName("1");
-        return new VersionInfoTypeDao().sync(version);
     }
 
     /**
@@ -407,6 +372,17 @@ public class EbxmlObjectUtil {
             }
         }
         return classes;
+    }
+
+    public static VersionInfoType incrementVersion(
+            VersionInfoType existingVersion) {
+        String newVersion = String.valueOf(Integer.parseInt(existingVersion
+                .getVersionName()) + 1);
+
+        VersionInfoType versionObj = new VersionInfoType();
+        versionObj.setVersionName(newVersion);
+        versionObj.setUserVersionName(existingVersion.getUserVersionName());
+        return versionObj;
     }
 
 }

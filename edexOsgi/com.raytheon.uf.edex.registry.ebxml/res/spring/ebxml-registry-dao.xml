@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="registryObjectDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="extrinsicObjectDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="partyDao" class="com.raytheon.uf.edex.registry.ebxml.dao.PartyDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="classificationTypeDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.ClassificationTypeDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="classificationSchemeTypeDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.ClassificationSchemeDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="subscriptionTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="registryPackageTypeDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryPackageDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean id="associationDao" class="com.raytheon.uf.edex.registry.ebxml.dao.AssociationDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean name="AuditableEventTypeDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean name="classificationNodeDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+	<bean name="organizationDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.OrganizationDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="associationDao" ref="associationDao" />
+	</bean>
+
+	<bean name="personDao" class="com.raytheon.uf.edex.registry.ebxml.dao.PersonDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="associationDao" ref="associationDao" />
+	</bean>
+
+	<bean name="roleDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RoleDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="associationDao" ref="associationDao" />
+	</bean>
+</beans>

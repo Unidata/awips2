@@ -26,6 +26,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -76,13 +77,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Action")
+@Table(schema = "ebxml", name = "Action")
 public class ActionType extends ExtensibleObjectType implements Serializable {
 
     private static final long serialVersionUID = -8469820571747325703L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "ActionTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Action_sequence")
+    @GeneratedValue(generator = "ActionTypeGenerator")
     @XmlTransient
     private Integer key;
 

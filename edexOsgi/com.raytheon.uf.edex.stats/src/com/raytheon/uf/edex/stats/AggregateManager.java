@@ -32,6 +32,9 @@ import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
 
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -70,25 +73,23 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Nov 28, 2012   1350     rjpeter     Simplied aggregation and added aggregation with current db aggregate records.
  * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
  * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
+ * 3/13/2013               bphillip    Updated to use spring injection of dao
  * </pre>
  * 
  * @author jsanchez
  * 
  */
+@Component
+@Transactional
 public class AggregateManager {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AggregateManager.class);
 
+    private AggregateRecordDao aggregateDao;
+
     private static final Object[] EMPTY_OBJ_ARR = new Object[0];
 
-    private static final JAXBManager JAXB_MANAGER;
-    static {
-        try {
-            JAXB_MANAGER = new JAXBManager(StatsGroupingColumn.class);
-        } catch (JAXBException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
+    private JAXBManager jaxbManager;
 
     /** In minutes */
     private int bucketInterval;
@@ -97,6 +98,7 @@ public class AggregateManager {
     private static final int defaultBucketInterval = 5;
 
     /** default value */
+    @SuppressWarnings("unused")
     private static final int defaultScanInterval = 15;
 
     public AggregateManager(String bucketInterval) {
@@ -112,8 +114,8 @@ public class AggregateManager {
      * @param timeRange
      * @param groupedEvents
      */
-    private void aggregate(AggregateRecordDao dao, StatisticsEvent statsEvent,
-            TimeRange timeRange, Multimap<String, Event> groupedEvents) {
+    private void aggregate(StatisticsEvent statsEvent, TimeRange timeRange,
+            Multimap<String, Event> groupedEvents) {
         Calendar start = TimeUtil.newGmtCalendar();
         start.setTime(timeRange.getStart());
 
@@ -157,7 +159,7 @@ public class AggregateManager {
                     record.setMin(min);
                     record.setMax(max);
                     record.setCount(count);
-                    dao.mergeRecord(record);
+                    aggregateDao.mergeRecord(record);
                 } catch (Exception e) {
                     statusHandler.error("Unable to aggregate '" + field + "'",
                             e);
@@ -217,7 +219,6 @@ public class AggregateManager {
         long t0 = System.currentTimeMillis();
         ConfigLoader configLoader = ConfigLoader.getInstance();
         StatsDao statsRecordDao = new StatsDao();
-        AggregateRecordDao aggrRecordDao = new AggregateRecordDao();
 
         Map<String, StatisticsEvent> statsMap = configLoader.getTypeView();
 
@@ -244,7 +245,7 @@ public class AggregateManager {
 
                     for (Map.Entry<TimeRange, Multimap<String, Event>> timeMapEntry : timeMap
                             .entrySet()) {
-                        aggregate(aggrRecordDao, event, timeMapEntry.getKey(),
+                        aggregate(event, timeMapEntry.getKey(),
                                 timeMapEntry.getValue());
                     }
 
@@ -309,7 +310,7 @@ public class AggregateManager {
     }
 
     @VisibleForTesting
-    static String determineGroupRepresentationForEvent(
+    private String determineGroupRepresentationForEvent(
             StatisticsEvent statEvent, Event event)
             throws IllegalAccessException, InvocationTargetException,
             JAXBException {
@@ -329,7 +330,7 @@ public class AggregateManager {
         StatsGroupingColumn column = new StatsGroupingColumn();
         column.setGroup(groupings);
 
-        return JAXB_MANAGER.marshalToXml(column);
+        return jaxbManager.marshalToXml(column);
     }
 
     /**
@@ -361,4 +362,13 @@ public class AggregateManager {
                             + bucketInterval + "'");
         }
     }
+
+    public void setAggregateDao(AggregateRecordDao aggregateDao) {
+        this.aggregateDao = aggregateDao;
+    }
+
+    public void setJaxbManager(JAXBManager jaxbManager) {
+        this.jaxbManager = jaxbManager;
+    }
+
 }
