@@ -1,5 +1,7 @@
 package com.raytheon.uf.edex.datadelivery.event.handler;
 
+import javax.annotation.PostConstruct;
+
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.event.INotifiableEvent;
@@ -26,6 +28,7 @@ import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
  *                                     the method with it as a parameter (i.e. superclass parameter methods receive it too).
  * Dec 07, 2012 1104      djohnson     Changed to use INotifiableEvent for events with notifications.
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
+ * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
  * 
  * </pre>
  * 
@@ -41,6 +44,11 @@ public class NotificationHandler extends AbstractHandler {
      * DataDeliveryEventBus
      */
     public NotificationHandler() {
+        super();
+    }
+
+    @PostConstruct
+    public void registerWithEventBus() {
         EventBus.register(this);
     }
 
@@ -50,7 +58,6 @@ public class NotificationHandler extends AbstractHandler {
      */
     public NotificationHandler(String endpoint) {
         this.endpoint = endpoint;
-        EventBus.register(this);
     }
 
     /**

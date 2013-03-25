@@ -26,14 +26,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -42,10 +40,14 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.impl.SessionFactoryImpl;
-import org.hibernate.jdbc.Work;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -55,10 +57,12 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
 
 /**
  * The DbInit class is responsible for ensuring that the appropriate tables are
@@ -71,19 +75,24 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/9/2012     184         bphillip    Initial Coding
+ * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class DbInit extends RegistryDao {
+@Repository
+@Transactional
+public class DbInit implements ApplicationListener {
+
+    private static volatile boolean INITIALIZED = false;
 
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbInit.class);
 
     /** Query to check which tables exist in the ebxml database */
-    private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'public';";
+    private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
     /** Constant used for table regeneration */
     private static final String DROP_TABLE = "drop table ";
@@ -99,18 +108,12 @@ public class DbInit extends RegistryDao {
 
     private LifecycleManagerImpl lcm;
 
-    /**
-     * Creates a new instance of DbInit. This constructor should only be called
-     * once when loaded by the Spring container.
-     * 
-     * @throws EbxmlRegistryException
-     *             If errors occur while regenerating the database tables
-     */
-    public DbInit(LifecycleManagerImpl lcm) throws EbxmlRegistryException {
-        super(null);
-        this.lcm = lcm;
-        // try {
-        initDb();
+    private SessionFactory sessionFactory;
+
+    private XACMLPolicyAdministrator xacmlAdmin;
+
+    public DbInit() {
+
     }
 
     /**
@@ -123,17 +126,18 @@ public class DbInit extends RegistryDao {
      * 
      * @throws EbxmlRegistryException
      */
-    private void initDb() throws EbxmlRegistryException {
+    protected void initDb() throws EbxmlRegistryException {
         /*
          * Create a new configuration object which holds all the classes that
          * this Hibernate SessionFactory is aware of
          */
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        for (Object obj : this.getSessionFactory().getAllClassMetadata()
-                .keySet()) {
+        for (Object obj : sessionFactory.getAllClassMetadata().keySet()) {
             try {
                 Class<?> clazz = Class.forName((String) obj);
-                aConfig.addAnnotatedClass(clazz);
+                if (clazz.getName().startsWith("oasis")) {
+                    aConfig.addAnnotatedClass(clazz);
+                }
             } catch (ClassNotFoundException e) {
                 statusHandler.error(
                         "Error initializing RegRep database. Class not found: "
@@ -217,51 +221,34 @@ public class DbInit extends RegistryDao {
     private void dropTables(final AnnotationConfiguration aConfig)
             throws SQLException, EbxmlRegistryException {
 
-        this.doInTransaction(new RegistryTransactionCallback() {
+        final String[] dropSqls = aConfig
+                .generateDropSchemaScript(((SessionFactoryImpl) sessionFactory)
+                        .getDialect());
 
-            @Override
-            public Object execute(Session session)
-                    throws EbxmlRegistryException {
-                session.doWork(new Work() {
-                    @Override
-                    public void execute(Connection connection)
-                            throws SQLException {
-                        final String[] dropSqls = aConfig
-                                .generateDropSchemaScript(((SessionFactoryImpl) getSessionFactory())
-                                        .getDialect());
-                        Statement stmt = connection.createStatement();
-                        for (String sql : dropSqls) {
-                            if (sql.startsWith(DROP_TABLE)) {
-                                // Modify the drop string to add the 'if exists'
-                                // and
-                                // 'cascade' clauses to avoid any errors if the
-                                // tables
-                                // do not exist already
-                                sql = sql.replace(DROP_TABLE, DROP_TABLE
-                                        + IF_EXISTS);
-                                sql += CASCADE;
-                                stmt.execute(sql);
-                                connection.commit();
-                            } else if (sql.startsWith(DROP_SEQUENCE)) {
-                                // Modify the drop string to add the 'if exists'
-                                // and
-                                // 'cascade' clauses to avoid any errors if the
-                                // tables
-                                // do not exist already
-                                sql = sql.replace(DROP_SEQUENCE, DROP_SEQUENCE
-                                        + IF_EXISTS);
-                                sql += CASCADE;
-                                stmt.execute(sql);
-                                connection.commit();
-                            }
-
-                        }
-                    }
-                });
-                return null;
+        for (String sql : dropSqls) {
+            if (sql.startsWith(DROP_TABLE)) {
+                // Modify the drop string to add the 'if exists'
+                // and
+                // 'cascade' clauses to avoid any errors if the
+                // tables
+                // do not exist already
+                sql = sql.replace(DROP_TABLE, DROP_TABLE + IF_EXISTS);
+                sql += CASCADE;
+                sessionFactory.getCurrentSession().createSQLQuery(sql)
+                        .executeUpdate();
+            } else if (sql.startsWith(DROP_SEQUENCE)) {
+                // Modify the drop string to add the 'if exists'
+                // and
+                // 'cascade' clauses to avoid any errors if the
+                // tables
+                // do not exist already
+                sql = sql.replace(DROP_SEQUENCE, DROP_SEQUENCE + IF_EXISTS);
+                sql += CASCADE;
+                sessionFactory.getCurrentSession().createSQLQuery(sql)
+                        .executeUpdate();
             }
-        });
 
+        }
     }
 
     /**
@@ -278,30 +265,13 @@ public class DbInit extends RegistryDao {
     private void createTables(final AnnotationConfiguration aConfig)
             throws SQLException, EbxmlRegistryException {
 
-        this.doInTransaction(new RegistryTransactionCallback() {
-
-            @Override
-            public Object execute(Session session)
-                    throws EbxmlRegistryException {
-                final String[] createSqls = aConfig
-                        .generateSchemaCreationScript(((SessionFactoryImpl) getSessionFactory())
-                                .getDialect());
-                session.doWork(new Work() {
-                    @Override
-                    public void execute(Connection connection)
-                            throws SQLException {
-                        Statement stmt = connection.createStatement();
-                        for (String sql : createSqls) {
-                            stmt.execute(sql);
-                            connection.commit();
-                        }
-
-                    }
-                });
-                return null;
-            }
-        });
-
+        final String[] createSqls = aConfig
+                .generateSchemaCreationScript(((SessionFactoryImpl) sessionFactory)
+                        .getDialect());
+        for (String createSql : createSqls) {
+            sessionFactory.getCurrentSession().createSQLQuery(createSql)
+                    .executeUpdate();
+        }
     }
 
     /**
@@ -322,28 +292,15 @@ public class DbInit extends RegistryDao {
         statusHandler.info("Verifying RegRep database...");
         final List<String> existingTables = new ArrayList<String>();
         List<String> definedTables = new ArrayList<String>();
-        this.doInTransaction(new RegistryTransactionCallback() {
-            @Override
-            public Object execute(Session session)
-                    throws EbxmlRegistryException {
-                session.doWork(new Work() {
-                    @Override
-                    public void execute(Connection connection)
-                            throws SQLException {
-                        Statement stmt = connection.createStatement();
-                        ResultSet results = stmt
-                                .executeQuery(TABLE_CHECK_QUERY);
-                        while (results.next()) {
-                            existingTables.add(results.getString(1));
-                        }
-                    }
-                });
-                return null;
-            }
-        });
+        @SuppressWarnings("unchecked")
+        List<String> tables = (List<String>) sessionFactory.getCurrentSession()
+                .createSQLQuery(TABLE_CHECK_QUERY).list();
+        for (String table : tables) {
+            existingTables.add("ebxml." + table);
+        }
 
         final String[] dropSqls = aConfig
-                .generateDropSchemaScript(((SessionFactoryImpl) getSessionFactory())
+                .generateDropSchemaScript(((SessionFactoryImpl) sessionFactory)
                         .getDialect());
         for (String sql : dropSqls) {
             if (sql.startsWith(DROP_TABLE)) {
@@ -357,6 +314,11 @@ public class DbInit extends RegistryDao {
         // defined in the database already
         if (existingTables.size() <= definedTables.size()
                 && !existingTables.containsAll(definedTables)) {
+            for (String defined : definedTables) {
+                if (!existingTables.contains(defined)) {
+                    statusHandler.warn("MISSING TABLE: " + defined);
+                }
+            }
             return false;
         }
         return true;
@@ -402,15 +364,7 @@ public class DbInit extends RegistryDao {
                             "Error assigning default owner", e);
                 }
             }
-
-            // try {
-            RegistrySessionManager.openSession();
-            try {
-                lcm.submitObjectsInternal(obj);
-            } finally {
-                RegistrySessionManager.closeSession();
-            }
-
+            lcm.submitObjectsInternal(obj);
         }
 
     }
@@ -449,23 +403,8 @@ public class DbInit extends RegistryDao {
                     while ((line = reader.readLine()) != null) {
                         buffer.append(line);
                     }
-                    this.doInTransaction(new RegistryTransactionCallback() {
-                        @Override
-                        public Object execute(Session session)
-                                throws EbxmlRegistryException {
-                            session.doWork(new Work() {
-                                @Override
-                                public void execute(Connection connection)
-                                        throws SQLException {
-                                    Statement stmt = connection
-                                            .createStatement();
-                                    stmt.execute(buffer.toString());
-                                    connection.commit();
-                                }
-                            });
-                            return null;
-                        }
-                    });
+                    sessionFactory.getCurrentSession()
+                            .createSQLQuery(buffer.toString()).executeUpdate();
                 } catch (Exception e) {
                     throw new EbxmlRegistryException(
                             "Unable to execute SQL Scripts for registry", e);
@@ -541,6 +480,38 @@ public class DbInit extends RegistryDao {
 
     public void setLcm(LifecycleManagerImpl lcm) {
         this.lcm = lcm;
+    }
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (!INITIALIZED) {
+            try {
+                initDb();
+                xacmlAdmin.loadAccessControlPolicies();
+            } catch (EbxmlRegistryException e) {
+                statusHandler.fatal("Error initializing EBXML database!", e);
+            } catch (MsgRegistryException e) {
+                statusHandler.fatal("Error initializing EBXML database!", e);
+            }
+
+            statusHandler.info("Executing post initialization actions");
+            @SuppressWarnings("unchecked")
+            Map<String, RegistryInitializedListener> beans = EDEXUtil
+                    .getSpringContext().getBeansOfType(
+                            RegistryInitializedListener.class);
+            for (RegistryInitializedListener listener : beans.values()) {
+                listener.executeAfterRegistryInit();
+            }
+            INITIALIZED = true;
+        }
+    }
+
+    public void setXacmlAdmin(XACMLPolicyAdministrator xacmlAdmin) {
+        this.xacmlAdmin = xacmlAdmin;
     }
 
 }
