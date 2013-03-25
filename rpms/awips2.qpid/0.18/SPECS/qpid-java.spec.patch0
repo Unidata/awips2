@@ -17,7 +17,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   Source2:        %{qpid_deps_src_dir}.tar.gz
 + Source3:	config.xml
 + Source4:	virtualhosts.xml
-+ Source5:	awips2-qpid
++ Source5:	qpidd
   
   Patch0:         mrg.patch
   Patch1:         examples.patch
@@ -247,7 +247,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! %dir /awips2/qpid/etc
 ! /awips2/qpid/etc/*
 ! %defattr(755,root,root,755)
-! /etc/init.d/awips2-qpid
+! /etc/init.d/qpidd
   
   %files example
 ! %defattr(-,awips,fxalpha,-)
