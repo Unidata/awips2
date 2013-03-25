@@ -45,6 +45,8 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2007             chammack    Initial Creation.
+ * Jan 14, 2013 1442       rferrel     Added method searchTreeUsingContraints.
+ *                                     Addition checks on constraints.
  * 
  * </pre>
  * 
@@ -279,7 +281,41 @@ public class DecisionTree<T> {
         insertCriteria(searchCriteria, item, true);
     }
 
+    /**
+     * Search the tree by calling RequestConstraint.evaluate with the map values
+     * for each level of the tree.
+     * 
+     * @param searchCriteria
+     * @return
+     */
     public List<T> searchTree(Map<String, Object> searchCriteria) {
+        return searchTree(searchCriteria, true);
+    }
+
+    /**
+     * Search the tree to find entries that were put into the tree using the
+     * exact same criteria as searchCriteria.
+     * 
+     * @param searchCriteria
+     * @return
+     */
+    public List<T> searchTreeUsingContraints(
+            Map<String, RequestConstraint> searchCriteria) {
+        return searchTree(searchCriteria, false);
+    }
+
+    /**
+     * Internal search method
+     * 
+     * @param searchCriteria
+     * @param evaluateConstraints
+     *            true if the map values should be passed to
+     *            RequestConstraint.evaluate, false if they chould be passed to
+     *            RequestConstraint.equals
+     * @return
+     */
+    private List<T> searchTree(Map<String, ?> searchCriteria,
+            boolean evaluateConstraints) {
         synchronized (this) {
             List<T> lst = new ArrayList<T>();
             if (head == null) {
@@ -288,13 +324,13 @@ public class DecisionTree<T> {
 
             Node curNode = head;
 
-            searchTree(curNode, searchCriteria, lst, 0);
+            searchTree(curNode, searchCriteria, lst, 0, evaluateConstraints);
             return lst;
         }
     }
 
-    private void searchTree(Node curNode, Map<String, Object> searchCriteria,
-            List<T> resultList, int lvl) {
+    private void searchTree(Node curNode, Map<String, ?> searchCriteria,
+            List<T> resultList, int lvl, boolean evaluatedConstraint) {
 
         if (curNode == null) {
             return;
@@ -312,20 +348,30 @@ public class DecisionTree<T> {
         Object parsedValue = searchCriteria.get(curNode.decisionAttribute);
 
         boolean foundSomething = false;
-        // Evaluate through the values: First search for an exact match
-        // of non-null values
-        for (Node n : curNode.nodeChildren) {
-            RequestConstraint c = n.decision;
-            if (c == null
-                    || (c == RequestConstraint.WILDCARD || parsedValue == null || c
-                            .evaluate(parsedValue))) {
-                // for (int k = 0; k < lvl; k++) {
-                // System.out.print(" ");
-                // }
-                foundSomething = true;
-                // System.out.println("visit: " + curNode.decisionAttribute
-                // + ":: " + c);
-                searchTree(n, searchCriteria, resultList, lvl + 1);
+        if (evaluatedConstraint) {
+            // Evaluate through the values: First search for an exact match
+            // of non-null values
+            for (Node n : curNode.nodeChildren) {
+                RequestConstraint c = n.decision;
+                if (c == null
+                        || (c == RequestConstraint.WILDCARD
+                                || parsedValue == null || c
+                                .evaluate(parsedValue))) {
+                    foundSomething = true;
+                    searchTree(n, searchCriteria, resultList, lvl + 1,
+                            evaluatedConstraint);
+                }
+            }
+        } else {
+            // Evaluate using existing constraints.
+            for (Node n : curNode.nodeChildren) {
+                RequestConstraint c = n.decision;
+                if ((c == null && parsedValue == null)
+                        || (parsedValue != null && parsedValue.equals(c))) {
+                    foundSomething = true;
+                    searchTree(n, searchCriteria, resultList, lvl + 1,
+                            evaluatedConstraint);
+                }
             }
         }
 
@@ -467,8 +513,6 @@ public class DecisionTree<T> {
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("pluginName", "grib");
         dataMap.put("model", "nam12");
-        // List<Integer> list = iDT.searchTree(dataMap);
-        // System.out.println(list.get(0));
 
         Map<String, Object> dataMap2 = new HashMap<String, Object>();
         dataMap2.put("pluginName", "grib");

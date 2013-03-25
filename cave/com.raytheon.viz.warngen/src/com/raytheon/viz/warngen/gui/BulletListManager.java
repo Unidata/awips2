@@ -29,10 +29,11 @@ import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 5, 2011            jsanchez     Initial creation
+ * Oct 5, 2011             jsanchez    Initial creation
  * 
  * 01/26/2012   14466      D.Friedman  Fix parseString processing.
  * 01/26/2012   14469      D.Friedman  Fix followup bullet processing
+ * Feb 13, 2013 1606       jsanchez    Did not set default bullets for CORs.
  * 
  * </pre>
  * 
@@ -87,6 +88,19 @@ public class BulletListManager {
      * @param damInfoBullets
      */
     public void recreateBullets(Bullet[] bullets, DamInfoBullet[] damInfoBullets) {
+        recreateBullets(bullets, damInfoBullets, null);
+    }
+
+    /**
+     * Separates all the bullets in it's corresponding group. Identifies all the
+     * bullets that should be selected by default unless the action is a COR.
+     * 
+     * @param bullets
+     * @param damInfoBullets
+     * @param action
+     */
+    public void recreateBullets(Bullet[] bullets,
+            DamInfoBullet[] damInfoBullets, WarningAction action) {
         loadBullets(bullets, damInfoBullets);
         clear();
         String damName = null;
@@ -128,8 +142,10 @@ public class BulletListManager {
             }
         }
 
-        for (Integer index : defaultIndices) {
-            updateSelectedIndices(index, false);
+        if (action != WarningAction.COR) {
+            for (Integer index : defaultIndices) {
+                updateSelectedIndices(index, false);
+            }
         }
     }
 
@@ -153,31 +169,32 @@ public class BulletListManager {
         /* Test 'showString' to determine if the bullet is to be hidden */
         ArrayList<Bullet> displayedBullets = null;
         ArrayList<Bullet> displayedDamInfoBullets = null;
-        
+
         for (int pass = 0; pass < 2; ++pass) {
-        	Bullet[] sourceList = pass == 0 ?
-        			configuration.getBullets() :
-        			configuration.getDamInfoBullets();
-			ArrayList<Bullet> resultList = new ArrayList<Bullet>();
-        	if (sourceList != null) {
-		        for (Bullet b : sourceList) {
-		            if (b != null
-		                    && (b.getShowString() == null || 
-		                    		selectBulletFromFollowup(b.getShowString(), warningText))) {
-		            	resultList.add(b);
-		            }
-		        }
-        	}
-        	if (pass == 0)
-        		displayedBullets = resultList;
-        	else
-        		displayedDamInfoBullets = resultList;
+            Bullet[] sourceList = pass == 0 ? configuration.getBullets()
+                    : configuration.getDamInfoBullets();
+            ArrayList<Bullet> resultList = new ArrayList<Bullet>();
+            if (sourceList != null) {
+                for (Bullet b : sourceList) {
+                    if (b != null
+                            && (b.getShowString() == null || selectBulletFromFollowup(
+                                    b.getShowString(), warningText))) {
+                        resultList.add(b);
+                    }
+                }
+            }
+            if (pass == 0)
+                displayedBullets = resultList;
+            else
+                displayedDamInfoBullets = resultList;
         }
 
         /* Sets up the appropriate bullet groups */
-        recreateBullets(
-                displayedBullets.toArray(new Bullet[displayedBullets.size()]),
-                displayedDamInfoBullets.toArray(new DamInfoBullet[displayedDamInfoBullets.size()]));
+        recreateBullets(displayedBullets.toArray(new Bullet[displayedBullets
+                .size()]),
+                displayedDamInfoBullets
+                        .toArray(new DamInfoBullet[displayedDamInfoBullets
+                                .size()]), action);
 
         if (configuration.getLockedGroupsOnFollowup() != null) {
             for (String lockedGroup : configuration.getLockedGroupsOnFollowup()
@@ -221,20 +238,21 @@ public class BulletListManager {
      * @param isFollowup
      */
     public void updateSelectedIndices(int selectionIndex, boolean isFollowup) {
-    	updateSelectedIndices(selectionIndex, isFollowup, false);
+        updateSelectedIndices(selectionIndex, isFollowup, false);
     }
 
     /**
      * Updates the list of selected of indices by including or removing indices
      * depending on if the bullet is already selected or is a part of a group of
-     * bullets.  If selectUnconditionally is true, sets (instead of toggles)
+     * bullets. If selectUnconditionally is true, sets (instead of toggles)
      * bullets.
      * 
      * @param selectionIndex
      * @param isFollowup
      * @param selectUnconditionally
      */
-    public void updateSelectedIndices(int selectionIndex, boolean isFollowup, boolean selectUnconditionally) {
+    public void updateSelectedIndices(int selectionIndex, boolean isFollowup,
+            boolean selectUnconditionally) {
         if (selectionIndex < 0 || selectionIndex >= bullets.length
                 || titleGroup.contains(selectionIndex)) {
             return;
@@ -243,20 +261,20 @@ public class BulletListManager {
         Bullet bullet = bullets[selectionIndex];
         String group = bullet.getBulletGroup();
 
-		if (group == null) {
-			if (selectUnconditionally) {
-				if (!selectedIndices.contains(selectionIndex))
-					selectedIndices.add(selectionIndex);
-			} else {
-				// toggle
-				if (selectedIndices.contains(selectionIndex)) {
-					selectedIndices.remove(selectionIndex);
-				} else {
-					selectedIndices.add(selectionIndex);
-				}
-			}
-			return;
-		}
+        if (group == null) {
+            if (selectUnconditionally) {
+                if (!selectedIndices.contains(selectionIndex))
+                    selectedIndices.add(selectionIndex);
+            } else {
+                // toggle
+                if (selectedIndices.contains(selectionIndex)) {
+                    selectedIndices.remove(selectionIndex);
+                } else {
+                    selectedIndices.add(selectionIndex);
+                }
+            }
+            return;
+        }
 
         /* Can't change selection when a part of a locked group on a follow up */
         if (isFollowup && lockedGroups.contains(group.toLowerCase())) {
@@ -297,30 +315,30 @@ public class BulletListManager {
         }
 
         List<Integer> groupIndices = bulletGroups.get(group);
-		for (Integer index : groupIndices) {
-			/*
-			 * Unselect items in a group except for the latest selection in the
-			 * group
-			 */
-			if (selectUnconditionally) {
-				if (index.equals(selectionIndex)) {
-					if (!selectedIndices.contains(selectionIndex))
-						selectedIndices.add(index);
-				} else {
-					selectedIndices.remove(index);
-					clearScenarios(index);
-				}
-			} else {
-				// toggles off if selected
-				if (!selectedIndices.contains(selectionIndex)
-				        && index.equals(selectionIndex)) {
-					selectedIndices.add(index);
-				} else {
-					selectedIndices.remove(index);
-					clearScenarios(index);
-				}
-			}
-		}
+        for (Integer index : groupIndices) {
+            /*
+             * Unselect items in a group except for the latest selection in the
+             * group
+             */
+            if (selectUnconditionally) {
+                if (index.equals(selectionIndex)) {
+                    if (!selectedIndices.contains(selectionIndex))
+                        selectedIndices.add(index);
+                } else {
+                    selectedIndices.remove(index);
+                    clearScenarios(index);
+                }
+            } else {
+                // toggles off if selected
+                if (!selectedIndices.contains(selectionIndex)
+                        && index.equals(selectionIndex)) {
+                    selectedIndices.add(index);
+                } else {
+                    selectedIndices.remove(index);
+                    clearScenarios(index);
+                }
+            }
+        }
     }
 
     /**

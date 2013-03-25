@@ -22,10 +22,6 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -41,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 9, 2010  5098       grichard    Initial creation.
+ * 02/01/13     1569        D. Hladky  removed XML where not needed
  * 
  * </pre>
  * 
@@ -48,8 +45,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public class RadarData implements ISerializableObject {
 

@@ -7,7 +7,7 @@
 		<filterId>Data Provider</filterId>
 		<settings name="availableText" value="Available Providers:"/>
 		<settings name="selectedText" value="Selected Providers:"/>
-		<settings name="showMatch" value="true"/>
+		<settings name="showMatch" value="false"/>
 		<settings name="showDualList" value="true"/>
 	</Filter>
 	<Filter>
@@ -17,7 +17,7 @@
 		<settings name="availableText" value="Available Data Sets:"/>
 		<settings name="selectedText" value="Selected Data Sets:"/>
 		<settings name="showRegEx" value="true"/>
-		<settings name="showMatch" value="false"/>
+		<settings name="showMatch" value="true"/>
 		<settings name="showDualList" value="true"/>
 	</Filter>
 	<Filter>
