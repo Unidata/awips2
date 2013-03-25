@@ -220,6 +220,10 @@ public class WrapperManagerImpl implements WrapperManager, Constants, WrapperMan
 		 * (InterruptedException e1) { // TODO Auto-generated catch block
 		 * e1.printStackTrace(); }
 		 */
+		/*
+		 * bkowal
+		 * Suppress extraneous output unless debug is enabled.
+		 */
 		if (_debug)
 		{
 			System.out.println("YAJSW: "+YajswVersion.YAJSW_VERSION);
@@ -816,6 +820,10 @@ public class WrapperManagerImpl implements WrapperManager, Constants, WrapperMan
 		if (OperatingSystem.instance().isPosix())
 		{
 			String absPath = result.getAbsolutePath();
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				System.out.println("createRWfile " + absPath);
@@ -1241,6 +1249,10 @@ public class WrapperManagerImpl implements WrapperManager, Constants, WrapperMan
 			if (msg.getCode() == Constants.WRAPPER_MSG_STOP)
 				try
 				{
+					/*
+					 * bkowal
+					 * Suppress extraneous output unless debug is enabled.
+					 */
 					if (_debug)
 					{
 						System.out.println("wrapper manager received stop command");
