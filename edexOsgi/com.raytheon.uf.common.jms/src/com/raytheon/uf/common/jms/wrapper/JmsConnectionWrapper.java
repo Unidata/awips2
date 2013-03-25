@@ -36,7 +36,9 @@ import javax.jms.Topic;
 import com.raytheon.uf.common.jms.JmsPooledConnection;
 
 /**
- * TODO Add Description
+ * Wrapper class for jms connection pooling. Tracks wrapped sessions created
+ * from this wrapped connection to know when the connection can be returned to
+ * the pool.
  * 
  * <pre>
  * 
@@ -45,7 +47,7 @@ import com.raytheon.uf.common.jms.JmsPooledConnection;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2011            rjpeter     Initial creation
- * 
+ * Feb 21, 2013 1642       rjpeter     Added volatile references for better concurrency handling.
  * </pre>
  * 
  * @author rjpeter
@@ -53,18 +55,16 @@ import com.raytheon.uf.common.jms.JmsPooledConnection;
  */
 
 public class JmsConnectionWrapper implements Connection {
-    private JmsPooledConnection mgr = null;
+    private final JmsPooledConnection mgr;
 
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
-    private boolean exceptionOccurred = false;
+    private volatile boolean exceptionOccurred = false;
 
-    private Throwable trappedExc = null;
-
-    private List<JmsSessionWrapper> sessions = new ArrayList<JmsSessionWrapper>(
+    private final List<JmsSessionWrapper> sessions = new ArrayList<JmsSessionWrapper>(
             1);
 
-    private String clientId = null;
+    private final String clientId = null;
 
     public JmsConnectionWrapper(JmsPooledConnection mgr) {
         this.mgr = mgr;
@@ -76,20 +76,16 @@ public class JmsConnectionWrapper implements Connection {
      * 
      * @return True if this wrapper hasn't been closed before, false otherwise.
      */
-    public boolean closeInternal() {
+    public boolean closeWrapper() {
         synchronized (this) {
             if (!closed) {
                 closed = true;
-                if (sessions != null) {
-                    for (JmsSessionWrapper session : sessions) {
-                        try {
-                            session.close();
-                        } catch (JMSException e) {
-
-                        }
+                for (JmsSessionWrapper session : sessions) {
+                    try {
+                        session.close();
+                    } catch (JMSException e) {
+                        // closing of wrapper doesn't throw an exception
                     }
-
-                    sessions = null;
                 }
 
                 if (exceptionOccurred) {
@@ -109,7 +105,7 @@ public class JmsConnectionWrapper implements Connection {
      */
     @Override
     public void close() throws JMSException {
-        if (closeInternal()) {
+        if (closeWrapper()) {
             // remove this wrapper from the manager
             mgr.removeReference(this);
 
@@ -169,9 +165,6 @@ public class JmsConnectionWrapper implements Connection {
             JmsSessionWrapper session = mgr.getSession(transacted,
                     acknowledgeMode);
             if (session != null) {
-                if (sessions == null) {
-                    sessions = new ArrayList<JmsSessionWrapper>(1);
-                }
                 sessions.add(session);
             } else {
                 throw new IllegalStateException("Underlying session is closed");
@@ -179,7 +172,6 @@ public class JmsConnectionWrapper implements Connection {
             return session;
         } catch (Throwable e) {
             exceptionOccurred = true;
-            trappedExc = e;
             JMSException exc = new JMSException(
                     "Exception occurred on pooled connection");
             exc.initCause(e);
@@ -220,7 +212,6 @@ public class JmsConnectionWrapper implements Connection {
             return conn.getMetaData();
         } catch (Throwable e) {
             exceptionOccurred = true;
-            trappedExc = e;
             JMSException exc = new JMSException(
                     "Exception occurred on pooled connection");
             exc.initCause(e);

@@ -36,8 +36,6 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
  * Data access object for saving and retrieving data from the HDF5 repository.
@@ -51,6 +49,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * 7/24/07      353         bphillip    Initial Check in    
  * 20070914            379  jkorman     Changed to use IPersistable populateDataStore
  *                                      and getPersistenceTime methods.
+ * 01/14/13     1469        bkowal      No longer retrieves the hdf5 data directory from the
+ *                                      environment.
  * </pre>
  * 
  * @author bphillip
@@ -58,15 +58,11 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  */
 public class HDF5Dao {
 
-    public static final String HDF5DIR = "HDF5DIR";
-
     public static final IHDFFilePathProvider DEFAULT_PATH_PROVIDER = DefaultPathProvider
             .getInstance();
 
     /** The logger */
     protected Log logger = LogFactory.getLog(getClass());
-
-    private String hdf5Dir = null;
 
     private IHDFFilePathProvider pathProvider = null;
 
@@ -74,11 +70,6 @@ public class HDF5Dao {
      * Construct an instance of the HDFDao using system default values.
      */
     public HDF5Dao() {
-        EnvProperties properties = PropertiesFactory.getInstance()
-                .getEnvProperties();
-        if (properties != null) {
-            hdf5Dir = properties.getEnvValue(HDF5DIR);
-        }
         pathProvider = DEFAULT_PATH_PROVIDER;
     }
 
@@ -86,32 +77,12 @@ public class HDF5Dao {
      * Construct an instance of the HDFDao using user supplied properties and
      * path provider.
      * 
-     * @param properties
-     *            An environment properties instance that must contain an entry
-     *            from the property HDF5DIR.
-     */
-    public HDF5Dao(EnvProperties properties) {
-        if (properties != null) {
-            hdf5Dir = properties.getEnvValue(HDF5DIR);
-        }
-        pathProvider = DEFAULT_PATH_PROVIDER;
-    }
-
-    /**
-     * Construct an instance of the HDFDao using user supplied properties and
-     * path provider.
-     * 
-     * @param properties
-     *            An environment properties instance that must contain an entry
-     *            from the property HDF5DIR.
      * @param pathProvider
      *            The path provider to use that creates a path to a specific HDF
      *            repository. This path provider must not provide the name of
-     *            the repository, and the path must be relative to the base
-     *            directory given in the properties HDF5DIR property.
+     *            the repository.
      */
-    public HDF5Dao(EnvProperties properties, IHDFFilePathProvider pathProvider) {
-        this(properties);
+    public HDF5Dao(IHDFFilePathProvider pathProvider) {
         this.pathProvider = pathProvider;
     }
 
@@ -130,9 +101,8 @@ public class HDF5Dao {
         if (obj instanceof IPersistable) {
             IPersistable persistable = (IPersistable) obj;
 
-            String persistDir = hdf5Dir
-                    + pathProvider.getHDFPath(obj.getPluginName(), persistable)
-                    + File.separator;
+            String persistDir = pathProvider.getHDFPath(obj.getPluginName(),
+                    persistable) + File.separator;
             String archive = pathProvider.getHDFFileName(obj.getPluginName(),
                     persistable);
 
@@ -166,9 +136,8 @@ public class HDF5Dao {
         if (obj instanceof PersistablePluginDataObject) {
             IPersistable pRecord = (IPersistable) obj;
 
-            String persistDir = hdf5Dir
-                    + pathProvider.getHDFPath(obj.getPluginName(), pRecord)
-                    + File.separator;
+            String persistDir = pathProvider.getHDFPath(obj.getPluginName(),
+                    pRecord) + File.separator;
             String archive = pathProvider.getHDFFileName(obj.getPluginName(),
                     pRecord);
 
@@ -198,20 +167,5 @@ public class HDF5Dao {
      */
     public void setPathProvider(IHDFFilePathProvider pathProvider) {
         this.pathProvider = pathProvider;
-    }
-
-    /**
-     * @return the hdf5Dir
-     */
-    public String getHdf5Dir() {
-        return hdf5Dir;
-    }
-
-    /**
-     * @param hdf5Dir
-     *            the hdf5Dir to set
-     */
-    public void setHdf5Dir(String hdf5Dir) {
-        this.hdf5Dir = hdf5Dir;
     }
 }

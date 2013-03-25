@@ -41,10 +41,10 @@ import javax.media.jai.RasterFactory;
 import javax.media.jai.TiledImage;
 
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
-import com.raytheon.uf.common.datastorage.hdf5.HDF5DataStore;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -59,7 +59,9 @@ import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 26, 2009            randerso     Initial creation
+ * Oct 26, 2009            randerso    Initial creation
+ * Feb 12, 2013     #1608  randerso    Remove exlicit references to HDF5DataStore
+ *                                     Added explicit calls to deleteGroups
  * 
  * </pre>
  * 
@@ -72,7 +74,7 @@ public class TopoInterpolator {
 
     private static final String DEFAULT_TOPO_FILE = "/topo/srtm30.hdf";
 
-    private HDF5DataStore dataStore;
+    private IDataStore dataStore;
 
     public TopoInterpolator() {
         this(new File(DEFAULT_TOPO_FILE));
@@ -84,7 +86,7 @@ public class TopoInterpolator {
      * @param file
      */
     public TopoInterpolator(File hdf) {
-        dataStore = (HDF5DataStore) DataStoreFactory.getDataStore(hdf);
+        dataStore = DataStoreFactory.getDataStore(hdf);
 
     }
 
@@ -107,7 +109,7 @@ public class TopoInterpolator {
             // remove existing interpolated datasets
             if (Arrays.asList(dataStore.getDatasets(srcGroup)).contains(
                     "interpolated")) {
-                dataStore.delete(dstGroup);
+                dataStore.deleteGroups(dstGroup);
             }
 
             StorageProperties properties = new StorageProperties();

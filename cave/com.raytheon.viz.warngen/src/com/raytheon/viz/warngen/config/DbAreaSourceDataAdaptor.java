@@ -15,7 +15,6 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.gis.PreparedGeometryCollection;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -27,16 +26,24 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * 
+ * 
+ * <pre>
+ * 
  * SOFTWARE HISTORY
  * 
- * Date Ticket# Engineer Description ------------ ---------- -----------
- * --------------------------
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 25, 2012 #15425     Qinglu Lin   Updated createClosestPoint().
+ * Feb 13, 2012  1605      jsanchez     Calculated the point based on lat,lon values.
  * 
- * @author jsanchez Sep 25, 2012 #15425 Qinglu Lin Updated createClosestPoint().
+ * </pre>
  * 
+ * @author jsanchez
+ * @version 1.0
  */
 public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
 
@@ -45,6 +52,10 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
     private static final String suppressedDirectionsField = "supdirs";
 
     private static final String cwaField = "cwa";
+
+    private static final String longitude = "lon";
+
+    private static final String latitude = "lat";
 
     public DbAreaSourceDataAdaptor(PathcastConfiguration pathcastConfiguration,
             UnitConverter distanceToMeters, Geometry searchArea,
@@ -69,6 +80,8 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         ptFields.add(pointField);
         ptFields.add(useDirectionField);
         ptFields.add(suppressedDirectionsField);
+        ptFields.add(longitude);
+        ptFields.add(latitude);
 
         List<String> fields = null;
         if (sortBy != null && sortBy.length > 0) {
@@ -96,7 +109,7 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         Map<String, Object> attributes = ptRslt.attributes;
 
         String name = String.valueOf(attributes.get(pointField));
-        Coordinate point = ptRslt.geometry.getCoordinate();
+        Coordinate point = getPoint(attributes);
         int population = getPopulation(ptFields, attributes);
         int warngenlev = getWangenlev(ptFields, attributes);
         List<String> partOfArea = getPartOfArea(ptFields, attributes,
@@ -146,7 +159,7 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         boolean userDirections = Boolean.valueOf(String.valueOf(attributes
                 .get(useDirectionField)));
         if (userDirections) {
-            PreparedGeometry prepGeom = new PreparedGeometryCollection(geom);
+            PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
                 Geometry intersection = searchArea.intersection(geom);
                 partOfArea = GisUtil.asStringList(calculateLocationPortion(
@@ -263,5 +276,18 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         }
 
         return directions;
+    }
+
+    /**
+     * Returns a Coordinate based on the lat,lon values in the attributes.
+     * 
+     * @param attributes
+     * @return
+     */
+    private Coordinate getPoint(Map<String, Object> attributes) {
+        double lat = Double.valueOf(String.valueOf(attributes.get(latitude)));
+        double lon = Double.valueOf(String.valueOf(attributes.get(longitude)));
+
+        return new Coordinate(lon, lat);
     }
 }

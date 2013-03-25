@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.gfe.paraminfo;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -56,6 +56,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Jan 25, 2012 DR 14305   ryu          Read site parameterInfo files
  * Sep 12, 2012 #1117      dgilling     Implement method to retrieve all
  *                                      parm names for a given model.
+ * Feb 15, 2013 1598       bsteffen    Make GridParamInfoLookup filter on
+ *                                     extension.
  * 
  * </pre>
  * 
@@ -92,7 +94,7 @@ public class GridParamInfoLookup {
         init();
     }
 
-    private synchronized GridParamInfo getGribParamInfo(String mappedModel) {
+    private GridParamInfo getGridParamInfo(String mappedModel) {
         String paramInfoName = null;
         try {
             paramInfoName = DatasetIdMapper.getInstance().lookupAliasOrNull(
@@ -121,31 +123,27 @@ public class GridParamInfoLookup {
      *            The parameter name
      * @return The parameter information
      */
-    public synchronized ParameterInfo getParameterInfo(String mappedModel,
-            String parameter) {
-        GridParamInfo modelInfo = getGribParamInfo(mappedModel);
+    public ParameterInfo getParameterInfo(String mappedModel, String parameter) {
+        GridParamInfo modelInfo = getGridParamInfo(mappedModel);
         if (modelInfo == null) {
             return null;
         }
 
         ParameterInfo parameterInfo = modelInfo.getParameterInfo(parameter);
-        if (parameterInfo == null) {
-            return null;
-        }
+
         return parameterInfo;
     }
 
-    public synchronized List<TimeRange> getParameterTimes(String mappedModel,
-            Date refTime) {
-        GridParamInfo modelInfo = getGribParamInfo(mappedModel);
+    public List<TimeRange> getParameterTimes(String mappedModel, Date refTime) {
+        GridParamInfo modelInfo = getGridParamInfo(mappedModel);
         if (modelInfo == null) {
             return Collections.emptyList();
         }
         return modelInfo.getAvailableTimes(refTime);
     }
 
-    public synchronized Collection<String> getParmNames(String mappedModel) {
-        GridParamInfo modelInfo = getGribParamInfo(mappedModel);
+    public Collection<String> getParmNames(String mappedModel) {
+        GridParamInfo modelInfo = getGridParamInfo(mappedModel);
         if (modelInfo == null) {
             return Collections.emptyList();
         }
@@ -173,70 +171,45 @@ public class GridParamInfoLookup {
             return;
         }
         IPathManager pm = PathManagerFactory.getPathManager();
-        File infoDir = pm.getFile(pm.getContext(LocalizationType.EDEX_STATIC,
-                LocalizationLevel.BASE), "/grid/parameterInfo");
-        File[] files = infoDir.listFiles();
 
-        for (File file : files) {
+        LocalizationFile[] files = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.EDEX_STATIC),
+                "grid" + IPathManager.SEPARATOR + "parameterInfo",
+                new String[] { ".xml" }, true, true);
+
+        for (LocalizationFile file : files) {
             try {
-                GridParamInfo paramInfo = (GridParamInfo) um.unmarshal(file);
-                modelParamMap
-                        .put(file.getName().replace(".xml", ""), paramInfo);
+                GridParamInfo paramInfo = (GridParamInfo) um.unmarshal(file
+                        .getFile());
+                String key = file.getFile().getName().replace(".xml", "");
+                if (!modelParamMap.containsKey(key)) {
+                    modelParamMap.put(key, paramInfo);
+                }
             } catch (JAXBException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unmarshalling grid parameter information", e);
             }
         }
 
-        // Read SITE level files.
-        File siteDir = pm.getFile(pm.getContext(LocalizationType.EDEX_STATIC,
-                LocalizationLevel.SITE), "/grid/parameterInfo");
-        if (siteDir.exists()) {
-            files = siteDir.listFiles();
-            for (File file : files) {
-                String name = file.getName().replace(".xml", "");
-                // Do not override BASE files.
-                if (modelParamMap.get(name) != null) {
-                    continue;
-                }
+        // Deprecated grib SITE level files.
+        files = pm.listFiles(pm.getContext(LocalizationType.EDEX_STATIC,
+                LocalizationLevel.SITE), "grib" + IPathManager.SEPARATOR
+                + "parameterInfo", new String[] { ".xml" }, true, true);
+        for (LocalizationFile file : files) {
+            String name = file.getFile().getName().replace(".xml", "");
+            // Do not override grid files.
+            if (modelParamMap.get(name) != null) {
+                continue;
+            }
 
-                try {
-                    GridParamInfo paramInfo = (GridParamInfo) um
-                            .unmarshal(file);
-                    modelParamMap.put(name, paramInfo);
-                } catch (JAXBException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Error unmarshalling grid parameter information",
-                                    e);
-                }
+            try {
+                GridParamInfo paramInfo = (GridParamInfo) um.unmarshal(file
+                        .getFile());
+                modelParamMap.put(name, paramInfo);
+            } catch (JAXBException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error unmarshalling grid parameter information", e);
             }
         }
-        
-        
-            // Deprecated grib SITE level files.
-           File siteGribDir = pm.getFile(pm.getContext(LocalizationType.EDEX_STATIC,
-                   LocalizationLevel.SITE), "/grib/parameterInfo");
-           if (siteGribDir.exists()) {
-               files = siteGribDir.listFiles();
-               for (File file : files) {
-                   String name = file.getName().replace(".xml", "");
-                   // Do not override BASE files.
-                   if (modelParamMap.get(name) != null) {
-                       continue;
-                   }
-
-                   try {
-                    GridParamInfo paramInfo = (GridParamInfo) um
-                            .unmarshal(file);
-                       modelParamMap.put(name, paramInfo);
-                } catch (JAXBException e) {
-                       statusHandler
-                               .handle(Priority.PROBLEM,
-                                       "Error unmarshalling grid parameter information",
-                                       e);
-                   }
-               }
-           }
     }
 }

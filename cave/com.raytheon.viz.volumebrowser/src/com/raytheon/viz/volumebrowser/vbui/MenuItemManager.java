@@ -41,6 +41,8 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 27, 2009 #2161      lvenable     Initial creation
+ * Jan 24, 2013 #1516      rferrel     Methods to change/get 
+ *                                      Active Data Selection.
  * 
  * </pre>
  * 
@@ -462,8 +464,7 @@ public class MenuItemManager {
         }
     }
 
-    /*
-     * 
+    /**
      * 
      * Convenience methods to print all of the data.
      * 
@@ -480,6 +481,11 @@ public class MenuItemManager {
         printMenu(planesMenuItemMap);
     }
 
+    /**
+     * Print out the entries of the desired map.
+     * 
+     * @param map
+     */
     private void printMenu(HashMap<String, ArrayList<MenuContributionItem>> map) {
         Set<String> keys = map.keySet();
 
@@ -533,7 +539,9 @@ public class MenuItemManager {
     }
 
     /**
-     * @return
+     * Obtain all the keys for lat/lon entries of the Planes Menu Item map.
+     * 
+     * @return latLonKeys
      * 
      */
     public List<String> getLatLonKeys() {
@@ -557,7 +565,23 @@ public class MenuItemManager {
         latLonKeys.add("LONS");
 
         return latLonKeys;
-
     }
 
+    /**
+     * Obtain the Active Data Selection.
+     * 
+     * @return dataSelection
+     */
+    public DataSelection getActiveDataSelection() {
+        return menuActionCB.getActiveDataSelection();
+    }
+
+    /**
+     * Set the Active Data Selection.
+     * 
+     * @param dataSelection
+     */
+    public void setActiveDataSelection(DataSelection dataSelection) {
+        menuActionCB.setActiveDataSelection(dataSelection);
+    }
 }

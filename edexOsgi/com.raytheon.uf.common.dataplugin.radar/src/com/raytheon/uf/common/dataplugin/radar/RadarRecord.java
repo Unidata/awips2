@@ -92,11 +92,13 @@ import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket.WindBarbPoi
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataParameter;
+import com.raytheon.uf.common.dataplugin.radar.units.DigitalVilUnit;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.image.units.PiecewisePixel;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -749,6 +751,153 @@ public class RadarRecord extends PersistablePluginDataObject implements
         }
 
         return retVal;
+    }
+
+    /**
+     * Get the actual unit of the raw bytes with any scale/offset or other
+     * information from the thresholds.
+     * 
+     * @return a unit object that describes the actual byte values.
+     */
+    public Unit<?> getDataUnit() {
+        Unit<?> rval = null;
+        int numLevels = getNumLevels();
+        Object[] thresholds = getDecodedThresholds();
+        if (numLevels <= 16) {
+            ArrayList<Integer> pixel = new ArrayList<Integer>();
+            ArrayList<Float> real = new ArrayList<Float>();
+            if ("V".equals(getDisplayModes())) {
+                // V does this weird thing at zero, they have a data value of -1
+                // at index 7 which just symbolizes that the data goes from -10
+                // - 0, which seems pointless, and A1 also throws it out
+                int p = 1;
+                for (int i = 0; i < numLevels; i++) {
+                    if (i == 7) {
+                        continue;
+                    }
+                    if (thresholds[i] instanceof Float) {
+                        pixel.add(p);
+                        real.add((Float) thresholds[i]);
+                    }
+                    p++;
+                }
+            } else {
+                for (int i = 0; i < numLevels; i++) {
+                    if (thresholds[i] instanceof Float) {
+                        if (real.contains(thresholds[i])) {
+                            // Try to determine if we can treat one of these
+                            // different
+                            Float fVal = (Float) thresholds[i];
+                            Integer prevI = pixel.get(real
+                                    .indexOf(thresholds[i]));
+                            DataLevelThreshold prevThresh = new DataLevelThreshold(
+                                    getThreshold(prevI));
+                            DataLevelThreshold currThresh = new DataLevelThreshold(
+                                    getThreshold(i));
+                            if (prevThresh.isLessThan()
+                                    || prevThresh.isGtrThan()) {
+                                if (prevThresh.isLessThan()) {
+                                    getDecodedThresholds()[prevI] = "<"
+                                            + fVal.intValue();
+                                } else {
+                                    getDecodedThresholds()[prevI] = ">"
+                                            + fVal.intValue();
+                                }
+                                real.remove(fVal);
+                                real.add(fVal);
+                                pixel.remove(prevI);
+                                pixel.add(i);
+                                continue;
+                            } else if (currThresh.isLessThan()) {
+                                getDecodedThresholds()[i] = "<"
+                                        + fVal.intValue();
+                                continue;
+                            } else if (currThresh.isGtrThan()) {
+                                getDecodedThresholds()[i] = ">"
+                                        + fVal.intValue();
+                                continue;
+                            }
+                        }
+                        pixel.add(i);
+                        real.add((Float) thresholds[i]);
+
+                    }
+                }
+            }
+
+            if (pixel.size() == 0) {
+                return getUnitObject();
+            }
+
+            double[] pix = new double[pixel.size()];
+            int i = 0;
+            for (Integer p : pixel) {
+                pix[i++] = p;
+            }
+
+            double[] std = new double[real.size()];
+
+            boolean allZeroes = true;
+
+            i = 0;
+            for (Float r : real) {
+                allZeroes = allZeroes && (r == 0);
+                std[i++] = r;
+            }
+            if (allZeroes) {
+                // allZeroes is not a valid unit and is basically disgarded,
+                // this check is done for CFC
+                rval = getUnitObject();
+            } else {
+                rval = new PiecewisePixel(getUnitObject(), pix, std);
+            }
+        } else if (getProductCode() == 134) {
+            // Digital Vil is all messy in the spec.
+            rval = new DigitalVilUnit(getThresholds());
+        } else if (getThreshold(5) == 0) {
+            // The offset and scale are set as ints
+            double offset = getThreshold(0);
+            double scale = getThreshold(1);
+            int nLevels = getThreshold(2);
+            // I believe all products have at least one flag value and DHR is
+            // reporting 256 levels
+            if (nLevels > 255) {
+                nLevels = 255;
+            }
+            double[] pix = { 256 - nLevels, 255 };
+            if (getProductCode() == 155) {
+                pix = new double[] { 129, 149 };
+            }
+
+            double[] data = { offset, offset + (nLevels - 1) * scale };
+            rval = new PiecewisePixel(getUnitObject(), pix, data);
+
+        } else {
+            // The offset and scale are set as floats
+            double scale = Float.intBitsToFloat((getThreshold(0) << 16)
+                    + getThreshold(1));
+            if (scale == 0.0) {
+                // 0.0 is sometimes used by HC and leads to a massively invalid
+                // data range.
+                scale = 1.0;
+            }
+            double offset = Float.intBitsToFloat((getThreshold(2) << 16)
+                    + getThreshold(3));
+            int nLevels = getThreshold(5);
+            if (nLevels < 0) {
+                // Only for DPR, the 65536 can't be encoded in a short
+                nLevels = getNumLevels();
+            }
+            int nFlags = getThreshold(6);
+
+            double[] pix = { nFlags, nLevels };
+            double[] data = { (nFlags - offset) / scale,
+                    (nLevels - offset) / scale };
+
+            rval = new PiecewisePixel(getUnitObject(), pix, data);
+
+        }
+        return rval;
     }
 
     /**

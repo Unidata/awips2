@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * May 21, 2008 1122       ebabin      Updated to use new StatusBarDisplay.
  * 09JUL2008    1234        ebabin      Updates for color, and display issues.
  * Oct 17, 2012 1229       rferrel     Made dialog non-blocking.
+ * Jan 09, 2013 1442       rferrel     Changes to notify Simulated Time listeners
  * 
  * </pre>
  * 
@@ -338,8 +339,9 @@ public class SetTimeDialog extends CaveSWTDialog {
     }
 
     private void setVizTime() {
+        SimulatedTime systemTime = SimulatedTime.getSystemTime();
         if (useCurrentTimeRdo.getSelection()) {
-            SimulatedTime.getSystemTime().setRealTime();
+            systemTime.setRealTime();
         } else if (setTimeRdo.getSelection()) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             cal.clear();
@@ -348,9 +350,10 @@ public class SetTimeDialog extends CaveSWTDialog {
                     this.daySpnr.getSelection(), this.hourSpnr.getSelection(),
                     this.minuteSpnr.getSelection(),
                     this.secondSpnr.getSelection());
-            SimulatedTime.getSystemTime().setFrozen(
-                    freezeTimeChk.getSelection());
-            SimulatedTime.getSystemTime().setTime(cal.getTime());
+            systemTime.notifyListeners(false);
+            systemTime.setFrozen(freezeTimeChk.getSelection());
+            systemTime.setTime(cal.getTime());
+            systemTime.notifyListeners(true);
         }
 
     }

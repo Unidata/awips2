@@ -72,6 +72,7 @@ import com.raytheon.uf.edex.topo.TopoQuery;
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2009            njensen     Initial creation
  * May 04, 2012  #574      dgilling    Re-port to better match AWIPS1.
+ * Feb 12, 2013  #1608     randerso    Changed to use explicit deleteGroups
  * 
  * </pre>
  * 
@@ -310,7 +311,7 @@ public class TopoDatabaseManager {
     public void revertTopoData(final GridLocation gloc) {
         String name = calcGroupName(gloc);
         try {
-            dataStore.delete(name);
+            dataStore.deleteGroups(name);
         } catch (Exception e) {
             statusHandler.error("Error attempting to remove: " + name, e);
         }

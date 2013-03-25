@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation.
  * 13 Oct 2009  2256       mpduff      Implement the dialog.
+ * 07 Feb 2013  1578       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -266,12 +267,17 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public FlashFloodGuidanceDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Flash Flood Guidance");
         waitCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
         arrowCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -281,11 +287,23 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
@@ -696,22 +714,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         java.util.List<Colorvalue> colorSet = HydroDisplayManager.getInstance()
                 .getFFGColorMap(user_id, "FFG", duration);
 
-        // NamedColorUseSet pColorUseSet = null;
-        // java.util.List<NamedColorUseSet> pColorSetGroup = new
-        // ArrayList<NamedColorUseSet>();
-        //
-        // pColorUseSet = new NamedColorUseSet("FFG1", "Flash Flood Guidance",
-        // FFGConstants.FFG_LEVELS, FFGConstants.FFG, "GRAY30", "GRAY10",
-        // 3600);
-        // pColorSetGroup.add(pColorUseSet);
-        //
-        // ArrayList<Colorvalue> colorSet = (ArrayList<Colorvalue>)
-        // GetColorValues
-        // // .get_colorvalues(user_id, app_name, "FFG1", 3600, "E",
-        // .get_colorvalues(user_id, app_name, "FFG", 3600, "E",
-        // pColorSetGroup);
-
-        ArrayList<ColorLegendBarData> list = new ArrayList<ColorLegendBarData>();
+        java.util.List<ColorLegendBarData> list = new ArrayList<ColorLegendBarData>();
         list.add(new ColorLegendBarData(colorSet.get(7).getId()
                 .getThresholdValue(), colorSet.get(7).getColorname()
                 .getColorName()));
@@ -781,7 +784,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     private void readGriddedFfgProduct() {
         FlashFloodGuidanceDataManager dman = FlashFloodGuidanceDataManager
                 .getInstance();
-        ArrayList<String> list = new ArrayList<String>();
+        java.util.List<String> list = new ArrayList<String>();
         Map<String, String> sortedMap = new HashMap<String, String>();
         dataMap.clear();
 
