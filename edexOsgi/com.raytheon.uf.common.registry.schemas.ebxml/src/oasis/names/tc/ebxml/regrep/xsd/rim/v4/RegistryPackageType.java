@@ -69,7 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "RegistryPackage")
+@Table(schema = "ebxml", name = "RegistryPackage")
 public class RegistryPackageType extends RegistryObjectType {
 
     @OneToOne(cascade = CascadeType.ALL)
