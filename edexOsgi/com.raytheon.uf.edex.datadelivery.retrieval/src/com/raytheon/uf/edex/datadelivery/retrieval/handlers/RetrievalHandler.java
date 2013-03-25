@@ -25,10 +25,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.springframework.stereotype.Service;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
  * Provider Retrieval Handler
@@ -46,7 +47,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
  * @author dhladky
  * @version 1.0
  */
-
+@Service
 public class RetrievalHandler {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -54,33 +55,24 @@ public class RetrievalHandler {
 
     private final ScheduledExecutorService executorService;
 
-    private final RetrievalTask retrievalTask;
+    private final List<RetrievalTask> retrievalTasks;
 
     private final SubscriptionNotifyTask subNotifyTask;
 
-    /**
-     * useful public constructor
-     * 
-     * @param executor
-     */
     public RetrievalHandler(ScheduledExecutorService executorService,
-            RetrievalTask retrievalTask, SubscriptionNotifyTask subNotifyTask) {
-        this(executorService, new RetrievalDao(), retrievalTask, subNotifyTask);
-    }
-
-    @VisibleForTesting
-    RetrievalHandler(ScheduledExecutorService executorService,
-            RetrievalDao retrievalDao, RetrievalTask retrievalTask,
+            IRetrievalDao retrievalDao, List<RetrievalTask> retrievalTasks,
             SubscriptionNotifyTask subNotifyTask) {
         this.executorService = executorService;
-        this.retrievalTask = retrievalTask;
+        this.retrievalTasks = retrievalTasks;
         this.subNotifyTask = subNotifyTask;
 
         // set all Running state retrievals to pending
         retrievalDao.resetRunningRetrievalsToPending();
 
-        executorService.scheduleWithFixedDelay(retrievalTask, 1, 5,
-                TimeUnit.MINUTES);
+        for (RetrievalTask retrievalTask : retrievalTasks) {
+            executorService.scheduleWithFixedDelay(retrievalTask, 1, 5,
+                    TimeUnit.MINUTES);
+        }
         executorService.scheduleWithFixedDelay(subNotifyTask, 1, 1,
                 TimeUnit.MINUTES);
     }
@@ -88,6 +80,8 @@ public class RetrievalHandler {
     public void notify(List<String> subscriptions) {
         statusHandler.info("Notifying that subscriptions are available.");
 
-        executorService.execute(retrievalTask);
+        for (RetrievalTask retrievalTask : retrievalTasks) {
+            executorService.execute(retrievalTask);
+        }
     }
 }

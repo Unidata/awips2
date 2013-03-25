@@ -47,7 +47,8 @@ import com.raytheon.uf.common.util.cache.LRUCacheFS;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 8, 2011            mschenke     Initial creation
+ * Nov 8, 2011             mschenke     Initial creation
+ * Feb 12, 2013     #1608  randerso     Added explicit deletes for groups and datasets
  * 
  * </pre>
  * 
@@ -55,6 +56,22 @@ import com.raytheon.uf.common.util.cache.LRUCacheFS;
  * @version 1.0
  */
 
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 12, 2013            randerso     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public class CachingDataStore implements IDataStore {
 
     // quick byte string to hex conversion
@@ -348,12 +365,26 @@ public class CachingDataStore implements IDataStore {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#delete(java.lang.String[])
+     * com.raytheon.uf.common.datastorage.IDataStore#deleteDatasets(java.lang
+     * .String[])
      */
     @Override
-    public void delete(String... location) throws StorageException,
+    public void deleteDatasets(String... datasets) throws StorageException,
             FileNotFoundException {
-        delegate.delete(location);
+        delegate.deleteDatasets(datasets);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.datastorage.IDataStore#deleteGroups(java.lang.
+     * String[])
+     */
+    @Override
+    public void deleteGroups(String... groups) throws StorageException,
+            FileNotFoundException {
+        delegate.deleteGroups(groups);
     }
 
     /*

@@ -80,6 +80,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 13, 2009            dhladky     Initial creation
  * 
  * Jul 24  2012  12996     Xiaochuan   Compare with MidVal()
+ * Feb 28, 2013 1731       bsteffen    Allow ScanResource to work better with
+ *                                     D2DTimeMatcher.
  * 
  * </pre>
  * 
@@ -1105,7 +1107,8 @@ public class ScanResource extends
     public void addRecord(ScanRecord newrecord) {
         try {
             if (!getScan().getTimeOrderedKeys(getScan(), newrecord.getType(),
-                    resourceData.icao).contains(newrecord.getDataTime())) {
+                    resourceData.icao).contains(
+                    newrecord.getDataTime().getRefTime())) {
 
                 newrecord = resourceData.populateRecord(newrecord);
 
@@ -1162,6 +1165,18 @@ public class ScanResource extends
         }
 
         return oldDate;
+    }
+
+    @Override
+    public DataTime[] getDataTimes() {
+        ScanMonitor scan = getScan();
+        List<Date> dates = scan.getTimeOrderedKeys(scan,
+                resourceData.tableType, resourceData.icao);
+        DataTime[] dataTimes = new DataTime[dates.size()];
+        for (int i = 0; i < dataTimes.length; i += 1) {
+            dataTimes[i] = new DataTime(dates.get(i));
+        }
+        return dataTimes;
     }
 
 }

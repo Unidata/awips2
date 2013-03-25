@@ -74,6 +74,7 @@ import com.raytheon.viz.warngen.WarngenException;
 import com.raytheon.viz.warngen.config.AbstractDbSourceDataAdaptor;
 import com.raytheon.viz.warngen.config.DataAdaptorFactory;
 import com.raytheon.viz.warngen.util.Abbreviation;
+import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -102,6 +103,8 @@ import com.vividsolutions.jts.geom.Point;
  *                                        which are at different locations in pathcast.
  *    Oct 17, 2012            jsanchez    Moved the path cast data collecting to a separate class.
  *    Jan 31, 2013 1557       jsanchez    Used allowDuplicates flag to collect points with duplicate names.
+ *    Feb 12, 2013 1600       jsanchez    Used adjustAngle method from AbstractStormTrackResource.
+ *    Mar  5, 2013 1600       jsanchez    Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
  * 
  * </pre>
  * 
@@ -322,7 +325,7 @@ public class Wx {
 
                 if (pathcastConfiguration.isWithinPolygon()) {
                     // Means that all points returned must be within the polygon
-                    bufferedPathCastArea = warningPolygon;
+                    bufferedPathCastArea = warningPolygon.intersection(geom);
                 } else {
                     bufferedPathCastArea = geom;
                 }
@@ -845,10 +848,10 @@ public class Wx {
                 .getCoordinate());
         gc.setDestinationGeographicPoint(cen.x, cen.y);
         cp2.azimuth = gc.getAzimuth();
-        cp2.oppositeAzimuth = ClosestPoint.adjustAngle(cp2.azimuth + 180);
+        cp2.oppositeAzimuth = AdjustAngle.to360Degrees(cp2.azimuth + 180);
         cp2.roundedAzimuth = GeoUtil.roundAzimuth(cp2.azimuth);
-        cp2.oppositeRoundedAzimuth = ClosestPoint
-                .adjustAngle(cp2.roundedAzimuth + 180);
+        cp2.oppositeRoundedAzimuth = AdjustAngle
+                .to360Degrees(cp2.roundedAzimuth + 180);
 
         return cp2;
     }

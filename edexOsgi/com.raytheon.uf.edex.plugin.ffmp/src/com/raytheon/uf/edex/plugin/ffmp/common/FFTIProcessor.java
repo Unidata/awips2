@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2011            dhladky     Initial creation
  * July 11, 2012            dhladky    Edited for FFTI work
+ * 02/01/13     1569        D. Hladky   Added constants, records writing switched to pypies
  * </pre>
  * 
  * @author dhladky
@@ -72,12 +73,6 @@ public class FFTIProcessor {
 
     /** Pattern for dates in radar */
     public static String datePattern = "yyyy-MM-dd HH:mm:ss";
-
-    /** 6 hour back time multiplier */
-    public static long backTime = 3600 * 1000 * 6;
-
-    /** FFG back time multiplier */
-    public static long ffgbackTime = 3600 * 1000 * 24;
 
     /**
      * useful constructor
@@ -215,7 +210,7 @@ public class FFTIProcessor {
 
                     if (hucs == null) {
                         hucs = new ArrayList<String>();
-                        hucs.add("ALL");
+                        hucs.add(FFMPRecord.ALL);
                     }
 
                     for (String huc : hucs) {

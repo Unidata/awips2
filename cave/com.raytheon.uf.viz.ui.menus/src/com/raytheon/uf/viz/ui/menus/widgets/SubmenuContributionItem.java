@@ -25,6 +25,9 @@ import java.util.Set;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.menus.IMenuService;
+import org.eclipse.ui.menus.MenuUtil;
 
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
@@ -77,9 +80,9 @@ public class SubmenuContributionItem extends MenuManager {
      * @param mListener
      */
     public SubmenuContributionItem(VariableSubstitution[] includeSubstitutions,
-            String name, CommonAbstractMenuContribution[] ci,
+            String id, String name, CommonAbstractMenuContribution[] ci,
             Set<String> removals) {
-        super(processNameSubstitution(includeSubstitutions, name));
+        super(processNameSubstitution(includeSubstitutions, name), id);
         this.subs = includeSubstitutions;
         this.contribs = ci;
         this.removals = removals;
@@ -144,6 +147,10 @@ public class SubmenuContributionItem extends MenuManager {
                     add(item);
                 }
             }
+            IMenuService menuService = (IMenuService) PlatformUI.getWorkbench()
+                    .getService(IMenuService.class);
+            menuService.populateContributionManager(
+                    SubmenuContributionItem.this, MenuUtil.menuUri(getId()));
         }
     }
 }
