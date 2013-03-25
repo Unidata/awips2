@@ -71,7 +71,7 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
 
         DisplayFieldData dt = MPEDisplayManager.getCurrent()
                 .getDisplayFieldType();
-        MPEDisplayManager.getCurrent().setDisplayFieldType(dt);
+        MPEDisplayManager.getCurrent().displayFieldData(dt);
 
         return null;
     }

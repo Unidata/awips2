@@ -170,6 +170,7 @@
 		<include>bufrua-common.xml</include>
 		<include>shef-common.xml</include>
 		<include>satellite-common.xml</include>
+		<include>satellite-dataplugin-common.xml</include>
 		<include>ohd-common.xml</include>
 		<include>management-common.xml</include>
 		<include>auth-common.xml</include>
@@ -177,6 +178,7 @@
 		<include>fssobs-ingest.xml</include>
 		<include>fssobs-common.xml</include>
 		<include>ldadmesonet-common.xml</include>
+		<include>dataaccess-common.xml</include>
 		<exclude>ncgrib-common.xml</exclude>
 		<exclude>nctext-common.xml</exclude>
         <includeMode>excludeDpaAndOgc</includeMode>
@@ -186,7 +188,24 @@
 		<include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-ncf.*</exclude>
 	</mode>
+    <!-- Eventually these two modes will either become the production versions,
+         or the existing registry server will be migrated to one or the other. -->
+    <mode name="ncfRegistry">
+        <include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-wfo.*</exclude>
+    </mode>
+    <mode name="wfoRegistry">
+        <include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-ncf.*</exclude>
+        <exclude>harvester-*</exclude>
+        <exclude>crawler-*</exclude>
+    </mode>
 
     <mode name="statsTemplate" template="true">
         <include>event-common.xml</include>

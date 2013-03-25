@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Dec 12, 2012 1433        bgonzale    Refactored Subscription copy ctor into two ctors.
  * Jan 03, 2013 1441        djohnson    Default to no group.
  * Jan 25, 2013 1528        djohnson    Subscription priority is now an enum.
+ * Feb 20, 2013 1543        djohnson    Route is now a slot.
  * 
  * </pre>
  * 
@@ -149,6 +151,9 @@ public class Subscription implements ISerializableObject, Serializable {
 
     /** Owner slot */
     public static final String OWNER_SLOT = "owner";
+
+    /** Route slot */
+    public static final String ROUTE_SLOT = "route";
 
     /**
      * Constructor.
@@ -312,7 +317,7 @@ public class Subscription implements ISerializableObject, Serializable {
 
     @XmlElements({ @XmlElement})
     @DynamicSerializeElement
-    private ArrayList<Parameter> parameter;
+    private List<Parameter> parameter;
 
     @XmlElement
     @DynamicSerializeElement
@@ -328,6 +333,7 @@ public class Subscription implements ISerializableObject, Serializable {
 
     @XmlAttribute
     @DynamicSerializeElement
+    @SlotAttribute(Subscription.ROUTE_SLOT)
     private Network route = Network.OPSNET;
 
     @XmlAttribute
@@ -630,7 +636,7 @@ public class Subscription implements ISerializableObject, Serializable {
      * @param parameter
      *           subscription parameter list
      */
-    public void setParameter(ArrayList<Parameter> parameter) {
+    public void setParameter(List<Parameter> parameter) {
         this.parameter = parameter;
     }
 
@@ -639,7 +645,7 @@ public class Subscription implements ISerializableObject, Serializable {
      * 
      * @return subscription parameter list
      */
-    public ArrayList<Parameter> getParameter() {
+    public List<Parameter> getParameter() {
         return parameter;
     }
 

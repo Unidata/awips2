@@ -39,6 +39,7 @@ import org.apache.commons.lang.ArrayUtils;
  * Mar 3, 2011            jsanchez     Initial creation
  * Sep 25, 2012 15425     Qinglu Lin   Implemented sorting on 'gid' in ascending order.
  * Oct 17, 2012           jsanchez     Refactored the enum sort to be more flexible.
+ * Feb 14, 2013 1605      jsanchez     Updated the distance comparison for more accuracy.
  * 
  * </pre>
  * 
@@ -148,8 +149,7 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
             value = cp1.parentArea.compareTo(cp2.parentArea);
             break;
         case DISTANCE:
-            value = new Integer(cp1.roundedDistance)
-                    .compareTo(cp2.roundedDistance);
+            value = new Double(cp1.distance).compareTo(cp2.distance);
             break;
         case GID:
             value = new Integer(cp1.gid).compareTo(cp2.gid);

@@ -19,6 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -27,21 +32,19 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
-import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.PropertiesUtil;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBusTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -57,6 +60,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 22, 2012 1286       djohnson     Initial creation
  * Dec 11, 2012 1286       djohnson     Use a synchronous event bus for tests.
  * Dec 11, 2012 1403       djohnson     No longer valid to run without bandwidth management.
+ * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
+ * Feb 20, 2013 1543       djohnson     Delegate to sub-classes for which route to create subscriptions for.
  * 
  * </pre>
  * 
@@ -66,10 +71,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Ignore
 public abstract class AbstractBandwidthManagerIntTest {
 
+    @Autowired
     protected ApplicationContext context;
 
+    @Autowired
     protected BandwidthManager bandwidthManager;
 
+    @Autowired
     protected RetrievalManager retrievalManager;
 
     protected IBandwidthDao bandwidthDao;
@@ -97,14 +105,13 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     @BeforeClass
     public static void staticSetup() throws IOException {
+        PathManagerFactoryTest.initLocalization();
         Properties properties = PropertiesUtil
                 .read(AbstractBandwidthManagerIntTest.class
                         .getResourceAsStream("/com.raytheon.uf.edex.datadelivery.bandwidth.properties"));
         System.getProperties().putAll(properties);
 
-        SerializationUtilTest.initSerializationUtil();
         TimeUtilTest.freezeTime(TimeUtil.MILLIS_PER_DAY * 2);
-        BandwidthEventBusTest.initSynchronous();
     }
 
     @AfterClass
@@ -114,19 +121,12 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     @Before
     public void setUp() {
-        PathManagerFactoryTest.initLocalization();
-        DatabaseUtil.start();
-        context = new ClassPathXmlApplicationContext(
-                IntegrationTestBandwidthManager.INTEGRATION_TEST_SPRING_FILES,
-                BandwidthManagerIntTest.class);
-        bandwidthDao = (IBandwidthDao) context.getBean("bandwidthDao",
-                IBandwidthDao.class);
-        bandwidthManager = (BandwidthManager) context.getBean(
-                "bandwidthManager",
-                BandwidthManager.class);
         retrievalManager = bandwidthManager.retrievalManager;
+        bandwidthDao = IBandwidthDao.class
+                .cast(context.getBean("bandwidthDao"));
 
-        fullBucketSize = retrievalManager.getPlan(Network.OPSNET)
+        fullBucketSize = retrievalManager
+                .getPlan(getRouteToUseForSubscription())
                 .getBucket(TimeUtil.currentTimeMillis()).getBucketSize();
         halfBucketSize = fullBucketSize / 2;
         thirdBucketSizeInBytes = fullBucketSize / 3;
@@ -134,6 +134,7 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     @After
     public void tearDown() {
+        PathManagerFactoryTest.initLocalization();
         try {
             bandwidthManager.shutdown();
         } catch (IllegalArgumentException iae) {
@@ -141,7 +142,6 @@ public abstract class AbstractBandwidthManagerIntTest {
             // event bus handler
             iae.printStackTrace();
         }
-        DatabaseUtil.shutdown();
     }
 
     /**
@@ -194,6 +194,41 @@ public abstract class AbstractBandwidthManagerIntTest {
                 .get(subscriptionSeed++);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));
+        subscription.setRoute(getRouteToUseForSubscription());
+
         return subscription;
+    }
+
+    /**
+     * Retrieve the {@link Network} that subscriptions should be created for.
+     * 
+     * @return the {@link Network}
+     */
+    protected abstract Network getRouteToUseForSubscription();
+
+    /**
+     * Verify the bandwidth manager has a retrieval plan configured for the
+     * specified route.
+     * 
+     * @param route
+     */
+    protected void verifyRetrievalPlanExistsForRoute(Network route) {
+        final RetrievalPlan retrievalPlan = EdexBandwidthContextFactory
+                .getInstance().retrievalManager.getPlan(route);
+
+        assertThat(retrievalPlan, is(notNullValue(RetrievalPlan.class)));
+    }
+
+    /**
+     * Verify the bandwidth manager does not have a retrieval plan configured
+     * for the specified route.
+     * 
+     * @param route
+     */
+    protected void verifyRetrievalPlanDoesNotExistForRoute(Network route) {
+        final RetrievalPlan retrievalPlan = EdexBandwidthContextFactory
+                .getInstance().retrievalManager.getPlan(route);
+
+        assertThat(retrievalPlan, is(nullValue(RetrievalPlan.class)));
     }
 }

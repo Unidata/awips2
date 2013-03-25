@@ -20,10 +20,10 @@ package com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
  * further licensing information.
  **/
 
-import java.util.HashMap;
+import java.util.Map;
 
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
@@ -52,7 +52,7 @@ public interface IRetrievalAdapter {
     public com.raytheon.uf.edex.datadelivery.retrieval.response.RetrievalResponse performRequest(
             IRetrievalRequestBuilder requestBuilder);
 
-    public HashMap<String, PluginDataObject[]> processResponse(
+    public Map<String, PluginDataObject[]> processResponse(
             IRetrievalResponse response) throws Exception;
 
     public void setProviderRetrievalXML(Retrieval prxml);

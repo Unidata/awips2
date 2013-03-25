@@ -457,14 +457,14 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
         return buff.toString();
     }
     
-    public void populate(List<Long> times) {
-     // does nothing here, don't need to populate anything.
+    public void deserialize(List<Long> times) {
+        // does nothing here, this class is serialized as is.
     }
     
     /**
      * populates the serialized array
      */
-    public void setCache() {
+    public void serialize() {
         // does nothing here, this class is serialized as is.
     }
 }

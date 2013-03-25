@@ -30,10 +30,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.lang.Validate;
 import org.eclipse.swt.graphics.RGB;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  04/09/2009       952   jsanchez    Plot acars.   
  *  04/13/2009      2251   jsanchez    Plot profilers. 
  *  04/21/2009             chammack    Refactor to common pointData model
+ *  02/01/2013     1567   njensen       Refactor handling of updates
  * 
  * 
  * </pre>
@@ -113,8 +114,6 @@ public class PlotResource2 extends
     private double plotWidth;
 
     private Map<DataTime, FrameInformation> frameMap;
-
-    private ConcurrentLinkedQueue<PlotInfo> stationsToParse;
 
     private DataTime displayedTime;
 
@@ -174,7 +173,6 @@ public class PlotResource2 extends
             data.setAlertParser(new PlotAlertParser());
         }
         this.dataTimes = new ArrayList<DataTime>();
-        this.stationsToParse = new ConcurrentLinkedQueue<PlotInfo>();
         this.frameMap = new ConcurrentHashMap<DataTime, FrameInformation>();
         data.addChangeListener(this);
     }
@@ -212,8 +210,6 @@ public class PlotResource2 extends
                 || frameRetrievalPool.isActive()) {
             issueRefresh();
         }
-
-        this.updateRecords();
 
         List<Station> stationList = curFrame.lastComputed;
 
@@ -285,7 +281,6 @@ public class PlotResource2 extends
                 }
             }
         }
-        this.updateRecords();
     }
 
     private synchronized FrameInformation startFrameInit(DataTime time) {
@@ -298,98 +293,107 @@ public class PlotResource2 extends
         return frame;
     }
 
-    protected void updateRecords() throws VizException {
-        if (stationsToParse.isEmpty()) {
-            return;
-        }
-
+    /**
+     * Checks the plots to ensure they are displayable, ie a frame exists that
+     * matches their time and they are within the descriptor's world extent. If
+     * so, schedules them for disclosure. Also checks if a plot already exists
+     * and this is an update, and if so, updates the plot.
+     * 
+     * @param stationsToParse
+     *            stations to potentially process and display
+     * @throws VizException
+     */
+    protected void updateRecords(PlotInfo[] stationsToParse)
+            throws VizException {
+        Validate.notNull(stationsToParse);
         Map<DataTime, List<PlotInfo>> plots = new HashMap<DataTime, List<PlotInfo>>();
-        // Sort plots into datatimes
-        while (!stationsToParse.isEmpty()) {
-            PlotInfo info = stationsToParse.poll();
+        // Sort plots into normalized datatimes that should match frames
+        for (PlotInfo info : stationsToParse) {
             DataTime normTime = getNormalizedTime(info.dataTime);
-            List<PlotInfo> list = plots.get(normTime);
-            if (list == null) {
-                list = new ArrayList<PlotInfo>();
-                plots.put(normTime, list);
+            if (frameMap.containsKey(normTime)) {
+                List<PlotInfo> list = plots.get(normTime);
+                if (list == null) {
+                    list = new ArrayList<PlotInfo>();
+                    plots.put(normTime, list);
+                }
+                list.add(info);
             }
-            list.add(info);
         }
 
-        PixelExtent worldExtent = new PixelExtent(0, descriptor
-                .getGridGeometry().getGridRange().getHigh(0), 0, descriptor
-                .getGridGeometry().getGridRange().getHigh(1));
+        GridEnvelope range = descriptor.getGridGeometry().getGridRange();
+        PixelExtent worldExtent = new PixelExtent(range.getLow(0),
+                range.getHigh(0), range.getLow(1), range.getHigh(1));
 
         for (Entry<DataTime, List<PlotInfo>> entry : plots.entrySet()) {
             DataTime time = entry.getKey();
             List<PlotInfo> info = entry.getValue();
             FrameInformation frameInfo = frameMap.get(time);
-            if (frameInfo == null) {
-                continue;
-            }
-            Map<String, Station> stationMap = frameInfo.stationMap;
-            for (PlotInfo plot : info) {
-                if (plot.stationId == null) {
-                    plot.stationId = plot.latitude + "#" + plot.longitude;
-                }
-                if (stationMap.containsKey(plot.stationId)) {
-                    Station existingStation = stationMap.get(plot.stationId);
-                    if (existingStation.plotImage != null) {
-                        existingStation.plotImage.getImage().dispose();
-                        existingStation.plotImage = null;
+            if (frameInfo != null) {
+                Map<String, Station> stationMap = frameInfo.stationMap;
+                for (PlotInfo plot : info) {
+                    if (plot.stationId == null) {
+                        plot.stationId = plot.latitude + "#" + plot.longitude;
                     }
-                    boolean dup = false;
-                    for (int i = 0; i < existingStation.info.length; i++) {
-                        if (existingStation.info[i].dataURI
-                                .equals(plot.dataURI)) {
-                            // existingStation.info[i] = plot;
-                            dup = true;
-                            break;
+                    synchronized (stationMap) {
+                        if (stationMap.containsKey(plot.stationId)) {
+                            processUpdatedPlot(stationMap.get(plot.stationId),
+                                    plot);
+                        } else {
+                            double[] thisLocationPixel = descriptor
+                                    .worldToPixel(new double[] {
+                                            plot.longitude, plot.latitude });
+                            if (thisLocationPixel != null
+                                    && worldExtent.contains(
+                                            thisLocationPixel[0],
+                                            thisLocationPixel[1])) {
+                                Station station = new Station();
+                                station.info = new PlotInfo[] { plot };
+                                station.pixelLocation = new Coordinate(
+                                        thisLocationPixel[0],
+                                        thisLocationPixel[1]);
+                                stationMap.put(plot.stationId, station);
+                            }
                         }
                     }
-                    if (!dup) {
-                        existingStation.info = Arrays.copyOf(
-                                existingStation.info,
-                                existingStation.info.length + 1);
-                        existingStation.info[existingStation.info.length - 1] = plot;
-                        Arrays.sort(existingStation.info,
-                                new Comparator<PlotInfo>() {
-                                    @Override
-                                    public int compare(PlotInfo o1, PlotInfo o2) {
-                                        return o1.dataTime
-                                                .compareTo(o2.dataTime);
-                                    }
-                                });
-                    }
-                } else {
-                    Station station = new Station();
-                    station.info = new PlotInfo[] { plot };
-
-                    double[] thisLocationPixel = descriptor
-                            .worldToPixel(new double[] { plot.longitude,
-                                    plot.latitude });
-                    if (thisLocationPixel == null
-                            || !worldExtent.contains(thisLocationPixel[0],
-                                    thisLocationPixel[1])) {
-                        continue;
-                    }
-                    station.pixelLocation = new Coordinate(
-                            thisLocationPixel[0], thisLocationPixel[1]);
-                    stationMap.put(plot.stationId, station);
                 }
-            }
-            // if (time.equals(displayedTime)) {
-            progressiveDisclosure.update(stationMap.values(), time);
-            // }
-        }
-    }
 
-    public void addRecord(Object[] objs) throws VizException {
-        Validate.notNull(objs);
-        for (Object obj : objs) {
-            this.stationsToParse.offer((PlotInfo) obj);
+                progressiveDisclosure.update(stationMap.values(), time);
+            }
         }
         issueRefresh();
+    }
+
+    /**
+     * Updates an existing station with a new plot.
+     * 
+     * @param existingStation
+     *            the existing station
+     * @param plot
+     *            the newly received plot
+     */
+    protected void processUpdatedPlot(Station existingStation, PlotInfo plot) {
+        if (existingStation.plotImage != null) {
+            existingStation.plotImage.getImage().dispose();
+            existingStation.plotImage = null;
+        }
+        boolean dup = false;
+        for (int i = 0; i < existingStation.info.length; i++) {
+            if (existingStation.info[i].dataURI.equals(plot.dataURI)) {
+                dup = true;
+                break;
+            }
+        }
+        if (!dup) {
+            existingStation.info = Arrays.copyOf(existingStation.info,
+                    existingStation.info.length + 1);
+            existingStation.info[existingStation.info.length - 1] = plot;
+            Arrays.sort(existingStation.info, new Comparator<PlotInfo>() {
+                @Override
+                public int compare(PlotInfo o1, PlotInfo o2) {
+                    return o1.dataTime.compareTo(o2.dataTime);
+                }
+            });
+        }
     }
 
     private DataTime getNormalizedTime(DataTime time) {
@@ -449,6 +453,8 @@ public class PlotResource2 extends
                 resourceData.getMetadataMap());
         metadataMap.put("dataTime", time);
 
+        // results will be sent to resourceChanged(DATA_UPDATE) on current
+        // thread
         resourceData.getPlotInfoRetriever().getStations(this, thisFrameTime,
                 metadataMap);
     }
@@ -536,10 +542,8 @@ public class PlotResource2 extends
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type.equals(ChangeType.DATA_UPDATE)) {
-            Object[] pdos = (Object[]) object;
-
             try {
-                addRecord(pdos);
+                updateRecords((PlotInfo[]) object);
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error updating plot resource", e);
@@ -665,7 +669,7 @@ public class PlotResource2 extends
     @Override
     public void remove(DataTime dataTime) {
         super.remove(dataTime);
-        FrameInformation frameInfo = this.frameMap.get(dataTime);
+        FrameInformation frameInfo = this.frameMap.remove(dataTime);
         if (frameInfo != null) {
             for (Station s : frameInfo.stationMap.values()) {
                 if (s != null && s.plotImage != null) {
@@ -674,7 +678,6 @@ public class PlotResource2 extends
                 }
             }
             frameInfo.stationMap.clear();
-            this.frameMap.remove(dataTime);
         }
     }
 

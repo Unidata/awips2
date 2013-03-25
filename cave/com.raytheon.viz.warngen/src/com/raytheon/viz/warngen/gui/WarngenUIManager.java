@@ -259,7 +259,7 @@ public class WarngenUIManager extends InputAdapter {
                     LinearRing lr = gf.createLinearRing(coordinates);
                     state.setWarningPolygon(gf.createPolygon(lr, null));
                 }
-                warngenLayer.updateWarnedAreas(true, true);
+                warngenLayer.updateWarnedAreas(true);
             } catch (VizException e) {
                 e.printStackTrace();
             }
@@ -454,7 +454,7 @@ public class WarngenUIManager extends InputAdapter {
 
                 warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                 try {
-                    warngenLayer.updateWarnedAreas(true, true);
+                    warngenLayer.updateWarnedAreas(true);
                 } catch (VizException e) {
                     Status s = new Status(Status.ERROR, Activator.PLUGIN_ID,
                             "Error updating warned area", e);
@@ -596,7 +596,7 @@ public class WarngenUIManager extends InputAdapter {
                     Polygon newPoly = gf.createPolygon(newLs, null);
                     warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                     try {
-                        warngenLayer.updateWarnedAreas(true, true);
+                        warngenLayer.updateWarnedAreas(true);
                     } catch (VizException e) {
                         Status s = new Status(Status.ERROR,
                                 Activator.PLUGIN_ID,

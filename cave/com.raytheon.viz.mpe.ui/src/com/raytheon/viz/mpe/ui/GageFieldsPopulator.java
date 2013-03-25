@@ -53,21 +53,15 @@ public class GageFieldsPopulator extends FieldsPopulator {
 
     @Override
     protected DisplayFieldData[] getMenuItems() {
-
-        AppsDefaults defaults = AppsDefaults.getInstance();
-        String rfcSwitch = defaults.getToken("mpe_dqc_options");
-
-        if (rfcSwitch.equalsIgnoreCase("off")) {
-            menuItems = new DisplayFieldData[] {};
+        if (MPEDisplayManager.isMpeQcOptionEnabled()) {
+            return menuItems;
         }
-
-        return menuItems;
+        return new DisplayFieldData[] {};
     }
 
     protected IContributionItem[] getContributionItems() {
         AppsDefaults defaults = AppsDefaults.getInstance();
         String list = defaults.getToken("mpe_generate_list");
-        String rfcSwitch = defaults.getToken("mpe_dqc_options");
         List<String> fields = new ArrayList<String>();
         if (list != null) {
             fields = new ArrayList<String>(Arrays.asList(list.split("[,]")));
@@ -84,7 +78,7 @@ public class GageFieldsPopulator extends FieldsPopulator {
                     });
             boolean enabled = found >= 0;
 
-            if (!enabled && rfcSwitch.equalsIgnoreCase("on")) {
+            if (!enabled && MPEDisplayManager.isMpeQcOptionEnabled()) {
                 enabled = true;
             }
 
