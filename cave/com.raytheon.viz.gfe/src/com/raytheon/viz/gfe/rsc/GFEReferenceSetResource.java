@@ -60,6 +60,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Mar 27, 2008		#1053	randerso	Initial creation
+ * 02/14/2013       #1506   mnash       Use the new Python concurrency for QueryScript
+ * 02/26/2013       #1708   randerso    Changed to not evaluate the ref set
  * 
  * </pre>
  * 
@@ -149,13 +151,14 @@ public class GFEReferenceSetResource extends
 
         outlineShape = target.createWireframeShape(false, this.descriptor);
 
-        shadedShape = target.createShadedShape(false, this.descriptor, true);
+        shadedShape = target.createShadedShape(false,
+                this.descriptor.getGridGeometry(), true);
 
         JTSCompiler jtsCompiler = new JTSCompiler(shadedShape, outlineShape,
                 this.descriptor);
 
         this.needsUpdate = false;
-        ReferenceData refData = this.refSetMgr.evaluateActiveRefSet();
+        ReferenceData refData = this.refSetMgr.getActiveRefSet();
 
         refData.setGrid(refData.getGrid());
 

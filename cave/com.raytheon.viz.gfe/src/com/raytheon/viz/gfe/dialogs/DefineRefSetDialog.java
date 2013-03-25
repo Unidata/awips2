@@ -25,9 +25,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
-import jep.JepException;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -55,12 +54,17 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
+import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
@@ -74,8 +78,9 @@ import com.raytheon.viz.gfe.core.wxvalue.DiscreteWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.VectorWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WeatherWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
-import com.raytheon.viz.gfe.query.QueryFactory;
 import com.raytheon.viz.gfe.query.QueryScript;
+import com.raytheon.viz.gfe.query.QueryScriptExecutor;
+import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
@@ -96,7 +101,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteEditAreaGroupDialog.
  * Oct 31, 2012 1298       rferrel     Changes for non-blocking MaskDialog.
  *                                      Changes for non-blocking WeatherDialog.
- *                                      Changes for non-blocking DiscreteDialog.
+ *                                      Changes for non-blocking DiscreteDialog. 
+ * 2/14/2013                mnash       Move QueryScript to use new Python concurrency implementation
  * 
  * </pre>
  * 
@@ -173,6 +179,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
      * Modal dialog from the menu so only one can be open at a time.
      */
     private CaveJFACEDialog menuModalDlg;
+
     private SaveDeleteEditAreaGroupDialog deleteGroupDlg;
 
     private SaveDeleteEditAreaGroupDialog saveGroupDlg;
@@ -842,23 +849,44 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     private void submit() {
-        try {
-            String s = this.queryField.getText().trim();
-            QueryScript script = QueryFactory.getCachedScript(DataManager
-                    .getCurrentInstance());
-            HashMap<String, Object> argMap = new HashMap<String, Object>();
-            argMap.put("expression", s);
-            ReferenceData newRef = (ReferenceData) script.execute("evaluate",
-                    argMap);
+        final String s = this.queryField.getText().trim();
+        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
+                DataManagerUIFactory.getCurrentInstance());
+        PythonJobCoordinator coordinator = PythonJobCoordinator
+                .newInstance(factory);
+        Map<String, Object> argMap = new HashMap<String, Object>();
+        argMap.put("expression", s);
+        IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
+                "evaluate", argMap);
 
-            this.activeDisplay.setText(s);
-            this.refSetMgr.incomingRefSet(newRef, RefSetMode.USE_CURRENT);
-            addToHistory(s);
-            this.queryField.setText("");
-        } catch (JepException e) {
-            String errorMsg = e.getMessage();
+        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
+            @Override
+            public void jobFailed(Throwable e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to finish QueryScript :" + e.getMessage(), e);
+            }
+
+            @Override
+            public void jobFinished(final ReferenceData result) {
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (result != null) {
+                            activeDisplay.setText(s);
+                            refSetMgr.incomingRefSet(result,
+                                    RefSetMode.USE_CURRENT);
+                            addToHistory(s);
+                            queryField.setText("");
+                        }
+                    };
+                });
+            }
+        };
+        try {
+            coordinator.submitAsyncJob(executor, listener);
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Syntax error in query string '" + errorMsg + "'", e);
+                    "Unable to submit job to ExecutorService", e);
         }
     }
 
