@@ -28,14 +28,15 @@ import javax.servlet.http.HttpServletResponse;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PartyType;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.PartyDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
-import com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager;
+import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 
 /**
  * 
@@ -48,12 +49,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/31/2012    #724       bphillip     Initial creation
+ * 3/13/2013    1082       bphillip     Made transactional
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+@Transactional
 public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
         javax.servlet.Servlet {
 
@@ -70,7 +73,16 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
     /** the page to display upon failure */
     private static final String ERROR_RESPONSE_PAGE = "addPartyFailure";
 
-    @SuppressWarnings("rawtypes")
+    // FIXME: Add spring support to servlets
+
+    private PartyDao partyDao = (PartyDao) EDEXUtil.getESBComponent("partyDao");
+
+    private LifecycleManagerImpl lcm = (LifecycleManagerImpl) EDEXUtil
+            .getESBComponent("lcmServiceImpl");
+
+    private RegistryWebUtil webUtil = (RegistryWebUtil) EDEXUtil
+            .getESBComponent("webUtil");
+
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -82,7 +94,7 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
         try {
             // The EDEX internal user cannot be modified
             if (partyId.equals(RegistryUtil.DEFAULT_OWNER)) {
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Cannot modify EDEX Internal User");
             }
@@ -91,19 +103,13 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
              * Check to see if the party already exists. If so, the user cannot
              * be added
              */
-            try {
-                existingParty = new RegistryObjectTypeDao(PartyType.class)
-                        .getById(partyId);
-            } catch (EbxmlRegistryException e) {
-                RegistryWebUtil.sendErrorResponse(request, response,
-                        ERROR_RESPONSE_PAGE, partyId, objectType,
-                        e.getLocalizedMessage());
-            }
+            existingParty = partyDao.getById(partyId);
+
             if (existingParty != null) {
                 statusHandler.error("Error adding " + objectType
                         + " to registry. " + objectType + " " + partyId
                         + " already exists");
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType, objectType
                                 + " Already Exists");
 
@@ -114,10 +120,10 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
              */
             SubmitObjectsRequest submitRequest = null;
             try {
-                submitRequest = RegistryWebUtil.createParty(request);
+                submitRequest = webUtil.createParty(request);
             } catch (EbxmlRegistryException e) {
                 statusHandler.error("Error creating " + objectType, e);
-                RegistryWebUtil.sendErrorResponse(
+                webUtil.sendErrorResponse(
                         request,
                         response,
                         ERROR_RESPONSE_PAGE,
@@ -129,15 +135,12 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
 
             // Submit the objects to the registry
             try {
-                RegistrySessionManager.openSession();
-                ((EDEXRegistryManager) EDEXUtil
-                        .getESBComponent("edexRegistryManager"))
-                        .getLifeCycleManager().submitObjects(submitRequest);
-                RegistryWebUtil.updatePC(request);
+                lcm.submitObjects(submitRequest);
+                webUtil.updatePC(request);
             } catch (Exception e) {
                 statusHandler.error("Error submitting new " + objectType
                         + " to the registry", e);
-                RegistryWebUtil.sendErrorResponse(
+                webUtil.sendErrorResponse(
                         request,
                         response,
                         ERROR_RESPONSE_PAGE,
@@ -146,12 +149,10 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
                         "Error submitting new " + objectType
                                 + " to the registry\n"
                                 + e.getLocalizedMessage());
-            } finally {
-                RegistrySessionManager.closeSession();
             }
 
             // Send success response back to the caller
-            RegistryWebUtil.sendSuccessResponse(request, response,
+            webUtil.sendSuccessResponse(request, response,
                     SUCCESS_RESPONSE_PAGE, partyId, objectType);
 
         } catch (ServletException e) {
@@ -159,13 +160,17 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
             response.sendError(1,
                     "Error generating response: " + e.getLocalizedMessage());
         }
-
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-        response.sendError(500, "GET operation not allowed");
+    public void setWebUtil(RegistryWebUtil webUtil) {
+        this.webUtil = webUtil;
     }
 
+    public void setPartyDao(PartyDao partyDao) {
+        this.partyDao = partyDao;
+    }
+
+    public void setLcm(LifecycleManagerImpl lcm) {
+        this.lcm = lcm;
+    }
 }

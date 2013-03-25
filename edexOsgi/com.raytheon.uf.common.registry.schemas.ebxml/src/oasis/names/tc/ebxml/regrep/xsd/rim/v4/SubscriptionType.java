@@ -26,6 +26,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -80,13 +81,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "SubscriptionType", propOrder = { "deliveryInfo", "selector" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Subscription")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Subscription")
 public class SubscriptionType extends RegistryObjectType {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "DeliveryInfo")
     @DynamicSerializeElement
+    @JoinTable(schema = "ebxml")
     protected List<DeliveryInfoType> deliveryInfo;
 
     @OneToOne(cascade = CascadeType.ALL)

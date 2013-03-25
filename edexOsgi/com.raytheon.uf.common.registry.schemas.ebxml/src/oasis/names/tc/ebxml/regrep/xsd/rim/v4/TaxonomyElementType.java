@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -79,6 +80,7 @@ public abstract class TaxonomyElementType extends RegistryObjectType {
             org.hibernate.annotations.CascadeType.DETACH })
     @XmlElement(name = "ClassificationNode")
     @DynamicSerializeElement
+    @JoinTable(schema = "ebxml")
     protected Set<ClassificationNodeType> classificationNode;
 
     /**
