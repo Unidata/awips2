@@ -1,0 +1,263 @@
+diff -crB a/qpid-java.spec b/qpid-java.spec
+*** a/qpid-java.spec	2013-01-28 10:36:50.000000000 -0600
+--- b/qpid-java.spec	2013-02-04 10:47:12.000000000 -0600
+***************
+*** 1,3 ****
+--- 1,5 ----
++ %define _awips2_directory "/awips2/qpid"
++ 
+  Name:           qpid-java
+  Version:        0.18
+  Release:        2%{?dist}
+***************
+*** 12,21 ****
+--- 14,27 ----
+  Source0:        %{qpid_src_dir}.tar.gz
+  Source1:        qpid-build-deps-%{version}.tar.gz
+  Source2:        %{qpid_deps_src_dir}.tar.gz
++ Source3:	config.xml
++ Source4:	virtualhosts.xml
++ Source5:	awips2-qpid
+  
+  Patch0:         mrg.patch
+  Patch1:         examples.patch
+  Patch2:         build.patch
++ Patch3:         awips.patch
+  
+  BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+  BuildArch:      noarch
+***************
+*** 35,40 ****
+--- 41,54 ----
+  %description common
+  Java implementation of Apache Qpid - common files
+  
++ %package broker
++ Summary:	Java implementation of Apache Qpid - broker files
++ Group: 		Development/Java
++ BuildArch:	noarch
++ 
++ %description broker
++ Java implementation of Apache Qpid - broker files
++ 
+  %package client
+  Summary:	Java implementation of Apache Qpid - client
+  Group: 		Development/Java
+***************
+*** 58,67 ****
+--- 72,96 ----
+  %setup -q -n %{qpid_src_dir}
+  mkdir -p java/lib/required
+  tar -xvzf %SOURCE1 -C java/lib/required
++ # copy baseline libraries and other libraries to required
++ for dependency in `cat %{_topdir}/SOURCES/awips2/dependencies.txt`;
++ do
++    cp -f %{_baseline_workspace}/${dependency} java/lib/required
++    if [ $? -ne 0 ]; then
++       exit 1
++    fi
++ done
++ # copy dependencies that are not native to the baseline to required
++ cp -f %{_topdir}/SOURCES/awips2/*.jar java/lib/required
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
+  
+  %patch0 -p2
+  %patch1 -p2
+  %patch2 -p2
++ # apply the awips patch
++ %patch3 -p2
+  
+  %setup -q -T -b 2 -n %{qpid_deps_src_dir}
+  
+***************
+*** 70,76 ****
+  
+  (
+      cd %{qpid_src_dir}/java
+!     ant -Dretrieve.dependencies=false -Dmodules=common\ client
+  
+      # blacklisted jars are either provided by the Requires: or not needed.
+      BLACKLIST="slf4j qpid-client-tests qpid-all qpid-common-tests"
+--- 99,113 ----
+  
+  (
+      cd %{qpid_src_dir}/java
+!     for module in ${QPID_MODULES[*]}; do
+!        ant -Dretrieve.dependencies=false \
+!            -Dmodules=${module}
+!     done
+!     ant -Dretrieve.dependencies=false \
+!        -Dmodules=common\ client\ amqp-1-0-common\ amqp-1-0-client\ amqp-1-0-client-jms\ management/common\ broker\ jca\ systests\ broker-plugins/management-jmx
+!     if [ $? -ne 0 ]; then
+!        exit 1
+!     fi
+  
+      # blacklisted jars are either provided by the Requires: or not needed.
+      BLACKLIST="slf4j qpid-client-tests qpid-all qpid-common-tests"
+***************
+*** 84,130 ****
+  
+  cd ..
+  
+! install -dm 755 %{buildroot}%{_javadir}
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-client-%{version}.jar %{buildroot}%{_javadir}
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-client-%{version}-sources.jar %{buildroot}%{_javadir}
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-common-%{version}.jar %{buildroot}%{_javadir}
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-common-%{version}-sources.jar %{buildroot}%{_javadir}
+! 
+! install -dm 755 %{buildroot}%{_javadir}/qpid-deps
+! install -pm 644 %{qpid_src_dir}/java/build/lib/log4j-slf4j.jar %{buildroot}%{_javadir}/qpid-deps
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-deps-%{version}.jar %{buildroot}%{_javadir}/qpid-deps
+  
+  # examples
+  
+! install -dm 755 %{buildroot}%{_docdir}/%{name}-%{version}/examples/org/apache/qpid/example/
+  install -pm 644 %{qpid_src_dir}/java/client/example/src/main/java/org/apache/qpid/example/*.java \
+!         %{buildroot}%{_docdir}/%{name}-%{version}/examples/org/apache/qpid/example/
+  install -pm 644 %{qpid_src_dir}/java/client/example/src/main/java/org/apache/qpid/example/hello.properties \
+!         %{buildroot}%{_docdir}/%{name}-%{version}/examples/org/apache/qpid/example/
+  install -pm 644 %{qpid_src_dir}/java/client/example/example.log4j \
+!         %{buildroot}%{_docdir}/%{name}-%{version}/examples/
+  install -pm 755 %{qpid_src_dir}/java/client/example/bin/run_example.sh \
+!         %{buildroot}%{_docdir}/%{name}-%{version}/examples/
+  
+  %clean
+  rm -rf %{buildroot}
+  
+  %files common
+! %defattr(-,root,root,-)
+! %{_javadir}/qpid-deps/
+! %{_javadir}/qpid-common-%{version}.jar
+! %{_javadir}/qpid-common-%{version}-sources.jar
+! %doc ../%{qpid_src_dir}/java/resources/LICENSE
+! %doc ../%{qpid_src_dir}/java/resources/NOTICE
+  
+  %files client
+! %defattr(-,root,root,-)
+! %{_javadir}/qpid-client-%{version}.jar
+! %{_javadir}/qpid-client-%{version}-sources.jar
+  
+  %files example
+! %defattr(-,root,root,-)
+! %{_docdir}/%{name}-%{version}/examples/
+  
+  %changelog
+  * Thu Sep  6 2012 Irina Boverman <iboverma@redhat.com> - 0.18-2
+--- 121,235 ----
+  
+  cd ..
+  
+! install -dm 755 %{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-client-%{version}.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-client-%{version}-sources.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-common-%{version}.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-common-%{version}-sources.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-broker-%{version}.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-broker-%{version}-sources.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-management-common-%{version}.jar \
+!         %{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-management-common-%{version}-sources.jar \
+!         %{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/plugins/qpid-broker-plugins-management-jmx-%{version}.jar \
+!         %{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-broker-plugins-management-jmx-%{version}-sources.jar \
+!         %{buildroot}%{_awips2_directory}/lib/opt
+! 
+! # scripts for broker
+! install -dm 755 %{buildroot}%{_awips2_directory}/bin
+! install -pm 644 %{qpid_src_dir}/java/build/bin/* %{buildroot}%{_awips2_directory}/bin
+! 
+! install -dm 755 %{buildroot}%{_awips2_directory}/lib/opt/qpid-deps
+! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-deps-%{version}.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt/qpid-deps
+! 
+! # service script
+! mkdir -p %{buildroot}/etc/init.d
+! install -pm 755 %SOURCE5 %{buildroot}/etc/init.d
+! 
+! # qpid configuration
+! install -dm 755 %{buildroot}%{_awips2_directory}/etc
+! install -pm 644 %{qpid_src_dir}/java/broker/etc/* \
+! 	%{buildroot}%{_awips2_directory}/etc
+! # overwrite the default configuration with the AWIPS II configuration
+! install -pm 644 %SOURCE3 %{buildroot}%{_awips2_directory}/etc
+! install -pm 644 %SOURCE4 %{buildroot}%{_awips2_directory}/etc
+! 
+! # foss dependencies
+! install -pm 644 %{qpid_src_dir}/java/lib/required/*.jar \
+! 	%{buildroot}%{_awips2_directory}/lib/opt/qpid-deps
+! 
+! # license & notice
+! install -pm 644 %{qpid_src_dir}/java/resources/LICENSE \
+! 	%{buildroot}%{_awips2_directory}
+! install -pm 644 %{qpid_src_dir}/java/resources/NOTICE \
+! 	%{buildroot}%{_awips2_directory}
+  
+  # examples
+  
+! install -dm 755 %{buildroot}%{_awips2_directory}/doc/%{name}-%{version}/examples/org/apache/qpid/example/
+  install -pm 644 %{qpid_src_dir}/java/client/example/src/main/java/org/apache/qpid/example/*.java \
+!         %{buildroot}%{_awips2_directory}/doc/%{name}-%{version}/examples/org/apache/qpid/example/
+  install -pm 644 %{qpid_src_dir}/java/client/example/src/main/java/org/apache/qpid/example/hello.properties \
+!         %{buildroot}%{_awips2_directory}/doc/%{name}-%{version}/examples/org/apache/qpid/example/
+  install -pm 644 %{qpid_src_dir}/java/client/example/example.log4j \
+!         %{buildroot}%{_awips2_directory}/doc/%{name}-%{version}/examples/
+  install -pm 755 %{qpid_src_dir}/java/client/example/bin/run_example.sh \
+!         %{buildroot}%{_awips2_directory}/doc/%{name}-%{version}/examples/
+  
+  %clean
+  rm -rf %{buildroot}
+  
+  %files common
+! %defattr(-,awips,fxalpha,-)
+! %dir /awips2/qpid
+! %dir /awips2/qpid/lib
+! %dir /awips2/qpid/lib/opt
+! /awips2/qpid/lib/opt/qpid-common-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-common-%{version}-sources.jar
+! /awips2/qpid/lib/opt/qpid-management-common-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-management-common-%{version}-sources.jar
+! %dir /awips2/qpid/lib/opt/qpid-deps
+! /awips2/qpid/lib/opt/qpid-deps/*
+! %doc /awips2/qpid/LICENSE
+! %doc /awips2/qpid/NOTICE
+  
+  %files client
+! %defattr(-,awips,fxalpha,-)
+! %dir /awips2/qpid
+! %dir /awips2/qpid/lib
+! %dir /awips2/qpid/lib/opt
+! /awips2/qpid/lib/opt/qpid-client-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-client-%{version}-sources.jar
+! 
+! %files broker
+! %defattr(-,awips,fxalpha,-)
+! %dir /awips2/qpid
+! %dir /awips2/qpid/lib
+! %dir /awips2/qpid/lib/opt
+! /awips2/qpid/lib/opt/qpid-broker-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-broker-%{version}-sources.jar
+! /awips2/qpid/lib/opt/qpid-broker-plugins-management-jmx-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-broker-plugins-management-jmx-%{version}-sources.jar
+! %defattr(755,awips,fxalpha,755)
+! %dir /awips2/qpid/bin
+! /awips2/qpid/bin/*
+! %dir /awips2/qpid/etc
+! /awips2/qpid/etc/*
+! %defattr(755,root,root,755)
+! /etc/init.d/awips2-qpid
+  
+  %files example
+! %defattr(-,awips,fxalpha,-)
+! /awips2/qpid/doc/%{name}-%{version}/examples/
+  
+  %changelog
+  * Thu Sep  6 2012 Irina Boverman <iboverma@redhat.com> - 0.18-2

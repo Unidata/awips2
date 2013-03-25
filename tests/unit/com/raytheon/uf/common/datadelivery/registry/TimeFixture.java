@@ -38,6 +38,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2012 1187       djohnson     Initial creation
  * Oct 16, 2012 0726       djohnson     Use {@link TimeUtil}.
+ * Feb 07, 2013 1543       djohnson     Set request start/end dates.
  * 
  * </pre>
  * 
@@ -71,6 +72,8 @@ public class TimeFixture extends AbstractFixture<Time> {
             time.setStartDate(new ImmutableDate(TimeUtil.currentTimeMillis()));
             time.setEndDate(new ImmutableDate(TimeUtil.currentTimeMillis()
                     + seedValue));
+            time.setRequestStartAsDate(time.getStartDate());
+            time.setRequestEndAsDate(time.getEndDate());
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }

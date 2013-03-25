@@ -1,9 +1,5 @@
 package com.raytheon.uf.common.dataplugin.scan.data;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -36,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/11/2009   1981       dhladky    Initial Creation.
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
  * 
  * </pre>
  * 
@@ -44,8 +41,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class DMDTableData<T extends ScanTableDataRow> extends ScanTableData {
 

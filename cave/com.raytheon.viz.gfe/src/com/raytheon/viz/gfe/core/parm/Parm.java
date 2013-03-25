@@ -68,7 +68,9 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -176,6 +178,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/02/2012   #346       dgilling    Create a disposed flag to help ensure
  *                                     no interaction with Parms after dispose
  *                                     is called.
+ * 02/13/13     #1597      randerso    Removed debug logging to improve performance
+ * Mar 13, 2013 1792       bsteffen    Improve performance of gfe parm average
+ *                                     ant time weighted average.
  * </pre>
  * 
  * @author chammack
@@ -185,6 +190,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 public abstract class Parm implements Comparable<Parm> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Parm.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     protected RWLArrayList<IGridData> grids;
 
@@ -293,11 +301,7 @@ public abstract class Parm implements Comparable<Parm> {
                 if (req != null) {
                     this.setName("Interpolating "
                             + req.parm.getParmID().getParmName() + "...");
-                    System.out.println("Starting interpolatation for "
-                            + req.parm + " on job " + this);
                     req.parm.doInterpolation(false);
-                    System.out.println("Finished interpolatation for "
-                            + req.parm + " on job " + this);
                     this.schedule();
                 }
                 return Status.OK_STATUS;
@@ -1969,10 +1973,10 @@ public abstract class Parm implements Comparable<Parm> {
         for (i = 0; i < this.undoBuffers.size(); i++) {
             UndoBuffer undoBuffer = this.undoBuffers.get(i);
 
-            String msg = "Undoing " + getParmID() + " tr="
-                    + undoBuffer.getUndoTimeRange();
-            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
-                    + msg));
+            // String msg = "Undoing " + getParmID() + " tr="
+            // + undoBuffer.getUndoTimeRange();
+            // statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+            // + msg));
 
             baffectedTR[i] = undoBuffer.getUndoTimeRange();
             bgridCopies[i] = new ArrayList<IGridData>();
@@ -2066,12 +2070,17 @@ public abstract class Parm implements Comparable<Parm> {
             }
         } else if (getGridInfo().getGridType() == GridType.SCALAR) {
             Grid2DFloat grid = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
+            Grid2DFloat[] scalarGrids = new Grid2DFloat[gridCount];
+            for (int c = 0; c < gridCount; c++) {
+                scalarGrids[c] = ((ScalarGridSlice) grids[c].getGridSlice())
+                        .getScalarGrid();
+            }
             for (int i = 0; i < ge.getSpan(0); i++) {
                 for (int j = 0; j < ge.getSpan(1); j++) {
                     float value = 0.0f;
                     for (int k = 0; k < gridCount; k++) {
-                        value += ((ScalarWxValue) grids[k].getWxValue(i, j))
-                                .getValue() * gridTR.get(k).getDuration();
+                        value += scalarGrids[k].get(i, j)
+                                * gridTR.get(k).getDuration();
                     }
                     grid.set(i, j, value / totalDuration);
                 }
@@ -2089,7 +2098,7 @@ public abstract class Parm implements Comparable<Parm> {
             Grid2DFloat uGrid;
             Grid2DFloat vGrid;
             Grid2DFloat uSum = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
-            Grid2DFloat vSum = new Grid2DFloat(uSum);
+            Grid2DFloat vSum = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
             // sum
             for (int k = 0; k < gridCount; k++) {
                 VectorGridSlice vgs = (VectorGridSlice) grids[k].getGridSlice();
@@ -3613,12 +3622,16 @@ public abstract class Parm implements Comparable<Parm> {
             }
         } else if (this.gridInfo.getGridType() == GridType.SCALAR) {
             Grid2DFloat grid = new Grid2DFloat(gridSize.x, gridSize.y);
+            Grid2DFloat[] scalarGrids = new Grid2DFloat[gridCount];
+            for (int c = 0; c < gridCount; c++) {
+                scalarGrids[c] = ((ScalarGridSlice) grids[c].getGridSlice())
+                        .getScalarGrid();
+            }
             for (i = 0; i < gridSize.x; i++) {
                 for (j = 0; j < gridSize.y; j++) {
                     float value = 0.0f;
                     for (k = 0; k < gridCount; k++) {
-                        value += ((ScalarWxValue) grids[k].getWxValue(i, j))
-                                .getValue();
+                        value += scalarGrids[k].get(i, j);
                     }
                     grid.set(i, j, value / gridCount);
                 }
@@ -4287,23 +4300,6 @@ public abstract class Parm implements Comparable<Parm> {
         // We will do the real work in a job for ASYNC mode
         else {
             InterpolateJob.request(this);
-            // Job job = new Job("Interpolating...") {
-            //
-            // @Override
-            // protected IStatus run(IProgressMonitor monitor) {
-            // try {
-            // doInterpolation(false);
-            // return Status.OK_STATUS;
-            // } catch (GFEOperationFailedException e) {
-            // return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-            // "Interpolation failed", e);
-            // }
-            // }
-            //
-            // };
-            // job.setSystem(false);
-            // job.schedule();
-
         }
         return true;
     }
@@ -4343,6 +4339,8 @@ public abstract class Parm implements Comparable<Parm> {
             if (!quietMode) {
                 statusHandler.handle(Priority.EVENTA, "Interpolation for "
                         + getParmID().getShortParmId() + " finished.");
+                perfLog.log("Interpolation for " + getParmID().getShortParmId()
+                        + " finished.");
             }
         }
     }

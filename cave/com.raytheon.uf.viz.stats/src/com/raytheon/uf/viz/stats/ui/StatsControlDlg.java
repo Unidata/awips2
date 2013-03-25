@@ -26,7 +26,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -71,6 +73,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2012   1357     mpduff      Initial creation.
  * Jan 17, 2013   1357     mpduff      Added timestep settings.
+ * Feb 26, 2013   1667     mpduff      Sort categories.
  * 
  * </pre>
  * 
@@ -455,7 +458,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      * Populate the categore combo box
      */
     private void populateCategoryCombo() {
-        List<String> items = new ArrayList<String>();
+        Set<String> items = new TreeSet<String>();
         for (StatisticsConfig config : this.configList) {
             items.addAll(config.getCategories());
         }
