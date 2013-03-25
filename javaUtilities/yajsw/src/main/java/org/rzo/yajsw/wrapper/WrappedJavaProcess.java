@@ -51,6 +51,9 @@ public class WrappedJavaProcess extends AbstractWrappedProcess
 
 	private static final String _PERIOD_SEPARATOR_ = ".";
 
+	/*
+	 * bkowal - define the parameter order parameter name
+	 */
 	private static final String ORDER_PATTERN = "wrapper.jvm.parameter.order";
 
 	private static final String NUMERIC_ORDER_PATTERN = ORDER_PATTERN
@@ -368,7 +371,10 @@ public class WrappedJavaProcess extends AbstractWrappedProcess
 		if (port != -1)
 		{
 			result.add("-Xdebug");
-			result.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + port);
+			/*
+			 * bkowal - no longer suspend execution when debugging
+			 */
+			result.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + port);
 		}
 		String preMainScript = _config.getString("wrapper.app.pre_main.script", null);
 		if (preMainScript != null && preMainScript.length() > 0)
@@ -397,10 +403,17 @@ public class WrappedJavaProcess extends AbstractWrappedProcess
 		return orderParameters(result, classpath);
 	}
 	
+	/*
+	 * List was left as a generic to match the code that would use it.
+	 */
 	private List orderParameters(List parameters, String classpath)
 	{
 		Map<String, String> orderedParametersMap = new HashMap<String, String>();
 
+		/*
+		 * bkowal - loop through the parameters and re-arrange the parameters
+		 * in the specified order.
+		 */
 		Iterator<String> paramOrderIterator = 
 			_config.getKeys("wrapper.jvm.parameter.order");
 		while (paramOrderIterator.hasNext())
@@ -589,6 +602,11 @@ public class WrappedJavaProcess extends AbstractWrappedProcess
 
 		}
 
+		/*
+		 * bkowal - recursively search the directories specified 
+		 * using the wrapper.search.java.classpath jvm parameter and add entries
+		 * to the classpath.
+		 */
 		final String[] jarPattern = new String[] { "jar" };
 		List<String> containingDirectories = new ArrayList<String>();
                 Iterator<String> searchLocationIterator = _config.getKeys("wrapper.search.java.classpath");
