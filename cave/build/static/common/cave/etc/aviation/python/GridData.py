@@ -538,8 +538,14 @@ def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
     for p in parameters:
         task.addParameter(p)
     pdcs = GuidanceUtil.getGFEPointsData(task)
-    i = 0
     results = {}
+    if pdcs is None :
+        for siteId in siteIDs:
+            _Logger.info('Data not available for %s', siteID)
+            results[siteID] = None
+        return results
+    
+    i = 0
     for siteID in siteIDs:
         pdc = pdcs.getContainer(i)
         if i < pdcs.getSize() :
