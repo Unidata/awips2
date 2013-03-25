@@ -32,6 +32,10 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.UIFormat;
@@ -45,8 +49,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Feb 26, 2008					Eric Babin Initial Creation
+ * Feb 26, 2008            Eric Babin  Initial Creation
  * Oct 23, 2012 1287       rferrel     Made dialog modal like AWIPS 1.
+ * 02/12/2013    #1597     randerso    Adde logging to support GFE Performance metrics
  * 
  * </pre>
  * 
@@ -55,6 +60,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class CopyGridsDialog extends CaveJFACEDialog {
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     private Composite top;
 
@@ -173,16 +180,19 @@ public class CopyGridsDialog extends CaveJFACEDialog {
     }
 
     private void copyGrids() {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         String s = groupList.getSelection()[0];
         DatabaseID model = (DatabaseID) groupList.getData(s);
 
-        long t0 = System.currentTimeMillis();
         if (isSelected) {
             dataManager.getParmOp().copySelectedFrom(model);
         } else {
             dataManager.getParmOp().copyEverythingFrom(model);
         }
-        System.out.println("copyGrids took "
-                + (System.currentTimeMillis() - t0) + " ms");
+
+        timer.stop();
+        perfLog.logDuration("Copy Grids", timer.getElapsedTime());
     }
 }

@@ -2,13 +2,13 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.interfaces;
 
 import java.util.List;
 
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 
 /**
  * 
  * Interface for Subscription aggregation and RetrievalRequest generation. Each
- * implementation of this interface will examine the List of SubscriptionDao
+ * implementation of this interface will examine the List of BandwidthSubscription
  * Objects provided and evaluate how to combine and/or subset those
  * Subscriptions into SubscriptionRetrieval Objects.
  * 
@@ -30,15 +30,15 @@ public interface ISubscriptionAggregator {
 
     /**
      * Generate a List of SubscriptionRetrieval Object for the provided
-     * SubscriptionDao Objects.
+     * BandwidthSubscription Objects.
      * 
      * @param subscriptions
-     *            A List of SubscriptionDao Objects to examine for retrieval.
+     *            A List of BandwidthSubscription Objects to examine for retrieval.
      * 
      * @return The SubscriptionRetrieval Objects used to fulfill the
-     *         SubscriptionDao Objects provided.
+     *         BandwidthSubscription Objects provided.
      */
-    List<SubscriptionRetrieval> aggregate(List<SubscriptionDao> subscriptions);
+    List<SubscriptionRetrieval> aggregate(List<BandwidthSubscription> subscriptions);
 
     /**
      * This method is called once all the SubscriptionRetrievals for a
@@ -54,6 +54,6 @@ public interface ISubscriptionAggregator {
      * @return A List of completed subscriptions, ready for notification to the
      *         user.
      */
-    List<SubscriptionDao> completeRetrieval(
+    List<BandwidthSubscription> completeRetrieval(
             List<SubscriptionRetrieval> retrievals);
 }

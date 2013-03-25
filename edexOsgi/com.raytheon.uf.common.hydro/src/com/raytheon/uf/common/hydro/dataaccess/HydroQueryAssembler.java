@@ -24,14 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.IncompatibleRequestException;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * Utilities for assembling a SQL query based on an IGeometryRequest
+ * Utilities for assembling a SQL query based on an IDataRequest
  * 
  * <pre>
  * 
@@ -40,6 +40,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -71,7 +73,7 @@ public class HydroQueryAssembler {
      *            the times of data to request
      * @return the SQL query
      */
-    public static String assembleGetData(IGeometryRequest request,
+    public static String assembleGetData(IDataRequest request,
             DataTime[] times) {
         return assembleGetData(request, buildTimeConstraint(times)).toString();
     }
@@ -85,7 +87,7 @@ public class HydroQueryAssembler {
      *            the time range of data to request
      * @return the SQL query
      */
-    public static String assembleGetData(IGeometryRequest request,
+    public static String assembleGetData(IDataRequest request,
             TimeRange timeRange) {
         return assembleGetData(request, buildTimeConstraint(timeRange))
                 .toString();
@@ -101,7 +103,7 @@ public class HydroQueryAssembler {
      *            May be null.
      * @return a SQL string that corresponds to the request
      */
-    private static CharSequence assembleGetData(IGeometryRequest request,
+    private static CharSequence assembleGetData(IDataRequest request,
             CharSequence timeConstraint) {
         StringBuilder sb = new StringBuilder();
         // this method assembles a sql string such as:
@@ -139,7 +141,7 @@ public class HydroQueryAssembler {
      *            the request to find available times for
      * @return the SQL query
      */
-    public static String assembleGetTimes(IGeometryRequest request) {
+    public static String assembleGetTimes(IDataRequest request) {
         StringBuilder sb = new StringBuilder();
 
         // select
@@ -168,7 +170,7 @@ public class HydroQueryAssembler {
      *            the request to form a select statement on
      * @return the select statement
      */
-    private static CharSequence buildSelectParams(IGeometryRequest request) {
+    private static CharSequence buildSelectParams(IDataRequest request) {
         StringBuilder sb = new StringBuilder();
         // always want the location name and time even if they didn't request it
         // so that returned objects will have that information
@@ -195,7 +197,7 @@ public class HydroQueryAssembler {
      *            the request to determine the tablename from
      * @return the from statement
      */
-    private static CharSequence buildFrom(IGeometryRequest request) {
+    private static CharSequence buildFrom(IDataRequest request) {
         return " from " + request.getIdentifiers().get(TABLE);
     }
 
@@ -207,7 +209,7 @@ public class HydroQueryAssembler {
      *            the request to determine the tablename from
      * @return the from statement
      */
-    private static CharSequence buildFromWithLocation(IGeometryRequest request) {
+    private static CharSequence buildFromWithLocation(IDataRequest request) {
         StringBuilder sb = new StringBuilder();
         sb.append(buildFrom(request));
         sb.append(" d, location l");
@@ -224,7 +226,7 @@ public class HydroQueryAssembler {
      *            buildTimeConstraint(), or null
      * @return the where clause
      */
-    private static CharSequence buildWhere(IGeometryRequest request,
+    private static CharSequence buildWhere(IDataRequest request,
             CharSequence timeConstraint) {
         StringBuilder sb = new StringBuilder();
         CharSequence locationConstraint = buildLocationConstraint(request

@@ -55,17 +55,18 @@ import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
  * ------------	----------	-----------	--------------------------
  * Aug 11, 2008				njensen	    Initial creation
  * Aug 31, 2009 2924        rjpeter     Added Embeddable.
+ * Feb 07, 2013 1543        djohnson    Implement IJaxbableClassesLocator.
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public class SerializableManager {
+public class SerializableManager implements IJaxbableClassesLocator {
 
     private static SerializableManager instance;
 
-    private Map<String, List<Class<ISerializableObject>>> hibernatables = new HashMap<String, List<Class<ISerializableObject>>>();
+    private final Map<String, List<Class<ISerializableObject>>> hibernatables = new HashMap<String, List<Class<ISerializableObject>>>();
 
     private ArrayList<Class<ISerializableObject>> jaxbables = new ArrayList<Class<ISerializableObject>>();
 
@@ -223,6 +224,7 @@ public class SerializableManager {
      * 
      * @return
      */
+    @Override
     public List<Class<ISerializableObject>> getJaxbables() {
         return jaxbables;
     }

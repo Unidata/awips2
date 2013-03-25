@@ -45,10 +45,10 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 public final class DatabaseUtil {
 
-    private static IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DatabaseUtil.class);
 
-    private static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
+    public static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
 
     private static ApplicationContext originalApplicationContext;
 
@@ -66,14 +66,14 @@ public final class DatabaseUtil {
      * and {@link #shutdown()} should be called in the @After section.
      */
     public static void start() {
-        statusHandler.info("Starting the in-memory database.");
+        statusHandler.debug("Starting the in-memory database.");
 
         originalApplicationContext = EDEXUtil.getSpringContext();
         applicationContext = new ClassPathXmlApplicationContext(
                 UNIT_TEST_DB_BEANS_XML, DatabaseUtil.class);
         new EDEXUtil().setApplicationContext(applicationContext);
 
-        statusHandler.info("Started.");
+        statusHandler.debug("Started.");
     }
 
     /**
@@ -81,7 +81,7 @@ public final class DatabaseUtil {
      * test.
      */
     public static void shutdown() {
-        statusHandler.info("Stopping the in-memory database.");
+        statusHandler.debug("Stopping the in-memory database.");
 
         if (applicationContext != null) {
             applicationContext.close();
@@ -90,6 +90,6 @@ public final class DatabaseUtil {
         new EDEXUtil().setApplicationContext(originalApplicationContext);
         originalApplicationContext = null;
 
-        statusHandler.info("Stopped.");
+        statusHandler.debug("Stopped.");
     }
 }

@@ -177,4 +177,9 @@ public class SubscriptionRetrievalEvent extends RetrievalEvent implements
         }
         return rval.toString();
     }
+
+    @Override
+    public void finalizeEvent() {
+        // Not implemented
+    }
 }
