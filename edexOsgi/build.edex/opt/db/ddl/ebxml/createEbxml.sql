@@ -18,8 +18,4 @@
  * further licensing information.
  **/
 \set ON_ERROR_STOP 1
-DROP DATABASE IF EXISTS ebxml;
-DROP TABLESPACE IF EXISTS ebxml_data;
-CREATE TABLESPACE ebxml_data OWNER awips LOCATION '%{database_files_home}%/ebxml';
-COMMENT ON TABLESPACE ebxml_data IS 'EBXML Registry Database tablespace';
-CREATE DATABASE ebxml OWNER awips TABLESPACE ebxml_data;
+CREATE SCHEMA ebxml AUTHORIZATION awips;

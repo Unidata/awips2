@@ -65,7 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Query")
+@Table(schema = "ebxml", name = "Query")
 public class QueryType extends ExtensibleObjectType {
     @Id
     @XmlAttribute(required = true)

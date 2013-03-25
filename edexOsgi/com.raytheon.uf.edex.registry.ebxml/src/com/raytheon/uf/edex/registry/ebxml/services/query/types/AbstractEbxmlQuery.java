@@ -34,14 +34,16 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -55,12 +57,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/21/2012    #184       bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+@Transactional
 public abstract class AbstractEbxmlQuery implements IRegistryQuery {
 
     protected static final transient IUFStatusHandler statusHandler = UFStatus
@@ -74,7 +78,7 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
 
     protected boolean matchOlderVersions = false;
 
-    protected RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao();
+    protected RegistryObjectTypeDao<RegistryObjectType> registryObjectDao;
 
     public void executeQuery(QueryRequest queryRequest,
             QueryResponse queryResponse) throws EbxmlRegistryException {
@@ -101,14 +105,15 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
                     queryResults.add(regObj);
                     continue;
                 } else {
-                    objVersion = regObj.getVersionInfo().getVersionNumber();
+                    objVersion = Integer.parseInt(regObj.getVersionInfo()
+                            .getVersionName());
                 }
                 lid = regObj.getLid();
 
                 RegistryObjectType maxObj = maxVersionMap.get(lid);
                 if (maxObj != null) {
-                    version = maxVersionMap.get(lid).getVersionInfo()
-                            .getVersionNumber();
+                    version = Integer.parseInt(maxObj.getVersionInfo()
+                            .getVersionName());
                 }
                 if (objVersion > version) {
                     maxVersionMap.put(lid, regObj);
@@ -249,6 +254,11 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
     protected <T extends RegistryObjectType> List<T> filterResults(
             List<Object> results) {
         return filterResults(results, null);
+    }
+
+    public void setRegistryObjectDao(
+            RegistryObjectTypeDao<RegistryObjectType> registryObjectDao) {
+        this.registryObjectDao = registryObjectDao;
     }
 
 }
