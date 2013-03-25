@@ -28,12 +28,12 @@ import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTy
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Performs subscription integrity verification.
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 7, 2012  1104      djohnson     Initial creation
+ * Feb 05, 2013 1580      mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -155,7 +156,7 @@ public class SubscriptionIntegrityVerifier {
                 verificationStrategy, successfulVerificationActions,
                 failedVerificationActions);
 
-        EventBus.getInstance().register(verifier);
+        EventBus.register(verifier);
 
         return verifier;
     }

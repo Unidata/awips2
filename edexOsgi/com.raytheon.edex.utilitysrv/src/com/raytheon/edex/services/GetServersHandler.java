@@ -41,6 +41,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
  * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
+ * Jan 14, 2013 1469      bkowal       No longer includes the hdf5 data directory
+ *                                     in the response.
  * 
  * </pre>
  * 
@@ -65,14 +67,10 @@ public class GetServersHandler extends GenericRegistry<String, String>
         logger.info("jms.server=" + jmsServer);
         logger.info("pypies.server=" + pypiesServer);
         logger.info("server locations=" + registry);
-
-        String hdf5DataDir = PropertiesFactory.getInstance().getEnvProperties()
-                .getEnvValue("HDF5DIR");
-
+        ;
         response.setHttpServer(httpServer);
         response.setJmsServer(jmsServer);
         response.setPypiesServer(pypiesServer);
-        response.setServerDataDir(hdf5DataDir);
         response.setServerLocations(Collections.unmodifiableMap(this.registry));
 
         return response;

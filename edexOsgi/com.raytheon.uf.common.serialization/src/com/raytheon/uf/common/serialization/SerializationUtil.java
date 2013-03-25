@@ -30,6 +30,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.util.ServiceLoaderUtil;
 
 /**
  * Provides utilities for serialization support
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager.Serializ
  * Sep 07, 2012 1102       djohnson     Overload jaxbUnmarshall and transformFromThrift methods 
  *                                      to accept class parameter, deprecate old versions.  Improve performance
  *                                      of getJaxbManager().
+ * Feb 07, 2013 1543       djohnson     Use ServiceLoader to find how to load jaxbable classes, defaulting to SerializableManager.
  * 
  * </pre>
  * 
@@ -52,8 +54,11 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager.Serializ
 
 public final class SerializationUtil {
 
-    // @VisibleForTesting
-    static volatile JAXBManager jaxbManager;
+    private static final IJaxbableClassesLocator jaxbableClassesLocator = ServiceLoaderUtil
+            .load(IJaxbableClassesLocator.class,
+                    SerializableManager.getInstance());
+
+    private static volatile JAXBManager jaxbManager;
 
 	private SerializationUtil() {
 
@@ -74,8 +79,8 @@ public final class SerializationUtil {
             synchronized (SerializationUtil.class) {
                 result = jaxbManager;
                 if (result == null) {
-                    List<Class<ISerializableObject>> jaxbClasses = SerializableManager
-                            .getInstance().getJaxbables();
+                    List<Class<ISerializableObject>> jaxbClasses = jaxbableClassesLocator
+                            .getJaxbables();
                     jaxbManager = result = new JAXBManager(
                             jaxbClasses.toArray(new Class[jaxbClasses.size()]));
 

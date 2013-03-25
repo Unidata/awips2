@@ -94,7 +94,7 @@ public class ReadBiasTableParam {
 
         /* Build the where clause. */
         where = "WHERE radid='" + rid + "' and obstime='"
-                + displayManager.getCurrentDate() + "' and office_id = '"
+                + displayManager.getCurrentEditDate() + "' and office_id = '"
                 + fxa_local_site + "' ORDER BY  memspan_ind ";
 
         /*-------------------------------------------------------*/
