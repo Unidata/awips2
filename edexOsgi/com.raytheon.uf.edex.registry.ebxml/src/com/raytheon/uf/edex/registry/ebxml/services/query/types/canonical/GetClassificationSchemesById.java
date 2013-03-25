@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -73,11 +74,11 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.ID);
     }
 
+    private RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao;
+
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao(
-                ClassificationSchemeType.class);
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -92,7 +93,8 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
         String id = parameters.getFirstParameter(QueryConstants.ID);
         List<String> ids = new ArrayList<String>();
         if (id.contains("_") || id.contains("%")) {
-            List<String> matchingIds = registryObjectDao.getMatchingIds(id);
+            List<String> matchingIds = classificationSchemeTypeDao
+                    .getMatchingIds(id);
             if (matchingIds.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -102,7 +104,7 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
             ids.add(id);
         }
 
-        return registryObjectDao.getById(ids);
+        return (List<T>) classificationSchemeTypeDao.getById(ids);
     }
 
     @Override
@@ -113,6 +115,11 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
     @Override
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
+    }
+
+    public void setClassificationSchemeTypeDao(
+            RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao) {
+        this.classificationSchemeTypeDao = classificationSchemeTypeDao;
     }
 
 }

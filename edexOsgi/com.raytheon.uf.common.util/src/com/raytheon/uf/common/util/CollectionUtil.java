@@ -20,9 +20,11 @@
 package com.raytheon.uf.common.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -110,5 +112,30 @@ public final class CollectionUtil {
         System.arraycopy(objArray2, 0, array, objArray1.length,
                 objArray2.length);
         return array;
+    }
+
+    /**
+     * Utility function to convert an array of objects into a list. The array
+     * may contain collections. Each member of the collection is added to the
+     * returned list.
+     * 
+     * @param objects
+     *            The objects to be moved to a list
+     * @return The compiled list of objects
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Object> List<T> asUnembeddedList(T... objects) {
+        List<T> retVal = new ArrayList<T>();
+        for (T obj : objects) {
+            if (obj instanceof Collection<?>) {
+                Collection<?> coll = (Collection<?>) obj;
+                for (Object obj2 : coll) {
+                    retVal.add((T) obj2);
+                }
+            } else {
+                retVal.add(obj);
+            }
+        }
+        return retVal;
     }
 }

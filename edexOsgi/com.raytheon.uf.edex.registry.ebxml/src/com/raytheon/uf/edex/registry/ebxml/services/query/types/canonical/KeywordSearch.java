@@ -29,12 +29,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.cataloger.IndexEntry;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQuery;
 
 /**
@@ -93,6 +90,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -120,31 +118,35 @@ public class KeywordSearch extends CanonicalEbxmlQuery {
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao();
-        QueryParameters parameters = getParameterMap(queryType.getSlot(),
-                queryResponse);
-        // The client did not specify the required parameter
-        if (parameters.isEmpty()
-                || !parameters.containsParameter(QueryConstants.KEYWORDS)) {
-            throw new EbxmlRegistryException("Canonical query ["
-                    + this.getQueryDefinition()
-                    + "] is missing required parameter ["
-                    + QUERY_PARAMETERS.get(0) + "]");
-        }
-
-        String keywords = parameters.getFirstParameter(QueryConstants.KEYWORDS);
-        String queryString = generateQuery(keywords);
-        List<IndexEntry> entries = new RegistryDao(IndexEntry.class)
-                .executeHQLQuery(queryString);
-        List<String> ids = new ArrayList<String>();
-        for (IndexEntry entry : entries) {
-            ids.add(entry.getParentId());
-        }
-        if (!ids.isEmpty()) {
-            return registryObjectDao.getById(ids);
-        } else {
-            return Collections.emptyList();
-        }
+        return Collections.emptyList();
+        // TODO:Implement
+        // RegistryObjectTypeDao registryObjectDao = new
+        // RegistryObjectTypeDao();
+        // QueryParameters parameters = getParameterMap(queryType.getSlot(),
+        // queryResponse);
+        // // The client did not specify the required parameter
+        // if (parameters.isEmpty()
+        // || !parameters.containsParameter(QueryConstants.KEYWORDS)) {
+        // throw new EbxmlRegistryException("Canonical query ["
+        // + this.getQueryDefinition()
+        // + "] is missing required parameter ["
+        // + QUERY_PARAMETERS.get(0) + "]");
+        // }
+        //
+        // String keywords =
+        // parameters.getFirstParameter(QueryConstants.KEYWORDS);
+        // String queryString = generateQuery(keywords);
+        // List<IndexEntry> entries = new RegistryDao(IndexEntry.class)
+        // .executeHQLQuery(queryString);
+        // List<String> ids = new ArrayList<String>();
+        // for (IndexEntry entry : entries) {
+        // ids.add(entry.getParentId());
+        // }
+        // if (!ids.isEmpty()) {
+        // return registryObjectDao.getById(ids);
+        // } else {
+        // return Collections.emptyList();
+        // }
     }
 
     /**
