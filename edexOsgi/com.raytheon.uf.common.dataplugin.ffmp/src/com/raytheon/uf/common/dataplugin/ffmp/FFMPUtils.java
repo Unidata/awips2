@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,6 +81,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
+ * 01/02/13      DR 1569    D. Hladky   constants, arraylist to list and moved common menthods here
  * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
  * </pre>
  * @author dhladky
@@ -443,7 +446,7 @@ public class FFMPUtils {
             long divisor = (long) Math.pow(10,
                     Integer.parseInt(huc.substring(3)));
             rval = new Long(pfaf / divisor);
-        } else if ("ALL".equals(huc) || "VIRTUAL".equals(huc)) {
+        } else if (FFMPRecord.ALL.equals(huc) || FFMPRecord.VIRTUAL.equals(huc)) {
             pfaf.toString().substring(0, templates.getHucDepthStart());
         }
 
@@ -459,7 +462,7 @@ public class FFMPUtils {
             long divisor = (long) Math.pow(10,
                     Integer.parseInt(huc.substring(3)));
             rval = new Long(pfaf / divisor);
-        } else if ("ALL".equals(huc) || "VIRTUAL".equals(huc)) {
+        } else if (FFMPRecord.ALL.equals(huc) || FFMPRecord.VIRTUAL.equals(huc)) {
             rval = Long.parseLong(pfaf.toString().substring(0,
                     templates.getHucDepthStart()));
         }
@@ -1276,8 +1279,8 @@ public class FFMPUtils {
      * @param guids
      * @return
      */
-    public static float getMaxRatioValue(ArrayList<Float> qpes,
-            ArrayList<Float> guids) {
+    public static float getMaxRatioValue(List<Float> qpes,
+            List<Float> guids) {
         float ratio = Float.NaN;
 
         if ((qpes.size() == guids.size()) && (qpes.size() > 0)
@@ -1323,8 +1326,8 @@ public class FFMPUtils {
      * @param guids
      * @return
      */
-    public static float getMaxDiffValue(ArrayList<Float> qpes,
-            ArrayList<Float> guids) {
+    public static float getMaxDiffValue(List<Float> qpes,
+            List<Float> guids) {
         float diff = Float.NaN;
         if ((qpes.size() == guids.size()) && (qpes.size() > 0)
                 && (guids.size() > 0)) {
@@ -1342,4 +1345,15 @@ public class FFMPUtils {
 
         return diff;
     }
+    
+    /**
+     * Get the file used to store aggregate records
+     * @param cwa
+     * @param sourceSiteDataKey
+     * @return
+     */
+    public static File getHdf5File(String cwa, String sourceSiteDataKey) {
+        return new File("ffmp" + File.separatorChar + cwa + File.separatorChar + sourceSiteDataKey + ".h5");
+    }
+    
 }

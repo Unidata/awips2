@@ -124,7 +124,7 @@ public class AddPseudoGageDialog extends CaveSWTDialog {
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
-        datetime = MPEDisplayManager.getCurrent().getCurrentDate();
+        datetime = MPEDisplayManager.getCurrent().getCurrentEditDate();
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -219,8 +219,7 @@ public class AddPseudoGageDialog extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 writePGage();
-                MPEDisplayManager.getCurrent().setDataSaved(false);
-                shell.dispose();
+                close();
             }
         });
 

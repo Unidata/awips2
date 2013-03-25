@@ -50,7 +50,6 @@ PYTHON_INSTALL="/awips2/python"
 JAVA_INSTALL="/awips2/java"
 PSQL_INSTALL="/awips2/psql"
 
-
 path_to_script=`readlink -f $0`
 dir=$(dirname $path_to_script)
 
@@ -59,6 +58,8 @@ awips_home=$(dirname $EDEX_HOME)
 
 # Source The File With The Localization Information
 source ${dir}/setup.env
+
+#source /awips2/edex/bin/yajsw/bin/setenv.sh
 
 ### AWIPS 1 support ###
 if [ -f /etc/rc.config.d/AWIPS ]; then
@@ -126,10 +127,6 @@ if [ -e $EDEX_HOME/etc/${RUN_MODE}.sh ]; then
     . $EDEX_HOME/etc/${RUN_MODE}.sh
 fi
 
-if [ $DEBUG_FLAG == "on" ]; then
-    . $EDEX_HOME/etc/debug.sh
-fi
-
 if [ $PROFILE_FLAG == "on" ]; then
     . $EDEX_HOME/etc/profiler.sh
 fi
@@ -137,14 +134,19 @@ fi
 # enable core dumps
 #ulimit -c unlimited
 
-# which wrapper do we start (possibly use a symlink instead)?
-wrapper_dir=
-if [ -d $dir/linux-x86-32 ]; then
-   wrapper_dir=linux-x86-32
-   export EDEX_ARCH="32-bit"
+# determine whether we are running a 32-bit or 64-bit version of EDEX -
+# based on the AWIPS II Java that has been installed
+EDEX_BITS="32"
+EXPECTED_ARCH=`file ${JAVA_INSTALL}/bin/java | awk '{ print $3; }'`
+if [ "${EXPECTED_ARCH}" = "64-bit" ]; then
+   EDEX_BITS="64"
 fi
-if [ -d $dir/linux-x86-64 ]; then
-   wrapper_dir=linux-x86-64
-   export EDEX_ARCH="64-bit"
+export EDEX_BITS=${EDEX_BITS}
+
+WRAPPER_ARGS=""
+if [ $DEBUG_FLAG == "on" ]; then
+   WRAPPER_ARGS="wrapper.java.debug.port=${EDEX_DEBUG_PORT}"
+   echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
 fi
-$dir/$wrapper_dir/wrapper -c $dir/$CONF_FILE
+
+java -jar ${EDEX_HOME}/bin/yajsw/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
