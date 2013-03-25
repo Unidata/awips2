@@ -626,6 +626,10 @@ public class PosixProcess extends AbstractProcess
 
 	public boolean kill(int code)
 	{
+		/*
+		 * bkowal
+		 * Suppress extraneous output unless debug is enabled.
+		 */
 		if (_logger != null && _debug )
 			_logger.info("killing " + _pid);
 		int count = 0;
@@ -674,6 +678,10 @@ public class PosixProcess extends AbstractProcess
 		if (_arrCmd == null)
 		{
 			_arrCmd = _cmd.split(" ");
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				log("exec: " + _cmd);
@@ -687,6 +695,10 @@ public class PosixProcess extends AbstractProcess
 				if (c != null)
 					cmd += c + " ";
 			}
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				log("exec:" + cmd);
@@ -737,6 +749,10 @@ public class PosixProcess extends AbstractProcess
 		// fork a child process
 		if ((pid = CLibrary.INSTANCE.fork()) == 0)
 		{
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				System.out.println("fork 0");
@@ -749,6 +765,10 @@ public class PosixProcess extends AbstractProcess
 				if (CLibrary.INSTANCE.chdir(getWorkingDir()) != 0)
 					log("could not set working dir");
 			
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				System.out.println("fork 1");
@@ -777,6 +797,10 @@ public class PosixProcess extends AbstractProcess
 			}
 			if (getUser() != null)
 				switchUser(getUser(), getPassword());
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				System.out.println("fork 2");
@@ -937,6 +961,10 @@ public class PosixProcess extends AbstractProcess
           while ( r != _pid && r != -1 )
           {
             r = CLibrary.INSTANCE.waitpid( _pid, status, 0 );
+    		/*
+    		 * bkowal
+    		 * Suppress extraneous output unless debug is enabled.
+    		 */
             if ( _logger != null && _debug )
               _logger.info( "waitpid " + r + " " + status.getValue() );
           }
@@ -951,6 +979,10 @@ public class PosixProcess extends AbstractProcess
             else
               _exitCode = 0;
           }
+  		/*
+  		 * bkowal
+  		 * Suppress extraneous output unless debug is enabled.
+  		 */
           if ( _logger != null && _debug )
             _logger.info( "exit code posix process: " +status.getValue()+" application: "+ _exitCode );
           _terminated = true;
@@ -958,6 +990,10 @@ public class PosixProcess extends AbstractProcess
 
 			});
 
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_logger != null && _debug)
 				_logger.info("started process " + _pid);
 			return true;
@@ -996,6 +1032,10 @@ public class PosixProcess extends AbstractProcess
 
 	public boolean stop(int timeout, int code)
 	{
+		/*
+		 * bkowal
+		 * Suppress extraneous output unless debug is enabled.
+		 */
 		if (_logger != null && _debug )
 			_logger.info("killing " + _pid);
 		if (!isRunning())
