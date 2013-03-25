@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -72,13 +73,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "ServiceType", propOrder = { "serviceEndpoint" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Service")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Service")
 public class ServiceType extends RegistryObjectType {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "ServiceEndpoint")
     @DynamicSerializeElement
+    @JoinTable(schema = "ebxml")
     protected List<ServiceEndpointType> serviceEndpoint;
 
     @XmlAttribute

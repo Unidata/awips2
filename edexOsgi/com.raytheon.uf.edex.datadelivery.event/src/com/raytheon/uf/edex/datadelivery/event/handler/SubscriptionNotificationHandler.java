@@ -47,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Sep 24, 2012    1157    mpduff     Changed to use BaseSubscriptionNotificationRequest.
  * Jan 17, 2013 1501       djohnson     If a subscription is still in the registry, use it for the notification response.
  * Jan 21, 2013 1501       djohnson     Throw an exception if subscription is not provided on the request.
+ * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
  * </pre>
  * 
  * @author mpduff
@@ -60,7 +61,11 @@ public class SubscriptionNotificationHandler<T extends Subscription> extends
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionNotificationHandler.class);
 
-    private final String uri;
+    private String uri;
+
+    public SubscriptionNotificationHandler() {
+        super();
+    }
 
     /**
      * Constructor

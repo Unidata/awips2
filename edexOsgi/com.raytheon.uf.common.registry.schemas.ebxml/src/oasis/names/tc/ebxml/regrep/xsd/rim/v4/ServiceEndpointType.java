@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "ServiceEndpoint")
+@Table(schema = "ebxml", name = "ServiceEndpoint")
 public class ServiceEndpointType extends RegistryObjectType {
 
     @XmlAttribute

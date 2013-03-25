@@ -46,13 +46,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Dec 7, 2012  1104      djohnson     Initial creation
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
+ * 3/18/2013    1802       bphillip     Modified to use proper transaction boundaries
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
 public class SubscriptionIntegrityVerifier {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -205,8 +205,8 @@ public class SubscriptionIntegrityVerifier {
 
         if (DataDeliveryRegistryObjectTypes.DATASET.equals(objectType)) {
             try {
-                final DataSet dataSet = DataDeliveryHandlers
-                        .getDataSetHandler().getById(event.getId());
+                DataSet dataSet = DataDeliveryHandlers.getDataSetHandler()
+                        .getById(event.getId());
                 dataSetUpdated(dataSet);
             } catch (RegistryHandlerException e) {
                 statusHandler
