@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.event.Event;
-import com.raytheon.uf.edex.event.EventBus;
+import com.raytheon.uf.common.event.EventBus;
 
 /**
  * 
@@ -20,6 +20,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jsanchez     Initial creation
  * Nov 5, 2012  #1305     bgonzale     Added log level Event logging.
+ * Feb 05, 2013 1580      mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -30,13 +31,11 @@ public class LogHandler {
 
     private final Log logger;
 
-    private static EventBus eventBus = EventBus.getInstance();
-
     /**
      * Creates a new object
      */
     public LogHandler() {
-        eventBus.register(this);
+        EventBus.register(this);
         logger = LogFactory.getLog("Event");
     }
 
