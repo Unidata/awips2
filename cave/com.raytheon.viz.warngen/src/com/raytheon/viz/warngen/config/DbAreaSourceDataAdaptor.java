@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Sep 25, 2012 #15425     Qinglu Lin   Updated createClosestPoint().
  * Feb 13, 2012  1605      jsanchez     Calculated the point based on lat,lon values.
  * Mar 25, 2013  1810      jsanchez     Allowed other values to be accepted as a true value for useDirs.
+ * Mar 25, 2013  1605      jsanchez     Set ClosestPoint's prepGeom.
  * 
  * </pre>
  * 
@@ -116,9 +117,10 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         List<String> partOfArea = getPartOfArea(ptFields, attributes,
                 ptRslt.geometry);
         int gid = getGid(ptFields, attributes);
-
-        return new ClosestPoint(name, point, population, warngenlev,
+        ClosestPoint cp = new ClosestPoint(name, point, population, warngenlev,
                 partOfArea, gid);
+        cp.setPrepGeom(PreparedGeometryFactory.prepare(ptRslt.geometry));
+        return cp;
     }
 
     /**
