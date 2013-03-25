@@ -125,10 +125,20 @@
 # IFPS grids monitoring module
 # Author: George Trojan, SAIC/MDL, August 2003
 # last update: 04/20/06
+#**
+#* 
+#* 
+#* <pre>
+#* SOFTWARE HISTORY
+#* Date         Ticket#     Engineer    Description
+#* ------------ ----------  ----------- --------------------------
+#*                                      Initial creation.
+#* Mar 07, 2013 1735        rferrel     Use SiteGridManger to limit calls to server.
+##  
 
-import logging, time
-import Avn, AvnLib, Globals, GridData, MonitorP, TafDecoder, TafGen
-
+import logging, time, cPickle
+import Avn, AvnLib, Globals, GridData, MonitorP, TafDecoder, TafGen, JUtil
+from com.raytheon.viz.aviation.monitor import SiteGridManager
 _Logger = logging.getLogger(Avn.CATEGORY)
 
 ##############################################################################
@@ -142,7 +152,21 @@ class Monitor(MonitorP.Monitor):
 
     def __makeData(self, t):
         try:
-            data = GridData.makeData(self.info['ident'], t)
+            siteID = self.info['ident']
+            timeSeconds = long(t)
+            if SiteGridManager.needData(timeSeconds) :
+                siteIDs = JUtil.javaStringListToPylist(SiteGridManager.getSiteIDs())
+                containersMap = GridData.retrieveMapData(siteIDs, timeSeconds)
+                SiteGridManager.setContainersMap(containersMap)
+                return None
+            
+            o = SiteGridManager.getData(siteID, timeSeconds)
+            if o is None :
+                return None
+            
+            ndata = cPickle.loads(o)
+            data = GridData.formatData(siteID, timeSeconds, ndata)
+                
             bbb = 'RRA'
             tc=TafGen.TafGen('grid',data,bbb)
             taf=tc.createTaf(False)

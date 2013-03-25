@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial creation  
  * 10/8/2008    1532        bphillip    Refactored to incorporate annotation support
+ * Mar 5, 2013     1753     njensen     Improved debug message
  * 
  * </pre>
  * 
@@ -96,13 +97,11 @@ public class RecordFactory {
                     Class<PluginDataObject> clazz = (Class<PluginDataObject>) Class
                             .forName(record);
                     defMap.put(pluginName, clazz);
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "Can't find record class for " + pluginName
-                                    + " plugin", e);
-                    System.out.println("DEBUG: Can't find record class for "
-                            + pluginName + " plugin - alerts on " + pluginName
-                            + " data will be ignored");
+                } catch (ClassNotFoundException e) {
+                    String msg = "Can't find record class for " + pluginName
+                            + " plugin - alerts on " + pluginName
+                            + " data will be ignored";
+                    statusHandler.handle(Priority.DEBUG, msg);
                 }
             }
         }

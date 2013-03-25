@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
@@ -37,6 +38,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2012 0726       djohnson     Initial creation
+ * Feb 20, 2013 1543       djohnson     Implement route filtering.
  * 
  * </pre>
  * 
@@ -136,6 +138,32 @@ public class BaseMemorySubscriptionHandler<T extends Subscription> extends
             }
         }
 
+        return retVal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<T> getActiveForRoute(Network route)
+            throws RegistryHandlerException {
+        return getActiveForRoutes(new Network[] { route });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<T> getActiveForRoutes(Network... routes)
+            throws RegistryHandlerException {
+        List<T> retVal = new ArrayList<T>();
+        for (T obj : getActive()) {
+            for (Network route : routes) {
+                if (route == obj.getRoute()) {
+                    retVal.add(obj);
+                }
+            }
+        }
         return retVal;
     }
 }

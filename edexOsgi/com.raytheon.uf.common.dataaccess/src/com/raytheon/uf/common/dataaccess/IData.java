@@ -64,4 +64,12 @@ public interface IData {
      */
     public Level getLevel();
 
+    /**
+     * Gets the location name associated with this instance of IData. May be
+     * null.
+     * 
+     * @return the location name or null
+     */
+    public String getLocationName();
+
 }

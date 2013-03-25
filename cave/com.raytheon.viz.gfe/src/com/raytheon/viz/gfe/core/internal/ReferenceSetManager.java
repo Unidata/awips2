@@ -37,8 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import jep.JepException;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
@@ -65,6 +63,10 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
+import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -82,8 +84,10 @@ import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
-import com.raytheon.viz.gfe.query.QueryFactory;
 import com.raytheon.viz.gfe.query.QueryScript;
+import com.raytheon.viz.gfe.query.QueryScriptExecutor;
+import com.raytheon.viz.gfe.query.QueryScriptFactory;
+import com.raytheon.viz.gfe.query.QueryScriptRecurseExecutor;
 import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -100,6 +104,9 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 1, 2008		#1053	randerso	Initial creation
+ * 02/14/2013        #1506  mnash       Move QueryScript to use new Python concurrency implementation
+ * 02/12/2013        #1597  randerso    Improved error message for exceptions evaluating queries
+ * 02/26/2013        #1708  randerso    Removed no longer needed near duplicate methods
  * 
  * </pre>
  * 
@@ -176,6 +183,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
     private List<GroupID> groupIdList;
 
     private final ArrayList<String> historyStack;
+
+    private PythonJobCoordinator<QueryScript> coordinator;
 
     /**
      * Set the wait cursor on or off
@@ -558,6 +567,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     @SuppressWarnings("unchecked")
     public ReferenceSetManager(DataManager dataManager) {
+        // ready the PythonJobCoordinator
+        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
+                dataManager);
+        coordinator = PythonJobCoordinator.newInstance(factory);
+
         // MessageClient("ReferenceSetMgr", msgHandler);
         this.dataManager = dataManager;
 
@@ -674,8 +688,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
     public void setActiveRefSet(final ReferenceData refData) {
         refData.getGrid(); // force it to a grid
 
-        statusHandler.handle(Priority.VERBOSE, "PrevActiveSet = "
-                + activeRefSet.getId());
+        // statusHandler.handle(Priority.VERBOSE, "PrevActiveSet = "
+        // + activeRefSet.getId());
         // turn on wait cursor
         setCursor(0);
 
@@ -700,8 +714,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         // turn off wait cursor
         setCursor(1);
-        statusHandler.handle(Priority.VERBOSE,
-                "NewActiveSet = " + activeRefSet.getId());
+        // statusHandler.handle(Priority.VERBOSE,
+        // "NewActiveSet = " + activeRefSet.getId());
     }
 
     /*
@@ -762,8 +776,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         if (lf != null) {
             try {
-                refData = (ReferenceData) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(lf.getFile().getPath());
+                refData = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                        ReferenceData.class, lf.getFile().getPath());
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error reading xml file "
@@ -1306,22 +1320,30 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode)
      */
     @Override
-    public void incomingRefSet(ReferenceData refData, RefSetMode mode) {
+    public void incomingRefSet(ReferenceData refData, final RefSetMode mode) {
         // Evaluate the Incoming refData if necessary
         // Then, change the active Reference Set using the given mode.
         ReferenceData ref = null;
         if (refData.isQuery()) {
-            String query = refData.getQuery();
-            try {
-                ref = evaluateQuery(query);
-                ref.setQuery(query);
-            } catch (JepException e) {
-                return;
-            }
+            final String query = refData.getQuery();
+            IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
+                @Override
+                public void jobFailed(Throwable e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to run QueryScript job", e);
+                }
+
+                @Override
+                public void jobFinished(ReferenceData result) {
+                    result.setQuery(query);
+                    setRefSet(result, mode);
+                }
+            };
+            evaluateQuery(query, listener);
         } else {
             ref = refData;
+            setRefSet(ref, mode);
         }
-        setRefSet(ref, mode);
     }
 
     /**
@@ -1699,48 +1721,50 @@ public class ReferenceSetManager implements IReferenceSetManager,
         sendEditAreaGroupInvChanged();
     }
 
-    private ReferenceData evaluateQuery(String query) throws JepException {
-        QueryScript script = QueryFactory.getCachedScript(dataManager);
-        HashMap<String, Object> argMap = new HashMap<String, Object>();
+    private void evaluateQuery(String query,
+            IPythonJobListener<ReferenceData> listener) {
+        Map<String, Object> argMap = new HashMap<String, Object>();
+
         argMap.put("expression", query);
-        ReferenceData newRef = (ReferenceData) script.execute("evaluate",
-                argMap);
-        return newRef;
+
+        IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
+                "evaluate", argMap);
+        try {
+            coordinator.submitAsyncJob(executor, listener);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to submit job to ExecutorService", e);
+        }
     }
 
     @Override
     public boolean willRecurse(String name, String query) {
+        Map<String, Object> argMap = new HashMap<String, Object>();
+        argMap.put("name", name);
+        argMap.put("str", query);
+        IPythonExecutor<QueryScript, Integer> executor = new QueryScriptRecurseExecutor(
+                argMap);
+        int result = 0;
         try {
-            QueryScript script = QueryFactory.getCachedScript(dataManager);
-            HashMap<String, Object> argMap = new HashMap<String, Object>();
-            argMap.put("name", name);
-            argMap.put("str", query);
-            int result = (Integer) script.execute("willRecurse", argMap);
-            return result != 0;
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM, "", e);
+            result = coordinator.submitSyncJob(executor);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to submit job to ExecutorService", e);
+            return true;
         }
-        return true;
+        return result != 0;
     }
 
-    @Override
-    public ReferenceData evaluateActiveRefSet() {
-        // If activeRefSet is a query, re-evaluate it
+    private void evaluateActiveRefSet(IPythonJobListener<ReferenceData> listener) {
         ReferenceData active = getActiveRefSet();
         if (active.isQuery()) {
             // Re-evaluate the activeRefSet
-            try {
-                ReferenceData newRef = evaluateQuery(active.getQuery());
-                if (!newRef.getGrid().equals(active.getGrid())) {
-                    setActiveRefSet(newRef);
-                }
-            } catch (JepException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error evaluating query", e);
-            }
+            evaluateQuery(active.getQuery(), listener);
+        } else {
+            // if non-query,need to fire, but do this in an else otherwise we
+            // will fire the listener twice for queries
+            listener.jobFinished(getActiveRefSet());
         }
-
-        return getActiveRefSet();
     }
 
     /*
@@ -1752,20 +1776,28 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     @Override
     public void receiveMessage(final Message message) {
-        VizApp.runAsync(new Runnable() {
-
+        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
             @Override
-            public void run() {
-                GridDataChangedMsg msg = (GridDataChangedMsg) message;
-
-                Date spedTime = dataManager.getSpatialDisplayManager()
-                        .getSpatialEditorTime();
-                if (spedTime != null && msg.getTimeRange().contains(spedTime)) {
-                    evaluateActiveRefSet();
-                }
+            public void jobFailed(Throwable e) {
+                statusHandler.handle(Priority.ERROR,
+                        "Unable to finish QueryScript job", e);
             }
 
-        });
+            @Override
+            public void jobFinished(ReferenceData result) {
+                getActiveRefSet();
+                if (!result.getGrid().equals(getActiveRefSet().getGrid())) {
+                    setActiveRefSet(result);
+                }
+            };
+        };
+        GridDataChangedMsg msg = (GridDataChangedMsg) message;
+
+        Date spedTime = dataManager.getSpatialDisplayManager()
+                .getSpatialEditorTime();
+        if (spedTime != null && msg.getTimeRange().contains(spedTime)) {
+            evaluateActiveRefSet(listener);
+        }
     }
 
     @Override
@@ -1798,6 +1830,20 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     @Override
     public void spatialEditorTimeChanged(Date date) {
-        evaluateActiveRefSet();
+        IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
+            @Override
+            public void jobFailed(Throwable e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to run QueryScript job", e);
+            }
+
+            @Override
+            public void jobFinished(ReferenceData result) {
+                if (!result.getGrid().equals(activeRefSet.getGrid())) {
+                    setActiveRefSet(result);
+                }
+            }
+        };
+        evaluateActiveRefSet(listener);
     }
 }

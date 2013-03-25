@@ -82,7 +82,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * 07/29/09      2152       D. Hladky   Initial release
  * 07/09/10      3914       D. Hladky   Localization work
  * 12/13/10      7484       D. Hladky   Service Backup
+ * 02/01/13      1569       D.Hladky    Constants
  * 03/01/13      DR13228    G. Zhang    Add VGB county and related code 
+ * 02/20/13      1635       D. Hladky   Constants
  * </pre>
  * 
  * @author dhladky
@@ -298,7 +300,7 @@ public class FFMPTemplates {
         LinkedHashMap<Long, ?> map = null;
         long[] list = readDomainList(huc, cwa, dataKey);
 
-        if (huc.equals("ALL")) {
+        if (huc.equals(FFMPRecord.ALL)) {
             map = new LinkedHashMap<Long, FFMPBasinMetaData>();
             HashMap<Long, FFMPBasinMetaData> protoMap = (HashMap<Long, FFMPBasinMetaData>) readDomainMap(
                     dataKey, huc, cwa);
@@ -409,7 +411,7 @@ public class FFMPTemplates {
         }
 
         try {
-            if (huc.equals("ALL")) {
+            if (huc.equals(FFMPRecord.ALL)) {
 
                 LocalizationContext lc = pathManager.getContext(
                         LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
@@ -518,7 +520,7 @@ public class FFMPTemplates {
     public FFMPBasinMetaData getBasin(String dataKey, Long pfaf) {
         FFMPBasinMetaData fmbd = null;
         for (DomainXML domain : domains) {
-            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), "ALL");
+            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), FFMPRecord.ALL);
             fmbd = (FFMPBasinMetaData) map.get(pfaf);
             if (fmbd != null) {
                 break;
@@ -543,7 +545,7 @@ public class FFMPTemplates {
             if (isSiteLoaded(product.getProductKey())) {
                 for (DomainXML domain : domains) {
                     LinkedHashMap<Long, ?> map = getMap(
-                            product.getProductKey(), domain.getCwa(), "ALL");
+                            product.getProductKey(), domain.getCwa(), FFMPRecord.ALL);
                     fmbd = (FFMPBasinMetaData) map.get(pfaf);
                     if (fmbd != null) {
                         return fmbd;
@@ -570,7 +572,7 @@ public class FFMPTemplates {
                     "FFMPTemplate: Starting site template process " + dataKey
                             + ":" + cwa + ":" + huc);
             // special handling for VGB's
-            if (huc.equals("VIRTUAL")) {
+            if (huc.equals(FFMPRecord.VIRTUAL)) {
                 getVirtualGageBasins(dataKey, cwa);
             } else {
                 getMap(dataKey, cwa, huc);
@@ -741,7 +743,7 @@ public class FFMPTemplates {
 
             if (basinList != null) {
                 LinkedHashMap<Long, ?> basinMap = getMap(dataKey,
-                        domain.getCwa(), "ALL");
+                        domain.getCwa(), FFMPRecord.ALL);
                 for (Long key : basinList) {
                     basins.add((FFMPBasinMetaData) basinMap.get(key));
                 }
@@ -771,7 +773,7 @@ public class FFMPTemplates {
                 Map<Long, ArrayList<Long>> aggrMap = (Map<Long, ArrayList<Long>>) getMap(
                         dataKey, cwa, huc);
                 Map<Long, Geometry> geomMap = geomFactory.getGeometries(this,
-                        dataKey, cwa, "ALL");
+                        dataKey, cwa, FFMPRecord.ALL);
                 for (Long aggrPfaf : aggrMap.keySet()) {
                     Envelope env = envMap.get(aggrPfaf);
                     if ((env != null) && env.contains(coor)) {
@@ -779,7 +781,7 @@ public class FFMPTemplates {
                         for (Long pfaf : aggrMap.get(aggrPfaf)) {
                             if (geomMap.get(pfaf).contains(point)) {
                                 return (FFMPBasinMetaData) getMap(dataKey, cwa,
-                                        "ALL").get(pfaf);
+                                        FFMPRecord.ALL).get(pfaf);
                             }
                         }
                     }
@@ -802,7 +804,7 @@ public class FFMPTemplates {
         // TODO: make reverse lookup...
         FFMPBasinMetaData basin = null;
         for (DomainXML domain : domains) {
-            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), "ALL");
+            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), FFMPRecord.ALL);
             for (Long key : map.keySet()) {
                 basin = ((FFMPBasinMetaData) map.get(key));
                 if (basin.getBasinId() == basinId) {
@@ -926,7 +928,7 @@ public class FFMPTemplates {
         try {
 
             for (DomainXML domain : domains) {
-                for (Long key : getMap(dataKey, domain.getCwa(), "COUNTY")
+                for (Long key : getMap(dataKey, domain.getCwa(), FFMPRecord.COUNTY)
                         .keySet()) {
                     if (countyMap.get(key) == null) {
                         county = FFMPUtils.getCounty(key, MODE.CAVE.getMode());
@@ -966,9 +968,9 @@ public class FFMPTemplates {
      */
     @SuppressWarnings("unchecked")
     public Long getAggregatedPfaf(Long key, String dataKey, String huc) {
-        if (huc.equals("ALL")) {
+        if (huc.equals(FFMPRecord.ALL)) {
             return key;
-        } else if (huc.equals("COUNTY")) {
+        } else if (huc.equals(FFMPRecord.COUNTY)) {
             // TODO: use envelope contains to limit search area?
             for (DomainXML domain : domains) {
                 LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(),
@@ -1107,19 +1109,19 @@ public class FFMPTemplates {
                 ArrayList<Long> list = null;
                 Map<Long, TreeSet<Long>> aggrPfafToAllChildPfafsMap = null;
 
-                if (huc.equals("ALL")) {
+                if (huc.equals(FFMPRecord.ALL)) {
                     map = loadBasins(dataKey, cwa, FFMPUtils.getBasins(cwa,
                             getMaxExtent(), getSiteExtents(dataKey),
                             mode.getMode()));
 
-                } else if (huc.equals("COUNTY")) {
+                } else if (huc.equals(FFMPRecord.COUNTY)) {
                     list = getCountyFips(cwa, dataKey);
                 } else {
                     int myHucNum = Integer.parseInt(huc.substring(3));
                     TreeSet<Long> aggrPfafs = new TreeSet<Long>();
                     aggrPfafToAllChildPfafsMap = new HashMap<Long, TreeSet<Long>>();
                     if (myHucNum + 1 == getTotalHucLevels()) {
-                        Set<Long> allPfafs = getMap(dataKey, cwa, "ALL")
+                        Set<Long> allPfafs = getMap(dataKey, cwa, FFMPRecord.ALL)
                                 .keySet();
                         for (Long pfaf : allPfafs) {
                             int endIndex = getHucDepthStart() + myHucNum;
@@ -1157,16 +1159,16 @@ public class FFMPTemplates {
                     list = new ArrayList<Long>(aggrPfafs);
                 }
 
-                if (!huc.equals("ALL")) {
+                if (!huc.equals(FFMPRecord.ALL)) {
                     map = new LinkedHashMap<Long, ArrayList<Long>>();
                     Map<Long, Geometry> rawGeometries = null;
                     LinkedHashMap<Long, FFMPBasinMetaData> allMap = (LinkedHashMap<Long, FFMPBasinMetaData>) getMap(
-                            dataKey, cwa, "ALL");
+                            dataKey, cwa, FFMPRecord.ALL);
 
                     for (Long key : list) {
                         ArrayList<Long> innerList = null;
 
-                        if (huc.equals("COUNTY")) {
+                        if (huc.equals(FFMPRecord.COUNTY)) {
                             innerList = new ArrayList<Long>();
                             ArrayList<?> countyInfo = FFMPUtils.getCountyInfo(
                                     key, mode.getMode());
@@ -1216,10 +1218,10 @@ public class FFMPTemplates {
 
                     // trigger the write of the "ALL" now that the counties are
                     // set.
-                    if (huc.equals("COUNTY")) {
+                    if (huc.equals(FFMPRecord.COUNTY)) {
 
                         if (allMap != null) {
-                            writeTemplateFile(dataKey, "ALL", cwa, allMap);
+                            writeTemplateFile(dataKey, FFMPRecord.ALL, cwa, allMap);
                         }
                     }
                 }
@@ -1231,7 +1233,7 @@ public class FFMPTemplates {
                 System.runFinalization();
                 System.gc();
 
-                if (!huc.equals("ALL") && map != null) {
+                if (!huc.equals(FFMPRecord.ALL) && map != null) {
                     writeTemplateFile(dataKey, huc, cwa, map);
                 }
             }
@@ -1314,7 +1316,7 @@ public class FFMPTemplates {
                     // Expensive..., use envelopes first to get rough idea and
                     // skip
                     // unnecessary checks
-                    LinkedHashMap<Long, ?> map = getMap(dataKey, cwa, "ALL");
+                    LinkedHashMap<Long, ?> map = getMap(dataKey, cwa, FFMPRecord.ALL);
                     for (Entry<Long, ?> entry : map.entrySet()) {
                         Long pfaf = entry.getKey();
                         Geometry geometry = rawGeometries.get(pfaf);
@@ -1734,7 +1736,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
         if (parts.length == 2) {
             for (DomainXML domain : domains) {
                 LinkedHashMap<Long, ArrayList<Long>> countyMap = (LinkedHashMap<Long, ArrayList<Long>>) getMap(
-                        dataKey, domain.getCwa(), "COUNTY");
+                        dataKey, domain.getCwa(), FFMPRecord.ALL);
                 for (Long id : countyMap.keySet()) {
                     for (Long key : countyMap.get(id)) {
                         FFMPBasinMetaData basin = getBasin(dataKey, key);
@@ -1911,7 +1913,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
                 getAbsoluteFileName(dataKey, huc, cwa, "map"));
 
         try {
-            if (huc.equals("ALL")) {
+            if (huc.equals(FFMPRecord.ALL)) {
 
                 map = (HashMap<Long, FFMPBasinMetaData>) SerializationUtil
                         .transformFromThrift(FileUtil.file2bytes(f.getFile(),
@@ -1946,7 +1948,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile f = pathManager.getLocalizationFile(lc,
-                getAbsoluteFileName(dataKey, "VIRTUAL", cwa, "map"));
+                getAbsoluteFileName(dataKey, FFMPRecord.VIRTUAL, cwa, "map"));
 
         try {
             map = (HashMap<String, FFMPVirtualGageBasinMetaData>) SerializationUtil
@@ -1974,7 +1976,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile f = pathManager.getLocalizationFile(lc,
-                getAbsoluteFileName(dataKey, "VIRTUAL", cwa, "list"));
+                getAbsoluteFileName(dataKey, FFMPRecord.VIRTUAL, cwa, "list"));
 
         try {
             list = (String[]) SerializationUtil.transformFromThrift(FileUtil
@@ -2064,7 +2066,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
             // TODO: add sync locking per cwa
             long t0 = System.currentTimeMillis();
             pfafGeometries = FFMPUtils.getRawGeometries(getMap(siteKey, cwa,
-                    "ALL").keySet());
+                    FFMPRecord.ALL).keySet());
             long t1 = System.currentTimeMillis();
             System.out.println("Retrieval of raw geometries for site "
                     + siteKey + " cwa " + cwa + " took " + (t1 - t0) + " ms.");
@@ -2153,7 +2155,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
 
                 for (DomainXML domain : domains) {
                     for (Entry<Long, ?> entry : getMap(dataKey,
-                            domain.getCwa(), "ALL").entrySet()) {
+                            domain.getCwa(), FFMPRecord.ALL).entrySet()) {
                         FFMPBasinMetaData downBasin = (FFMPBasinMetaData) entry
                                 .getValue();
 
@@ -2221,7 +2223,7 @@ if(isCountyRow(huc, rowName)) return getVgbLookupIdsByCounty(dataKey, pfaf, huc,
 
         for (DomainXML domain : domains) {
 
-            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), "ALL");
+            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), FFMPRecord.ALL);
 
             for (Long key : pfafs) {
                 if (map.containsKey(key)) {

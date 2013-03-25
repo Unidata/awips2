@@ -9,8 +9,8 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 
 /**
  * Bandwidth Manager utility methods.
@@ -25,6 +25,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
  *                                     use availability delay to determine which starting hours to schedule.
  * Nov 09, 2012 1286       djohnson    Separate DAO utility methods from general utility.
  * Dec 11, 2012 1403       djohnson    No longer valid to run without bandwidth management.
+ * Feb 14, 2013 1595       djohnson    Use subscription rescheduling strategy.
  * 
  * </pre>
  * 
@@ -35,7 +36,7 @@ public class BandwidthUtil {
     public static final long BYTES_PER_KILOBYTE = 1024;
 
     public static final long DEFAULT_IDENTIFIER = -1L;
-    
+
     public static final int[] MONTHS_OF_YEAR = { Calendar.JANUARY,
             Calendar.FEBRUARY, Calendar.MARCH, Calendar.APRIL, Calendar.MAY,
             Calendar.JUNE, Calendar.JULY, Calendar.AUGUST, Calendar.SEPTEMBER,
@@ -50,6 +51,8 @@ public class BandwidthUtil {
     private IDataSetAvailablityCalculator dataSetAvailabilityCalculator;
 
     private ISubscriptionLatencyCalculator subscriptionLatencyCalculator;
+
+    private ISubscriptionRescheduleStrategy subscriptionRescheduleStrategy;
 
     private BandwidthUtil() {
     };
@@ -152,6 +155,15 @@ public class BandwidthUtil {
     }
 
     /**
+     * @param subscriptionRescheduleStrategy
+     *            the subscriptionRescheduleStrategy to set
+     */
+    public void setSubscriptionRescheduleStrategy(
+            ISubscriptionRescheduleStrategy subscriptionRescheduleStrategy) {
+        this.subscriptionRescheduleStrategy = subscriptionRescheduleStrategy;
+    }
+
+    /**
      * @return the instance
      */
     public static BandwidthUtil getInstance() {
@@ -179,21 +191,21 @@ public class BandwidthUtil {
     }
 
     /**
-     * Create a new {@link SubscriptionDao} Object based on the
+     * Create a new {@link BandwidthSubscription} Object based on the
      * {@link Subscription} and {@link Calendar} Objects provided.
      * 
      * @param subscription
      *            the subscription
      * @param baseReferenceTime
      *            the base reference time
-     * @return the {@link SubscriptionDao}
+     * @return the {@link BandwidthSubscription}
      * @throws SerializationException
      *             on error serializing the subscription
      */
-    public static SubscriptionDao getSubscriptionDaoForSubscription(
+    public static BandwidthSubscription getSubscriptionDaoForSubscription(
             Subscription subscription, Calendar baseReferenceTime)
             throws SerializationException {
-        SubscriptionDao dao = new SubscriptionDao();
+        BandwidthSubscription dao = new BandwidthSubscription();
 
         dao.setDataSetName(subscription.getDataSetName());
         dao.setProvider(subscription.getProvider());
@@ -213,16 +225,16 @@ public class BandwidthUtil {
     }
 
     /**
-     * Create a new {@link DataSetMetaDataDao} Object based on the
+     * Create a new {@link BandwidthDataSetUpdate} Object based on the
      * {@link DataSetMetaData} Object provided.
      * 
      * @param dataSetMetaData
      *            the metadata
      * @return the dao
      */
-    public static DataSetMetaDataDao newDataSetMetaDataDao(
+    public static BandwidthDataSetUpdate newDataSetMetaDataDao(
             DataSetMetaData dataSetMetaData) {
-        DataSetMetaDataDao dao = new DataSetMetaDataDao();
+        BandwidthDataSetUpdate dao = new BandwidthDataSetUpdate();
         // Set the fields we need to have..
         dao.setDataSetName(dataSetMetaData.getDataSetName());
         dao.setProviderName(dataSetMetaData.getProviderName());
@@ -276,5 +288,20 @@ public class BandwidthUtil {
      */
     public static long convertBytesToKilobytes(long bytes) {
         return bytes / BandwidthUtil.BYTES_PER_KILOBYTE;
+    }
+
+    /**
+     * Check whether a subscription should be rescheduled on an update.
+     * 
+     * @param subscription
+     *            the subscription
+     * @param old
+     *            the old version
+     * @return true if the subscription should be rescheduled
+     */
+    public static boolean subscriptionRequiresReschedule(
+            Subscription subscription, Subscription old) {
+        return instance.subscriptionRescheduleStrategy
+                .subscriptionRequiresReschedule(subscription, old);
     }
 }

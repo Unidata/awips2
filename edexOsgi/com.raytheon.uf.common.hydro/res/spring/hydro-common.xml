@@ -6,7 +6,6 @@
 	
 	<bean factory-bean="dataAccessRegistry" factory-method="register">
 		<constructor-arg value="ihfsData"/>
-		<constructor-arg value="com.raytheon.uf.common.dataaccess.geom.IGeometryRequest"/>
 		<constructor-arg ref="hydroDataFactory"/>
 	</bean>	
 	

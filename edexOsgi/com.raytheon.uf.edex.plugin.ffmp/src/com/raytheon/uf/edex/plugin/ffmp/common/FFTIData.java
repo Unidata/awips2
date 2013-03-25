@@ -1,10 +1,5 @@
 package com.raytheon.uf.edex.plugin.ffmp.common;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -38,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * July 16, 2012            dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky   Added constants, last update time
  * 
  * </pre>
  * 
@@ -45,30 +41,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFTIData implements ISerializableObject {
 
     @DynamicSerializeElement
-    @XmlElement
     private Double gap = 0.0;
 
     @DynamicSerializeElement
-    @XmlElement
     private Double duration = 0.0;
 
     @DynamicSerializeElement
-    @XmlElement
     private String name = null;
 
     @DynamicSerializeElement
-    @XmlElement
     private String unit = null;
 
     @DynamicSerializeElement
-    @XmlElement
     private boolean reset = true;
+    
+    @DynamicSerializeElement
+    private long lastUpdate = 0l;
 
     /**
      * @param name
@@ -122,6 +114,14 @@ public class FFTIData implements ISerializableObject {
 
     public void setReset(boolean reset) {
         this.reset = reset;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
     }
 
 }
