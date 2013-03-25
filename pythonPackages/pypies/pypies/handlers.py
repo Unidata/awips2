@@ -29,7 +29,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    08/17/10                      njensen       Initial Creation.
-#    
+#    01/11/13                      bkowal        Pypies will now read the hdf5 root from configuration
+#    01/17/13        1490          bkowal        Relocated the configuration of pypies
 # 
 #
 
@@ -43,6 +44,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.response import *
 
 logger = pypies.logger
 timeMap = pypies.timeMap
+hdf5Dir = pypies.hdf5Dir
 
 from pypies.impl import H5pyDataStore
 datastore = H5pyDataStore.H5pyDataStore()
@@ -58,7 +60,7 @@ datastoreMap = {
     CreateDatasetRequest: (datastore.createDataset, "CreateDatasetRequest"),
     RepackRequest: (datastore.repack, "RepackRequest"),
     CopyRequest: (datastore.copy, "CopyRequest")           
-}       
+}
 
 @Request.application
 def pypies_response(request):
@@ -74,6 +76,9 @@ def pypies_response(request):
             resp.setError(msg)            
             return __prepareResponse(resp)
         timeMap['deserialize']=time.time()-startTime
+        # add the hdf5 directory path to the file name
+        filename = hdf5Dir + obj.getFilename()
+        obj.setFilename(filename)
             
         clz = obj.__class__
         if logger.isEnabledFor(logging.DEBUG):

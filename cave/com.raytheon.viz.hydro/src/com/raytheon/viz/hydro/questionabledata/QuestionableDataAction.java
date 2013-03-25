@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 02/07/2013   1578        rferrel     Changes for non-blocking questionableDlg.
  * 
  * </pre>
  * 
@@ -46,15 +47,25 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class QuestionableDataAction extends AbstractHandler {
+    private QuestionableBadDataDlg questionableDlg;
 
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-	    QuestionableBadDataDlg questionableDlg = new QuestionableBadDataDlg(shell);
-	    questionableDlg.open();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (questionableDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            questionableDlg = new QuestionableBadDataDlg(shell);
+        }
+        questionableDlg.open();
 
-		return null;
-	}
+        return null;
+    }
 
 }

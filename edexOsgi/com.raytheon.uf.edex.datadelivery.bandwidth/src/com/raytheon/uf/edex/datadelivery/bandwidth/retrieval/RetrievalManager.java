@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -16,7 +17,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * 
@@ -31,6 +31,8 @@ import com.raytheon.uf.edex.event.EventBus;
  * Oct 11, 2012 0726       djohnson     Add SW history, check for bandwidth enabled,
  *                                      change the event listener type.
  * Oct 26, 2012 1286       djohnson     Return list of unscheduled allocations.
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 14, 2013 1596       djohnson     Warn log when unable to find a SubscriptionRetrieval.
  * 
  * </pre>
  * 
@@ -59,7 +61,7 @@ public class RetrievalManager {
         this.bandwidthDao = bandwidthDao;
         this.notifier = notifier;
 
-        EventBus.getInstance().register(this);
+        EventBus.register(this);
     }
 
     public Map<Network, RetrievalPlan> getRetrievalPlans() {
@@ -98,12 +100,12 @@ public class RetrievalManager {
                                     + bandwidthAllocation.getIdentifier()
                                     + "].  The BandwidthAllocation will be deferred.");
                     bandwidthAllocation.setStatus(RetrievalStatus.DEFERRED);
-                    bandwidthDao.update(bandwidthAllocation);
+                    bandwidthDao.createOrUpdate(bandwidthAllocation);
                 } else {
 
                     synchronized (plan) {
                         unscheduled.addAll(plan.schedule(bandwidthAllocation));
-                        bandwidthDao.update(bandwidthAllocation);
+                        bandwidthDao.createOrUpdate(bandwidthAllocation);
                     }
                 }
             } else {
@@ -115,7 +117,7 @@ public class RetrievalManager {
         // Update any unscheduled allocations
         for (BandwidthAllocation allocation : unscheduled) {
             allocation.setStatus(RetrievalStatus.UNSCHEDULED);
-            bandwidthDao.update(allocation);
+            bandwidthDao.createOrUpdate(allocation);
         }
 
         return unscheduled;
@@ -135,6 +137,12 @@ public class RetrievalManager {
         SubscriptionRetrieval subscriptionRetrieval = bandwidthDao
                 .getSubscriptionRetrieval(eventId);
 
+        if (subscriptionRetrieval == null) {
+            statusHandler.warn("Unable to find SubscriptionRetrieval by id ["
+                    + eventId + "]");
+            return;
+        }
+
         // Update the SubscriptionRetrieval in the database since the Retrievals
         // were completed outside the Bandwidth subsystem.
         subscriptionRetrieval.setStatus(RetrievalStatus.FULFILLED);
@@ -149,7 +157,7 @@ public class RetrievalManager {
         // fulfilled.
         List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
                 .querySubscriptionRetrievals(subscriptionRetrieval
-                        .getSubscriptionDao().getId());
+                        .getBandwidthSubscription().getId());
 
         boolean completed = true;
         // If there is more than one check them all..
@@ -207,7 +215,7 @@ public class RetrievalManager {
      * Shutdown the retrieval manager.
      */
     public void shutdown() {
-        EventBus.getInstance().unregister(this);
+        EventBus.unregister(this);
         // From this point forward, only return a poison pill for this retrieval
         // manager, which will cause threads attempting to receive bandwidth
         // allocations to die

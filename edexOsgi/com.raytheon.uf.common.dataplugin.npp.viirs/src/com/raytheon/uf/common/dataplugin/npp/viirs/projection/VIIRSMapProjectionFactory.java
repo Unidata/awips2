@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.viirs.projection;
 
-import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
@@ -50,7 +49,8 @@ public class VIIRSMapProjectionFactory {
     /** Using single factory is faster due to internal caching */
     private static DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
 
-    public static ProjectedCRS construct(VIIRSSpatialCoverage record)
+    public static synchronized ProjectedCRS construct(
+            VIIRSSpatialCoverage record)
             throws FactoryException {
         try {
             ParameterValueGroup group = dmtFactory

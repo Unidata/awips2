@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.viz.d2d.gfe.rsc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
@@ -36,7 +38,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.d2d.gfe.GFEUtil;
+import com.raytheon.uf.viz.core.style.level.Level;
+import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.grid.rsc.general.AbstractGridResource;
 import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
@@ -90,15 +93,15 @@ public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
         }
         try {
             gfeRecord
-                    .setGridInfo(GFEUtil.getGridParmInfo(gfeRecord.getParmId()));
-        } catch (VizException e) {
+                    .setGridInfo(GFEDataAccessUtil.getGridParmInfo(gfeRecord.getParmId()));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public ParamLevelMatchCriteria getMatchCriteria() {
-        return GFEUtil.getMatchCriteria(parmId);
+        return getMatchCriteria(parmId);
     }
 
     @Override
@@ -108,7 +111,12 @@ public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
             return null;
         }
         GFERecord gfeRecord = (GFERecord) pdos.get(0);
-        IGridSlice slice = GFEUtil.getSlice(gfeRecord);
+        IGridSlice slice = null;
+        try {
+            slice = GFEDataAccessUtil.getSlice(gfeRecord);
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
         populateGridParmInfo(gfeRecord);
         GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gfeRecord
                 .getGridInfo().getGridLoc());
@@ -160,4 +168,23 @@ public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
                 parmName, displayTypeString, unitLabel);
     }
 
+    public static ParamLevelMatchCriteria getMatchCriteria(ParmID parmId) {
+        ParamLevelMatchCriteria criteria = new ParamLevelMatchCriteria();
+        criteria.setParameterName(new ArrayList<String>());
+        criteria.setLevels(new ArrayList<Level>());
+        criteria.setCreatingEntityNames(new ArrayList<String>());
+        String parameter = "GFE:" + parmId.getParmName();
+        SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
+        String model = "GFE:" + parmId.getDbId().getModelName();
+        if (!criteria.getParameterNames().contains(parameter)) {
+            criteria.getParameterNames().add(parameter);
+        }
+        if (!criteria.getLevels().contains(level)) {
+            criteria.getLevels().add(level);
+        }
+        if (!criteria.getCreatingEntityNames().contains(model)) {
+            criteria.getCreatingEntityNames().add(model);
+        }
+        return criteria;
+    }
 }

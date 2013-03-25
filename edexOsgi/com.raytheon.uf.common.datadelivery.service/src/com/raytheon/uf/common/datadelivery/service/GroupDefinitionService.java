@@ -19,10 +19,11 @@
  **/
 package com.raytheon.uf.common.datadelivery.service;
 
+import java.rmi.RemoteException;
+
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest.Type;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
 /**
  * Base implementation of {@link IGroupDefinitionService}.
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
+ * Feb 26, 2013 1643       djohnson     Extend server request class.
  * 
  * </pre>
  * 
@@ -42,34 +44,22 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  */
 
 public class GroupDefinitionService extends
-        BaseDataDeliveryService<GroupDefinitionServiceRequest> implements
-        IGroupDefinitionService {
+        BasePrivilegedDataDeliveryService<GroupDefinitionServiceRequest>
+        implements IGroupDefinitionService {
 
     /**
      * {@inheritDoc}
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     @Override
     public void deleteGroupDefinition(GroupDefinition group)
-            throws RegistryHandlerException {
+            throws RemoteException {
         GroupDefinitionServiceRequest request = new GroupDefinitionServiceRequest();
         request.setGroup(group);
         request.setType(Type.DELETE);
 
         sendRequest(request);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Object sendRequest(GroupDefinitionServiceRequest request)
-            throws RegistryHandlerException {
-        try {
-            return super.sendRequest(request);
-        } catch (Exception e) {
-            throw new RegistryHandlerException(e);
-        }
     }
 
 }
