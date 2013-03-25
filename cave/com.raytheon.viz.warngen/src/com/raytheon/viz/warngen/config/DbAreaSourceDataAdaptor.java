@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2012 #15425     Qinglu Lin   Updated createClosestPoint().
  * Feb 13, 2012  1605      jsanchez     Calculated the point based on lat,lon values.
+ * Mar 25, 2013  1810      jsanchez     Allowed other values to be accepted as a true value for useDirs.
  * 
  * </pre>
  * 
@@ -156,8 +157,10 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
             Map<String, Object> attributes, Geometry geom) {
         List<String> partOfArea = null;
 
-        boolean userDirections = Boolean.valueOf(String.valueOf(attributes
-                .get(useDirectionField)));
+        String userDir = String.valueOf(attributes.get(useDirectionField))
+                .toLowerCase();
+        boolean userDirections = Boolean.valueOf(userDir)
+                || userDir.equals("t") || userDir.equals("1");
         if (userDirections) {
             PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
