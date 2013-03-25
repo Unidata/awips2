@@ -24,12 +24,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -102,7 +103,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Table(name = "RegistryObject")
+@Table(schema = "ebxml", name = "RegistryObject")
 public class RegistryObjectType extends IdentifiableType {
     @XmlElement(name = "Name")
     @DynamicSerializeElement
@@ -116,8 +117,7 @@ public class RegistryObjectType extends IdentifiableType {
 
     @XmlElement(name = "VersionInfo")
     @DynamicSerializeElement
-    @Cascade(value = { org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Embedded
     protected VersionInfoType versionInfo;
 
     @XmlElement(name = "Classification")
@@ -125,6 +125,7 @@ public class RegistryObjectType extends IdentifiableType {
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DETACH })
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(schema = "ebxml")
     protected Set<ClassificationType> classification;
 
     @XmlElement(name = "ExternalIdentifier")
@@ -132,6 +133,7 @@ public class RegistryObjectType extends IdentifiableType {
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DETACH })
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(schema = "ebxml")
     protected Set<ExternalIdentifierType> externalIdentifier;
 
     @XmlElement(name = "ExternalLink")
@@ -139,6 +141,7 @@ public class RegistryObjectType extends IdentifiableType {
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DETACH })
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(schema = "ebxml")
     protected Set<ExternalLinkType> externalLink;
 
     @XmlAttribute
