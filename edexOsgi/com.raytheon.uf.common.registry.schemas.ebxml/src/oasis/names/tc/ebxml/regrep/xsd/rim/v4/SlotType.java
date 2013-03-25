@@ -28,6 +28,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -85,13 +86,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 // referencedColumnName = "key"), inverseJoinColumns = @JoinColumn(name =
 // "child_slot_key", referencedColumnName = "key")))
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-@Table(name = "Slot")
+@Table(schema = "ebxml", name = "Slot")
 public class SlotType extends ExtensibleObjectType implements Serializable {
 
     private static final long serialVersionUID = -2184582316481503043L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "ExtensibleObjectTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Slot_sequence")
+    @GeneratedValue(generator = "ExtensibleObjectTypeGenerator")
     @XmlTransient
     private Integer key;
 

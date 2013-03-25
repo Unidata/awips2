@@ -17,6 +17,7 @@ Bundle-ClassPath: antlr-2.7.6.jar,
  spring-jms.jar,
  spring-orm.jar,
  spring-tx.jar,
+ spring-web.jar,
  .
 Export-Package: org.aopalliance.aop,
  org.aopalliance.intercept,
@@ -212,5 +213,13 @@ Export-Package: org.aopalliance.aop,
  org.springframework.util.comparator,
  org.springframework.util.xml,
  org.springframework.validation,
- org.springframework.validation.support
+ org.springframework.validation.support,
+ org.springframework.web,
+ org.springframework.web.context,
+ org.springframework.web.context.request,
+ org.springframework.web.context.support,
+ org.springframework.web.filter,
+ org.springframework.web.jsf,
+ org.springframework.web.jsf.el,
+ org.springframework.web.util
 Require-Bundle: org.apache.commons.logging;bundle-version="1.1.1"
