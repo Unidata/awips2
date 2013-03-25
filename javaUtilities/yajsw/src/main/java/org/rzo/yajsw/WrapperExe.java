@@ -163,6 +163,10 @@ public class WrapperExe
 	public static void main(String[] args)
 	{
 		/*
+		 * bkowal
+		 * Suppress extraneous output.
+		 */
+		/*
 		System.out.println("YAJSW: "+YajswVersion.YAJSW_VERSION);
 		System.out.println("OS   : "+YajswVersion.OS_VERSION);
 		System.out.println("JVM  : "+YajswVersion.JAVA_VERSION);
