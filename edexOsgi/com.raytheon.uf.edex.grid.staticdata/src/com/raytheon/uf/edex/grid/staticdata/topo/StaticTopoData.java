@@ -66,7 +66,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.RunProcess;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -84,6 +83,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/19/2011   10955       rferrel     Use RunProcess
  * 04/18/2012   DR 14694    D. Friedman Fixes for static topography generation
  * 05/09/2012   DR 14939    D. Friedman Fix errors in DR 14694
+ * 01/14/2013   1469        bkowal      Removed the hdf5 data directory
+ * 02/12/2013   #1608       randerso    Changed to call deleteDatasets
  * 
  * </pre>
  * 
@@ -116,9 +117,7 @@ public class StaticTopoData {
     private static final String DAT_GZ_SUFFIX = ".dat.gz";
 
     /** The base directory in which the topo files reside */
-    private static final String FILE_PREFIX = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("HDF5DIR")
-            + "/topo/";
+    private static final String FILE_PREFIX = "topo/";
 
     /** The file containing the complete static topo data sets */
     private static final File topoFile = new File(FILE_PREFIX + "staticTopo.h5");
@@ -179,8 +178,10 @@ public class StaticTopoData {
             try {
                 if (!topoFileExists()) {
                     // TODO: This will fail in a clustered server environment
-                    // since
-                    // static topo isn't installed to dx3/4
+                    // since static topo isn't installed to dx3/4
+                    // UPDATE: this doesn't even work in a standalone
+                    // environment now because it can't find the gzipped source
+                    // files since FILE_PREFIX was changed
                     statusHandler.handle(Priority.INFO,
                             "Static Topo file not found. Creating it...");
 
@@ -346,9 +347,7 @@ public class StaticTopoData {
         sTopoDataStore.addDataRecord(attributeSet, sp);
         sTopoDataStore.addDataRecord(westRecord, sp);
         sTopoDataStore.store();
-        sTopoDataStore.delete("pac");
-        sTopoDataStore.delete("attrpac");
-
+        sTopoDataStore.deleteDatasets("pac", "attrpac");
     }
 
     /**
@@ -538,8 +537,7 @@ public class StaticTopoData {
 
         for (TiledTopoSource source : topoSources) {
             statusHandler.handle(Priority.INFO, "Extracting topo data from "
-                    +
-                     source.getDataset());
+                    + source.getDataset());
             GridReprojection reprojection = new GridReprojection(
                     source.getGridGeometry(), inGeom);
             GridSampler sampler = new GridSampler(source, interp);
@@ -576,12 +574,13 @@ public class StaticTopoData {
 
         for (int i = 0; i < finalData.length; i++) {
             float v = finalData[i];
-            if (Float.isNaN(v))
+            if (Float.isNaN(v)) {
                 finalData[i] = TOPO_FILL;
-            else if (v == DATA_FILL || (v > -0.5 && v < 0.5))
+            } else if (v == DATA_FILL || (v > -0.5 && v < 0.5)) {
                 finalData[i] = 0.0f;
-            else
+            } else {
                 finalData[i] = v;
+            }
         }
         return finalData;
 

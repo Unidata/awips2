@@ -22,6 +22,7 @@ package com.raytheon.uf.common.dataaccess;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * A generic request for geospatial data to the Data Access Framework. All
@@ -34,6 +35,8 @@ import com.raytheon.uf.common.dataplugin.level.Level;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -41,7 +44,7 @@ import com.raytheon.uf.common.dataplugin.level.Level;
  * @version 1.0
  */
 
-public interface IDataRequest<D extends IData> {
+public interface IDataRequest {
 
     /**
      * The datatype of the data, usually the pluginName. This value will be used
@@ -83,11 +86,35 @@ public interface IDataRequest<D extends IData> {
     public void setLevels(Level... levels);
 
     /**
+     * Sets a list of location names to limit what is returned. Each datatype
+     * may have its own mapping of what a location is (e.g. ICAO vs stationId vs
+     * radar name, etc). Possible location names can be retrieved by using the
+     * method getAvailableLocationNames(IGeometryRequest) on the DataAccessLayer
+     * or IGeometryDataFactory. Note that not all factories may support requests
+     * by location names and instead may throw a IncompatibleRequestException or
+     * ignore the location names.
+     * 
+     * @param locationNames
+     */
+    public void setLocationNames(String... locationNames);
+
+    /**
      * Returns the datatype set on the request.
      * 
      * @return the datatype of the request
      */
     public String getDatatype();
+
+    /**
+     * Sets a bounding box on the request to limit the area of the request. The
+     * envelope coordinates should be in Lat/Lon space. Note that not all
+     * factories may support the envelope and instead may throw an
+     * IncompatibleRequestException or ignore the envelope.
+     * 
+     * @param env
+     *            the envelope to constrain the request
+     */
+    public void setEnvelope(Envelope env);
 
     /**
      * Returns the identifiers added to the request.
@@ -109,5 +136,19 @@ public interface IDataRequest<D extends IData> {
      * @return the levels of the request
      */
     public Level[] getLevels();
+
+    /**
+     * Returns the location names set on the request.
+     * 
+     * @return
+     */
+    public String[] getLocationNames();
+
+    /**
+     * Returns the envelope set on the request.
+     * 
+     * @return the envelope set on the request
+     */
+    public Envelope getEnvelope();
 
 }

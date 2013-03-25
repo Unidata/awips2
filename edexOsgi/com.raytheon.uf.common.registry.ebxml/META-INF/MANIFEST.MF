@@ -22,3 +22,4 @@ Require-Bundle: org.apache.commons.codec;bundle-version="1.4.0",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
  org.apache.http;bundle-version="4.1.2"
+Import-Package: com.vividsolutions.jts.geom

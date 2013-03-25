@@ -47,6 +47,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Jan 17, 2013 1357       mpduff      Change MILLIS_PER_MONTH to MILLIS_PER_30_DAYS
  * Jan 22, 2013 1484       mpduff      Add HOURS_PER_WEEK.
  * Jan 22, 2013 1519       djohnson    Add MINUTES_PER_DAY.
+ * Feb 26, 2013 1597       randerso    Add SECONDS_PER_HOUR.
  * 
  * </pre>
  * 
@@ -95,6 +96,9 @@ public final class TimeUtil {
     public static final int SECONDS_PER_MINUTE = 60;
 
     public static final int MINUTES_PER_HOUR = 60;
+
+    public static final long SECONDS_PER_HOUR = SECONDS_PER_MINUTE
+            * MINUTES_PER_HOUR;
 
     public static final int HOURS_PER_DAY = 24;
 
