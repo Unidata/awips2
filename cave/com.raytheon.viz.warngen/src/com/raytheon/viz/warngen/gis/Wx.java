@@ -105,6 +105,7 @@ import com.vividsolutions.jts.geom.Point;
  *    Jan 31, 2013 1557       jsanchez    Used allowDuplicates flag to collect points with duplicate names.
  *    Feb 12, 2013 1600       jsanchez    Used adjustAngle method from AbstractStormTrackResource.
  *    Mar  5, 2013 1600       jsanchez    Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
+ *    Mar 25, 2013 1605       jsanchez    Checks if a storm location is over an urban bound area.
  * 
  * </pre>
  * 
@@ -722,6 +723,11 @@ public class Wx {
                         latLonToLocal);
 
                 double distance = localDistanceGeom.distance(localPt);
+                // Tests if storm location is over an urban bound area
+                if (cp.prepGeom != null
+                        && cp.prepGeom.intersects(stormLocation)) {
+                    distance = 0;
+                }
                 if (distance <= thresholdInMeters) {
                     if (allowDuplicates) {
                         // collect all points that are within the threshold
