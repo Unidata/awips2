@@ -23,6 +23,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -74,12 +75,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "DeliveryInfoType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "DeliveryInfo")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "DeliveryInfo")
 public class DeliveryInfoType extends ExtensibleObjectType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "DeliveryInfoTypeGenerator", schema = "ebxml", sequenceName = "ebxml.DeliveryInfo_sequence")
+    @GeneratedValue(generator = "DeliveryInfoTypeGenerator")
     @XmlTransient
     private Integer key;
 

@@ -25,6 +25,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -71,12 +73,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlSeeAlso({ StringQueryExpressionType.class, XMLQueryExpressionType.class })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "QueryExpression")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class QueryExpressionType extends ExtensibleObjectType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "QueryExpressionTypeGenerator", schema = "ebxml", sequenceName = "ebxml.QueryExpression_sequence")
+    @GeneratedValue(generator = "QueryExpressionTypeGenerator")
     @XmlTransient
     protected Integer key;
 

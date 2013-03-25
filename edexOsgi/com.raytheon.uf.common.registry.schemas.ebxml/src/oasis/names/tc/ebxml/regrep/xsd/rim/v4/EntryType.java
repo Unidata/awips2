@@ -72,8 +72,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "EntryType", propOrder = { "entryKey", "entryValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "EntryType")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Entry")
 public class EntryType implements Serializable {
 
     private static final long serialVersionUID = -641063902591977048L;

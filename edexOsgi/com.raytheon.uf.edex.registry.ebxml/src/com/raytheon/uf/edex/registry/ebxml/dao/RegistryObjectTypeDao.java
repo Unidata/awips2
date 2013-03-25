@@ -23,17 +23,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalIdentifierType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalLinkType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
@@ -55,43 +54,13 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * @version 1.0
  */
 
-public class RegistryObjectTypeDao extends RegistryDao {
+public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
+        extends IdentifiableTypeDao<ENTITY> {
 
     /**
      * Creates a new RegistryObjectDao
      */
     public RegistryObjectTypeDao() {
-        super(RegistryObjectType.class);
-    }
-
-    /**
-     * Creates a new RegistryObjectDao for the provided class
-     * 
-     * @param <T>
-     *            Class extending RegistryObjectType
-     * @param clazz
-     *            The class for which to create this RegistryObjectTypeDao for
-     */
-    public <T extends RegistryObjectType> RegistryObjectTypeDao(Class<T> clazz) {
-        super(clazz);
-    }
-
-    /**
-     * Queries for all ids of registry objects matching the pattern of the given
-     * id. A query using 'like' will be executed.
-     * 
-     * @param id
-     *            The id containing % or _ denoting wildcard characters
-     * @return List of ids matching the given id pattern
-     * @throws EbxmlRegistryException
-     *             If errors occur during the query
-     */
-    public List<String> getMatchingIds(String id) throws EbxmlRegistryException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(this.daoClass);
-        criteria = criteria.add(Property.forName(QueryConstants.ID).like(id));
-        criteria = criteria.setProjection(Projections
-                .property(QueryConstants.ID));
-        return this.executeCriteriaQuery(criteria);
     }
 
     /**
@@ -106,75 +75,16 @@ public class RegistryObjectTypeDao extends RegistryDao {
      */
     public List<String> getMatchingLids(String lid)
             throws EbxmlRegistryException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(this.daoClass);
+        DetachedCriteria criteria = DetachedCriteria.forClass(this
+                .getEntityClass());
         criteria = criteria.add(Property.forName(QueryConstants.LID).like(lid));
         criteria = criteria.setProjection(Projections
                 .property(QueryConstants.LID));
-        return this.executeCriteriaQuery(criteria);
-    }
-
-    /**
-     * Retrieves all registry objects from the registry
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @return All the registry objects contained in the registry
-     * @throws EbxmlRegistryException
-     *             If the HQL query fails
-     */
-    public <T extends RegistryObjectType> List<T> getAllRegistryObjects()
-            throws EbxmlRegistryException {
-        return executeHQLQuery("from" + RegistryObjectType.class.getName());
-    }
-
-    /**
-     * Retrieves registry objects based on id values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param ids
-     *            The list of ids to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    public <T extends RegistryObjectType> List<T> getById(List<String> ids)
-            throws EbxmlRegistryException {
-        return this.executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                daoClass, QueryConstants.ID, "in", ids));
-    }
-
-    /**
-     * Retrieves registry objects based on id values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param ids
-     *            The array of ids to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    public <T extends RegistryObjectType> List<T> getById(String... ids)
-            throws EbxmlRegistryException {
-        return getById(Arrays.asList(ids));
-    }
-
-    /**
-     * Retrieves the registry object associated with the given id value
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param id
-     *            The ide to get the registry object for
-     * @return The registry object with the given id
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RegistryObjectType> T getById(String id)
-            throws EbxmlRegistryException {
-        return (T) getSingleResult(getById(Arrays.asList(id)));
+        try {
+            return this.executeCriteriaQuery(criteria);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -188,13 +98,17 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByLid(List<String> lids)
+    public List<ENTITY> getByLid(List<String> lids)
             throws EbxmlRegistryException {
         StringBuilder str = new StringBuilder();
-        HqlQueryUtil.assembleSingleParamQuery(str, daoClass,
+        HqlQueryUtil.assembleSingleParamQuery(str, getEntityClass(),
                 QueryConstants.LID, "in", lids);
-        str.append(" order by obj.lid asc,obj.versionInfo.versionNumber desc");
-        return executeHQLQuery(str.toString());
+        str.append(" order by obj.lid asc,obj.versionInfo.versionName desc");
+        try {
+            return executeHQLQuery(str.toString());
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -208,30 +122,11 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByLid(String... lids)
-            throws EbxmlRegistryException {
+    public List<ENTITY> getByLid(String... lids) throws EbxmlRegistryException {
         return getByLid(Arrays.asList(lids));
     }
 
     /**
-     * Retrieves all registry objects assigned the given lid
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param lid
-     *            The lid to query for
-     * @return The list of registry objects containing the given lid
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RegistryObjectType> T getByLid(String lid)
-            throws EbxmlRegistryException {
-        return (T) getSingleResult(getByLid(Arrays.asList(lid)));
-
-    }
-
-    /**
      * Retrieves registry objects based on objectType values
      * 
      * @param <T>
@@ -242,43 +137,15 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByObjectType(
-            List<String> objTypes) throws EbxmlRegistryException {
-        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(daoClass,
-                QueryConstants.OBJECT_TYPE, "in", objTypes));
-    }
-
-    /**
-     * Retrieves registry objects based on objectType values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param objTypes
-     *            The list of objectTypes to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    public <T extends RegistryObjectType> List<T> getByObjectType(
-            String... objTypes) throws EbxmlRegistryException {
-        return getByObjectType(Arrays.asList(objTypes));
-    }
-
-    /**
-     * Retrieves registry objects based on objectType values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param objType
-     *            The objectType to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RegistryObjectType> T getByObjectType(String objType)
+    public List<ENTITY> getByObjectType(List<String> objTypes)
             throws EbxmlRegistryException {
-        return (T) getSingleResult(getByObjectType(Arrays.asList(objType)));
+        try {
+            return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                    getEntityClass(), QueryConstants.OBJECT_TYPE, "in",
+                    objTypes));
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -292,43 +159,14 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByStatus(
-            List<String> status) throws EbxmlRegistryException {
-        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(daoClass,
-                QueryConstants.STATUS, "in", status));
-    }
-
-    /**
-     * Retrieves registry objects based on status values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param status
-     *            The list of statuses to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    public <T extends RegistryObjectType> List<T> getByStatus(String... status)
+    public List<ENTITY> getByStatus(List<String> status)
             throws EbxmlRegistryException {
-        return getByStatus(Arrays.asList(status));
-    }
-
-    /**
-     * Retrieves registry objects based on status values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param status
-     *            The statuse to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RegistryObjectType> T getByStatus(String status)
-            throws EbxmlRegistryException {
-        return (T) getSingleResult(getByStatus(Arrays.asList(status)));
+        try {
+            return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                    getEntityClass(), QueryConstants.STATUS, "in", status));
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -342,10 +180,14 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByOwner(List<String> owner)
+    public List<ENTITY> getByOwner(List<String> owner)
             throws EbxmlRegistryException {
-        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(daoClass,
-                QueryConstants.OWNER, "in", owner));
+        try {
+            return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                    getEntityClass(), QueryConstants.OWNER, "in", owner));
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -359,26 +201,9 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByOwner(String... owner)
+    public List<ENTITY> getByOwner(String... owner)
             throws EbxmlRegistryException {
         return getByOwner(Arrays.asList(owner));
-    }
-
-    /**
-     * Retrieves registry objects based on owner values
-     * 
-     * @param <T>
-     *            A class type extending RegistryObjectType
-     * @param owner
-     *            The owner to query for
-     * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends RegistryObjectType> T getByOwner(String owner)
-            throws EbxmlRegistryException {
-        return (T) getSingleResult(getByOwner(Arrays.asList(owner)));
     }
 
     /**
@@ -392,12 +217,16 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the criteria query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByName(List<String> names)
+    public List<ENTITY> getByName(List<String> names)
             throws EbxmlRegistryException {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.name.localizedString as Strings where Strings.value in ");
         HqlQueryUtil.assembleInClause(str, "Strings.value", names);
-        return this.executeHQLQuery(str.toString());
+        try {
+            return this.executeHQLQuery(str.toString());
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -411,12 +240,16 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the criteria query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByDescription(
-            List<String> descriptions) throws EbxmlRegistryException {
+    public List<ENTITY> getByDescription(List<String> descriptions)
+            throws EbxmlRegistryException {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.description.localizedString as Strings where Strings.value in ");
         HqlQueryUtil.assembleInClause(str, "Strings.value", descriptions);
-        return this.executeHQLQuery(str.toString());
+        try {
+            return this.executeHQLQuery(str.toString());
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -430,13 +263,17 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the criteria query encounters errors
      */
-    public <T extends RegistryObjectType> List<T> getByClassification(
-            List<String> classifications) throws EbxmlRegistryException {
+    public List<ENTITY> getByClassification(List<String> classifications)
+            throws EbxmlRegistryException {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.classification as Classifications where ");
         HqlQueryUtil.assembleInClause(str,
                 "Classifications.classificationNode", classifications);
-        return this.executeHQLQuery(str.toString());
+        try {
+            return this.executeHQLQuery(str.toString());
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -447,47 +284,42 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If the delete fails
      */
+    @SuppressWarnings("unchecked")
     public void deleteByRefs(final List<ObjectRefType> objRefs)
             throws EbxmlRegistryException {
-
+        // TODO: FIX THIS METHOD TO ELIMINATE CASTING OR MOVE IT ELSEWHERE
         try {
-            doInTransaction(new RegistryTransactionCallback() {
-                @Override
-                public Object execute(Session session)
-                        throws EbxmlRegistryException {
-                    List<String> objIds = new ArrayList<String>();
-                    for (ObjectRefType ref : objRefs) {
-                        objIds.add(ref.getId());
+            List<String> objIds = new ArrayList<String>();
+            for (ObjectRefType ref : objRefs) {
+                objIds.add(ref.getId());
+            }
+            List<ENTITY> objs = getById(objIds);
+            for (RegistryObjectType regObj : objs) {
+                if (regObj.getClassification() != null) {
+                    for (RegistryObjectType classification : regObj
+                            .getClassification()) {
+                        delete((ENTITY) classification);
                     }
-                    List<RegistryObjectType> objs = getById(objIds);
-                    for (RegistryObjectType regObj : objs) {
-                        if (regObj.getClassification() != null) {
-                            for (ClassificationType classification : regObj
-                                    .getClassification()) {
-                                delete(classification);
-                            }
-                        }
-                    }
-                    for (RegistryObjectType regObj : objs) {
-                        if (regObj.getExternalIdentifier() != null) {
-                            for (ExternalIdentifierType extId : regObj
-                                    .getExternalIdentifier()) {
-                                delete(extId);
-                            }
-                        }
-                    }
-                    for (RegistryObjectType regObj : objs) {
-                        if (regObj.getExternalLink() != null) {
-                            for (ExternalLinkType extLink : regObj
-                                    .getExternalLink()) {
-                                delete(extLink);
-                            }
-                        }
-                    }
-                    delete(objs);
-                    return null;
                 }
-            });
+            }
+            for (RegistryObjectType regObj : objs) {
+                if (regObj.getExternalIdentifier() != null) {
+                    for (RegistryObjectType extId : regObj
+                            .getExternalIdentifier()) {
+                        delete((ENTITY) extId);
+                    }
+                }
+            }
+            for (RegistryObjectType regObj : objs) {
+                if (regObj.getExternalLink() != null) {
+                    for (RegistryObjectType extLink : regObj.getExternalLink()) {
+                        delete((ENTITY) extLink);
+                    }
+                }
+            }
+            for (ENTITY obj : objs) {
+                delete(obj);
+            }
         } catch (Throwable e) {
             throw new EbxmlRegistryException("Error deleting objects", e);
         }
@@ -504,12 +336,22 @@ public class RegistryObjectTypeDao extends RegistryDao {
      * @return null if the given list is empty, else returns the first element
      *         of the list
      */
-    protected static <T extends RegistryObjectType> T getSingleResult(
-            List<T> result) {
+    protected static RegistryObjectType getSingleResult(
+            List<RegistryObjectType> result) {
         if (result.isEmpty()) {
             return null;
         } else {
             return result.get(0);
         }
+    }
+
+    @Override
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        template = new HibernateTemplate(sessionFactory);
+    }
+
+    @Override
+    public ENTITY getById(String id) {
+        return super.getById(id);
     }
 }
