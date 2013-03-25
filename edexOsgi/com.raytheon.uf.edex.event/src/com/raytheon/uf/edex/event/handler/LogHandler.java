@@ -1,5 +1,7 @@
 package com.raytheon.uf.edex.event.handler;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -21,6 +23,7 @@ import com.raytheon.uf.common.event.EventBus;
  * Mar 1, 2012            jsanchez     Initial creation
  * Nov 5, 2012  #1305     bgonzale     Added log level Event logging.
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
+ * 3/13/2013              bphillip     Modified to make event bus registration a post construct operation
  * 
  * </pre>
  * 
@@ -35,8 +38,12 @@ public class LogHandler {
      * Creates a new object
      */
     public LogHandler() {
-        EventBus.register(this);
         logger = LogFactory.getLog("Event");
+    }
+
+    @PostConstruct
+    public void registerWithEventBus() {
+        EventBus.register(this);
     }
 
     /**

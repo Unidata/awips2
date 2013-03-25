@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "PersonName")
+@Table(schema = "ebxml", name = "PersonName")
 public class PersonNameType extends ExtensibleObjectType implements
         Serializable {
 

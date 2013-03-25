@@ -28,7 +28,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
@@ -69,6 +71,8 @@ public class GetAuditTrailByTimeInterval extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.START_TIME);
     }
 
+    private AuditableEventTypeDao auditableEventDao;
+
     @SuppressWarnings("unchecked")
     @Override
     protected List<AuditableEventType> query(QueryType queryType,
@@ -91,12 +95,14 @@ public class GetAuditTrailByTimeInterval extends CanonicalEbxmlQuery {
                     + QueryConstants.START_TIME + "]");
         }
 
-        RegistryObjectTypeDao auditDao = new RegistryObjectTypeDao(
-                AuditableEventType.class);
-
         String query = "select obj from AuditableEventType obj where obj.timestamp >='"
                 + startTime + "' and obj.timestamp <='" + endTime + "'";
-        return auditDao.executeHQLQuery(query);
+        try {
+            return auditableEventDao.executeHQLQuery(query);
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException(
+                    "Error executing GetAuditTrailByTime", e);
+        }
     }
 
     @Override
@@ -108,4 +114,9 @@ public class GetAuditTrailByTimeInterval extends CanonicalEbxmlQuery {
     public String getQueryDefinition() {
         return QUERY_DEFINITION;
     }
+
+    public void setAuditableEventDao(AuditableEventTypeDao auditableEventDao) {
+        this.auditableEventDao = auditableEventDao;
+    }
+
 }

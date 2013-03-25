@@ -1,8 +1,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<bean id="ebxmlRegistryWebServer" class="org.eclipse.jetty.server.Server"
 		init-method="start" destroy-method="stop">
@@ -21,7 +22,8 @@
 					<property name="port" value="${EBXML_REGISTRY_WEBSERVER_PORT}" />
 					<property name="maxIdleTime" value="30000" />
 					<property name="acceptors" value="2" />
-					<property name="confidentialPort" value="${EBXML_REGISTRY_WEBSERVER_CONFIDENTIAL_PORT}" />
+					<property name="confidentialPort"
+						value="${EBXML_REGISTRY_WEBSERVER_CONFIDENTIAL_PORT}" />
 				</bean>
 			</list>
 		</property>
@@ -48,5 +50,18 @@
 				</property>
 			</bean>
 		</property>
+	</bean>
+
+	<bean id="RegistryWebUtil" class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebUtil">
+		<property name="lcm" ref="lcmServiceImpl" />
+	</bean>
+
+	<bean id="RegistryWebAdmin"
+		class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebAdmin">
+		<property name="partyDao" ref="partyDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="organizationDao" ref="organizationDao" />
+		<property name="personDao" ref="personDao" />
+		<property name="roleDao" ref="roleDao" />
 	</bean>
 </beans>  

@@ -30,6 +30,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
@@ -50,6 +51,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012 #363       bphillip     Initial creation
  * 8/3/2012     724        bphillip    Modified to use predefined constants
+ * 3/18/2013    1802        bphillip    Modified to use transaction boundaries and spring injection
  * 
  * </pre>
  * 
@@ -59,7 +61,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 public class AuditTrailManager {
 
     /** The data access object used for manipulating registry objects */
-    private RegistryObjectTypeDao dao;
+    private RegistryObjectTypeDao<RegistryObjectType> dao;
 
     /**
      * Creates an audit trail entry from a RegistryResponseType
@@ -166,8 +168,8 @@ public class AuditTrailManager {
         }
         event.setUser("Client");
         event.setStatus(StatusTypes.APPROVED);
-        event.setVersionInfo(EbxmlObjectUtil.newVersionObject());
-        dao.save(event);
+        event.setVersionInfo(new VersionInfoType());
+        dao.create(event);
     }
 
     /**
@@ -176,7 +178,7 @@ public class AuditTrailManager {
      * @param dao
      *            The data access object to set
      */
-    public void setDao(RegistryObjectTypeDao dao) {
+    public void setDao(RegistryObjectTypeDao<RegistryObjectType> dao) {
         this.dao = dao;
     }
 
