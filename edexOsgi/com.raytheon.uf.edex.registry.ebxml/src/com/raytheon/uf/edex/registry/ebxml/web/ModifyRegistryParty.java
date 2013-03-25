@@ -28,14 +28,15 @@ import javax.servlet.http.HttpServletResponse;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PartyType;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.PartyDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
-import com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager;
+import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 
 /**
  * 
@@ -48,12 +49,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/31/2012    #724       bphillip     Initial creation
+ * 3/13/2013    1082       bphillip     Made transactional
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+@Transactional
 public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
         implements javax.servlet.Servlet {
 
@@ -66,11 +69,20 @@ public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
     /** Page to display upon failure */
     private static final String ERROR_RESPONSE_PAGE = "modifyPartyFailure";
 
+    // FIXME: Add spring support to servlets
+
+    private PartyDao partyDao = (PartyDao) EDEXUtil.getESBComponent("partyDao");
+
+    private LifecycleManagerImpl lcm = (LifecycleManagerImpl) EDEXUtil
+            .getESBComponent("lcmServiceImpl");
+
+    private RegistryWebUtil webUtil = (RegistryWebUtil) EDEXUtil
+            .getESBComponent("webUtil");
+
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ModifyRegistryParty.class);
 
-    @SuppressWarnings("rawtypes")
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -79,13 +91,11 @@ public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
             String partyId = request.getParameter(WebFields.ID.fieldName());
             String objectType = request.getParameter(WebFields.OBJ_TYPE
                     .fieldName());
-            RegistryObjectTypeDao dao = new RegistryObjectTypeDao(
-                    PartyType.class);
             PartyType existingParty = null;
 
             // The EDEX internal user cannot be modified
             if (partyId.equals(RegistryUtil.DEFAULT_OWNER)) {
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Cannot modify EDEX Internal User");
             }
@@ -95,15 +105,10 @@ public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
              * the party cannot be modified. An error response is sent to the
              * requester
              */
-            try {
-                existingParty = dao.getById(partyId);
-            } catch (EbxmlRegistryException e) {
-                RegistryWebUtil.sendErrorResponse(request, response,
-                        ERROR_RESPONSE_PAGE, partyId, objectType,
-                        e.getLocalizedMessage());
-            }
+            existingParty = partyDao.getById(partyId);
+
             if (existingParty == null) {
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Unable to modify " + objectType + " " + partyId + ". "
                                 + objectType + " does not exist");
@@ -114,10 +119,10 @@ public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
              */
             SubmitObjectsRequest submitRequest = null;
             try {
-                submitRequest = RegistryWebUtil.createParty(request);
+                submitRequest = webUtil.createParty(request);
             } catch (EbxmlRegistryException e) {
                 statusHandler.error("Error modifying user", e);
-                RegistryWebUtil.sendErrorResponse(
+                webUtil.sendErrorResponse(
                         request,
                         response,
                         ERROR_RESPONSE_PAGE,
@@ -130,27 +135,21 @@ public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
             /*
              * Remove any associations originating from the modified party
              */
-            RegistrySessionManager.openSession();
             try {
-                RegistryWebUtil.removeAssociationsFrom(existingParty);
-                ((EDEXRegistryManager) EDEXUtil
-                        .getESBComponent("edexRegistryManager"))
-                        .getLifeCycleManager().submitObjects(submitRequest);
-                RegistryWebUtil.updatePC(request);
+                webUtil.removeAssociationsFrom(existingParty);
+                lcm.submitObjects(submitRequest);
+                webUtil.updatePC(request);
             } catch (Exception e) {
                 statusHandler.error("Error modifying user", e);
-                RegistryWebUtil.sendErrorResponse(request, response,
+                webUtil.sendErrorResponse(request, response,
                         ERROR_RESPONSE_PAGE, partyId, objectType,
                         "Error removing associations to " + objectType + "\n"
                                 + e.getLocalizedMessage());
-            } finally {
-                RegistrySessionManager.closeSession();
             }
-
             /*
              * Send back success message to the requester
              */
-            RegistryWebUtil.sendSuccessResponse(request, response,
+            webUtil.sendSuccessResponse(request, response,
                     SUCCESS_RESPONSE_PAGE, partyId, objectType);
         } catch (ServletException e) {
             statusHandler.error("Error generating response", e);
@@ -158,4 +157,17 @@ public class ModifyRegistryParty extends javax.servlet.http.HttpServlet
                     "Error generating response: " + e.getLocalizedMessage());
         }
     }
+
+    public void setPartyDao(PartyDao partyDao) {
+        this.partyDao = partyDao;
+    }
+
+    public void setWebUtil(RegistryWebUtil webUtil) {
+        this.webUtil = webUtil;
+    }
+
+    public void setLcm(LifecycleManagerImpl lcm) {
+        this.lcm = lcm;
+    }
+
 }

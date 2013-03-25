@@ -26,6 +26,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonType;
 
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -39,19 +40,21 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class PersonDao extends RegistryObjectTypeDao {
+public class PersonDao extends RegistryObjectTypeDao<PersonType> {
+
+    private AssociationDao associationDao;
 
     /**
      * Creates a new Person data access object
      */
     public PersonDao() {
-        super(PersonType.class);
     }
 
     /**
@@ -69,10 +72,14 @@ public class PersonDao extends RegistryObjectTypeDao {
         if (firstName == null || firstName.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        return this
-                .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
-                        + firstName.toLowerCase()
-                        + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+        try {
+            return this
+                    .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
+                            + firstName.toLowerCase()
+                            + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -90,10 +97,14 @@ public class PersonDao extends RegistryObjectTypeDao {
         if (lastName == null || lastName.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        return this
-                .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.lastName) like '%"
-                        + lastName.toLowerCase()
-                        + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+        try {
+            return this
+                    .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.lastName) like '%"
+                            + lastName.toLowerCase()
+                            + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -111,19 +122,27 @@ public class PersonDao extends RegistryObjectTypeDao {
     public List<PersonType> getByFirstAndLastName(String firstName,
             String lastName) throws EbxmlRegistryException {
         if (firstName.trim().isEmpty() && lastName.trim().isEmpty()) {
-            return this.executeHQLQuery("from PersonType");
+            try {
+                return this.executeHQLQuery("from PersonType");
+            } catch (DataAccessLayerException e) {
+                throw new EbxmlRegistryException("Data Access Error", e);
+            }
         }
         if (firstName == null || firstName.trim().isEmpty()) {
             return getByLastName(lastName);
         } else if (lastName == null || lastName.trim().isEmpty()) {
             return getByFirstName(firstName);
         }
-        return this
-                .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
-                        + firstName.toLowerCase()
-                        + "%' and lower(obj.personName.lastName) like '%"
-                        + lastName.toLowerCase()
-                        + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+        try {
+            return this
+                    .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
+                            + firstName.toLowerCase()
+                            + "%' and lower(obj.personName.lastName) like '%"
+                            + lastName.toLowerCase()
+                            + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -138,13 +157,10 @@ public class PersonDao extends RegistryObjectTypeDao {
     public List<PersonType> getEmployeesOfOrganization(String orgId)
             throws EbxmlRegistryException {
         List<PersonType> employees = new ArrayList<PersonType>();
-        AssociationDao associationDao = new AssociationDao();
-        PersonDao personDao = new PersonDao();
         List<AssociationType> associations = associationDao.getByTargetAndType(
                 orgId, AssociationTypes.EMPLOYEE_OF);
         for (AssociationType association : associations) {
-            employees.add((PersonType) personDao.getById(association
-                    .getSourceObject()));
+            employees.add((PersonType) getById(association.getSourceObject()));
         }
         return employees;
     }
@@ -160,9 +176,13 @@ public class PersonDao extends RegistryObjectTypeDao {
      *             If errors occur during interaction with the database
      */
     public Object getAllUserNames() throws EbxmlRegistryException {
-        return this
-                .executeHQLQuery("select obj.id, obj.personName.firstName, obj.personName.lastName from PersonType obj "
-                        + "order by obj.personName.lastName asc, obj.personName.firstName asc");
+        try {
+            return this
+                    .executeHQLQuery("select obj.id, obj.personName.firstName, obj.personName.lastName from PersonType obj "
+                            + "order by obj.personName.lastName asc, obj.personName.firstName asc");
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Data Access Error", e);
+        }
     }
 
     /**
@@ -188,4 +208,14 @@ public class PersonDao extends RegistryObjectTypeDao {
     public PersonType getByUserId(String userId) throws EbxmlRegistryException {
         return this.getById(userId);
     }
+
+    public void setAssociationDao(AssociationDao associationDao) {
+        this.associationDao = associationDao;
+    }
+
+    @Override
+    protected Class<PersonType> getEntityClass() {
+        return PersonType.class;
+    }
+
 }

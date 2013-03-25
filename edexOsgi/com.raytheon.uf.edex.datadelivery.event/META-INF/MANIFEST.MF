@@ -21,4 +21,6 @@ Require-Bundle: com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.event;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0",
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ org.hibernate;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174"
