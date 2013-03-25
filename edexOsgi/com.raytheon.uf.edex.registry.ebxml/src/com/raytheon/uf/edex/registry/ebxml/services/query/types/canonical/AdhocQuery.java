@@ -31,7 +31,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
@@ -64,13 +67,15 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-
+@Service
+@Transactional
 public class AdhocQuery extends CanonicalEbxmlQuery {
 
     /** The list of valid parameters for this query */
@@ -88,7 +93,6 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
     @Override
     protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
             QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao();
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse, true);
         // The client did not specify the required parameter
@@ -120,23 +124,27 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
         AdhocQueryExpression expression = AdhocQueryExpressionManager
                 .getInstance().getAdhocQueryExpression(queryExpressionSlot);
         Map<String, Object> paramMap = null;
-        if (queryExpressionSlot.equals("SlotQuery")) {
-            queryLanguage = "HQL";
-            paramMap = new HashMap<String, Object>();
-            queryExpression = getSlotQuery(queryType.getSlot(), paramMap);
-            return registryObjectDao.executeHQLQuery(queryExpression, true,
-                    paramMap);
-        } else if (expression == null) {
-            paramMap = getQueryParams(queryType.getSlot());
-            queryExpression = queryExpressionSlot;
-            return filterResults(registryObjectDao.executeHQLQuery(
-                    queryExpression, true, paramMap));
-        } else {
-            queryLanguage = "HQL";
-            paramMap = getQueryParams(queryType.getSlot());
-            queryExpression = expression.getQueryExpression();
-            return filterResults(registryObjectDao.executeHQLQuery(
-                    queryExpression, true, paramMap));
+        try {
+            if (queryExpressionSlot.equals("SlotQuery")) {
+                queryLanguage = "HQL";
+                paramMap = new HashMap<String, Object>();
+                queryExpression = getSlotQuery(queryType.getSlot(), paramMap);
+                return registryObjectDao.executeHQLQuery(queryExpression, true,
+                        paramMap);
+            } else if (expression == null) {
+                paramMap = getQueryParams(queryType.getSlot());
+                queryExpression = queryExpressionSlot;
+                return filterResults(registryObjectDao.executeHQLQuery(
+                        queryExpression, true, paramMap));
+            } else {
+                queryLanguage = "HQL";
+                paramMap = getQueryParams(queryType.getSlot());
+                queryExpression = expression.getQueryExpression();
+                return filterResults(registryObjectDao.executeHQLQuery(
+                        queryExpression, true, paramMap));
+            }
+        } catch (DataAccessLayerException e) {
+            throw new EbxmlRegistryException("Error executing Adhoc Query!", e);
         }
     }
 
