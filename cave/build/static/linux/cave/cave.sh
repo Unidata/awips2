@@ -19,6 +19,9 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
+# Run monitorThreads?
+runMonitorThreads=false
+
 # copy the viz shutdown utility if necessary.
 copyVizShutdownUtilIfNecessary
 
@@ -118,6 +121,7 @@ export pid=$$
 curTime=`date +%Y%m%d_%H%M%S`
 LOGFILE=${LOGDIR}/cave_${curTime}_pid_${pid}_console.log
 export LOGFILE_CAVE=${LOGDIR}/cave_${curTime}_pid_${pid}_alertviz.log
+export LOGFILE_PERFORMANCE=${LOGDIR}/cave_${curTime}_pid_${pid}_perf.log
 
 redirect="TRUE"
 for flag in $@; do
@@ -127,11 +131,9 @@ for flag in $@; do
 	fi
 done
 
-if [ ${redirect} == "TRUE" ]; then
-  # can we write to log directory
-  if [ -w ${LOGDIR} ]; then
-    touch ${LOGFILE}
-  fi
+# can we write to log directory
+if [ -w ${LOGDIR} ]; then
+  touch ${LOGFILE}
 fi
 
 # Special instructions for the 64-bit jvm.
@@ -141,9 +143,15 @@ if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
 fi
 
 lookupINI $@
-if ( [ ${redirect} == "TRUE" ] || [ -w ${LOGFILE} ] ); then 
+
+if [[ "${runMonitorThreads}" == "true" ]] ; then 
+  # nohup to allow tar process to continue after user has logged out
+  nohup ${dir}/monitorThreads.sh $pid >> /dev/null 2>&1 &
+fi
+
+if ( [ ${redirect} == "TRUE" ] ); then 
   exec ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@ > ${LOGFILE} 2>&1
 else
-  ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@
+  exec ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@ 2>&1 | tee ${LOGFILE}
 fi
 

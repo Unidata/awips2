@@ -53,7 +53,6 @@ import org.eclipse.ui.actions.ActionFactory;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
-// import com.raytheon.viz.aviation.cachedata.PythonCacheGuidanceJob;
 import com.raytheon.viz.aviation.climatology.ClimateMenuDlg;
 import com.raytheon.viz.aviation.climatology.WeatherPlotDialog;
 import com.raytheon.viz.aviation.editor.ITafSettable;
@@ -68,11 +67,13 @@ import com.raytheon.viz.aviation.monitor.EtaBufMonitorObserver;
 import com.raytheon.viz.aviation.monitor.EtaMonitorObserver;
 import com.raytheon.viz.aviation.monitor.GfsLampMonitorObserver;
 import com.raytheon.viz.aviation.monitor.GfsMonitorObserver;
+import com.raytheon.viz.aviation.monitor.IGridDataRetrieveListener;
 import com.raytheon.viz.aviation.monitor.LtgMonitorObserver;
 import com.raytheon.viz.aviation.monitor.MetarMonitorObserver;
 import com.raytheon.viz.aviation.monitor.PythonMonitorJob;
 import com.raytheon.viz.aviation.monitor.RltgMonitorObserver;
 import com.raytheon.viz.aviation.monitor.ScheduledMonitorTask;
+import com.raytheon.viz.aviation.monitor.SiteGridManager;
 import com.raytheon.viz.aviation.monitor.TafMonitorObserver;
 import com.raytheon.viz.aviation.monitor.TafSiteComp;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
@@ -143,13 +144,15 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/28/2012   1363        rferrel     Dispose of PythonGuidanceJob when closing.
  * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
+ * 03/07/2013   1735        rferrel     Performance speed up for retrieving grid data.
  * 
  * </pre>
  * 
  * @author grichard
  * @version 1.0
  */
-public class TafMonitorDlg extends CaveSWTDialog {
+public class TafMonitorDlg extends CaveSWTDialog implements
+        IGridDataRetrieveListener {
 
     /**
      * The station list.
@@ -296,6 +299,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
 
     @Override
     protected void disposed() {
+        SiteGridManager.clear();
         cleanupMonitoring();
         tveDlg.disposeDialog();
     }
@@ -754,7 +758,8 @@ public class TafMonitorDlg extends CaveSWTDialog {
         gl.verticalSpacing = 1;
         scrolledComp.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-//        gd.heightHint = SCROLLED_COMP_HEIGHT_perStn * stationList.size(); // DR 15606
+        // gd.heightHint = SCROLLED_COMP_HEIGHT_perStn * stationList.size(); //
+        // DR 15606
         scrolledComp.setLayoutData(gd);
         configMgr.setDefaultColors(scrolledComp);
 
@@ -897,8 +902,9 @@ public class TafMonitorDlg extends CaveSWTDialog {
         }
 
         tveDlg.disposeDialog();
-        // PythonCacheGuidanceJob.dispose();
         PythonGuidanceJob.dispose();
+        SiteGridManager.removeRetrieveDataListener(this);
+        SiteGridManager.clear();
         return close();
     }
 
@@ -911,6 +917,9 @@ public class TafMonitorDlg extends CaveSWTDialog {
         // (3) add MetWatch listener for TAFs. New this up with `this' and
         // propagate to simple MetWatch factory to use as IMonitorable
         // interface.
+        SiteGridManager.removeRetrieveDataListener(this);
+        SiteGridManager.clear();
+        SiteGridManager.addSiteIDs(stationList);
         if (stationList != null) {
             for (String stationOfInterest : stationList) {
                 if (stationOfInterest != null) {
@@ -922,13 +931,15 @@ public class TafMonitorDlg extends CaveSWTDialog {
                             stationOfInterest, tveDlg, tafMonCfg, msgStatComp);
                     tsc.setBlinkable(blinkMenuItem.getSelection());
                     siteRows.add(tsc);
-
-                    // Perform ObStation database dip to populate model.
-                    // ObStationModel.getInstance().obStationDatabaseDip(
-                    // stationOfInterest);
                 }
             }
+
+            if (siteRows.size() > 0 && siteRows.get(0).doGridMonitor()) {
+                // Only add listener when displaying grid data.
+                SiteGridManager.addRetrieveDataListener(this);
+            }
         }
+
     }
 
     private void addHorizontalSeparator(Composite parentComp) {
@@ -1027,5 +1038,19 @@ public class TafMonitorDlg extends CaveSWTDialog {
             }
         }
         return tempoMap;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.aviation.monitor.IGridDataRetrieveListener#gridDataRetrieved
+     * ()
+     */
+    @Override
+    public void gridDataRetrieved() {
+        for (TafSiteComp tsc : siteRows) {
+            tsc.fireMonitor(TafSiteComp.GRID_MONITOR_CLASS);
+        }
     }
 }

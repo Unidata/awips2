@@ -87,7 +87,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/19/2007   #377       randerso    Initial creation
  * Jun 13, 2008     #1160   randerso    Moved to server side
  * 03/09/2012   DR 14581   D. Friedman Fix grid referencing and use custom 
- *                                     nearest-neighbor resampling.
+ *                                     nearest-neighbor resampling.i
+ * 01/14/2013   #1469       bkowal     Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -117,19 +118,7 @@ public class TopoQuery implements ITopoQuery {
      * @return Initialized TopoQuery instance
      */
     public static synchronized TopoQuery getInstance(int topoLevel) {
-        String hdf5Dir = null;
-
-        EnvProperties properties = PropertiesFactory.getInstance()
-                .getEnvProperties();
-        if (properties != null) {
-            hdf5Dir = properties.getEnvValue("HDF5DIR");
-        }
-        return getInstance(new File(hdf5Dir + TOPO_FILE), topoLevel);
-    }
-
-    public static synchronized TopoQuery getInstance(String hdf5Dir,
-            int topoLevel) {
-        return getInstance(new File(hdf5Dir + TOPO_FILE), topoLevel);
+        return getInstance(new File(TOPO_FILE), topoLevel);
     }
 
     public static synchronized TopoQuery getInstance(File hdf5File,

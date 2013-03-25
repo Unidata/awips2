@@ -19,16 +19,12 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.python;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
@@ -40,15 +36,16 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct  9, 2008            njensen     Initial creation
  * Sep 18, 2012      #1091 randerso    added base directory to getGfeConfigIncludePath
+ * Feb 27, 2013      #1447 dgilling    Re-factor based on PythonPathIncludeUtil.
+ * Mar 06  2013  15717     jzeng       Change CAVE_STATIC to COMMON_STATIC
+ *                                     for GFE localization files
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public class GfePyIncludeUtil {
-
-    public static final String PYTHON = "python";
+public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static final String GFE = "gfe";
 
@@ -98,33 +95,6 @@ public class GfePyIncludeUtil {
 
     public static final String VCMOD_UTILS = FileUtil
             .join(VCMODULES, "utility");
-
-    private static final IPathManager PATH_MANAGER = PathManagerFactory
-            .getPathManager();
-
-    private static Map<LocalizationContext, Map<String, String>> pathMap = new HashMap<LocalizationContext, Map<String, String>>();
-
-    private static String getPath(LocalizationContext ctx, String locPath) {
-        Map<String, String> ctxMap = pathMap.get(ctx);
-        if (ctxMap == null) {
-            ctxMap = new HashMap<String, String>();
-            pathMap.put(ctx, ctxMap);
-        }
-        String fsPath = ctxMap.get(locPath);
-        if (fsPath == null) {
-            LocalizationFile file = PATH_MANAGER.getLocalizationFile(ctx,
-                    locPath);
-            fsPath = file.getFile().getAbsolutePath();
-            ctxMap.put(locPath, fsPath);
-        }
-        return fsPath;
-    }
-
-    // LocalizationFile getters
-
-    public static LocalizationFile getCommonPythonLF(LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, PYTHON);
-    }
 
     public static LocalizationFile getCommonGfeLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, COMMON_GFE);
@@ -189,11 +159,6 @@ public class GfePyIncludeUtil {
 
     // Include Path getters
 
-    public static String getCommonPythonIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE), PYTHON);
-    }
-
     public static String getCommonGfeIncludePath() {
         String pythonDir = getCommonPythonIncludePath();
         String gfeDir = getPath(PATH_MANAGER.getContext(
@@ -208,14 +173,14 @@ public class GfePyIncludeUtil {
 
     public static String getProceduresIncludePath(boolean includeUser) {
         String baseDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 PROCEDURES);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
                 PROCEDURES);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     PROCEDURES);
             return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
         } else {
@@ -229,15 +194,15 @@ public class GfePyIncludeUtil {
 
     public static String getTextUtilitiesIncludePath(boolean includeUser) {
         String baseDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE), REGULAR);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE), REGULAR);
         String configDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED),
                 REGULAR);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE), REGULAR);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE), REGULAR);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     REGULAR);
             return PyUtil.buildJepIncludePath(userDir, siteDir, configDir,
                     baseDir);
@@ -252,17 +217,17 @@ public class GfePyIncludeUtil {
 
     public static String getTextProductsIncludePath(boolean includeUser) {
         String baseDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 TEXT_PRODUCTS);
         String configDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED),
                 TEXT_PRODUCTS);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
                 TEXT_PRODUCTS);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     TEXT_PRODUCTS);
             return PyUtil.buildJepIncludePath(userDir, siteDir, configDir,
                     baseDir);
@@ -277,14 +242,14 @@ public class GfePyIncludeUtil {
 
     public static String getSmartToolsIncludePath(boolean includeUser) {
         String baseDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 SMART_TOOLS);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
                 SMART_TOOLS);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     SMART_TOOLS);
             return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
         } else {
@@ -298,14 +263,14 @@ public class GfePyIncludeUtil {
 
     public static String getUtilitiesIncludePath(boolean includeUser) {
         String baseDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 UTILITIES);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
                 UTILITIES);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     UTILITIES);
             return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
         } else {
@@ -321,18 +286,26 @@ public class GfePyIncludeUtil {
         return PyUtil.buildJepIncludePath(siteDir, baseDir);
     }
 
+    public static String getVtecIncludePath(String siteId) {
+        String baseDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE), VTEC);
+        String siteDir = getPath(PATH_MANAGER.getContextForSite(
+                LocalizationType.COMMON_STATIC, siteId), VTEC);
+        return PyUtil.buildJepIncludePath(siteDir, baseDir);
+    }
+
     public static String getConfigIncludePath() {
         return getConfigIncludePath(true);
     }
 
     public static String getConfigIncludePath(boolean includeUser) {
         String baseDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE), CONFIG);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE), CONFIG);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE), CONFIG);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE), CONFIG);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     CONFIG);
             return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
         } else {
@@ -356,7 +329,7 @@ public class GfePyIncludeUtil {
     }
 
     public static String getTextProductsTemplatesIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
+        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.BASE), TEXT_PRODUCTS);
     }
 
@@ -366,14 +339,14 @@ public class GfePyIncludeUtil {
 
     public static String getCombinationsIncludePath(boolean includeUser) {
         String configDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED),
                 COMBINATIONS);
         String siteDir = getPath(PATH_MANAGER.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
                 COMBINATIONS);
         if (includeUser) {
             String userDir = getPath(PATH_MANAGER.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                     COMBINATIONS);
             return PyUtil.buildJepIncludePath(userDir, siteDir, configDir);
         } else {

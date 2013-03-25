@@ -46,6 +46,7 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -73,6 +74,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * Feb 25, 2013 1659       bsteffen    Add PDOs to D2DGridResource in
+ *                                     constructor to avoid duplicate data
+ *                                     requests.
  * 
  * </pre>
  * 
@@ -92,27 +96,34 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         if (resourceData.getNameGenerator() == null) {
             resourceData.setNameGenerator(new GridNameGenerator());
         }
+        for (GridRecord record : resourceData.getRecords()) {
+            addDataObject(record);
+        }
 
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        String paramAbbrev = "";
-        for (GridRecord record : resourceData.getRecords()) {
-            paramAbbrev = record.getParameter().getAbbreviation();
-            addDataObject(record);
+        for (DataTime time : getDataTimes()) {
+            requestData(time);
         }
-        this.getCapability(DisplayTypeCapability.class)
-                .setAlternativeDisplayTypes(
-                        FieldDisplayTypesFactory.getInstance().getDisplayTypes(
-                                paramAbbrev));
+        GridRecord randomRec = getAnyGridRecord();
+        if (randomRec != null) {
+            String paramAbbrev = randomRec.getParameter().getAbbreviation();
+            this.getCapability(DisplayTypeCapability.class)
+                    .setAlternativeDisplayTypes(
+                            FieldDisplayTypesFactory.getInstance()
+                                    .getDisplayTypes(paramAbbrev));
+        }
         super.initInternal(target);
     }
 
     @Override
     public void addDataObject(PluginDataObject pdo) {
         super.addDataObject(pdo);
-        requestData(pdo.getDataTime());
+        if (descriptor != null) {
+            requestData(pdo.getDataTime());
+        }
     }
 
     @Override
