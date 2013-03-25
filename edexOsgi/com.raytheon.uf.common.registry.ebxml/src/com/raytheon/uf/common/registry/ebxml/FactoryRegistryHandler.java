@@ -39,7 +39,6 @@ import com.raytheon.uf.common.registry.IResultFormatter;
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.RegistryHandler;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
@@ -68,6 +67,7 @@ import com.raytheon.uf.common.util.ReflectionException;
  * Aug 15, 2012 0743       djohnson    Type-safe result formatters, warn of time-consuming queries.
  * Aug 27, 2012 0743       djohnson    Add handling for AssociationQuery objects.
  * Sep 14, 2012 1169       djohnson    Add use of create only mode.
+ * Feb 26, 2013 1643       djohnson    Remove registry manager debug toggle.
  * 
  * </pre>
  * 
@@ -496,10 +496,6 @@ public class FactoryRegistryHandler implements RegistryHandler {
         // Submit to the ebXML QueryManager
         QueryRequest query = RegistryUtil.getQuery(registryQuery);
 
-        if (RegistryManager.DEBUG) {
-            print(query);
-        }
-
         QueryResponse r = qm.executeQuery(query);
 
         if (RegistryUtil.RESPONSE_SUCCESS.equals(r.getStatus())) {
@@ -539,11 +535,6 @@ public class FactoryRegistryHandler implements RegistryHandler {
                     t.setId(id);
 
                     objectRefs.add(t);
-                    if (RegistryManager.DEBUG) {
-                        System.out
-                                .println("Attempting to remove RegistryObject with id ["
-                                        + id + "]");
-                    }
                 }
             }
 
@@ -559,10 +550,6 @@ public class FactoryRegistryHandler implements RegistryHandler {
             ObjectRefListType i = new ObjectRefListType();
             i.getObjectRef().addAll(objectRefs);
             deleteRequest.setObjectRefList(i);
-
-            if (RegistryManager.DEBUG) {
-                print(deleteRequest);
-            }
 
             // Submit to the ebXML LifecycleManager
             LifecycleManager a = lifecycleManagerFactory.getLifeCycleManager();
@@ -1015,12 +1002,6 @@ public class FactoryRegistryHandler implements RegistryHandler {
 
                 SubmitObjectsRequest a = RegistryUtil.newSubmitObjects(batch,
                         mode);
-                if (RegistryManager.DEBUG) {
-                    JAXBManager jaxb = new JAXBManager(
-                            SubmitObjectsRequest.class);
-                    System.out.println("submitObjects( ["
-                            + jaxb.marshalToXml(a) + "])");
-                }
 
                 RegistryResponseType rt = lifecycleManager.submitObjects(a);
 

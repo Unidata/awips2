@@ -49,14 +49,12 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEDateInfo;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
- * TODO Add Description
+ * MPE Dialog for choosing time data should be displaying at
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -141,9 +139,9 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         displayMgr = MPEDisplayManager.getInstance(pane);
         dataMgr = MPEDataManager.getInstance();
         dateMap = dataMgr.getDateMap(false);
-        qcEnable = displayMgr.isMpeQcOptionEnabled();
+        qcEnable = MPEDisplayManager.isMpeQcOptionEnabled();
         cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        prevDate = displayMgr.getCurrentDate();
+        prevDate = displayMgr.getCurrentEditDate();
         cal.setTime(prevDate);
     }
 
@@ -291,17 +289,14 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                close();
-                displayMgr.setHrFirstTime(false);
-                displayMgr.setCurrentDate(cal.getTime());
-                
-                if (displayMgr.getDisplayedResource() != null) {
-                    XmrgResource xmrgRsc = (XmrgResource) displayMgr
-                            .getDisplayedResource();
-                    xmrgRsc.updateXmrg(false);
+                // Hide so if setCurrentEditDate returns false, we can continue
+                // to display
+                hide();
+                if (displayMgr.setCurrentEditDate(getTime())) {
+                    close();
+                } else {
+                    restore();
                 }
-                TransmitRFCBiasProvider.setEnabled(true);
-                
             }
         });
 
@@ -468,11 +463,11 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         if (dateInfo != null) {
             lastSave.setText(sdf.format(dateInfo.getLastSaveTime()));
             lastExec.setText(sdf.format(dateInfo.getLastExecTime()));
-            if (dateInfo.isAutoSave()){
-            	manuallySaved.setText("NO");
-            } else{
-            	manuallySaved.setText("YES");
-            }           
+            if (dateInfo.isAutoSave()) {
+                manuallySaved.setText("NO");
+            } else {
+                manuallySaved.setText("YES");
+            }
         } else {
             lastSave.setText("NA");
             lastExec.setText("NA");

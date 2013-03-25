@@ -126,6 +126,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 04, 2012 1420       mpduff       Pass the subscription in to the GriddedTimingSelectionDlg.
  * Jan 10, 2013 1444       mpduff       Fix the loading of saved subsets from the saved subset tab.
  * Jan 28, 2013 1530       djohnson     Break out long method chaining into local variables for debugging.
+ * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * </pre>
  * 
  * @author mpduff
@@ -887,7 +888,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         // Vertical/Parameters
         Map<String, VerticalXML> levelMap = new HashMap<String, VerticalXML>();
-        ArrayList<Parameter> paramaterList = this.subscription.getParameter();
+        List<Parameter> paramaterList = this.subscription.getParameter();
 
         for (Parameter p : paramaterList) {
             for (DataLevelType levelType : p.getLevelType()) {

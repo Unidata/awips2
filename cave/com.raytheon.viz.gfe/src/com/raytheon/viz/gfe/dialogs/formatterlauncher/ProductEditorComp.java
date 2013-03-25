@@ -101,6 +101,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
@@ -149,6 +150,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Create createEditorPopupMenu() 
  *                                     Add mouselistener in createTextControl() for StyledText	                                     
  * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
+ * 02/12/2013        #1597 randerso    Code cleanup. Fixed possible widget disposed errors on shut down.
  * 
  * </pre>
  * 
@@ -172,7 +174,7 @@ public class ProductEditorComp extends Composite implements
      * Toolbar used to mimic a menu bar.
      */
     private ToolBar toolbar;
-    
+
     /**
      * Pop-up Menu
      */
@@ -516,7 +518,7 @@ public class ProductEditorComp extends Composite implements
         transLiveImg = getImageRegistry().get("transmitLive");
         checkImg = getImageRegistry().get("checkmark");
         menuItems = new ArrayList<MenuItem>();
-        
+
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 1;
@@ -577,7 +579,7 @@ public class ProductEditorComp extends Composite implements
      */
     private void createToolbar() {
         toolbar = new ToolBar(this, SWT.NONE);
-        
+
         fileMenu = new Menu(parent.getShell(), SWT.POP_UP);
         createFileMenu(fileMenu);
         editMenu = new Menu(parent.getShell(), SWT.POP_UP);
@@ -644,7 +646,7 @@ public class ProductEditorComp extends Composite implements
      * Create the file menu.
      */
     private void createFileMenu(Menu menuToAddTo) {
-        
+
         MenuItem saveFileMI = new MenuItem(menuToAddTo, SWT.PUSH);
         saveFileMI.setText("Save File...");
         saveFileMI.addSelectionListener(new SelectionAdapter() {
@@ -663,7 +665,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
         menuItems.add(storeMI);
-        
+
         // we can't color the background of the menu item so
         // we use an image like the tab folder.
         transmitMI = new MenuItem(menuToAddTo, SWT.PUSH);
@@ -676,7 +678,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
         menuItems.add(transmitMI);
-        
+
         // Menu Separator
         new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
@@ -758,7 +760,7 @@ public class ProductEditorComp extends Composite implements
      * Create the edit menu.
      */
     private void createEditMenu(Menu menuToAddTo) {
-        
+
         MenuItem undoMI = new MenuItem(menuToAddTo, SWT.PUSH);
         undoMI.setText("Undo");
         undoMI.setEnabled(false);
@@ -945,14 +947,14 @@ public class ProductEditorComp extends Composite implements
         textComp.setAutoWrapMode(wrapMode);
 
         createEditorPopupMenu();
-        
-        textComp.getTextEditorST().addMouseListener(new MouseAdapter(){
-			@Override
-			public void mouseDown(MouseEvent e) {
-				if (e.button == 3){
-					popupMenu.setVisible(true);
-				}
-			}
+
+        textComp.getTextEditorST().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                if (e.button == 3) {
+                    popupMenu.setVisible(true);
+                }
+            }
         });
     }
 
@@ -1508,7 +1510,8 @@ public class ProductEditorComp extends Composite implements
             // check the ending time and transmission time
             if ((action.equals("EXP") || action.equals("CAN"))
                     && vtecEnd != null) {
-                vtecEnd.setTime(vtecEnd.getTime() + 30 * 60 * 1000);
+                vtecEnd.setTime(vtecEnd.getTime() + 30
+                        * TimeUtil.MILLIS_PER_MINUTE);
             }
 
             if (vtecEnd != null
@@ -1840,7 +1843,8 @@ public class ProductEditorComp extends Composite implements
         }
 
         // seconds
-        long offset = (maxPurgeTime - pitTime.getTime()) / 1000L;
+        long offset = (maxPurgeTime - pitTime.getTime())
+                / TimeUtil.MILLIS_PER_SECOND;
 
         // Round up to nearest 15 minutes
         long extra = offset % 900;
@@ -1849,7 +1853,7 @@ public class ProductEditorComp extends Composite implements
         }
 
         // convert to hours and check bounds
-        Float purgeOffset = offset / 3600.0F;
+        Float purgeOffset = (float) (offset / TimeUtil.SECONDS_PER_HOUR);
         purgeOffset = Math.min(purgeOffset, 24F);
         purgeOffset = Math.max(purgeOffset, 1F);
 
@@ -1918,10 +1922,15 @@ public class ProductEditorComp extends Composite implements
     }
 
     private void updateExpireTime() {
+        if (textComp.isDisposed() || hoursSpnr.isDisposed()
+                || dateTimeLbl.isDisposed()) {
+            return; // we're shutting down just return
+        }
 
-        int hours = hoursSpnr.getSelection() / 100;
-        int minuteInc = (hoursSpnr.getSelection() % 100) / 25;
-        int purgeOffset = hours * 60 + minuteInc * 15; // minutes
+        int sel = hoursSpnr.getSelection();
+        int hours = sel / 100;
+        int minuteInc = (sel % 100) / 25;
+        int purgeOffset = hours * TimeUtil.MINUTES_PER_HOUR + minuteInc * 15; // minutes
 
         Date now = SimulatedTime.getSystemTime().getTime();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -2109,13 +2118,16 @@ public class ProductEditorComp extends Composite implements
         }
 
         // round to next "roundMinutes"
-        long roundSec = roundMinutes * 60;
-        long expireTimeSec = expireTime.getTime() / 1000; // converting to
-                                                          // seconds
+        long roundSec = roundMinutes * TimeUtil.SECONDS_PER_MINUTE;
+
+        // converting to seconds
+        long expireTimeSec = expireTime.getTime() / TimeUtil.MILLIS_PER_SECOND;
         long delta = expireTimeSec % roundSec;
-        long baseTime = (expireTimeSec / roundSec) * roundSec * 1000;
-        if (delta / 60 >= 1) {
-            expireTime.setTime(baseTime + (roundSec * 1000));
+        long baseTime = (expireTimeSec / roundSec) * roundSec
+                * TimeUtil.MILLIS_PER_SECOND;
+        if (delta / TimeUtil.SECONDS_PER_MINUTE >= 1) {
+            expireTime.setTime(baseTime
+                    + (roundSec * TimeUtil.MILLIS_PER_SECOND));
         } else { // within 1 minute, don't add next increment
             expireTime.setTime(baseTime);
         }
@@ -2231,13 +2243,15 @@ public class ProductEditorComp extends Composite implements
     public void doAutoStuff() {
         int autoWrite = 0;
         Object autoWrite_obj = productDefinition.get("autoWrite");
-        if (autoWrite_obj != null)
+        if (autoWrite_obj != null) {
             autoWrite = (Integer) autoWrite_obj;
+        }
 
         int autoStore = 0;
         Object autoStore_obj = productDefinition.get("autoStore");
-        if (autoStore_obj != null)
+        if (autoStore_obj != null) {
             autoStore = (Integer) autoStore_obj;
+        }
 
         if (autoWrite == 1) {
             autoWrite();
@@ -2255,8 +2269,9 @@ public class ProductEditorComp extends Composite implements
         String fname = null;
         if (productDefinition.get("outputFile") != null) {
             fname = getDefString("outputFile");
-            if (fname.equals(EMPTY))
+            if (fname.equals(EMPTY)) {
                 return;
+            }
         } else {
             return;
         }
@@ -2277,8 +2292,9 @@ public class ProductEditorComp extends Composite implements
      * Replace {prddir} with siteConfig.GFESUITE_PRDDIR if applicable.
      */
     private String fixfname(String fname) {
-        if (fname.contains("{prddir}"))
+        if (fname.contains("{prddir}")) {
             fname = fname.replace("{prddir}", prdDir);
+        }
 
         return fname;
     }
@@ -2928,8 +2944,9 @@ public class ProductEditorComp extends Composite implements
             // reschedule job to run at the top of the next minute
             Calendar cal = Calendar.getInstance();
             cal.setTime(SimulatedTime.getSystemTime().getTime());
-            int nextMinute = 60 - cal.get(Calendar.SECOND);
-            schedule(nextMinute * 1000);
+            int secondsTilNextMinute = TimeUtil.SECONDS_PER_MINUTE
+                    - cal.get(Calendar.SECOND);
+            schedule(secondsTilNextMinute * TimeUtil.MILLIS_PER_SECOND);
             return Status.OK_STATUS;
         }
 
@@ -2951,36 +2968,36 @@ public class ProductEditorComp extends Composite implements
 
         return str;
     }
-    
+
     /*
-     * Add Pop-up GUI for File, Edit, Options, and CallToActions 
-     * at the location of mouse, when right click the mouse
+     * Add Pop-up GUI for File, Edit, Options, and CallToActions at the location
+     * of mouse, when right click the mouse
      */
-    private void createEditorPopupMenu(){
-    	popupMenu = new Menu(textComp);
-    	
-    	MenuItem fileMI = new MenuItem(popupMenu, SWT.CASCADE);
-    	fileMI.setText("File");
-    	Menu fileSubMenu = new Menu(popupMenu);
-    	fileMI.setMenu(fileSubMenu);
-    	createFileMenu(fileSubMenu);
-    	
+    private void createEditorPopupMenu() {
+        popupMenu = new Menu(textComp);
+
+        MenuItem fileMI = new MenuItem(popupMenu, SWT.CASCADE);
+        fileMI.setText("File");
+        Menu fileSubMenu = new Menu(popupMenu);
+        fileMI.setMenu(fileSubMenu);
+        createFileMenu(fileSubMenu);
+
         MenuItem editMI = new MenuItem(popupMenu, SWT.CASCADE);
-    	editMI.setText("Edit");
+        editMI.setText("Edit");
         Menu editSubMenu = new Menu(popupMenu);
-    	editMI.setMenu(editSubMenu);
+        editMI.setMenu(editSubMenu);
         createEditMenu(editSubMenu);
-        
-    	MenuItem optionsMI = new MenuItem(popupMenu, SWT.CASCADE);
-    	optionsMI.setText("Options");
+
+        MenuItem optionsMI = new MenuItem(popupMenu, SWT.CASCADE);
+        optionsMI.setText("Options");
         Menu optionsSubMenu = new Menu(popupMenu);
         optionsMI.setMenu(optionsSubMenu);
-        createOptionsMenu(optionsSubMenu); 
-        
-    	MenuItem callToActionsMI = new MenuItem(popupMenu, SWT.CASCADE);
-    	callToActionsMI.setText("CallToActions");
+        createOptionsMenu(optionsSubMenu);
+
+        MenuItem callToActionsMI = new MenuItem(popupMenu, SWT.CASCADE);
+        callToActionsMI.setText("CallToActions");
         Menu callToActionsSubMenu = new Menu(popupMenu);
-    	callToActionsMI.setMenu(callToActionsSubMenu);
-    	createCallToActionsMenu(callToActionsSubMenu);
+        callToActionsMI.setMenu(callToActionsSubMenu);
+        createCallToActionsMenu(callToActionsSubMenu);
     }
 }

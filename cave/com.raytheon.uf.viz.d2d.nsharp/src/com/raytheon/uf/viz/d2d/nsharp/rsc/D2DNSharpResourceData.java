@@ -157,6 +157,10 @@ public abstract class D2DNSharpResourceData extends
         List<NcSoundingLayer> layers = profileList.getSoundingLyLst();
         layers = NsharpDataHandling.organizeSoundingDataForShow(layers,
                 profileList.getStationElevation());
+        if (layers != null && layers.size() < 3) {
+            // set invalid data to null
+            layers = null;
+        }
         dataObject.setLayers(layers);
     }
 
