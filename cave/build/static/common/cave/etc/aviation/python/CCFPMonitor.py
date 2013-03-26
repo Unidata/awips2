@@ -60,9 +60,6 @@
 #       	Status:           TEST
 #       	Title:             AvnFPS: tpo indicator not monitoring properly
 #    
-#    Date             Ticket#       Engineer       Description
-#    -------------    ----------    -----------    --------------------------
-#    Feb. 21, 2013    15834         zhao           Modified for CCFP 8hr data
 #
 import logging, time
 import Avn, AvnLib, Globals, MonitorP
@@ -71,10 +68,10 @@ import CCFPData
 _Logger = logging.getLogger(__name__)
 
 _Code = { \
-    'tops': {1: '400+   ', 2: '350-390', 3: '300-340', 4: '250-290'}, \
-    'gwth': {1: '+ ', 2: 'NC', 3: '- '}, \
+    'tops': {1: '370+   ', 2: '310-370', 3: '250-310'}, \
+    'gwth': {1: '++', 2: '+ ', 3: 'NC', 4: '- '}, \
     'conf': {1: 'HIGH', 3: 'LOW'}, \
-    'cvrg': {1: '75-100%', 2: ' 40-74%', 3: ' 25-39%'}, \
+    'cvrg': {1: '75-100%', 2: ' 50-74%', 3: ' 25-49%'}, \
     }
 
 ##############################################################################
@@ -85,7 +82,7 @@ class Monitor(MonitorP.Monitor):
     def __makeData(self, data):
         # 6 hour forecast
         tstart = (time.time()//3600.0 + 1) * 3600.0
-        tend = tstart + 9*3600.0 - 10.0
+        tend = tstart + 7*3600.0 - 10.0
         seq = [{'time': t} for t in Avn.frange(tstart, tend, 3600.0)]
         fcst, text = {}, []
         try:

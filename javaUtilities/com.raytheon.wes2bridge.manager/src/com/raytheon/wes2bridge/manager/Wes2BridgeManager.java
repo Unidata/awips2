@@ -191,8 +191,8 @@ public class Wes2BridgeManager {
 	/* Disable JMX. */
 	private void updateEdexWrapper(String srcEdexDirectory, String edexDirectory)
 			throws FileNotFoundException, IOException {
-		String srcwrapper_conf = srcEdexDirectory + "/bin/wrapper.conf";
-		String wrapper_conf = edexDirectory + "/bin/wrapper.conf";
+		String srcwrapper_conf = srcEdexDirectory + "/conf/wrapper.conf";
+		String wrapper_conf = edexDirectory + "/conf/wrapper.conf";
 
 		BufferedReader br = this.getBufferedReader(srcwrapper_conf);
 		BufferedWriter bw = this.getBufferedWriter(wrapper_conf);
@@ -269,7 +269,7 @@ public class Wes2BridgeManager {
 
 		final String line1 = "EDEX_INSTALL=";
 		final String line2 = "export DATA_ARCHIVE_ROOT=";
-		final String line3 = "CAMELPROCESS=`ps -ef | grep \"edex.dev.mode\"|grep -c \"edex.run.mode=${1} \" `";
+		final String line3 = "CAMELPROCESS=`ps -ef | grep \"aw.site.identifier\"|grep -c \"edex.run.mode=${1} \" `";
 
 		String line = StringUtils.EMPTY;
 		while ((line = br.readLine()) != null) {
