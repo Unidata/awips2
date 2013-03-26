@@ -85,6 +85,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 02/01/13      1569       D.Hladky    Constants
  * 03/01/13      DR13228    G. Zhang    Add VGB county and related code 
  * 02/20/13      1635       D. Hladky   Constants
+ * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * </pre>
  * 
  * @author dhladky
@@ -250,11 +251,35 @@ public class FFMPTemplates {
                                 "No configuration file found, default settings applied");
 
                 // we use 4 because it is the 90% solution as a start point for
-                // the analysis
-                ArrayList<Integer> hucParams = FFMPUtils.getHucParameters(4,
+                // the analysis.  Added check to make sure at least 2 HUC layers are created.
+                int preliminarystart = 4;
+                // first crack
+                ArrayList<Integer> hucParams = FFMPUtils.getHucParameters(preliminarystart,
                         primaryCWA.getCwa());
-                setHucDepthStart(hucParams.get(0));
-                setTotalHucLevels(hucParams.get(1));
+                int startDepth = hucParams.get(0);
+                int numlevels = hucParams.get(1);
+                int i = 1;
+                // recursively call until we have two layers
+                while (numlevels < 2) {
+                    int checkDepth = preliminarystart - i;
+                    hucParams = FFMPUtils.getHucParameters(checkDepth,
+                            primaryCWA.getCwa());
+                    startDepth = hucParams.get(0);
+                    numlevels = hucParams.get(1);
+                    i++;
+                    
+                    // safety value in case it just won't work with this shape
+                    if (checkDepth == 0) {
+                        // bail, won't work
+                        statusHandler
+                        .handle(Priority.ERROR,
+                                "Cannot create a good template. There are not enough unique HUC's to create more than 1 layer.");
+                        return;
+                    }
+                }
+
+                setHucDepthStart(startDepth);
+                setTotalHucLevels(numlevels);
                 setExtents(20000.0);
                 setVirtual(true);
 

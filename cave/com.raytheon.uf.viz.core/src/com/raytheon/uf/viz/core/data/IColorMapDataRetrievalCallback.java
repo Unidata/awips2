@@ -36,6 +36,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            mschenke     Initial creation
+ * Mar 21, 2013 1806       bsteffen    Add ColorMapData constructor that
+ *                                     creates buffer from the dataType.
  * 
  * </pre>
  * 
@@ -44,6 +46,40 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public interface IColorMapDataRetrievalCallback {
+
+        /**
+         * @param dataType
+         * @param dataBounds
+         */
+        public ColorMapData(ColorMapDataType dataType, int[] dimensions) {
+            this.buffer = getBuffer(dataType, dimensions);
+            this.dimensions = dimensions;
+            this.dataType = dataType;
+        }
+
+        }
+
+        private static Buffer getBuffer(ColorMapDataType dataType,
+                int[] dimensions) {
+            int size = 1;
+            for (int i : dimensions) {
+                size *= i;
+            }
+            switch (dataType) {
+            case BYTE:
+            case SIGNED_BYTE:
+                return ByteBuffer.allocate(size);
+            case SHORT:
+            case UNSIGNED_SHORT:
+                return ShortBuffer.allocate(size);
+            case FLOAT:
+                return FloatBuffer.allocate(size);
+            case INT:
+                return IntBuffer.allocate(size);
+            default:
+                throw new RuntimeException("Could not find Buffer for "
+                        + dataType);
+            }
 
     /**
      * Get the ColorMapData. IMPORTANT NOTE: This method should retrieve the
