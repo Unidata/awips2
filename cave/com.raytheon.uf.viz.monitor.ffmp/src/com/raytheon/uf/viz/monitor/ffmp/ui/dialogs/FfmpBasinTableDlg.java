@@ -2093,7 +2093,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     public void updateLoadingLabel(FFMPLoaderStatus status) {
         this.loadStatus = status;
-
         if (dataLoadComp == null) {
             return;
         }
