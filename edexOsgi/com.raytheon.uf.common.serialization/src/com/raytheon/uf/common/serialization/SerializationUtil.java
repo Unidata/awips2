@@ -364,4 +364,26 @@ public final class SerializationUtil {
             }
         }
     }
+
+
+    /**
+     * Transforms an InputStream byte data from the thrift protocol to an object using
+     * DynamicSerialize.
+     * 
+     * @param is
+     *            the input stream to read from
+     * @return the Java object
+     * @throws SerializationException
+     *             if a serialization or class cast exception occurs
+     */
+    public static <T> T transformFromThrift(Class<T> clazz, InputStream is)
+            throws SerializationException {
+        DynamicSerializationManager dsm = DynamicSerializationManager
+                .getManager(SerializationType.Thrift);
+        try {
+            return clazz.cast(dsm.deserialize(is));
+        } catch (ClassCastException cce) {
+            throw new SerializationException(cce);
+        }
+    }
 }
