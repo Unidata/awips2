@@ -440,13 +440,13 @@ class SmartScript(BaseTool.BaseTool):
         if timeRangeList is not None:
             retVal = {}
             for i in xrange(len(timeRangeList)):
-                iresult = self._getGridsResult(timeRangeList[i], noDataError, mode, result[i])
+                iresult = self._getGridsResult(timeRangeList[i], noDataError, mode, exprName, result[i])
                 retVal[timeRangeList[i]] = iresult
             return retVal
         else:
-            return self._getGridsResult(timeRange, noDataError, mode, result)
+            return self._getGridsResult(timeRange, noDataError, mode, exprName, result)
         
-    def _getGridsResult(self, timeRange, noDataError, mode, result): 
+    def _getGridsResult(self, timeRange, noDataError, mode, exprName, result): 
         retVal = None        
         if result is not None:
             if len(result) == 0:
