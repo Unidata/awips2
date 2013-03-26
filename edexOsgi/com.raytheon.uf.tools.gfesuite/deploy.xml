@@ -83,7 +83,7 @@
 		
 		<!-- GFESuite/* will now be common between server and client. -->
     	<copy todir="${gfe.suite.bin}" overwrite="true">
-    		<fileset dir="${basedir}/../../cave/com.raytheon.viz.gfe/GFESuite" />
+    		<fileset dir="${basedir}/../com.raytheon.viz.gfe/GFESuite" />
     		<filterset refid="installer.filter.set"/>
     	</copy>
 	</target>
