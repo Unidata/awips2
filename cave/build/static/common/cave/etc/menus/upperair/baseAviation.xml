@@ -25,9 +25,7 @@
 			menuText="Convective SIGMET" id="ConvSigmet">
 			<dataURI>/convsigmet/%</dataURI>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/BufrNcwf.xml" menuText="NCWF" id="NCWF">
-			<dataURI>/bufrncwf/%</dataURI>
-		</contribute>
+
 		<contribute xsi:type="separator" id="separator1"/>
 		
 		<contribute xsi:type="titleItem" titleText="------ Icing Products ------" />
