@@ -28,6 +28,7 @@ import javax.media.opengl.glu.GLU;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
@@ -49,6 +50,8 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 2, 2011            bsteffen     Initial creation
+ * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
+ *                                     format for offscreen textures.
  * 
  * </pre>
  * 
@@ -269,6 +272,10 @@ public class GLCMTextureData implements IImageCacheable {
             return totalSize;
         }
         return 0;
+    }
+
+    public ColorMapDataType getColorMapDataType() {
+        return data.getDataType();
     }
 
 }
