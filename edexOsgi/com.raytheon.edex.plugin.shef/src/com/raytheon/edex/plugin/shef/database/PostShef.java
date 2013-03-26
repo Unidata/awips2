@@ -105,6 +105,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 05/28/2009   2410       J. Sanchez  Posted data for unknstnvalue.
  * 12/11/2009   2488       M. Duff     Fixed problem with storing text products.
  * 03/07/2013   15545      w. kwock    Added Observe time to log
+ * 03/21/2013   15967      w. kwock    Fix the error in buildTsFcstRiv riverstatus table issue 
  * 
  * </pre>
  * 
@@ -1551,8 +1552,8 @@ public class PostShef {
                     shefDataValue.setCreationDateObj(fcstHead[y].getId()
                             .getBasistime());
                     shefDataValue.setValue(fcstHead[y].getValue());
-                }
-                shefList.add(shefDataValue);
+                    shefList.add(shefDataValue);
+               }
             }
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
@@ -1707,8 +1708,7 @@ public class PostShef {
         for (int i = 0; i < ulCount; i++) {
             tsFirstChk[i] = 0;
         }
-
-        Timestamp[] row = null;
+        Timestamp row = null;
         Timestamp validTime = null;
         for (int i = 0; i < fcstCount; i++) {
 
@@ -1720,8 +1720,8 @@ public class PostShef {
             basisIndex[i] = MISSING;
 
             for (int j = 0; ((j < ulCount) && (basisIndex[i] == MISSING)); j++) {
-                row = (Timestamp[]) ulHead[j];
-                ulBasisTime = row[j];
+                row = (Timestamp) ulHead[j];
+                ulBasisTime = row;
 
                 if (ulBasisTime.compareTo(fcstBasisTime) == 0) {
                     basisIndex[i] = j;
@@ -1759,8 +1759,8 @@ public class PostShef {
          */
 
         for (int j = 0; j < ulCount; j++) {
-            row = (Timestamp[]) ulHead[j];
-            basisTime[j] = row[j];
+            row = (Timestamp) ulHead[j];
+            basisTime[j] = row;
         }
 
         /*
