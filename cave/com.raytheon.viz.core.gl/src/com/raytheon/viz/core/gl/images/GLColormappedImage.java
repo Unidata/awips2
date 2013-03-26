@@ -23,6 +23,7 @@ import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -39,6 +40,8 @@ import com.sun.opengl.util.texture.TextureCoords;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2009            mschenke     Initial creation
+ * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
+ *                                     format for offscreen textures.
  * 
  * </pre>
  * 
@@ -107,6 +110,10 @@ public class GLColormappedImage extends AbstractGLImage implements
      */
     public int getTextureType() {
         return data.getTextureType();
+    }
+
+    public ColorMapDataType getColorMapDataType() {
+        return data.getColorMapDataType();
     }
 
     /**

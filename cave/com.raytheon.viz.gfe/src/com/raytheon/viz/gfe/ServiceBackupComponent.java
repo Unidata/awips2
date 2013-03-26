@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.gfe;
 
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-
 import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
@@ -36,6 +33,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2011            bphillip     Initial creation
  * Oct 26, 2012 1287       rferrel     Change to force blocking of ServiceBackupDlg.
+ * Mar 21, 2013 1447       dgilling    Fix dialog construction so this dialog
+ *                                     is created as a top-level shell.
  * 
  * </pre>
  * 
@@ -54,8 +53,7 @@ public class ServiceBackupComponent extends AbstractCAVEComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        ServiceBackupDlg svcBuDlg = new ServiceBackupDlg(new Shell(
-                Display.getCurrent()));
+        ServiceBackupDlg svcBuDlg = new ServiceBackupDlg(null);
         svcBuDlg.setBlockOnOpen(true);
         svcBuDlg.open();
     }
