@@ -48,6 +48,16 @@
 #       	Title:             AvnFPS: Incorrect file permission on ISH files
 #       
 #
+#**
+#* 
+#* 
+#* <pre>
+#* SOFTWARE HISTORY
+#* Date         Ticket#     Engineer    Description
+#* ------------ ----------  ----------- --------------------------
+#*                                      Initial creation.
+#* Mar 25, 2013 1735        rferrel     Retrieve only the last 24 hours of acars records.
+##  
 
 from com.raytheon.viz.aviation.monitor import LlwsManager
 import logging, os, time
@@ -96,12 +106,17 @@ def retrieve(siteID, info):
     profilerIds = th.processProfilerData(siteID)
     for profilerId in profilerIds:
         try :
-	    shear = th.genShear(siteID, profilerId)
-	    d[profilerId] = shear
-    	except LLWSThread.InValid:
-    	    pass
+            shear = th.genShear(siteID, profilerId)
+            d[profilerId] = shear
+        except LLWSThread.InValid:
+            pass
     
-    acarsRec = LlwsManager.getAcarsRecord(siteID, 0)
+    # This gets all acarsRec in the database since 0 retrieves from the epoch.
+    # This may be ok if database is purged frequently.
+    # How far back should it go 1, 6, 12, 24 hours?
+    #    acarsRec = LlwsManager.getAcarsRecord(siteID, 0)
+    refTime = long((time.time() - (24.0*3600.0)) * 1000.0)
+    acarsRec = LlwsManager.getAcarsRecord(siteID, refTime)
     if acarsRec:
         acarsId = siteID[1:]
         th.processAcarsData(acarsId,acarsRec)
@@ -111,7 +126,7 @@ def retrieve(siteID, info):
         except LLWSThread.InValid:
             pass
     else:
-		_Logger.info('Missing ACARS Sounding data for %s.', siteID)
+        _Logger.info('Missing ACARS Sounding data for %s.', siteID)
     radars = info['sites']['radars']
     for radar in radars:
         vwp = LlwsManager.getVerticalWindProfile(radar, 0)
