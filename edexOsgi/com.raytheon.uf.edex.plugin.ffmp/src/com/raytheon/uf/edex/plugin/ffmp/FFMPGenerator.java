@@ -58,6 +58,7 @@ import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -82,6 +83,7 @@ import com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -120,7 +122,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * 02/20/13     1635       D. Hladky   Added some finally methods to increase dead lock safety.  Reduced wait times for threads.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
- * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
+ * 03/22/13     1803       D. Hladky   Fixed broken performance logging for ffmp.
  * </pre>
  * 
  * @author dhladky
@@ -703,51 +705,40 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 fftiSources.add(ffmp.getFFTISource());
                                 ffti.processFFTI();
                             }
-
-                            // Do the accumulation now, more memory efficient.
-                            // Only one piece in memory at a time
-                            for (String attribute : ffmp.getAttributes()) {
-                                if (attribute.equals(ATTRIBUTE.ACCUM
-                                        .getAttribute())) {
-                                    FFTIAccum accum = getAccumulationForSite(
-                                            ffmpProduct.getDisplayName(),
-                                            siteKey, dataKey,
-                                            fftiSource.getDurationHour(),
-                                            ffmpProduct.getUnit(siteKey));
-                                    if (statusHandler
-                                            .isPriorityEnabled(Priority.DEBUG)) {
-                                        statusHandler
-                                                .debug("Accumulating FFTI for source: "
-                                                        + ffmpProduct
-                                                                .getDisplayName()
-                                                        + " site: "
-                                                        + siteKey
-                                                        + " data: "
-                                                        + dataKey
-                                                        + " duration: "
-                                                        + fftiSource
-                                                                .getDurationHour()
-                                                        + " accumulation: "
-                                                        + accum.getAccumulation());
-                                    }
-                                }
-                            }
+         
+							// Do the accumulation now, more memory efficient.
+							// Only one piece in memory at a time
+							for (String attribute : ffmp.getAttributes()) {
+								if (attribute.equals(ATTRIBUTE.ACCUM
+										.getAttribute())) {
+									FFTIAccum accum = getAccumulationForSite(
+											ffmpProduct.getDisplayName(),
+											siteKey, dataKey,
+											fftiSource.getDurationHour(),
+											ffmpProduct.getUnit(siteKey));
+									if (statusHandler
+											.isPriorityEnabled(Priority.DEBUG)) {
+										statusHandler
+												.debug("Accumulating FFTI for source: "
+														+ ffmpProduct
+																.getDisplayName()
+														+ " site: "
+														+ siteKey
+														+ " data: "
+														+ dataKey
+														+ " duration: "
+														+ fftiSource
+																.getDurationHour()
+														+ " accumulation: "
+														+ accum.getAccumulation());
+									}
+								}
+							}
                         }
-                        
-                        SourceXML source = getSourceConfig().getSource(
-                                ffmpRec.getSourceName());
-
-                        if (!source.getSourceType().equals(
-                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                            String sourceSiteDataKey = getSourceSiteDataKey(source,
-                                    dataKey, ffmpRec);
-                            ffmpData.remove(sourceSiteDataKey);
-                            statusHandler.info("Removing from memory: "+sourceSiteDataKey);
-                        }
-                    }
-                }
-            }
-        }
+                    }  // record not null
+                } // end sitekey for loop
+            }  // end datakey loop
+        } // end process
     }
 
     /**
@@ -1829,7 +1820,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             ffmpData.remove(siteDataKey);
-            statusHandler.info("Removing from memory: "+siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
@@ -1980,7 +1970,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
-            statusHandler.info("Removing from memory: "+qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }
@@ -2019,30 +2008,39 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     
     /**
-     * Find siteSourceDataKey
+     * Log process statistics
      * 
-     * @param source
-     * @param dataKey
-     * @param ffmpRec
-     * @return
+     * @param message
      */
-    private String getSourceSiteDataKey(SourceXML source, String dataKey, FFMPRecord ffmpRec) {
- 
-        String sourceName = source.getSourceName();
-        String sourceSiteDataKey = null;
-        
-        if (source.getSourceType().equals(
-                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-            sourceName = source.getDisplayName();
-            sourceSiteDataKey = sourceName;
-       
-        } else {
-            sourceName = ffmpRec.getSourceName();
-            sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
-                    + "-" + dataKey;
+    @Override
+    public void log(URIGenerateMessage message) {
+
+        long curTime = System.currentTimeMillis();
+        ProcessEvent processEvent = new ProcessEvent();
+
+        if (productType != null) {
+            processEvent.setDataType(productType);
         }
-        
-        return sourceSiteDataKey;
+
+        Long dequeueTime = message.getDeQueuedTime();
+        if (dequeueTime != null) {
+            long elapsedMilliseconds = curTime - dequeueTime;
+            processEvent.setProcessingTime(elapsedMilliseconds);
+        }
+
+        Long enqueueTime = message.getEnQueuedTime();
+        if (enqueueTime != null) {
+            long latencyMilliseconds = curTime - enqueueTime;
+            processEvent.setProcessingLatency(latencyMilliseconds);
+        }
+
+        // processing in less than 0 millis isn't trackable, usually due to
+        // an
+        // error occurred and statement logged incorrectly
+        if ((processEvent.getProcessingLatency() > 0)
+                && (processEvent.getProcessingTime() > 0)) {
+            EventBus.publish(processEvent);
+        }
     }
 
 }

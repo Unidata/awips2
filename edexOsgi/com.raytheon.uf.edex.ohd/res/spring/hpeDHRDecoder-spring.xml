@@ -31,7 +31,7 @@
 				<pipeline>
 					<bean ref="setIngestHeaderFields"/>
 					<bean ref="stringToFile"  />
-					<bean ref="radarDecompressor" method="decompressToFile" />
+					<bean ref="radarDecompressor" method="decompressWithHeader" />
 					<bean ref="dhrDecodeSrv" method="filter" />
 				</pipeline>
 				<doCatch>

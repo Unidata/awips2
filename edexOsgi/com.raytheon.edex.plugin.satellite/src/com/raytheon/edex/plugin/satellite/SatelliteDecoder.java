@@ -43,8 +43,12 @@ import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.ArraysUtil;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -53,15 +57,15 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * 
- * OFTWARE HISTORY
- *                   
+ * SOFTWARE HISTORY
+ * 
  * Date         Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 006                      garmenda    Initial Creation
  * /14/2007     139         Phillippe   Modified to follow refactored plugin pattern
  * 8/30/07                  njensen     Added units, commented out data that
- *                                      is currently decoded but not used.    
- * 12/01/07     555         garmendariz Modified decompress method.     
+ *                                      is currently decoded but not used.
+ * 12/01/07     555         garmendariz Modified decompress method.
  * 12/06/07     555         garmendariz Modifed start point to remove satellite header
  * Dec 17, 2007 600         bphillip    Added dao pool usage
  * 04Apr2008    1068        MW Fegan    Modified decompression routine to prevent
@@ -69,13 +73,16 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 11/11/2008               chammack    Refactored to be thread safe in camel
  * 02/05/2010   4120        jkorman     Modified removeWmoHeader to handle WMOHeader in
  *                                      various start locations.
- * 04/17/2012  14724        kshresth    This is a temporary workaround - Projection off CONUS                                    
+ * 04/17/2012  14724        kshresth    This is a temporary workaround - Projection off CONUS
  * - AWIPS2 Baseline Repository --------
  * 06/27/2012    798        jkorman     Using SatelliteMessageData to "carry" the decoded image.
  * 01/03/2013  15294        D. Friedman Start with File instead of byte[] to
  *                                      reduce memory usage.
  * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util into ArraysUtil
  *
+ * Mar 19, 2013 1785        bgonzale    Added performance status handler and added status
+ *                                      to decode.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -93,6 +100,9 @@ public class SatelliteDecoder extends AbstractDecoder {
 
     private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
 
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("Satellite:");
+
     private SatelliteDao dao;
 
     public PluginDataObject[] decode(File file) throws Exception {
@@ -105,6 +115,8 @@ public class SatelliteDecoder extends AbstractDecoder {
             return new PluginDataObject[0];
         RandomAccessFile f = new RandomAccessFile(file, "r");
         try {
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
             // Read in enough data to cover the WMO heading and GINI header.
             ByteBuffer byteBuffer = ByteBuffer.allocate(INITIAL_READ);
             f.getChannel().read(byteBuffer);
@@ -429,6 +441,8 @@ public class SatelliteDecoder extends AbstractDecoder {
                     record.setMessageData(dataRec);
                 }
             }
+            timer.stop();
+            perfLog.logDuration("Time to Decode", timer.getElapsedTime());
         } finally {
             try {
                 f.close();
