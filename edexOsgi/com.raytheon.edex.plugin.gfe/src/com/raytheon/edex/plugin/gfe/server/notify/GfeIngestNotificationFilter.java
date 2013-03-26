@@ -76,6 +76,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Jan 18, 2013      #1504 randerso     Moved D2D to GFE parameter name translation from
  *                                      D2DParmIdCache to GfeIngestNotificationFilter
  * Feb 15, 2013 1638       mschenke     Moved DataURINotificationMessage to uf.common.dataplugin
+ * Mar 25, 2013       1823 dgilling     Trigger SAT smart init based only on record's
+ *                                      SectorId and PhysicalElement.
  * 
  * </pre>
  * 
@@ -271,9 +273,8 @@ public class GfeIngestNotificationFilter {
 
             for (SatelliteRecord msg : records) {
                 Date validTime = msg.getDataTime().getValidPeriod().getStart();
-                String product = msg.getSource() + "/"
-                        + msg.getCreatingEntity() + "/" + msg.getSectorID()
-                        + "/" + msg.getPhysicalElement();
+                String product = msg.getSectorID() + "/"
+                        + msg.getPhysicalElement();
                 if (satData.containsKey(product)) {
                     ParmID pid = new ParmID(satData.get(product),
                             satDb.getDbId());
