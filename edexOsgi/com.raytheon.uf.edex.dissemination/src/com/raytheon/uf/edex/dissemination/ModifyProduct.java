@@ -41,7 +41,6 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2009            njensen     Initial creation
  * 08/20/2012   DR 15340   D. Friedman Fix BBB problems
- * 03/08/2013	15564   mgamazaychikov Trimmed extra spaces in afosId
  * 
  * </pre>
  * 
@@ -72,7 +71,7 @@ public class ModifyProduct {
             List<AfosToAwips> list = dao.lookupAfosId(ttaaii, cccc).getIdList();
             String productId = null;
             for (AfosToAwips ata : list) {
-                String afosId = ata.getAfosid().trim();
+                String afosId = ata.getAfosid();
                 String awipsId = afosId.substring(3);
                 if (awipsId.equals(productAwipsId)) {
                     productId = afosId;
