@@ -8,8 +8,8 @@
 
 	<bean id="ffmpThreadPool"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
+		<property name="corePoolSize" value="2" />
+		<property name="maxPoolSize" value="4" />
 		<property name="keepAliveSeconds" value="60000" />
 	</bean>
 	
