@@ -297,6 +297,7 @@ public class RegenHrFlds {
                 e.printStackTrace();
             }
 
+            /* Clear gage edits */
             MPEDataManager.getInstance().clearEditGages();
             shell.setCursor(null);
         }
