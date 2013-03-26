@@ -768,7 +768,7 @@ static PyObject* pyjobject_numpy(PyJobject_Object *obj) {
 
         getMethod = (*env)->GetMethodID(env, numpyable, "getNumPy", "()[Ljava/lang/Object;");
         objarray = (jobjectArray) (*env)->CallObjectMethod(env, obj->object, getMethod);
-        if(objarray == NULL)
+        if(process_java_exception(env) || !objarray)
         {
                 Py_INCREF(Py_None);
                 return Py_None;
