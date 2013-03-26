@@ -1245,11 +1245,11 @@ elif SID == "HFO":
 
 # San Juan OCONUS
 elif SID == "SJU":
-    SATDATA = [("NESDIS/GOES-13(N)/East CONUS/Imager Visible", "visibleEast"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 11 micron IR", "ir11East"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 12 micron IR", "ir13East"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 3.9 micron IR", "ir39East"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
+    SATDATA = [("East CONUS/Imager Visible", "visibleEast"),
+               ("East CONUS/Imager 11 micron IR", "ir11East"),
+               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
+               ("East CONUS/Imager 3.9 micron IR", "ir39East"),
+               ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
 # Guam OCONUS
 elif SID == "GUM":
@@ -1257,16 +1257,16 @@ elif SID == "GUM":
 
 #CONUS sites
 else:
-    SATDATA = [("NESDIS/GOES-11(L)/West CONUS/Imager Visible", "visibleWest"),
-               ("NESDIS/GOES-11(L)/West CONUS/Imager 11 micron IR", "ir11West"),
-               ("NESDIS/GOES-11(L)/West CONUS/Imager 12 micron IR", "ir13West"),
-               ("NESDIS/GOES-11(L)/West CONUS/Imager 3.9 micron IR", "ir39West"),
-               ("NESDIS/GOES-11(L)/West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager Visible", "visibleEast"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 11 micron IR", "ir11East"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 12 micron IR", "ir13East"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 3.9 micron IR", "ir39East"),
-               ("NESDIS/GOES-13(N)/East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
+    SATDATA = [("West CONUS/Imager Visible", "visibleWest"),
+               ("West CONUS/Imager 11 micron IR", "ir11West"),
+               ("West CONUS/Imager 13 micron (IR)", "ir13West"),
+               ("West CONUS/Imager 3.9 micron IR", "ir39West"),
+               ("West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
+               ("East CONUS/Imager Visible", "visibleEast"),
+               ("East CONUS/Imager 11 micron IR", "ir11East"),
+               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
+               ("East CONUS/Imager 3.9 micron IR", "ir39East"),
+               ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
 #---------------------------------------------------------------------------
 #
