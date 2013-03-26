@@ -33,6 +33,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
@@ -41,6 +42,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
+import com.raytheon.viz.core.gl.dataformat.GLColorMapDataFormatFactory;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
@@ -61,6 +63,8 @@ import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2012            bsteffen     Initial creation
+ * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
+ *                                     format for offscreen textures.
  * 
  * </pre>
  * 
@@ -175,51 +179,37 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
     }
 
     public GLColormappedImage constructOffscreenImage(
-            Class<? extends Buffer> dataType, int[] dimensions)
-            throws VizException {
+            ColorMapDataType dataType, int[] dimensions) throws VizException {
         return constructOffscreenImage(dataType, dimensions, null);
     }
 
     public GLColormappedImage constructOffscreenImage(
-            Class<? extends Buffer> dataType, final int[] dimensions,
+            final ColorMapDataType dataType, final int[] dimensions,
             ColorMapParameters parameters) throws VizException {
-        int width = dimensions[0];
-        int height = dimensions[1];
-        // Need to add support for multiple buffer types
-        Buffer imageBuffer = null;
-        if (dataType.isAssignableFrom(ByteBuffer.class)) {
-            int pixels = 3;
-            if (supportsLuminance) {
-                pixels = 1;
-            }
-            byte[] buf = new byte[width * height * pixels];
-            imageBuffer = ByteBuffer.wrap(buf);
-        }
+        GLColormappedImageExtension cmapExt = target
+                .getExtension(GLColormappedImageExtension.class);
+        if (!supportsLuminance) {
+            return cmapExt.initializeRaster(new NoLuminanceDataCallback(
+                    dimensions, dataType), parameters);
+        } else {
+            GLColormappedImage image = cmapExt.initializeRaster(
+                    new IColorMapDataRetrievalCallback() {
 
-        if (imageBuffer != null) {
-            GLColormappedImage image = null;
-            final Buffer buffer = imageBuffer;
-            GLColormappedImageExtension cmapExt = target
-                    .getExtension(GLColormappedImageExtension.class);
-            if (supportsLuminance) {
-                image = cmapExt.initializeRaster(
-                        new IColorMapDataRetrievalCallback() {
-
-                            @Override
-                            public ColorMapData getColorMapData()
-                                    throws VizException {
-                                return new ColorMapData(buffer, dimensions);
-                            }
-                        }, parameters);
-            } else {
-                image = cmapExt.initializeRaster(new GLOffscreenDataCallback(
-                        buffer, dimensions), parameters);
-            }
+                        @Override
+                        public ColorMapData getColorMapData()
+                                throws VizException {
+                            return new ColorMapData(dataType, dimensions);
+                        }
+                    }, parameters);
             if (!checkedLuminance) {
                 checkedLuminance = true;
                 try {
                     renderOffscreen(image);
                 } catch (VizException e) {
+                    // Log this so it is easy to see in the console logs.
+                    new VizException(
+                            "Graphics card does not support luminance textures.",
+                            e).printStackTrace(System.out);
                     // assume we don't support luminance
                     supportsLuminance = false;
                     // Reconstruct image
@@ -230,84 +220,76 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                 }
             }
             return image;
-        } else {
-            return null;
         }
     }
 
-    private static final class GLOffscreenDataCallback implements
-            IColorMapDataRetrievalCallback, IGLColorMapDataFormatProvider {
+    private static final class NoLuminanceDataFormat extends GLByteDataFormat {
 
-        private Buffer dataBuffer;
+        // Used to get the original min/max which makes signed bytes work and
+        // theoretically will give better looking results for other integer data
+        // types.
+        private final ColorMapDataType originalType;
+
+        private NoLuminanceDataFormat(ColorMapDataType originalType) {
+            this.originalType = originalType;
+        }
+
+        @Override
+        public int getTextureInternalFormat() {
+            return GL.GL_RGB8;
+        }
+
+        @Override
+        public int getTextureFormat() {
+            return GL.GL_RGB;
+        }
+
+        @Override
+        public int getValuesPerPixel() {
+            return 3;
+        }
+
+        @Override
+        public double getDataFormatMin() {
+            return getOriginalGLColorMapDataFormat().getDataFormatMin();
+        }
+
+        @Override
+        public double getDataFormatMax() {
+            return getOriginalGLColorMapDataFormat().getDataFormatMax();
+        }
+
+        private AbstractGLColorMapDataFormat getOriginalGLColorMapDataFormat() {
+            return GLColorMapDataFormatFactory
+                    .getGLColorMapDataFormat(originalType);
+        }
+
+    }
+
+    private static final class NoLuminanceDataCallback implements
+            IColorMapDataRetrievalCallback, IGLColorMapDataFormatProvider {
 
         private int[] dimensions;
 
-        private GLOffscreenDataCallback(Buffer dataBuffer, int[] dimensions) {
-            this.dataBuffer = dataBuffer;
+        private final ColorMapDataType originalType;
+
+        private NoLuminanceDataCallback(int[] dimensions,
+                ColorMapDataType type) {
             this.dimensions = dimensions;
+            this.originalType = type;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.viz.core.gl.dataprep.IGLColorMapDataRetrievalCallback
-         * #getGLColorMapData
-         * (com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback
-         * .ColorMapData)
-         */
         @Override
         public AbstractGLColorMapDataFormat getGLColorMapDataFormat(
                 ColorMapData colorMapData) {
-            return new GLByteDataFormat() {
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see com.raytheon.viz.core.gl.dataprep.GLByteDataFormat#
-                 * getTextureInternalFormat()
-                 */
-                @Override
-                public int getTextureInternalFormat() {
-                    return GL.GL_RGB8;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * com.raytheon.viz.core.gl.dataprep.AbstractGLColorMapDataFormat
-                 * #getTextureFormat()
-                 */
-                @Override
-                public int getTextureFormat() {
-                    return GL.GL_RGB;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * com.raytheon.viz.core.gl.dataprep.AbstractGLColorMapDataFormat
-                 * #getPointsPerPixel()
-                 */
-                @Override
-                public int getValuesPerPixel() {
-                    return 3;
-                }
-
-            };
+            return new NoLuminanceDataFormat(originalType);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback#
-         * getColorMapData()
-         */
         @Override
         public ColorMapData getColorMapData() throws VizException {
-            return new ColorMapData(dataBuffer, dimensions);
+            Buffer buffer = ByteBuffer.allocate(dimensions[0] * dimensions[1]
+                    * 3);
+            return new ColorMapData(buffer, dimensions, originalType);
         }
     }
 

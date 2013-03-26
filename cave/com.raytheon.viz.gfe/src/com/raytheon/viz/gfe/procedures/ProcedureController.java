@@ -52,6 +52,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Nov 5, 2008             njensen      Initial creation
  * Jan 8, 2013  1486       dgilling     Support changes to BaseGfePyController.
  * 02/12/2013        #1597 randerso    Added logging to support GFE Performance metrics
+ * Mar 7, 2013  15717      jzeng       Change CAVE_STATIC to COMMON_STATIC
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ public class ProcedureController extends BaseGfePyController {
         super(filePath, anIncludePath, classLoader, dataManager, "Procedure");
 
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.CAVE_STATIC,
+                .getContext(LocalizationType.COMMON_STATIC,
                         LocalizationLevel.BASE);
 
         proceduresDir = GfePyIncludeUtil.getProceduresLF(baseCtx);
