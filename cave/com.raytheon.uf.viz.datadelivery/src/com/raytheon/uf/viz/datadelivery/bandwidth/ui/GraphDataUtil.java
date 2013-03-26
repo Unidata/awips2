@@ -25,11 +25,11 @@ import java.util.concurrent.Executors;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.request.GraphDataRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.response.GraphDataResponse;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * 
@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * ------------ ---------- ----------- --------------------------
  * Dec 12, 2012   1269     lvenable     Initial creation
  * Feb 14, 2013 1596       djohnson     Remove sysouts, correct statusHandler class, handle null response.
+ * Mar 26, 2013 1827       djohnson     Graph data should be requested from data delivery.
  * 
  * </pre>
  * 
@@ -146,8 +147,9 @@ public class GraphDataUtil implements Runnable {
      */
     private GraphDataResponse sendRequest(GraphDataRequest req) {
         try {
-            return (GraphDataResponse) ThriftClient.sendRequest(req);
-        } catch (VizException e) {
+            return (GraphDataResponse) RequestRouter.route(req,
+                    DataDeliveryConstants.DATA_DELIVERY_SERVER);
+        } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Error Requesting Data", e);
         }
 
