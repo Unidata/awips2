@@ -4,7 +4,6 @@
 ##          Evan Bookbinder 4-25-2012  for OB 12.3.1 (corText)
 ##          QINGLU LIN      7-31-2012 DR 15217 use roundAndPad
 ##          Qinglu Lin     12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
-##          D. Friedman    03-13-2013 DR 15892. Use printcoords.
 ################################################
 ##
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
@@ -483,7 +482,10 @@ THIS IS A TEST MESSAGE.##
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
-#printcoords(${areaPoly}, ${list})
+LAT...LON ##
+#foreach(${coord} in ${areaPoly})
+#llFormat(${coord.y}) #llFormat(${coord.x}) ##
+#end
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
