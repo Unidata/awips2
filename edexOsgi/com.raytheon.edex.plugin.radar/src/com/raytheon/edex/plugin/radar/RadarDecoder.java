@@ -65,10 +65,14 @@ import com.raytheon.uf.common.dataplugin.radar.util.TiltAngleBin;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -87,7 +91,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Dec 17, 2007 600         bphillip    Added dao pool usage
  * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz() signature changed.
  * Mar 19, 2013 1804        bsteffen    Optimize decoder performance.
- * 
+ * Mar 19, 2013 1785        bgonzale    Added performance status handler and added status
+ *                                      to decode.
  * </pre>
  * 
  * @author bphillip
@@ -131,6 +136,9 @@ public class RadarDecoder extends AbstractDecoder {
 
     private final String RADAR = "RADAR";
 
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("Radar:");
+
     public RadarDecoder() throws DecoderException {
 
         String dir = "";
@@ -170,6 +178,9 @@ public class RadarDecoder extends AbstractDecoder {
         // decode the product
         String arch = new String(messageData, 0, 4);
         try {
+            ITimer timer = TimeUtil.getTimer();
+
+            timer.start();
             // for level2 data, this does not happen very often
             if (LEVEL_TWO_IDENTS.contains(arch)) {
                 decodeLevelTwoData(messageData, recordList);
@@ -421,8 +432,11 @@ public class RadarDecoder extends AbstractDecoder {
                     logger.error(e);
                     return new PluginDataObject[0];
                 }
-                recordList.add(record);
 
+                timer.stop();
+                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
+
+                recordList.add(record);
             }
         } catch (Exception e) {
             theHandler.handle(Priority.ERROR, "Couldn't properly handle "

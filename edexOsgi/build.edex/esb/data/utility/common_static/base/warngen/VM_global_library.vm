@@ -5,7 +5,6 @@
 #####         Qinglu Lin    08-13-2012 DR 14493. Use corToNewMarker and corEventtime.
 #####         D. Friedman   11-09-2012 DR 15430. Rework included watches. 
 #####         QINGLU LIN    12-27-2012 DR 15594. Added $lock to headlineLocList.
-#####         D. Friedman   03-13-2013 DR 15892. Do not lock portion of state in firstBullet.
 ####################################################################################################
 Mile Marker Test Code                                     
 macro "mmarkers" use (called out of VM_global_library.vm):
@@ -751,7 +750,7 @@ THE ${area.name}##
 #if(${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX")
 <L>${area.name} ${area.areaNotation}</L> IN #areaFormat(${area.partOfParentRegion} true false) <L>${area.parentRegion}...</L>
 #else 
-<L>${area.name}</L> IN #areaFormat(${area.partOfParentRegion} true false) <L>${area.parentRegion}...</L>
+<L>${area.name}</L> IN <L>#areaFormat(${area.partOfParentRegion} true false) ${area.parentRegion}...</L>
 #end
 #end
 ## COMMENTED OUT 5 LINES BELOW THIS IS GENERALLY NOT UTILIZED - you can unREMARK if desired
