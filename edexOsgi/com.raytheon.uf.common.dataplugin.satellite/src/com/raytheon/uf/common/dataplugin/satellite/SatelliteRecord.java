@@ -57,7 +57,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 20081106           1515  jkorman     Changed units length from 16 to 26
  * - AWIPS2 Baseline Repository --------
- * 07/30/2012    798        jkorman     Support for common satellite data. 
+ * 07/30/2012    798        jkorman     Support for common satellite data.
+ * 03/25/2013   1823        dgilling    Replace underscores with spaces in URI
+ *                                      constructor.
  * </pre>
  * 
  * @author bphillip
@@ -77,7 +79,7 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
      * The default dataset name to use for persisted satellite data.
      */
     public static final String SAT_DATASET_NAME = DataStoreFactory.DEF_DATASET_NAME;
-    
+
     /**
      * The attribute name for a value that will be used to "fill" undefined
      * data.
@@ -178,8 +180,8 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
     @XmlAttribute
     @DynamicSerializeElement
     private Integer interpolationLevels;
-    
-    @DataURI(position = 5, embedded=true)
+
+    @DataURI(position = 5, embedded = true)
     @ManyToOne
     @PrimaryKeyJoinColumn
     @XmlElement
@@ -247,7 +249,7 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
      *            The table definition associated with this class
      */
     public SatelliteRecord(String uri) {
-        super(uri);
+        super(uri.replace('_', ' '));
     }
 
     public Integer getNumRecords() {
@@ -334,21 +336,24 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
 
     /**
      * Get the number of interpolation levels in the data store.
+     * 
      * @return The number of interpolation levels. Data that is not interpolated
-     * should return a value of 0.
+     *         should return a value of 0.
      */
     public Integer getInterpolationLevels() {
         return interpolationLevels;
     }
-    
+
     /**
-     * Set the number of interpolation levels in the data store. If the data
-     * are not interpolated a value of 0 should be used.
-     * @param levels The number of interpolation levels in the data. Any value less than
-     * zero is set to zero.
+     * Set the number of interpolation levels in the data store. If the data are
+     * not interpolated a value of 0 should be used.
+     * 
+     * @param levels
+     *            The number of interpolation levels in the data. Any value less
+     *            than zero is set to zero.
      */
     public void setInterpolationLevels(Integer levels) {
-        if(!DataStoreFactory.isInterpolated(levels)) {
+        if (!DataStoreFactory.isInterpolated(levels)) {
             levels = 0;
         }
         interpolationLevels = levels;
@@ -378,5 +383,4 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
         return dataRec;
     }
 
-    
 }
