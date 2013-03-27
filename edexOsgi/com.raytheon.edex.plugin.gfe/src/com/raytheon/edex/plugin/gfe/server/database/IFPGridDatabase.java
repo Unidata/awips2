@@ -94,7 +94,6 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * GFE Grid database containing IFP Grid data.
@@ -115,6 +114,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 02/12/13     #1608      randerso    Changed to explicitly call deleteGroups
  * 03/07/13     #1737      njensen      Logged getGridData times
  * 03/15/13     #1795      njensen      Added updatePublishTime()
+ * 03/20/13     #1774      randerso    Cleanup code to use proper constructors
  * 
  * </pre>
  * 
@@ -1191,6 +1191,7 @@ public class IFPGridDatabase extends GridDatabase {
                     "Unable to update grid history!!", e);
         }
         return sr;
+
     }
 
     /**
@@ -1591,77 +1592,79 @@ public class IFPGridDatabase extends GridDatabase {
     protected GridParmInfo populateGpi(Map<String, Object> dataAttributes)
             throws Exception {
 
-        GridParmInfo gpi = new GridParmInfo();
-        TimeConstraints tc = new TimeConstraints();
-        GridLocation location = new GridLocation();
-        ProjectionData pd = new ProjectionData();
-
-        pd.setProjectionID((String) dataAttributes
-                .get("gridLoc.projection.projectionID"));
-        pd.setProjectionType(ProjectionType.valueOf((String) dataAttributes
-                .get("gridLoc.projection.projectionType")));
-        pd.setLatLonLL(new Coordinate((Float) dataAttributes
-                .get("gridLoc.projection.latLonLL.x"), (Float) dataAttributes
-                .get("gridLoc.projection.latLonLL.y")));
-        pd.setLatLonUR(new Coordinate((Float) dataAttributes
-                .get("gridLoc.projection.latLonUR.x"), (Float) dataAttributes
-                .get("gridLoc.projection.latLonUR.y")));
-        pd.setLatLonOrigin(new Coordinate((Float) dataAttributes
-                .get("gridLoc.projection.latLonOrigin.x"),
-                (Float) dataAttributes.get("gridLoc.projection.latLonOrigin.y")));
-        pd.setStdParallelOne((Float) dataAttributes
-                .get("gridLoc.projection.stdParallelOne"));
-        pd.setStdParallelTwo((Float) dataAttributes
-                .get("gridLoc.projection.stdParallelTwo"));
-        pd.setGridPointLL(new Point((Integer) dataAttributes
-                .get("gridLoc.projection.gridPointLL.x"),
+        String projID = (String) dataAttributes
+                .get("gridLoc.projection.projectionID");
+        ProjectionType projType = ProjectionType
+                .valueOf((String) dataAttributes
+                        .get("gridLoc.projection.projectionType"));
+        Coordinate latLonLL = new Coordinate(
+                (Float) dataAttributes.get("gridLoc.projection.latLonLL.x"),
+                (Float) dataAttributes.get("gridLoc.projection.latLonLL.y"));
+        Coordinate latLonUR = new Coordinate(
+                (Float) dataAttributes.get("gridLoc.projection.latLonUR.x"),
+                (Float) dataAttributes.get("gridLoc.projection.latLonUR.y"));
+        Coordinate latLonOrig = new Coordinate(
+                (Float) dataAttributes.get("gridLoc.projection.latLonOrigin.x"),
+                (Float) dataAttributes.get("gridLoc.projection.latLonOrigin.y"));
+        Float stdPar1 = (Float) dataAttributes
+                .get("gridLoc.projection.stdParallelOne");
+        Float stdPar2 = (Float) dataAttributes
+                .get("gridLoc.projection.stdParallelTwo");
+        Point gridLL = new Point(
                 (Integer) dataAttributes
-                        .get("gridLoc.projection.gridPointLL.y")));
-        pd.setGridPointUR(new Point((Integer) dataAttributes
-                .get("gridLoc.projection.gridPointUR.x"),
+                        .get("gridLoc.projection.gridPointLL.x"),
                 (Integer) dataAttributes
-                        .get("gridLoc.projection.gridPointUR.y")));
-        pd.setLatIntersect((Float) dataAttributes
-                .get("gridLoc.projection.latIntersect"));
-        pd.setLonCenter((Float) dataAttributes
-                .get("gridLoc.projection.lonCenter"));
-        pd.setLonOrigin((Float) dataAttributes
-                .get("gridLoc.projection.lonOrigin"));
+                        .get("gridLoc.projection.gridPointLL.y"));
+        Point gridUR = new Point(
+                (Integer) dataAttributes
+                        .get("gridLoc.projection.gridPointUR.x"),
+                (Integer) dataAttributes
+                        .get("gridLoc.projection.gridPointUR.y"));
+        Float latInt = (Float) dataAttributes
+                .get("gridLoc.projection.latIntersect");
+        Float lonCenter = (Float) dataAttributes
+                .get("gridLoc.projection.lonCenter");
+        Float lonOrig = (Float) dataAttributes
+                .get("gridLoc.projection.lonOrigin");
+        ProjectionData proj = new ProjectionData(projID, projType, latLonLL,
+                latLonUR, latLonOrig, stdPar1, stdPar2, gridLL, gridUR, latInt,
+                lonCenter, lonOrig);
 
-        location.setSiteId((String) dataAttributes.get("gridLoc.siteID"));
-        location.setNx((Integer) dataAttributes.get("gridLoc.nx"));
-        location.setNy((Integer) dataAttributes.get("gridLoc.ny"));
-        location.setTimeZone((String) dataAttributes.get("gridLoc.timeZone"));
-        location.setOrigin(new Coordinate((Float) dataAttributes
-                .get("gridLoc.origin.x"), (Float) dataAttributes
-                .get("gridLoc.origin.y")));
-        location.setExtent(new Coordinate((Float) dataAttributes
-                .get("gridLoc.extent.x"), (Float) dataAttributes
-                .get("gridLoc.extent.y")));
-        location.setGeometry(new WKTReader().read((String) dataAttributes
-                .get("gridLoc.geometry")));
-        location.setCrsWKT((String) dataAttributes.get("gridLoc.crs"));
-        location.setProjection(pd);
+        String id = (String) dataAttributes.get("gridLoc.siteID");
+        int nx = (Integer) dataAttributes.get("gridLoc.nx");
+        int ny = (Integer) dataAttributes.get("gridLoc.ny");
+        Coordinate domainOrigin = new Coordinate(
+                (Float) dataAttributes.get("gridLoc.origin.x"),
+                (Float) dataAttributes.get("gridLoc.origin.y"));
+        Coordinate domainExtent = new Coordinate(
+                (Float) dataAttributes.get("gridLoc.extent.x"),
+                (Float) dataAttributes.get("gridLoc.extent.y"));
+        String timeZone = (String) dataAttributes.get("gridLoc.timeZone");
+        GridLocation gridLoc = new GridLocation(id, proj, new Point(nx, ny),
+                domainOrigin, domainExtent, timeZone);
 
-        tc.setDuration((Integer) dataAttributes.get("timeConstraints.duration"));
-        tc.setRepeatInterval((Integer) dataAttributes
-                .get("timeConstraints.repeatInterval"));
-        tc.setStartTime((Integer) dataAttributes
-                .get("timeConstraints.startTime"));
+        int duration = (Integer) dataAttributes.get("timeConstraints.duration");
+        int repeatInterval = (Integer) dataAttributes
+                .get("timeConstraints.repeatInterval");
+        int startTime = (Integer) dataAttributes
+                .get("timeConstraints.startTime");
+        TimeConstraints timeConstraints = new TimeConstraints(duration,
+                repeatInterval, startTime);
 
-        gpi.setParmID(new ParmID((String) dataAttributes.get("parmID")));
-        gpi.setGridType(GridType.valueOf((String) dataAttributes
-                .get("gridType")));
-        gpi.setDescriptiveName((String) dataAttributes.get("descriptiveName"));
-        gpi.setUnitString((String) dataAttributes.get("unitString"));
-        gpi.setMaxValue((Float) dataAttributes.get("maxValue"));
-        gpi.setMinValue((Float) dataAttributes.get("minValue"));
-        gpi.setPrecision((Integer) dataAttributes.get("precision"));
-        gpi.setRateParm((Boolean) dataAttributes.get("rateParm"));
-        gpi.setTimeIndependentParm((Boolean) dataAttributes
-                .get("timeIndependentParm"));
-        gpi.setTimeConstraints(tc);
-        gpi.setGridLoc(location);
+        ParmID parmId = new ParmID((String) dataAttributes.get("parmID"));
+        GridType gridType = GridType.valueOf((String) dataAttributes
+                .get("gridType"));
+        String descriptiveName = (String) dataAttributes.get("descriptiveName");
+        String unit = (String) dataAttributes.get("unitString");
+        Float minValue = (Float) dataAttributes.get("minValue");
+        Float maxValue = (Float) dataAttributes.get("maxValue");
+        int precision = (Integer) dataAttributes.get("precision");
+        boolean timeIndependentParm = (Boolean) dataAttributes
+                .get("timeIndependentParm");
+        boolean rateParm = (Boolean) dataAttributes.get("rateParm");
+        GridParmInfo gpi = new GridParmInfo(parmId, gridLoc, gridType, unit,
+                descriptiveName, minValue, maxValue, precision,
+                timeIndependentParm, timeConstraints, rateParm);
 
         return gpi;
     }
