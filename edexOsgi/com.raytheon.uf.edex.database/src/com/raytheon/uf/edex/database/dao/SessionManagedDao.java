@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * Feb 07, 2013 1543       djohnson     Initial creation
  * 3/18/2013    1802       bphillip    Added additional database functions. Enforcing mandatory transaction propogation
+ * 3/27/2013    1802       bphillip    Changed transaction propagation of query methods
  * 
  * </pre>
  * 
@@ -141,6 +142,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * {@inheritDoc}
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public ENTITY getById(Serializable id) {
         final Class<ENTITY> entityClass = getEntityClass();
         return entityClass.cast(template.get(entityClass, id));
@@ -150,6 +152,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * {@inheritDoc}
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<ENTITY> getAll() {
         return query("from " + getEntityClass().getSimpleName(),
                 Collections.<String, Object> emptyMap());
@@ -162,11 +165,13 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @param params
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     protected List<ENTITY> query(String queryString, Map<String, Object> params) {
         return query(queryString, params, 0);
     }
 
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED)
     protected List<ENTITY> query(String queryString,
             Map<String, Object> params, int maxResults) {
         final int numberOfParams = params.size();
@@ -193,6 +198,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @param params
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     protected ENTITY uniqueResult(String queryString, Map<String, Object> params) {
         final List<ENTITY> results = query(queryString, params);
         if (results.isEmpty()) {
@@ -215,6 +221,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @throws DataAccessLayerException
      *             If errors are encountered during the HQL query
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public <T extends Object> List<T> executeHQLQuery(String queryString)
             throws DataAccessLayerException {
         return executeHQLQuery(queryString, true, null);
@@ -231,6 +238,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @throws DataAccessLayerException
      *             If Hibernate errors occur during execution of the query
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<ENTITY> executeHQLQuery(StringBuilder queryString)
             throws DataAccessLayerException {
         return executeHQLQuery(queryString.toString(), true, null);
@@ -253,6 +261,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @throws DataAccessLayerException
      *             If Hibernate errors occur during the execution of the query
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<ENTITY> executeHQLQuery(String queryString,
             Map<String, Object> params) throws DataAccessLayerException {
         return executeHQLQuery(queryString, true, params);
@@ -272,6 +281,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      *             if errors are encountered during the HQL query
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED)
     public <T extends Object> List<T> executeHQLQuery(final String queryString,
             boolean eager, final Map<String, Object> params)
             throws DataAccessLayerException {
@@ -360,7 +370,6 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @throws DataAccessLayerException
      *             if errors are encountered during the HQL query
      */
-    @SuppressWarnings("unchecked")
     public int executeHQLStatement(final String queryString, boolean eager,
             final Map<String, Object> params) throws DataAccessLayerException {
         try {
@@ -393,6 +402,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      *             If errors occur in Hibernate while executing the query
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED)
     public <T extends Object> List<T> executeCriteriaQuery(
             final DetachedCriteria criteria) throws DataAccessLayerException {
         if (criteria == null) {
