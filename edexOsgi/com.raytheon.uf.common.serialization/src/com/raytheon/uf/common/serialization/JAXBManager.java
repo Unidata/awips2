@@ -20,10 +20,11 @@
 package com.raytheon.uf.common.serialization;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -255,28 +256,45 @@ public class JAXBManager {
      */
     public void jaxbMarshalToXmlFile(Object obj, String filePath)
             throws SerializationException {
-        FileWriter writer = null;
+        try {
+            jaxbMarshalToStream(obj, new FileOutputStream(new File(filePath)));
+        } catch (SerializationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SerializationException(e);
+        }
+
+    }
+
+    /**
+     * Convert an instance of a class to an XML representation and write XML to
+     * output stream. Uses JAXB.
+     * 
+     * @param obj
+     * @param out
+     * @throws SerializationException
+     */
+    public void jaxbMarshalToStream(Object obj, OutputStream out)
+            throws SerializationException {
         Marshaller msh = null;
         try {
             msh = getMarshaller();
             msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
-            writer = new FileWriter(new File(filePath));
-            msh.marshal(obj, writer);
+            msh.marshal(obj, out);
         } catch (Exception e) {
             throw new SerializationException(e);
         } finally {
             if (msh != null && marshallers.size() < QUEUE_SIZE) {
                 marshallers.add(msh);
             }
-            if (writer != null) {
+            if (out != null) {
                 try {
-                    writer.close();
+                    out.close();
                 } catch (IOException e) {
                     // ignore
                 }
             }
         }
-
     }
 
     /**
