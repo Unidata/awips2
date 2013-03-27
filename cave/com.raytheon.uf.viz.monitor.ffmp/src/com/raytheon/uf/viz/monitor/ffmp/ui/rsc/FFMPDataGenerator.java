@@ -213,27 +213,39 @@ public class FFMPDataGenerator {
                                                 .getCwa()))
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
-
-                                            setFFMPRow(fbd.get(key), tData,
-                                                    false, cwa);
-
-											if (virtualBasin != null) {
-												for (Long id : ft
-														.getVirtualGageBasinLookupIds(
-																siteKey,
-																key,
-																huc,
-																resource.basinTableDlg
-																		.getRowName())) {
-													setFFMPRow(
-															virtualBasin
-																	.get(id),
-															tData, true, domain
-																	.getCwa());
-												}
-											}
-										}
-									}
+                                            try {
+                                                setFFMPRow(fbd.get(key), tData,
+                                                        false, cwa);
+                                            } catch (Exception e) {
+                                                statusHandler.handle(
+                                                        Priority.PROBLEM,
+                                                        "Couldn't create table row"
+                                                                + e);
+                                            }
+                                            if (virtualBasin != null) {
+                                                for (Long id : ft
+                                                        .getVirtualGageBasinLookupIds(
+                                                                siteKey,
+                                                                key,
+                                                                huc,
+                                                                resource.basinTableDlg
+                                                                        .getRowName())) {
+                                                    try {
+                                                        setFFMPRow(
+                                                                virtualBasin
+                                                                        .get(id),
+                                                                tData, true,
+                                                                domain.getCwa());
+                                                    } catch (Exception e) {
+                                                        statusHandler
+                                                                .handle(Priority.PROBLEM,
+                                                                        "Couldn't create table row"
+                                                                                + e);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
 
                                 } else {
                                     /*
@@ -262,7 +274,10 @@ public class FFMPDataGenerator {
                                                 setFFMPRow(fbd.get(key), tData,
                                                         isVGB, null);
                                             } catch (Exception e) {
-                                                e.printStackTrace();
+                                                statusHandler.handle(
+                                                        Priority.PROBLEM,
+                                                        "Couldn't create table row"
+                                                                + e);
                                             }
                                         }
                                     }
@@ -290,20 +305,28 @@ public class FFMPDataGenerator {
 											// virtual basin
 											if (virtualBasin != null) {
 												for (Long id : ft
-														.getVirtualGageBasinLookupIds(
-																siteKey,
-																key,
-																huc,
-																resource.basinTableDlg
-																		.getRowName())) {
-													setFFMPRow(
-															virtualBasin
-																	.get(id),
-															tData, true, null);
-												}
-											}
-										}
-									}
+                                                        .getVirtualGageBasinLookupIds(
+                                                                siteKey,
+                                                                key,
+                                                                huc,
+                                                                resource.basinTableDlg
+                                                                        .getRowName())) {
+                                                    try {
+                                                        setFFMPRow(
+                                                                virtualBasin
+                                                                        .get(id),
+                                                                tData, true,
+                                                                null);
+                                                    } catch (Exception e) {
+                                                        statusHandler
+                                                                .handle(Priority.PROBLEM,
+                                                                        "Couldn't create table row"
+                                                                                + e);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
 								}
                             }
                         }
