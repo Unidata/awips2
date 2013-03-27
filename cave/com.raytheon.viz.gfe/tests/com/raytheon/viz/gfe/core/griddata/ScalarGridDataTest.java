@@ -30,15 +30,16 @@ import org.junit.Test;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.core.parm.MockParm;
 import com.raytheon.viz.gfe.core.wxvalue.ScalarWxValue;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -55,6 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Mar 26, 2008				rbell	Initial creation
+ * Mar 20, 2013    #1774    randerso    Use TimeUtil constants
  * 
  * </pre>
  * 
@@ -106,8 +108,8 @@ public class ScalarGridDataTest {
                 new Point(4, 4), new Coordinate(45, 30), new Coordinate(9, 9),
                 "CST6CDT");
 
-        TimeConstraints testTC1 = new TimeConstraints(TimeConstraints.HOUR,
-                TimeConstraints.HOUR, 0);
+        TimeConstraints testTC1 = new TimeConstraints(
+                TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_HOUR, 0);
 
         GridParmInfo testGPI1 = new GridParmInfo(testPID1, testGL1,
                 GridType.SCALAR, "F", "Temperature", -20f, 80f, 2, false,
