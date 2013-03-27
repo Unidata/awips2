@@ -29,15 +29,16 @@ import org.junit.Test;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.core.parm.MockParm;
 import com.raytheon.viz.gfe.core.wxvalue.VectorWxValue;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -53,7 +54,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Mar 26, 2008				rbell	Initial creation
+ * Mar 26, 2008				rbell	    Initial creation
+ * Mar 20, 2013    #1774    randerso    Use TimeUtil constants
  * 
  * </pre>
  * 
@@ -66,8 +68,8 @@ public class VectorGridDataTest {
     private final float testFA1[] = new float[145 * 145];
     {
         for (int i = 0; i < 145 * 145; i++) {
-            this.testFA1[i] = (float) (i + (i / (Math.pow(10.0, (i + "")
-                    .length()))));
+            this.testFA1[i] = (float) (i + (i / (Math.pow(10.0,
+                    (i + "").length()))));
         }
     }
 
@@ -104,7 +106,7 @@ public class VectorGridDataTest {
             "CST6CDT");
 
     private final TimeConstraints testTC1 = new TimeConstraints(
-            TimeConstraints.HOUR, TimeConstraints.HOUR, 0);
+            TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_HOUR, 0);
 
     private final GridParmInfo testGPI1 = new GridParmInfo(this.testPID1,
             this.testGL1, GridType.VECTOR, "F", "Temperature", -20f, 80f, 2,
