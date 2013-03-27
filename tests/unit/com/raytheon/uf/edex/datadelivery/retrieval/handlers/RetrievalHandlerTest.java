@@ -78,6 +78,7 @@ public class RetrievalHandlerTest {
 
     @Test
     public void testAllRunningRetrievalsAreResetToPendingOnConstruction() {
+        handler.executeAfterRegistryInit();
         verify(mockDao).resetRunningRetrievalsToPending();
     }
 
@@ -90,13 +91,15 @@ public class RetrievalHandlerTest {
 
     @Test
     public void testRetrievalTaskIsScheduledPerConstructorParameter() {
-        verify(executorService).scheduleWithFixedDelay(retrievalTask, 1,
+        handler.executeAfterRegistryInit();
+        verify(executorService).scheduleWithFixedDelay(retrievalTask, 30000,
                 RETRIEVAL_TASK_FREQUENCY.getMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Test
     public void testSubscriptionNotifyTaskIsScheduledPerConstructorParameter() {
-        verify(executorService).scheduleWithFixedDelay(subNotifyTask, 1,
+        handler.executeAfterRegistryInit();
+        verify(executorService).scheduleWithFixedDelay(subNotifyTask, 30000,
                 SUBNOTIFY_TASK_FREQUENCY.getMillis(), TimeUnit.MILLISECONDS);
     }
 }
