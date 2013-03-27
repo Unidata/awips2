@@ -44,7 +44,7 @@
    <!-- Performance log --> 
    <appender name="PerformanceLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-         <param name="FileNamePattern" value="${edex.home}/logs/edex-request-performance-%d{yyyyMMdd}.log"/>
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-performance-%d{yyyyMMdd}.log"/>
       </rollingPolicy> 
       <layout class="org.apache.log4j.PatternLayout"> 
          <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
