@@ -20,6 +20,17 @@
 		<property name="statsDao" ref="statsDao" />
 	</bean>
 
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod"
+			value="com.raytheon.uf.common.event.EventBus.register" />
+		<property name="arguments">
+			<list>
+				<ref bean="statsHandler" />
+			</list>
+		</property>
+	</bean>
+
 
 
 	<bean id="statsDao" class="com.raytheon.uf.edex.stats.dao.StatsDao">
