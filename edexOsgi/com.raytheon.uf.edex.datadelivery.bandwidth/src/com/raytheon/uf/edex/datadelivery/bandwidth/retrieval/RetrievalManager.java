@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.annotation.PostConstruct;
-
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.event.EventBus;
@@ -36,6 +34,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Feb 14, 2013 1596       djohnson     Warn log when unable to find a SubscriptionRetrieval.
  * 3/18/2013    1802       bphillip    Event bus registration is now a post-construct operation to ensure proxy is registered with bus
+ * 3/13/2013    1802       bphillip    Moved event bus registration from post-construct to spring static method call
  * 
  * </pre>
  * 
@@ -63,11 +62,6 @@ public class RetrievalManager {
     public RetrievalManager(IBandwidthDao bandwidthDao, Object notifier) {
         this.bandwidthDao = bandwidthDao;
         this.notifier = notifier;
-    }
-
-    @PostConstruct
-    public void registerWithEventBus() {
-        EventBus.register(this);
     }
 
     public Map<Network, RetrievalPlan> getRetrievalPlans() {
