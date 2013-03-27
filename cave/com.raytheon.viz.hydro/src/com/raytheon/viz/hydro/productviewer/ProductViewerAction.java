@@ -39,6 +39,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial creation.
  * 02/07/2013   1578        rferrel     Changes for non-blocking ProductViewerDlg.
+ * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -60,13 +61,15 @@ public class ProductViewerAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         String currentLid = HydroDisplayManager.getInstance().getCurrentLid();
 
-        if (dialog == null) {
+        if (dialog == null || dialog.isDisposed()) {
 
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             dialog = new ProductViewerDlg(shell);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-        dialog.open();
         if (currentLid != null) {
             dialog.setLid(currentLid);
         }
