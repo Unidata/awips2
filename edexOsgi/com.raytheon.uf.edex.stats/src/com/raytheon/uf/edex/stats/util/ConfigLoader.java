@@ -37,6 +37,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.stats.xml.StatisticsEvent;
 import com.raytheon.uf.common.stats.xml.StatisticsGroup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
 
@@ -59,6 +61,8 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Nov 07, 2012   1317     mpduff      Update config files.
  * Nov 29, 2012   1350     rjpeter     Updated to static, fixed localization, increased validation.
  * Jan 15, 2013   1487     djohnson    Make validate() static and public, so it can be run independently.
+ * Mar 27, 2013   1834     mpduff      Filter for xml files on localization file read, wrap unmarshall and 
+ *                                     log error if one occurs
  * </pre>
  * 
  * @author jsanchez
@@ -123,11 +127,12 @@ public class ConfigLoader {
         LocalizationContext[] searchContext = pm
                 .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
         Map<String, LocalizationFile> statConfs = new HashMap<String, LocalizationFile>();
+        String[] extensions = new String[] { ".xml" };
 
         // grab all stats from contexts, allowing overwrite by name
         for (LocalizationContext ctx : searchContext) {
             LocalizationFile[] localizationFiles = pm.listFiles(ctx, STATS_DIR,
-                    null, false, true);
+                    extensions, false, true);
             for (LocalizationFile lf : localizationFiles) {
                 String name = lf.getName();
                 if (!statConfs.containsKey(name)) {
@@ -142,13 +147,18 @@ public class ConfigLoader {
             Map<String, StatisticsEvent> myEvents = new HashMap<String, StatisticsEvent>();
 
             for (LocalizationFile lf : statConfs.values()) {
-                StatisticsConfig config = lf.jaxbUnmarshal(
-                        StatisticsConfig.class, jaxbManager);
-                if (config != null) {
-                    validate(myEvents, config);
-                    if (!config.getEvents().isEmpty()) {
-                        myConfigurations.add(config);
+                try {
+                    StatisticsConfig config = lf.jaxbUnmarshal(
+                            StatisticsConfig.class, jaxbManager);
+                    if (config != null) {
+                        validate(myEvents, config);
+                        if (!config.getEvents().isEmpty()) {
+                            myConfigurations.add(config);
+                        }
                     }
+                } catch (LocalizationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to open file [" + lf.getName() + "]", e);
                 }
             }
 
