@@ -41,6 +41,8 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 29, 2011            bsteffen     Initial creation
+ * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
+ *                                     HDF5.
  * 
  * </pre>
  * 
@@ -64,8 +66,6 @@ public class RadarStoredData {
     public static final String GRAPHIC_BLOCK_ID = "Graphic";
 
     public static final String PRODUCT_VALS_ID = "ProductVals";
-
-    public static final String ALPHANUMERIC_ID = "AlphanumericValues";
 
     public static final String TABULAR_ID = "Tabular";
 
@@ -94,8 +94,6 @@ public class RadarStoredData {
     private Map<RadarDataKey, RadarDataPoint> symbologyData = new HashMap<RadarDataKey, RadarDataPoint>();
 
     private Map<MapValues, Map<String, Map<MapValues, String>>> productVals = new HashMap<MapValues, Map<String, Map<MapValues, String>>>();
-
-    private String alphanumericValues;
 
     private Map<MapValues, Map<MapValues, String>> mapRecordVals = new HashMap<MapValues, Map<MapValues, String>>();
 
@@ -168,14 +166,6 @@ public class RadarStoredData {
     public void setProductVals(
             Map<MapValues, Map<String, Map<MapValues, String>>> productVals) {
         this.productVals = productVals;
-    }
-
-    public String getAlphanumericValues() {
-        return alphanumericValues;
-    }
-
-    public void setAlphanumericValues(String alphanumericValues) {
-        this.alphanumericValues = alphanumericValues;
     }
 
     public Map<MapValues, Map<MapValues, String>> getMapRecordVals() {
