@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
@@ -91,7 +92,7 @@ public class MapRenderableDisplay extends AbstractRenderableDisplay implements
         super();
     }
 
-    public MapRenderableDisplay(MapDescriptor desc) {
+    public MapRenderableDisplay(IMapDescriptor desc) {
         this();
         setDescriptor(desc);
     }
