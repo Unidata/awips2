@@ -109,7 +109,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking PDC_SaveDlg.
  * 13 Mar 2013 1790        rferrel     Changes for non-blocking dialog.
  *                                     Changes for non-blocking TabularDisplayDlg.
- * 
+ *                                     Bug fix for non-blocking dialogs.
  * </pre>
  * 
  * @author lvenable
@@ -1255,10 +1255,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
                         @Override
                         public void dialogClosed(Object returnValue) {
                             redrawCheck(returnValue);
+                            serviceDlg = null;
                         }
                     });
+                    serviceDlg.open();
+                } else {
+                    serviceDlg.bringToTop();
                 }
-                serviceDlg.open();
             }
         });
 
@@ -1296,10 +1299,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
                         @Override
                         public void dialogClosed(Object returnValue) {
                             redrawCheck(returnValue);
+                            dataSourceDlg = null;
                         }
                     });
+                    dataSourceDlg.open();
+                } else {
+                    dataSourceDlg.bringToTop();
                 }
-                dataSourceDlg.open();
             }
         });
 
@@ -2013,11 +2019,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
      * Opens the save dialog.
      */
     private void openSaveDialog() {
-        if (saveDlg == null) {
+        if (saveDlg == null || saveDlg.isDisposed()) {
             saveDlg = new PDC_SaveDlg(shell, selPresetCbo.getSelectionIndex(),
                     this);
+            saveDlg.open();
+        } else {
+            saveDlg.bringToTop();
         }
-        saveDlg.open();
     }
 
     /**
