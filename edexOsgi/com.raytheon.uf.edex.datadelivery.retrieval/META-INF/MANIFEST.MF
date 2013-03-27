@@ -29,7 +29,8 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.parameter;bundle-version="1.0.0",
  com.raytheon.uf.edex.event;bundle-version="1.0.0",
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
- com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
