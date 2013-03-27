@@ -100,6 +100,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  *                                     use in PngWriter
  * 01/22/2013    #1515     dgilling    Increase default size of VCModule thread pool
  *                                     to decrease UI hang-ups waiting for results.
+ * 03/20/2013    #1774     randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -243,7 +244,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     protected DatabaseID productDB;
 
-    protected List<DatabaseID> availableDatabases;
+    protected Set<DatabaseID> availableDatabases;
 
     protected final DatabaseID mutableDb;
 
@@ -320,26 +321,16 @@ public abstract class AbstractParmManager implements IParmManager {
 
         dbCategories = Arrays.asList(prefs.getStringArray("dbTypes"));
 
-        this.availableDatabases = getDatabaseInventory();
+        this.availableDatabases = new HashSet<DatabaseID>(
+                getDatabaseInventory());
 
         this.dbInvChangeListener = new AbstractGFENotificationObserver<DBInvChangeNotification>(
                 DBInvChangeNotification.class) {
 
             @Override
             public void notify(DBInvChangeNotification notificationMessage) {
-
-                List<DatabaseID> newInventory;
-                List<DatabaseID> additions = new ArrayList<DatabaseID>();
-                List<DatabaseID> deletions = new ArrayList<DatabaseID>();
-
-                newInventory = filterDbIds(notificationMessage.getInventory());
-                additions.addAll(newInventory);
-                additions.removeAll(availableDatabases);
-                deletions.addAll(availableDatabases);
-                deletions.removeAll(newInventory);
-                availableDatabases = newInventory;
-
-                updatedDatabaseList(availableDatabases, deletions, additions);
+                updatedDatabaseList(notificationMessage.getDeletions(),
+                        notificationMessage.getAdditions());
             }
 
         };
@@ -1862,15 +1853,16 @@ public abstract class AbstractParmManager implements IParmManager {
      * The list of available parms is updated based on the list of additions and
      * deletions.
      * 
-     * @param newList
-     *            The full inventory, including new additions and deletions
      * @param deletions
      *            The items being removed from the inventory
      * @param additions
      *            The items being added from the inventory
      */
-    public void updatedDatabaseList(List<DatabaseID> newList,
-            List<DatabaseID> deletions, List<DatabaseID> additions) {
+    public void updatedDatabaseList(List<DatabaseID> deletions,
+            List<DatabaseID> additions) {
+        availableDatabases.addAll(additions);
+        availableDatabases.removeAll(deletions);
+
         List<ParmID> toDelete = new ArrayList<ParmID>();
 
         for (DatabaseID dbId : deletions) {
