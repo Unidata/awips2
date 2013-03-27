@@ -34,13 +34,13 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.cache.ifpparms.IFPParmIdCache;
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
@@ -84,6 +84,7 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  *                                    missing configuration (no stack trace).
  * Feb 28, 2013  #1447    dgilling    Enable active table fetching on site
  *                                    activation.
+ * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
  * 
  * </pre>
  * 
@@ -425,7 +426,6 @@ public class GFESiteActivation implements ISiteActivationListener {
                     if (LockState.SUCCESSFUL.equals(ct.getLockState())) {
                         boolean clearTime = false;
                         try {
-                            GFEDao dao = new GFEDao();
                             List<String> d2dModels = configRef.getD2dModels();
                             List<List<String>> idsByVersion = new ArrayList<List<String>>(
                                     5);
@@ -440,10 +440,9 @@ public class GFESiteActivation implements ISiteActivationListener {
                                             .desiredDbVersions(new DatabaseID(
                                                     siteID, DataType.GRID, "",
                                                     gfeModel));
-                                    List<DatabaseID> dbIds = dao
-                                            .getD2DDatabaseIdsFromDb(
-                                                    d2dModelName, gfeModel,
-                                                    siteID, versions);
+                                    List<DatabaseID> dbIds = D2DGridDatabase
+                                            .getD2DDatabaseIdsFromDb(configRef,
+                                                    d2dModelName, versions);
 
                                     while (versions > idsByVersion.size()) {
                                         idsByVersion.add(new ArrayList<String>(
