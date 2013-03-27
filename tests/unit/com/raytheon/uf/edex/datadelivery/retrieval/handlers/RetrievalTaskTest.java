@@ -38,10 +38,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
@@ -144,6 +146,7 @@ public class RetrievalTaskTest {
     private RetrievalRequestRecord sbnRetrieval;
 
     @Autowired
+    @Qualifier(value = "retrievalDao")
     private IRetrievalDao dao;
 
     private final PlaceInCollectionProcessor retrievedDataProcessor = new PlaceInCollectionProcessor();
@@ -266,7 +269,9 @@ public class RetrievalTaskTest {
     /**
      * Stage the retrievals in the database.
      */
+    @Transactional
     private void stageRetrievals() {
+
         dao.create(opsnetRetrieval);
         dao.create(sbnRetrieval);
     }
