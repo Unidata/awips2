@@ -40,6 +40,7 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 02/07/2013   1758        rferrel     Changes for non-blocking FlashFloodGuidanceDlg.
+ * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -58,12 +59,14 @@ public class FlashFloodGuidanceAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (flashFloodDlg == null) {
+        if (flashFloodDlg == null || flashFloodDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             flashFloodDlg = new FlashFloodGuidanceDlg(shell);
+            flashFloodDlg.open();
+        } else {
+            flashFloodDlg.bringToTop();
         }
-        flashFloodDlg.open();
 
         return null;
     }
