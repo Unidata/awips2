@@ -107,8 +107,12 @@ public class AggregateManagerTest {
 
         final String expectedGroupRepresentation = jaxbManager
                 .marshalToXml(column);
-        final String actualGroupRepresentation = AggregateManager.determineGroupRepresentationForEvent(
-                statisticsConfig.getEvents().iterator().next(), mockEvent);
+        JAXBManager aggregateManagerJaxbManager = new JAXBManager(
+                StatsGroupingColumn.class);
+        new AggregateManager("60").setJaxbManager(aggregateManagerJaxbManager);
+        final String actualGroupRepresentation = AggregateManager
+                .determineGroupRepresentationForEvent(statisticsConfig
+                        .getEvents().iterator().next(), mockEvent);
         assertThat(actualGroupRepresentation,
                 is(equalTo(expectedGroupRepresentation)));
     }
