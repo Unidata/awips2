@@ -168,6 +168,24 @@
       <appender-ref ref="TextLog"/>
    </appender>
 
+   <appender name="PerformanceLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-performance-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
+   <appender name="PerformanceLogAsync" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="PerformanceLog" />
+   </appender> 
+
+   <logger name="PerformanceLogger" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="PerformanceLogAsync" />
+   </logger>
+
    <logger name="com.raytheon">
       <level value="INFO"/>
    </logger>
