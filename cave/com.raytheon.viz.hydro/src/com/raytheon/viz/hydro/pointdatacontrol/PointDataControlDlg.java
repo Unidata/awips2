@@ -1722,10 +1722,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 manager.setDrawStation(false);
-                if (tabDisplay == null) {
+                if (tabDisplay == null || tabDisplay.isDisposed()) {
                     tabDisplay = new TabularDisplayDlg(shell);
+                    tabDisplay.open();
+                } else {
+                    tabDisplay.bringToTop();
                 }
-                tabDisplay.open();
             }
         });
 

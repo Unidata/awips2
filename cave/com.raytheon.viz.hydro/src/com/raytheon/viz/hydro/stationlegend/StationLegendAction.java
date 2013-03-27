@@ -55,12 +55,14 @@ public class StationLegendAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (stationLegendDlg == null) {
+        if (stationLegendDlg == null || stationLegendDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             stationLegendDlg = new StationLegendDlg(shell);
+            stationLegendDlg.open();
+        } else {
+            stationLegendDlg.bringToTop();
         }
-        stationLegendDlg.open();
 
         return null;
     }

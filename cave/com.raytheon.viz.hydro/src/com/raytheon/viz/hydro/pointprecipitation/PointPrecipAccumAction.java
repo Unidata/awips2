@@ -57,12 +57,14 @@ public class PointPrecipAccumAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (pointPrecipDlg == null) {
+        if (pointPrecipDlg == null || pointPrecipDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             pointPrecipDlg = new PointPrecipAccumDlg(shell);
+            pointPrecipDlg.open();
+        } else {
+            pointPrecipDlg.bringToTop();
         }
-        pointPrecipDlg.open();
 
         return null;
     }
