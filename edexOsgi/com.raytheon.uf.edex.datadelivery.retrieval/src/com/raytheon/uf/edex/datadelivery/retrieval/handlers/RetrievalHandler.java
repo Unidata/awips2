@@ -31,6 +31,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.domain.api.IDuration;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
 /**
  * Provider Retrieval Handler
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
  * Jan 07, 2011            dhladky     Initial creation
  * Aug 09, 2012 1022       djohnson    Use {@link ExecutorService} for retrieval.
  * Mar 04, 2013 1647       djohnson    RetrievalTasks are now scheduled via constructor parameter.
+ * Mar 27, 2013 1802       bphillip    Scheduling of retrieval tasks now occurs after camel/spring have been initialized
  * 
  * </pre>
  * 
@@ -50,7 +52,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
  * @version 1.0
  */
 @Service
-public class RetrievalHandler {
+public class RetrievalHandler implements RegistryInitializedListener {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalHandler.class);
@@ -59,22 +61,24 @@ public class RetrievalHandler {
 
     private final List<RetrievalTask> retrievalTasks;
 
+    private IRetrievalDao retrievalDao;
+
+    private IDuration retrievalTaskFrequency;
+
+    private IDuration subnotifyTaskFrequency;
+
+    private SubscriptionNotifyTask subNotifyTask;
+
     public RetrievalHandler(ScheduledExecutorService executorService,
             IRetrievalDao retrievalDao, List<RetrievalTask> retrievalTasks,
             SubscriptionNotifyTask subNotifyTask,
             IDuration retrievalTaskFrequency, IDuration subnotifyTaskFrequency) {
         this.executorService = executorService;
         this.retrievalTasks = retrievalTasks;
-
-        // set all Running state retrievals to pending
-        retrievalDao.resetRunningRetrievalsToPending();
-
-        for (RetrievalTask retrievalTask : retrievalTasks) {
-            executorService.scheduleWithFixedDelay(retrievalTask, 1,
-                    retrievalTaskFrequency.getMillis(), TimeUnit.MILLISECONDS);
-        }
-        executorService.scheduleWithFixedDelay(subNotifyTask, 1,
-                subnotifyTaskFrequency.getMillis(), TimeUnit.MILLISECONDS);
+        this.retrievalDao = retrievalDao;
+        this.retrievalTaskFrequency = retrievalTaskFrequency;
+        this.subnotifyTaskFrequency = subnotifyTaskFrequency;
+        this.subNotifyTask = subNotifyTask;
     }
 
     public void notify(List<String> subscriptions) {
@@ -83,5 +87,19 @@ public class RetrievalHandler {
         for (RetrievalTask retrievalTask : retrievalTasks) {
             executorService.execute(retrievalTask);
         }
+    }
+
+    @Override
+    public void executeAfterRegistryInit() {
+        // set all Running state retrievals to pending
+        retrievalDao.resetRunningRetrievalsToPending();
+
+        for (RetrievalTask retrievalTask : retrievalTasks) {
+            executorService.scheduleWithFixedDelay(retrievalTask, 30000,
+                    retrievalTaskFrequency.getMillis(), TimeUnit.MILLISECONDS);
+        }
+        executorService.scheduleWithFixedDelay(subNotifyTask, 30000,
+                subnotifyTaskFrequency.getMillis(), TimeUnit.MILLISECONDS);
+
     }
 }
