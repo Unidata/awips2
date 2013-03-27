@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.raytheon.uf.edex.registry.feature"
-      label="EDEX Event Feature"
+      id="com.raytheon.uf.edex.registry.client.feature"
+      label="EDEX Registry Client Feature"
       version="1.0.0.qualifier"
       provider-name="RAYTHEON">
 
@@ -18,26 +18,25 @@
    </license>
 
    <requires>
-      <import feature="com.raytheon.uf.edex.event.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.edex.registry.client.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.edex.common.core.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
-         id="com.raytheon.uf.common.registry.schemas.iso19115"
+         id="com.raytheon.uf.common.registry.ebxml"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.ebxml"
+         id="com.raytheon.uf.common.registry.schemas.ebxml"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.registry.ebxml"
+         id="com.raytheon.uf.common.registry.event"
          download-size="0"
          install-size="0"
          version="0.0.0"
