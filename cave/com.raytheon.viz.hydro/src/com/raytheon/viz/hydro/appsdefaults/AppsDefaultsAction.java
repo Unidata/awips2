@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * TODO Add Description
+ * Action to display the Get Apps Defaults or SHEF Apps Defaults dialog.
  * 
  * <pre>
  * 
@@ -37,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
  * Jan 26, 2011            mpduff     Initial creation
  * Dec 06, 2012 1353       rferrel     Changes for non blocking GetAppsDefaults.
  *                                      Changes for non blocking SHEFAppsDefaultsDlg.
+ * Mar 27, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -62,15 +63,19 @@ public class AppsDefaultsAction extends AbstractHandler {
                 .getShell();
         String action = event.getParameter("Action");
         if (action.equals("gad")) {
-            if (gad == null) {
+            if (gad == null || gad.isDisposed()) {
                 gad = new GetAppsDefaults(shell);
+                gad.open();
+            } else {
+                gad.bringToTop();
             }
-            gad.open();
         } else {
-            if (dlg == null) {
+            if (dlg == null || dlg.isDisposed()) {
                 dlg = new SHEFAppsDefaultsDlg(shell);
+                dlg.open();
+            } else {
+                dlg.bringToTop();
             }
-            dlg.open();
         }
         return null;
     }
