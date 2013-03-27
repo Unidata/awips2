@@ -109,8 +109,6 @@ public class MPEGageResource extends AbstractMPEInputResource implements
 
     private static final double POINT_RADIUS = 2;
 
-    private static final RGB WHITE = new RGB(255, 255, 255);
-
     private final SimpleDateFormat sdf;
 
     private final Object mutex = new Object();
@@ -363,10 +361,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
         for (Coordinate point : dataMap.keySet()) {
             if (extent.contains(new double[] { point.x, point.y })) {
                 MPEGageData gageData = dataMap.get(point);
-                RGB gageColor = WHITE;
-                if (displayIsEdit) {
-                    gageColor = getGageColor(gageData);
-                }
+                RGB gageColor = getGageColor(gageData);
 
                 boolean isReportedMissing = gageData.isReported_missing();
                 boolean isMissing = ((gageData.getGval() == -999.f || gageData
