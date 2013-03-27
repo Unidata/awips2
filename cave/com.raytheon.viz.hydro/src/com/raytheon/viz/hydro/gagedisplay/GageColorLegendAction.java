@@ -33,7 +33,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 2, 2008	1194     	mpduff	Initial creation
- * Feb 07, 2013 1578        Changes for non-blocking GageLegend.
+ * Feb 07, 2013 1578        rferre      Changes for non-blocking GageLegend.
+ * Feb 27, 2013 1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -66,10 +67,11 @@ public class GageColorLegendAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        if (dialog == null) {
+        if (dialog == null || dialog.isDisposed()) {
             dialog = new GageLegend(new Shell());
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-
-        dialog.open();
     }
 }
