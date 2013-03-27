@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
  * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
  * 3/13/2013               bphillip    Updated to use spring injection of dao
+ * 3/27/2013     1802      bphillip    Made jaxb manager static and changed visibility of a method
  * </pre>
  * 
  * @author jsanchez
@@ -89,7 +90,7 @@ public class AggregateManager {
 
     private static final Object[] EMPTY_OBJ_ARR = new Object[0];
 
-    private JAXBManager jaxbManager;
+    private static JAXBManager jaxbManager;
 
     /** In minutes */
     private int bucketInterval;
@@ -100,6 +101,10 @@ public class AggregateManager {
     /** default value */
     @SuppressWarnings("unused")
     private static final int defaultScanInterval = 15;
+
+    public AggregateManager() {
+
+    }
 
     public AggregateManager(String bucketInterval) {
         validateIntervals(bucketInterval);
@@ -310,7 +315,7 @@ public class AggregateManager {
     }
 
     @VisibleForTesting
-    private String determineGroupRepresentationForEvent(
+    static String determineGroupRepresentationForEvent(
             StatisticsEvent statEvent, Event event)
             throws IllegalAccessException, InvocationTargetException,
             JAXBException {
