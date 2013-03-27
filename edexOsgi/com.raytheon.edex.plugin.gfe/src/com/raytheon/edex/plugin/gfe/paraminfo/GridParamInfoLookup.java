@@ -56,8 +56,10 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Jan 25, 2012 DR 14305   ryu          Read site parameterInfo files
  * Sep 12, 2012 #1117      dgilling     Implement method to retrieve all
  *                                      parm names for a given model.
- * Feb 15, 2013 1598       bsteffen    Make GridParamInfoLookup filter on
- *                                     extension.
+ * Feb 15, 2013 1598       bsteffen     Make GridParamInfoLookup filter on
+ *                                      extension.
+ * Mar 20, 2013 #1774      randerso     Added getModelInfo, 
+ *                                      added Dflt if no levels specified
  * 
  * </pre>
  * 
@@ -94,7 +96,14 @@ public class GridParamInfoLookup {
         init();
     }
 
-    private GridParamInfo getGridParamInfo(String mappedModel) {
+    /**
+     * Gets the model information based on the specified model
+     * 
+     * @param mappedModel
+     *            The model name
+     * @return The parameter information or null if none found
+     */
+    public GridParamInfo getGridParamInfo(String mappedModel) {
         String paramInfoName = null;
         try {
             paramInfoName = DatasetIdMapper.getInstance().lookupAliasOrNull(
@@ -209,6 +218,18 @@ public class GridParamInfoLookup {
             } catch (JAXBException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unmarshalling grid parameter information", e);
+            }
+        }
+
+        for (GridParamInfo gridParamInfo : modelParamMap.values()) {
+            for (String parmName : gridParamInfo.getParmNames()) {
+                ParameterInfo parameterInfo = gridParamInfo
+                        .getParameterInfo(parmName);
+
+                // add Dflt level if no other levels defined
+                if (parameterInfo.getLevels().isEmpty()) {
+                    parameterInfo.getLevels().add("Dflt");
+                }
             }
         }
     }
