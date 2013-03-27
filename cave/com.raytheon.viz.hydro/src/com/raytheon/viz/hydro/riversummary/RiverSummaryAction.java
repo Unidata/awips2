@@ -58,12 +58,14 @@ public class RiverSummaryAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (riverSummaryDlg == null) {
+        if (riverSummaryDlg == null || riverSummaryDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             riverSummaryDlg = new RiverSummaryDlg(shell);
+            riverSummaryDlg.open();
+        } else {
+            riverSummaryDlg.bringToTop();
         }
-        riverSummaryDlg.open();
 
         return null;
     }
