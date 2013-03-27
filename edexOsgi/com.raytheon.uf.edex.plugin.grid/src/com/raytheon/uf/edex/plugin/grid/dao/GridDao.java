@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Mar 14, 2013 1587        bsteffen    Fix static data persisting to datastore.
  * Mar 27, 2013 1821        bsteffen    Speed up GridInfoCache.   
  * 
  * </pre>
@@ -101,10 +102,13 @@ public class GridDao extends PluginDao {
             long[] sizes = new long[] { location.getNx(), location.getNy() };
             String abbrev = gridRec.getParameter().getAbbreviation();
             String group = gridRec.getDataURI();
+            String datasetName = "Data";
             if (GridPathProvider.STATIC_PARAMETERS.contains(abbrev)) {
                 group = "/" + location.getId();
+                datasetName = abbrev;
             }
-            AbstractStorageRecord storageRecord = new FloatDataRecord("Data",
+            AbstractStorageRecord storageRecord = new FloatDataRecord(
+                    datasetName,
                     group, (float[]) messageData, 2, sizes);
 
             storageRecord.setCorrelationObject(gridRec);
