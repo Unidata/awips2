@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.registry.IMultipleResultFormatter;
 import com.raytheon.uf.common.registry.IResultFormatter;
 import com.raytheon.uf.common.registry.OperationStatus;
@@ -71,6 +72,7 @@ import com.raytheon.uf.common.util.ReflectionException;
  * Sep 14, 2012 1169       djohnson    Add use of create only mode.
  * Feb 26, 2013 1643       djohnson    Remove registry manager debug toggle.
  * 3/18/2013    1802       bphillip    Implemented transaction boundaries
+ * 3/27/2013    1802       bphillip    Changed visibility of processRequest and fixed catch block to catch the correct Exception type
  * 
  * </pre>
  * 
@@ -264,8 +266,8 @@ public class FactoryRegistryHandler implements RegistryHandler {
      *            the response object to populate on error
      * @return the response
      */
-    private <T extends RegistryResponse<U>, U> T processRequest(
-            Callable<T> request, T response) {
+    <T extends RegistryResponse<U>, U> T processRequest(Callable<T> request,
+            T response) {
         T calledResponse = null;
         try {
             calledResponse = request.call();
@@ -274,7 +276,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
             calledResponse = RegistryUtil.getFailedResponse(response,
                     new RegistryException(
                             RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, e));
-        } catch (Exception e) {
+        } catch (CommunicationException e) {
             calledResponse = RegistryUtil.getFailedResponse(response, e);
         } catch (Throwable e) {
             calledResponse = RegistryUtil.getFailedResponse(response, e);

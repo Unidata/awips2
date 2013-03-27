@@ -24,15 +24,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.event.Event;
-import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.StatsRecord;
@@ -55,7 +52,8 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Aug 21, 2012            jsanchez    Removed instance variable of event bus.
  * Nov 07, 2012   1317     mpduff      Updated config files.
  * Feb 05, 2013   1580     mpduff      EventBus refactor.
- * 3/18/2013    1082       bphillip    Modified to make transactional and use spring injection
+ * 3/18/2013    1802       bphillip    Modified to make transactional and use spring injection
+ * 3/27/2013     1802      bphillip    Moved event bus registration from PostConstruct method to Spring static method call
  * 
  * </pre>
  * 
@@ -92,11 +90,6 @@ public class StatsHandler {
      */
     public StatsHandler() throws Exception {
         loadEventValidTypes();
-    }
-
-    @PostConstruct
-    public void registerWithEventBus() {
-        EventBus.register(this);
     }
 
     /**
