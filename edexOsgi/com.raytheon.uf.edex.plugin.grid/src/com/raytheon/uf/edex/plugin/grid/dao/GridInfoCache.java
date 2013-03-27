@@ -27,13 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * Cache the gridInfo objects from the database to avoid repeated lookups.
@@ -45,6 +47,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2012            bsteffen     Initial creation
+ * Mar 27, 2013 1821       bsteffen    Speed up GridInfoCache.   
  * 
  * </pre>
  * 
@@ -71,7 +74,8 @@ public class GridInfoCache {
         dao = new CoreDao(DaoConfig.forClass(GridInfoRecord.class));
     }
 
-    public GridInfoRecord getGridInfo(GridInfoRecord record) {
+    public GridInfoRecord getGridInfo(GridInfoRecord record)
+            throws DataAccessLayerException {
         GridInfoRecord result = checkLocalCache(record);
         if (result == null) {
             result = query(record);
@@ -97,19 +101,26 @@ public class GridInfoCache {
      * 
      * @param record
      * @return
+     * @throws DataAccessLayerException
      */
-    private GridInfoRecord query(GridInfoRecord record) {
+    private GridInfoRecord query(GridInfoRecord record)
+            throws DataAccessLayerException {
         // It is possible that this query will return multiple
-        // results, for example if the record we are looking for has
-        // a null secondaryId but some db entries have a secondaryId
-        // set then this query will return all matching models
-        // ignoring secondaryId. In general these cases should be
-        // rare and small. So we handle it by caching everything
-        // returned and then double checking the cache.
-        List<PersistableDataObject<Integer>> dbList = dao
-                .queryByExample(record);
+        // results, for example in the case of models with secondary ids. In
+        // general these cases should be rare and small. So we handle it by
+        // caching everything returned and then double checking the cache.
+        DatabaseQuery query = new DatabaseQuery(GridInfoRecord.class);
+        query.addQueryParam(GridInfoConstants.DATASET_ID, record.getDatasetId());
+        query.addQueryParam(GridInfoConstants.PARAMETER_ABBREVIATION, record
+                .getParameter().getAbbreviation());
+        query.addQueryParam(GridInfoConstants.LEVEL_ID, record.getLevel()
+                .getId());
+        query.addQueryParam(GridInfoConstants.LOCATION_ID, record.getLocation()
+                .getId());
+        List<?> dbList = dao.queryByCriteria(query);
+
         if (dbList != null && !dbList.isEmpty()) {
-            for (PersistableDataObject<Integer> pdo : dbList) {
+            for (Object pdo : dbList) {
                 GridInfoRecord gir = (GridInfoRecord) pdo;
                 // if we don't remove then when an entry exists already the key
                 // and value become references to different objects which is not
@@ -131,7 +142,8 @@ public class GridInfoCache {
      * @param record
      * @return
      */
-    private GridInfoRecord insert(GridInfoRecord record) {
+    private GridInfoRecord insert(GridInfoRecord record)
+            throws DataAccessLayerException {
         ClusterTask ct = null;
         do {
             ct = ClusterLockUtils.lock("grid_info", "newEntry", 30000, true);
