@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,6 +112,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 01/21/12     #1504      randerso    Back ported change to use ParameterMapper into 13.1.2
  * 02/10/13     #1603      randerso    Eliminated unnecessary conversion from lists to arrays
  * 02/12/13     #1608      randerso    Changed to use explicit deletes for groups and datasets
+ * 03/15/13     #1795      njensen      Added updatePublishTime()
  * 
  * </pre>
  * 
@@ -478,6 +480,7 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     public void updateGridHistories(ParmID parmId,
             Map<TimeRange, List<GridDataHistory>> history)
             throws DataAccessLayerException {
@@ -1137,5 +1140,60 @@ public class GFEDao extends DefaultPluginDao {
         return id.getDbId().getModelName().equals("MOSGuide")
                 && (id.getParmName().startsWith("mxt") || id.getParmName()
                         .startsWith("mnt"));
+    }
+
+    /**
+     * Updates the publish times in the database of all provided
+     * GridDataHistories. Does not alter the publish times in memory.
+     * 
+     * @param history
+     *            the histories to alter in the database
+     * @param publishTime
+     *            the publish time to update to
+     * @throws DataAccessLayerException
+     */
+    public void updatePublishTime(List<GridDataHistory> history,
+            Date publishTime) throws DataAccessLayerException {
+        StringBuilder query = new StringBuilder();
+        query.append("update gfe_gridhistory set publishtime=:publishtime where key in (");
+        Iterator<GridDataHistory> itr = history.iterator();
+        while (itr.hasNext()) {
+            query.append(itr.next().getKey());
+            if (itr.hasNext()) {
+                query.append(",");
+            }
+        }
+        query.append(");");
+
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+            Query q = sess.createSQLQuery(query.toString());
+            q.setTimestamp("publishtime", publishTime);
+            q.executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                    tx = null;
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+            throw new DataAccessLayerException("Error updating history", e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
     }
 }
