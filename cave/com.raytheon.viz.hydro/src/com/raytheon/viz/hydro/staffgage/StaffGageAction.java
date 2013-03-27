@@ -84,8 +84,10 @@ public class StaffGageAction extends AbstractHandler {
                     }
                 });
                 dialogMap.put(lid, staffGageDlg);
+                staffGageDlg.open();
+            } else {
+                staffGageDlg.bringToTop();
             }
-            staffGageDlg.open();
         }
         // throws up dialog
 
