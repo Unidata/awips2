@@ -42,10 +42,10 @@ import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.tools.bzip2.CBZip2OutputStream;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.itadaki.bzip2.BZip2OutputStream;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -1016,8 +1016,6 @@ public class RPGEnvironmentalDataManager {
                 try {
                     ByteArrayOutputStream baOut = new ByteArrayOutputStream(
                             data.length / 2);
-                    baOut.write(66); // 'B' -- BZip2 magic value
-                    baOut.write(90); // 'Z'
                     int blockSize100k = Math.max(1/*
                                                    * CBZip2OutputStream.
                                                    * MIN_BLOCKSIZE
@@ -1025,7 +1023,7 @@ public class RPGEnvironmentalDataManager {
                             Math.min(9/*
                                        * CBZip2OutputStream . MAX_BLOCKSIZE
                                        */, (data.length + 99999) / 100000));
-                    CBZip2OutputStream out = new CBZip2OutputStream(baOut,
+                    BZip2OutputStream out = new BZip2OutputStream(baOut,
                             blockSize100k);
                     // CBZip2OutputStream.chooseBlockSize(data.length) // why is
                     // this missing?
