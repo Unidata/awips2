@@ -40,6 +40,7 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 2/06/2013    1578        rferrel     Change for non-blocking DataTrashCanDlg.
+ * 2/27/2013    1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -60,12 +61,14 @@ public class DataTrashCanAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (dataTrashCanDlg == null) {
+        if (dataTrashCanDlg == null || dataTrashCanDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             dataTrashCanDlg = new DataTrashCanDlg(shell);
+            dataTrashCanDlg.open();
+        } else {
+            dataTrashCanDlg.bringToTop();
         }
-        dataTrashCanDlg.open();
 
         return null;
     }
