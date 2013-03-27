@@ -31,8 +31,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -56,6 +54,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Oct 30, 2008            snaples     Initial creation
  * Aug 8, 2012   15271	   snaples     Updated hourly slot
  * Jan 02, 2013	 15565     snaples     Fixed problem with wrong time being sent to mpe_fieldgen
+ * Mar 14, 2013   1457     mpduff      Fixed memory leak.
  * </pre>
  * 
  * @author snaples
@@ -181,8 +180,6 @@ public class RegenHrFlds {
 
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        Cursor prev = shell.getCursor();
-        Cursor wait = new Cursor(Display.getDefault(), SWT.CURSOR_WAIT);
         this.checkGages();
         boolean ref = MPEDataManager.getInstance().isRadarEditFlag();
         /* Store any gage edits into the HourlyPP or PseudoGageVal table. */
@@ -291,7 +288,7 @@ public class RegenHrFlds {
             String drr = "1 " + hour + " " + dr.format(datetime);
             System.out.println("Regen args are " + drr);
             MpeFieldGenJob regen = new MpeFieldGenJob(drr);
-            shell.setCursor(wait);
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
             regen.schedule();
             try {
                 regen.join();
@@ -300,9 +297,8 @@ public class RegenHrFlds {
                 e.printStackTrace();
             }
 
-            /* Clear gage edits */
             MPEDataManager.getInstance().clearEditGages();
-            shell.setCursor(prev);
+            shell.setCursor(null);
         }
     }
 
