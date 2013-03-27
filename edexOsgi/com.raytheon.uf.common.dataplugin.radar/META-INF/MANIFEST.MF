@@ -61,5 +61,4 @@ Import-Package: com.raytheon.edex.exception,
  javax.measure.converter,
  javax.persistence,
  org.apache.commons.logging,
- org.apache.tools.bzip2,
  org.opengis.referencing.crs

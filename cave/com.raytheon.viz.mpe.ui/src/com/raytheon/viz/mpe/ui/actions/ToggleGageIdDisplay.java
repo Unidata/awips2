@@ -20,27 +20,32 @@
 package com.raytheon.viz.mpe.ui.actions;
 
 import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageDisplay;
 
 /**
- * TODO Add Description
+ * Handler for Toggling Gage Id display.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 24, 2008  1748       snaples    Initial creation
+ * Mar 13, 2013    1457    mpduff      Initial creation.
+ * 
  * </pre>
  * 
- * @author snaples
+ * @author mpduff
  * @version 1.0
  */
 
-public class ToggleGageDisplay extends AbstractHandler {
+public class ToggleGageIdDisplay extends AbstractHandler {
 
     /*
      * (non-Javadoc)
@@ -50,12 +55,12 @@ public class ToggleGageDisplay extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        String g = arg0.getParameter("Gage");
-        GageDisplay disp = GageDisplay.valueOf(g);
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        Command command = event.getCommand();
+        boolean oldValue = HandlerUtil.toggleCommandState(command);
+
         MPEDisplayManager dm = MPEDisplayManager.getCurrent();
-        dm.toggleGageDisplay(disp);
+        dm.toggleGageDisplay(GageDisplay.Ids, !oldValue);
         return null;
     }
-
 }

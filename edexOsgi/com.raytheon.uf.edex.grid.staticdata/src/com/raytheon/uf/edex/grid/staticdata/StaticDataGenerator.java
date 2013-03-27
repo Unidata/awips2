@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010            rjpeter     Initial creation
  * Mar 07, 2013 1587       bsteffen    rewrite static data generation.
+ * Mar 14, 2013 1587       bsteffen    Fix persisting to datastore.
  * 
  * </pre>
  * 
@@ -267,7 +268,7 @@ public class StaticDataGenerator {
             for (GridRecord staticRecord : datastoreRecords) {
                 populateMessageData(staticRecord);
             }
-            dao.persistToHDF5(databaseRecords.toArray(new PluginDataObject[0]));
+            dao.persistToHDF5(datastoreRecords.toArray(new PluginDataObject[0]));
         }
         if (!databaseRecords.isEmpty()) {
             dao.persistToDatabase(databaseRecords
@@ -423,7 +424,8 @@ public class StaticDataGenerator {
                     datasets = Collections.emptyList();
                 }
             }
-            if (datasets.contains(missing)) {
+            if (!datasets.contains(staticRecord.getParameter()
+                    .getAbbreviation())) {
                 missing.add(staticRecord);
             }
         }
