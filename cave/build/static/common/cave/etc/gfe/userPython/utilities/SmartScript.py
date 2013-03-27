@@ -40,6 +40,8 @@
 #                                                 getGridCellSwath().
 #    Mar 13, 2013    1791          bsteffen       Implement bulk getGrids to
 #                                                 improve performance.
+#    Mar 13, 2013    1793          bsteffen       Performance improvements for
+#                                                 TCMWindTool
 #    
 ########################################################################
 import types, string, time, sys
@@ -792,8 +794,9 @@ class SmartScript(BaseTool.BaseTool):
         v = - v
         speed = numpy.sqrt(u * u + v * v)
         dir = numpy.arctan2(u, v) * RAD_TO_DEG
-        dir = numpy.where(numpy.greater_equal(dir, 360), dir - 360, dir)
-        dir = numpy.where(numpy.less(dir, 0), dir + 360, dir)
+        # adjust values so that 0<dir<360
+        dir[numpy.greater_equal(dir, 360)] -= 360
+        dir[numpy.less(dir, 0)] += 360
         return (speed, dir)
 
     def MagDirToUV(self, mag, dir):
