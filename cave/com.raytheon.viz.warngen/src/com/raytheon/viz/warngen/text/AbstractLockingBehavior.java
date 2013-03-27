@@ -53,6 +53,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  *                                      moved the following methods from InitialLockingBehavior to this class:
  *                                      bulletIndices(), header(), firstBullet(), secondBullet(), getImmediateCausesPtrn();
  *                                      updated body(), header(), and secondBullet();
+ * Mar 13, 2013  DR 15892  D. Friedman  Fix bullet parsing.
  * 
  * </pre>
  * 
@@ -141,10 +142,13 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
     private Integer[] bulletIndices() {
     	List<Integer> bulletIndices = new ArrayList<Integer>();
 
-    	int index = text.indexOf("* ");
+    	/* Assumes first line cannot be a bullet and that the '*' is
+    	 * at the start of a line.
+    	 */
+    	int index = text.indexOf("\n* ");
     	while (index >= 0) {
-    		bulletIndices.add(index);
-    		index = text.indexOf("* ", index + 2);
+    		bulletIndices.add(index + 1);
+    		index = text.indexOf("\n* ", index + 3);
     	}
 
     	return bulletIndices.toArray(new Integer[bulletIndices.size()]);
