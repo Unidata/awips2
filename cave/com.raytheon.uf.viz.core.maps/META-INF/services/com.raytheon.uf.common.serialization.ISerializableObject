@@ -4,3 +4,4 @@ com.raytheon.uf.viz.core.maps.rsc.DbPointMapResourceData
 com.raytheon.uf.viz.core.maps.MapStylePreferenceStore
 com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay
 com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay
+com.raytheon.uf.viz.core.maps.scales.MapScaleRenderableDisplay
