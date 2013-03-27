@@ -35,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVector;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVectorPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVector;
@@ -78,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 16, 2009            askripsk     Initial creation
  * Jul 26, 2010 #3723      bkowal       Now implements the magnification
  *                                      capability.
+ * Mar 19, 2013 1804       bsteffen    Remove empty data structures from radar
+ *                                     hdf5.
  * 
  * </pre>
  * 
@@ -335,26 +338,29 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         linkedLines.clear();
         unlinkedLines.clear();
         points.clear();
-        for (Layer currLayer : radarRecord.getSymbologyBlock().getLayers()) {
-            for (SymbologyPacket currPacket : currLayer.getPackets()) {
-                if (currPacket instanceof TextSymbolPacket) {
-                    TextSymbolPacket tsp = (TextSymbolPacket) currPacket;
-                    this.screenStringMap.put(
-                            new Coordinate(tsp.getI(), tsp.getJ()),
-                            tsp.getTheText());
-                } else if (currPacket instanceof WindBarbPacket) {
-                    WindBarbPacket pk = (WindBarbPacket) currPacket;
-                    points.addAll(Arrays.asList(pk.getPoints()));
-                } else if (currPacket instanceof UnlinkedVectorPacket) {
-                    UnlinkedVectorPacket pk = (UnlinkedVectorPacket) currPacket;
+        SymbologyBlock sb = radarRecord.getSymbologyBlock();
+        if (sb != null) {
+            for (Layer currLayer : sb.getLayers()) {
+                for (SymbologyPacket currPacket : currLayer.getPackets()) {
+                    if (currPacket instanceof TextSymbolPacket) {
+                        TextSymbolPacket tsp = (TextSymbolPacket) currPacket;
+                        this.screenStringMap.put(
+                                new Coordinate(tsp.getI(), tsp.getJ()),
+                                tsp.getTheText());
+                    } else if (currPacket instanceof WindBarbPacket) {
+                        WindBarbPacket pk = (WindBarbPacket) currPacket;
+                        points.addAll(Arrays.asList(pk.getPoints()));
+                    } else if (currPacket instanceof UnlinkedVectorPacket) {
+                        UnlinkedVectorPacket pk = (UnlinkedVectorPacket) currPacket;
 
-                    this.unlinkedLines.addAll(pk.getVectors());
-                } else if (currPacket instanceof LinkedVectorPacket) {
-                    LinkedVectorPacket pk = (LinkedVectorPacket) currPacket;
+                        this.unlinkedLines.addAll(pk.getVectors());
+                    } else if (currPacket instanceof LinkedVectorPacket) {
+                        LinkedVectorPacket pk = (LinkedVectorPacket) currPacket;
 
-                    this.linkedLines.addAll(pk.getVectors());
-                } else {
-                    System.out.println("Need: " + currPacket.getClass());
+                        this.linkedLines.addAll(pk.getVectors());
+                    } else {
+                        System.out.println("Need: " + currPacket.getClass());
+                    }
                 }
             }
         }
