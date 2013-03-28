@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 22, 2008				randerso	Initial creation
+ * Mar 26, 2013	1799      	bsteffen   	Fix pan/zoom when in views.
  * 
  * </pre>
  * 
@@ -143,11 +144,15 @@ public abstract class AbstractVizPerspectiveManager implements
                 if (newPart instanceof IEditorPart) {
                     AbstractVizPerspectiveManager mgr = VizPerspectiveListener
                             .getCurrentPerspectiveManager();
+                IWorkbenchPart newPart = part.getSite().getPage()
+                        .getActivePart();
+                if (newPart instanceof IEditorPart) {
                     if (mgr != null) {
                         for (AbstractModalTool tool : mgr.getToolManager()
                                 .getSelectedModalTools()) {
                             if (tool.getCurrentEditor() == part) {
                                 tool.deactivate();
+                            }
                             }
                         }
                     }
