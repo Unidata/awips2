@@ -13,6 +13,7 @@
     <bean id="aggregateManager" class="com.raytheon.uf.edex.stats.AggregateManager">
         <constructor-arg value="${stats.period}"/>
         <property name="aggregateDao" ref="aggregateRecordDao"/>
+        <property name="statsRecordDao" ref="statsDao"/>
         <property name="jaxbManager" ref="statsGroupingColumnJaxbManager"/>
     </bean>
 
