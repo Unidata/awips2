@@ -28,10 +28,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
@@ -53,6 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * 02/05/2008              chammack    Separated static attributes from GFERecord
  * 02/27/2008   879        rbell       Added constructors and equals(Object)
+ * 03/20/2013     #1774    randerso    Removed unnecessary XML annotations,
+ *                                     added isValid method to match A1
  * 
  * </pre>
  * 
@@ -60,7 +58,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class GridParmInfo implements Cloneable, ISerializableObject {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -91,105 +88,51 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
     }
 
     /** The parm id associated with this grid parm info */
-    @XmlElement
     @DynamicSerializeElement
     private ParmID parmID;
 
     /** The grid location associated with this grid parm info */
-    @XmlElement
     @DynamicSerializeElement
     private GridLocation gridLoc;
 
     /** The grid type */
-    @XmlAttribute
     @DynamicSerializeElement
     private GridType gridType;
 
     /** The parameter descriptive name */
-    @XmlAttribute
     @DynamicSerializeElement
     private String descriptiveName;
 
     /** The units associated with the parameter */
-    @XmlAttribute
     @DynamicSerializeElement
     private String unitString;
 
     private Unit<?> unitObject;
 
     /** The minimum allowed value */
-    @XmlAttribute
     @DynamicSerializeElement
     private float minValue;
 
     /** The maximum allowed value */
-    @XmlAttribute
     @DynamicSerializeElement
     private float maxValue;
 
     /** The precision of the value */
-    @XmlAttribute
     @DynamicSerializeElement
     private int precision;
 
     /** Is value a rate parameter */
-    @XmlAttribute
     @DynamicSerializeElement
     private boolean rateParm;
 
     /** Time Constraints */
-    @XmlElement
     @DynamicSerializeElement
     private TimeConstraints timeConstraints;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private boolean timeIndependentParm;
 
-    private void validCheck() {
-        if (!parmID.isValid()) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo.ParmID is not valid [" + parmID + ']');
-        }
-
-        if (timeConstraints == null) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo.TimeConstraints are null");
-        }
-
-        if (gridLoc == null) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo.GridLocation is null");
-        }
-
-        if (timeIndependentParm && timeConstraints.anyConstraints()) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo is invalid. There are time constraints "
-                            + " for a time independent parm.  Constraints: "
-                            + timeConstraints);
-        }
-
-        // units defined
-        if (unitString == null) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo.Units are not defined.");
-        }
-
-        // max/min/precision checks
-        if (maxValue < minValue) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo is invalid. Max<Min " + "Max=" + maxValue
-                            + " Min=" + minValue);
-        }
-
-        // precision check
-        if (precision < -2 || precision > 5) {
-            throw new IllegalArgumentException(
-                    "GridParmInfo is invalid.  Precision out of limits. "
-                            + " Precision is: " + precision
-                            + ". Must be betwwen -2 and 5");
-        }
-    }
+    private String errorMessage;
 
     public GridParmInfo() {
         gridType = GridType.NONE;
@@ -252,7 +195,10 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         this.timeConstraints = timeConstraints;
         this.rateParm = rateParm;
 
-        validCheck();
+        if (!validCheck()) {
+            statusHandler.warn(this.errorMessage);
+            setDefaultValues();
+        }
     }
 
     public GridParmInfo(ParmID id, GridLocation gridLoc, GridType gridType,
@@ -261,6 +207,87 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
             TimeConstraints timeConstraints) {
         this(id, gridLoc, gridType, unit, descriptiveName, minValue, maxValue,
                 precision, timeIndependentParm, timeConstraints, false);
+    }
+
+    /**
+     * GridParmInfo::setDefaultValues() Sets default values in private data.
+     * Sets values to 0 or their default construction. Grid type is set to NONE.
+     * 
+     */
+    private void setDefaultValues() {
+        this.parmID = new ParmID();
+        this.timeConstraints = new TimeConstraints();
+        this.gridLoc = new GridLocation();
+        this.unitString = "";
+        this.descriptiveName = "";
+        this.minValue = this.maxValue = 0.0f;
+        this.precision = 0;
+        this.timeIndependentParm = false;
+        this.gridType = GridType.NONE;
+        this.rateParm = false;
+        return;
+    }
+
+    private boolean validCheck() {
+        StringBuilder sb = new StringBuilder();
+        if (!parmID.isValid()) {
+            sb.append("GridParmInfo.ParmID is not valid [");
+            sb.append(parmID);
+            sb.append("]\n");
+        }
+
+        if (!timeConstraints.isValid()) {
+            sb.append("GridParmInfo.TimeConstraints are not valid [");
+            sb.append(timeConstraints);
+            sb.append("]\n");
+        }
+
+        if (!gridLoc.isValid()) {
+            sb.append("GridParmInfo.GridLocation is not valid\n");
+        }
+
+        if (timeIndependentParm && timeConstraints.anyConstraints()) {
+            sb.append("GridParmInfo is invalid. There are time constraints ");
+            sb.append(" for a time independent parm.  Constraints: ");
+            sb.append(timeConstraints);
+            sb.append("\n");
+        }
+
+        // units defined
+        if (unitString == null || unitString.isEmpty()) {
+            sb.append("GridParmInfo.Units are not defined.\n");
+        }
+
+        // max/min/precision checks
+        if (maxValue < minValue) {
+            sb.append("GridParmInfo is invalid. Max<Min Max=");
+            sb.append(maxValue);
+            sb.append(" Min=");
+            sb.append(minValue);
+            sb.append("\n");
+        }
+
+        // precision check
+        if (precision < -2 || precision > 5) {
+            sb.append("GridParmInfo is invalid.  Precision out of limits. ");
+            sb.append(" Precision is: ");
+            sb.append(precision);
+            sb.append(". Must be betwwen -2 and 5\n");
+        }
+
+        this.errorMessage = sb.toString();
+        if (errorMessage.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return true if valid
+     */
+    public boolean isValid() {
+        return errorMessage.isEmpty();
     }
 
     /**
