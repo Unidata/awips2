@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * 
@@ -51,6 +52,8 @@ import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2007            chammack    Port from AWIPS Common
  * 02/27/2008   879        rbell       Added compareTo(TimeRange)
+ * 03/20/2013     #1774    randerso    Changed toString to display times even when
+ *                                     duration is 0, use TimeUtil constants.
  * 
  * </pre>
  * 
@@ -100,15 +103,10 @@ import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
 public class TimeRange implements Serializable, Comparable<TimeRange>,
         ISerializableObject, Cloneable {
 
-    private static final int SEC_PER_MIN = 60;
-
-    private static final int SEC_PER_HOUR = 3600;
-
-    private static final long SEC_PER_DAY = SEC_PER_HOUR * 24;
-
     // This constant gives a value similar to GFEs AbsTime.MaxFutureValue()
     // and doesn't break Calendar like Long.MAX_VALUE does
-    private static final long MAX_TIME = (long) Integer.MAX_VALUE * 1000;
+    private static final long MAX_TIME = Integer.MAX_VALUE
+            * TimeUtil.MILLIS_PER_SECOND;
 
     /**
      * 
@@ -245,15 +243,15 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     public String durationAsPrettyString() {
         long dur = getDuration();
-        long days = dur / SEC_PER_DAY;
+        long days = dur / TimeUtil.SECONDS_PER_DAY;
 
-        dur -= days * SEC_PER_DAY;
-        long hours = dur / SEC_PER_HOUR;
+        dur -= days * TimeUtil.SECONDS_PER_DAY;
+        long hours = dur / TimeUtil.SECONDS_PER_HOUR;
 
-        dur -= hours * SEC_PER_HOUR;
-        long min = dur / SEC_PER_MIN;
+        dur -= hours * TimeUtil.SECONDS_PER_HOUR;
+        long min = dur / TimeUtil.SECONDS_PER_MINUTE;
 
-        long sec = dur - min * SEC_PER_MIN;
+        long sec = dur - min * TimeUtil.SECONDS_PER_MINUTE;
 
         StringBuilder sb = new StringBuilder();
 
@@ -534,17 +532,20 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     @Override
     public String toString() {
-        if (isValid()) {
-            final DateFormat GMTFormat = new SimpleDateFormat(
-                    "MMM dd yy HH:mm:ss zzz");
-            GMTFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        final DateFormat GMTFormat = new SimpleDateFormat(
+                "MMM dd yy HH:mm:ss zzz");
+        GMTFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            return "(" + GMTFormat.format(getStart()) + ", "
-                    + GMTFormat.format(getEnd()) + ")";
-        } else {
-            return "(Invalid)";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(GMTFormat.format(getStart()));
+        sb.append(", ");
+        sb.append(GMTFormat.format(getEnd()));
+        if (!isValid()) {
+            sb.append(", Invalid");
         }
-
+        sb.append(")");
+        return sb.toString();
     }
 
     /*
