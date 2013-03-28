@@ -88,6 +88,8 @@ public class AggregateManager {
 
     private AggregateRecordDao aggregateDao;
 
+    private StatsDao statsRecordDao;
+
     private static final Object[] EMPTY_OBJ_ARR = new Object[0];
 
     private static JAXBManager jaxbManager;
@@ -223,7 +225,6 @@ public class AggregateManager {
     public void scan() throws Exception {
         long t0 = System.currentTimeMillis();
         ConfigLoader configLoader = ConfigLoader.getInstance();
-        StatsDao statsRecordDao = new StatsDao();
 
         Map<String, StatisticsEvent> statsMap = configLoader.getTypeView();
 
@@ -372,8 +373,11 @@ public class AggregateManager {
         this.aggregateDao = aggregateDao;
     }
 
-    public void setJaxbManager(JAXBManager jaxbManager) {
-        this.jaxbManager = jaxbManager;
+    public void setStatsRecordDao(StatsDao statsRecordDao) {
+        this.statsRecordDao = statsRecordDao;
     }
 
+    public void setJaxbManager(JAXBManager jaxbManager) {
+        AggregateManager.jaxbManager = jaxbManager;
+    }
 }
