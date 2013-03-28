@@ -734,11 +734,21 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 									}
 								}
 							}
-                        }
+
+                            if (!source.getSourceType().equals(
+                                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                                String sourceSiteDataKey = getSourceSiteDataKey(source,
+                                        dataKey, ffmpRec);
+                                ffmpData.remove(sourceSiteDataKey);
+                                statusHandler.info("Removing from memory: "+sourceSiteDataKey);
+
+                            }
+                        } // ffmp.isFFTI
                     }  // record not null
                 } // end sitekey for loop
             }  // end datakey loop
         } // end process
+
     }
 
     /**
@@ -1820,6 +1830,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             ffmpData.remove(siteDataKey);
+            statusHandler.info("Removing from memory: "+siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
