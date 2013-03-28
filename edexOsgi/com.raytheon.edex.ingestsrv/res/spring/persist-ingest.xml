@@ -21,6 +21,17 @@
   
     <camelContext id="persist-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
       	
+      	<!-- Generic persist and indexing
+        	 Intended for routes that need persisting to HDF5, 
+        	 Indexing but no alert processing
+        -->
+      	<route id="persistIndex">
+        	<from uri="directvm:persistIndex"/>
+        	<bean ref="persist" method="persist"/>
+            <bean ref="index" method="index"/>
+            <bean ref="processUtil" method="log"/>
+        </route>
+      	
       	<!-- Generic persist, index and alert route 
         	 Intended for routes that need persisting to HDF5, 
         	 Indexing and Alerting
@@ -29,8 +40,8 @@
         	<from uri="directvm:persistIndexAlert"/>
         	<bean ref="persist" method="persist"/>
             <bean ref="index" method="index"/>
-            <bean ref="toDataURI" method="toDataURI"/>
             <bean ref="processUtil" method="log"/>
+            <bean ref="toDataURI" method="toDataURI"/>
             <to uri="vm:stageNotification"/> 
         </route>
         
@@ -40,8 +51,8 @@
         <route id="indexAlert">
         	<from uri="directvm:indexAlert"/>
             <bean ref="index" method="index"/>
-            <bean ref="toDataURI" method="toDataURI"/>
             <bean ref="processUtil" method="log"/>
+            <bean ref="toDataURI" method="toDataURI"/>
             <to uri="vm:stageNotification"/> 
         </route>
         
