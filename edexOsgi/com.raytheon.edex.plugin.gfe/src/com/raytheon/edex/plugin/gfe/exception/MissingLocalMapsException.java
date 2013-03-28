@@ -17,54 +17,43 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
 package com.raytheon.edex.plugin.gfe.exception;
 
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-
 /**
- * Exception class for exceptions pertaining the GFE server configuration
+ * Exception thrown when a database table referenced in localMaps.py cannot be
+ * located in the maps database.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04/08/08     #875       bphillip    Initial Creation
- * 03/28/13     #1837      dgilling    Implement missing constructors from
- *                                     super-class.
+ * Mar 28, 2013            dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author bphillip
+ * @author dgilling
  * @version 1.0
  */
-public class GfeConfigurationException extends GfeException {
+
+public class MissingLocalMapsException extends GfeConfigurationException {
 
     private static final long serialVersionUID = 1L;
 
-    public GfeConfigurationException() {
+    public MissingLocalMapsException() {
         super();
     }
 
-    /**
-     * @param aCause
-     */
-    public GfeConfigurationException(String aCause) {
-        super(aCause);
+    public MissingLocalMapsException(String message) {
+        super(message);
     }
 
-    /**
-     * Parser exception set with a cause and an existing exception. Used for
-     * exception chaining to preserve state.
-     * 
-     * @param aCause
-     * @param anException
-     */
-    public GfeConfigurationException(String aCause, Throwable anException) {
-        super(aCause, anException);
+    public MissingLocalMapsException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public GfeConfigurationException(Throwable anException) {
-        super(anException);
+    public MissingLocalMapsException(Throwable cause) {
+        super(cause);
     }
 }
