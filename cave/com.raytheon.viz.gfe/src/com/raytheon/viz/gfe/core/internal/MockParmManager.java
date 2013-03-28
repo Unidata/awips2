@@ -60,6 +60,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.DiscreteGridData;
@@ -82,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/04/2008              chammack    Initial Creation
+ * 03/20/2013     #1774    randerso    Use TimeUtil constants
  * 
  * </pre>
  * 
@@ -106,10 +108,10 @@ public class MockParmManager extends AbstractParmManager {
             "CST6CDT");
 
     private static final TimeConstraints TC1 = new TimeConstraints(
-            TimeConstraints.HOUR, TimeConstraints.HOUR, 0);
+            TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_HOUR, 0);
 
     private static final TimeConstraints TC2 = new TimeConstraints(
-            13 * TimeConstraints.HOUR, TimeConstraints.DAY, 13);
+            13 * TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_DAY, 13);
 
     protected Set<Parm> fullParmSet;
 
@@ -662,6 +664,7 @@ public class MockParmManager extends AbstractParmManager {
         return gloc;
     }
 
+    @Override
     public Parm getParmInExpr(final String exprName, boolean enableTopo) {
         return getParmInExpr(exprName, enableTopo, dataManager
                 .getSpatialDisplayManager().getActivatedParm());
@@ -795,10 +798,12 @@ public class MockParmManager extends AbstractParmManager {
 
     }
 
+    @Override
     public List<DatabaseID> getIscDatabases() {
         return new ArrayList<DatabaseID>();
     }
 
+    @Override
     public ParmID getISCParmID(ParmID pid) {
         return new ParmID();
     }
