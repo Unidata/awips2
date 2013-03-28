@@ -17,7 +17,7 @@
 	<property name="eclipse.launcher.jar"
 		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
 	
-	<target name="main" depends="clean">
+	<target name="main-build" depends="clean">
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.common.base.feature" />
@@ -113,10 +113,36 @@
 				</antcall>
 			</then>
 		</if>
-		
-		<antcall target="clean" />
 	</target>
-	
+
+    <!--
+	   In the work assignment's edexOsgi/build.edex directory, create a file named similar to the following:
+	   edexOsgi/build.edex/5-Data_Delivery-wa-build.properties
+
+	   In the file, there should be one line such as:
+	   wa.features=feature1,feature2
+    -->
+    <target name="wa-build" depends="main-build" description="Builds work assignment specific features after the main build">
+        <for param="wa.feature.list.file">
+            <fileset dir="${basedir}" includes="*-wa-build.properties" />
+            <sequential>
+                <var name="wa.features" unset="true" />
+                <property file="@{wa.feature.list.file}" />
+                <for list="${wa.features}" param="wa.feature">
+                    <sequential>
+                        <antcall target="build">
+                            <param name="feature" value="@{wa.feature}" />
+                        </antcall>
+                    </sequential>
+                </for>
+            </sequential>
+        </for>
+
+	<antcall target="clean" />
+    </target>
+
+    <target name="main" depends="clean, main-build, wa-build" />
+
 	<target name="build">		
 		<!-- Execute the eclipse pde build script. -->
 		<echo message="feature=${feature}" />
