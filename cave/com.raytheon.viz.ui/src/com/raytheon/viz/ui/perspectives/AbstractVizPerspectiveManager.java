@@ -139,11 +139,8 @@ public abstract class AbstractVizPerspectiveManager implements
             // update editor on last selected modal tool
             if (part instanceof IEditorPart
                     && part instanceof IDisplayPaneContainer) {
-                IWorkbenchPart newPart = part.getSite().getPage()
-                        .getActivePart();
-                if (newPart instanceof IEditorPart) {
-                    AbstractVizPerspectiveManager mgr = VizPerspectiveListener
-                            .getCurrentPerspectiveManager();
+                AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+                        .getCurrentPerspectiveManager();
                 IWorkbenchPart newPart = part.getSite().getPage()
                         .getActivePart();
                 if (newPart instanceof IEditorPart) {
@@ -152,7 +149,6 @@ public abstract class AbstractVizPerspectiveManager implements
                                 .getSelectedModalTools()) {
                             if (tool.getCurrentEditor() == part) {
                                 tool.deactivate();
-                            }
                             }
                         }
                     }
@@ -352,7 +348,7 @@ public abstract class AbstractVizPerspectiveManager implements
         if (activeEditor != null) {
             page.bringToTop(activeEditor.getPart(false));
             activeEditor = null;
-    }
+        }
 
         // Activate any perspective dialogs
         activateDialogs();
