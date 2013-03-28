@@ -36,6 +36,7 @@ import com.raytheon.viz.ghg.monitor.GhgMonitorDlg;
  * ------------	----------	-----------	--------------------------
  * Mar 26, 2008 1033		lvenable	Initial creation
  * Nov 15, 2012 1298        rferrel     Changes for non-blocking GhgMonitorDlg.
+ * Mar 28, 2013 1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -48,12 +49,14 @@ public class GhgMonitorAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (monitorDlg == null) {
+        if (monitorDlg == null || monitorDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             monitorDlg = new GhgMonitorDlg(shell);
+            monitorDlg.open();
+        } else {
+            monitorDlg.bringToTop();
         }
-        monitorDlg.open();
 
         return null;
     }
