@@ -392,6 +392,7 @@ public class MPEDisplayManager {
         }
         return null;
     }
+
     private final Set<IEditTimeChangedListener> timeChangedListeners = new LinkedHashSet<IEditTimeChangedListener>();
 
     private final Set<IDisplayFieldChangedListener> fieldChangedListeners = new LinkedHashSet<IDisplayFieldChangedListener>();
@@ -706,6 +707,7 @@ public class MPEDisplayManager {
                 // Remove old resource
                 list.removeRsc(displayedFieldResource);
             }
+
             fieldResourceData.setFieldData(fieldToDisplay);
             fieldResourceData.setArealDisplay(arealDisplay);
             fieldResourceData.setAccumulationInterval(accumulationHrs);
@@ -723,6 +725,7 @@ public class MPEDisplayManager {
                     listener.displayFieldChanged(oldField, fieldToDisplay);
                 }
             }
+
             // reset gages
             List<MPEGageResource> rscs = display.getDescriptor()
                     .getResourceList()
