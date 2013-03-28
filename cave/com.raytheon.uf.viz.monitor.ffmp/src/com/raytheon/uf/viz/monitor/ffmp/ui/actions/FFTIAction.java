@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ffti.FFTIControlDlg;
  * ------------ ----------  ----------- --------------------------
  * 1/27/10       4265       dhladky     Initial Creation.
  * 12/05/2012    1353       rferrel     Changes for non-blocking FFTIControlDlg.
+ * 03/28/2013    1790       rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -55,14 +56,12 @@ public class FFTIAction extends AbstractHandler {
                 .getShell();
         shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
-        // Must create new dialog when old is closed instead of just opening the
-        // old dialog again. This will restore the dialog to the last saved
-        // changes.
-        if (fftiControlDlg == null || fftiControlDlg.getShell() == null
-                || fftiControlDlg.isDisposed()) {
+        if (fftiControlDlg == null || fftiControlDlg.isDisposed()) {
             fftiControlDlg = new FFTIControlDlg(shell);
+            fftiControlDlg.open();
+        } else {
+            fftiControlDlg.bringToTop();
         }
-        fftiControlDlg.open();
         shell.setCursor(null);
         return null;
     }
