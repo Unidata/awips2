@@ -92,6 +92,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     from the environment.
  * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
  * Feb 26, 2013 1638       mschenke    Moved OGC specific functions to OGC project
+ * Mar 27, 2013 1821       bsteffen    Remove extra store in persistToHDF5 for
+ *                                     replace only operations.
  * 
  * </pre>
  * 
@@ -247,7 +249,7 @@ public abstract class PluginDao extends CoreDao {
             // directory.mkdirs();
             // }
 
-            IDataStore dataStore = DataStoreFactory.getDataStore(file);
+            IDataStore dataStore = null;
             IDataStore replaceDataStore = null;
 
             for (IPersistable persistable : persistables) {
@@ -261,6 +263,9 @@ public abstract class PluginDao extends CoreDao {
 
                         populateDataStore(replaceDataStore, persistable);
                     } else {
+                        if (dataStore == null) {
+                            dataStore = DataStoreFactory.getDataStore(file);
+                        }
                         populateDataStore(dataStore, persistable);
                     }
                 } catch (Exception e) {
@@ -268,14 +273,15 @@ public abstract class PluginDao extends CoreDao {
                 }
             }
 
-            try {
-                StorageStatus s = dataStore.store();
-                // add exceptions to a list for aggregation
-                exceptions.addAll(Arrays.asList(s.getExceptions()));
-            } catch (StorageException e) {
-                logger.error("Error persisting to HDF5", e);
+            if (dataStore != null) {
+                try {
+                    StorageStatus s = dataStore.store();
+                    // add exceptions to a list for aggregation
+                    exceptions.addAll(Arrays.asList(s.getExceptions()));
+                } catch (StorageException e) {
+                    logger.error("Error persisting to HDF5", e);
+                }
             }
-
             if (replaceDataStore != null) {
                 try {
                     StorageStatus s = replaceDataStore.store(StoreOp.REPLACE);
