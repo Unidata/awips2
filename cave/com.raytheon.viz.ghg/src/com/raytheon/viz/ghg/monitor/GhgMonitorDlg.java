@@ -114,6 +114,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 03 Dec 2012  1353       rferrel     Changes for non-blocking GhgFilterDlg.
  *                                      Changes for non-blocking GhgSaveDeleteFilterDlg.
  * 16 Jan 2013  1492       rferrel     Changes for non-blocking GhgFontDlg.
+ * 29 Mar 2013  1790       rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -1158,8 +1159,10 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
                     alertDlg = null;
                 }
             });
+            alertDlg.open();
+        } else {
+            alertDlg.bringToTop();
         }
-        alertDlg.open();
     }
 
     /**
