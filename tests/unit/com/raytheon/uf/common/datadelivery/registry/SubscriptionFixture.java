@@ -32,6 +32,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2012 0743       djohnson     Initial creation
  * Sep 28, 2012 1187       djohnson     Move reusable code to {@link BaseSubscriptionFixture}.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -39,7 +40,8 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public class SubscriptionFixture extends BaseSubscriptionFixture<Subscription> {
+public class SubscriptionFixture extends
+        BaseUserSubscriptionFixture<UserSubscription> {
 
     public static final SubscriptionFixture INSTANCE = new SubscriptionFixture();
 
@@ -53,7 +55,7 @@ public class SubscriptionFixture extends BaseSubscriptionFixture<Subscription> {
      * {@inheritDoc}
      */
     @Override
-    protected Subscription getSubscription() {
-        return new Subscription();
+    protected UserSubscription getSubscription() {
+        return new UserSubscription();
     }
 }
