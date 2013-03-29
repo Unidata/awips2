@@ -19,23 +19,24 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
-import com.raytheon.uf.common.registry.RegistryQueryResponse;
-import com.raytheon.uf.common.registry.ebxml.AssociationQuery;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
-import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * {@link IRegistryObjectHandler} implementation for {@link Subscription}.
+ * Currently only handles {@link UserSubscription} types.
  * 
  * <pre>
  * 
@@ -43,18 +44,31 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 17, 2012 1169       djohnson     Initial creation.
- * Sep 24, 2012 1157       mpduff       Change to use InitialPendingSubscription.
- * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
+ * Mar 28, 2013 1841       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class SubscriptionHandler extends
-        BaseSubscriptionHandler<Subscription, SubscriptionQuery>
-        implements ISubscriptionHandler {
+public class SubscriptionHandler implements ISubscriptionHandler {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SubscriptionHandler.class);
+
+    private static final String SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED = "Shared subscriptions are not currently supported.";
+
+    private final IUserSubscriptionHandler userSubscriptionHandler;
+
+    /**
+     * Constructor.
+     * 
+     * @param userSubscriptionHandler
+     *            the user subscription handler
+     */
+    public SubscriptionHandler(IUserSubscriptionHandler userSubscriptionHandler) {
+        this.userSubscriptionHandler = userSubscriptionHandler;
+    }
 
     /**
      * {@inheritDoc}
@@ -62,8 +76,7 @@ public class SubscriptionHandler extends
     @Override
     public Subscription getByPendingSubscription(PendingSubscription pending)
             throws RegistryHandlerException {
-        return getByPendingSubscriptionId(RegistryUtil
-                .getRegistryObjectKey(pending));
+        return userSubscriptionHandler.getByPendingSubscription(pending);
     }
 
     /**
@@ -72,63 +85,16 @@ public class SubscriptionHandler extends
     @Override
     public Subscription getByPendingSubscriptionId(final String id)
             throws RegistryHandlerException {
-        // Checks for the existence of the subscription
-        AssociationQuery query = new AssociationQuery();
-        query.setAssociationType(RegistryUtil.PATH_ASSOCIATION_RELATED_TO);
-        query.setSourceObjectId(id);
-        query.setReturnObjects(true);
-
-        RegistryQueryResponse<Object> response = RegistryManager
-                .getRegistyObjects(query);
-
-        checkResponse(response, "getByPendingSubscriptionId");
-
-        List<Object> results = response.getResults();
-        // Currently only Subscriptions are associated to
-        // PendingSubscriptions, but there could be other types of objects in
-        // the future
-        for (Object obj : results) {
-            if (obj instanceof Subscription) {
-                return Subscription.class.cast(obj);
-            }
-        }
-        return null;
+        return userSubscriptionHandler.getByPendingSubscriptionId(id);
     }
 
     /**
-     * Overridden because subscriptions must also have their
-     * {@link PendingSubscription} object deleted.
-     * @param username the username of the requester
-     * @param ids the registry ids of the subscription objects
+     * {@inheritDoc}
      */
     @Override
     public void deleteByIds(String username, List<String> ids)
             throws RegistryHandlerException {
-        IPendingSubscriptionHandler handler = RegistryObjectHandlers
-                .get(IPendingSubscriptionHandler.class);
-
-        List<InitialPendingSubscription> pending = handler.getBySubscriptionIds(ids);
-        if (!CollectionUtil.isNullOrEmpty(pending)) {
-            handler.delete(username, pending);
-        }
-
-        super.deleteByIds(username, ids);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected SubscriptionQuery getQuery() {
-        return new SubscriptionQuery();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Class<Subscription> getRegistryObjectClass() {
-        return Subscription.class;
+        this.userSubscriptionHandler.deleteByIds(username, ids);
     }
 
     /**
@@ -137,16 +103,204 @@ public class SubscriptionHandler extends
     @Override
     public List<Subscription> getActiveByDataSetAndProvider(String dataSetName,
             String providerName) throws RegistryHandlerException {
-        SubscriptionQuery query = getQuery();
-        query.setDataSetName(dataSetName);
-        query.setProviderName(providerName);
-        query.setActive(true);
+        return nullOrSubscriptionList(userSubscriptionHandler
+                .getActiveByDataSetAndProvider(dataSetName, providerName));
+    }
 
-        RegistryQueryResponse<Subscription> response = RegistryManager
-                .getRegistyObjects(query);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Subscription getByName(String name) throws RegistryHandlerException {
+        return userSubscriptionHandler.getByName(name);
+    }
 
-        checkResponse(response, "getActiveByDataSetAndProvider");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getByOwner(String owner)
+            throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler.getByOwner(owner));
+    }
 
-        return response.getResults();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getByGroupName(String group)
+            throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler
+                .getByGroupName(group));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getByFilters(String group, String officeId)
+            throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler.getByFilters(
+                group, officeId));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<String> getSubscribedToDataSetNames()
+            throws RegistryHandlerException {
+        return userSubscriptionHandler.getSubscribedToDataSetNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getActive() throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler.getActive());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getActiveForRoute(Network route)
+            throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler
+                .getActiveForRoute(route));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getActiveForRoutes(Network... routes)
+            throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler
+                .getActiveForRoutes(routes));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Subscription getById(String id) throws RegistryHandlerException {
+        return userSubscriptionHandler.getById(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getAll() throws RegistryHandlerException {
+        return nullOrSubscriptionList(userSubscriptionHandler.getAll());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void store(Subscription obj) throws RegistryHandlerException {
+        if (obj instanceof UserSubscription) {
+            userSubscriptionHandler.store((UserSubscription) obj);
+        } else {
+            statusHandler
+                    .info(SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void update(Subscription obj) throws RegistryHandlerException {
+        if (obj instanceof UserSubscription) {
+            userSubscriptionHandler.update((UserSubscription) obj);
+        } else {
+            statusHandler
+                    .info(SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delete(Subscription obj) throws RegistryHandlerException {
+        if (obj instanceof UserSubscription) {
+            userSubscriptionHandler.delete((UserSubscription) obj);
+        } else {
+            statusHandler
+                    .info(SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteById(String username, String registryId)
+            throws RegistryHandlerException {
+        userSubscriptionHandler.deleteById(username, registryId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delete(String username, Subscription obj)
+            throws RegistryHandlerException {
+        if (obj instanceof UserSubscription) {
+            userSubscriptionHandler.delete(username, (UserSubscription) obj);
+        } else {
+            statusHandler
+                    .info(SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public void delete(Collection<Subscription> objects)
+            throws RegistryHandlerException {
+        if (!CollectionUtil.isNullOrEmpty(objects)) {
+            if (objects.iterator().next() instanceof UserSubscription) {
+                final Collection asSubtype = objects;
+                userSubscriptionHandler.delete(asSubtype);
+            } else {
+                statusHandler
+                        .info(SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public void delete(String username, Collection<Subscription> objects)
+            throws RegistryHandlerException {
+        if (!CollectionUtil.isNullOrEmpty(objects)) {
+            if (objects.iterator().next() instanceof UserSubscription) {
+                final Collection asSubtype = objects;
+                userSubscriptionHandler.delete(username, asSubtype);
+            } else {
+                statusHandler
+                        .info(SHARED_SUBSCRIPTIONS_ARE_NOT_CURRENTLY_SUPPORTED);
+            }
+        }
+    }
+
+    private List<Subscription> nullOrSubscriptionList(
+            List<? extends Subscription> subscriptionList) {
+        if (subscriptionList == null) {
+            return null;
+        } else {
+            return new ArrayList<Subscription>(subscriptionList);
+        }
     }
 }

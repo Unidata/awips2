@@ -17,17 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry.ebxml;
+package com.raytheon.uf.common.datadelivery.registry;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import java.util.Random;
 
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 
 /**
- * Implementation of {@link SubscriptionFilterableQuery} to retrieve
- * {@link Subscription}s.
+ * Adds attributes specific to {@link UserSubscription} types.
  * 
  * <pre>
  * 
@@ -35,33 +32,33 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
- * Jul 23, 2012 702        jpiatt      Added setters for groupName & officeId.
- * Oct 03, 2012 1241       djohnson    Move query parameters to {@link SubscriptionFilterableQuery}.
+ * Mar 29, 2013 1841       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
- * @param <Subscription>
  */
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-public class SubscriptionQuery extends
-        SubscriptionFilterableQuery<Subscription> {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Class<Subscription> getResultType() {
-        return Subscription.class;
-    }
+
+public abstract class BaseUserSubscriptionFixture<T extends UserSubscription>
+        extends BaseSubscriptionFixture<T> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Class<Subscription> getObjectType() {
-        return Subscription.class;
+    public T getInstance(long seedValue, Random random) {
+        T subscription = super.getInstance(seedValue, random);
+
+        subscription.setOwner("owner" + random.nextInt());
+        subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
+
+        return subscription;
     }
+
+    /**
+     * @return
+     */
+    @Override
+    protected abstract T getSubscription();
 }
