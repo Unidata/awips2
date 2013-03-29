@@ -1,13 +1,6 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
-import java.util.ArrayList;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -25,14 +18,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * Mar 29, 2013 1841       djohnson    Remove JAXB annotations.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SubscriptionBundle implements ISerializableObject {
 
@@ -40,7 +32,6 @@ public class SubscriptionBundle implements ISerializableObject {
 
     }
 
-    @XmlElement
     @DynamicSerializeElement
     private Subscription subscription;
 
@@ -48,23 +39,18 @@ public class SubscriptionBundle implements ISerializableObject {
      * If this is an aggregation, these are the subscriptions being full filled
      * that may need to be subsetted/stored separately from what is returned.
      */
-    @XmlElements({ @XmlElement(name = "subscriptionsMet", type = Subscription.class) })
     @DynamicSerializeElement
-    private ArrayList<Subscription> subscriptionsMet;
+    private List<Subscription> subscriptionsMet;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private String bundleId;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer priority;
 
-    @XmlElement
     @DynamicSerializeElement
     private Connection connection;
 
-    @XmlElement
     @DynamicSerializeElement
     private Provider provider;
 
@@ -76,11 +62,11 @@ public class SubscriptionBundle implements ISerializableObject {
         this.subscription = subscription;
     }
 
-    public ArrayList<Subscription> getSubscriptionsMet() {
+    public List<Subscription> getSubscriptionsMet() {
         return subscriptionsMet;
     }
 
-    public void setSubscriptionsMet(ArrayList<Subscription> subscriptionsMet) {
+    public void setSubscriptionsMet(List<Subscription> subscriptionsMet) {
         this.subscriptionsMet = subscriptionsMet;
     }
 
@@ -126,7 +112,11 @@ public class SubscriptionBundle implements ISerializableObject {
         if (subscription != null) {
             if (subscription.getCoverage() instanceof GriddedCoverage) {
                 pt = ProviderType.GRID;
-            } else {
+            }
+            // TODO: Add more data types, currently defaulting to POINT only if
+            // not a GriddedCoverage, when there could be other data types than
+            // just Grid/Point
+            else {
                 pt = ProviderType.POINT;
             }
         }
