@@ -21,6 +21,7 @@ package com.raytheon.uf.common.datadelivery.harvester.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
@@ -65,7 +66,7 @@ public class HarvesterConfigFixture extends AbstractFixture<HarvesterConfig> {
      * {@inheritDoc}
      */
     @Override
-    public HarvesterConfig get(long seedValue) {
+    public HarvesterConfig getInstance(long seedValue, Random random) {
         HarvesterConfig config = new HarvesterConfig();
 
         CrawlAgent crawl = new CrawlAgent();
