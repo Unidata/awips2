@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -49,7 +51,7 @@ public abstract class BaseBandwidthAllocationFixture<T extends BandwidthAllocati
      * {@inheritDoc}
      */
     @Override
-    public T get(long seedValue) {
+    public T getInstance(long seedValue, Random random) {
         T entity = getBandwidthAllocation();
         entity.setActualStart(BandwidthUtil.now());
         entity.setActualEnd(BandwidthUtil.now());

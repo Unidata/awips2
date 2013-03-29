@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.service;
 
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2012 1413       bgonzale    Initial creation.
+ * Apr 01, 2013 1841       djohnson    Changed to use correct response class.
  * </pre>
  * 
  * @author bgonzale
@@ -38,7 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @DynamicSerialize
 public class ApprovedPendingSubscriptionNotificationRequest extends
-        SubscriptionNotificationRequest {
+        BaseSubscriptionNotificationRequest<InitialPendingSubscription> {
 
     /**
      * Default Constructor.
@@ -47,7 +49,7 @@ public class ApprovedPendingSubscriptionNotificationRequest extends
     }
 
     @Override
-    public SubscriptionNotificationResponse getResponse() {
+    public ApprovedPendingSubscriptionNotificationResponse getResponse() {
         return new ApprovedPendingSubscriptionNotificationResponse();
     }
 }

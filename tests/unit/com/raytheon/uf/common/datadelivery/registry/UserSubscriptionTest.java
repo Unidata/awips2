@@ -49,13 +49,14 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
  * Aug 27, 2012 0743       djohnson     Initial creation
  * Jan 02, 2013 1345       djohnson     Fix broken assertion that id matches copied object.
  * Jan 11, 2013 1453       djohnson     Add test for active period crossing year boundary.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class SubscriptionTest {
+public class UserSubscriptionTest {
 
     @Before
     public void setUp() {
@@ -73,9 +74,9 @@ public class SubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSpecifiedName() throws Exception {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        Subscription copied = new Subscription(subscription, "newName");
+        Subscription copied = new UserSubscription(subscription, "newName");
 
         assertEquals("Expected the new name to be set on the subscription!",
                 "newName", copied.getName());
@@ -84,9 +85,9 @@ public class SubscriptionTest {
     @Test
     public void testCopyConstructorSetsValuesFromSourceSubscription()
             throws Exception {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        Subscription copied = new Subscription(subscription, "newName");
+        Subscription copied = new UserSubscription(subscription, "newName");
 
         assertEquals(subscription.getActivePeriodEnd(),
                 copied.getActivePeriodEnd());

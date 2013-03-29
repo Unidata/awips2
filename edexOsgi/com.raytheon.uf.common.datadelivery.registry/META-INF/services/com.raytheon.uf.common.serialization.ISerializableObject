@@ -22,8 +22,6 @@ com.raytheon.uf.common.datadelivery.registry.ParameterLevel
 com.raytheon.uf.common.datadelivery.registry.PendingSubscription
 com.raytheon.uf.common.datadelivery.registry.Projection
 com.raytheon.uf.common.datadelivery.registry.Provider
-com.raytheon.uf.common.datadelivery.registry.Subscription
-com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle
 com.raytheon.uf.common.datadelivery.registry.Time
 com.raytheon.uf.common.datadelivery.registry.PointTime
 com.raytheon.uf.common.datadelivery.registry.GriddedTime
