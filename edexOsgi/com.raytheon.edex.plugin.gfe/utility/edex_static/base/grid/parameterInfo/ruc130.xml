@@ -107,7 +107,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
-    <units>/second</units>
+    <units>/s</units>
     <fillValue>-99999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
@@ -359,7 +359,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>cicep</short_name>
     <long_name>Categorical ice pellets</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits/>
     <uiname>CategoricalIcePlt</uiname>
     <valid_range>0.0</valid_range>
@@ -395,7 +395,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>cfrzr</short_name>
     <long_name>Categorical freezing rain</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits/>
     <uiname>CategoricalFrzRain</uiname>
     <valid_range>0.0</valid_range>
@@ -440,7 +440,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>csnow</short_name>
     <long_name>Categorical snow</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits/>
     <uiname>CategoricalSnow</uiname>
     <valid_range>0.0</valid_range>
@@ -587,7 +587,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>crain</short_name>
     <long_name>Categorical rain</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits/>
     <uiname>CategoricalRain</uiname>
     <valid_range>0.0</valid_range>
