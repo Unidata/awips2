@@ -38,6 +38,7 @@ import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -88,6 +89,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Nov 20, 2012 1286       djohnson    Implement IDisplay to display yes/no prompt.
  * Nov 28, 2012 1286       djohnson    Use subscriptionService for notification, and only notify when actually approved.
  * Dec 12, 2012 1433       bgonzale    Use new subscription copy ctor method for approval of pending subscription.
+ * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -490,7 +492,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         String username = System.getenv().get("LOGNAME");
         for (SubscriptionApprovalRowData rd: subList) {
             InitialPendingSubscription ps = rd.getSubscription();
-            Subscription s = new Subscription(ps);
+            // TODO: Add support for pending shared subscriptions
+            UserSubscription s = new UserSubscription(ps);
 
             IPendingSubscriptionHandler pendingSubHandler = RegistryObjectHandlers
                     .get(IPendingSubscriptionHandler.class);

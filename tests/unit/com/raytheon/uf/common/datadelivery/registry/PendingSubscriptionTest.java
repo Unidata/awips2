@@ -33,6 +33,7 @@ import org.junit.Test;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2012 0743       djohnson     Initial creation
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -44,7 +45,7 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsOriginalSubNameAsName() {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
         PendingSubscription pendingSubscription = new PendingSubscription(
                 subscription, "djohnson");
@@ -55,7 +56,7 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSubscriptionValuesOnPendingSubscription() {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
         PendingSubscription copied = new PendingSubscription(
                 subscription, "djohnson");
@@ -70,7 +71,6 @@ public class PendingSubscriptionTest {
         assertEquals(subscription.getDataSetType(), copied.getDataSetType());
         assertEquals(subscription.getDescription(), copied.getDescription());
         assertEquals(subscription.getGroupName(), copied.getGroupName());
-        assertEquals(subscription.getId(), copied.getId());
         assertEquals(subscription.getOfficeID(), copied.getOfficeID());
         assertEquals(subscription.getPriority(), copied.getPriority());
         assertEquals(subscription.getProvider(), copied.getProvider());
