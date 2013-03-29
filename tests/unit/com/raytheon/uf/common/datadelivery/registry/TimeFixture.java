@@ -22,6 +22,7 @@ package com.raytheon.uf.common.datadelivery.registry;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Random;
 
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -61,7 +62,7 @@ public class TimeFixture extends AbstractFixture<Time> {
      * {@inheritDoc}
      */
     @Override
-    public Time get(long seedValue) {
+    public Time getInstance(long seedValue, Random random) {
         Time time = new Time();
         time.setFormat("HHddMMMyyyy");
         time.setCycleTimes(Arrays.<Integer> asList(getCycleForSeed(seedValue)));

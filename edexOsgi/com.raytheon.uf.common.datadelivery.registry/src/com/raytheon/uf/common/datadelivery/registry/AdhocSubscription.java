@@ -42,6 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Oct 10, 2012 1261       djohnson     Copy constructor.
  * Dec 11, 2012 1403       djohnson     No longer a registry object.
  * Dec 12, 2012 1433       bgonzale     Use new Subscription copy ctor.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -52,7 +53,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "AdhocSubscription")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class AdhocSubscription extends Subscription implements ISerializableObject {
+public class AdhocSubscription extends UserSubscription implements
+        ISerializableObject {
 
     private static final long serialVersionUID = -2200080380095632486L;
 
@@ -60,7 +62,7 @@ public class AdhocSubscription extends Subscription implements ISerializableObje
         setGroupName("Adhoc");
     }
 
-    public AdhocSubscription(Subscription subscription) {
+    public AdhocSubscription(UserSubscription subscription) {
         super(subscription);
         setGroupName("Adhoc");
     }

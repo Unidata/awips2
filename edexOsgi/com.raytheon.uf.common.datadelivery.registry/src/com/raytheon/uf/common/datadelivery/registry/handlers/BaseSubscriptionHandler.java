@@ -53,7 +53,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * @version 1.0
  */
 
-abstract class BaseSubscriptionHandler<T extends Subscription, QUERY extends SubscriptionFilterableQuery<T>>
+public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY extends SubscriptionFilterableQuery<T>>
         extends BaseRegistryObjectHandler<T, QUERY> implements
         IBaseSubscriptionHandler<T> {
     /**
