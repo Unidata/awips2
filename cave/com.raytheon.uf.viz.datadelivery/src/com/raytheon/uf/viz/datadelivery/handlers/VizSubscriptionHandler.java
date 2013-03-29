@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IUserSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * ------------ ---------- ----------- --------------------------
  * Sep 27, 2012 1187       djohnson     Initial creation
  * Nov 15, 2012 1286       djohnson     Use server-keyed routing.
+ * Mar 29, 2013 1841       djohnson     Composes a userSubscriptionsHandler.
  * 
  * </pre>
  * 
@@ -49,6 +51,16 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  */
 
 public class VizSubscriptionHandler extends SubscriptionHandler {
+
+    /**
+     * Constructor.
+     * 
+     * @param userSubscriptionHandler
+     */
+    public VizSubscriptionHandler(
+            IUserSubscriptionHandler userSubscriptionHandler) {
+        super(userSubscriptionHandler);
+    }
 
     /**
      * {@inheritDoc}

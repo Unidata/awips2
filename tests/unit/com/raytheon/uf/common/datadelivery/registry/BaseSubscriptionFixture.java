@@ -39,6 +39,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Sep 27, 2012 1187       djohnson     Initial creation
  * Oct 16, 2012 0726       djohnson     Use other fixtures to get appropriate values.
  * Jan 30, 2013 1543       djohnson     Add coverage/parameter data.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -53,9 +54,7 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
      * {@inheritDoc}
      */
     @Override
-    public T get(long seedValue) {
-        Random random = new Random(seedValue);
-
+    public T getInstance(long seedValue, Random random) {
         T subscription = getSubscription();
         subscription.setActive(random.nextBoolean());
         subscription.setActivePeriodStart(TimeUtil.newDate());
@@ -76,7 +75,6 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
         subscription.setName("name" + seedValue);
         subscription.setNotify(random.nextBoolean());
         subscription.setOfficeID("officeID" + random.nextInt());
-        subscription.setOwner("owner" + random.nextInt());
         subscription.addParameter(ParameterFixture.INSTANCE.get());
         // Same priority for all, individual tests needing to test specific
         // priorities should set it manually anyway
