@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  * ------------ ---------- ----------- --------------------------
  * Feb 4, 2009             chammack    Initial creation from original IVizResource
  * Mar 3, 2009      2032   jsanchez    Added getDescriptor and paintProps.
+ * Mar 29, 2013     1638   mschenke    Fixed leak of data change listener
  * 
  * </pre>
  * 
@@ -138,6 +139,15 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     private Set<IDisposeListener> disposeListeners;
 
+    private IResourceDataChanged removeListener = new IResourceDataChanged() {
+        @Override
+        public void resourceChanged(ChangeType type, Object object) {
+            if (type == ChangeType.DATA_REMOVE && object instanceof DataTime) {
+                remove((DataTime) object);
+            }
+        }
+    };
+
     /**
      * The base constructor
      * 
@@ -156,18 +166,6 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         paintListeners = new CopyOnWriteArraySet<IPaintListener>();
         paintStatusListeners = new CopyOnWriteArraySet<IPaintStatusChangedListener>();
         disposeListeners = new CopyOnWriteArraySet<IDisposeListener>();
-
-        if (resourceData != null) {
-            resourceData.addChangeListener(new IResourceDataChanged() {
-                @Override
-                public void resourceChanged(ChangeType type, Object object) {
-                    if (type == ChangeType.DATA_REMOVE
-                            && object instanceof DataTime) {
-                        remove((DataTime) object);
-                    }
-                }
-            });
-        }
     }
 
     /**
@@ -329,6 +327,10 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         initInternal(target);
         status = ResourceStatus.INITIALIZED;
 
+        if (resourceData != null) {
+            resourceData.addChangeListener(removeListener);
+        }
+
         for (IInitListener listener : initListeners) {
             listener.inited(this);
         }
@@ -349,7 +351,13 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
     public final void dispose() {
         if (status == ResourceStatus.INITIALIZED) {
             status = ResourceStatus.DISPOSED;
-            disposeInternal();
+            try {
+                disposeInternal();
+            } finally {
+                if (resourceData != null) {
+                    resourceData.removeChangeListener(removeListener);
+                }
+            }
             for (IDisposeListener listener : disposeListeners) {
                 listener.disposed(this);
             }
