@@ -58,7 +58,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
  * The product generation scripts dialog.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -71,9 +71,10 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * Nov 13, 2012 1298       rferrel     Code changes for non-blocking UserEntryDialog.
  * Jan  9, 2013	15635	   jdynina	   Allowed to mix and match entry dialogs. Changed order
  * 									   of dialogs to match A1 displaying entry fields first.
- *
+ * Mar 29, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
+ * 
  * </pre>
- *
+ * 
  * @author ebabin
  * @version 1.0
  */
@@ -198,10 +199,8 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 cmd = cmd.replace("{productDB}", productDB.toString());
                 cmd = cmd.replace("{SEstart}", gmtTime.format(seStart));
                 cmd = cmd.replace("{SEend}", gmtTime.format(seEnd));
-                cmd = cmd.replace("{SelectedStart}",
-                        gmtTime.format(selStart));
-                cmd = cmd.replace("{SelectedEnd}",
-                        gmtTime.format(selEnd));
+                cmd = cmd.replace("{SelectedStart}", gmtTime.format(selStart));
+                cmd = cmd.replace("{SelectedEnd}", gmtTime.format(selEnd));
                 cmd = cmd.replace("{time}", curLocalTime);
                 cmd = cmd.replace("{ztime}", curGMTTime);
                 cmd = cmd.replace("{home}", gfeHome);
@@ -219,43 +218,37 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // {startTime}
                 // {endTime}
 
-
                 // The user is prompted for a named variable, same as the
                 // user-supplied variables above, but for non-standard
                 // variables.
                 int entryIdx = cmd.indexOf("{entry:");
                 if (entryIdx >= 0) {
-                	run = true; 
+                    run = true;
                     int endEntryIdx = cmd.indexOf("}", entryIdx);
                     String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
                             .split(":");
-                    String [] configFile = new String [] { entry[2] };
-                    
+                    String[] configFile = new String[] { entry[2] };
+
                     // The dialog being opened is modal to the parent dialog.
                     // This will prevent the launching of another dialog until
                     // the modal dialog is closed.
 
                     // Keep this a blocking dialog so the loop will only display
                     // one dialog at a time.
-                    fieldDefs
-                    	    .add(new FieldDefinition(
-                    	    		(Object) entry[1],
-                    	    		entry[1],
-                    	    		FieldType.ALPHANUMERIC,
-                    	    		(Object) entry[2],
-                    	    		Arrays.asList(Arrays
-                    	    				.asList(configFile)
-                    	    				.toArray(
-                    	    						new Object[configFile.length])),
-                    	            (float) 1.0, (int) 3));
-                    
+                    fieldDefs.add(new FieldDefinition((Object) entry[1],
+                            entry[1], FieldType.ALPHANUMERIC,
+                            (Object) entry[2], Arrays.asList(Arrays.asList(
+                                    configFile).toArray(
+                                    new Object[configFile.length])),
+                            (float) 1.0, (int) 3));
+
                     if (start == 0) {
                         start = entryIdx;
                     } else if ((start > 0) && (start > entryIdx)) {
-                    	start = entryIdx;
+                        start = entryIdx;
                     }
-                }             
-                
+                }
+
                 // The user is prompted for a list of radio button values.
                 // {entryButtons: <name of variable>: <list of values separated
                 // by commas>}
@@ -286,8 +279,9 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                                             (float) 1.0, (int) 3));
                             if (start == 0) {
                                 start = entryIdx;
-                            }  else if ((start > 0) && (start > entryIdx) && (i == 0)) {
-                            	start = entryIdx;
+                            } else if ((start > 0) && (start > entryIdx)
+                                    && (i == 0)) {
+                                start = entryIdx;
                             }
                             entryIdx = endEntryIdx + 1;
                             i++;
@@ -301,7 +295,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // commas>}
                 count = cmd.split("entryChecks").length - 1;
                 if (count > 0) {
-                    entryIdx = 0; 
+                    entryIdx = 0;
                     int i = 0;
                     run = true;
 
@@ -326,8 +320,9 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                                             (float) 1.0, (int) 3));
                             if (start == 0) {
                                 start = entryIdx;
-                            } else if ((start > 0) && (start > entryIdx) && (i == 0)) {
-                            	start = entryIdx;
+                            } else if ((start > 0) && (start > entryIdx)
+                                    && (i == 0)) {
+                                start = entryIdx;
                             }
                             entryIdx = endEntryIdx + 1;
                             i++;
@@ -336,25 +331,33 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 }
 
                 // Open the script dialog to allow the user to make selections;
-                // then run the script using dialog selections as script arguments
+                // then run the script using dialog selections as script
+                // arguments
                 if (run) {
-                	ValuesDialog scriptDlg = new ValuesDialog(name,
-                                        fieldDefs, dataManager);
-                    
+                    // TODO This is a modal blocking dialog. Making it
+                    // non-blocking could cause other selections from the loop
+                    // to popup a modal dialog. Need to determine if the loop
+                    // can be taken off the UI thread and a wait performed at
+                    // the top of the loop waiting for a call back method to
+                    // perform the work then do a notify.
+                    //
+                    ValuesDialog scriptDlg = new ValuesDialog(getShell(), name,
+                            fieldDefs, dataManager);
                     int dlgOpen = scriptDlg.open();
 
                     if (dlgOpen <= 0) {
-                    	Map<Object, Object> map = scriptDlg.getValues();
+                        Map<Object, Object> map = scriptDlg.getValues();
                         String returnMsg = "";
-                        
-                    	for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                        	returnMsg = returnMsg + entry.getValue().toString() + " ";
+
+                        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                            returnMsg = returnMsg + entry.getValue().toString()
+                                    + " ";
                         }
-                    	
-                    	start = start - 3;
+
+                        start = start - 3;
                         cmd = cmd.substring(0, start) + returnMsg;
-                        
-                    	TaskManager.getInstance().createScriptTask(name, cmd);
+
+                        TaskManager.getInstance().createScriptTask(name, cmd);
                     }
                 }
 
@@ -418,7 +421,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
      * .Shell)
