@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
@@ -50,6 +51,7 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * Jan 03, 2013    1420    mpduff      Initial creation.
  * Jan 14, 2013 1286       djohnson    Use the rule operator as an {@link Operator}.
  * Jan 17, 2013 1357       mpduff      DataSizeUnits was moved.
+ * Mar 28, 2013 1841       djohnson    Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -62,7 +64,7 @@ public class RuleXMLTest {
 
     @Before
     public void setUp() {
-        sub = new Subscription();
+        sub = new UserSubscription();
         sub.setDataSetName("GFS");
         sub.setDataSetType(DataType.GRID);
         sub.setDataSetSize(100);

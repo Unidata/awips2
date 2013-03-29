@@ -28,7 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
-import com.raytheon.uf.common.datadelivery.registry.PendingSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
@@ -73,7 +72,8 @@ public class SubscriptionDeleteHandlerDeployTest {
     public void testDeletingSubscriptionDeletesPendingAlso() throws Exception {
 
         Subscription subscription = SubscriptionFixture.INSTANCE.get();
-        PendingSubscription pending = PendingSubscriptionFixture.INSTANCE.get();
+        PendingSubscription pending = subscription.pending(subscription
+                .getOwner());
 
         ISubscriptionHandler subHandler = DataDeliveryHandlers
                 .getSubscriptionHandler();

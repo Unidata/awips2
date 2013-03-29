@@ -115,6 +115,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 21, 2013 1501       djohnson   Only send notification if subscription was actually activated/deactivated,
  *                                    remove race condition of GUI thread updating the table after notification.
  * Jan 22, 2013  1520      mpduff     Removed menu accelerators.
+ * Mar 29, 2013 1841       djohnson   Subscription implementations now provide a copy method.
  * </pre>
  * 
  * @author mpduff
@@ -710,7 +711,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         if (newName != null && newName.length() > 0
                 && !newName.equals(sub.getName())) {
-            Subscription newSub = new Subscription(sub, newName);
+            Subscription newSub = sub.copy(newName);
 
             // Object is copied, now store it
             try {

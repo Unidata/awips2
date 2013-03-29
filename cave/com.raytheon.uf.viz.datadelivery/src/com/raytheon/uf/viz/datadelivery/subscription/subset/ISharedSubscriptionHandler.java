@@ -17,12 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
-
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
 /**
- * Constants file for data delivery registry object types.
+ * Interface that will be implemented for phase3 datadelivery, but not in the
+ * common baseline.
  * 
  * <pre>
  * 
@@ -30,8 +29,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 5, 2012  0726       djohnson     Initial creation
- * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
+ * Mar 27, 2013 1841       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -39,22 +37,14 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * @version 1.0
  */
 
-public final class DataDeliveryRegistryObjectTypes {
+public interface ISharedSubscriptionHandler {
+
     /**
-     * Private constructor.
+     * Launch the GUI to create a shared subscription.
+     * 
+     * @param subsetManagerDlg
      */
-    private DataDeliveryRegistryObjectTypes() {
-    }
+    void launchCreateSharedSubscriptionGui(
+            SubsetManagerDlg<?, ?, ?> subsetManagerDlg);
 
-    public static final String DATASETMETADATA = RegistryUtil
-            .getObjectType(DataSetMetaData.class);
-
-    public static final String USER_SUBSCRIPTION = RegistryUtil
-            .getObjectType(UserSubscription.class);
-
-    public static final String SHARED_SUBSCRIPTION = RegistryUtil
-            .getObjectType(SharedSubscription.class);
-
-    public static final String DATASET = RegistryUtil
-            .getObjectType(DataSet.class);
 }
