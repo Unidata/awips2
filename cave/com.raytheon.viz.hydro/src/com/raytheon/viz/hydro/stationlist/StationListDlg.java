@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/10/2008   1802       askripsk    Finished single and double clicks.
  * 07/03/2010   5906       mduff       Fixed the list to match the data.
  * 02/05/2013   1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * 03/29/2013   1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -107,13 +108,18 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
      *            Parent shell.
      */
     public StationListDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Station List");
 
         PointDataControlManager.getInstance().addMapUpdateListener(this);
         HydroDisplayManager.getInstance().addStationSelectionListener(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -123,6 +129,11 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
@@ -132,6 +143,13 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -287,6 +305,9 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         });
     }
 
+    /**
+     * Prepare the display of the stations.
+     */
     private void populateStationList() {
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
@@ -327,6 +348,10 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         setSelection();
     }
 
+    /**
+     * Get site for the current selection and update the perspective's map to
+     * have the site slected.
+     */
     private void selectSite() {
         HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
         if (dataList.getSelectionIndex() == -1) {
@@ -357,6 +382,9 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         }
     }
 
+    /**
+     * Set the list to the manager's current station.
+     */
     private void setSelection() {
         // Select the previously selected station
         GageData currStation = HydroDisplayManager.getInstance()
@@ -381,6 +409,13 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrocommon.listeners.MapUpdateListener#notifyUpdate
+     * (com.raytheon.viz.hydrocommon.events.MapUpdateEvent)
+     */
     @Override
     public void notifyUpdate(MapUpdateEvent mue) {
         VizApp.runSync(new Runnable() {
@@ -393,6 +428,14 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrocommon.listeners.StationSelectionChangeListener
+     * #notifyUpdate
+     * (com.raytheon.viz.hydrocommon.events.StationSelectionChangeEvent)
+     */
     @Override
     public void notifyUpdate(StationSelectionChangeEvent sdue) {
         setSelection();
