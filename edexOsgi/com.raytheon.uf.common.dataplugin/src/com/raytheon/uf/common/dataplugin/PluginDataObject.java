@@ -22,6 +22,7 @@ package com.raytheon.uf.common.dataplugin;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -72,6 +73,8 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * 2/6/09       1990        bphillip    Added database index on dataURI
  * 3/18/09      2105        jsanchez    Added getter for id.
  *                                       Removed unused getIdentfier().
+ * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
+ *                                      dataURI fields
  * 
  * </pre>
  * 
@@ -204,6 +207,85 @@ public abstract class PluginDataObject extends PersistableDataObject implements
             }
         }
         return uriBuffer;
+    }
+
+    /**
+     * Populates the record object from a data map
+     * 
+     * @param dataMap
+     * @throws PluginException
+     */
+    public void populateFromMap(Map<String, Object> dataMap)
+            throws PluginException {
+        populateFromMap(this, dataMap);
+    }
+
+    /**
+     * Creates a mapping of dataURI fields to objects set in the record
+     * 
+     * @return
+     * @throws PluginException
+     */
+    public Map<String, Object> createDataURIMap() throws PluginException {
+        try {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("pluginName", getPluginName());
+            Field[] fields = DataURIUtil.getInstance().getAllDataURIFields(
+                    getClass());
+            for (int i = 0; i < fields.length; ++i) {
+                String fieldName = PluginDataObject.getDataURIFieldName(
+                        getClass(), i);
+                String[] nested = fieldName.split("[.]");
+                Object source = this;
+                if (nested.length > 0) {
+                    for (int j = 0; j < nested.length; ++j) {
+                        source = PropertyUtils.getProperty(source, nested[j]);
+                    }
+                    map.put(fieldName, source);
+                }
+            }
+            return map;
+        } catch (Exception e) {
+            throw new PluginException("Error constructing dataURI mapping", e);
+        }
+    }
+
+    /**
+     * Populates object from data mapping
+     * 
+     * @param object
+     * @param dataMap
+     */
+    public static void populateFromMap(Object object,
+            Map<String, Object> dataMap) throws PluginException {
+        try {
+            for (String property : dataMap.keySet()) {
+                String[] nested = property.split("[.]");
+                if (nested.length > 0) {
+                    Object source = object;
+                    for (int i = 0; i < nested.length - 1; ++i) {
+                        String field = nested[i];
+                        Object obj = PropertyUtils.getProperty(source, field);
+                        if (obj == null) {
+                            obj = PropertyUtils.getPropertyType(source, field)
+                                    .newInstance();
+                            PropertyUtils.setProperty(source, field, obj);
+                        }
+                        source = obj;
+                    }
+                    String sourceProperty = nested[nested.length - 1];
+                    Object value = dataMap.get(property);
+                    if (value != null) {
+                        PropertyUtils
+                                .setProperty(source, sourceProperty, value);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new PluginException("Error populating record type: "
+                    + (object != null ? object.getClass() : null)
+                    + " from map: " + dataMap, e);
+        }
     }
 
     /**
