@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
 import java.text.ParseException;
+import java.util.Random;
 
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -58,7 +59,7 @@ public class OpenDapGriddedDataSetMetaDataFixture extends
      * {@inheritDoc}
      */
     @Override
-    public OpenDapGriddedDataSetMetaData get(long seedValue) {
+    public OpenDapGriddedDataSetMetaData getInstance(long seedValue, Random random) {
         final Time time = TimeFixture.INSTANCE.get(seedValue);
         final OpenDapGriddedDataSet dataSet = OpenDapGriddedDataSetFixture.INSTANCE
                 .get(seedValue);
