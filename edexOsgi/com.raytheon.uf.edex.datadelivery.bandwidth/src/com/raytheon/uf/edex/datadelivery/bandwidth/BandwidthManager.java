@@ -39,6 +39,7 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
@@ -106,6 +107,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 20, 2013 1543       djohnson     Add try/catch blocks during the shutdown process.
  * Feb 27, 2013 1644       djohnson     Force sub-classes to provide an implementation for how to schedule SBN routed subscriptions.
  * Mar 11, 2013 1645       djohnson     Watch configuration file for changes.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * </pre>
  * 
  * @author dhladky
@@ -205,8 +207,10 @@ public abstract class BandwidthManager extends
                         + "]");
             }
 
-        } else if (DataDeliveryRegistryObjectTypes.SUBSCRIPTION
-                .equals(objectType)) {
+        } else if (DataDeliveryRegistryObjectTypes.USER_SUBSCRIPTION
+                .equals(objectType)
+                || DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
+                        .equals(objectType)) {
 
             Subscription subscription = getSubscription(id);
 
@@ -303,7 +307,12 @@ public abstract class BandwidthManager extends
                 Subscription sub = updateSubscriptionWithDataSetMetaData(
                         subscription, dataSetMetaData);
 
-                schedule(new AdhocSubscription(sub));
+                if (sub instanceof UserSubscription) {
+                    schedule(new AdhocSubscription((UserSubscription) sub));
+                } else {
+                    statusHandler
+                            .warn("Unable to create adhoc queries for shared subscriptions at this point.  This functionality should be added in the future...");
+                }
             }
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -572,7 +581,10 @@ public abstract class BandwidthManager extends
     public void subscriptionRemoved(RemoveRegistryEvent event) {
         String objectType = event.getObjectType();
         if (objectType != null) {
-            if (DataDeliveryRegistryObjectTypes.SUBSCRIPTION.equals(objectType)) {
+            if (DataDeliveryRegistryObjectTypes.USER_SUBSCRIPTION
+                    .equals(objectType)
+                    || DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
+                            .equals(objectType)) {
                 statusHandler
                         .info("Recieved Subscription removal notification for Subscription ["
                                 + event.getId() + "]");
@@ -739,18 +751,24 @@ public abstract class BandwidthManager extends
                 // Create an adhoc subscription based on the new subscription,
                 // and set it to retrieve the most recent cycle (or most recent
                 // url if a daily product)
-                AdhocSubscription adhoc = new AdhocSubscription(subscription);
-                adhoc = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(adhoc,
-                        useMostRecentDataSetUpdate);
+                if (subscription instanceof UserSubscription) {
+                    AdhocSubscription adhoc = new AdhocSubscription(
+                            (UserSubscription) subscription);
+                    adhoc = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(
+                            adhoc, useMostRecentDataSetUpdate);
 
-                if (adhoc == null) {
-                    statusHandler
-                            .info(String
-                                    .format("There wasn't applicable most recent dataset metadata to use for new subscription [%s].  "
-                                            + "No adhoc requested.",
-                                            subscription.getName()));
+                    if (adhoc == null) {
+                        statusHandler
+                                .info(String
+                                        .format("There wasn't applicable most recent dataset metadata to use for new subscription [%s].  "
+                                                + "No adhoc requested.",
+                                                subscription.getName()));
+                    } else {
+                        unscheduled = schedule(adhoc);
+                    }
                 } else {
-                    unscheduled = schedule(adhoc);
+                    statusHandler
+                            .warn("Unable to create adhoc queries for shared subscriptions at this point.  This functionality should be added in the future...");
                 }
                 return unscheduled;
             } else if (!subscription.isActive() || subscription.isUnscheduled()) {
@@ -1598,7 +1616,7 @@ public abstract class BandwidthManager extends
             previousLatency = latency;
             latency *= 2;
 
-            Subscription clone = new Subscription(subscription);
+            Subscription clone = subscription.copy();
             clone.setLatencyInMinutes(latency);
             foundLatency = isSchedulableWithoutConflict(clone);
         } while (!foundLatency);
@@ -1612,7 +1630,7 @@ public abstract class BandwidthManager extends
                 possibleLatencies, new Comparable<Integer>() {
                     @Override
                     public int compareTo(Integer valueToCheck) {
-                        Subscription clone = new Subscription(subscription);
+                        Subscription clone = subscription.copy();
                         clone.setLatencyInMinutes(valueToCheck);
 
                         boolean latencyWouldWork = isSchedulableWithoutConflict(clone);

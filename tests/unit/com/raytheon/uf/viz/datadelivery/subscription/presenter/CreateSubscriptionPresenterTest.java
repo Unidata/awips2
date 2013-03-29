@@ -45,6 +45,7 @@ import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.time.CalendarBuilder;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -71,6 +72,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlg
  * Jan 02, 2012 1345       djohnson     Remove obsolete test.
  * Jan 04, 2013 1453       djohnson     Add tests for setting the active period.
  * Jan 11, 2013 1453       djohnson     Add test from failed test scenario.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -204,7 +206,7 @@ public class CreateSubscriptionPresenterTest {
         cal.add(Calendar.YEAR, -1);
         Date oneYearAgo = cal.getTime();
 
-        Subscription subscription = new SubscriptionBuilder()
+        UserSubscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(oneYearAgo)
                 .withActivePeriodEnd(oneYearAgo).build();
 
@@ -228,7 +230,7 @@ public class CreateSubscriptionPresenterTest {
         // Freeze time at Jan. 5
         TimeUtilTest.freezeTime(yesterday.getTime() + TimeUtil.MILLIS_PER_DAY);
 
-        Subscription subscription = new SubscriptionBuilder()
+        UserSubscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(yesterday)
                 .withActivePeriodEnd(yesterday).build();
 
@@ -261,7 +263,7 @@ public class CreateSubscriptionPresenterTest {
         cal.add(Calendar.DAY_OF_MONTH, 3);
         Date threeDaysFromNow = cal.getTime();
 
-        Subscription subscription = new SubscriptionBuilder()
+        UserSubscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(yesterday)
                 .withActivePeriodEnd(threeDaysFromNow).build();
 
@@ -288,7 +290,7 @@ public class CreateSubscriptionPresenterTest {
         cal2.add(Calendar.DAY_OF_YEAR, 3);
         Date oneYearAgoPlusThreeDays = cal2.getTime();
 
-        Subscription subscription = new SubscriptionBuilder()
+        UserSubscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(oneYearAgo)
                 .withActivePeriodEnd(oneYearAgoPlusThreeDays).build();
 
@@ -320,7 +322,7 @@ public class CreateSubscriptionPresenterTest {
         cal2.set(Calendar.YEAR, 1970);
         Date januaryFourth = cal2.getTime();
 
-        Subscription subscription = new SubscriptionBuilder()
+        UserSubscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(decemberThirtieth)
                 .withActivePeriodEnd(januaryFourth).build();
 
@@ -384,7 +386,7 @@ public class CreateSubscriptionPresenterTest {
         cal2.set(Calendar.YEAR, 1970);
         final Date endDate = cal2.getTime();
 
-        Subscription subscription = new SubscriptionBuilder()
+        UserSubscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(startDate).withActivePeriodEnd(endDate)
                 .build();
 

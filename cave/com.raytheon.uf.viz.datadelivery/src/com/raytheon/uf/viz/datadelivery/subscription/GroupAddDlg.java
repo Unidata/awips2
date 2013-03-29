@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -62,6 +63,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Aug 31, 2012  1128      mpduff      Notification Fixes.
  * Nov 28, 2012  1286      djohnson    Use the subscription service.
  * Jan 02, 2013  1441      djohnson    Access GroupDefinitionManager in a static fashion.
+ * Mar 29, 2013  1841      djohnson    Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -98,7 +100,8 @@ public class GroupAddDlg extends CaveSWTDialog {
      * @param callback
      *           callback to parent shell
      */
-    public GroupAddDlg(Shell parent, Subscription subscription, IGroupAction callback) {
+    public GroupAddDlg(Shell parent, Subscription subscription,
+            IGroupAction callback) {
         super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL);
         setText("Add To Group");
         this.subscription = subscription;
@@ -250,7 +253,12 @@ public class GroupAddDlg extends CaveSWTDialog {
         System.out.println("Fix Me:  Need to calculate data set size");
         subscription.setDataSetSize(999);
         subscription.setOfficeID(LocalizationManager.getInstance().getCurrentSite());
-        subscription.setOwner(username);
+
+        // TODO: How to do this better? Will shared subscriptions participate in
+        // groups?
+        if (subscription instanceof UserSubscription) {
+            ((UserSubscription) subscription).setOwner(username);
+        }
 
         try {
             DataDeliveryHandlers.getSubscriptionHandler().store(subscription);

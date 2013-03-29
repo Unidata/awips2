@@ -37,6 +37,8 @@ Export-Package: com.raytheon.uf.viz.datadelivery;uses:="org.eclipse.ui.plugin,or
  com.raytheon.uf.viz.datadelivery.actions;uses:="org.eclipse.core.commands",
  com.raytheon.uf.viz.datadelivery.comm,
  com.raytheon.uf.viz.datadelivery.subscription;uses:="com.raytheon.uf.viz.datadelivery.test.subscription.xml,com.raytheon.viz.ui.dialogs,org.eclipse.swt.widgets",
+ com.raytheon.uf.viz.datadelivery.subscription.subset,
  com.raytheon.uf.viz.datadelivery.subscription.xml;uses:="com.raytheon.uf.common.serialization"
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.message
+Eclipse-BuddyPolicy: ext, registered, global

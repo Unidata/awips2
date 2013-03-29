@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep  24, 2012           mpduff      Initial creation
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
  * Dec 12, 2012 1433       bgonzale    Use new Subscription copy ctor.
+ * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -54,7 +56,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
-public class InitialPendingSubscription extends Subscription {
+public class InitialPendingSubscription extends UserSubscription {
+    private static final long serialVersionUID = 2779084460608459754L;
+
     public static final String CHANGE_REQUEST_ID_SLOT = "changeReqId";
 
     /** ID of the user requesting the change */
@@ -83,11 +87,12 @@ public class InitialPendingSubscription extends Subscription {
      * @param user
      *           user
      */
-    public InitialPendingSubscription(Subscription subscription, String user) {
+    public InitialPendingSubscription(UserSubscription subscription, String user) {
         super(subscription);
 
         this.setChangeReqId(user);
         this.setDeleted(subscription.isDeleted());
+        this.setId(RegistryUtil.getRegistryObjectKey(this));
     }
 
 
