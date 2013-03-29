@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
@@ -52,7 +54,7 @@ public class DataLevelTypeFixture extends AbstractFixture<DataLevelType> {
      * {@inheritDoc}
      */
     @Override
-    public DataLevelType get(long seedValue) {
+    public DataLevelType getInstance(long seedValue, Random random) {
         DataLevelType obj = new DataLevelType();
 
         // TODO: Populate attributes

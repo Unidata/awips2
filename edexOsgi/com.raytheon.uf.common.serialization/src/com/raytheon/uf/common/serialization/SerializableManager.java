@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
  * Aug 11, 2008				njensen	    Initial creation
  * Aug 31, 2009 2924        rjpeter     Added Embeddable.
  * Feb 07, 2013 1543        djohnson    Implement IJaxbableClassesLocator.
+ * Mar 29, 2013 1841        djohnson    Never return null from hibernatables for plugin.
  * </pre>
  * 
  * @author njensen
@@ -82,8 +84,6 @@ public class SerializableManager implements IJaxbableClassesLocator {
      */
     @SuppressWarnings(value = { "unchecked" })
     private synchronized void initialize() {
-        ClassLoader cl = getClass().getClassLoader();
-        long t0 = System.currentTimeMillis(), total = 0;
         // this is here in case in the future we want to re-initialize the lists
         // during runtime, i.e. hot deploy of a new plugin
         hibernatables.clear();
@@ -120,6 +120,7 @@ public class SerializableManager implements IJaxbableClassesLocator {
         jaxbables = new ArrayList<Class<ISerializableObject>>(
                 clazzSet.size() + 1);
         // Add jaxb dummy object so jaxb.properties gets picked up immediately
+        @SuppressWarnings("rawtypes")
         Class jaxb = JaxbDummyObject.class;
         jaxbables.add(jaxb);
         jaxbables.addAll(clazzSet);
@@ -129,23 +130,27 @@ public class SerializableManager implements IJaxbableClassesLocator {
                 + (System.currentTimeMillis() - realStartTime) + "ms");
     }
 
-    private static void fail(Class service, String msg, Throwable cause)
+    private static void fail(@SuppressWarnings("rawtypes") Class service,
+            String msg, Throwable cause)
             throws ServiceConfigurationError {
         throw new ServiceConfigurationError(service.getName() + ": " + msg,
                 cause);
     }
 
-    private static void fail(Class service, String msg)
+    private static void fail(@SuppressWarnings("rawtypes") Class service,
+            String msg)
             throws ServiceConfigurationError {
         throw new ServiceConfigurationError(service.getName() + ": " + msg);
     }
 
-    private static void fail(Class service, URL u, int line, String msg)
+    private static void fail(@SuppressWarnings("rawtypes") Class service,
+            URL u, int line, String msg)
             throws ServiceConfigurationError {
         fail(service, u + ":" + line + ": " + msg);
     }
 
-    private static int parseLine(Class service, URL u, BufferedReader r,
+    private static int parseLine(@SuppressWarnings("rawtypes") Class service,
+            URL u, BufferedReader r,
             int lc, List<String> names) throws IOException,
             ServiceConfigurationError {
         String ln = r.readLine();
@@ -196,7 +201,11 @@ public class SerializableManager implements IJaxbableClassesLocator {
      */
     public List<Class<ISerializableObject>> getHibernatablesForPluginFQN(
             String pluginFQN) {
-        return hibernatables.get(pluginFQN);
+        List<Class<ISerializableObject>> list = hibernatables.get(pluginFQN);
+        if (list == null) {
+            list = Collections.<Class<ISerializableObject>> emptyList();
+        }
+        return list;
     }
 
     /**
@@ -298,6 +307,7 @@ public class SerializableManager implements IJaxbableClassesLocator {
                         String clazz = iter.next();
                         try {
                             long t0 = System.currentTimeMillis();
+                            @SuppressWarnings("unchecked")
                             Class<ISerializableObject> c = (Class<ISerializableObject>) Class
                                     .forName(clazz, true, cl);
                             boolean added = false;
