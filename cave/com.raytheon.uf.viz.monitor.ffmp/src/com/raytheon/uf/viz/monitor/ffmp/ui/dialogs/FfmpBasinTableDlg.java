@@ -117,6 +117,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 28, 2013  1729      dhladky      Adjusted the way in which the dialog load thread rejoins the main GUI thread.
  * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
  * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
+ * Mar 29, 2013  1790      rferrel     Bug fix for non-blocking dialogs.
  * </pre>
  * 
  * @author lvenable
@@ -1311,15 +1312,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (attributeDlg == null || attributeDlg.isDisposed()) {
             attrData = ffmpTable.getVisibleColumns();
             attributeDlg = new AttributesDlg(shell, resource, attrData, this);
+            attributeDlg.open();
+        } else {
+            attributeDlg.bringToTop();
         }
-        attributeDlg.open();
     }
 
     private void displayThresholdsDialog(ThreshColNames colName) {
-        if (attrThreshDlg == null) {
+        if (attrThreshDlg == null || attrThreshDlg.isDisposed()) {
             attrThreshDlg = new AttributeThresholdDlg(shell, colName, this);
+            attrThreshDlg.open();
+        } else {
+            attrThreshDlg.bringToTop();
         }
-        attrThreshDlg.open();
         attrThreshDlg.newThreshold(colName);
     }
 
