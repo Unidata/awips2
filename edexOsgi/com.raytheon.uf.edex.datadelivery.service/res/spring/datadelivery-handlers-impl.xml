@@ -3,19 +3,23 @@
     xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
-  
-    <!-- Moved in to an EDEX specific file so that the registration of handlers Spring file
-         can be reused for automated testing -->
-    
+
+    <!-- Moved in to an EDEX specific file so that the registration of handlers 
+        Spring file can be reused for automated testing -->
+    <bean name="UserSubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.UserSubscriptionHandler" />
+
     <bean name="SubscriptionHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler" />
-        
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler">
+        <constructor-arg ref="UserSubscriptionHandler" />
+    </bean>
+
     <bean name="PendingSubscriptionHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler" />
 
     <bean name="GroupDefinitionHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.GroupDefinitionHandler" />
-        
+
     <bean name="ProviderHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.ProviderHandler" />
 
@@ -23,7 +27,7 @@
         class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetNameHandler" />
 
     <bean name="ParameterHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterHandler" />                
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterHandler" />
 
     <bean name="ParameterLevelHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterLevelHandler" />
@@ -36,5 +40,5 @@
 
     <bean name="DataSetHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetHandler" />
-        
+
 </beans>  

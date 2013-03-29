@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 20, 2012 1413       bgonzale     Added new pending approve and denied request and responses.
  * Jan 04, 2013 1441       djohnson     Separated out notification methods into their own service.
  * Jan 28, 2013 1530       djohnson     Reset unscheduled flag with each update.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -446,8 +447,8 @@ public class SubscriptionService implements ISubscriptionService {
                                 DataDeliveryHandlers.getSubscriptionHandler()
                                         .update(subscription);
                             } else {
-                                PendingSubscription pendingSub = new PendingSubscription(
-                                        subscription, username);
+                                PendingSubscription pendingSub = subscription
+                                        .pending(username);
                                 pendingSub
                                         .setChangeReason("Group Definition Changed");
                                 savePendingSub(pendingSub, username);

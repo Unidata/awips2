@@ -36,8 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Dec 11, 2012 1403       djohnson     No longer valid to run without bandwidth management.
  * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * Feb 20, 2013 1543       djohnson     Delegate to sub-classes for which route to create subscriptions for.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -149,7 +150,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsUpABucket() {
+    protected UserSubscription createSubscriptionThatFillsUpABucket() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize);
     }
 
@@ -158,7 +159,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsUpTenBuckets() {
+    protected UserSubscription createSubscriptionThatFillsUpTenBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 10);
     }
 
@@ -167,7 +168,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsHalfABucket() {
+    protected UserSubscription createSubscriptionThatFillsHalfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(halfBucketSize);
     }
 
@@ -176,7 +177,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsAThirdOfABucket() {
+    protected UserSubscription createSubscriptionThatFillsAThirdOfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(thirdBucketSizeInBytes);
     }
 
@@ -185,12 +186,13 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsUpTwoBuckets() {
+    protected UserSubscription createSubscriptionThatFillsUpTwoBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 2);
     }
 
-    protected Subscription createSubscriptionWithDataSetSizeInBytes(long bytes) {
-        Subscription subscription = SubscriptionFixture.INSTANCE
+    protected UserSubscription createSubscriptionWithDataSetSizeInBytes(
+            long bytes) {
+        UserSubscription subscription = SubscriptionFixture.INSTANCE
                 .get(subscriptionSeed++);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));

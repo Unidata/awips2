@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.util.AbstractFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -47,7 +49,7 @@ public class DataSetMetaDataDaoFixture extends
      * {@inheritDoc}
      */
     @Override
-    public BandwidthDataSetUpdate get(long seedValue) {
+    public BandwidthDataSetUpdate getInstance(long seedValue, Random random) {
         return BandwidthUtil
                 .newDataSetMetaDataDao(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                         .get(seedValue));
