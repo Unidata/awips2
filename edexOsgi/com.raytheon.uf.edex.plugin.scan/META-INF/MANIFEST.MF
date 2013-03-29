@@ -17,11 +17,11 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.11.31",
  com.raytheon.uf.common.sounding;bundle-version="1.12.1112",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.edex.plugin.scan.common;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.dat.utils;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.plugin.scan,
  com.raytheon.uf.edex.plugin.scan.process
-Import-Package: com.raytheon.uf.common.localization,
- com.raytheon.uf.edex.dat.utils,
- com.raytheon.uf.edex.plugin.scan.common,
- javax.measure.converter,
+Import-Package: javax.measure.converter,
  javax.measure.unit

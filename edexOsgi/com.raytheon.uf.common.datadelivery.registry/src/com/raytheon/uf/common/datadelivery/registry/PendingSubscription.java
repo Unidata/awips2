@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Sep 14, 2012 1169      djohnson   Include owner in the registry id and association.
  * Sep 24, 2012 1157      mpduff     Changed to extend IniitialPendingSubscription.
  * Nov 19, 2012 1166      djohnson   Clean up JAXB representation of registry objects.
+ * Mar 29, 2013 1841      djohnson   Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -58,17 +59,20 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         Subscription.OWNER_SLOT,
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = RegistryUtil.ASSOCIATION_RELATED_TO, keyFields = {
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
-        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = Subscription.class) })
+        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = UserSubscription.class) })
 public class PendingSubscription extends InitialPendingSubscription
         implements ISerializableObject {
+
+    private static final long serialVersionUID = 7607153845750089310L;
 
     public PendingSubscription() {
 
     }
 
-    public PendingSubscription(Subscription subscription,
+    public PendingSubscription(UserSubscription subscription,
             String currentUser) {
         super(subscription, currentUser);
+
     }
 
 

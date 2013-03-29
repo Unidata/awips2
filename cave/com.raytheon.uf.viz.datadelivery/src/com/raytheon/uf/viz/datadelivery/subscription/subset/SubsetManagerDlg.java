@@ -56,8 +56,10 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
@@ -68,6 +70,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ServiceLoaderUtil;
 import com.raytheon.uf.viz.core.VizAppTaskExecutor;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
@@ -131,6 +134,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 28, 2013 1530       djohnson     Break out long method chaining into local variables for debugging.
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * Mar 21, 2013 1794       djohnson     Add option to create a shared subscription, if phase3 code is available.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * </pre>
  * 
  * @author mpduff
@@ -145,6 +149,10 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubsetManagerDlg.class);
+
+    private final ISharedSubscriptionHandler sharedSubscriptionHandler = ServiceLoaderUtil
+            .load(SubsetManagerDlg.class, ISharedSubscriptionHandler.class,
+                    new NotEnabledSubscriptionHandler());
 
     /** Subset Name text box */
     private Text nameText;
@@ -469,7 +477,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         subscribeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                launchCreateSubscriptionGui(Network.OPSNET);
+                launchCreateSubscriptionGui(createSubscription(
+                        new UserSubscription(), Network.OPSNET));
             }
         });
 
@@ -484,7 +493,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                 sharedSubscribeBtn.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
-                        launchCreateSubscriptionGui(Network.SBN);
+                        sharedSubscriptionHandler
+                                .launchCreateSharedSubscriptionGui(SubsetManagerDlg.this);
                     }
                 });
             }
@@ -514,9 +524,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         });
     }
     
-    private void launchCreateSubscriptionGui(Network defaultRoute) {
+    public void launchCreateSubscriptionGui(Subscription sub) {
         DataDeliveryGUIUtils.markBusyInUIThread(shell);
-        if (handleOK(defaultRoute)) {
+        if (handleOK(sub)) {
             close();
         } else {
             DataDeliveryGUIUtils.markNotBusyInUIThread(shell);
@@ -530,11 +540,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * 
      * @return true if data are valid
      */
-    private boolean handleOK(Network defaultRoute) {
+    private boolean handleOK(Subscription sub) {
         if (this.validated(true)) {
-
-            Subscription sub = createSubscription(new Subscription(),
-                    defaultRoute);
 
             if (subDlg != null && !subDlg.isDisposed()) {
                 subDlg.setSubscriptionData(sub);
@@ -582,7 +589,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /**
-     * Create the subscription.
+     * Create the shared subscription.
      * 
      * @param <T>
      *            The subscription object reference type
@@ -593,7 +600,49 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * 
      * @return the populated subscription
      */
-    protected <T extends Subscription> T createSubscription(T sub,
+    public SharedSubscription createSubscription(SharedSubscription sub,
+            Network defaultRoute) {
+        return setupCommonSubscriptionAttributes(sub, defaultRoute);
+    }
+
+    /**
+     * Create the user subscription.
+     * 
+     * @param <T>
+     *            The subscription object reference type
+     * @param sub
+     *            The subscription to populate
+     * @param the
+     *            route for the subscription
+     * 
+     * @return the populated subscription
+     */
+    public <T extends UserSubscription> T createSubscription(T sub,
+            Network defaultRoute) {
+
+        Preconditions.checkNotNull(sub, "A subscription must be provided.");
+        Preconditions.checkNotNull(defaultRoute,
+                "A defaultRoute must be provided.");
+
+        sub.setOwner((create) ? LocalizationManager.getInstance()
+                .getCurrentUser() : this.subscription.getOwner());
+
+        return setupCommonSubscriptionAttributes(sub, defaultRoute);
+    }
+
+    /**
+     * Sets up common subscription attributes.
+     * 
+     * @param <T>
+     *            The subscription object reference type
+     * @param sub
+     *            The subscription to populate
+     * @param the
+     *            route for the subscription
+     * 
+     * @return the populated subscription
+     */
+    private <T extends Subscription> T setupCommonSubscriptionAttributes(T sub,
             Network defaultRoute) {
 
         Preconditions.checkNotNull(sub, "A subscription must be provided.");
@@ -605,10 +654,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         sub.setRoute(defaultRoute);
         sub.setName(nameText.getText());
         sub.setOfficeID(LocalizationManager.getInstance().getCurrentSite());
-        if (create) {
-            sub.setOwner(LocalizationManager.getInstance().getCurrentUser());
-        } else {
-            sub.setOwner(this.subscription.getOwner());
+        if (!create) {
             sub.setGroupName(this.subscription.getGroupName());
             sub.setSubscriptionEnd(this.subscription.getSubscriptionEnd());
             sub.setSubscriptionStart(this.subscription.getSubscriptionStart());
