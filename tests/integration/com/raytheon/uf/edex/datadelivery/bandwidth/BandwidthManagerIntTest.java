@@ -62,6 +62,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -102,6 +103,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Feb 14, 2013 1595       djohnson     Fix expired subscription updates that weren't scheduling retrievals.
  * Feb 14, 2013 1596       djohnson     Add test duplicating errors deleting multiple subscriptions for the same provider/dataset.
  * Mar 11, 2013 1645       djohnson     Test configuration file modifications.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -798,7 +800,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         final int numberOfSubscriptionsWithSameProviderDataSet = 4;
 
-        final Subscription templateSubscription = createSubscriptionThatFillsUpABucket();
+        final UserSubscription templateSubscription = createSubscriptionThatFillsUpABucket();
         final Network route = templateSubscription.getRoute();
         templateSubscription.setDataSetSize(templateSubscription
                 .getDataSetSize()
@@ -810,7 +812,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
         for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
 
-            final Subscription currentSubscription = new Subscription(
+            final UserSubscription currentSubscription = new UserSubscription(
                     templateSubscription, "ILookLikeTheOtherGuys-" + i);
             subscriptions[i] = currentSubscription;
 
@@ -997,7 +999,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     private void sendDeletedSubscriptionEvent(Subscription subscription) {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
                 subscription.getOwner(), subscription.getId());
-        event.setObjectType(DataDeliveryRegistryObjectTypes.SUBSCRIPTION);
+        event.setObjectType(DataDeliveryRegistryObjectTypes.USER_SUBSCRIPTION);
         bandwidthManager.subscriptionRemoved(event);
     }
 

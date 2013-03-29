@@ -17,17 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
+package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
-import java.util.Arrays;
-import java.util.Random;
+import org.eclipse.swt.SWT;
 
-import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
-import com.raytheon.uf.common.util.AbstractFixture;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
- * {@link AbstractFixture} implementation for
- * {@link OpenDapGriddedDataSetMetaData} objects.
+ * Placeholder shared subscription handler that will display a notice the
+ * functionality is not available. It should never be invoked unless the
+ * 5-Data_Delivery phase 3 code is available, but provides another layer in case
+ * it somehow is invoked.
  * 
  * <pre>
  * 
@@ -35,9 +35,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 05, 2012 1102       djohnson     Initial creation
- * Oct 16, 2012 0726       djohnson     Always use OpenDAP service type, use TimeFixture.
- * Jan 30, 2013 1543       djohnson     Populate attributes.
+ * Mar 27, 2013 1841       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -45,27 +43,16 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public class LevelsFixture extends AbstractFixture<Levels> {
-
-    public static final LevelsFixture INSTANCE = new LevelsFixture();
-
-    /**
-     * Disabled constructor.
-     */
-    private LevelsFixture() {
-    }
+public class NotEnabledSubscriptionHandler implements
+        ISharedSubscriptionHandler {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Levels getInstance(long seedValue, Random random) {
-        Levels obj = new Levels();
-        obj.setLevel(Arrays.<Double> asList(1D, 2D, 3D));
-        obj.setLevelType(LevelType.SFC.getLevelTypeId());
-        obj.setName(LevelType.getLevelTypeIdName(obj.getLevelType()));
-
-        return obj;
+    public void launchCreateSharedSubscriptionGui(SubsetManagerDlg<?, ?, ?> subsetManagerDlg) {
+        DataDeliveryUtils.showMessage(subsetManagerDlg.getShell(), SWT.OK,
+                "Unavailable option", "Shared subscriptions are not enabled.");
     }
 
 }

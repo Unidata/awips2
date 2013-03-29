@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 14, 2013 1286       djohnson     Check that message to display is not null or empty, and 
  *                                      only send notification of subscription creation on OK status.
  * Jan 25, 2013 1528       djohnson     Use priority enum instead of raw integers, default to existing priority on edit.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * </pre>
  * 
  * @author mpduff
@@ -602,8 +603,8 @@ public class CreateSubscriptionDlgPresenter {
                     job.schedule();
                     return false;
                 } else {
-                    InitialPendingSubscription pendingSub = new InitialPendingSubscription(
-                            subscription, currentUser);
+                    InitialPendingSubscription pendingSub = subscription
+                            .initialPending(currentUser);
 
                     try {
                         handler.store(pendingSub);
@@ -624,8 +625,8 @@ public class CreateSubscriptionDlgPresenter {
             }
         } else {
             // Check for pending subscription, can only have one pending change
-            PendingSubscription pendingSub = new PendingSubscription(
-                    subscription, LocalizationManager.getInstance()
+            PendingSubscription pendingSub = subscription
+                    .pending(LocalizationManager.getInstance()
                             .getCurrentUser());
             pendingSub.setChangeReason(view.getChangeReason());
 

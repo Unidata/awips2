@@ -17,15 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
+package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
-import java.util.Random;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.util.AbstractFixture;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * {@link AbstractFixture} implementation for {@link PendingSubscription}
- * objects.
+ * Implementation of {@link SubscriptionFilterableQuery} to retrieve
+ * {@link UserSubscription}s.
  * 
  * <pre>
  * 
@@ -33,42 +35,34 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 28, 2012 1187       djohnson     Initial creation
+ * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
+ * Jul 23, 2012 702        jpiatt      Added setters for groupName & officeId.
+ * Oct 03, 2012 1241       djohnson    Move query parameters to {@link SubscriptionFilterableQuery}.
+ * Mar 29, 2013 1841       djohnson    Renamed from SubscriptionQuery.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
+ * @param <Subscription>
  */
-
-public class PendingSubscriptionFixture extends
-        BaseUserSubscriptionFixture<PendingSubscription> {
-
-    public static final PendingSubscriptionFixture INSTANCE = new PendingSubscriptionFixture();
-
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+public class UserSubscriptionQuery extends
+        SubscriptionFilterableQuery<UserSubscription> {
     /**
-     * Disabled constructor.
+     * {@inheritDoc}
      */
-    private PendingSubscriptionFixture() {
+    @Override
+    public Class<UserSubscription> getResultType() {
+        return UserSubscription.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PendingSubscription getInstance(long seedValue, Random random) {
-        PendingSubscription sub = super.getInstance(seedValue, random);
-        sub.setChangeReqId("change" + seedValue);
-
-        return sub;
+    public Class<UserSubscription> getObjectType() {
+        return UserSubscription.class;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected PendingSubscription getSubscription() {
-        return new PendingSubscription();
-    }
-
 }
