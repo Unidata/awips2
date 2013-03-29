@@ -7,6 +7,7 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ com.raytheon.uf.edex.pointdata,
  org.apache.commons.logging,
  org.geotools,
  javax.measure,
@@ -17,5 +18,4 @@ Import-Package: com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.dataplugin.sfcobs.dao,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.common.status
