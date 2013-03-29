@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
@@ -35,15 +36,17 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2013 1841       djohnson     Initial creation
+ * Sep 17, 2012 1169       djohnson     Initial creation
+ * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
+ * Mar 29, 2013 1841       djohnson     Renamed to specify UserSubscription.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public interface ISubscriptionHandler extends
-        IBaseSubscriptionHandler<Subscription> {
+public interface IUserSubscriptionHandler extends
+        IBaseSubscriptionHandler<UserSubscription> {
 
     /**
      * Retrieve a subscription that a {@link PendingSubscription} is associated
@@ -54,7 +57,8 @@ public interface ISubscriptionHandler extends
      * @return the subscription, or null if not found
      * @throws RegistryHandlerException
      */
-    Subscription getByPendingSubscription(PendingSubscription pending)
+    UserSubscription getByPendingSubscription(
+            PendingSubscription pending)
             throws RegistryHandlerException;
 
     /**
@@ -66,7 +70,7 @@ public interface ISubscriptionHandler extends
      * @return the subscription, or null if not found
      * @throws RegistryHandlerException
      */
-    Subscription getByPendingSubscriptionId(String id)
+    UserSubscription getByPendingSubscriptionId(String id)
             throws RegistryHandlerException;
 
     /**
@@ -77,6 +81,6 @@ public interface ISubscriptionHandler extends
      * @param providerName
      *            the provider name
      */
-    List<Subscription> getActiveByDataSetAndProvider(String dataSetName,
+    List<UserSubscription> getActiveByDataSetAndProvider(String dataSetName,
             String providerName) throws RegistryHandlerException;
 }

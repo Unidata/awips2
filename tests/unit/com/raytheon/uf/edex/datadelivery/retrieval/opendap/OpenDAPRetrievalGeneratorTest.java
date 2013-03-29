@@ -30,6 +30,7 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.registry.RegistryManagerTest;
 
 /**
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.registry.RegistryManagerTest;
  * Aug 20, 2012 0743       djohnson     Use {@link RegistryManagerTest} to set the handler.
  * Sep 24, 2012 1209       djohnson     Test for NO_CYCLE metadatas and subscriptions.
  * Oct 17, 2012 0726       djohnson     Remove unused code.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -59,7 +61,7 @@ public class OpenDAPRetrievalGeneratorTest {
         Time time = new Time();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        Subscription subscription = new Subscription();
+        UserSubscription subscription = new UserSubscription();
         subscription.setTime(time);
         
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -75,7 +77,7 @@ public class OpenDAPRetrievalGeneratorTest {
         Time time = new Time();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        Subscription subscription = new Subscription();
+        UserSubscription subscription = new UserSubscription();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -91,7 +93,7 @@ public class OpenDAPRetrievalGeneratorTest {
         Time time = new Time();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        Subscription subscription = new Subscription();
+        Subscription subscription = new UserSubscription();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -108,7 +110,7 @@ public class OpenDAPRetrievalGeneratorTest {
         time.setCycleTimes(Arrays
                 .<Integer> asList(GriddedDataSetMetaData.NO_CYCLE));
 
-        Subscription subscription = new Subscription();
+        Subscription subscription = new UserSubscription();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE

@@ -38,6 +38,7 @@ import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
+import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.service.GroupDefinitionService;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.RegistryManagerTest;
@@ -56,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionService
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
  * Feb 26, 2013 1643       djohnson     Change exception type thrown.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -95,9 +97,11 @@ public class GroupDefinitionServiceTest {
         group.setGroupName(GROUP_NAME);
         groupHandler.store(group);
 
-        Subscription subscription = new SubscriptionBuilder().withGroupName(
+        UserSubscription subscription = new SubscriptionBuilder()
+                .withGroupName(
                 GROUP_NAME).build();
-        Subscription subscription2 = new Subscription(subscription, "sub2");
+        UserSubscription subscription2 = new UserSubscription(subscription,
+                "sub2");
 
         subscriptionHandler.store(subscription);
         subscriptionHandler.store(subscription2);
