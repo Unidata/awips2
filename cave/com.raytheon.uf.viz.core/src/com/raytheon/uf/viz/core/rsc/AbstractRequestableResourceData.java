@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Feb 26, 2009		2032   jsanchez		Added loadWithNoData condition.
  * April 6, 2011             njensen          Moved binning times to edex
  * April 13, 2011           njensen          Caching available times
+ * Mar 29, 2013     1638   mschenke     Switched to create PDO from dataURI mapping instead of dataURI string
  * 
  * </pre>
  * 
@@ -110,13 +111,13 @@ public abstract class AbstractRequestableResourceData extends
             Object objectToSend = null;
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
-            String dataURI = message.dataURI;
+            attribs.put("dataURI", message.dataURI);
+
             if (reqResourceData.isUpdatingOnMetadataOnly()) {
                 PluginDataObject record = RecordFactory.getInstance()
-                        .loadRecordFromUri(dataURI);
+                        .loadRecordFromMap(attribs);
                 objectToSend = record;
             } else {
-                attribs.put("dataURI", message.dataURI);
                 objectToSend = Loader.loadData(attribs);
             }
             return objectToSend;
