@@ -190,8 +190,8 @@ public class NsharpConfigDialog extends Dialog {
 			}          		            	 	
 		} );
 		
-		paneCfgBtn = new Button(parent, SWT.PUSH);
-		paneCfgBtn.setText("Diaplay Pane Configuration");
+		paneCfgBtn = new Button(parent,  SWT.PUSH);
+		paneCfgBtn.setText("Display Pane Configuration");
 		paneCfgBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
 		paneCfgBtn.addListener( SWT.MouseUp, new Listener() {
@@ -215,7 +215,7 @@ public class NsharpConfigDialog extends Dialog {
 				}	
 			}          		            	 	
 		} );
-					
+		
 		mdlCfgBtn = new Button(parent,  SWT.PUSH);
 		mdlCfgBtn.setText("Grid Model Type Configuration");
 		mdlCfgBtn.setEnabled( true );

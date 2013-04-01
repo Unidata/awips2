@@ -95,6 +95,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 * 1-3-2013		DR 15667 	M.Porricelli 	Made EnvironParamsLevelTable.xml
 *                                        	accessible from SITE level
 * 03/04/2013    DR 14770    D. Friedman     Correct clipped grid coordinates.
+* 03/21/2013    DR 15872    D. Friedman     Correct grid orientation.
 **/
 public class RPGEnvironmentalDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -584,6 +585,12 @@ public class RPGEnvironmentalDataManager {
             double cx2 = stationXY.x + delta;
             double cy2 = stationXY.y + delta;
 
+            /*
+             * Note the y-coordinate flipping below. The output grid scans west
+             * to east, south to north, while the input grid from EDEX scans
+             * north to south.
+             */
+
             DirectPosition2D c = new DirectPosition2D();
             crsToGrid.transform(new DirectPosition2D(cx1, cy1), c);
             i1 = (int) Math.round(c.x);
@@ -785,17 +792,24 @@ public class RPGEnvironmentalDataManager {
                 return null;
             }
 
+            /*
+             * Note the y-coordinate flipping below. The output grid scans west
+             * to east, south to north, while the input grid from EDEX scans
+             * north to south.
+             */
+
             float[] data = dataRecord.getFloatData();
             float[] clippedData = new float[grid.getPointCount()];
             int stride = domain.getSpan(0);
-            int iidx = clip.getLow(0) + clip.getLow(1) * stride;
+            int iidx = clip.getLow(0) +
+                (domain.getHigh(1) - clip.getLow(1)) * stride;
             int oidx = 0;
 
             for (int j = 0; j < clippedNy; ++j) {
                 for (int i = 0; i < clippedNx; ++i) {
                     clippedData[oidx++] = data[iidx + i];
                 }
-                iidx += stride;
+                iidx -= stride;
             }
 
             grid.data = clippedData;
