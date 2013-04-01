@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     AddVertexAction, DeleteVertextAction and MoveElementAction inner classes.
  * Jan 30, 2013  15439    Qinglu Lin   Code were added to prevent nullPointException from occurring
  *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
+ * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * 
  * </pre>
  * 
@@ -360,7 +361,6 @@ public class WarngenUIManager extends InputAdapter {
     }
 
     private void move(int x, int y) {
-        warngenLayer.initRemovedGids();
         IDisplayPaneContainer container = warngenLayer.getResourceContainer();
         WarngenUIState state = warngenLayer.getWarngenState();
 
@@ -416,7 +416,6 @@ public class WarngenUIManager extends InputAdapter {
                 return;
             }
 
-            warngenLayer.initRemovedGids();
             Coordinate[] coords = warngenLayer.getPolygon().getCoordinates();
 
             int idx = StormTrackUIManager.getCoordinateIndex(warngenLayer,
@@ -519,7 +518,6 @@ public class WarngenUIManager extends InputAdapter {
     private class MoveElementAction extends AbstractRightClickAction {
         @Override
         public void run() {
-            warngenLayer.initRemovedGids();
             moveType = MoveType.ALL_POINTS;
             movePointIndex = StormTrackUIManager.getCoordinateIndex(
                     warngenLayer, warngenLayer.getPolygon().getCoordinates(),
@@ -549,7 +547,6 @@ public class WarngenUIManager extends InputAdapter {
                 return;
             }
 
-            warngenLayer.initRemovedGids();
             Coordinate c = new Coordinate(lastMouseX, lastMouseY);
             Polygon poly = warngenLayer.getPolygon();
 
