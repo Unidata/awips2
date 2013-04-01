@@ -124,8 +124,6 @@ public class SystemRuleManager {
      */
     private SystemRuleManager() {
         createContext();
-        loadLatencyRules();
-        loadPriorityRules();
     }
 
     /**
@@ -409,6 +407,10 @@ public class SystemRuleManager {
      */
     private LatencyRulesXML getLatencyRules(boolean reread) {
         if (latencyRules == null || reread) {
+            if (latencyRulesLocFile == null) {
+                loadLatencyRules();
+            }
+
             if (this.latencyRulesLocFile != null
                     && latencyRulesLocFile.exists()) {
                 try {
@@ -434,7 +436,11 @@ public class SystemRuleManager {
      * @return The priority rules xml object
      */
     private PriorityRulesXML getPriorityRules(boolean reread) {
-        if (priorityRules == null || reread)
+        if (priorityRules == null || reread) {
+            if (priorityRulesLocFile == null) {
+                loadPriorityRules();
+            }
+
             if (this.priorityRulesLocFile != null
                     && priorityRulesLocFile.exists()) {
                 try {
@@ -446,7 +452,7 @@ public class SystemRuleManager {
                     priorityRules = new PriorityRulesXML();
                 }
             }
-
+        }
         return priorityRules;
     }
 
