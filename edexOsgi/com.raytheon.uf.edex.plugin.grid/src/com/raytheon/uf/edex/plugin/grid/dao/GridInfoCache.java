@@ -61,7 +61,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 public class GridInfoCache {
 
     // 6 hours
-    private static final int ROTATION_INTERVAL = 1 * 1 * 60 * 1000;
+    private static final int ROTATION_INTERVAL = 6 * 60 * 60 * 1000;
 
     private static GridInfoCache instance = new GridInfoCache();
 

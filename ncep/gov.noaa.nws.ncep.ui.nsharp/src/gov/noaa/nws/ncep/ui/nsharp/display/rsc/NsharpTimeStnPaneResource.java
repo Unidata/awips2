@@ -249,7 +249,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			if(compareTmIsOn && elm.timeState == NsharpConstants.State.ACTIVE && avail){
     				colorIndex = (compIndex-1)%(NsharpConstants.LINE_COMP10-NsharpConstants.LINE_COMP1+1)+ NsharpConstants.LINE_COMP1;
     				strBD = target.getStringBounds(font10, s);
-    				s ="Cp "+ compIndex;
+    				s =""+ compIndex;
     				x=x+ strBD.getWidth()*hRatio+5;
     				target.drawString(font10,s, x,
     						ly, 0.0,
@@ -382,7 +382,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
          	if(compareStnIsOn && elm.stnState == NsharpConstants.State.ACTIVE && avail){
          		strBD = target.getStringBounds(font10, stnId);
          		colorIndex = (compIndex-1)%(NsharpConstants.LINE_COMP10-NsharpConstants.LINE_COMP1+1)+ NsharpConstants.LINE_COMP1;
-    			s ="Cp "+ compIndex;
+    			s =""+ compIndex;
     			x=x+ strBD.getWidth()*hRatio+5;
     			target.drawString(font10,s, x,
 						ly, 0.0,
