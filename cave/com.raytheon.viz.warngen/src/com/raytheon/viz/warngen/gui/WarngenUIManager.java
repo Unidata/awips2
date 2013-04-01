@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 7, 2010            mschenke     Initial creation
  * Jan 29, 2013  15723    Qinglu Lin   Called warngenLayer.initRemovedGids() in move() and in run() of 
  *                                     AddVertexAction, DeleteVertextAction and MoveElementAction inner classes.
+ * Mar 25, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * 
  * </pre>
  * 
@@ -358,7 +359,6 @@ public class WarngenUIManager extends InputAdapter {
     }
 
     private void move(int x, int y) {
-        warngenLayer.initRemovedGids();
         IDisplayPaneContainer container = warngenLayer.getResourceContainer();
         WarngenUIState state = warngenLayer.getWarngenState();
 
@@ -412,7 +412,6 @@ public class WarngenUIManager extends InputAdapter {
                 return;
             }
 
-            warngenLayer.initRemovedGids();
             Coordinate[] coords = warngenLayer.getPolygon().getCoordinates();
 
             int idx = StormTrackUIManager.getCoordinateIndex(warngenLayer,
@@ -515,7 +514,6 @@ public class WarngenUIManager extends InputAdapter {
     private class MoveElementAction extends AbstractRightClickAction {
         @Override
         public void run() {
-            warngenLayer.initRemovedGids();
             moveType = MoveType.ALL_POINTS;
             movePointIndex = StormTrackUIManager.getCoordinateIndex(
                     warngenLayer, warngenLayer.getPolygon().getCoordinates(),
@@ -545,7 +543,6 @@ public class WarngenUIManager extends InputAdapter {
                 return;
             }
 
-            warngenLayer.initRemovedGids();
             Coordinate c = new Coordinate(lastMouseX, lastMouseY);
             Polygon poly = warngenLayer.getPolygon();
 
