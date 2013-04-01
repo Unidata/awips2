@@ -9,7 +9,7 @@
     <bean id="crimssProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="crimssPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.npp.crimss" />
-        <property name="dao" value="com.raytheon.uf.edex.plugin.npp.crimss.dao.CrimssDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.npp.sounding.NPPSoundingDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.npp.crimss.CrimssRecord" />
     </bean>
     
