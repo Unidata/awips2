@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.ui.nsharp.view;
 
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
@@ -38,6 +39,8 @@ public class NsharpDataPageConfigDialog extends Dialog {
 	private int lblWidth = 200;
 	private int lblHeight = 20;
 	private int textWidth = 80;
+	
+	private int numberPagePerDisplay = 2;
 	private Label curLbl;
 	private Text  newText;
 	private Text[] newOrderTextArray= new Text[NsharpConstants.PAGE_MAX_NUMBER+1];//element 0 is dummy one
@@ -65,6 +68,7 @@ public class NsharpDataPageConfigDialog extends Dialog {
 		pageOrderNumberArray[NsharpConstants.PAGE_CONVECTIVE_INITIATION ]  = dpp.getConvectiveInitiationPage();
 		pageOrderNumberArray[NsharpConstants.PAGE_SEVERE_POTENTIAL ]  = dpp.getSeverePotentialPage();
 		editingOrderNumberArray = pageOrderNumberArray.clone();
+		numberPagePerDisplay = dpp.getNumberPagePerDisplay();
 		mb = new MessageBox(parentShell, SWT.ICON_WARNING
 				| SWT.OK );
 		
@@ -77,7 +81,7 @@ public class NsharpDataPageConfigDialog extends Dialog {
     @Override   
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
-        shell.setText( "Data Page Display Order Configuration" );
+        shell.setText( "Data Page Display Configuration" );
         
     }
 	@Override
@@ -119,6 +123,7 @@ public class NsharpDataPageConfigDialog extends Dialog {
 				dpp.setMeanWindPage(pageOrderNumberArray[NsharpConstants.PAGE_MEAN_WIND ]  );
 				dpp.setConvectiveInitiationPage(pageOrderNumberArray[NsharpConstants.PAGE_CONVECTIVE_INITIATION ]  );
 				dpp.setSeverePotentialPage(pageOrderNumberArray[NsharpConstants.PAGE_SEVERE_POTENTIAL ]  );
+				dpp.setNumberPagePerDisplay(numberPagePerDisplay);
 				try {
 		        	//save to xml
 					mgr.saveConfigStoreToFs(configStore);
@@ -190,6 +195,7 @@ public class NsharpDataPageConfigDialog extends Dialog {
 			editingDpp.setMeanWindPage(pageOrderNumberArray[NsharpConstants.PAGE_MEAN_WIND ]  );
 			editingDpp.setConvectiveInitiationPage(pageOrderNumberArray[NsharpConstants.PAGE_CONVECTIVE_INITIATION ]  );
 			editingDpp.setSeverePotentialPage(pageOrderNumberArray[NsharpConstants.PAGE_SEVERE_POTENTIAL ]  );
+			editingDpp.setNumberPagePerDisplay(numberPagePerDisplay);
         	rsc.setDataPageProperty(editingDpp);
          	editor.refresh();
         }
@@ -231,6 +237,37 @@ public class NsharpDataPageConfigDialog extends Dialog {
 		mainLayout.marginHeight = 3;
 		mainLayout.marginWidth = 3;
 		top.setLayout(mainLayout);
+		
+		Group btnGp = new Group(top, SWT.SHADOW_ETCHED_IN);
+		btnGp.setText("number of page per display");
+		//.setFont(newFont);
+		Button oneBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		oneBtn.setText("1");
+		oneBtn.setEnabled( true );
+		oneBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, btnGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
+		//oneBtn.setFont(newFont);
+		oneBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {   
+				numberPagePerDisplay=1;
+				//System.out.println("new obvSnd dialog uair btn");
+			}          		            	 	
+		} ); 
+		
+		
+		Button twoBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		twoBtn.setText("2");
+		twoBtn.setEnabled( true );
+		twoBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, oneBtn.getBounds().y + oneBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
+		//twoBtn.setFont(newFont);
+		twoBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				numberPagePerDisplay=2;
+			}          		            	 	
+		} );  
+		if(numberPagePerDisplay==1)
+			oneBtn.setSelection(true);
+		else
+			twoBtn.setSelection(true);
 		Group  configGp = new Group(top, SWT.SHADOW_ETCHED_IN | SWT.NO_RADIO_GROUP);
 		Label nameLbl = new Label(configGp, SWT.BORDER );
 		nameLbl.setText(" Page Name");
