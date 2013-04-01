@@ -116,7 +116,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 10, 2013  1584      mpduff       Add performance logging.
  * Feb 28, 2013  1729      dhladky      Adjusted the way in which the dialog load thread rejoins the main GUI thread.
  * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
+ * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
  * </pre>
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -255,8 +257,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private FFMPTableDataLoader dataRetrieveThread = null;
 
     private boolean groupLabelFlag = true;
-    
-    private String rowName="";// DR 13228
+
+    private String rowName = "";// DR 13228
+
     /**
      * Statistics load event.
      */
@@ -1084,7 +1087,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         // Loop over enum from config singleton to create menu items
         for (ThreshColNames colName : ThreshColNames.values()) {
-            if (ffmpConfig.isColorCell(colName) && (colName != ThreshColNames.GUID)) {// DR 14907
+            if (ffmpConfig.isColorCell(colName)
+                    && (colName != ThreshColNames.GUID)) {// DR 14907
                 // only add a menu item if colorCell is true
                 MenuItem mi = new MenuItem(popupMenu, SWT.NONE);
                 mi.setText(colName.name());
@@ -1304,7 +1308,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void displayAttributesDlg() {
-        if (attributeDlg == null) {
+        if (attributeDlg == null || attributeDlg.isDisposed()) {
             attrData = ffmpTable.getVisibleColumns();
             attributeDlg = new AttributesDlg(shell, resource, attrData, this);
         }
@@ -1770,7 +1774,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 || allOnlySmallBasinsMI.getSelection()) {
             groupLbl.setText(name);
         }
-        rowName=name;// DR 13228
+        rowName = name;// DR 13228
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         fireScreenRecenterEvent(pfaf, 1);
     }
@@ -2089,7 +2093,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     public void updateLoadingLabel(FFMPLoaderStatus status) {
         this.loadStatus = status;
-        
         if (dataLoadComp == null) {
             return;
         }
@@ -2192,7 +2195,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (!this.isDisposed()) {
 
-           VizApp.runAsync(new Runnable() {
+            VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
                     processUpdate(fupdateData);
@@ -2243,9 +2246,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             groupLbl.setText("");
         }
     }
- 
+
     // DR 13228
-    public String getRowName(){
-    	return this.rowName;
+    public String getRowName() {
+        return this.rowName;
     }
 }
