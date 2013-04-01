@@ -134,7 +134,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
  *                                       and removed it from updateListSelected().
  *  Feb 18, 2013 #1633       rferrel     Changed checkFollowupSelection to use SimulatedTime.
- * 
+ *  Mar 28, 2013 DR 15974    D. Friedman Do not track removed GIDs.
+ *
  * </pre>
  * 
  * @author chammack
@@ -1587,7 +1588,6 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
             warngenLayer.setWarningAction(action);
-            warngenLayer.initRemovedGids();
             if (action == WarningAction.CON) {
                 oldWarning = conSelected(data);
             } else if (action == WarningAction.COR) {
