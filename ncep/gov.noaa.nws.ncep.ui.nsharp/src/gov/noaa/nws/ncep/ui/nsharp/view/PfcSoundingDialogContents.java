@@ -140,7 +140,7 @@ public class PfcSoundingDialogContents {
     private void handleAvailFileListSelection(){
     	String selectedFile=null;	
     	if (availablefileList.getSelectionCount() > 0 ) {
-		selectedFileList.clear();
+			selectedFileList.clear();
 			for(int i=0; i < availablefileList.getSelectionCount(); i++) {
 				selectedFile = availablefileList.getSelection()[i];
 				//System.out.println("selected sounding file is " + selectedFile);
@@ -250,7 +250,7 @@ public class PfcSoundingDialogContents {
 		//create a selection listener to handle user's selection on list
 		availablefileList.setFont(newFont);
 		availablefileList.addListener ( SWT.Selection, new Listener () {
-			public void handleEvent (Event e) {   			
+			public void handleEvent (Event e) {   	
 				handleAvailFileListSelection();
 			}
 		} );
@@ -265,15 +265,15 @@ public class PfcSoundingDialogContents {
 		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight*36/5 );
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
 		//	private String selectedSndTime=null;
-    		public void handleEvent (Event e) {   			
+    		public void handleEvent (Event e) {  
     			handleSndTimeSelection();
-    				}
-    				
+    		}
+    		
     	});
 		if(currentSndType==NcSoundingProfile.PfcSndType.GFSSND || currentSndType==NcSoundingProfile.PfcSndType.NAMSND){
 			if(currentSndType==NcSoundingProfile.PfcSndType.GFSSND)
 				gfsBtn.setSelection(true);
-				else
+			else
 				namBtn.setSelection(true);
 			createPFCAvailableFileList();
 			selectedFileList = ldDia.getPfcSelectedFileList();
@@ -289,7 +289,7 @@ public class PfcSoundingDialogContents {
 			handleSndTimeSelection();
 			
 				
-			}          		            	 	
+		}
 	}
 	
 	private void addStnPtWithoutQuery(String refTimeStr,String rangeStartStr, String selectedSndTime) {
@@ -324,7 +324,8 @@ public class PfcSoundingDialogContents {
 				NsharpStationInfo.timeLineSpecific timeLinsSpc =  stn.new timeLineSpecific();
 				
 				int endIndex= Math.min(4, sndTypeStr.length());
-				String dispInfo = stnInfo.getStnId() + " " + selectedSndTime+" "+sndTypeStr.substring(0,endIndex);
+				String packedStnIdStr= stnInfo.getStnId().replace(" ", "_");
+				String dispInfo = packedStnIdStr + " " + selectedSndTime+" "+sndTypeStr.substring(0,endIndex);
 				timeLinsSpc.setDisplayInfo(dispInfo);
 				timeLinsSpc.setTiemLine(stnInfo.getRangeStartTime());
 				stn.addToTimeLineSpList(timeLinsSpc);
@@ -336,7 +337,6 @@ public class PfcSoundingDialogContents {
 				//if(i <10)
 				//	System.out.println( "disP="+dispInfo+" refT= "+stnInfo.getSynopTime()+ " rangSt="+stnInfo.getRangeStartTime());
 				stnPoints.add(stn);
-				;
 			}
 			
 			
