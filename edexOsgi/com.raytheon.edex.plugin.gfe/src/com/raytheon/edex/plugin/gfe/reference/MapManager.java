@@ -47,6 +47,7 @@ import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.exception.MissingLocalMapsException;
 import com.raytheon.edex.plugin.gfe.reference.DbShapeSource.ShapeType;
 import com.raytheon.edex.plugin.gfe.textproducts.AreaDictionaryMaker;
 import com.raytheon.edex.plugin.gfe.textproducts.CombinationsFileMaker;
@@ -74,6 +75,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -98,6 +100,9 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Oct 13, 2008     #1607   njensen     Added genCombinationsFiles()
  * Sep 18, 2012     #1091   randerso    Changed to use Maps.py and localMaps.py
  * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
+ * Mar 28, 2013     #1837   dgilling    Better error reporting if a map table
+ *                                      from localMaps.py could not be found,
+ *                                      warnings clean up.
  * 
  * </pre>
  * 
@@ -245,28 +250,21 @@ public class MapManager {
     /**
      * @param maps
      */
-    @SuppressWarnings("unused")
-    /**
-     * Searches the parent directory of a provided list of shape files to
-     * determine whether or not they contain a file that is newer than any files
-     * in a specified directory.
-     * 
-     * @param maps
-     *            An array of shape files.
-     * @param directory
-     *            A directory containing the resultant edit areas from the shape
-     *            files.
-     * @return True, if any file in the parent folder of any of the shape files
-     *         is newer than anything in the specified directory. Else, false.
-     */
     private boolean updateNeeded(List<DbShapeSource> maps,
             final String directory) {
         // calc newest file inside maps.directory()
         long newestSource = Long.MIN_VALUE;
+        List<DbShapeSource> failedMaps = new ArrayList<DbShapeSource>();
         for (DbShapeSource map : maps) {
-            newestSource = Math.max(newestSource, map.getLastUpdated()
-                    .getTime());
+            try {
+                newestSource = Math.max(newestSource, map.getLastUpdated()
+                        .getTime());
+            } catch (MissingLocalMapsException e) {
+                reportMissingLocalMap(map, "retrieving last update time", e);
+                failedMaps.add(map);
+            }
         }
+        maps.removeAll(failedMaps);
 
         // Determine time of last modification of Maps.py, serverConfig,
         // localConfig, localMaps, and siteConfig.
@@ -385,6 +383,10 @@ public class MapManager {
                 }
 
                 makeReferenceData(m);
+            } catch (MissingLocalMapsException e) {
+                String error = reportMissingLocalMap(m, "retrieving map data",
+                        e);
+                _mapErrors.add(error);
             } catch (Exception e) {
                 String error = "********* EDIT AREA GENERATION ERROR - MakeReferenceData  *********\n"
                         + "Error in generating edit areas, map #"
@@ -575,8 +577,8 @@ public class MapManager {
                     // old one, write a warning to the log.
                     ReferenceData other = null;
                     try {
-                        other = (ReferenceData) SerializationUtil
-                                .jaxbUnmarshalFromXmlFile(path);
+                        other = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                                ReferenceData.class, path);
                     } catch (Exception e) {
                         statusHandler.error("Error reading edit area file "
                                 + path.getAbsolutePath(), e);
@@ -961,5 +963,24 @@ public class MapManager {
         }
 
         return s;
+    }
+
+    private String reportMissingLocalMap(DbShapeSource missingMap,
+            String operation, MissingLocalMapsException e) {
+        String errorLog = "Error in " + operation + " for map named ["
+                + missingMap.getDisplayName() + "]: Could not find table ["
+                + missingMap.getTableName() + "] in maps database.";
+        statusHandler.error(errorLog, e);
+
+        String errorUser = errorLog
+                + " Edit areas for this map will not be generated."
+                + " Check site ["
+                + _config.getSiteID().get(0)
+                + "] localMaps.py configuration and verify all necessary shape files have been imported.";
+        EDEXUtil.sendMessageAlertViz(Priority.ERROR,
+                "com.raytheon.edex.plugin.gfe", "GFE", "GFE", errorUser,
+                errorUser, null);
+
+        return errorLog;
     }
 }
