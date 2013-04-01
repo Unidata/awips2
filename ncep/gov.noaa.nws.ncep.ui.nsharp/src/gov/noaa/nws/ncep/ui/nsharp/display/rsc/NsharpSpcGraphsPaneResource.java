@@ -135,7 +135,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		if(side == left ){
 			xstart = spcLeftXOrig+   0.5*charWidth;
 			xend = spcLeftXOrig + spcFrameWidth;
-	}
+		}
 		else{
 			xstart = spcRightXOrig + 0.5*charWidth;
 			xend = spcRightXOrig + spcFrameWidth;
@@ -251,7 +251,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 			//	System.out.println("java hail str #"+ (i+1)+ " "+ hailStr);
 			
 		}		
-	/*
+		/*
 		ypos = spcYEnd - 4 * charHeight;
 		for(int i=0; i < 2; i++){
 			String supStr = new String(sarsInfo.getTorStr(), (i*60), 60);
@@ -975,7 +975,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		_parcel pcl = new _parcel();;
    		_lplvalues lpvls = new _lplvalues();
    		nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
-   		oldlplchoice = lpvls.flag;
+   		//oldlplchoice = lpvls.flag;
    		//lift ML parcel
    		nsharpNative.nsharpLib.define_parcel(NsharpNativeConstants.PARCELTYPE_MEAN_MIXING, NsharpNativeConstants.MML_LAYER);
    		float sfctemp, sfcdwpt, sfcpres;
@@ -1079,7 +1079,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
         valueLCL.verticallAlignment = VerticalAlignment.TOP;
 		valueLCL.setCoordinates(tboxValueStart, ypos);
 		strList.add(valueLCL);
-		
+		oldlplchoice = rscHandler.getCurrentParcel();
 		float pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
 		 nsharpNative.nsharpLib.define_parcel(oldlplchoice,pres);
 		//Calculates and plots the probability of an F2+ tornado 
@@ -1154,8 +1154,8 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		// (given a supercell) based on effective bulk shear alone. 
 		// Probabilities are derived from Thompson et al. 2005 RUC soundings
 		// based on prob_sigt_eshear() of xwvid3.c
-		nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
-   		oldlplchoice = lpvls.flag;
+		//nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
+   		//oldlplchoice = lpvls.flag;
    		//lift MU parcel
    		nsharpNative.nsharpLib.define_parcel(NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE, NsharpNativeConstants.MU_LAYER);
 		
@@ -1386,7 +1386,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		subTStr2.setCoordinates(xpos, ypos);
 		strList.add(subTStr2);
 		//target.drawStrings(subTStr1, subTStr2);
-	
+		
 		ypos = ypos + 1.5* charHeight;
 		//----- Plot Y-Coordinate hash marks, 0 - 70 kt ----- 
 		int maxval = 70;
@@ -1459,7 +1459,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		_parcel pcl = new _parcel();;
    		_lplvalues lpvls = new _lplvalues();
    		nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
-   		oldlplchoice = lpvls.flag;
+   		//oldlplchoice = lpvls.flag;
    		
 		nsharpNative.nsharpLib.define_parcel(NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE,400f);
 		
@@ -1512,6 +1512,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
    	    		pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
    	    }
    	    else*/
+		oldlplchoice = rscHandler.getCurrentParcel();
    	    	pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
 		 nsharpNative.nsharpLib.define_parcel(oldlplchoice,pres);		
 		target.drawStrings(strList.toArray(new DrawableString[strList.size()])); // x-axis mark number
@@ -1522,7 +1523,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 			PaintProperties paintProps) throws VizException {
 		super.paintInternal(target, paintProps);
 		//defineCharHeight(font10);
-		if(rscHandler== null)
+		if(rscHandler== null ||  rscHandler.getSoundingLys()==null)
 			return;
 		this.font10.setSmoothing(false);
 		this.font10.setScaleFont(false);
@@ -1555,7 +1556,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 			underDevelopment(0);		//plotWinter(left);
 			break;
 		case HAIL:
-			underDevelopment(0);
+			underDevelopment(0);		
 			break;
 		case SARS:
 			underDevelopment(0);		//plotSars(left);
@@ -1581,7 +1582,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 			underDevelopment(1);//plotWinter(right);
 			break;
 		case HAIL:
-			underDevelopment(1);
+			underDevelopment(1);	
 			break;
 		case SARS:
 			underDevelopment(1);//plotSars(right);
