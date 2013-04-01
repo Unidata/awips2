@@ -35,6 +35,8 @@ import java.util.Map;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 10/07/2008   1533        bphillip   Initial Checkin
+ * Mar 29, 2013 1638       mschenke    Added method for recursively getting all
+ *                                     dataURI fields for an object
  * 
  * </pre>
  * 
@@ -66,6 +68,22 @@ public class DataURIUtil {
             instance = new DataURIUtil();
         }
         return instance;
+    }
+
+    public Field[] getAllDataURIFields(Class<?> obj) {
+        List<Field> fields = new ArrayList<Field>();
+        getAllDataURIFields(obj, fields);
+        return fields.toArray(new Field[0]);
+    }
+
+    private void getAllDataURIFields(Class<?> obj, List<Field> fields) {
+        for (Field field : getDataURIFields(obj)) {
+            if (field.getAnnotation(DataURI.class).embedded()) {
+                getAllDataURIFields(field.getType(), fields);
+            } else {
+                fields.add(field);
+            }
+        }
     }
 
     /**
