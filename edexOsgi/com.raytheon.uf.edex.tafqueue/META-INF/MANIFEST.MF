@@ -10,4 +10,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.common.tafqueue;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- javax.persistence;bundle-version="1.0.0"
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.3.0"
+Import-Package: com.raytheon.uf.common.localization,
+ org.apache.commons.configuration
+Export-Package: com.raytheon.uf.edex.tafqueue

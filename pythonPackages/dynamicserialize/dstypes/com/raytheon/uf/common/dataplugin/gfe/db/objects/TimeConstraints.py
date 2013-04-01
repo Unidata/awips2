@@ -19,8 +19,11 @@
 ##
 
 # File auto-generated against equivalent DynamicSerialize Java class
+#
+# 03/20/2013     #1774    randerso  Removed setters, added isValid.    
 
 
+import logging
 
 HOUR = 3600;
 DAY = 24 * HOUR;
@@ -31,13 +34,24 @@ class TimeConstraints(object):
         duration = int(duration)
         repeatInterval = int(repeatInterval)
         startTime = int(startTime)
-        
-        if duration != 0 or repeatInterval != 0 or startTime != 0:
-            if (repeatInterval <= 0 or repeatInterval > DAY) or \
-               (DAY % repeatInterval != 0 or repeatInterval < duration) or \
-               (startTime < 0 or startTime > DAY) or \
-               (duration < 0 or duration > DAY):
-                raise ValueError("Bad init values for TimeConstraints.") 
+
+        self.valid = False;        
+        if duration == 0 and repeatInterval == 0 and startTime == 0:
+            self.valid = True;
+        else:
+            if repeatInterval <= 0 or repeatInterval > DAY \
+                    or DAY % repeatInterval != 0 \
+                    or repeatInterval < duration \
+                    or startTime < 0 or startTime > DAY \
+                    or duration < 0 or duration > DAY:
+                
+                logging.warning("Bad init values for TimeConstraints: ", self);
+                self.valid = False;
+                duration = 0;
+                repeatInterval = 0;
+                startTime = 0;
+            else:
+                self.valid = True;
         
         self.duration = duration
         self.repeatInterval = repeatInterval
@@ -47,12 +61,14 @@ class TimeConstraints(object):
         return self.__repr__()
     
     def __repr__(self):
-        if not self.anyConstraints():
+        if not self.isValid():
+            return "<Invalid>"
+        elif not self.anyConstraints():
             return "<NoConstraints>"
         else:
-            return "[s=" + str(self.startTime / HOUR) + "h,i=" + \
-                   str(self.repeatInterval / HOUR) + "h,d=" + \
-                   str(self.duration / 3600) + "h]"
+            return "[s=" + str(self.startTime / HOUR) + "h, i=" + \
+                   str(self.repeatInterval / HOUR) + "h, d=" + \
+                   str(self.duration / HOUR) + "h]"
                    
     def __eq__(self, other):
         if not isinstance(other, TimeConstraints):
@@ -72,29 +88,13 @@ class TimeConstraints(object):
         return (self.duration != 0)
     
     def isValid(self):
-        if self.duration != 0 or self.repeatInterval != 0 or self.startTime != 0:
-            if (self.repeatInterval <= 0 or self.repeatInterval > DAY) or \
-               (DAY % self.repeatInterval != 0 or self.repeatInterval < self.duration) or \
-               (self.startTime < 0 or self.startTime > DAY) or \
-               (self.duration < 0 or self.duration > DAY):
-                return False
-        return True
+        return self.valid
 
     def getDuration(self):
         return self.duration
 
-    def setDuration(self, duration):
-        self.duration = duration
-
     def getRepeatInterval(self):
         return self.repeatInterval
 
-    def setRepeatInterval(self, repeatInterval):
-        self.repeatInterval = repeatInterval
-
     def getStartTime(self):
         return self.startTime
-
-    def setStartTime(self, startTime):
-        self.startTime = startTime
-

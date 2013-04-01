@@ -547,9 +547,17 @@ DisposeListener, IPartListener{
 				graphEditBtn.setText(EDIT_GRAPH_OFF);
 				currentGraphMode= NsharpConstants.GRAPH_SKEWT;
 				NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
-				if(editor != null){
+				if(editor != null && editor.getRscHandler()!=null){
 					//note: resetRsc will reset currentPage, overlay, compare, interpolate flag in Resource
 					editor.getRscHandler().resetRsc();
+					//issue#18 - issue list
+					if(editor.getRscHandler().getDataPaneRsc()!=null){
+						editor.getRscHandler().getDataPaneRsc().resetCurrentParcel();
+					}
+					NsharpParcelDialog parcelDia = NsharpParcelDialog.getInstance(shell);
+					if ( parcelDia != null ) {
+						parcelDia.reset();
+					}
 					//editor.getNsharpSkewTDescriptor().getSkewtResource().resetRsc();// need to called it twice to make refresh worked...dont know why
 					//know that current editor is NsharpSkewT editor, refresh it.
 					editor.refresh();
