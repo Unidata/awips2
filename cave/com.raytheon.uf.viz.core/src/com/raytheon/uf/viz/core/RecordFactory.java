@@ -24,9 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
-import org.apache.commons.beanutils.ConstructorUtils;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.request.GetPluginRecordMapRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -47,6 +46,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 7/24/07      353         bphillip    Initial creation  
  * 10/8/2008    1532        bphillip    Refactored to incorporate annotation support
  * Mar 5, 2013     1753     njensen     Improved debug message
+ * Mar 29, 2013 1638        mschenke    Added dataURI mapping methods
  * 
  * </pre>
  * 
@@ -206,15 +206,53 @@ public class RecordFactory {
      */
     public PluginDataObject loadRecordFromUri(String dataURI)
             throws VizException {
+        return loadRecordFromMap(loadMapFromUri(dataURI));
+    }
 
-        String pluginName = dataURI.substring(dataURI.indexOf("/") + 1,
-                dataURI.indexOf("/", 2));
-        PluginDataObject record = null;
+    /**
+     * Creates a partially populated PluginDataObject from the given a map of
+     * attributes
+     * 
+     * @param map
+     *            The map used for populating the object
+     * @return A PluginDataObject populated from the provided dataURI
+     * @throws VizException
+     *             If the PluginDataObject cannot be created
+     */
+    public PluginDataObject loadRecordFromMap(Map<String, Object> map)
+            throws VizException {
+        Class<PluginDataObject> pdoClass = getPluginClass((String) map
+                .get("pluginName"));
+        if (pdoClass == null) {
+            throw new VizException(
+                    "Unable to load record from dataURI, PDO class for plugin ("
+                            + map.get("pluginName") + ") not found");
+        }
+
+        return loadRecordFromMap(map, pdoClass);
+    }
+
+    /**
+     * Populates a record type object from map
+     * 
+     * @param map
+     * @param type
+     * @return
+     * @throws VizException
+     */
+    public <T> T loadRecordFromMap(Map<String, Object> map, Class<T> type)
+            throws VizException {
+        T record;
         try {
-            record = (PluginDataObject) ConstructorUtils
-                    .invokeExactConstructor(getPluginClass(pluginName), dataURI);
+            record = type.newInstance();
         } catch (Exception e) {
-            throw new VizException("Unable to instantiate record class", e);
+            throw new VizException("Unable to create new record for type: "
+                    + type, e);
+        }
+        try {
+            PluginDataObject.populateFromMap(record, map);
+        } catch (PluginException e) {
+            throw new VizException(e);
         }
         return record;
     }
