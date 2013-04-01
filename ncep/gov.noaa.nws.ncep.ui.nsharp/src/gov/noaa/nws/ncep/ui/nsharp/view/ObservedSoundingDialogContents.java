@@ -131,10 +131,11 @@ public class ObservedSoundingDialogContents {
 
 				//convert to Nsharp's own station info struct
 				NsharpStationInfo stn = new NsharpStationInfo();
-				stn.setStnDisplayInfo(stnInfoStr + " " + selectedSndTime+ " "+currentSndType.toString());
+				String packedStnInfoStr= stnInfoStr.replace(" ", "_");
+				stn.setStnDisplayInfo(packedStnInfoStr + " " + selectedSndTime+ " "+currentSndType.toString());
 				stn.setLongitude(lon);
 				stn.setLatitude(lat);
-				//stn.setElevation(elv);
+				stn.setStnId(stnInfoStr);
 				stn.setReftime(synoptictime);
 				stn.setRangestarttime(synoptictime);
 				stn.setSndType(currentSndType.toString());
@@ -144,9 +145,9 @@ public class ObservedSoundingDialogContents {
 			}
 
 			NsharpMapResource.bringMapEditorToTop();
-			}
+		}
 	}
-
+	
 	private void handleSndTimeSelection(){
 		String selectedSndTime=null;
 		if (sndTimeList.getSelectionCount() > 0 ) {  	
@@ -209,7 +210,7 @@ public class ObservedSoundingDialogContents {
 				createObsvdSndUairList();
 			}          		            	 	
 		} );  
-
+		
 		midGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		midGp.setLayout( new GridLayout( 2, false ) );
 		timeBtn = new Button(midGp, SWT.CHECK | SWT.BORDER);
@@ -257,7 +258,7 @@ public class ObservedSoundingDialogContents {
 		//create a selection listener to handle user's selection on list		
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
         	//private String selectedSndTime=null;	
-    		public void handleEvent (Event e) {   			
+    		public void handleEvent (Event e) {   	
     			handleSndTimeSelection();
     		}
     	});
@@ -265,7 +266,7 @@ public class ObservedSoundingDialogContents {
 		if(currentSndType== NcSoundingProfile.ObsSndType.NCUAIR || currentSndType == NcSoundingProfile.ObsSndType.BUFRUA){
 			if(currentSndType== NcSoundingProfile.ObsSndType.NCUAIR )
 				uairBtn.setSelection(true);
-				else
+			else
 				bufruaBtn.setSelection(true);
 			createObsvdSndUairList();
 			selectedTimeList = ldDia.getObsSelectedTimeList();
@@ -273,7 +274,7 @@ public class ObservedSoundingDialogContents {
 			String[] selTimeStringArray = Arrays.copyOf(selTimeObjectArray, selTimeObjectArray.length, String[].class);
 			sndTimeList.setSelection(selTimeStringArray);
 			handleSndTimeSelection();
-			}          		            	 	
+		}
 	}
 	public void cleanup(){
 		if(sndTimeList != null){
