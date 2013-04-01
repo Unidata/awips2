@@ -86,7 +86,7 @@ public class NsharpResourceHandler {
 	private NsharpAbstractPaneResource futurePaneRsc;
 	//private Coordinate hodoStmCenter; //hodo storm motion center
 	NsharpNative nsharpNative=null;
-	private static final int  DATAPAGEMAX = NsharpConstants.PAGE_MAX_NUMBER/ 2;
+	private int  displayDataPageMax;
 	private static final int  INSETPAGEMAX =2;
 	private int currentTextChapter= 1;
 	private int currentInsetPage= 1;
@@ -266,7 +266,7 @@ public class NsharpResourceHandler {
 	
 
 	public void setNextTextChapter(){
-		if(currentTextChapter == DATAPAGEMAX){
+		if(currentTextChapter == displayDataPageMax){
 			currentTextChapter = 1;
 		}
 		else
@@ -431,14 +431,6 @@ public class NsharpResourceHandler {
 		this.soundingType = soundingType;
 	}
 
-	/*public static NsharpSkewTResource createSkewtResource() {
-        LoadProperties loadProperties1 = new LoadProperties();
-        ColorableCapability colorable1 = new ColorableCapability();
-        colorable1.setColor(NsharpConstants.backgroundColor);
-        loadProperties1.getCapabilities().addCapability(colorable1);
-        return new NsharpSkewTResource(new NsharpSkewTResourceData(),
-                loadProperties1);
-    }*/
 	
     public List<List<NcSoundingLayer>> getSoundingLysList() {
 		return soundingLysList;
@@ -447,7 +439,7 @@ public class NsharpResourceHandler {
     public void setCurrentParcel(short currentParcel) {
 		this.currentParcel = currentParcel;
 		currentParcelLayerPressure=NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
-		//inform draw panel as well
+		//inform data/skewT panel as well
 		if(dataPaneRsc!=null){
 			dataPaneRsc.setCurrentParcel(currentParcel);
 		}
@@ -455,64 +447,20 @@ public class NsharpResourceHandler {
 			if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED)
 				currentParcelLayerPressure = NsharpParcelDialog.getUserDefdParcelMb();
 			skewtPaneRsc.createRscParcelTraceShapes(currentParcel,currentParcelLayerPressure);
+			skewtPaneRsc.createRscParcelRtTraceShapesList(currentParcel,currentParcelLayerPressure);
 			skewtPaneRsc.createLCLEtcLinesShape();
 		}
 	}
-    public void setCurrentParcelData(short currentParcel, float pressure) {
-		this.currentParcel = currentParcel;
-		currentParcelLayerPressure=pressure;
-		//inform draw panel as well
-		if(dataPaneRsc!=null){
-			dataPaneRsc.setCurrentParcel(currentParcel);
-		}
-	}
-	/*
-     * NOTE:::ONly one parcel will be in parcel list as current design changed to only show one configured parcel
-     * This is how BigNsharp does.
-     * Todo: replace List<ParcelData>  with just one ParcelData
-     */
-	/*public void setParcelList(List<ParcelData> parcelList) {
-		this.parcelList = parcelList;
-		if(skewtPaneRsc!=null)
-			skewtPaneRsc.createParcelShapes(parcelList);
-	}*/
+    
 	public void updateParcelFromPanel(short currentParcel){
 		this.currentParcel = currentParcel;
 		currentParcelLayerPressure=NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
 		if(skewtPaneRsc!=null){
 			skewtPaneRsc.createRscParcelTraceShapes(currentParcel,currentParcelLayerPressure);
+			skewtPaneRsc.createRscParcelRtTraceShapesList(currentParcel,currentParcelLayerPressure);
 			skewtPaneRsc.createLCLEtcLinesShape();
 		}
-		//update parcel shape
-		/*List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
-		ParcelData pd= new ParcelData();
-		pd.setParcelType(currentParcel);
-		pd.setParcelLayerPressure(currentParcelLayerPressure);
-		parcelList.add(pd);
-		setParcelList(parcelList);*/
 	}
-    /*
-     * NOTE:::when called, it assumed that this new element is current parcel. Therefore caller has to make sure of this.
-     *
-	public void addParcelToList(ParcelData parceldata) {
-		boolean addToList = true;
-		for(ParcelData pdata : parcelList){
-			if((pdata.parcelType == parceldata.parcelType) && (pdata.parcelLayerPressure == parceldata.parcelLayerPressure)){
-				addToList= false;
-				break;
-			}
-		}
-		if(addToList== true)
-			this.parcelList.add(parceldata);
-		
-		currentParcel = parceldata.getParcelType();
-		currentParcelLayerPressure = parceldata.getParcelLayerPressure();
-		NsharpBackgroundResource bkRsc = descriptor.getSkewTBkGResource();   	
-		WGraphics WGc = bkRsc.getSkewTBackground().getWorld();
-		createRscParcelTraceShape( WGc, parceldata.parcelType,parceldata.parcelLayerPressure);
-		
-	}*/
-
 
 	public void setSoundingLysList(List<List<NcSoundingLayer>> soundingLysList) {
 		this.soundingLysList = soundingLysList;
@@ -689,10 +637,13 @@ public class NsharpResourceHandler {
 			if(NsharpParcelDialog.getAccess()!=null){
 				NsharpParcelDialog.getAccess().resetUserDefParcel();
 			}
-			/* TBD 
-			//reset draw panel as well
-			if(drawPanel!=null){
-				drawPanel.resetCurrentParcel();
+			 /* Chin:::
+			  * This api is called in may scenarios.
+			  * User may want to keep his previous picked parcel type.
+			  * Therefore, thdataPaneRsc.resetCurrentParcel should be called from
+			  * other area that really meant to reset parcel type.
+			if(dataPaneRsc!=null){
+				dataPaneRsc.resetCurrentParcel();
 			}*/
 		}
 		//Chin: TBD remove handle resize here to fix sizing issue when swapped nsharp from side pane back to main pane 
@@ -1518,6 +1469,31 @@ public class NsharpResourceHandler {
 		}
 	}
 	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo, boolean displayNewData){
+		/* testing code
+		stnInfo.setStnId("KG RI");
+		{
+			Set<String> keyset= new HashSet<String>(soundMap.keySet());
+			for(String key: keyset) {
+				List<NcSoundingLayer> sndLy = soundMap.remove(key);
+				String newkey= key.replace("KGRI", "KG RI");
+				soundMap.put(newkey, sndLy);
+			}
+		}*/
+		if(stnInfo.getStnId() != null && stnInfo.getStnId().indexOf(" ")>=0){
+			//take care stnId with SPACE case.
+			String stnId= stnInfo.getStnId();
+			String newStnId = stnId.replace(" ", "_");
+			stnInfo.setStnId(newStnId);
+			String dspInfo= stnInfo.getStnDisplayInfo();
+			stnInfo.setStnDisplayInfo(dspInfo.replace(stnId, newStnId));
+			Set<String> keyset= new HashSet<String>(soundMap.keySet());
+			for(String key: keyset) {
+				List<NcSoundingLayer> sndLy = soundMap.remove(key);
+				String newkey= key.replace(stnId, newStnId);
+				soundMap.put(newkey, sndLy);
+			}
+			
+		}
 		deepCopyDataMap(this.originalDataTimelineSndLysListMap,this.dataTimelineSndLysListMap);
 		//make sure not adding duplicated sounding data
 		//System.out.println("NsharpSkewTResource addRsc called");
@@ -1627,6 +1603,7 @@ public class NsharpResourceHandler {
 
 	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
 		//by default, display new data 
+		//NCP always call from this route.
 		this.addRsc(soundMap, stnInfo,true);
 		return;
 	}
@@ -2177,7 +2154,7 @@ public class NsharpResourceHandler {
 				dataPaneRsc.setLinePropertyMap(linePropertyMap);
 				dataPaneRsc.setGraphConfigProperty(graphConfigProperty);
 				dataPaneRsc.setNsharpNative(nsharpNative);
-				dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+				dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray,  dataPageProperty.getNumberPagePerDisplay());
 			}
 			else if (absPaneRsc instanceof NsharpHodoPaneResource){
 				hodoPaneRsc = (NsharpHodoPaneResource)absPaneRsc;
@@ -2249,7 +2226,7 @@ public class NsharpResourceHandler {
 
 
 	public NsharpResourceHandler(IRenderableDisplay[] displayArray, NsharpEditor editor) {
-    	//System.out.println("NsharpResourceHandler constructed");
+    	System.out.println("NsharpResourceHandler constructed");
 		//myNsharpEditor = editor;
         this.soundingMap = new HashMap<Date, SoundingParams>();
         elementColorMap.put(NsharpConstants.State.CURRENT,NsharpConstants.color_green); //green
@@ -2284,6 +2261,7 @@ public class NsharpResourceHandler {
 		dataPageProperty = configStore.getDataPageProperty();
 		updatePageOrderArray();
 		updateDisplay(displayArray,paneConfigurationName);
+		displayDataPageMax = NsharpConstants.PAGE_MAX_NUMBER / dataPageProperty.getNumberPagePerDisplay();
 		//pspLsner = new NsharpPerspectiveListener();
 		//pspLsner.setRscHandler(this);
 		//pspLsner.setMyPerspectiveId(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
@@ -2328,7 +2306,7 @@ public class NsharpResourceHandler {
     	resetData();
     }
 	public void disposeInternal() {
-		//System.out.println("NsharpSkewTResource disposeInternal called");
+		System.out.println("NsharpResourceHandler disposeInternal called");
 	    soundingMap= null;
 	    //parcelList= null;
 	    listenerList=null;
@@ -3014,7 +2992,7 @@ public class NsharpResourceHandler {
 		this.dataPageProperty = dataPageProperty;
 		updatePageOrderArray();
 		if(dataPaneRsc!=null)
-			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray, dataPageProperty.getNumberPagePerDisplay());
 	}
 
 
@@ -3165,6 +3143,11 @@ public class NsharpResourceHandler {
 
 	public NsharpSpcGraphsPaneResource getSpcGraphsPaneRsc() {
 		return spcGraphsPaneRsc;
+	}
+
+
+	public NsharpDataPaneResource getDataPaneRsc() {
+		return dataPaneRsc;
 	}
 
 
