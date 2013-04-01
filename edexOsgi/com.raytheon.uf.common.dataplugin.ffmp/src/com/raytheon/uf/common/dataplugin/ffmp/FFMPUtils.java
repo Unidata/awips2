@@ -83,6 +83,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
  * 01/02/13      DR 1569    D. Hladky   constants, arraylist to list and moved common menthods here
  * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
+ * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * </pre>
  * @author dhladky
  * @version 1
@@ -304,18 +305,20 @@ public class FFMPUtils {
         int startDepth = prelimstartDepth;
 
         for (int i = 0; i < pfafs.length; i++) {
-            int depth = pfafs[i].indexOf("0");
+            int depth = pfafs[i].substring(prelimstartDepth).indexOf("0");
+            depth = prelimstartDepth + depth;
             if (depth > maxDepth) {
                 maxDepth = depth;
             }
         }
-
+        
         // do an 80% analysis to find min (startDepth)
         if (pfafs.length > 0) {
             for (int myMinDepth = maxDepth; myMinDepth > 0; myMinDepth--) {
                 int ilevelcount = 0;
                 for (int i = 0; i < pfafs.length; i++) {
-                    int idepth = pfafs[i].indexOf("0");
+                    int idepth = pfafs[i].substring(prelimstartDepth).indexOf("0");
+                    idepth = prelimstartDepth + idepth;
                     if (idepth >= myMinDepth) {
                         ilevelcount++;
                     }

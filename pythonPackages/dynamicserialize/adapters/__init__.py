@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    08/31/10                      njensen       Initial Creation.
+#    03/20/13           #1774      randerso      Added TimeConstraintsAdapter
 #    
 # 
 #
@@ -50,8 +51,9 @@ __all__ = [
            'TimestampAdapter',
            'EnumSetAdapter',
            'FloatBufferAdapter',
-           'ByteBufferAdapter'
-#           'GridDataHistoryAdapter'
+           'ByteBufferAdapter',
+           'TimeConstraintsAdapter',
+#           'GridDataHistoryAdapter',
            ]
  
 classAdapterRegistry = {}
