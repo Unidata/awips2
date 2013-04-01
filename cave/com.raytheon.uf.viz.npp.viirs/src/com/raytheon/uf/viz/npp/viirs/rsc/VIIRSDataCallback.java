@@ -24,6 +24,7 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
