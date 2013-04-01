@@ -20,10 +20,8 @@
 
 package com.raytheon.uf.edex.ohd.pproc;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,6 +33,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
@@ -50,6 +49,9 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008            bphillip    Initial creation
+ * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
+ *                                     memory.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -71,9 +73,10 @@ public class DecodeDpaSrv {
 
     private CoreDao dao;
 
-    public Object process(File file) throws EdexException {
+    public Object process(byte[] message, Headers headers) throws EdexException {
         boolean proc = false;
-        proc = checkFile(file);
+        File ingestFile = new File(headers.get("ingestfilename").toString());
+        proc = checkFile(message, ingestFile.getName());
         if (proc == false) {
             return null;
         }
@@ -110,30 +113,8 @@ public class DecodeDpaSrv {
      * @throws EdexException
      *             If IOExceptions occur
      */
-    private boolean checkFile(File dpaFile) throws EdexException {
-
-        /*
-         * Read the contents of the file into memory.
-         */
-        BufferedInputStream inStream = null;
-        try {
-            inStream = new BufferedInputStream(new FileInputStream(dpaFile));
-        } catch (FileNotFoundException e) {
-            throw new EdexException("Cannot find file: " + dpaFile, e);
-        }
-        byte[] fileContents = new byte[(int) dpaFile.length()];
-        try {
-            inStream.read(fileContents);
-        } catch (IOException e) {
-            throw new EdexException("Error reading file: " + dpaFile, e);
-        } finally {
-            try {
-                inStream.close();
-            } catch (IOException e1) {
-                throw new EdexException("Error closing stream to file: "
-                        + dpaFile, e1);
-            }
-        }
+    private boolean checkFile(byte[] fileContents, String fileName)
+            throws EdexException {
 
         /*
          * Copy off the first few bytes to see if leading bytes are present
@@ -174,8 +155,7 @@ public class DecodeDpaSrv {
                     if (offset != 0) {
                         BufferedOutputStream outStream = null;
                         try {
-                            outFile = new File(FileUtil.join(outPath,
-                                    dpaFile.getName()));
+                            outFile = new File(FileUtil.join(outPath, fileName));
                             outStream = new BufferedOutputStream(
                                     new FileOutputStream(outFile));
                         } catch (FileNotFoundException e) {
@@ -187,7 +167,7 @@ public class DecodeDpaSrv {
                             outStream.write(fileContents, offset,
                                     fileContents.length - offset);
                             logger.info("Re-writing contents of file: "
-                                    + dpaFile + " to " + outFile);
+                                    + fileName + " to " + outFile);
                         } catch (IOException e) {
                             throw new EdexException(
                                     "Error writing updated contents of DPA file: "
@@ -209,18 +189,18 @@ public class DecodeDpaSrv {
                 return false;
             }
         } else {
-            String radarid = dpaFile.getName().substring(1, 4).toUpperCase();
+            String radarid = fileName.substring(1, 4).toUpperCase();
             String query = String
                     .format("select * from radarloc where radid='%s' and use_radar='T' ",
                             radarid);
             dao = new CoreDao(DaoConfig.forDatabase("ihfs"));
             Object[] rs = dao.executeSQLQuery(query);
             if (rs.length > 0) {
-                outFile = new File(FileUtil.join(outPath, dpaFile.getName()));
+                outFile = new File(FileUtil.join(outPath, fileName));
                 logger.info("No header found for file: " + outFile
                         + " decoding with filename.");
                 try {
-                    FileUtil.copyFile(dpaFile, outFile);
+                    FileUtil.bytes2File(fileContents, outFile);
                 } catch (IOException e) {
                     throw new EdexException(
                             "Error copying file to destination directory: "

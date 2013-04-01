@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Edex DataDelivery Request
+Bundle-SymbolicName: com.raytheon.uf.edex.datadelivery.request
+Bundle-Version: 1.0.0.qualifier
+Export-Package: 
+ com.raytheon.uf.edex.datadelivery.request
