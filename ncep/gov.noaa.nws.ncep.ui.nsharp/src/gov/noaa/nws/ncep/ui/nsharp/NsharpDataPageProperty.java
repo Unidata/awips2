@@ -57,6 +57,9 @@ public class NsharpDataPageProperty implements ISerializableObject{
 	@XmlAttribute
 	private int severePotentialPage=NsharpConstants.PAGE_SEVERE_POTENTIAL;
 
+	@XmlAttribute
+	private int numberPagePerDisplay = 1;
+	
 	public int getSummary1Page() {
 		return summary1Page;
 	}
@@ -135,6 +138,14 @@ public class NsharpDataPageProperty implements ISerializableObject{
 
 	public void setSeverePotentialPage(int severePotentialPage) {
 		this.severePotentialPage = severePotentialPage;
+	}
+
+	public int getNumberPagePerDisplay() {
+		return numberPagePerDisplay;
+	}
+
+	public void setNumberPagePerDisplay(int numberPagePerDisplay) {
+		this.numberPagePerDisplay = numberPagePerDisplay;
 	}
 	
 }
