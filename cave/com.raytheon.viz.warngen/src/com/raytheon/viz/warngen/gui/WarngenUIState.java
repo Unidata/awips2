@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 12/06/2012   DR 15559  Qinglu Lin   Added computeSlope(), computeCoordinate(), 
  *                                     and adjustPolygon().
  * Feb 15, 2013    1624   jsanchez     Fix NullPointerException in removeDuplicateCoordinate.
+ * 03/28/2013   DR 15974  D. Friedman  Track marked areas outside polygon.
  * 
  * </pre>
  * 
@@ -76,6 +77,8 @@ public class WarngenUIState {
     public boolean geometryChanged = false;
 
     public FollowupData followupData = null;
+
+    private Set<String> fipsOutsidePolygon = null;
 
     /**
      * Get the warning area in lat/lon projection
@@ -326,6 +329,14 @@ public class WarngenUIState {
         this.warningPolygon = removeDuplicateCoordinate(warningPolygon);
     }
 
+	public Set<String> getFipsOutsidePolygon() {
+		return fipsOutsidePolygon;
+	}
+
+	public void setFipsOutsidePolygon(Set<String> gidsOutsidePolygon) {
+		this.fipsOutsidePolygon = gidsOutsidePolygon;
+	}
+
     public void clear() {
         warningPolygon = null;
         clear2();
@@ -344,6 +355,7 @@ public class WarngenUIState {
         warningArea = null;
         markedWarningArea = null;
         markedWarningPolygon = null;
+        fipsOutsidePolygon = null;
     }
 
     /**
