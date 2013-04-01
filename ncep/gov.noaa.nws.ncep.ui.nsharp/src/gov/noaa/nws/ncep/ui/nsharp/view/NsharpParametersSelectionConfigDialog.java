@@ -292,7 +292,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 		parcelTvBtn.setText(NsharpNativeConstants.PARCEL_VT_TRACE);
 		parcelTvBtn.setEnabled( true );
 		parcelTvBtn.setBounds(btnGp.getBounds().x+ btnGapX, dewpBtn.getBounds().y + dewpBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
-		if(parcel == true)
+		if(parcelTv == true)
 			parcelTvBtn.setSelection(true);
 		else
 			parcelTvBtn.setSelection(false);
@@ -309,7 +309,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 		parcelBtn.setText(NsharpNativeConstants.PARCEL_T_TRACE);
 		parcelBtn.setEnabled( true );
 		parcelBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelTvBtn.getBounds().y + parcelTvBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
-		if(parcelTv == true)
+		if(parcel == true)
 			parcelBtn.setSelection(true);
 		else
 			parcelBtn.setSelection(false);
@@ -321,7 +321,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 					parcel=true;
 				applyChange();
 			}          		            	 	
-		} );  
+		} ); 
 		dcapeBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		dcapeBtn.setText(NsharpNativeConstants.DCAPE_TRACE);
 		dcapeBtn.setEnabled( true );
