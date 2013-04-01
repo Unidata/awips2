@@ -91,6 +91,8 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     smartInit hdf5 data
  * 03/07/13      #1773     njensen     Logged commitGrid() times
  * 03/15/13       #1795    njensen     Sped up commitGrid()
+ * 03/20/2013     #1774    randerso    Removed dead method, changed to use new 
+ *                                     D2DGridDatabase constructor
  * 
  * </pre>
  * 
@@ -354,48 +356,6 @@ public class GridParmManager {
         }
 
         return sr;
-    }
-
-    public static ServerResponse<String> getD2DGridData(
-            List<GetGridRequest> requests) {
-
-        ServerResponse<String> retVal = new ServerResponse<String>();
-
-        // Get the grid data
-        ServerResponse<List<IGridSlice>> sr = getGridData(requests);
-        retVal.addMessages(sr);
-        if (!sr.isOkay()) {
-            return retVal;
-        }
-
-        // // Now store it off in a temp location so the client can get to it
-        // for (IGridSlice slice : sr.getPayload()) {
-        // try {
-        // GridDatabase db = getDb(requests.get(0).getParmId().getDbId());
-        // if (db instanceof D2DGridDatabase) {
-        // File tempDir = GfeUtil.getTempHDF5Dir(
-        // GridDatabase.gfeBaseDataDir, requests.get(0)
-        // .getParmId());
-        // if (!tempDir.exists()) {
-        // tempDir.mkdirs();
-        // }
-        // db.saveGridToHdf5(slice, GfeUtil.getTempHDF5File(
-        // GridDatabase.gfeBaseDataDir, requests.get(0)
-        // .getParmId()), GfeUtil.getHDF5Group(
-        // requests.get(0).getParmId(), slice.getValidTime()));
-        // } else {
-        // retVal
-        // .addMessage("Cannot save temp grids for non-D2D grid databases.");
-        // return retVal;
-        // }
-        // } catch (GfeException e) {
-        // sr.addMessage("Unable to get DB: "
-        // + requests.get(0).getParmId().getDbId());
-        // return retVal;
-        // }
-        // }
-        return retVal;
-
     }
 
     /**
@@ -1197,7 +1157,12 @@ public class GridParmManager {
                     IFPServerConfig serverConfig = IFPServerConfigManager
                             .getServerConfig(siteId);
                     try {
-                        db = new D2DGridDatabase(serverConfig, dbId);
+                        // this is still necessary on other JVMs from where
+                        // ingested
+                        String d2dModelName = serverConfig
+                                .d2dModelNameMapping(modelName);
+                        db = new D2DGridDatabase(serverConfig, d2dModelName,
+                                dbId.getModelTimeAsDate());
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage());
@@ -1363,10 +1328,9 @@ public class GridParmManager {
     private static void createDbNotification(String siteID,
             List<DatabaseID> dbs, List<DatabaseID> additions,
             List<DatabaseID> deletions) {
-        DBInvChangeNotification notify = new DBInvChangeNotification(dbs,
-                additions, deletions, siteID);
-
         if (!additions.isEmpty() || !deletions.isEmpty()) {
+            DBInvChangeNotification notify = new DBInvChangeNotification(dbs,
+                    additions, deletions, siteID);
             SendNotifications.send(notify);
         }
     }
