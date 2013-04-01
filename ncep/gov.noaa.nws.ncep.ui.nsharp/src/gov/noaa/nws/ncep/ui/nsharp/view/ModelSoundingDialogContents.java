@@ -121,7 +121,7 @@ public class ModelSoundingDialogContents {
 			//gribDecoderName = NcSoundingQuery.GRIB_PLUGIN_NAME;
 			//System.out.println("perspective id = " + VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
 		}*/
-		}
+	}
 	
 	private void createMDLAvailableFileList() {
 		if(sndTimeList!=null)
@@ -154,7 +154,7 @@ public class ModelSoundingDialogContents {
 				//Chin: a same refTime may be returned more than once. 
 				int index = availableFileList.indexOf(refTime);
 				if(index  == -1) // index = -1 means it is not in the list
-				availableFileList.add(refTime);
+					availableFileList.add(refTime);
 			}
 		}
     	ldDia.stopWaitCursor();
@@ -204,33 +204,33 @@ public class ModelSoundingDialogContents {
 			String fl = selectedFlLst.get(i);
 			long reftimeMs= NcSoundingQuery.convertRefTimeStr(fl);
 			NcSoundingTimeLines timeLines = NcSoundingQuery.mdlSoundingRangeTimeLineQuery(selectedModel, fl, gribDecoderName);
-			if(timeLines != null && timeLines.getTimeLines().length >0) {
+			if(timeLines != null && timeLines.getTimeLines().length >0){
 				for(Object obj : timeLines.getTimeLines()){
 					Timestamp rangestart = (Timestamp)obj;
-					
-						//need to format rangestart to GMT time string.  Timestamp.toString produce a local time Not GMT time
-						Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-						cal.setTimeInMillis(rangestart.getTime());
-						long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
-						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,modelName);
-						//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
-						if(sndTimeList.indexOf(gmtTimeStr) != -1){
+
+					//need to format rangestart to GMT time string.  Timestamp.toString produce a local time Not GMT time
+					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+					cal.setTimeInMillis(rangestart.getTime());
+					long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
+					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,modelName);
+					//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
+					if(sndTimeList.indexOf(gmtTimeStr) != -1){
 						// this indicate that gmtTimeStr is already in the sndTimeList, then we dont need to add it to list again.
-							continue;
-						}
-						
-						//System.out.println("GMT time " + gmtTimeStr);
-						if(!timeLimit){
-							sndTimeList.add(gmtTimeStr);	
+						continue;
+					}
+
+					//System.out.println("GMT time " + gmtTimeStr);
+					if(!timeLimit){
+						sndTimeList.add(gmtTimeStr);	
+						timeLineToFileMap.put(gmtTimeStr, fl);
+					}
+					else {
+						int hour = cal.get(Calendar.HOUR_OF_DAY);
+						if((hour == 0) || (hour == 12)){
+							sndTimeList.add(gmtTimeStr);
 							timeLineToFileMap.put(gmtTimeStr, fl);
 						}
-						else {
-							int hour = cal.get(Calendar.HOUR_OF_DAY);
-							if((hour == 0) || (hour == 12)){
-								sndTimeList.add(gmtTimeStr);
-								timeLineToFileMap.put(gmtTimeStr, fl);
-							}
-						}
+					}
 				}
 			}
     	}
@@ -272,7 +272,9 @@ public class ModelSoundingDialogContents {
     						//System.out.println(lat+";"+lon+" "+timeLine);
     					}
     					else{
-    						soundingLysLstMap.put(stnStr+" "+timeLine, rtnSndLst);
+    						// replaced space to _ in stnStr.
+    						String stnStrPacked = stnStr.replace(" ", "_");
+    						soundingLysLstMap.put(stnStrPacked+" "+timeLine, rtnSndLst);
     						//System.out.println(stnStr+" "+timeLine);
     					}
     					continue;
@@ -318,6 +320,7 @@ public class ModelSoundingDialogContents {
     	stnInfo.setSndType(selectedModel);
     	stnInfo.setLatitude(lat);
     	stnInfo.setLongitude(lon);
+    	stnInfo.setStnId(stnStr);
     	skewRsc.addRsc(soundingLysLstMap, stnInfo);
 		skewRsc.setSoundingType(selectedModel);
 		NsharpEditor.bringEditorToTop();
@@ -359,7 +362,7 @@ public class ModelSoundingDialogContents {
 				else
 					modelTypeList.add(modelName);
 			}
-			}
+		}
 		ldDia.stopWaitCursor();
 		
     }
@@ -378,7 +381,7 @@ public class ModelSoundingDialogContents {
     private void handleSndTimeSelection(){
     	String selectedSndTime=null;
     	if (sndTimeList.getSelectionCount() > 0 && sndTimeList.getSelection()[0].equals(SND_TIMELINE_NOT_AVAIL_STRING)== false) {
-     
+			
 			selectedTimeList.clear();
 			for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
 				selectedSndTime = sndTimeList.getSelection()[i];
@@ -414,7 +417,7 @@ public class ModelSoundingDialogContents {
 				}
 			}
 		} );
-				
+		
 		
 		availableFileGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
 		availableFileGp.setText("Available Grid files:");
@@ -438,7 +441,7 @@ public class ModelSoundingDialogContents {
 		sndTimeList.setFont(newFont);
 		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight *32/5);
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
-    		public void handleEvent (Event e) {   			
+			public void handleEvent (Event e) {   			
 				handleSndTimeSelection();
     		}
     	});
@@ -592,7 +595,7 @@ public class ModelSoundingDialogContents {
 					//ldDia.close();
 				}
 			}          		            	 	
-		} );  
+		} ); 
 		
 		if(selectedModel != null && selectedModel.equals("")== false){
 			String[] selectedModelArray = {selectedModel};
@@ -611,7 +614,7 @@ public class ModelSoundingDialogContents {
 			handleSndTimeSelection();
 			
 				
-			}          		            	 	
+		}
 	}
 	
 	public void cleanup(){
@@ -643,7 +646,7 @@ public class ModelSoundingDialogContents {
 		}	*/	
 		if(modelTypeList!=null){
 			if(modelTypeList.getListeners(SWT.Selection).length >0)
-			modelTypeList.removeListener(SWT.Selection, modelTypeList.getListeners(SWT.Selection)[0]);
+				modelTypeList.removeListener(SWT.Selection, modelTypeList.getListeners(SWT.Selection)[0]);
 			modelTypeList.dispose();
 			modelTypeList = null;
 		}
