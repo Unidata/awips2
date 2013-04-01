@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="nucapsDecoder" class="com.raytheon.uf.edex.plugin.npp.sounding.NPPSoundingDecoder">
+		<constructor-arg ref="nucapsPluginName" />
+	</bean>
+	
+    <bean id="nucapsDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="nucapsPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.nucaps" />
+	</bean>
+
+	<bean id="nucapsCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="nucaps-camel"/>
+  	</bean> 
+
+    <camelContext id="nucaps-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+
+        <!-- Begin nucaps routes -->
+        <route id="nucapsIngestRoute">
+            <from uri="jms-generic:queue:Ingest.nucaps?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>nucaps</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+		            <bean ref="extractWMOHeader" method="remove"/>
+                    <bean ref="nucapsDecoder" method="decode" />
+                    <to uri="directvm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:nucaps?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>
