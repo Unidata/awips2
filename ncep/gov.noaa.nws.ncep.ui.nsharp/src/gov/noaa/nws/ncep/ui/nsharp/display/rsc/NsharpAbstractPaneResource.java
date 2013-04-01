@@ -124,7 +124,8 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 	protected void paintInternal(IGraphicsTarget target,
 			PaintProperties paintProps) throws VizException {
 		this.paintProps = paintProps;
-		if(rscHandler== null)
+		this.target = target;
+		if(rscHandler== null || rscHandler.getSoundingLys()==null)
 			return;
 		float zoomLevel = paintProps.getZoomLevel();
 		/*if( currentCanvasBoundWidth!= paintProps.getCanvasBounds().width || currentCanvasBoundHeight!=paintProps.getCanvasBounds().height){
@@ -311,6 +312,8 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 		
 	}
 	protected void defineCharHeight(IFont font){
+		if(paintProps == null)
+			return;
 		DrawableString str =new DrawableString("CHINCHEN",NsharpConstants.color_black);
 		str.font = font;
 		double vertRatio = paintProps.getView().getExtent().getHeight() / paintProps.getCanvasBounds().height;
