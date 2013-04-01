@@ -43,9 +43,9 @@ import org.eclipse.swt.widgets.Shell;
 
 public class NsharpHandleArchiveFile {
 	public static void openArchiveFile(Shell shell){
-		/*
+		/* Chin: 3/14/2013
 		 * A typical saved file contents is as following....
-		 * PFC NAMSND  KSWF 2010-12-12 11:00:00  LAT=41.52 LON=-74.19
+		 * SNDTYPE=MDL  TITLE=KMFR 130131/1200 NCUAIR STNID=KMFR  LAT=42.38 LON=-122.87
 		 * PRESSURE  HGHT	   TEMP	  DWPT    WDIR     WSPD    OMEG
 		 * 997.500000  129.000000  -3.250006  -3.381190  10.619656  1.627882  0.000000
 		 * ........
@@ -66,8 +66,8 @@ public class NsharpHandleArchiveFile {
 		if(selecteds!= null && selecteds.length > 0){
 			Map<String, List<NcSoundingLayer>> soundingLysLstMap = new HashMap<String, List<NcSoundingLayer>>();
 			//List<String> timeList = new ArrayList<String>();	
-			String timeLine ;
-			String stnDispInfoStr;
+			//String timeLine ;
+			String stnDispInfoStr="N/A N/A";
 			//read in archive file
 			InputStream is = null;
 			NsharpStationInfo stninfo = new NsharpStationInfo();
@@ -89,23 +89,65 @@ public class NsharpHandleArchiveFile {
 						strContent.append((char)byteread);
 						//System.out.println((char)byteread);
 					}
+					if(strContent.length() <=100)
+						return;
 					//System.out.println(strContent);
-
-					//hash map, use stn display info as key
-					//Chin-T Map<String, List<SoundingLayer>> soundingLysLstMap = new HashMap<String, List<SoundingLayer>>();
-					timeLine = new String("");
-					stnDispInfoStr = new String("");
+					int lat = strContent.indexOf("LAT=");
+					if(lat > 0 )
+					{
+						lat = lat+4;
+						int endIndex = strContent.substring(lat).indexOf(";");
+						if(endIndex>0){
+							String latStr= strContent.substring(lat,lat+endIndex);
+							stninfo.setLatitude(Float.parseFloat(latStr));
+						}
+					}
+					int lon = strContent.indexOf("LON=");
+					if(lon > 0 )
+					{
+						lon = lon+4;
+						int endIndex = strContent.substring(lon).indexOf(";");
+						if(endIndex>0){
+							String lonStr= strContent.substring(lon,lon+endIndex);
+							stninfo.setLongitude(Float.parseFloat(lonStr));
+						}
+					}
+					int snd = strContent.indexOf("SNDTYPE=");
+					if(snd > 0 )
+					{
+						snd = snd+8;
+						int endIndex = strContent.substring(snd).indexOf(";");
+						if(endIndex>0){
+							String sndStr= strContent.substring(snd,snd+endIndex);
+							stninfo.setSndType(sndStr);
+							if(NsharpLoadDialog.getAccess()!= null ){
+								if(sndStr.equals("PFC"))
+									NsharpLoadDialog.getAccess().setActiveLoadSoundingType(NsharpLoadDialog.PFC_SND);
+								else if(sndStr.equals("MDL"))
+									NsharpLoadDialog.getAccess().setActiveLoadSoundingType(NsharpLoadDialog.MODEL_SND);
+								else if(sndStr.equals("OBS"))
+									NsharpLoadDialog.getAccess().setActiveLoadSoundingType(NsharpLoadDialog.OBSER_SND);
+							}
+						}
+					}
+					int title = strContent.indexOf("TITLE=");
+					if(title > 0 )
+					{
+						title = title+6;
+						int endIndex = strContent.substring(title).indexOf(";");
+						if(endIndex>0){
+							String titleStr= strContent.substring(title,title+endIndex);
+							stninfo.setStnDisplayInfo(titleStr);
+							stnDispInfoStr = titleStr;
+						}
+					}
+					//timeLine = new String("");
+					//stnDispInfoStr = new String("");
 					List<NcSoundingLayer> sndLyList = new ArrayList<NcSoundingLayer>();
 					NcSoundingLayer sndLy = null;
 					StringTokenizer st = new StringTokenizer(strContent.toString());
 					int i =0;
-					int loadSndTypeIndex = 1;
-					int sndTypeIndex = 2;
 					int dataStartIndex = 15;
-					int stnInfoIndexEnd = 5;
-					int stnLatIndex = 6;
-					int stnLonIndex = 7;
-					int latlonTokenHdrLength = 4; // either "LAT=" or "LON="
 					int dataCycleLength = 7;
 					while (st.hasMoreTokens()) {
 						i++;
@@ -119,43 +161,10 @@ public class NsharpHandleArchiveFile {
 						//From token 13, we have pressure, height, temp,..., omega, pressure, height,..omega.
 						//These weather data will be repeated every 7 tokens.
 						String tok = st.nextToken();
-						if(i == loadSndTypeIndex){
-							if(NsharpLoadDialog.getAccess()!= null ){
-								if(tok.equals("PFC"))
-									NsharpLoadDialog.getAccess().setActiveLoadSoundingType(NsharpLoadDialog.PFC_SND);
-								else if(tok.equals("MDL"))
-									NsharpLoadDialog.getAccess().setActiveLoadSoundingType(NsharpLoadDialog.MODEL_SND);
-								else 
-									NsharpLoadDialog.getAccess().setActiveLoadSoundingType(NsharpLoadDialog.OBSER_SND);
-							}
-							//System.out.println("loadsnd type "+ tok);
+						if(tok.equals("OMEG")){
+							dataStartIndex = i+1;
 						}
-						else if(i == sndTypeIndex){
-							sndType = tok;
-							stninfo.setSndType(sndType);
-							//System.out.println("snd type "+ sndType);
-						}
-						else if (i > sndTypeIndex && i<= stnInfoIndexEnd){
-
-							//stn display info
-							stnDispInfoStr = stnDispInfoStr + tok + " ";					
-							if( i >=3){
-								//time line
-								timeLine = timeLine +  tok + " ";
-							}
-						} else if (i == stnLatIndex){
-							float lat=0;
-							if(tok.length() > latlonTokenHdrLength) {
-								lat = Float.parseFloat(tok.substring(latlonTokenHdrLength));
-							}
-							stninfo.setLatitude(lat);
-						}	else if (i == stnLonIndex){
-							float lon=0;
-							if(tok.length() > latlonTokenHdrLength) {
-								lon = Float.parseFloat(tok.substring(latlonTokenHdrLength));
-							}
-							stninfo.setLongitude(lon);
-						}	else if (i >=dataStartIndex){
+						if (i >=dataStartIndex){
 						
 							if((i-dataStartIndex)%dataCycleLength ==0){
 								sndLy = new NcSoundingLayer();
@@ -227,16 +236,6 @@ public class NsharpHandleArchiveFile {
 					mb.setMessage("Invalid sounding data retrieved from archive file!!");
 					mb.open();
 				}
-				//test
-				//textToShow="";
-				//for (NcSoundingLayer layer: sndLyList){
-				//	tempText = String.format("%7.2f\t%8.2f %7.2f %7.2f   %6.2f  %6.2f  %9.6f\n", layer.getPressure(),
-				//			layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
-				//			layer.getWindSpeed(), layer.getOmega());
-				//	textToShow = textToShow + tempText;
-				//}
-				//System.out.println("Endof openArchiveFile");
-				//end test
 			} catch (FileNotFoundException e) {
 				
 				e.printStackTrace();
