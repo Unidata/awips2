@@ -161,6 +161,9 @@ import com.vividsolutions.jts.io.WKTReader;
  * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed 
  *                                     counties from being re-hatched.        
  * 03/06/2013   DR 15831   D. Friedman Use area inclusion filter in followups.
+ * 03/21/2013   DR 15973   Qinglu Lin  Added adjustVertex() and applied it invalid polygon.
+ * 03/25/2013   DR 15974   D. Friedman Preserve the set of selected counties when recreating the polygon from the
+ *                                     hatched area and remember marked counties outside the polygon on followup.
  * 
  * </pre>
  * 
@@ -301,8 +304,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private GeospatialDataList geoData = null;
 
     private WarningAction warningAction = WarningAction.NEW;
-
-    private Set<String> removedGids = new HashSet<String>();
 
     static {
         for (int i = 0; i < 128; i++) {
@@ -957,11 +958,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
     public void setOldWarningPolygon(AbstractWarningRecord record) {
         if (record != null) {
             state.setOldWarningPolygon((Polygon) record.getGeometry().clone());
-            state.setOldWarningArea(getWarningAreaFromPolygon(
-                    state.getOldWarningPolygon(), record));
+            Geometry oldArea = getWarningAreaFromPolygon(
+                    state.getOldWarningPolygon(), record);
+            if (oldArea.getUserData() instanceof Set)
+                state.setGidsOutsidePolygon((Set<String>) oldArea.getUserData());
+            state.setOldWarningArea(oldArea);
         } else {
             state.setOldWarningArea(null);
             state.setOldWarningPolygon(null);
+            state.setGidsOutsidePolygon(null);
         }
     }
 
@@ -1012,7 +1017,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Map<String, String[]> countyMap = FipsUtil
                     .parseCountyHeader(activeTableRecord.getUgcZone());
             // get area with precalculated area
-            activeTableRecord.setGeometry(getArea(area, countyMap));
+            activeTableRecord.setGeometry(getArea(area, countyMap, false));
         }
     }
 
@@ -1052,35 +1057,58 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     /**
-     * Give the intersection area and polygon, build the area for the county map
+     * Given the intersection area and polygon, build the area for the county
+     * map
      * 
      * @param area
-     * @param polygon
      * @param countyMap
-     * @return
+     * @param includeAllEntries
+     *            if true, ensure all entries in countyMap are represented in
+     *            the result even if not in {@code area}.
+     * @return the resulting area. If includeAllEntries is true and there are
+     *         areas in countyMap not inside {@code area}, the user data will be
+     *         set to a Set of the GIDs of those outside areas.
      */
-    private Geometry getArea(Geometry area, Map<String, String[]> countyMap) {
+    private Geometry getArea(Geometry area, Map<String, String[]> countyMap,
+            boolean includeAllEntries) {
         if (area == null) {
             return null;
         }
 
         // Now remove counties not present in warning
+
+        Set<String> notInArea = null;
+        Set<String> gidsNotInArea = null;
+        if (includeAllEntries) {
+            notInArea = new HashSet<String>();
+            for (Map.Entry<String, String[]> entry : countyMap.entrySet()) {
+                String state = entry.getKey();
+                for (String id : entry.getValue()) {
+                    notInArea.add(state + '-' + id);
+                }
+            }
+        }
+
         List<Geometry> geoms = new ArrayList<Geometry>();
         GeometryUtil.buildGeometryList(geoms, area);
         List<Geometry> newList = new ArrayList<Geometry>();
+        boolean isMarineZone = configuration.getGeospatialConfig()
+                .getAreaSource().equalsIgnoreCase(MARINE);
         for (Geometry geom : geoms) {
             CountyUserData data = (CountyUserData) geom.getUserData();
 
             String fips = null;
             String[] ids = null;
-            if (configuration.getGeospatialConfig().getAreaSource()
-                    .equalsIgnoreCase(MARINE)) {
+            if (isMarineZone) {
                 fips = String.valueOf(data.entry.attributes.get(configuration
                         .getHatchedAreaSource().getFipsField()));
                 if (countyMap.containsKey(fips.substring(0, 2))) {
                     ids = countyMap.get(fips.substring(0, 2));
                     for (String id : ids) {
                         if (fips.endsWith(id)) {
+                            if (notInArea != null) {
+                                notInArea.remove(fips.substring(0, 2) + '-' + id);
+                            }
                             newList.add(geom);
                             break;
                         }
@@ -1097,6 +1125,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                     .getFipsField()));
                     for (String id : ids) {
                         if (fips.endsWith(id)) {
+                            if (notInArea != null) {
+                                notInArea.remove(stateAbbr + '-' + id);
+                            }
                             newList.add(geom);
                             break;
                         }
@@ -1104,8 +1135,40 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
         }
-        return area.getFactory().createGeometryCollection(
+
+        if (includeAllEntries && !notInArea.isEmpty()) {
+            if (geoData != null) {
+                gidsNotInArea = new HashSet<String>();
+                for (GeospatialData f : geoData.features) {
+                    CountyUserData data = (CountyUserData) f.geometry
+                            .getUserData();
+                    String fips = String.valueOf(data.entry.attributes
+                            .get(configuration.getHatchedAreaSource()
+                                    .getFipsField()));
+                    String key;
+                    if (isMarineZone) {
+                        key = fips.substring(0, 2) + '-' + fips.substring(3);
+                    } else {
+                        String stateAbbr = String.valueOf(data.entry.attributes
+                                .get(configuration.getHatchedAreaSource()
+                                        .getAreaNotationField()));
+                        key = stateAbbr + '-' + fips.substring(2);
+                    }
+                    if (notInArea.contains(key)) {
+                        newList.add((Geometry) f.geometry.clone());
+                        gidsNotInArea.add(GeometryUtil.getPrefix(f.geometry
+                                .getUserData()));
+                    }
+                }
+            }
+        }
+
+        Geometry result = area.getFactory().createGeometryCollection(
                 newList.toArray(new Geometry[newList.size()]));
+        if (gidsNotInArea != null)
+            result.setUserData(gidsNotInArea);
+
+        return result;
     }
 
     /**
@@ -1117,7 +1180,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @return
      */
     private Geometry getArea(Polygon polygon, Map<String, String[]> countyMap) {
-        return getArea(buildArea(polygon), countyMap);
+        return getArea(buildArea(polygon), countyMap, true);
     }
 
     /**
@@ -1148,6 +1211,33 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
+    /** Determine if the given area of the reference area passes the
+     * inclusion filter.  Subroutine of {@link #filterArea}.
+     * @param areaToConsider
+     * @param wholeArea
+     * @param areaInMetersSq
+     * @param anyAmountOfArea
+     * @return
+     */
+    private boolean filterCheck(Geometry areaToConsider, Geometry wholeArea,
+            double areaInMetersSq, boolean anyAmountOfArea) {
+        double ratio = areaToConsider.getArea() / wholeArea.getArea();
+        double ratioInPercent = ratio * 100.;
+        double areaInKmSqOfIntersection = meterSqToKmSq.convert(areaInMetersSq
+                * ratio);
+
+        if (anyAmountOfArea)
+            return areaInKmSqOfIntersection > 1;
+
+        boolean percentOk = ratioInPercent >= getConfiguration()
+                .getHatchedAreaSource().getInclusionPercent();
+        boolean areaOk = areaInKmSqOfIntersection > getConfiguration()
+                .getHatchedAreaSource().getInclusionArea();
+        return getConfiguration().getHatchedAreaSource().getInclusionAndOr()
+                .equalsIgnoreCase("AND") ?
+                        percentOk && areaOk : percentOk || areaOk;
+    }
+
     /** Determine if a feature should be included based on how much of it
      * is hatched and the configured inclusion criteria.
      * @param feature
@@ -1161,23 +1251,53 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry geom = localCRS ?
                 (Geometry) feature.attributes.get(GeospatialDataList.LOCAL_GEOM) :
                     feature.geometry;
-        double ratio = featureAreaToConsider.getArea() / geom.getArea();
-        double ratioInPercent = ratio * 100.;
-        Double areaOfGeom = (Double) feature.attributes.get(AREA);
-        double areaInKmSqOfIntersection = meterSqToKmSq
-                .convert(areaOfGeom * ratio);
+        double areaOfGeom = (Double) feature.attributes.get(AREA);
 
-        if (anyAmountOfArea) {
-            return areaInKmSqOfIntersection > 1;
-        } else {
-            boolean percentOk = ratioInPercent >= getConfiguration()
-                .getHatchedAreaSource().getInclusionPercent();
-            boolean areaOk = areaInKmSqOfIntersection > getConfiguration()
-                .getHatchedAreaSource().getInclusionArea();
-            return getConfiguration().getHatchedAreaSource()
-                .getInclusionAndOr().equalsIgnoreCase("AND") ?
-                        percentOk && areaOk : percentOk || areaOk;
+        if (filterCheck(featureAreaToConsider, geom, areaOfGeom, anyAmountOfArea))
+            return true;
+        else if (!anyAmountOfArea && state.getOldWarningArea() != null) {
+            /*
+             * Second chance: If the county slipped by the filter in the initial
+             * warning, allow it now as long as the hatched area is (nearly) the
+             * same as the hatched area in the initial warning.
+             * 
+             * This test assumes that the followup filter is not more permissive
+             * that the initial warning filter. OTOH, if the followup filter is
+             * more permissive, this test is not really necessary.
+             */
+            Geometry oldWarningArea = state.getOldWarningArea();
+            if (localCRS)
+                oldWarningArea = latLonToLocal(oldWarningArea);
+            List<Geometry> geoms = new ArrayList<Geometry>();
+            GeometryUtil.buildGeometryList(geoms, oldWarningArea);
+            Geometry oldSelectedArea = null;
+            String prefix = GeometryUtil.getPrefix(feature.geometry.getUserData());
+            for (Geometry g : geoms) {
+                if (g.getUserData() != null) {
+                    if (prefix.equals(GeometryUtil.getPrefix(g.getUserData()))) {
+                        oldSelectedArea = oldSelectedArea == null ? g :
+                            GeometryUtil.union(oldSelectedArea, g);
+                    }
+                }
+            }
+            if (oldSelectedArea != null) {
+                double ratioOfOldArea = featureAreaToConsider.getArea() /
+                    oldSelectedArea.getArea();
+                /*
+                 * Ideally, we would only allow the exact same area, but due to
+                 * possible loss of precision in all of the calculations, we
+                 * allow >= 0.999.
+                 */
+                return ratioOfOldArea >= .999
+                        && !filterCheck(oldSelectedArea, geom, areaOfGeom, false);
+            }
         }
+        return false;
+    }
+
+    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon,
+            boolean determineInclusion) throws VizException {
+        updateWarnedAreas(snapHatchedAreaToPolygon, determineInclusion, false);
     }
 
     /**
@@ -1188,19 +1308,30 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @param determineInclusion
      *            If True, the area percent and/or area coverage will be used to
      *            determine if a county/zone should e included
+     * @param preserveSelectedSet
+     *            If True, the set of selected areas after returning should be the
+     *            same as it was before calling.
      * @throws VizException
      */
     public void updateWarnedAreas(boolean snapHatchedAreaToPolygon,
-            boolean determineInclusion) throws VizException {
+            boolean determineInclusion, boolean preserveSelectedSet) throws VizException {
         if (getPolygon() == null) {
             return;
         }
         state.snappedToArea = false;
 
-        Geometry warningArea = latLonToLocal(state.getWarningArea());
+        Geometry selectedArea = latLonToLocal(state.getWarningArea());
+        List<Geometry> selectedGeoms = null;
+        Geometry outOfAreaSelection = null;
+        Geometry warningArea = selectedArea;
         Geometry warningPolygon = latLonToLocal(state.getWarningPolygon());
         Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
         Geometry oldWarningPolygon = latLonToLocal(state.getOldWarningPolygon());
+
+        Set<String> selectedSet = null;
+        if (preserveSelectedSet && selectedArea != null)
+            selectedSet = new HashSet<String>(Arrays.asList(GeometryUtil
+                .getGID(state.getWarningArea())));
 
         if (warningArea == null || snapHatchedAreaToPolygon) {
             warningArea = warningPolygon;
@@ -1217,8 +1348,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             // our hatched area
             PreparedGeometry prepGeom = (PreparedGeometry) f.attributes
                     .get(GeospatialDataList.LOCAL_PREP_GEOM);
-            Geometry geom = (Geometry) f.attributes
-                    .get(GeospatialDataList.LOCAL_GEOM);
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
@@ -1226,8 +1355,31 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 if (oldWarningArea != null)
                     intersection = GeometryUtil.intersection(intersection, oldWarningArea);
                 if (intersection.isEmpty()) {
-                    filteredOutGids.addAll(Arrays.asList(GeometryUtil.getGID(f.geometry)));
-                    continue;
+                    if (selectedSet == null ||
+                            !selectedSet.contains(GeometryUtil.getPrefix(f.geometry.getUserData()))) {
+                        filteredOutGids.addAll(Arrays.asList(GeometryUtil.getGID(f.geometry)));
+                        continue;
+                    } else if (! selectedSet.isEmpty()) {
+                        /* Add whatever part of the area was previously hatched
+                         * despite being outside the new warning area.
+                         */
+                        if (selectedGeoms == null) {
+                            selectedGeoms = new ArrayList<Geometry>();
+                            GeometryUtil.buildGeometryList(selectedGeoms, selectedArea);
+                        }
+                        intersection = null;
+                        String prefix = GeometryUtil.getPrefix(f.geometry.getUserData());
+                        for (Geometry g : selectedGeoms) {
+                            if (g.getUserData() != null) {
+                                if (prefix.equals(GeometryUtil.getPrefix(g.getUserData()))) {
+                                    intersection = intersection == null ? g :
+                                        GeometryUtil.union(intersection, g);
+                                    outOfAreaSelection = outOfAreaSelection == null ? g :
+                                        GeometryUtil.union(outOfAreaSelection, g);
+                                }
+                            }
+                        }
+                    }
                 }
                 insideCWA = true;
             } catch (RuntimeException e) {
@@ -1236,9 +1388,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
 
             try {
-                if (filterArea(f, intersection, true, ! determineInclusion)
-                        && (oldWarningPolygon == null || prepGeom
-                                .intersects(oldWarningPolygon))) {
+                boolean include;
+                if (selectedSet != null)
+                    include = selectedSet.contains(GeometryUtil
+                            .getPrefix(f.geometry.getUserData()));
+                else
+                    include = filterArea(f, intersection, true, !determineInclusion)
+                            && (oldWarningPolygon == null || prepGeom
+                                    .intersects(oldWarningPolygon) ||
+                                    isOldAreaOutsidePolygon(f));
+                if (include) {
                     if (newHatchedArea == null) {
                         newHatchedArea = intersection;
                     } else {
@@ -1298,7 +1457,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     String[] gids = GeometryUtil.getGID(geom);
                     boolean flag = false;
                     for (String gid: gids) {
-                        if (removedGids.contains(gid) || filteredOutGids.contains(gid)) {
+                        if (filteredOutGids.contains(gid)) {
                             flag = true;
                             break;
                         }
@@ -1315,6 +1474,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                 }
                 newHatchedArea = intersection;
+                if (outOfAreaSelection != null)
+                    newHatchedArea = GeometryUtil.union(newHatchedArea, outOfAreaSelection);
             }
         }
         System.out.println("determining hatchedArea took "
@@ -1363,6 +1524,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
         });
+    }
+
+    private boolean isOldAreaOutsidePolygon(GeospatialData f) {
+        Set<String> areasOutsidePolygon = state.getGidsOutsidePolygon();
+        if (areasOutsidePolygon != null)
+            return areasOutsidePolygon.contains(GeometryUtil
+                    .getPrefix(f.geometry.getUserData()));
+        return false;
     }
 
     /**
@@ -1642,7 +1811,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 Polygon hatched = new PolygonUtil(this, geoData.nx, geoData.ny,
                         20, geoData.localExtent, geoData.localToLatLon)
                         .hatchWarningArea(state.getWarningPolygon(),
-                                state.getWarningArea());
+                                filterGidsOutsidePolygon(state.getWarningArea()));
                 if (hatched != null) {
                     // DR 15559
                     Coordinate[] coords = hatched.getCoordinates();
@@ -1650,8 +1819,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     state.adjustPolygon(coords);
                     GeometryFactory gf = new GeometryFactory();
                     LinearRing lr = gf.createLinearRing(coords);
-                    state.setWarningPolygon(gf.createPolygon(lr, null));
-                    updateWarnedAreas(true, true);
+                    Polygon polygon = gf.createPolygon(lr, null);
+                    state.setWarningPolygon(polygon);
+                    if (!polygon.isValid()) {
+                        adjustVertex();
+                    }
+                    updateWarnedAreas(true, true, true);
                     issueRefresh();
                     // End of DR 15559
                     state.snappedToArea = true;
@@ -1666,7 +1839,30 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    public void createDamThreatArea(Coordinate[] coordinates) {
+    private Geometry filterGidsOutsidePolygon(Geometry warningArea) {
+        Set<String> gidsOutsidePolygon = state.getGidsOutsidePolygon();
+        if (gidsOutsidePolygon != null) {
+            List<Geometry> geoms = new ArrayList<Geometry>();
+            GeometryUtil.buildGeometryList(geoms, warningArea);
+            List<Geometry> outGeoms = new ArrayList<Geometry>();
+            boolean isOutside = false;
+            for (Geometry g : geoms) {
+                for (String gid : GeometryUtil.getGID(g)) {
+                    if (gidsOutsidePolygon.contains(gid)) {
+                        isOutside = true;
+                        break;
+                    }
+                }
+                if (! isOutside)
+                    outGeoms.add(g);
+            }
+            warningArea = warningArea.getFactory().createGeometryCollection(
+                    outGeoms.toArray(new Geometry[outGeoms.size()]));
+        }
+        return warningArea;
+    }
+
+	public void createDamThreatArea(Coordinate[] coordinates) {
         GeometryFactory gf = new GeometryFactory();
         LinearRing lr = gf.createLinearRing(coordinates);
         Coordinate pt = lr.getCentroid().getCoordinate();
@@ -1785,7 +1981,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         state.setWarningPolygon(warnPolygon);
         state.setWarningArea(getWarningAreaFromPolygon(
                 state.getWarningPolygon(), record));
-        updateWarnedAreas(true, true);
+        updateWarnedAreas(true, true, true);
     }
 
     private DataTime recordFrameTime(AbstractWarningRecord warnRecord) {
@@ -2153,7 +2349,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             for (GeospatialData f : geoData.features) {
                 Geometry geom = f.geometry;
                 if (f.prepGeom.contains(point)) {
-                    String[] gids = GeometryUtil.getGID(geom);
                     if (GeometryUtil.contains(state.getWarningArea(), point)) {
                         // remove county
                         Geometry tmp = GeometryUtil.difference(
@@ -2163,9 +2358,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         }
 
                         state.setWarningArea(tmp);
-                        for (String gid: gids) {
-                            removedGids.add(gid);
-                        }
                     } else {
                         if (oldWarningArea != null) {
                             // for a CON, prevents extra areas to be added
@@ -2177,7 +2369,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                             if (limit.contains(prefix) == false) {
                                 break;
-                            } else if (oldWarningPolygon.contains(point) == true) {
+                            } else if (oldWarningPolygon.contains(point) == true
+                                    || isOldAreaOutsidePolygon(f)) {
                                 // only add in intersecting area from old
                                 // warning
                                 geom = GeometryUtil.intersection(
@@ -2189,9 +2382,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 if (filterArea(f, geom, false, false)) {
                                     state.setWarningArea(GeometryUtil.union(
                                             state.getWarningArea(), geom));
-                                    for (String gid: gids) {
-                                        removedGids.remove(gid);
-                                    }
                                 }
                             }
                         } else {
@@ -2410,7 +2600,115 @@ public class WarngenLayer extends AbstractStormTrackResource {
         this.warningAction = warningAction;
     }
 
-    public void initRemovedGids() {
-    	removedGids.clear();
+    /**
+     * Adjust the location of vertexes that cause polygon self-crossing.
+     */
+    private void adjustVertex() {
+        GeometryFactory gf = new GeometryFactory();
+        LinearRing lr;
+        Polygon p = state.getWarningPolygon();
+        Coordinate coord[] = p.getCoordinates();
+        int length = coord.length;
+        Coordinate intersectCoord = null;
+        int index[] = new int[6];
+        LineSegment ls1, ls2;
+        double d[] = new double[6];
+        int indexOfTheOtherEnd[] = new int[2];
+        boolean isPolygonValid = false;
+        outerLoop: for (int skippedSegment = 1; skippedSegment < length - 3; skippedSegment++) {
+            for (int i = 0; i < length - 1; i++) {
+                index[0] = i;
+                index[1] = index[0] + 1;
+                index[2] = index[1] + skippedSegment;
+                if (index[2] >= length)
+                    index[2] = index[2] - length + 1;
+                index[3] = index[2] + 1;
+                if (index[3] >= length)
+                    index[3] = index[3] - length + 1;
+                ls1 = new LineSegment(coord[index[0]],coord[index[1]]);
+                ls2 = new LineSegment(coord[index[2]],coord[index[3]]);
+                intersectCoord = ls1.intersection(ls2);
+                if (intersectCoord != null) {
+                    for (int j = 0; j < index.length-2; j++) {
+                        d[j] = calculateDistance(intersectCoord,coord[index[j]]);
+                    }
+                    if (d[0] < d[1]) {
+                        index[4] = index[0];
+                        d[4] = d[0];
+                        indexOfTheOtherEnd[0] = index[1];
+                    } else {
+                        index[4] = index[1];
+                        d[4] = d[1];
+                        indexOfTheOtherEnd[0] = index[0];
+                    }
+                    if (d[2] < d[3]) {
+                        index[5] = index[2];
+                        d[5] = d[2];
+                        indexOfTheOtherEnd[1] = index[3];
+                    } else {
+                        index[5] = index[3];
+                        d[5] = d[3];
+                        indexOfTheOtherEnd[1] = index[2];
+                    }
+                    // index of the vertex on a line segment (line segment A), which will be moved along line segment A.
+                    int replaceIndex;
+                    // index of the vertex at the other end of line segment A.
+                    int theOtherIndex;
+                    if (d[4] < d[5]) {
+                        replaceIndex = index[4];
+                        theOtherIndex = indexOfTheOtherEnd[0];
+                    } else {
+                        replaceIndex= index[5];
+                        theOtherIndex = indexOfTheOtherEnd[1];
+                    }
+                    // move the bad vertex, which is on line segment A and has the shortest distance to intersectCoord, 
+                    // along line segment A to the other side of line segment B which intersects with line segment A.
+                    double delta;
+                    double min = 0.00001;
+                    if (Math.abs(intersectCoord.x - coord[replaceIndex].x) < min) {
+                        // move the bad vertex along a vertical line segment. 
+                        delta = intersectCoord.y - coord[theOtherIndex].y;
+                        coord[replaceIndex].y += 0.01 * (delta / Math.abs(delta));
+                    } else if (Math.abs(intersectCoord.y - coord[replaceIndex].y) < min) {
+                        // move the bad vertex along a horizontal line segment.
+                        delta = intersectCoord.x - coord[theOtherIndex].x;
+                        coord[replaceIndex].x += 0.01 * (delta / Math.abs(delta));
+                    } else {
+                        // move the bad vertex along a line segment which is neither vertical nor horizontal.
+                        double slope = computeSlope(coord, replaceIndex, theOtherIndex);
+                        delta = coord[theOtherIndex].y - intersectCoord.y;
+                        coord[replaceIndex].y = intersectCoord.y + 0.005 * (delta / Math.abs(delta));
+                        coord[replaceIndex].x = (coord[replaceIndex].y - coord[theOtherIndex].y) / slope 
+                            + coord[theOtherIndex].x;
+                    }
+                    PolygonUtil.round(coord, 2);
+                    if (replaceIndex == 0) 
+                        coord[length-1] = new Coordinate(coord[replaceIndex]);
+                    else if (replaceIndex == length - 1)
+                        coord[0] = new Coordinate(coord[replaceIndex]);
+                    lr = gf.createLinearRing(coord);
+                    p = gf.createPolygon(lr, null);
+                    isPolygonValid = p.isValid();
+                    if (isPolygonValid)
+                        break outerLoop;
+                }
+            }
+        }
+        state.setWarningPolygon(p);
     }
+
+    private double calculateDistance(Coordinate c1, Coordinate c2) {
+        return Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+    }
+
+    public double computeSlope(Coordinate[] coords, int i, int j) {
+        double min = 1.0E-08;
+        double dx = coords[i].x-coords[j].x;
+        double slope = 0.0;
+        if (Math.abs(dx)>min) {
+            slope = (coords[i].y-coords[j].y)/dx;
+        }
+        return slope;
+    }
+
 }
