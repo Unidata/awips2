@@ -42,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
@@ -64,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	02/21/2008             chammack    Initial Creation
+ *  03/20/2013    #1774    randerso    Use TimeUtil constants
  * 
  * </pre>
  * 
@@ -84,7 +86,7 @@ public class TestParm {
             "CST6CDT");
 
     private static final TimeConstraints TC1 = new TimeConstraints(
-            TimeConstraints.HOUR, TimeConstraints.HOUR, 0);
+            TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_HOUR, 0);
 
     private static GridParmInfo gpi;
 
@@ -136,7 +138,7 @@ public class TestParm {
             "CST6CDT");
 
     private final TimeConstraints testTC1 = new TimeConstraints(
-            TimeConstraints.HOUR, TimeConstraints.HOUR, 0);
+            TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_HOUR, 0);
 
     private final GridParmInfo testGPI1 = new GridParmInfo(this.testPID1,
             this.testGL1, GridType.SCALAR, "F", "Temperature", -20f, 80f, 2,
