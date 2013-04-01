@@ -5,15 +5,8 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.npp.crimss
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
- org.geotools;bundle-version="2.6.4",
- javax.measure;bundle-version="1.0.0",
- javax.persistence;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.npp.crimss;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.1.1",
- ucar.nc2;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.3.0",
- com.raytheon.uf.edex.plugin.npp;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+Require-Bundle: com.raytheon.uf.edex.plugin.npp;bundle-version="1.0.0",
+ com.raytheon.uf.edex.plugin.npp.sounding;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.npp.crimss;bundle-version="1.0.0";visibility:=reexport,
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174"
