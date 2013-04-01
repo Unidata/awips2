@@ -39,7 +39,6 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -71,18 +70,15 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Feb 11, 2009            bphillip     Initial creation
  * - AWIPS2 Baseline Repository --------
  * 07/09/2012    798        jkorman     Modified datastore population.
+ * 03/25/2013    1823       dgilling    Modified getSatelliteData() and 
+ *                                      getSatelliteInventory() to allow optional
+ *                                      input arguments.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class SatelliteDao extends PluginDao {
-
-    /**
-     * Database query used for retrieving the inventory of data based on the
-     * source, creating entity, sector id, and physical element
-     */
-    private static final String INVENTORY_QUERY = "select reftime from awips.satellite where source='%s' and creatingentity='%s' and sectorid='%s' and physicalElement='%s' order by reftime asc";
 
     /** The creating entity data access object */
     private SatelliteCreatingEntityDao creatingEntityDao = new SatelliteCreatingEntityDao();
@@ -235,10 +231,18 @@ public class SatelliteDao extends PluginDao {
                 continue;
             }
             DatabaseQuery query = new DatabaseQuery(SatelliteRecord.class);
-            query.addQueryParam("source", source);
-            query.addQueryParam("creatingEntity", creatingEntity);
-            query.addQueryParam("sectorID", sectorID);
-            query.addQueryParam("physicalElement", physicalElement);
+            if (source != null) {
+                query.addQueryParam("source", source);
+            }
+            if (creatingEntity != null) {
+                query.addQueryParam("creatingEntity", creatingEntity);
+            }
+            if (sectorID != null) {
+                query.addQueryParam("sectorID", sectorID);
+            }
+            if (physicalElement != null) {
+                query.addQueryParam("physicalElement", physicalElement);
+            }
             query.addQueryParam("dataTime.refTime", theDate);
             query.addOrder("dataTime.refTime", true);
             try {
@@ -277,16 +281,25 @@ public class SatelliteDao extends PluginDao {
     public List<Date> getSatelliteInventory(String source,
             String creatingEntity, String sectorID, String physicalElement)
             throws DataAccessLayerException {
-        QueryResult result = (QueryResult) this.executeNativeSql(String.format(
-                INVENTORY_QUERY, source, creatingEntity, sectorID,
-                physicalElement));
-        List<Date> inventory = new ArrayList<Date>();
-        if (result.getResultCount() > 0) {
-            for (int i = 0; i < result.getResultCount(); i++) {
-                inventory.add((Date) result.getRowColumnValue(i, 0));
-            }
+        DatabaseQuery query = new DatabaseQuery(this.daoClass);
+        if (source != null) {
+            query.addQueryParam("source", source);
         }
-        return inventory;
+        if (creatingEntity != null) {
+            query.addQueryParam("creatingEntity", creatingEntity);
+        }
+        if (sectorID != null) {
+            query.addQueryParam("sectorID", sectorID);
+        }
+        if (physicalElement != null) {
+            query.addQueryParam("physicalElement", physicalElement);
+        }
+        query.addReturnedField("dataTime.refTime");
+        query.addOrder("dataTime.refTime", true);
+
+        @SuppressWarnings("unchecked")
+        List<Date> times = (List<Date>) this.queryByCriteria(query);
+        return new ArrayList<Date>(times);
     }
 
     /**
