@@ -50,6 +50,7 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
@@ -67,6 +68,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * Mar 14, 2013 1587        bsteffen    Fix static data persisting to datastore.
+ * Mar 27, 2013 1821        bsteffen    Speed up GridInfoCache.   
  * 
  * </pre>
  * 
@@ -235,8 +237,15 @@ public class GridDao extends PluginDao {
         if (!validateCoverage(record)) {
             return false;
         }
-        record.setInfo(GridInfoCache.getInstance()
-                .getGridInfo(record.getInfo()));
+        try {
+            record.setInfo(GridInfoCache.getInstance().getGridInfo(
+                    record.getInfo()));
+        } catch (DataAccessLayerException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Cannot load GridInfoRecord from DB for: "
+                            + record.getDataURI(), e);
+            return false;
+        }
         return true;
 
     }
