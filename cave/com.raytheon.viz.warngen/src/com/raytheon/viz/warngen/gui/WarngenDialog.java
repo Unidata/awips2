@@ -133,6 +133,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
  *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
  *                                       and removed it from updateListSelected().
+ *  Mar 25, 2013 DR 15974    D. Friedman Do not track removed GIDs.
  * 
  * </pre>
  * 
@@ -1575,7 +1576,6 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
             warngenLayer.setWarningAction(action);
-            warngenLayer.initRemovedGids();
             if (action == WarningAction.CON) {
                 oldWarning = conSelected(data);
             } else if (action == WarningAction.COR) {
