@@ -17,6 +17,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * @version 1.0
  */
 
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.background.NsharpGenericPaneBackground;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpAbstractPaneDescriptor;
@@ -37,6 +38,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -67,7 +69,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 	// physical number of panel in editor display
 	// total software defined panels to be displayed 
 	private Rectangle[] panelRectArray= new Rectangle[NsharpConstants.dsiplayPanelSize] ;
-	
+	private int numberPagePerDisplay = 1;
 	private NsharpGenericPaneBackground dataPanel1Background;
 	private NsharpGenericPaneBackground dataPanel2Background;
 	private int dataPaneWidth= NsharpConstants.DATA_PANE_REC_WIDTH;
@@ -80,7 +82,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 	private int dp2YOrig = NsharpConstants.DATAPANEL2_Y_ORIG;
 	private float xRatio=1;
 	private float yRatio=1;
-	
+	private IFont myfont=font10;
+	private boolean initDone=false;
 	private short  currentParcel= NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;;
 	//private int parcelLinesInPhysicalPanelNumber;
 	private boolean sumP1Visible = false;
@@ -99,14 +102,16 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			PaintProperties paintProps) throws VizException {
 		super.paintInternal(target, paintProps);
 		dataPanel1Background.paint(target, paintProps);
-		dataPanel2Background.paint(target, paintProps);
+		if(!paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			dataPanel2Background.paint(target, paintProps);
+		}
 		if(rscHandler== null)
 			return;
 		
 		if((soundingLys != null) && (soundingLys.size()>= 4))
 		{
-			this.font10.setSmoothing(false);
-			this.font10.setScaleFont(false);
+			this.myfont.setSmoothing(false);
+			this.myfont.setScaleFont(false);
 			// write to panels
     		//Chin: Note: 
     		// Current display algorithm is: One chapter = 2 pages. show 2 pages at one time.
@@ -115,15 +120,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
     		// display panels per design.
 			sumP1Visible = false;
     		currentTextChapter = rscHandler.getCurrentTextChapter();
-    		for (int i = currentTextChapter*2 -1,  physicalPanelNum = 1; i <  currentTextChapter*2  + (NsharpConstants.dsiplayPanelSize-1); i++, physicalPanelNum++){
-    			int pageNum = i%10;
-    			if (pageNum==0) 
-    				pageNum=10;
-    			
-    			drawPanel(target,pageNum,physicalPanelNum);
-    			//System.out.println("current chapter="+currentTextChapter+" page num="+pageNum+ " disPanel="+physicalPanelNum);  			
+    		if(numberPagePerDisplay==1)
+    			drawPanel(target,currentTextChapter,1);
+    		else if (numberPagePerDisplay==2){
+    			for (int i = currentTextChapter*numberPagePerDisplay -1,  physicalPanelNum = 1; i <=  currentTextChapter*numberPagePerDisplay; i++, physicalPanelNum++){
+    				int pageNum = i%10;
+    				if (pageNum==0) 
+    					pageNum=10;
+
+    				drawPanel(target,pageNum,physicalPanelNum);
+    				//System.out.println("current chapter="+currentTextChapter+" page num="+pageNum+ " disPanel="+physicalPanelNum);  			
+    			}
     		}
-    		
 		}
 	}
 	@Override
@@ -145,6 +153,12 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		panelRectArray[1] = dataPanel2Background.getRectangle();
 		dataPanel1Background.initInternal(target);
 		dataPanel2Background.initInternal(target);
+		if(numberPagePerDisplay == 1)
+			myfont = font12;
+		else 
+			myfont = font10;
+		handleResize();
+		initDone = true;
 	}
 	
 	public void setCurrentParcel(short currentParcel) {
@@ -158,9 +172,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		currentParcel= NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
 	}
 
+	@Override
+	public void resetData(List<NcSoundingLayer> soundingLys,
+			List<NcSoundingLayer> prevsoundingLys) {
+		
+		super.resetData(soundingLys, prevsoundingLys);
+		currentParcel= NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
+	}
+
+
 	private void drawPanel(IGraphicsTarget target, int pageOrderNumber, int dsiplayPanelNumber
     ) throws VizException {
-		if(pageOrderNumber > NsharpConstants.PAGE_MAX_NUMBER || dsiplayPanelNumber > NsharpConstants.dsiplayPanelSize)
+		if(pageOrderNumber > NsharpConstants.PAGE_MAX_NUMBER || dsiplayPanelNumber > numberPagePerDisplay)// NsharpConstants.dsiplayPanelSize)
 			return;
 		int physicalPanelNumber = dsiplayPanelNumber -1;
 		int displayPageNumber=0;
@@ -230,7 +253,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		sumP1Visible =true;
 		extent = new PixelExtent(rect);
 		target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, 10, null);
+		
    		 /*
    		 * Chin's NOTE::::
    		 * This pages based on newer version nsharp from SPC. We dont have source code as of 7/8/2010.
@@ -243,7 +266,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		//if we can not Interpolates a temp with 700 mb pressure, then we dont have enough raw data 	
    		if ((nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.itemp(700.0F)) == 0))
    		{
-   			target.drawString(font10, "               " +NO_DATA, rect.x, rect.y, 0.0,
+   			target.drawString(myfont, "               " +NO_DATA, rect.x, rect.y, 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
    			return;
@@ -260,7 +283,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		//
    		// Start with Parcel Data
    		// 
-   		Rectangle2D strBD = target.getStringBounds(font10, NsharpNativeConstants.PAGE1TEXT1_FCST_STR+"XX");
+   		Rectangle2D strBD = target.getStringBounds(myfont, NsharpNativeConstants.PAGE1TEXT1_FCST_STR+"XX");
 		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
 		double startX = rect.x + 0.5*charWidth;
    		double widthGap = (rect.width-strBD.getWidth()*hRatio*xRatio)/6;//was -100*xRatio)/6;
@@ -270,25 +293,25 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		forthToken=thirdToken+widthGap;
    		fifthToken = forthToken+widthGap;
    		sixthToken = fifthToken+widthGap;
-   		target.drawString(font10, "Sum1", startX, rect.y , 0.0,
+   		target.drawString(myfont, "Sum1", startX, rect.y , 0.0,
 	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 	                VerticalAlignment.TOP, null);
-   		target.drawString(font10, "CAPE", firstToken, rect.y , 0.0,
+   		target.drawString(myfont, "CAPE", firstToken, rect.y , 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
-   		target.drawString(font10, "CINH", secondToken, rect.y , 0.0,
+   		target.drawString(myfont, "CINH", secondToken, rect.y , 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
-   		target.drawString(font10, "LCL", thirdToken, rect.y , 0.0,
+   		target.drawString(myfont, "LCL", thirdToken, rect.y , 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
-   		target.drawString(font10, "LI", forthToken, rect.y , 0.0,
+   		target.drawString(myfont, "LI", forthToken, rect.y , 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
-   		target.drawString(font10, "LFC", fifthToken, rect.y , 0.0,
+   		target.drawString(myfont, "LFC", fifthToken, rect.y , 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
-   		target.drawString(font10, "EL", sixthToken, rect.y , 0.0,
+   		target.drawString(myfont, "EL", sixthToken, rect.y , 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null); 
    	    curY = curY+charHeight;
@@ -299,7 +322,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		//get user selected parcel type
    		_lplvalues lpvls;
    		_parcel pcl;
-   		curY = curY+ (double)charHeight * 0.5;
+   		//curY = curY+ (double)charHeight * 0.5;
    		for (short parcelNumber=1; parcelNumber <= NsharpNativeConstants.PARCEL_MAX  ; parcelNumber++){
    			if(parcelNumber == currentParcel ){
    				PixelExtent pixExt = new PixelExtent(rect.x, rect.x+ rect.width,curY, curY+charHeight);
@@ -308,7 +331,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    			}
    			//call native define_parcel() with parcel type and user defined pressure (if user defined it)
    			textStr = NsharpNativeConstants.parcelToTypeStrMap.get(parcelNumber);
-   			target.drawString(font10, textStr, startX, curY , 0.0,
+   			target.drawString(myfont, textStr, startX, curY , 0.0,
    					TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    					VerticalAlignment.TOP, null);
    			float layerPressure1 = NsharpNativeConstants.parcelToLayerMap.get(parcelNumber);
@@ -335,60 +358,60 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    			//draw parcel name
    			//draw CAPE
    			if(pcl.bplus != NsharpNativeConstants.NSHARP_LEGACY_LIB_INVALID_DATA)
-   				target.drawString(font10, String.format( "%.0f", pcl.bplus), firstToken, curY , 0.0,
+   				target.drawString(myfont, String.format( "%.0f", pcl.bplus), firstToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			else 
-   				target.drawString(font10, "M", firstToken, curY , 0.0,
+   				target.drawString(myfont, "M", firstToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			//draw CINH
    			if(pcl.bminus != NsharpNativeConstants.NSHARP_LEGACY_LIB_INVALID_DATA)
-   				target.drawString(font10, String.format("%.0f", pcl.bminus), secondToken, curY , 0.0,
+   				target.drawString(myfont, String.format("%.0f", pcl.bminus), secondToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			else 
-   				target.drawString(font10, "M", secondToken, curY , 0.0,
+   				target.drawString(myfont, "M", secondToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			//draw LCL
    			float lcl = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(pcl.lclpres ));
    			if(lcl != NsharpNativeConstants.NSHARP_LEGACY_LIB_INVALID_DATA)
-   				target.drawString(font10, String.format("%.0fm", lcl), thirdToken, curY , 0.0,
+   				target.drawString(myfont, String.format("%.0fm", lcl), thirdToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
 
    			else
-   				target.drawString(font10, "M", thirdToken, curY , 0.0,
+   				target.drawString(myfont, "M", thirdToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			//draw LI
    			if(pcl.li5 != NsharpNativeConstants.NSHARP_LEGACY_LIB_INVALID_DATA)
-   				target.drawString(font10, String.format("%5.0f", pcl.li5), forthToken, curY , 0.0,
+   				target.drawString(myfont, String.format("%5.0f", pcl.li5), forthToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			else 
-   				target.drawString(font10, "M", forthToken, curY , 0.0,
+   				target.drawString(myfont, "M", forthToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			//draw LFC
    			float lfc = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(pcl.lfcpres ));
    			if(lfc != NsharpNativeConstants.NSHARP_LEGACY_LIB_INVALID_DATA)
-   				target.drawString(font10, String.format("%.0fm", lfc), fifthToken, curY , 0.0,
+   				target.drawString(myfont, String.format("%.0fm", lfc), fifthToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			else
-   				target.drawString(font10, "M", fifthToken, curY , 0.0,
+   				target.drawString(myfont, "M", fifthToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			// draw EL
    			float el = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(pcl.elpres ));
    			if(el != NsharpNativeConstants.NSHARP_LEGACY_LIB_INVALID_DATA)
-   				target.drawString(font10, String.format("%.0f'", NsharpConstants.metersToFeet.convert(el)), sixthToken, curY , 0.0,
+   				target.drawString(myfont, String.format("%.0f'", NsharpConstants.metersToFeet.convert(el)), sixthToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
    			else
-   				target.drawString(font10, "M", sixthToken, curY , 0.0,
+   				target.drawString(myfont, "M", sixthToken, curY , 0.0,
    						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    						VerticalAlignment.TOP, null);
 
@@ -444,9 +467,9 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		firstToken = rect.x + rect.width/48*12*xRatio;
    		secondToken = rect.x + rect.width/48*27*xRatio;
    		thirdToken = rect.x + rect.width/48*38*xRatio;
-   		curY = curY+ (double)charHeight * 0.5;
+   		//curY = curY+ (double)charHeight * 0.5;
    		DrawableString str = new DrawableString("ABCDE=", NsharpConstants.color_white);  
-   		str.font = font10;
+   		str.font = myfont;
 		double equalSignPos=(startX+target.getStringsBounds(str).getWidth())*hRatio*xRatio;
    		fValue.setValue(0);
    		nsharpNative.nsharpLib.precip_water(fValue, -1.0F, -1.0F);
@@ -459,13 +482,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		str.setCoordinates(startX, curY);
 		str.horizontalAlignment = HorizontalAlignment.LEFT;
 		str.verticallAlignment = VerticalAlignment.TOP;
-		str.font = font10;
+		str.font = myfont;
 		str.setText("PW=", NsharpConstants.color_white);
    		DrawableString str1 =new DrawableString(textStr,NsharpConstants.color_white);
 		str1.setCoordinates(equalSignPos, curY);
 		str1.horizontalAlignment = HorizontalAlignment.LEFT;
 		str1.verticallAlignment = VerticalAlignment.TOP;
-		str1.font = font10;
+		str1.font = myfont;
 		target.drawStrings(str, str1);
 		
    		//3CAPE...value was retrieved earlier
@@ -683,10 +706,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		
    		//draw a vertical line from 2/3 of x axis
 		str.setText("sfc-3km AglLapseRate=xxC/x.xC/kmX",NsharpConstants.color_black);
-		str.font = font10;
-		firstToken=rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
+		str.font = myfont;
+		double lineXPos = target.getStringsBounds(str).getWidth()*hRatio*xRatio;
+		if(lineXPos < rect.width *2/3)
+			lineXPos = rect.width *2/3;
+		firstToken=rect.x+lineXPos;
    		target.drawLine(firstToken, curY, 0.0, firstToken, rect.y+rect.height, 0.0, NsharpConstants.color_white, 1);
-   		curY = curY+ (double)charHeight * 0.5;
+   		//curY = curY+ (double)charHeight * 0.5;
    		firstToken = firstToken + 0.5*charWidth;
    		
    		// more thermodynamic data
@@ -722,7 +748,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		str1.setCoordinates(equalSignPos, curY);
 		target.drawStrings(str, str1);
 		
-   		/*target.drawString(font10, textStr, startX, curY , 0.0,
+   		/*target.drawString(myfont, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
    		
@@ -743,7 +769,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_yellow);
  		str1.setCoordinates(equalSignPos1, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		/*target.drawString(myfont, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
    		
@@ -770,7 +796,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(equalSignPos, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, startX, curY , 0.0,
+   		/*target.drawString(myfont, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
    		// "STP (CIN)"
@@ -786,7 +812,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(equalSignPos1, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		/*target.drawString(myfont, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
 
@@ -809,7 +835,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(equalSignPos, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, startX, curY , 0.0,
+   		/*target.drawString(myfont, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
    		// "STP(fixed)"
@@ -825,7 +851,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(equalSignPos1, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		/*target.drawString(myfont, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
 
@@ -847,7 +873,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(equalSignPos, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, startX, curY , 0.0,
+   		/*target.drawString(myfont, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
    		// "SHIP"
@@ -862,11 +888,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_red);
  		str1.setCoordinates(equalSignPos1, curY);
 		target.drawStrings(str, str1);
-   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		/*target.drawString(myfont, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_red, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);*/
         //System.out.println("shop="+ship);
-   		//font10.dispose();
+   		//myfont.dispose();
     }
 	@SuppressWarnings("deprecation")
 	private void drawPanel2(IGraphicsTarget target,  Rectangle rect) throws VizException 
@@ -880,14 +906,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		
 		extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, 10, null);
+        //myfont = target.initializeFont(fontName, 10, null);
         curY= rect.y;
     	String textStr;
     	
     	//if we can not Interpolates a temp with 700 mb pressure, then we dont have enough raw data 	
     	if (nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.itemp(700.0F)) == 0)
     	{
-   			target.drawString(font10, "               " +NO_DATA, rect.x, rect.y, 0.0,
+   			target.drawString(myfont, "               " +NO_DATA, rect.x, rect.y, 0.0,
    	                TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
    	                VerticalAlignment.TOP, null);
     		return;
@@ -902,26 +928,26 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		secondToken=firstToken+widthGap;
    		thirdToken=secondToken+widthGap;
    		forthToken=thirdToken+widthGap;
-   		target.drawString(font10, "Sum2", startX, rect.y , 0.0,
+   		target.drawString(myfont, "Sum2", startX, rect.y , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 
     	textStr = String.format("SRH(m%c/s%c)",NsharpConstants.SQUARE_SYMBOL, NsharpConstants.SQUARE_SYMBOL);
-    	target.drawString(font10, textStr, firstToken, curY , 0.0,
+    	target.drawString(myfont, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
-    	target.drawString(font10, "Shear(kt)", secondToken, curY , 0.0,
+    	target.drawString(myfont, "Shear(kt)", secondToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
-    	target.drawString(font10, "MnWind", thirdToken, curY , 0.0,
+    	target.drawString(myfont, "MnWind", thirdToken, curY , 0.0,
                         TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                         VerticalAlignment.TOP, null);
-    	target.drawString(font10, "SRW", forthToken, curY , 0.0,
+    	target.drawString(myfont, "SRW", forthToken, curY , 0.0,
                                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                                 VerticalAlignment.TOP, null);
     	curY = curY+charHeight; //move to new line
     	target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
-    	curY = curY+ (double)charHeight * 0.5;
+    	//curY = curY+ (double)charHeight * 0.5;
 		FloatByReference smdir=new FloatByReference(0), smspd = new FloatByReference(0);
 		nsharpNative.nsharpLib.get_storm(smspd, smdir);
 		FloatByReference topPF= new FloatByReference(0);
@@ -953,7 +979,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 
 				float totHeli = nsharpNative.nsharpLib.helicity( h1, 
 						h2, smdir.getValue(), smspd.getValue(), fValue, fValue1);
-				target.drawString(font10, NsharpNativeConstants.STORM_MOTION_TYPE_STR1[i], startX, curY , 0.0,
+				target.drawString(myfont, NsharpNativeConstants.STORM_MOTION_TYPE_STR1[i], startX, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -965,13 +991,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";
 				}
-				target.drawString(font10, textStr, firstToken, curY , 0.0,
+				target.drawString(myfont, textStr, firstToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
 				//Calculate wind shear 
 				//Note: -1 as first parameter indicating bottom layer is surface layer, see wind.c for wind_shear() source code
-				nsharpNative.nsharpLib.wind_shear( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h1))/*-1*/, nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h2)), 
+				nsharpNative.nsharpLib.wind_shear( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h1)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h2)), 
 						fValue, fValue1,fValue2, fValue3);
 				if(nsharpNative.nsharpLib.qc(fValue3.getValue())==1) {
 					textStr = String.format("%.0f",fValue3.getValue());
@@ -980,7 +1006,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";
 				}
-				target.drawString(font10, textStr, secondToken, curY , 0.0,
+				target.drawString(myfont, textStr, secondToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -992,7 +1018,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";		
 				}
-				target.drawString(font10, textStr, thirdToken, curY , 0.0,
+				target.drawString(myfont, textStr, thirdToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -1006,7 +1032,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";		
 				}
-				target.drawString(font10, textStr, forthToken, curY , 0.0,
+				target.drawString(myfont, textStr, forthToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 				
@@ -1069,19 +1095,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		           
 		           nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
 		        }
-		        // set parcel back to user selection 
-		        /*if (oldlplchoice == 1)
-		          pres = 0;
-		        else if (oldlplchoice == 2)
-		          pres = 0;
-		        else if (oldlplchoice == 3)
-		          pres = NsharpNativeConstants.MU_LAYER;
-		        else if (oldlplchoice == 4)
-		          pres = NsharpNativeConstants.MML_LAYER;
-		        else if (oldlplchoice == 5)
-		          pres = NsharpNativeConstants.USER_LAYER;
-		        else if (oldlplchoice == 6)
-		          pres = NsharpNativeConstants.MU_LAYER;*/
+		        
 		        //System.out.println("drawPanel2-2 called define_parcel pType="+oldlplchoice+" pre="+ pres);
 		        try{
 		        	if(oldlplchoice == NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
@@ -1114,7 +1128,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				//calculate helicity 
 				float totHeli = nsharpNative.nsharpLib.helicity( h1, 
 						h2, smdir.getValue(), smspd.getValue(), fValue, fValue1);
-				target.drawString(font10, NsharpNativeConstants.STORM_MOTION_TYPE_STR2[i], startX, curY , 0.0,
+				target.drawString(myfont, NsharpNativeConstants.STORM_MOTION_TYPE_STR2[i], startX, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -1127,7 +1141,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 					textStr = "M";
 				}
 				// SR Helicity is not shown for these 4 storm motions, see oroginal BigNsharp show_shear_new()
-				//target.drawString(font10, textStr, firstToken, curY , 0.0,
+				//target.drawString(myfont, textStr, firstToken, curY , 0.0,
 				//		TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				//		VerticalAlignment.TOP, null);
 
@@ -1142,7 +1156,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";
 				}
-				target.drawString(font10, textStr, secondToken, curY , 0.0,
+				target.drawString(myfont, textStr, secondToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -1154,7 +1168,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";		
 				}
-				target.drawString(font10, textStr, thirdToken, curY , 0.0,
+				target.drawString(myfont, textStr, thirdToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -1168,7 +1182,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				else {
 					textStr = "M";		
 				}
-				target.drawString(font10, textStr, forthToken, curY , 0.0,
+				target.drawString(myfont, textStr, forthToken, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 				if (NsharpNativeConstants.STORM_MOTION_TYPE_STR2[i].equals("Lower Half Storm Depth")){
@@ -1186,7 +1200,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		//align all following  parameters output with "Corfidi Downshear"
 		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
    		DrawableString str = new DrawableString("Corfidi Downshear = ", NsharpConstants.color_white);  		
-		double equalSignPos=rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
+		double equalSignPos= secondToken;//rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
 		
 		//BRN Shear		
 		// get parcel data by calling native nsharp parcel() API. value is returned in pcl 
@@ -1205,13 +1219,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		str.setCoordinates(startX, curY);
 		str.horizontalAlignment = HorizontalAlignment.LEFT;
 		str.verticallAlignment = VerticalAlignment.TOP;
-		str.font = font10;
+		str.font = myfont;
 		str.setText("BRN Shear = ", NsharpConstants.color_white);
    		DrawableString str1 =new DrawableString(textStr,NsharpConstants.color_white);
 		str1.setCoordinates(equalSignPos, curY);
 		str1.horizontalAlignment = HorizontalAlignment.LEFT;
 		str1.verticallAlignment = VerticalAlignment.TOP;
-		str1.font = font10;
+		str1.font = myfont;
 		target.drawStrings(str, str1);
 		
 		curY = curY+charHeight; //move to new line
@@ -1290,31 +1304,31 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		
  		//wind barb labels
  		str1.setText("12345SPACE",NsharpConstants.color_red); // rest str1 to get a right x position
- 		firstToken = equalSignPos+ (target.getStringsBounds(str1).getMaxX())*hRatio*xRatio;
+ 		//firstToken = equalSignPos+ (target.getStringsBounds(str1).getMaxX())*hRatio*xRatio;
 		textStr = "1km";
 		str.setText(textStr, NsharpConstants.color_red);
-   		str.setCoordinates(firstToken, curY);
+   		str.setCoordinates(thirdToken, curY);
    		textStr = " & ";
  		str1.setText(textStr,NsharpConstants.color_white);
- 		str1.setCoordinates(firstToken + target.getStringsBounds(str).getWidth()*hRatio*xRatio, curY);
+ 		str1.setCoordinates(thirdToken + target.getStringsBounds(str).getWidth()*hRatio*xRatio, curY);
  		textStr = "6km";
 		DrawableString str2 =new DrawableString(textStr,NsharpConstants.color_cyan);
 		str2.horizontalAlignment = HorizontalAlignment.LEFT;
 		str2.verticallAlignment = VerticalAlignment.TOP;
-		str2.font = font10;
- 		str2.setCoordinates(firstToken+ (target.getStringsBounds(str).getWidth()+target.getStringsBounds(str1).getWidth())*hRatio*xRatio, curY);
+		str2.font = myfont;
+ 		str2.setCoordinates(thirdToken+ (target.getStringsBounds(str).getWidth()+target.getStringsBounds(str1).getWidth())*hRatio*xRatio, curY);
    		textStr = " AGL Wind Barb";
    		DrawableString str3 =new DrawableString(textStr,NsharpConstants.color_white);
    		str3.horizontalAlignment = HorizontalAlignment.LEFT;
 		str3.verticallAlignment = VerticalAlignment.TOP;
-		str3.font = font10;
- 		str3.setCoordinates(firstToken + (target.getStringsBounds(str).getWidth()+target.getStringsBounds(str1).getWidth()+target.getStringsBounds(str2).getWidth())*hRatio*xRatio, curY);
+		str3.font = myfont;
+ 		str3.setCoordinates(thirdToken + (target.getStringsBounds(str).getWidth()+target.getStringsBounds(str1).getWidth()+target.getStringsBounds(str2).getWidth())*hRatio*xRatio, curY);
  		target.drawStrings(str, str1, str2, str3);
 
 		//1 km wind barb
- 		//firstToken = rect.x+  rect.width * 3/4;
+ 		double wbToken= (thirdToken+forthToken)/2 ;
  		str1.setText("1234/56 ktSPACESPACESPACE",NsharpConstants.color_red); // rest str1 to get a right x position
- 		firstToken = equalSignPos+ (target.getStringsBounds(str1).getMaxX())*hRatio*xRatio;
+ 		//firstToken = equalSignPos+ (target.getStringsBounds(str1).getMaxX())*hRatio*xRatio;
 		double yOri =  curY- 3* charHeight;
 		double barbScaleF= charHeight;//12;
 		List<LineStroke> barb = WindBarbFactory.getWindGraphics(
@@ -1323,7 +1337,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
         if (barb != null) {
         	WindBarbFactory.scaleBarb(barb, barbScaleF);
         	
-            double cur0X=firstToken, cur0Y=yOri, cur1X=firstToken, cur1Y=yOri,newY=0;
+            double cur0X=wbToken, cur0Y=yOri, cur1X=wbToken, cur1Y=yOri,newY=0;
             WindBarbFactory.translateBarb(barb,cur0X ,yOri );
             
             for (LineStroke stroke : barb) {            	
@@ -1357,7 +1371,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
         if (barb != null) {
         	WindBarbFactory.scaleBarb(barb, barbScaleF);
         	
-            double cur0X=firstToken, cur0Y=yOri, cur1X=firstToken, cur1Y=yOri,newY=0;
+            double cur0X=wbToken, cur0Y=yOri, cur1X=wbToken, cur1Y=yOri,newY=0;
             WindBarbFactory.translateBarb(barb,cur0X ,yOri );
             
             for (LineStroke stroke : barb) {            	
@@ -1383,14 +1397,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
             	}
             }
         }
-        //font10.dispose();
+        //myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel3(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -1403,7 +1417,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			return;
 		String title =  NsharpNativeConstants.PARCEL_DATA_STR;
 		
-		target.drawString(font10, title, rect.x + rect.width /3, curY , 0.0,
+		target.drawString(myfont, title, rect.x + rect.width /3, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		
@@ -1422,7 +1436,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			hdrStr = String.format(hdrStr, layerPressure);
 		}
 		curY = curY + charHeight;
-		target.drawString(font10, hdrStr, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, hdrStr, rect.x + rect.width /4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY + charHeight;
@@ -1451,7 +1465,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1465,7 +1479,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.PARCEL_CAPE_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 
@@ -1476,7 +1490,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.PARCEL_LI_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x+rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x+rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY + charHeight;
@@ -1487,7 +1501,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else{
 			textStr = NsharpNativeConstants.PARCEL_BFZL_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		if(nsharpNative.nsharpLib.qc(pcl.limax)==1){
@@ -1497,7 +1511,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else{
 			textStr = NsharpNativeConstants.PARCEL_LIMIN_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x+rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x+rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY + charHeight;
@@ -1508,7 +1522,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.PARCEL_CINH_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 
@@ -1519,7 +1533,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.PARCEL_CAP_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x+rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x+rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY + 2* charHeight;
@@ -1528,7 +1542,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		textStr = NsharpNativeConstants.PARCEL_LEVEL_LINE_;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1546,7 +1560,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1565,7 +1579,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1584,7 +1598,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1601,18 +1615,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
-		//font10.dispose();
+		//myfont.dispose();
     }
 	@SuppressWarnings("deprecation")
 	private void drawPanel4(IGraphicsTarget target,Rectangle rect) 
 	throws VizException {
 		extent = new PixelExtent(rect);
 		target.setupClippingPlane(extent);
-		//font10 = target.initializeFont(fontName, fontSize, null);
+		//myfont = target.initializeFont(fontName, fontSize, null);
 		String textStr;
 		curY = rect.y;
 
@@ -1623,11 +1637,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		 * Moved from NsharpPaletteWindow.showThermoparms()
 		 */
 
-		target.drawString(font10, NsharpNativeConstants.THERMO_DATA_STR, rect.x + rect.width /3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.THERMO_DATA_STR, rect.x + rect.width /3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
-		target.drawString(font10, NsharpNativeConstants.THERMO_MOISTURE_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.THERMO_MOISTURE_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1642,7 +1656,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_PWATER_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		
@@ -1655,7 +1669,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_MEANRH_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width/2, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1670,7 +1684,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_MEANW_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		fValue.setValue(0);
@@ -1685,7 +1699,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_MEANLRH_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width/2, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1700,7 +1714,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_TOP_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1708,7 +1722,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 
 		//instability data--------------//
 		//yellow and bold for parcel header 
-		target.drawString(font10, NsharpNativeConstants.THERMO_INSTABILITY_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.THERMO_INSTABILITY_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 
@@ -1728,7 +1742,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_700500mb_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1747,14 +1761,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_850500mb_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 
 
 		//misc parameters data--------------//
-		target.drawString(font10, NsharpNativeConstants.THERMO_MISC_PARMS_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.THERMO_MISC_PARMS_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1770,7 +1784,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_TOTAL_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 
@@ -1783,7 +1797,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_KINDEX_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width/2, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1799,7 +1813,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			textStr = NsharpNativeConstants.THERMO_SWEAT_MISSING;
 		}
 
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 
@@ -1812,7 +1826,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_MAXT_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width/2, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1827,7 +1841,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_THETAE_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		fValue.setValue(0);
@@ -1839,7 +1853,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_CONVT_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width/2, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1853,7 +1867,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_WBZ_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		fValue.setValue(0);
@@ -1865,17 +1879,17 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.THERMO_FGZ_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width/2, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width/2, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
-		//font10.dispose();
+		//myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel5(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -1888,11 +1902,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference Surfpressure= new FloatByReference(0);
 		FloatByReference surfTemp= new FloatByReference(0);
 		FloatByReference surfDewpt= new FloatByReference(0);
-		target.drawString(font10, NsharpNativeConstants.OPC_LOW_LEVEL_STR, rect.x + rect.width /3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.OPC_LOW_LEVEL_STR, rect.x + rect.width /3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
-		target.drawString(font10, NsharpNativeConstants.OPC_SURFACE975_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.OPC_SURFACE975_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1901,7 +1915,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		textStr = NsharpNativeConstants.OPC_LEVEL_LINE_;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1918,7 +1932,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1938,7 +1952,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -1953,7 +1967,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.OPC_975_SURFACE_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1970,7 +1984,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference inv_dC= new FloatByReference(0);
 		;
 		//yellow and bold for parcel header 
-		target.drawString(font10, NsharpNativeConstants.OPC_LOWEST_INV_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.OPC_LOWEST_INV_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY + 2* charHeight;	
@@ -1982,7 +1996,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.OPC_BASEHEIGHT_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -1994,7 +2008,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.OPC_BASEPRESSURE_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2006,18 +2020,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.OPC_CHANGE_IN_TEMP_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 
-        //font10.dispose();
+        //myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel6(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -2054,14 +2068,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		short flag;
 		
 		//yellow and bold for parcel header 
-		target.drawString(font10, NsharpNativeConstants.OPC_MIXING_HGT_STR, rect.x + rect.width /10, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.OPC_MIXING_HGT_STR, rect.x + rect.width /10, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;		
 		textStr = NsharpNativeConstants.OPC_DRY_AD_LINE;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2069,14 +2083,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		textStr = NsharpNativeConstants.OPC_THRESH_LAPSE_LINE;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
 		curY = curY +  charHeight;
 		
 		// Cyan color for Layer Based string
-		target.drawString(font10, NsharpNativeConstants.OPC_LAYER_BASED_STR, rect.x + rect.width /3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.OPC_LAYER_BASED_STR, rect.x + rect.width /3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2093,7 +2107,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2108,7 +2122,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2124,7 +2138,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2139,7 +2153,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2154,7 +2168,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2162,7 +2176,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		
 				
 		// Purple color for Layer Based string
-		target.drawString(font10, NsharpNativeConstants.OPC_SURFACE_BASED_STR, rect.x + rect.width /3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.OPC_SURFACE_BASED_STR, rect.x + rect.width /3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_violet, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;	
@@ -2187,7 +2201,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2202,7 +2216,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2217,7 +2231,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2232,7 +2246,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2247,18 +2261,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
-        //font10.dispose();
+        //myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel7(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -2305,7 +2319,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference wspd= new FloatByReference(0);
 		float totHeli;
 		
-		target.drawString(font10, NsharpNativeConstants.STORM_RELATIVE_STR, rect.x + rect.width /3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.STORM_RELATIVE_STR, rect.x + rect.width /3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2320,20 +2334,20 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.STORM_MOTION_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 		
 		//yellow and bold for parcel header 
-		target.drawString(font10, NsharpNativeConstants.STORM_HELICITY_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.STORM_HELICITY_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 		textStr = NsharpNativeConstants.STORM_LAYER_POS_STR;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2353,7 +2367,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2370,7 +2384,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2387,20 +2401,20 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
 		curY = curY +  charHeight;
 		//yellow and bold for  header 
-		target.drawString(font10, NsharpNativeConstants.STORM_WIND_STR, rect.x + rect.width /4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.STORM_WIND_STR, rect.x + rect.width /4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY + 2* charHeight;
 		textStr = NsharpNativeConstants.STORM_LAYER_VECTOR_STR;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2420,7 +2434,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2443,7 +2457,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2462,19 +2476,19 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
 	
-        //font10.dispose();
+        //myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel8(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -2497,11 +2511,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference mnv= new FloatByReference(0);
 		FloatByReference wdir= new FloatByReference(0);
 		FloatByReference wspd= new FloatByReference(0);
-		target.drawString(font10, NsharpNativeConstants.MEAN_WIND_STR, rect.x + rect.width*0.4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.MEAN_WIND_STR, rect.x + rect.width*0.4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
-		
+		 
 		//fix TT 549890
 		//Calculate mean wind at 0-6 km, following the same algorithm used in drawPanel2()  at BigNsharp page 2. 
 		//Like this : mean_wind(nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h1)), nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(h2)))
@@ -2518,7 +2532,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2560,7 +2574,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2577,7 +2591,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2605,7 +2619,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference shv= new FloatByReference(0);
 		FloatByReference sdir= new FloatByReference(0);
 		FloatByReference smag= new FloatByReference(0);
-		target.drawString(font10, NsharpNativeConstants.ENVIRONMENTAL_SHEAR_STR, rect.x + rect.width/3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.ENVIRONMENTAL_SHEAR_STR, rect.x + rect.width/3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2614,7 +2628,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		textStr = NsharpNativeConstants.SHEAR_LAYER_DELTA_STR;
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2636,7 +2650,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2656,7 +2670,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2676,7 +2690,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2696,18 +2710,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x + i*rect.width/3, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
-		//font10.dispose();
+		//myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel9(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -2751,7 +2765,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		
 
 		//CONVECTIVE_INITIATION
-		target.drawString(font10, NsharpNativeConstants.CONVECTIVE_INITIATION_STR, rect.x + rect.width/3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.CONVECTIVE_INITIATION_STR, rect.x + rect.width/3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2765,7 +2779,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2780,7 +2794,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2797,7 +2811,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2813,7 +2827,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2837,7 +2851,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.CONVECTIVE_TOP_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2856,13 +2870,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.CONVECTIVE_LFC_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 		
 		//STORM TYPE
-		target.drawString(font10, NsharpNativeConstants.STORM_TYPE_STR, rect.x + rect.width/3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.STORM_TYPE_STR, rect.x + rect.width/3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -2877,7 +2891,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2901,7 +2915,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2924,7 +2938,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2940,7 +2954,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2956,7 +2970,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -2973,14 +2987,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			textStr = NsharpNativeConstants.STORM_TYPE_BRNSHEAR_MISSING;	
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
 		curY = curY +  charHeight;
 		
 		//PRECIPITATION_TYPE
-		target.drawString(font10, NsharpNativeConstants.PRECIPITATION_TYPE_STR, rect.x + rect.width/3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.PRECIPITATION_TYPE_STR, rect.x + rect.width/3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -3000,12 +3014,12 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.PRECIPITATION_MELTING_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 		//HEAVY_RAINFAL
-		target.drawString(font10, NsharpNativeConstants.HEAVY_RAINFALL_STR, rect.x + rect.width/3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.HEAVY_RAINFALL_STR, rect.x + rect.width/3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -3020,17 +3034,17 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.HEAVY_ROGASH_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
-       // font10.dispose();
+       // myfont.dispose();
 	}
 	@SuppressWarnings("deprecation")
 	private void drawPanel10(IGraphicsTarget target,Rectangle rect) 
     throws VizException {
     	extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
-        //font10 = target.initializeFont(fontName, fontSize, null);
+        //myfont = target.initializeFont(fontName, fontSize, null);
         String splitedStr[];
         String textStr;
         curY = rect.y;
@@ -3047,12 +3061,12 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference fvalue= new FloatByReference(0);
 		FloatByReference fvalue1= new FloatByReference(0);
 		
-		target.drawString(font10, NsharpNativeConstants.SEVERE_POTENTIAL_STR, rect.x + rect.width/3, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.SEVERE_POTENTIAL_STR, rect.x + rect.width/3, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 		
-		target.drawString(font10, NsharpNativeConstants.SEVERE_HAIL_POTENTIAL_STR, rect.x + rect.width/4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.SEVERE_HAIL_POTENTIAL_STR, rect.x + rect.width/4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -3075,7 +3089,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3091,7 +3105,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3108,7 +3122,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3124,7 +3138,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3140,7 +3154,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.SEVERE_ELSTORM_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -3161,7 +3175,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3176,7 +3190,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  rect.width/2+ i*rect.width/4, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3191,13 +3205,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		else {
 			textStr = NsharpNativeConstants.SEVERE_AVGBL_MISSING;
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
+		target.drawString(myfont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
 
 		//TORNADO_POTENTIAL
-		target.drawString(font10, NsharpNativeConstants.SEVERE_TORNADO_POTENTIAL_STR, rect.x + rect.width/4, curY , 0.0,
+		target.drawString(myfont, NsharpNativeConstants.SEVERE_TORNADO_POTENTIAL_STR, rect.x + rect.width/4, curY , 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
 				VerticalAlignment.TOP, null);
 		curY = curY +  charHeight;
@@ -3220,7 +3234,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
 		splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3244,7 +3258,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
         splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
@@ -3268,12 +3282,12 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		}
         splitedStr = textStr.split("_", -1);
 		for (int i =0; i < splitedStr.length; i++){
-			target.drawString(font10, splitedStr[i], rect.x +  i*rect.width/2, curY , 0.0,
+			target.drawString(myfont, splitedStr[i], rect.x +  i*rect.width/2, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
 		
-        //font10.dispose();
+        //myfont.dispose();
 	}
 
 
@@ -3291,22 +3305,36 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		return dataPanel2Background;
 	}
 	
-	public void setPageDisplayOrderNumberArray(int[] pageDisplayOrderNumberArray) {
+	public void setPageDisplayOrderNumberArray(int[] pageDisplayOrderNumberArray, int numberPagePerDisplay) {
 		this.pageDisplayOrderNumberArray = pageDisplayOrderNumberArray;
+		if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR))
+			//This configuration always show 2 pages layout vertically
+			this.numberPagePerDisplay = 2;
+		else
+			this.numberPagePerDisplay = numberPagePerDisplay;
+		if(initDone){
+			if(this.numberPagePerDisplay == 1)
+				myfont = font12;
+			else 
+				myfont = font10;
+			handleResize();
+		}
+		
 	}
 	@Override
 	protected void adjustFontSize(float canvasW, float canvasH ) {
+		/*
 		if(canvasH < myDefaultCanvasHeight/3 ||  canvasW< myDefaultCanvasWidth/3){
-			if(font10!=null){
-				font10.dispose();
+			if(myfont!=null){
+				myfont.dispose();
 			}
-			font10 = target.initializeFont("Monospace", 8, null);
+			myfont = target.initializeFont("Monospace", 8, null);
 		} else if(canvasH < myDefaultCanvasHeight/2 ||  canvasW< myDefaultCanvasWidth/2){
-			if(font10!=null){
-				font10.dispose();
+			if(myfont!=null){
+				myfont.dispose();
 			}
-			font10 = target.initializeFont("Monospace", 8, null);
-		}
+			myfont = target.initializeFont("Monospace", 8, null);
+		}*/
 	}
 	@Override
 	public void handleResize(){
@@ -3318,25 +3346,32 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				(int) ext.getWidth(), (int) ext.getHeight());
 		pe = new PixelExtent(this.rectangle);
 		getDescriptor().setNewPe(pe);
-		defineCharHeight(font10);
+		defineCharHeight(myfont);
 		float prevHeight = dataPaneHeight;
 		float prevWidth = dataPaneWidth;
+		dp1XOrig = (int) (ext.getMinX());
+		dp1YOrig = (int) (ext.getMinY());
 		if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR) || 
-				paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR) ||
 				paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
-			//these 2 configurations lay 2 data panels side by side
-			dataPaneWidth= (int) (ext.getWidth()/2);
-			dataPaneHeight= (int) ext.getHeight();
-			dp1XOrig = (int) (ext.getMinX());
-			dp1YOrig = (int) (ext.getMinY());
-			dp2XOrig = dp1XOrig+ dataPaneWidth;
-			dp2YOrig = dp1YOrig;
+			if(numberPagePerDisplay == 2){
+				//these 2 configurations lay 2 data panels side by side
+				dataPaneWidth= (int) (ext.getWidth()/2);
+				dataPaneHeight= (int) ext.getHeight();			
+				dp2XOrig = dp1XOrig+ dataPaneWidth;
+				dp2YOrig = dp1YOrig;
+			}
+			else {
+				dataPaneWidth= (int) ext.getWidth();
+				dataPaneHeight= (int) ext.getHeight();
+				dp2XOrig = dp1XOrig;
+				dp2YOrig = dp1YOrig;
+			}
 		} else if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
 			//this configuration lays 2 data panels top/down
+			// always display 2 pages
 			dataPaneWidth= (int) ext.getWidth();
 			dataPaneHeight= (int) ext.getHeight()/2;
-			dp1XOrig = (int) (ext.getMinX());
-			dp1YOrig = (int) (ext.getMinY());
 			dp2XOrig = dp1XOrig;
 			dp2YOrig = dp1YOrig+dataPaneHeight;
 		}
