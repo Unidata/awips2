@@ -8,6 +8,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.junit"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.codec"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.slf4j"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.eclipse.jetty"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.util"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.comm"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.http"/>
@@ -84,5 +85,11 @@
 	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar"/>
 	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64.source_3.6.1.v3655c.jar"/>
 	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.jep">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="org.jep.linux32"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/javax.servlet_2.5.0.v200910301333.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
