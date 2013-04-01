@@ -113,7 +113,8 @@ public class SeedCrawler extends Crawler {
             if (proxyParameters != null) {
                 statusHandler.debug(String.format(
                         "proxy host:[%s]  proxy port: [%s]",
-                        proxyParameters[0], proxyParameters[1]));
+                        proxyParameters.getHost(),
+                        proxyParameters.getPortString()));
             } else {
                 statusHandler.debug("No proxy information configured.");
             }
