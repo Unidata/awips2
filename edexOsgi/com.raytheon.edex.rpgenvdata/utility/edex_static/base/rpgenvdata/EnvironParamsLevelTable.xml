@@ -29,23 +29,23 @@
     <!-- EDEX unit is actually "gpm" -->
     <field name="GH" units="m" description="Geopotential Height">
         <level name="MB" description="Pressure Level" units="mb"
-        levels="1000 950 900 850 800 750 700 650 600 550 500 450 400 350 300 250 200 150 100" />
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
     </field> 
     <field name="RH" units="%" description="Relative Humidity">
         <level name="MB" description="Pressure Level" units="mb"
-        levels="1000 950 900 850 800 750 700 650 600 550 500 450 400 350 300" />
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
     </field> 
     <field name="T" units="K" description="Temperature">
         <level name="MB" description="Pressure Level" units="mb"
-        levels="1000 950 900 850 800 750 700 650 600 550 500 450 400 350 300 250 200 150 100" />
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
     </field> 
     <field name="uW" description="U Wind Component" units="m/s">
         <level name="MB" description="Pressure Level" units="mb"
-        levels="1000 950 900 850 800 750 700 650 600 550 500 450 400 350 300 250 200 150 100" />
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
     </field> 
     <field name="vW" description="V Wind Component" units="m/s">
         <level name="MB" description="Pressure Level" units="mb"
-        levels="1000 950 900 850 800 750 700 650 600 550 500 450 400 350 300 250 200 150 100" />
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
     </field>
     <field name="P" units="Pa" description="Pressure">
         <level name="SFC" description="Surface Level" units="" />
