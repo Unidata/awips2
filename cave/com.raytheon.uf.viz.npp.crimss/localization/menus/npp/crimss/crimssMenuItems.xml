@@ -19,10 +19,10 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="separator" id="beforeCRIMSS" visible="false"/>
-	<contribute xsi:type="titleItem" titleText="------ CrIMSS ------" id="SoundingLine"/>
-	<contribute xsi:type="bundleItem" file="bundles/crimssAvailability.xml"
-			menuText="Sounding Availability" id="CrIMSSAvailability">
+	<contribute xsi:type="bundleItem" file="bundles/npp/soundingAvailability.xml"
+			menuText="CrIMSS Sounding Availability" id="CrIMSSAvailability">
+			<substitute key="name" value="CrIMSS"/>
+			<substitute key="pluginName" value="crimss"/>
+			<substitute key="soundingResourceData" value="com.raytheon.uf.viz.npp.crimss.CrimssNSharpResourceData"/>
 	</contribute>
-	<contribute xsi:type="separator" id="afterCRIMSS" visible="false"/>
 </menuTemplate>
