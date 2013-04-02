@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="nucapsPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="nucaps" />
+    </bean>
+
+    <bean id="nucapsProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="nucapsPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.npp.nucaps" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.npp.sounding.NPPSoundingDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.npp.nucaps.NucapsRecord" />
+    </bean>
+    
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="nucapsPluginName"/>
+		<constructor-arg ref="nucapsProperties"/>
+	</bean>
+
+</beans>
