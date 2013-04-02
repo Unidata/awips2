@@ -281,7 +281,7 @@ su ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_USER} ${SQL_SHARE_DIR} ${SQL_LOG}"
    
 update_createEbxml
-execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql postgres
+execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/vtec_initial_setup.sql metadata
 
 control_pg_ctl "stop"
