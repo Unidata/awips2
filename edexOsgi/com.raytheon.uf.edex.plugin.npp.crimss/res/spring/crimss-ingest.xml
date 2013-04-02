@@ -2,7 +2,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="crimssDecoder" class=" com.raytheon.uf.edex.plugin.npp.crimss.CrimssDecoder">
+    <bean id="crimssDecoder" class="com.raytheon.uf.edex.plugin.npp.sounding.NPPSoundingDecoder">
 		<constructor-arg ref="crimssPluginName" />
 	</bean>
 	

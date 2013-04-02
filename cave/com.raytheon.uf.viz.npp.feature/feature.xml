@@ -38,14 +38,33 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.npp.crimss"
+         id="com.raytheon.uf.common.dataplugin.npp.sounding"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.npp.crimss"
+         id="com.raytheon.uf.viz.npp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.npp.sounding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.npp.nucaps"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.npp.nucaps"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
