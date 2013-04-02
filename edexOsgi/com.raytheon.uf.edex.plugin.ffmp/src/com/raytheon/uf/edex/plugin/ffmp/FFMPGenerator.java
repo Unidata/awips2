@@ -58,6 +58,7 @@ import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -82,6 +83,7 @@ import com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -119,6 +121,8 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * 02/01/13     1569       D. Hladky  Added constants, switched to using aggregate records written through pypies
  * 02/20/13     1635       D. Hladky   Added some finally methods to increase dead lock safety.  Reduced wait times for threads.
  * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
+ * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
+ * 03/22/13     1803       D. Hladky   Fixed broken performance logging for ffmp.
  * </pre>
  * 
  * @author dhladky
@@ -1978,6 +1982,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
+            statusHandler.info("Removing from memory: "+qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }
@@ -2013,8 +2018,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         }
         
     }
-
-   /**
+    
+    
+    /**
      * Find siteSourceDataKey
      * 
      * @param source
@@ -2041,4 +2047,40 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         return sourceSiteDataKey;
     }
     
+    /**
+     * Log process statistics
+     * 
+     * @param message
+     */
+    @Override
+    public void log(URIGenerateMessage message) {
+
+        long curTime = System.currentTimeMillis();
+        ProcessEvent processEvent = new ProcessEvent();
+
+        if (productType != null) {
+            processEvent.setDataType(productType);
+        }
+
+        Long dequeueTime = message.getDeQueuedTime();
+        if (dequeueTime != null) {
+            long elapsedMilliseconds = curTime - dequeueTime;
+            processEvent.setProcessingTime(elapsedMilliseconds);
+        }
+
+        Long enqueueTime = message.getEnQueuedTime();
+        if (enqueueTime != null) {
+            long latencyMilliseconds = curTime - enqueueTime;
+            processEvent.setProcessingLatency(latencyMilliseconds);
+        }
+
+        // processing in less than 0 millis isn't trackable, usually due to
+        // an
+        // error occurred and statement logged incorrectly
+        if ((processEvent.getProcessingLatency() > 0)
+                && (processEvent.getProcessingTime() > 0)) {
+            EventBus.publish(processEvent);
+        }
+    }
+
   }
