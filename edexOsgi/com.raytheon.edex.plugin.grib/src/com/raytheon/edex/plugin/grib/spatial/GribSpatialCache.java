@@ -76,7 +76,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * Jul 25, 2012 977         rjpeter     Add ability for sub grids to have a defined center point.
- * 12/04/2012   DR 15382    D. Friedman Restrict subgrid coordinates to reference grid bounds.
  * </pre>
  * 
  * @author bphillip
@@ -543,10 +542,6 @@ public class GribSpatialCache {
                             Coordinate upperRightPosition = new Coordinate(
                                     xCenterPoint + xDistance, yCenterPoint
                                             - yDistance);
-                            lowerLeftPosition.x = Math.min(Math.max(0, lowerLeftPosition.x), gridCoverage.getNx() - 1);
-                            lowerLeftPosition.y = Math.min(Math.max(0, lowerLeftPosition.y), gridCoverage.getNy() - 1);
-                            upperRightPosition.x = Math.min(Math.max(0, upperRightPosition.x), gridCoverage.getNx() - 1);
-                            upperRightPosition.y = Math.min(Math.max(0, upperRightPosition.y), gridCoverage.getNy() - 1);
 
                             lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
                                     lowerLeftPosition, PixelOrientation.CENTER,
