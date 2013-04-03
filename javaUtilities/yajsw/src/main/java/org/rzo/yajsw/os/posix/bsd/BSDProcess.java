@@ -143,6 +143,10 @@ public class BSDProcess extends PosixProcess
 				}
 				_terminated = true;
 				_exitCode = p.exitValue();
+				/*
+				 * bkowal
+				 * Suppress extraneous output unless debug is enabled.
+				 */
 				if (_debug)
 				{
 					System.out.println("exit code bsd process " + _exitCode);
@@ -208,6 +212,10 @@ public class BSDProcess extends PosixProcess
 				System.out.println("error setting affinity");
 		}
 
+		/*
+		 * bkowal
+		 * Suppress extraneous output unless debug is enabled.
+		 */
 		if (_debug)
 		{
 			System.out.println("started process " + _pid);
@@ -261,6 +269,10 @@ public class BSDProcess extends PosixProcess
 		else
 			jvm = cmd.substring(0, cmd.indexOf(" "));
 
+		/*
+		 * bkowal
+		 * Always return the AWIPS II Java.
+		 */
 		return "/awips2/java/bin/java";
 	}
 
