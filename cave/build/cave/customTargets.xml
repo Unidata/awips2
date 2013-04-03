@@ -228,6 +228,8 @@
         	<var name="cave.arch" value="arch.x86" />
         	<extractCAVEini
         		zip.file="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip" />
+                <!-- add the Xss jvm parameter to the 32-bit CAVE -->
+                <echo file="/tmp/cave/cave.ini" append="true" message="-Xss512k" />
         	<antcall target="generateDynamicCAVE" />
         	<!-- Update the 32-bit CAVE zip file -->
         	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip" 
