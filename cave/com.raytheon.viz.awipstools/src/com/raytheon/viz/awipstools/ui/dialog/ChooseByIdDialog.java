@@ -29,6 +29,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -39,6 +40,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -61,6 +64,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Loader;
@@ -70,6 +74,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.awipstools.ToolsDataManager;
@@ -92,6 +97,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                     a point to the location of a
  *                                     &quot;mesocyclone&quot;.
  * 31Jul2012    #875       rferrel     Let preopen initialize components.
+ * 05Nov2012    #1304      rferrel     Added Point Change Listener.
  * 
  * </pre>
  * 
@@ -99,13 +105,14 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @version 1.0
  */
 
-public class ChooseByIdDialog extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class ChooseByIdDialog extends CaveSWTDialog implements
+        IPointChangedListener {
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ChooseByIdDialog.class);
 
-    private static final String HOME_POINT = "Home";
-
     public static final String DIALOG_TITLE = "Choose By Id";
+
+    private final String HOME_POINT = "Home";
 
     private Button pointsRdo, baselinesRdo, homeRdo;
 
@@ -117,11 +124,23 @@ public class ChooseByIdDialog extends CaveSWTDialog {
 
     private final List<IResourceDataChanged> changeListeners = new ArrayList<IResourceDataChanged>();
 
-    private final ArrayList<Text> pointStationIdTextFields;
+    private final List<Text> pointStationIdTextFields;
 
-    private final ArrayList<Text> baselineStationIdTextFields;
+    private final List<Text> baselineStationIdTextFields;
 
     private IDescriptor descriptor;
+
+    private final PointsDataManager pointsDataManager = PointsDataManager
+            .getInstance();
+
+    private final ToolsDataManager toolsDataManager = ToolsDataManager
+            .getInstance();
+
+    private ScrolledComposite pointsScroll;
+
+    private final int NAME_INDEX = 0;
+
+    private final int POINT_TEXT_INDEX = 1;
 
     private class ChooseByIdSelectionListener implements SelectionListener {
 
@@ -188,13 +207,11 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         }
 
         private boolean isBaseline() {
-            return (isBaseline && ToolsDataManager.getInstance().getBaseline(
-                    idName) != null);
+            return (isBaseline && toolsDataManager.getBaseline(idName) != null);
         }
 
         private boolean isPoint() {
-            return (!isBaseline && PointsDataManager.getInstance().getCoordinate(
-                    idName) != null);
+            return (!isBaseline && pointsDataManager.getCoordinate(idName) != null);
         }
 
         /**
@@ -307,21 +324,18 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         private void updatePosition(List<Coordinate> stationCoordinates) {
 
             if (isPoint()) {
-                PointsDataManager.getInstance().setCoordinate(idName,
+                pointsDataManager.setCoordinate(idName,
                         stationCoordinates.get(0));
                 refreshToolLayer(pointsToolLayer);
 
             } else if (isBaseline()) {
-                ToolsDataManager.getInstance().setBaseline(
-                        idName,
-                        (new GeometryFactory())
-                                .createLineString(stationCoordinates
-                                        .toArray(new Coordinate[] {})));
+                toolsDataManager.setBaseline(idName, (new GeometryFactory())
+                        .createLineString(stationCoordinates
+                                .toArray(new Coordinate[] {})));
                 refreshToolLayer(baselinesToolLayer);
 
             } else if (isHome()) {
-                PointsDataManager.getInstance().setHome(
-                        stationCoordinates.get(0));
+                pointsDataManager.setHome(stationCoordinates.get(0));
                 refreshToolLayer(homeToolLayer);
             }
         }
@@ -465,7 +479,6 @@ public class ChooseByIdDialog extends CaveSWTDialog {
             query.put("databasename", new RequestConstraint("metadata"));
             query.put("classname",
                     new RequestConstraint(ObStation.class.getCanonicalName()));
-            // query.put("icao", new RequestConstraint(stationID));
             String gid = ObStation
                     .createGID(ObStation.CAT_TYPE_ICAO, stationID);
             query.put("gid", new RequestConstraint(gid));
@@ -512,21 +525,20 @@ public class ChooseByIdDialog extends CaveSWTDialog {
             }
 
             if (isHome()) {
-                Coordinate homeCoordinate = PointsDataManager.getInstance()
-                        .getHome();
+                Coordinate homeCoordinate = pointsDataManager.getHome();
 
                 stationLocationHasChanged = (!homeCoordinate
                         .equals(stationCoordinates.get(0)));
 
             } else if (isPoint()) {
-                Coordinate pointCoordinate = PointsDataManager.getInstance()
+                Coordinate pointCoordinate = pointsDataManager
                         .getCoordinate(idName);
 
                 stationLocationHasChanged = (!pointCoordinate
                         .equals(stationCoordinates.get(0)));
             } else if (isBaseline()) {
-                Coordinate[] baselineCoordinates = ToolsDataManager
-                        .getInstance().getBaseline(idName).getCoordinates();
+                Coordinate[] baselineCoordinates = toolsDataManager
+                        .getBaseline(idName).getCoordinates();
 
                 for (Coordinate baselineCoordinate : baselineCoordinates) {
                     if (!stationCoordinates.contains(baselineCoordinate)) {
@@ -615,52 +627,152 @@ public class ChooseByIdDialog extends CaveSWTDialog {
      */
     private void initializeComponents() {
         createTopBar();
+        pointsScroll = new ScrolledComposite(shell, SWT.V_SCROLL);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        pointsScroll.setLayoutData(gd);
         createIdBoxes();
         createBottomBar();
     }
 
     private void createIdBoxes() {
+        Composite pointsComposite = (Composite) pointsScroll.getContent();
+        boolean doPack = false;
 
-        String[] pointNames = PointsDataManager.getInstance().getPointNames()
-                .toArray(new String[] {});
-        Arrays.sort(pointNames);
-        for (String point : pointNames) {
-            Group g = new Group(shell, SWT.NONE);
+        // Assume base lines do not change.
+        if (pointsComposite == null) {
+            String[] names = toolsDataManager.getBaselineNames().toArray(
+                    new String[0]);
+            Arrays.sort(names);
 
-            GridData gridData = new GridData();
-            gridData.horizontalAlignment = GridData.FILL;
-            gridData.grabExcessHorizontalSpace = true;
-            g.setLayoutData(gridData);
-            g.setLayout(new GridLayout(4, false));
-
-            Label label = new Label(g, SWT.NONE);
-            String s = point;
-            label.setText(s);
-            Text text1 = new Text(g, SWT.BORDER);
-            text1.setText("");
-            text1.addKeyListener(new ChooseByIdKeyListener(point));
-
-            pointStationIdTextFields.add(text1);
-
-            GridData data = new GridData();
-            data.horizontalSpan = 2;
-            Text text2 = new Text(g, SWT.BORDER);
-            text2.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                    | GridData.HORIZONTAL_ALIGN_FILL));
-            ChooseByIdKeyListener chooseByIdKeyListener = new ChooseByIdKeyListener(
-                    point);
-            chooseByIdKeyListener.setBaseline(true);
-            text2.addKeyListener(chooseByIdKeyListener);
-
-            baselineStationIdTextFields.add(text2);
+            pointsComposite = new Composite(pointsScroll, SWT.NONE);
+            GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+            pointsComposite.setLayout(new GridLayout(1, false));
+            pointsComposite.setLayoutData(gd);
+            pointsScroll.setContent(pointsComposite);
+            for (String name : names) {
+                createGroup(pointsComposite, name, true);
+            }
         }
+
+        String[] pointNames = pointsDataManager.getPointNames().toArray(
+                new String[] {});
+        Arrays.sort(pointNames);
+        Control[] oldGroups = pointsComposite.getChildren();
+        int index = 0;
+        for (String point : pointNames) {
+            boolean doMoveAbove = false;
+            boolean createGroup = true;
+            Control moveAbove = null;
+            while (index < oldGroups.length) {
+                Group group = (Group) oldGroups[index];
+                String oldPoint = ((Label) group.getChildren()[NAME_INDEX])
+                        .getText();
+                boolean isBaseline = (Boolean) group.getData();
+                Text pointText = (Text) group.getChildren()[POINT_TEXT_INDEX];
+                int cmp = point.compareTo(oldPoint);
+                if (cmp == 0) {
+                    createGroup = false;
+                    if (pointText.isEnabled() == false) {
+                        pointStationIdTextFields.add(pointText);
+                        pointText.setEnabled(true);
+                    }
+                    ++index;
+                    break;
+                } else if (cmp > 0) {
+                    pointStationIdTextFields.remove(pointText);
+
+                    if (isBaseline) {
+                        pointText.setEnabled(false);
+                        pointText.setText("");
+                    } else {
+                        group.dispose();
+                        doPack = true;
+                    }
+                    ++index;
+                } else {
+                    moveAbove = group;
+                    doMoveAbove = true;
+                    break;
+                }
+            }
+
+            if (createGroup) {
+                doPack = true;
+                Group group = createGroup(pointsComposite, point, false);
+                if (doMoveAbove) {
+                    group.moveAbove(moveAbove);
+                }
+            }
+        }
+
+        while (index < oldGroups.length) {
+            Group group = (Group) oldGroups[index];
+            boolean isBaseline = (Boolean) group.getData();
+            Text pointText = (Text) group.getChildren()[POINT_TEXT_INDEX];
+            pointStationIdTextFields.remove(pointText);
+            if (isBaseline) {
+                pointText.setEnabled(false);
+            } else {
+                oldGroups[index].dispose();
+                doPack = true;
+            }
+            ++index;
+        }
+
+        pointsScroll.setMinSize(pointsComposite.computeSize(SWT.DEFAULT,
+                SWT.DEFAULT));
+        pointsScroll.setExpandHorizontal(true);
+        pointsScroll.setExpandVertical(true);
+        if (doPack) {
+            pointsComposite.pack();
+        }
+    }
+
+    private Group createGroup(Composite pointsComposite, String name,
+            boolean isBaseLine) {
+        Group group = new Group(pointsComposite, SWT.NONE);
+        group.setData(isBaseLine);
+
+        GridData gridData = new GridData();
+        gridData.horizontalAlignment = GridData.FILL;
+        gridData.grabExcessHorizontalSpace = true;
+        group.setLayoutData(gridData);
+        group.setLayout(new GridLayout(3, false));
+
+        Label label = new Label(group, SWT.NONE);
+        label.setText(name);
+        Text pointText = new Text(group, SWT.BORDER);
+        pointText.setText("");
+        pointText.addKeyListener(new ChooseByIdKeyListener(name));
+
+        if (isBaseLine) {
+            pointText.setEnabled(false);
+        } else {
+            pointStationIdTextFields.add(pointText);
+        }
+
+        Text baselineText = new Text(group, SWT.BORDER);
+        baselineText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
+                | GridData.HORIZONTAL_ALIGN_FILL));
+
+        ChooseByIdKeyListener chooseByIdKeyListener = new ChooseByIdKeyListener(
+                name);
+        chooseByIdKeyListener.setBaseline(true);
+        baselineText.addKeyListener(chooseByIdKeyListener);
+
+        if (isBaseLine) {
+            baselineStationIdTextFields.add(baselineText);
+        } else {
+            baselineText.setEnabled(false);
+        }
+        return group;
     }
 
     @Override
     protected void preOpened() {
         super.preOpened();
         initializeComponents();
-        shell.pack();
+        pointsDataManager.addPointsChangedListener(this);
     }
 
     private void createBottomBar() {
@@ -670,7 +782,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         gridData.horizontalAlignment = GridData.CENTER;
         gridData.grabExcessHorizontalSpace = true;
         g.setLayoutData(gridData);
-        g.setLayout(new GridLayout(4, false));
+        g.setLayout(new GridLayout(3, false));
 
         Label label = new Label(g, SWT.NONE);
         label.setText(HOME_POINT);
@@ -679,8 +791,6 @@ public class ChooseByIdDialog extends CaveSWTDialog {
 
         text1.addKeyListener(new ChooseByIdKeyListener(HOME_POINT));
 
-        GridData data = new GridData();
-        data.horizontalSpan = 2;
         homeRdo = new Button(g, SWT.CHECK);
         homeRdo.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
                 | GridData.HORIZONTAL_ALIGN_FILL));
@@ -752,6 +862,21 @@ public class ChooseByIdDialog extends CaveSWTDialog {
 
     public void setDescriptor(IDescriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    @Override
+    protected void disposed() {
+        pointsDataManager.removePointsChangedListener(this);
+    }
+
+    @Override
+    public void pointChanged() {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                createIdBoxes();
+            }
+        });
     }
 
 }

@@ -57,6 +57,9 @@ import com.raytheon.viz.ui.input.EditableManager;
  * 07/27/2012	695			B. Yin		 Added middle mouse click to toggle editable resource.
  * 08/09/2012   839       Archana        Updated to toggle the colorbar when 
  *                                       its corresponding resource is toggled on/off.
+ * 10/19/2012   897         S. Gurung    Updated handleKeyUp() to not toggle PgenResource and added code to 
+ * 										 refresh the editor after handling events.
+ * 12/19/2012   960       G. Hull        use propertiesChanged() to toggle colorBar resources
  *                                        
  *                                                                                 
  * 
@@ -118,41 +121,6 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
    				
     				mouseDownRsc = null;
     				toggleVisibility(rsc);
-    				try {
-    					Method getColorBarMethod = rsc.getResourceData().getClass().getMethod("getColorBar");
-    					if( getColorBarMethod != null ){
-    					     Object colorBar = 	getColorBarMethod.invoke(rsc.getResourceData());
-    					     if ( colorBar != null ){
-    					    	  ResourceList theMainList = NmapUiUtils.getActiveNatlCntrsEditor().getActiveDisplayPane().getDescriptor().getResourceList();
-    					    	  for ( ResourcePair resourcePair : theMainList){
-    			    		 
-    					    		  if (resourcePair.getResource().getClass().getSimpleName().compareTo("ColorBarResource") == 0 ){
-    					    			   Method rscDataColorBarMethod = resourcePair.getResourceData().getClass().getMethod("getColorbar" );
-    					    			   Object colorBarFromCBarResource = rscDataColorBarMethod.invoke( resourcePair.getResourceData());
-    					    			   if (colorBarFromCBarResource.equals(colorBar)){
-    					    				   if ( rsc.getProperties().isVisible() ){
-    					    					   resourcePair.getProperties().setVisible(true);
-    					    				   }
-    					    				   else{
-    					    					   resourcePair.getProperties().setVisible(false);
-    					    				   }
-    					    				   break;
-    					    			   }
-    					    		  }
-    					    	  }
-    					     }
-    					}
-    				} catch (SecurityException e) {
-    					// TODO Auto-generated catch block
-    					
-    				} catch (NoSuchMethodException e) {
-    					// TODO Auto-generated catch block
-    					
-    				} catch(InvocationTargetException e){
-    					
-    				}catch (IllegalAccessException e ){
-    					
-    				}
     				editor.refresh();
     				
     				return true;
@@ -220,7 +188,6 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
         ResourceList theMainList = editor.getActiveDisplayPane().getDescriptor().getResourceList();
       
         List<ResourcePair> subListOfResourcesToToggle = new ArrayList<ResourcePair>(0);
-        List<ResourcePair> listOfCorrespondingColorBarResources = new ArrayList<ResourcePair>(0); 
 
 			if ( isShiftDown ) {
 				/*
@@ -240,22 +207,24 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
              * requestable resources (non-system and non-map layer resources)  	
              * Set the visibility for all the resources in both lists to false.
              */
+            boolean allVisible = true;
 
             for ( ResourcePair resPair : theMainList){
             	
             	if ( ! resPair.getProperties().isSystemResource() 
-            			&& !resPair.getProperties().isMapLayer()){
+            			&& !resPair.getProperties().isMapLayer()
+        					&& resPair.getResource().getClass().getSimpleName().compareTo("PgenResource") != 0){
             		subListOfResourcesToToggle.add(resPair);
-            		resPair.getProperties().setVisible(false);
-            	}
-            	else if(resPair.getResource().getClass().getSimpleName().compareTo("ColorBarResource") == 0){
-            		listOfCorrespondingColorBarResources.add(resPair);
+            		allVisible = allVisible && resPair.getProperties().isVisible();
             		resPair.getProperties().setVisible(false);
 			}
             }
             
             if(subListOfResourcesToToggle.isEmpty())
             	return false;
+            
+            if (allVisible)
+            	isFirstTime = true;
             
             int listSize = subListOfResourcesToToggle.size();
            
@@ -299,59 +268,20 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
 
           }
             
-
            /*Make the resource visible*/ 
           ResourcePair rscToSetVisible = subListOfResourcesToToggle.get(currentRscIndex);
           rscToSetVisible.getProperties().setVisible(true);  
           
-            /*If rscToSetVisible has a color bar,find the matching colorbar from listOfCorrespondingColorBarResources
-             *and make it visible as well. 
-				 */
-        	  try {
-        		  
-        		  
-    			    Method[] arrayOfMethods = rscToSetVisible.getResourceData().getClass().getMethods();
-    			       for(Method thisMethod: arrayOfMethods ){
-    			    	   if(thisMethod.getName().compareTo("getColorBar") == 0){
-    			    		   Object resClrBar = thisMethod.invoke(rscToSetVisible.getResourceData());
-    	    					if(resClrBar != null ){
-    	    						for(ResourcePair cBarResPair: listOfCorrespondingColorBarResources ){
-    	    							Method getColorBarMethod = cBarResPair.getResourceData().getClass().getMethod("getColorbar");
-    	    							Object clrBar = getColorBarMethod.invoke(cBarResPair.getResourceData());
-    	    							if(resClrBar.equals(clrBar)){
-    	    								cBarResPair.getProperties().setVisible(true);
-    	    								break;
-    	    							}
-				}
-    	    					}    			    		   
-    			    	   }
-    			       }
-    					
-
-
-    		} catch (SecurityException e) {
-
-    			e.printStackTrace();
-    		} catch (NoSuchMethodException e) {
-
-    			e.printStackTrace();
-			}
-    		catch (IllegalArgumentException e) {
-
-    			e.printStackTrace();
-    		} catch (IllegalAccessException e) {
-
-    			e.printStackTrace();
-    		} catch (InvocationTargetException e) {
-
-    			e.printStackTrace();
-    		}
+          // some resources may have an associated colorBar resource. This will
+          // be toggled when the resource's propertiesChanged() method is called. 
+          // This is triggered by setVisible();
             
           if ( isFirstTime && ( ( keyCode == SWT.ARROW_DOWN ) ||  ( keyCode == SWT.ARROW_UP ) ))
     	          isFirstTime = false;        	
 
 		}
         
+      editor.refresh();
 
       if( isShiftDown ){ 
     	  /*

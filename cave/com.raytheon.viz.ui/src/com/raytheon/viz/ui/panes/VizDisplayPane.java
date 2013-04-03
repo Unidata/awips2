@@ -903,7 +903,7 @@ public class VizDisplayPane implements IDisplayPane {
 
     @Override
     public void clear() {
-        renderableDisplay.clear(this);
+        renderableDisplay.clear();
     }
 
     /**

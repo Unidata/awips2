@@ -1,29 +1,32 @@
 package gov.noaa.nws.ncep.gempak.parameters.core.categorymap;
 
-import static org.junit.Assert.*;
-import gov.noaa.nws.ncep.gempak.parameters.core.categorymap.CatMap;
-
+import org.junit.Assert;
 import org.junit.Test;
 
-
-/**<pre>
-* SOFTWARE HISTORY
-* Date          Ticket#     Engineer     Description
-* ------------ ---------- ----------- --------------------------
-* 16-Nov-2009    194        Archana.S   Initial Creation
-* 20-Nov-2009    194        Archana.S   Updated per review comments:
-*                                         Added a test-case to retrieve the label
-*                                         given a value
-*                                         Updated method names per design changes in the class
-*                                         CATMAP
-*  
-* </pre>
-* @author Archana.S
-* @version 1<p>
-{@link gov.noaa.nws.ncep.gempak.parameters.core.categorymap.CatMap}.
-*/
+/**
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date          Ticket#     Engineer     Description
+ * ------------ ---------- ----------- --------------------------
+ * 16-Nov-2009    194        Archana.S   Initial Creation
+ * 20-Nov-2009    194        Archana.S   Updated per review comments:
+ *                                         Added a test-case to retrieve the label
+ *                                         given a value
+ *                                         Updated method names per design changes in the class
+ *                                         CATMAP
+ * 25-Aug-2012    743        djohnson    Upgrade to JUnit 4.10.
+ * 
+ * </pre>
+ * 
+ * @author Archana.S
+ * @version 1
+ *          <p>
+ *          {@link gov.noaa.nws.ncep.gempak.parameters.core.categorymap.CatMap}.
+ */
 public class CATMAPTest {
 private static int testCaseNumber;
+
+    private static final double ALLOWABLE_DOUBLE_DELTA = 0.0001;
 
     /**
 	 *Test for valid label/value pair 
@@ -46,16 +49,25 @@ private static int testCaseNumber;
 	}
 
     /**
-	 *Test to retrieve matching label given a floating point value 
-	 */
+     * @param val1
+     * @param expected
+     */
+    private void assertEquals(Float val1, double expected) {
+        Assert.assertEquals(expected, val1.doubleValue(),
+                ALLOWABLE_DOUBLE_DELTA);
+    }
+
+    /**
+     * Test to retrieve matching label given a floating point value
+     */
 	@Test
 	public void testGetLabelForValue() {
 
 		CatMap catmap = new CatMap("ABC=4;acd=2;lmn=0.5;efg=2;hij=2");
 
-		assertEquals(catmap.getMatchingLabelForValue(0.5f),"lmn");
-		assertEquals(catmap.getMatchingLabelForValue(4f),"ABC");
-		assertEquals(catmap.getMatchingLabelForValue(2f),"acd");
+        Assert.assertEquals(catmap.getMatchingLabelForValue(0.5f), "lmn");
+        Assert.assertEquals(catmap.getMatchingLabelForValue(4f), "ABC");
+        Assert.assertEquals(catmap.getMatchingLabelForValue(2f), "acd");
 
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("Test for getting the matching label, given a  floating point value");
@@ -75,7 +87,7 @@ private static int testCaseNumber;
 	
 		CatMap catmap = new CatMap("ABC=4;acd=2;lmn=0.5;efg=2;hij=2");
 	
-		assertEquals(catmap.getMatchingLabelForValue(0.00005f),null);
+        Assert.assertNull(catmap.getMatchingLabelForValue(0.00005f));
 
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("Test for getting the matching label, given a floating point value not in the list");

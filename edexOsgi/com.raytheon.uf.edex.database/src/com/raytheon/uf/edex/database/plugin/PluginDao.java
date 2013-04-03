@@ -35,6 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -51,7 +55,13 @@ import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
+import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -60,6 +70,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.spatial.reprojection.DataReprojector;
+import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
@@ -71,6 +83,10 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Abstract implementation of a Plugin data access object
@@ -86,6 +102,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 2/6/09       1990       bphillip    Initial creation
  * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
  *                                     to search only COMMON_STATIC.
+ * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
  * </pre>
  * 
  * @author bphillip
@@ -174,13 +191,14 @@ public abstract class PluginDao extends CoreDao {
         persistToDatabase(records);
     }
 
+    @SuppressWarnings("unchecked")
     public PluginDataObject[] persistToDatabase(PluginDataObject... records) {
-        List<PersistableDataObject> toPersist = new ArrayList<PersistableDataObject>();
+        List<PersistableDataObject<Object>> toPersist = new ArrayList<PersistableDataObject<Object>>();
         for (PluginDataObject record : records) {
             toPersist.add(record);
         }
-        List<PersistableDataObject> duplicates = mergeAll(toPersist);
-        for (PersistableDataObject pdo : duplicates) {
+        List<PersistableDataObject<Object>> duplicates = mergeAll(toPersist);
+        for (PersistableDataObject<Object> pdo : duplicates) {
             logger.info("Discarding duplicate: "
                     + ((PluginDataObject) (pdo)).getDataURI());
             toPersist.remove(pdo);
@@ -442,21 +460,45 @@ public abstract class PluginDao extends CoreDao {
      *             If problems occur while interacting with the data stores
      */
     public void purgeAllData() throws PluginException {
+        purgeAllData(null);
+    }
+
+    /**
+     * Purges all data associated with the productKeys and owning plugin
+     * 
+     * @throws PluginException
+     *             If problems occur while interacting with the data stores
+     */
+    public void purgeAllData(Map<String, String> productsKeys)
+            throws PluginException {
+        boolean purgeHdf5Data = false;
+        try {
+            // Determine if this plugin uses HDF5 to store data
+            purgeHdf5Data = (PluginFactory.getInstance()
+                    .getPluginRecordClass(pluginName).newInstance() instanceof IPersistable);
+        } catch (Exception e) {
+            PurgeLogger.logError(
+                    "Unabled to determine if plugin has HDF5 data to purge",
+                    this.pluginName, e);
+        }
+
         try {
             List<Date> allRefTimes = getRefTimes();
             Map<String, List<String>> filesToDelete = new HashMap<String, List<String>>();
             for (Date d : allRefTimes) {
-                this.purgeDataByRefTime(d, null, true, false, filesToDelete);
+                this.purgeDataByRefTime(d, productsKeys, purgeHdf5Data, false,
+                        filesToDelete);
             }
-            for (String file : filesToDelete.keySet()) {
-                try {
-                    IDataStore ds = DataStoreFactory
-                            .getDataStore(new File(file));
-                    ds.deleteFiles(null);
-                } catch (Exception e) {
-                    PurgeLogger.logError(
-                            "Error occurred purging file: " + file,
-                            this.pluginName, e);
+            if (purgeHdf5Data) {
+                for (String file : filesToDelete.keySet()) {
+                    try {
+                        IDataStore ds = DataStoreFactory.getDataStore(new File(
+                                file));
+                        ds.deleteFiles(null);
+                    } catch (Exception e) {
+                        PurgeLogger.logError("Error occurred purging file: "
+                                + file, this.pluginName, e);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -621,7 +663,6 @@ public abstract class PluginDao extends CoreDao {
                                 if (rule.isPeriodSpecified()
                                         && refTime.before(periodCutoffTime)) {
                                     timesPurgedByRule.add(refTime);
-
                                 } else {
                                     timesKeptByRule.add(refTime);
                                 }
@@ -673,17 +714,16 @@ public abstract class PluginDao extends CoreDao {
                 for (int i = 0; i < refTimesForKey.size(); i++) {
                     currentRefTime = refTimesForKey.get(i);
                     if (i < rule.getVersionsToKeep()) {
+                        // allow for period to override versions to keep
                         if (rule.isPeriodSpecified()
                                 && currentRefTime.before(periodCutoffTime)) {
                             timesPurgedByRule.add(currentRefTime);
                         } else {
                             timesKeptByRule.add(currentRefTime);
                         }
-                        timesKeptByRule.add(currentRefTime);
                     } else {
                         timesPurgedByRule.add(currentRefTime);
                     }
-
                 }
                 /*
                  * This rule only specifies a time cutoff
@@ -739,10 +779,6 @@ public abstract class PluginDao extends CoreDao {
         // then it will be retained
         timesPurged.removeAll(timesKept);
 
-        int itemsDeletedForKey = 0;
-        List<Date> orderedTimesPurged = new ArrayList<Date>(timesPurged);
-        Collections.sort(orderedTimesPurged);
-
         // flags to control how hdf5 is purged and what needs to be returned
         // from the database purge to properly purge hdf5. If purging and
         // trackToUri is false, hdf5PurgeDates is used to determine if the
@@ -751,9 +787,10 @@ public abstract class PluginDao extends CoreDao {
         // TODO: Update to allow files to not be in hourly granularity
         boolean purgeHdf5Data = false;
         boolean trackToUri = false;
-        Set<Date> hdf5PurgeDates = new HashSet<Date>();
 
         try {
+            Set<Date> roundedTimesKept = new HashSet<Date>();
+
             // Determine if this plugin uses HDF5 to store data
             purgeHdf5Data = (PluginFactory.getInstance()
                     .getPluginRecordClass(pluginName).newInstance() instanceof IPersistable);
@@ -780,22 +817,12 @@ public abstract class PluginDao extends CoreDao {
                         trackToUri = true;
                     } else {
                         // need to compare each key to check for optimized
-                        // purge,
-                        // all productKeys must be a pathKey for optimized
-                        // purge,
-                        // both key lists should be small 3 or less, no need to
-                        // optimize list look ups
+                        // purge, all productKeys must be a pathKey for
+                        // optimized purge, both key lists should be small 3 or
+                        // less, no need to optimize list look ups
                         trackToUri = false;
                         for (String productKey : productKeys.keySet()) {
-                            boolean keyMatch = false;
-                            for (String pathKey : pathKeys) {
-                                if (pathKey.equals(productKey)) {
-                                    keyMatch = true;
-                                    break;
-                                }
-                            }
-
-                            if (!keyMatch) {
+                            if (!pathKeys.contains(productKey)) {
                                 trackToUri = true;
                                 break;
                             }
@@ -807,17 +834,22 @@ public abstract class PluginDao extends CoreDao {
                 }
 
                 // we can optimize purge, sort dates by hour to determine files
-                // to drop
+                // to drop, also don't remove from metadata if we are keeping
+                // the hdf5 around
                 if (!trackToUri) {
-                    Set<Date> roundedTimesKept = new HashSet<Date>();
-
                     for (Date dateToRound : timesKept) {
                         roundedTimesKept.add(roundDateToHour(dateToRound));
                     }
-                    for (Date dateToRound : timesPurged) {
-                        Date roundedDate = roundDateToHour(dateToRound);
-                        if (!roundedTimesKept.contains(roundedDate)) {
-                            hdf5PurgeDates.add(dateToRound);
+
+                    Iterator<Date> purgeTimeIterator = timesPurged.iterator();
+
+                    while (purgeTimeIterator.hasNext()) {
+                        Date purgeTime = purgeTimeIterator.next();
+
+                        // keeping this hdf5 file, remove the purge time
+                        if (roundedTimesKept
+                                .contains(roundDateToHour(purgeTime))) {
+                            purgeTimeIterator.remove();
                         }
                     }
                 }
@@ -828,23 +860,48 @@ public abstract class PluginDao extends CoreDao {
                     this.pluginName, e);
         }
 
+        int itemsDeletedForKey = 0;
+        List<Date> orderedTimesPurged = new ArrayList<Date>(timesPurged);
+        Collections.sort(orderedTimesPurged);
+
         Map<String, List<String>> hdf5FileToUriMap = new HashMap<String, List<String>>();
+        Date previousRoundedDate = null;
         for (Date deleteDate : orderedTimesPurged) {
-            boolean purgeHdf5ForRefTime = purgeHdf5Data;
-            // if we aren't tracking by uri, check hdf5 date map
-            if (purgeHdf5ForRefTime && !trackToUri) {
-                purgeHdf5ForRefTime = hdf5PurgeDates.contains(deleteDate);
-            }
+            Date roundedDate = roundDateToHour(deleteDate);
 
             // Delete the data in the database
             int itemsDeletedForTime = purgeDataByRefTime(deleteDate,
-                    productKeys, purgeHdf5ForRefTime, trackToUri,
-                    hdf5FileToUriMap);
+                    productKeys, purgeHdf5Data, trackToUri, hdf5FileToUriMap);
 
             itemsDeletedForKey += itemsDeletedForTime;
+
+            // check if any hdf5 data up to this point can be deleted
+            if (purgeHdf5Data
+                    && (trackToUri || ((previousRoundedDate != null) && roundedDate
+                            .after(previousRoundedDate)))) {
+                // delete these entries now
+                for (Map.Entry<String, List<String>> hdf5Entry : hdf5FileToUriMap
+                        .entrySet()) {
+                    try {
+                        IDataStore ds = DataStoreFactory.getDataStore(new File(
+                                hdf5Entry.getKey()));
+                        List<String> uris = hdf5Entry.getValue();
+                        if (uris == null) {
+                            ds.deleteFiles(null);
+                        } else {
+                            ds.delete(uris.toArray(new String[uris.size()]));
+                        }
+                    } catch (Exception e) {
+                        PurgeLogger.logError("Error occurred purging file: "
+                                + hdf5Entry.getKey(), this.pluginName, e);
+                    }
+                }
+                hdf5FileToUriMap.clear();
+            }
         }
 
         if (purgeHdf5Data) {
+            // delete any remaining data
             for (Map.Entry<String, List<String>> hdf5Entry : hdf5FileToUriMap
                     .entrySet()) {
                 try {
@@ -1054,7 +1111,9 @@ public abstract class PluginDao extends CoreDao {
     /**
      * Purges data from the database for this plugin with the given reference
      * time matching the given productKeys. If refTime is null, will purge all
-     * data associated with the productKeys.
+     * data associated with the productKeys. Hdf5 must be purged separately as
+     * most hdf5 files can't be purged with a single reference time. Use the
+     * passed map to track what needs to be done with hdf5.
      * 
      * @param refTime
      *            The reftime to delete data for. A null will purge all data for
@@ -1085,6 +1144,7 @@ public abstract class PluginDao extends CoreDao {
             throws DataAccessLayerException {
 
         int results = 0;
+
         DatabaseQuery dataQuery = new DatabaseQuery(this.daoClass);
 
         if (refTime != null) {
@@ -1097,10 +1157,8 @@ public abstract class PluginDao extends CoreDao {
             }
         }
 
-        List<Integer> idList = null;
-        DatabaseQuery idQuery = null;
+        List<PluginDataObject> pdos = null;
 
-        dataQuery.addReturnedField("id");
         dataQuery.setMaxResults(500);
 
         // fields for hdf5 purge
@@ -1108,12 +1166,8 @@ public abstract class PluginDao extends CoreDao {
         StringBuilder pathBuilder = new StringBuilder();
 
         do {
-            idList = (List<Integer>) this.queryByCriteria(dataQuery);
-            if (!idList.isEmpty()) {
-                idQuery = new DatabaseQuery(this.daoClass);
-                idQuery.addQueryParam("id", idList, QueryOperand.IN);
-                List<PluginDataObject> pdos = (List<PluginDataObject>) this
-                        .queryByCriteria(idQuery);
+            pdos = (List<PluginDataObject>) this.queryByCriteria(dataQuery);
+            if ((pdos != null) && !pdos.isEmpty()) {
                 this.delete(pdos);
 
                 if (trackHdf5 && (hdf5FileToUriPurged != null)) {
@@ -1153,7 +1207,7 @@ public abstract class PluginDao extends CoreDao {
                 results += pdos.size();
             }
 
-        } while ((idList != null) && !idList.isEmpty());
+        } while ((pdos != null) && !pdos.isEmpty());
 
         return results;
     }
@@ -1393,8 +1447,9 @@ public abstract class PluginDao extends CoreDao {
             // allow zero length file to disable purge for this plugin
             if (rulesFile.length() > 0) {
                 try {
-                    PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(rulesFile);
+                    PurgeRuleSet purgeRules = SerializationUtil
+                            .jaxbUnmarshalFromXmlFile(PurgeRuleSet.class,
+                                    rulesFile);
 
                     // ensure there's a default rule
                     if (purgeRules.getDefaultRules() == null) {
@@ -1425,14 +1480,16 @@ public abstract class PluginDao extends CoreDao {
                             "EDEX");
             return null;
         }
+
         try {
-            PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(defaultRule);
+            PurgeRuleSet purgeRules = SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(PurgeRuleSet.class, defaultRule);
             return purgeRules.getDefaultRules();
         } catch (SerializationException e) {
             PurgeLogger.logError("Error deserializing default purge rule!",
                     "DEFAULT");
         }
+
         return null;
     }
 
@@ -1535,5 +1592,131 @@ public abstract class PluginDao extends CoreDao {
         dbQuery.addOrder("dataTime.refTime", true);
 
         return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
+    }
+
+    public double getHDF5Value(PluginDataObject pdo,
+            CoordinateReferenceSystem crs, Coordinate coord,
+            double defaultReturn) throws Exception {
+        IDataStore store = getDataStore((IPersistable) pdo);
+        // TODO a cache would probably be good here
+        double rval = defaultReturn;
+        if (pdo instanceof ISpatialEnabled) {
+            ISpatialObject spat = getSpatialObject(pdo);
+            DataReprojector reprojector = getDataReprojector(store);
+            ReferencedEnvelope nativeEnv = getNativeEnvelope(spat);
+            IDataRecord data = reprojector.getProjectedPoints(pdo.getDataURI(),
+                    spat, nativeEnv, crs, new Coordinate[] { coord });
+            Double res = extractSingle(data);
+            if (res != null) {
+                rval = res;
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * @param record
+     * @param crs
+     *            target crs for projected data
+     * @param envelope
+     *            bounding box in target crs
+     * @return null if envelope is disjoint with data bounds
+     * @throws Exception
+     */
+    public ReferencedDataRecord getProjected(PluginDataObject record,
+            CoordinateReferenceSystem crs, Envelope envelope) throws Exception {
+        ReferencedEnvelope targetEnv = new ReferencedEnvelope(
+                envelope.getMinX(), envelope.getMaxX(), envelope.getMinY(),
+                envelope.getMaxY(), crs);
+        return getProjected(record, targetEnv);
+    }
+
+    /**
+     * @param record
+     * @param crs
+     *            target crs for projected data
+     * @param envelope
+     *            bounding box in target crs
+     * @return null if envelope is disjoint with data bounds
+     * @throws Exception
+     */
+    public GridCoverage2D getProjectedCoverage(PluginDataObject record,
+            CoordinateReferenceSystem crs, Envelope envelope) throws Exception {
+        ReferencedEnvelope targetEnv = new ReferencedEnvelope(
+                envelope.getMinX(), envelope.getMaxX(), envelope.getMinY(),
+                envelope.getMaxY(), crs);
+        return getProjectedCoverage(record, targetEnv);
+    }
+
+    /**
+     * @param record
+     * @param targetEnvelope
+     *            bounding box in target crs
+     * @return null if envelope is disjoint with data bounds
+     * @throws Exception
+     */
+    public ReferencedDataRecord getProjected(PluginDataObject record,
+            ReferencedEnvelope targetEnvelope) throws Exception {
+        ISpatialObject spatial = getSpatialObject(record);
+        IDataStore store = getDataStore((IPersistable) record);
+        DataReprojector reprojector = getDataReprojector(store);
+        ReferencedEnvelope nativeEnvelope = getNativeEnvelope(spatial);
+        return reprojector.getReprojected(record.getDataURI(), spatial,
+                nativeEnvelope, targetEnvelope);
+    }
+
+    /**
+     * @param record
+     * @param targetEnvelope
+     *            bounding box in target crs
+     * @return null if envelope is disjoint with data bounds
+     * @throws Exception
+     */
+    public GridCoverage2D getProjectedCoverage(PluginDataObject record,
+            ReferencedEnvelope envelope) throws Exception {
+        ISpatialObject spatial = getSpatialObject(record);
+        IDataStore store = getDataStore((IPersistable) record);
+        DataReprojector reprojector = getDataReprojector(store);
+        ReferencedEnvelope nativeEnvelope = getNativeEnvelope(spatial);
+        return reprojector.getReprojectedCoverage(record.getDataURI(), spatial,
+                nativeEnvelope, envelope);
+    }
+
+    protected ISpatialObject getSpatialObject(PluginDataObject record)
+            throws Exception {
+        if (record instanceof ISpatialEnabled) {
+            return ((ISpatialEnabled) record).getSpatialObject();
+        } else {
+            throw new Exception(record.getClass() + " is not spatially enabled");
+        }
+    }
+
+    protected DataReprojector getDataReprojector(IDataStore dataStore) {
+        return new DataReprojector(dataStore);
+    }
+
+    protected ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
+            throws FactoryException {
+        CoordinateReferenceSystem crs = spatial.getCrs();
+        Geometry geom = spatial.getGeometry();
+        return MapUtil.getBoundingEnvelope(crs, (Polygon) geom);
+    }
+
+    public Double extractSingle(IDataRecord record) {
+        Double rval = null;
+        if (record == null) {
+            return rval;
+        }
+        if (record instanceof ByteDataRecord) {
+            byte[] data = ((ByteDataRecord) record).getByteData();
+            rval = (double) data[0];
+        } else if (record instanceof FloatDataRecord) {
+            float[] data = ((FloatDataRecord) record).getFloatData();
+            rval = (double) data[0];
+        } else if (record instanceof IntegerDataRecord) {
+            int[] data = ((IntegerDataRecord) record).getIntData();
+            rval = (double) data[0];
+        }
+        return rval;
     }
 }

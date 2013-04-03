@@ -30,6 +30,8 @@ import jep.INumpyable;
 import org.apache.commons.lang.mutable.MutableByte;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
@@ -67,6 +69,9 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * 05Aug2008    #1383       ebabin      Fix for time shift not working.
  * 06Nov2008    #1591      wdougherty  Fix isValid() so it can return true
  *                                     Tweak doSet() for filtered grids, fix bugs
+ * 30Jan2013    #15719     jdynina     Fixed allowed field size to accept more
+ *                                     than 128 characters
+ * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * 
  * </pre>
  * 
@@ -154,7 +159,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                             for (int newy = j - ss; newy <= j + ss; newy++) {
                                 // if inside grid limits, make a smoothed value
                                 if (originalGrid.isValid(newx, newy)) {
-                                    histo[originalGrid.get(newx, newy)]++;
+                                    histo[0xFF & originalGrid.get(newx, newy)]++;
                                 }
                             }
                         }
@@ -213,7 +218,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     }
 
     @Override
-    protected boolean translateDataFrom(IGridData sourceGrid) {
+    protected boolean translateDataFrom(IGridData sourceGrid)
+            throws FactoryException, TransformException {
         if (!(sourceGrid instanceof DiscreteGridData)) {
             throw new IllegalArgumentException(
                     "Expected DiscreteGridData as source.");
@@ -251,7 +257,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     public WxValue getWxValue(int x, int y) {
         // throw new UnsupportedOperationException("Attempt to getWxValue: ");
         populate();
-        int index = getGrid().get(x, y);
+        int index = 0xFF & getGrid().get(x, y);
         DiscreteWxValue tmpDiscreteWxValue = new DiscreteWxValue(
                 getKey()[index], getParm());
 
@@ -584,8 +590,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
             // fancy code in here to prevent lots of repeated combining
             // for efficiency.
             // Make an array of byte...init to MAX_VALUE
-            byte newValues[] = new byte[Byte.MAX_VALUE];
-            Arrays.fill(newValues, Byte.MAX_VALUE);
+            byte newValues[] = new byte[255];
+            Arrays.fill(newValues, (byte) -1);
             byte[] gridA = discreteGrid.getBuffer().array();
             byte[] pToSetA = pointsToSet.getBuffer().array();
 
@@ -596,18 +602,19 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                     if ((byte) 1 == pToSetA[rowOffset + col]) {
                         // pointsToSet selects this grid point
                         byte dataPoint = gridA[rowOffset + col];
+                        int dataPointIdx = 0xFF & dataPoint;
                         if (dataPoint != index) {
                             // value needs to change
-                            if (newValues[dataPoint] == Byte.MAX_VALUE) {
+                            if (newValues[dataPointIdx] == (byte) -1) {
                                 // new key hasn't been found
                                 DiscreteKey combinedKey = DiscreteKey.combine(
-                                        dk, getKey()[dataPoint]);
+                                        dk, getKey()[dataPointIdx]);
 
                                 // Store new key index in lookup table
-                                newValues[dataPoint] = lookupKeyValue(combinedKey);
+                                newValues[dataPointIdx] = lookupKeyValue(combinedKey);
                             }
                             // Update the grid
-                            gridA[rowOffset + col] = newValues[dataPoint];
+                            gridA[rowOffset + col] = newValues[dataPointIdx];
                         }
                     }
                 }
@@ -676,7 +683,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         }
 
         // set up translation matrix
-        byte translate[] = new byte[128];
+        byte translate[] = new byte[255];
         Arrays.fill(translate, (byte) -1);
 
         // get the grid
@@ -715,7 +722,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                         // if inside grid limits, copy value to new position
                         // of working grid.
                         if (sliceGrid.isValid(newx, newy)) {
-                            byte og = originalGrid.get(i, j);
+                            // byte og = originalGrid.get(i, j);
+                            int og = 0xFF & originalGrid.get(i, j);
                             byte v = translate[og];
                             if (v == -1) {
                                 v = lookupKeyValue(originalKey[og]);
@@ -895,7 +903,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         int numValues = values.getXdim() * values.getYdim();
         byte[] bp = values.getBuffer().array();
         for (int i = 0; i < numValues; i++) {
-            if (bp[i] + 1 > key.size()) {
+            if ((0xFF & bp[i]) > key.size() - 1) {
                 throw new IllegalArgumentException(
                         "Illegal discrete grid (bad values) in gridSet()");
             }
@@ -918,7 +926,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
             for (int i = 0; i < dim.x; i++) {
                 for (int j = 0; j < dim.y; j++) {
                     if (points.get(i, j) == 1) {
-                        grid.set(i, j, remap[values.get(i, j)]);
+                        grid.set(i, j, remap[0xFF & values.get(i, j)]);
                     }
                 }
             }
@@ -942,7 +950,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
 
     protected DiscreteKey doGetDiscreteValue(int x, int y) {
         byte gridValue = getGrid().get(x, y);
-        return getKey()[gridValue];
+        int gridValueIdx = 0xFF & gridValue;
+        return getKey()[gridValueIdx];
     }
 
     /*
@@ -1049,12 +1058,14 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         // check data values
         byte[] data = grid.getBuffer().array();
         DiscreteKey[] keys = getKey();
-        byte keySize = (byte) keys.length;
+        // byte keySize = (byte) keys.length;
+        int keySize = keys.length;
 
         for (int j = 0; j < data.length; j++) {
-            if (data[j] > keySize) {
-                statusHandler.handle(Priority.PROBLEM, emsg + "Data="
-                        + (int) data[j] + " Min=0 Max=" + (int) keySize);
+            int value = 0xFF & data[j];
+            if (value > keySize) {
+                statusHandler.handle(Priority.PROBLEM, emsg + "Data=" + value
+                        + " Min=0 Max=" + keySize);
                 return false;
             }
         }

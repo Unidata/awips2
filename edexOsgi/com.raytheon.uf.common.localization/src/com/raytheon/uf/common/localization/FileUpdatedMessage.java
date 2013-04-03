@@ -63,14 +63,19 @@ public class FileUpdatedMessage implements ISerializableObject {
     @XmlElement
     private FileChangeType changeType;
 
+    @DynamicSerializeElement
+    @XmlAttribute
+    private long timeStamp;
+
     public FileUpdatedMessage() {
     }
 
     public FileUpdatedMessage(LocalizationContext context, String fileName,
-            FileChangeType changeType) {
+            FileChangeType changeType, long timeStamp) {
         this.context = context;
         this.fileName = fileName;
         this.changeType = changeType;
+        this.timeStamp = timeStamp;
     }
 
     public LocalizationContext getContext() {
@@ -96,4 +101,20 @@ public class FileUpdatedMessage implements ISerializableObject {
     public void setChangeType(FileChangeType changeType) {
         this.changeType = changeType;
     }
+
+    /**
+     * @return the timeStamp
+     */
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    /**
+     * @param timeStamp
+     *            the timeStamp to set
+     */
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
 }

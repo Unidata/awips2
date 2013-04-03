@@ -4,6 +4,7 @@
 ## Created by Mike Dangelo 09-19-2011 at Alaska TIM  for zones
 ## Edited by Mike Dangelo 01-26-2012 at CRH TIM
 ## Edited by Phil Kurimski 2-29-2012
+##           Qinglu Lin   12-27-2012  DR 15594. Appended true to headlineLocList's parameter list.
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -451,7 +452,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
@@ -642,7 +643,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 
