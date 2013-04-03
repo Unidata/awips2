@@ -53,6 +53,20 @@
 217:217:Supercooled Large Droplet (SLD) Icing:See Table 4.207See Note (1):SIPD
 218:218:Radiative emissivity::EPSR
 219:219:Turbulence Potential Forecast Index::TPFI
-#220-231:220-231:Reserved::
-232:232:Volcanic Ash Forecast Transport and Dispersion:log10(kg/m3):VAFTD
-255:255:Missing::
+220:220:Categorical Servre Thunderstorm::SVRTS
+221:221:Probability of Convection:%:PROCON
+222:222:Convection Potential::CONVP
+223:223:Cumulonimbus Horizontal Exten:%:CBHE
+224:224:Pressure at Cumulonimbus Bas:Pa:PCBB
+225:225:Pressure at Cumulonimbus To:Pa:PCBT
+226:226:Pressure at Embedded Cumulonimbus Bas:Pa:PECBB
+227:227:Pressure at Embedded Cumulonimbus To:Pa:PECBT
+228:228:ICAO Height at Cumulonimbus Bas:m:HCBB
+229:229:ICAO Height at Cumulonimbus To:m:HCBT
+230:230:ICAO Height at Embedded Cumulonimbus Bas:m:HECBB
+231:231:ICAO Height at Embedded Cumulonimbus To:m:HECBT
+232:232:Volcanic Ash Forecast Transport and Dispersion:log10(kg/m^3):VAFTD
+233:233:Icing probability:non-dim:ICPRB
+234:234:Icing severity:non-dim:ICSEV
+255:255:Missing
+

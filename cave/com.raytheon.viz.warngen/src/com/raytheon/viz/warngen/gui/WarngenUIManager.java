@@ -59,6 +59,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2010            mschenke     Initial creation
+ * Jan 29, 2013  15723    Qinglu Lin   Called warngenLayer.initRemovedGids() in move() and in run() of 
+ *                                     AddVertexAction, DeleteVertextAction and MoveElementAction inner classes.
+ * Mar 25, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * 
  * </pre>
  * 
@@ -80,14 +83,14 @@ public class WarngenUIManager extends InputAdapter {
 
     private int movePointIndex = -1;
 
-    private WarngenLayer warngenLayer;
+    private final WarngenLayer warngenLayer;
 
     // Cursor
-    private Cursor movePolygon;
+    private final Cursor movePolygon;
 
-    private Cursor movePoint;
+    private final Cursor movePoint;
 
-    private Cursor arrow;
+    private final Cursor arrow;
 
     /** The last mouse position - x */
     private int lastMouseX;
@@ -420,7 +423,7 @@ public class WarngenUIManager extends InputAdapter {
                 GeometryFactory gf = new GeometryFactory();
                 List<Coordinate> coordList = new ArrayList<Coordinate>();
                 List<Coordinate> alreadyRemoved = new ArrayList<Coordinate>();
-                
+
                 for (int i = 0; i < coords.length; ++i) {
                     Coordinate toAdd = (Coordinate) coords[i].clone();
                     if (!toAdd.equals(toRemove)
@@ -541,7 +544,6 @@ public class WarngenUIManager extends InputAdapter {
             }
 
             Coordinate c = new Coordinate(lastMouseX, lastMouseY);
-            PolygonUtil.truncate(c, 2);
             Polygon poly = warngenLayer.getPolygon();
 
             if (StormTrackUIManager.getCoordinateIndex(warngenLayer,
@@ -572,7 +574,6 @@ public class WarngenUIManager extends InputAdapter {
 
                     Coordinate coLinearCoord = container.translateClick(
                             coLinearPoint.getX(), coLinearPoint.getY());
-                    PolygonUtil.truncate(coLinearCoord, 2);
                     Coordinate[] coords2 = new Coordinate[coords.length + 1];
                     int k = 0;
                     for (k = 0; k < i; k++) {

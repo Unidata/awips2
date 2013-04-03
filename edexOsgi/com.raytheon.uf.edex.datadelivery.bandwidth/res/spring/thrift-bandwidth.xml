@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  <bean id="bandwidthHandlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry" factory-method="getInstance"/>
+  
+  <bean id="bandwidthSerializeServer" class="com.raytheon.uf.edex.auth.RemoteRequestServer" factory-method="getInstance">
+		<property name="registry" ref="bandwidthHandlerRegistry"/>
+	</bean>
+
+	<bean id="bandwidthRouteWrapper" class="com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper">
+		<property name="server" ref="bandwidthSerializeServer"/>
+	</bean>    
+
+    <bean id="binaryHttpBinding" class="com.raytheon.uf.edex.esb.camel.http.BinaryHttpBinding"/>
+
+    <camelContext id="bandwidth-thrift-service"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <route id="bandwithThriftService">
+            <from uri="jetty:http://0.0.0.0:9589/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+            <bean ref="bandwidthRouteWrapper" method="executeThrift"/>
+        </route>
+
+    </camelContext>
+
+    <bean factory-bean="bandwidthHandlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest"/>
+        <constructor-arg ref="bandwidthManager"/>
+    </bean>  
+</beans>

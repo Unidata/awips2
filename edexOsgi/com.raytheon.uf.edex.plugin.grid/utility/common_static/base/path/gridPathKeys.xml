@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pathKeySet>
+	<pathKey>
+		<key>info.datasetId</key>
+		<order>0</order>
+	</pathKey>
+	<pathKey>
+        <key>info.level.masterLevel.name</key>
+        <order>0</order>
+    </pathKey>
+</pathKeySet>

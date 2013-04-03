@@ -35,9 +35,6 @@
 		<constructor-arg ref="sat-camel"/>
   	</bean>
   	
-  	<bean id="satNotifyTransform"
-		class="com.raytheon.edex.plugin.satellite.notify.SatelliteNotifyTransform" />
-
 	<camelContext id="sat-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
@@ -65,10 +62,7 @@
 				<pipeline>
 					<bean ref="stringToFile" />
 					<bean ref="satelliteDecoder" method="decode" />
-					<multicast parallelProcessing="false">
-						<to uri="directvm:persistIndexAlert" />
-						<to uri="vm:satNotify" />
-					</multicast>
+					<to uri="directvm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
@@ -77,11 +71,5 @@
 			</doTry>
 		</route>
 
-		<route id="satNotification">
-			<from uri="vm:satNotify" />
-			<bean ref="satNotifyTransform" method="transformToMessages" />
-			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:queue:satNotification" />
-		</route>
 	</camelContext>
 </beans>

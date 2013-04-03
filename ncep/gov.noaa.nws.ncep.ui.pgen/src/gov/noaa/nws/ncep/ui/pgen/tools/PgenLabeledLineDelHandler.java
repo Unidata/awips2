@@ -98,6 +98,10 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
     	if ( button == 1 ) {
     		
     		if ( labeledLine != null ){
+    			AbstractDrawableComponent nearestComp = drawingLayer.getNearestComponent(loc);
+
+    			if ( ( nearestComp != null ) && nearestComp.getPgenType().equalsIgnoreCase(labeledLine.getPgenType())){
+    				labeledLine = (LabeledLine) nearestComp;
     			
     			//make a copy in order for undo/redo to work 
     			LabeledLine newll = labeledLine.copy();
@@ -143,7 +147,7 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
     			
     			mapEditor.refresh();
     		}
-    		
+    		}
     		return true;
 
     	}

@@ -27,14 +27,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * Used to generate 6hr record from 12hr intervals.
@@ -66,13 +66,13 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
             .getHandler(GFSProcessor.class);
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
         // Post process the data if this is a Total Precipitation grid
-        if (record.getModelInfo().getParameterAbbreviation().equals("TP12hr")
+        if (record.getParameter().getAbbreviation().equals("TP12hr")
                 && record.getDataTime().getFcstTime() / 3600 > 180) {
             return super.process(record);
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 
     /**
@@ -86,20 +86,20 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
      * @return The generated 6-hr precipitation grids
      * @throws GribException
      */
-    protected synchronized GribRecord[] generate6hrPrecipGrids(GribRecord record)
+    protected synchronized GridRecord[] generate6hrPrecipGrids(GridRecord record)
             throws GribException {
-        List<GribRecord> generated6hrPrecips = new ArrayList<GribRecord>();
+        List<GridRecord> generated6hrPrecips = new ArrayList<GridRecord>();
         // Get all 6hr records 180Hrs and greater
-        List<GribRecord> precipInventory = getPrecipInventory(record
+        List<GridRecord> precipInventory = getPrecipInventory(record
                 .getDataTime().getRefTime());
-        List<GribRecord> generatedRecords = new ArrayList<GribRecord>();
+        List<GridRecord> generatedRecords = new ArrayList<GridRecord>();
         // convert current record to 6hr and add it
-        GribRecord transformed = transForm12to6(record);
+        GridRecord transformed = transForm12to6(record);
         generated6hrPrecips.add(transformed);
         precipInventory.add(transformed);
-        Comparator<GribRecord> comparator = new Comparator<GribRecord>() {
+        Comparator<GridRecord> comparator = new Comparator<GridRecord>() {
             @Override
-            public int compare(GribRecord o1, GribRecord o2) {
+            public int compare(GridRecord o1, GridRecord o2) {
                 int retValue = 0;
                 if (o1 != o2) {
                     retValue = Double.compare(o1.getDataTime().getFcstTime(),
@@ -112,8 +112,8 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
         Collections.sort(precipInventory, comparator);
         // loop through set, find twelve hour gaps and create new 6hr records.
         for (int i = 0; i < precipInventory.size() - 1; i++) {
-            GribRecord sequence1Record = precipInventory.get(i);
-            GribRecord sequence2Record = precipInventory.get(i + 1);
+            GridRecord sequence1Record = precipInventory.get(i);
+            GridRecord sequence2Record = precipInventory.get(i + 1);
             if (sequence1Record.getDataTime().getFcstTime() == sequence2Record
                     .getDataTime().getFcstTime() - SECONDS_IN_12_HRS) {
                 // we have a 12Hr gap
@@ -121,53 +121,53 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
                         sequence2Record));
             }
         }
-        for (GribRecord newRecord : generated6hrPrecips) {
+        for (GridRecord newRecord : generated6hrPrecips) {
             // Add the generated grid to the current inventory
             if (newRecord != null) {
                 generatedRecords.add(newRecord);
             }
         }
-        return generatedRecords.toArray(new GribRecord[] {});
+        return generatedRecords.toArray(new GridRecord[] {});
     }
 
     @SuppressWarnings("unchecked")
-    protected List<GribRecord> getPrecipInventory(Date refTime)
+    protected List<GridRecord> getPrecipInventory(Date refTime)
             throws GribException {
-        GribDao dao = null;
+        GridDao dao = null;
         try {
-            dao = new GribDao();
+            dao = new GridDao();
         } catch (PluginException e) {
             throw new GribException("Error instantiating grib dao!", e);
         }
-        DatabaseQuery query = new DatabaseQuery(GribRecord.class);
-        query.addQueryParam("modelInfo.parameterAbbreviation", "TP6hr",
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
+        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "TP6hr",
                 QueryOperand.IN);
-        query.addQueryParam("modelInfo.modelName", "GFS213");
+        query.addQueryParam(GridConstants.DATASET_ID, "GFS213");
         query.addQueryParam("dataTime.refTime", refTime);
         query.addQueryParam("dataTime.fcstTime", 648000,
                 QueryOperand.GREATERTHANEQUALS);
         query.addOrder("dataTime.fcstTime", true);
         try {
-            return (List<GribRecord>) dao.queryByCriteria(query);
+            return (List<GridRecord>) dao.queryByCriteria(query);
         } catch (DataAccessLayerException e) {
             throw new GribException(
                     "Error getting Precip inventory for ECMWF!", e);
         }
     }
 
-    private GribRecord transForm12to6(GribRecord currentRecord)
+    private GridRecord transForm12to6(GridRecord currentRecord)
             throws GribException {
 
         // Clone the current record and set the ID to 0 so Hibernate will
         // recognize it as a new record
-        GribRecord tp6hrRecord = new GribRecord(currentRecord);
+        GridRecord tp6hrRecord = new GridRecord(currentRecord);
         tp6hrRecord.setId(0);
         if (currentRecord.getMessageData() == null) {
-            GribDao dao = null;
+            GridDao dao = null;
             try {
-                dao = new GribDao();
+                dao = new GridDao();
                 currentRecord.setMessageData(((FloatDataRecord) dao
-                        .getHDF5Data(currentRecord, 0)[0]).getFloatData());
+                        .getHDF5Data(currentRecord, -1)[0]).getFloatData());
             } catch (PluginException e) {
                 throw new GribException("Error populating grib data!", e);
             }
@@ -182,16 +182,10 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
         tp6hrRecord.setMessageData(newData);
 
         // Assign the new parameter abbreviation and cache it if necessary
-        tp6hrRecord.getModelInfo().setParameterAbbreviation("TP6hr");
-        tp6hrRecord.getModelInfo().generateId();
-        try {
-            GribModel model = GribModelCache.getInstance().getModel(
-                    tp6hrRecord.getModelInfo());
-            tp6hrRecord.setModelInfo(model);
-        } catch (DataAccessLayerException e) {
-            throw new GribException("Unable to get model info from the cache!",
-                    e);
-        }
+        Parameter param = new Parameter("TP6hr", "Precip Accum 6 hr",
+                currentRecord.getParameter().getUnit());
+        tp6hrRecord.setParameter(param);
+        tp6hrRecord.getInfo().setId(null);
         // Change the data time to include the 6-hr time range
         super.modifyDataTime(tp6hrRecord);
         return tp6hrRecord;
@@ -211,7 +205,7 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
     }
 
     @Override
-    protected void modifyDataTime(GribRecord record) {
+    protected void modifyDataTime(GridRecord record) {
 
         Calendar refTime = record.getDataTime().getRefTimeAsCalendar();
         int fcstTime = record.getDataTime().getFcstTime();
@@ -232,7 +226,7 @@ public class GFSProcessor extends SixHrPrecipGridProcessor {
         record.setDataTime(newDataTime);
         record.setDataURI(null);
         try {
-            record.setPluginName("grib");
+            record.setPluginName(GridConstants.GRID);
             record.constructDataURI();
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,

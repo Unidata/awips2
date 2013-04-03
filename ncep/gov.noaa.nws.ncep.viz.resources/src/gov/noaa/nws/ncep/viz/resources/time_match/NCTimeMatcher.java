@@ -653,18 +653,6 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         return timesLoaded;
     }
 
-    @Override
-    // bsteffen changed method signature
-    // public void changeTimeMatchBasis(AbstractVizResource<?, ?> resource,
-    // IDescriptor descriptor) {
-    public void changeTimeMatchBasis(AbstractVizResource<?, ?> resource) {
-        if (resource != null) {
-            this.dominantRscData = (AbstractNatlCntrsRequestableResourceData) resource
-                    .getResourceData();
-            dominantResourceName = dominantRscData.getResourceName();
-        }
-    }
-
     // This is called by raytheon's NcAutoUpdater
 
     // Assume that the frameTimes have been changed. We will need to update the
@@ -737,11 +725,6 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             DataTime[] availableTimes, IDescriptor descriptor)
             throws VizException {
         return frameTimes.toArray(new DataTime[0]);
-    }
-
-    @Override
-    public AbstractVizResource<?, ?> getTimeMatchBasis() {
-        return null;
     }
 
 }

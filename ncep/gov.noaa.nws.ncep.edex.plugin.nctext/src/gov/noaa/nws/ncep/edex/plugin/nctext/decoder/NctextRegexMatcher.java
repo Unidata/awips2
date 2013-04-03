@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 * 06-Jul-2010    191       Archana.S   Initial Creation
 * 18-Aug-2010  191       Archana .S  Minor update in regex for vlcw 
 * 21-Nov-2011              Chin Chen   update and re-organize regex to fix several product type decoding errors
+* 12/10/2012               Chin Chen   update regex to support "Observed Data" group
 * </pre>
 * @author Archana
 * @version 1 
@@ -346,10 +347,11 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^W[CSV]US0[1-6] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");	
 		thisMap.put(Pattern.compile("^WSUK.. .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");	
 		thisMap.put(Pattern.compile("^WS[^U]... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");        //regexes clash for intl and sgmt
-		thisMap.put(Pattern.compile("^FT.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "fts"); //aviation TAFS
+		thisMap.put(Pattern.compile("^FT.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)*TAF[A-Z]{3}(.|\r|\n)*"), "taf"); //observed TAFS
+		thisMap.put(Pattern.compile("^FT.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+TAF( |\r|\n){1}(.|\r|\n)*"), "fts"); //aviation TAFS
 		thisMap.put(Pattern.compile("^...... KWBC (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(HSF).*"), "HSF");   //conflicts with FLN
 		thisMap.put(Pattern.compile("^...... PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(HSF).*"), "HSF");  
-		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(AGO).*"), "AGO");
+		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)*AGO.*"), "AGO");
 		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(FZL).*"), "FZL");
 		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(AFD).*"), "AFD");  
 		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(SFP).*"), "SFP");

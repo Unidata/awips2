@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.dialogs.TimeShiftDialog;
  * Feb 27, 2008            Eric Babin  Initial Creation
  * 05Aug2008    1383       ebabin      Fix for time shift not working.
  * Apr 9, 2009  1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
+ * Oct 30, 2012 1298       rferrel     Changes for non-blocking TimeShiftDialog.
  * 
  * </pre>
  * 
@@ -46,6 +47,7 @@ import com.raytheon.viz.gfe.dialogs.TimeShiftDialog;
  */
 
 public class ShowTimeShiftDialog extends AbstractHandler {
+    private TimeShiftDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -57,14 +59,20 @@ public class ShowTimeShiftDialog extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         DataManager dm = DataManager.getCurrentInstance();
-        if (dm != null) {
+        if (dm == null) {
+            return null;
+        }
+
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
 
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
 
-            TimeShiftDialog dialog = new TimeShiftDialog(shell, dm);
-            dialog.setBlockOnOpen(true);
+            dialog = new TimeShiftDialog(shell, dm);
+            dialog.setBlockOnOpen(false);
             dialog.open();
+        } else {
+            dialog.bringToTop();
         }
 
         return null;

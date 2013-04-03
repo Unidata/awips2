@@ -27,8 +27,8 @@ import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.LOWER_CHECKS
 import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.ROC_CHECKSTR;
 import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.UPPER_CHECKSTR;
 import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.alertAlarmTimeFormat;
-import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.dbDatabaseFormat;
 import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.db2DatabaseFormat;
+import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.dbDatabaseFormat;
 import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.smallerTime;
 
 import java.util.ArrayList;
@@ -53,6 +53,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -60,7 +63,7 @@ import com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.AaOption;
 import com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.CheckOption;
 import com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.TypeOption;
 import com.raytheon.viz.hydro.timeseries.TimeSeriesDlg;
-import com.raytheon.viz.hydro.timeseries.util.*;
+import com.raytheon.viz.hydro.timeseries.util.TimeSeriesUtil;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.datamanager.IhfsAlertalarmvalData;
 import com.raytheon.viz.hydrocommon.datamanager.IhfsLocdatalimitsData;
@@ -79,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May, 2011    9359       Jingtao Deng Updated queryLocdatalimits(), check locdatalimits table
  *                                      first, is not existing, check for datalimits table as defaults.
  *                                      Both not existing, set as MISSING
+ * Dec 07, 2012 1353       rferrel      Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -88,6 +92,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         IhfsAlertalarmvalData, IhfsLocdatalimitsData {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AlertAlarmValuesDlg.class);
 
     /**
      * Font used for the data list.
@@ -128,6 +134,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      * List containing valid times in database format.
      */
     private java.util.List<String> dataValidTimes = new ArrayList<String>();
+
     private java.util.List<String> dataBasisTimes = new ArrayList<String>();
 
     /**
@@ -194,8 +201,9 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      * Currently selected location ID.
      */
     private String selectedLid;
-    
+
     private String selectedPe;
+
     private String selectedDur;
 
     /**
@@ -206,7 +214,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      */
 
     public AlertAlarmValuesDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Alert and Alarm Data Values");
     }
 
@@ -494,19 +502,15 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
         if (locationRdo.getSelection()) {
             if (getType() != TypeOption.FCST) {
-                myQuery
-                        .append(" order by aav.lid, aav.validtime desc, aav.ts asc, aav.basistime desc");
+                myQuery.append(" order by aav.lid, aav.validtime desc, aav.ts asc, aav.basistime desc");
             } else {
-                myQuery
-                        .append(" order by aav.lid, aav.validtime asc, aav.ts asc, aav.basistime desc");
+                myQuery.append(" order by aav.lid, aav.validtime asc, aav.ts asc, aav.basistime desc");
             }
         } else {
             if (getType() != TypeOption.FCST) {
-                myQuery
-                        .append(" order by aav.validtime desc, aav.lid, aav.basistime desc");
+                myQuery.append(" order by aav.validtime desc, aav.lid, aav.basistime desc");
             } else {
-                myQuery
-                        .append(" order by aav.validtime asc, aav.lid, aav.basistime desc");
+                myQuery.append(" order by aav.validtime asc, aav.lid, aav.basistime desc");
             }
         }
 
@@ -514,7 +518,6 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         smallerTime.setTimeZone(TimeZone.getTimeZone("UTC"));
         dbDatabaseFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         db2DatabaseFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
 
         try {
             dataList.removeAll();
@@ -527,7 +530,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
                 /*
                  * don't bother showing the following fields: probability value,
-                 * shef revision code, action time. If aa_check is not 'roc' or 
+                 * shef revision code, action time. If aa_check is not 'roc' or
                  * 'diff', then assign the value of * 'roc' or 'diff' as "--".
                  */
                 if ((rowData[8].toString().trim().equals("roc"))
@@ -553,25 +556,26 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                     basisTimeValue = smallerTime.format((Date) rowData[11]);
                 }
 
-                String QcSymbol=TimeSeriesUtil.buildQcSymbol(Long.parseLong(rowData[7].toString()));
+                String QcSymbol = TimeSeriesUtil.buildQcSymbol(Long
+                        .parseLong(rowData[7].toString()));
 
                 tmpStr = String.format(fmtStr, rowData[0].toString(),
                         rowData[12].toString(), rowData[1].toString(),
-                        rowData[2], rowData[3].toString(), rowData[4]
-                                .toString(), rowData[5], supplValue, 
-                                QcSymbol, rowData[8].toString(), rowData[9]
-                                .toString(), smallerTime
-                                .format((Date) rowData[10]), basisTimeValue, 
-                                rowData[11].toString());
+                        rowData[2], rowData[3].toString(),
+                        rowData[4].toString(), rowData[5], supplValue,
+                        QcSymbol, rowData[8].toString(), rowData[9].toString(),
+                        smallerTime.format((Date) rowData[10]), basisTimeValue,
+                        rowData[11].toString());
 
                 /* load the list strings. */
                 dataList.add(tmpStr);
                 dataList.setSelection(0);
                 dataValidTimes.add(dbDatabaseFormat.format((Date) rowData[10]));
-                dataBasisTimes.add(db2DatabaseFormat.format((Date) rowData[11]));
-             }
+                dataBasisTimes
+                        .add(db2DatabaseFormat.format((Date) rowData[11]));
+            }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
     }
 
@@ -632,7 +636,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                 }
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
 
     }
@@ -641,26 +645,25 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      * Prompts the user to delete the current record
      */
     private void deleteRecord() {
-    	if (dataList.getSelectionIndex() != -1) {  	
-    		MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
-    				| SWT.CANCEL);
+        if (dataList.getSelectionIndex() != -1) {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
+                    | SWT.CANCEL);
             mb.setText("Delete Confirmation");
             mb.setMessage("Do you wish to delete this entry?");
 
             int result = mb.open();
 
             if (result == SWT.OK) {
-            	try{
-            		deleteAlertalarmvalSelected(dataList.getSelectionIndex());           			
-            		queryAlertalarmval();
-            	} catch (VizException e) {
+                try {
+                    deleteAlertalarmvalSelected(dataList.getSelectionIndex());
+                    queryAlertalarmval();
+                } catch (VizException e) {
                     MessageBox mbFail = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbFail.setText("Unable to Delete");
                     mbFail.setMessage("Unable to Delete Record");
                     mbFail.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
                 }
             }
         } else {
@@ -670,12 +673,13 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             mb.open();
         }
     }
-   
+
     // ------------------------------------------------------------
     // Delete the selected item in the data list from alertalarmval.
     // ------------------------------------------------------------
     @Override
-    public void deleteAlertalarmvalSelected(int alertAlarmIndex) throws VizException {
+    public void deleteAlertalarmvalSelected(int alertAlarmIndex)
+            throws VizException {
         // Query 'alertalarmval' table in ihfs database and delete selected item
         // using SQL.
         StringBuilder myQuery = new StringBuilder(
@@ -696,13 +700,13 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         myQuery.append(selectedLid);
         myQuery.append("')");
         myQuery.append(" AND ");
-     //   String selectedPe = selectedItems[index++];
+        // String selectedPe = selectedItems[index++];
         selectedPe = selectedItems[index++];
         myQuery.append("(aav.pe = '");
         myQuery.append(selectedPe);
         myQuery.append("')");
         myQuery.append(" AND ");
-     //   String selectedDur = selectedItems[index++];
+        // String selectedDur = selectedItems[index++];
         selectedDur = selectedItems[index++];
         myQuery.append("(aav.dur = '");
         myQuery.append(selectedDur);
@@ -738,16 +742,16 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         myQuery.append("(aav.basistime = '");
         myQuery.append(basisTimeStr);
         myQuery.append("')");
-         
+
         // -------------------------------------------------------------
         // Query the Alertalarmval Table in the IHFS database using SQL.
         // -------------------------------------------------------------
-        
+
         try {
-            int status = DirectDbQuery.executeStatement(myQuery.toString(), HydroConstants.IHFS,
-                    QueryLanguage.SQL);
+            DirectDbQuery.executeStatement(myQuery.toString(),
+                    HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
 
     }
@@ -759,20 +763,21 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     @Override
     public void queryLocdatalimits() {
 
-        //retrieve from location based locdatalimits table 
-    	StringBuilder myQuery = new StringBuilder(
+        // retrieve from location based locdatalimits table
+        StringBuilder myQuery = new StringBuilder(
                 "select ldl.alert_upper_limit, ldl.alert_lower_limit, ldl.alert_roc_limit, ldl.alert_diff_limit, ldl.alarm_upper_limit, ldl.alarm_lower_limit, ldl.alarm_roc_limit, ldl.alarm_diff_limit from locdatalimits ldl");
 
         ArrayList<Object[]> loclimitData;
         myQuery.append(" where ldl.lid = '");
         myQuery.append(selectedLid);
         myQuery.append("'");
-        
+
         Boolean loclimitsFound = true;
         Boolean deflimitsFound = true;
-        
-        //retrieve from general datalimits table
-        StringBuilder dlQuery = new StringBuilder("select dl.alert_upper_limit, dl.alert_lower_limit, dl.alert_roc_limit, dl.alert_diff_limit, dl.alarm_upper_limit, dl.alarm_lower_limit, dl.alarm_roc_limit, dl.alarm_diff_limit  from datalimits dl");
+
+        // retrieve from general datalimits table
+        StringBuilder dlQuery = new StringBuilder(
+                "select dl.alert_upper_limit, dl.alert_lower_limit, dl.alert_roc_limit, dl.alert_diff_limit, dl.alarm_upper_limit, dl.alarm_lower_limit, dl.alarm_roc_limit, dl.alarm_diff_limit  from datalimits dl");
         ArrayList<Object[]> dataLimits;
         dlQuery.append(" where dl.pe = '");
         dlQuery.append(selectedPe);
@@ -780,49 +785,48 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         dlQuery.append(" and dl.dur = '");
         dlQuery.append(selectedDur);
         dlQuery.append("'");
-        
-        
+
         // -------------------------------------------------------------
         // Query the Locdatalimits Table in the IHFS database using SQL.
         // -------------------------------------------------------------
         try {
             loclimitData = (ArrayList<Object[]>) DirectDbQuery.executeQuery(
                     myQuery.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
-                           
-             //if location specific range is not found, check the default range*/	
-             if (loclimitData.size() == 0)
-             {
-            	 loclimitsFound = false;
-            	 
-            	 try {
-            		 dataLimits = (ArrayList<Object[]>) DirectDbQuery.executeQuery(
-                             dlQuery.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
-            		 if (dataLimits.size() == 0)
-            			 deflimitsFound = false;
-            		 else
-            		 {
-            			 deflimitsFound = true;
-            			 for (Object[] rowData : dataLimits) {
-                             setField(alertUpperLbl, (Double) rowData[0]);
-                             setField(alertLowerLbl, (Double) rowData[1]);
-                             setField(alertRocLbl,   (Double) rowData[2]);
-                             setField(alertDiffLbl,  (Double) rowData[3]);
 
-                             setField(alarmUpperLbl, (Double) rowData[4]);
-                             setField(alarmLowerLbl, (Double) rowData[5]);
-                             setField(alarmRocLbl,   (Double) rowData[6]);
-                             setField(alarmDiffLbl,   (Double) rowData[7]);
-                             
-                             return;
-                         }
-            		 }
-            		 
-            	     } catch (VizException e) {
-                         e.printStackTrace();
-                     }
-                                                                   
+            // if location specific range is not found, check the default
+            // range*/
+            if (loclimitData.size() == 0) {
+                loclimitsFound = false;
+
+                try {
+                    dataLimits = (ArrayList<Object[]>) DirectDbQuery
+                            .executeQuery(dlQuery.toString(),
+                                    HydroConstants.IHFS, QueryLanguage.SQL);
+                    if (dataLimits.size() == 0)
+                        deflimitsFound = false;
+                    else {
+                        deflimitsFound = true;
+                        for (Object[] rowData : dataLimits) {
+                            setField(alertUpperLbl, (Double) rowData[0]);
+                            setField(alertLowerLbl, (Double) rowData[1]);
+                            setField(alertRocLbl, (Double) rowData[2]);
+                            setField(alertDiffLbl, (Double) rowData[3]);
+
+                            setField(alarmUpperLbl, (Double) rowData[4]);
+                            setField(alarmLowerLbl, (Double) rowData[5]);
+                            setField(alarmRocLbl, (Double) rowData[6]);
+                            setField(alarmDiffLbl, (Double) rowData[7]);
+
+                            return;
+                        }
+                    }
+
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
+                }
+
             }
-             // location specific range is found
+            // location specific range is found
             if (loclimitsFound) {
                 for (Object[] rowData : loclimitData) {
                     setField(alertUpperLbl, (Double) rowData[0]);
@@ -836,21 +840,21 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                     setField(alarmDiffLbl, (Double) rowData[7]);
                 }
             }
-            // both location specific range and default range are not found, set to MISSING 
-            else if (!deflimitsFound)
-            {
-            	 alertUpperLbl.setText(" MISSING ");
-                 alertLowerLbl.setText(" MISSING ");
-                 alertRocLbl.setText(" MISSING ");
-                 alertDiffLbl.setText(" MISSING ");
+            // both location specific range and default range are not found, set
+            // to MISSING
+            else if (!deflimitsFound) {
+                alertUpperLbl.setText(" MISSING ");
+                alertLowerLbl.setText(" MISSING ");
+                alertRocLbl.setText(" MISSING ");
+                alertDiffLbl.setText(" MISSING ");
 
-                 alarmUpperLbl.setText(" MISSING ");
-                 alarmLowerLbl.setText(" MISSING ");
-                 alarmRocLbl.setText(" MISSING ");
-                 alarmDiffLbl.setText(" MISSING ");
+                alarmUpperLbl.setText(" MISSING ");
+                alarmLowerLbl.setText(" MISSING ");
+                alarmRocLbl.setText(" MISSING ");
+                alarmDiffLbl.setText(" MISSING ");
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
         }
     }
 
@@ -1065,7 +1069,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	deleteRecord();
+                deleteRecord();
             }
         });
 
@@ -1077,7 +1081,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }

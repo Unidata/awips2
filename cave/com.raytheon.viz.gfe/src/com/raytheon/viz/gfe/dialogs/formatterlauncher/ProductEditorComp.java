@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -116,10 +116,11 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
 import com.raytheon.viz.gfe.product.ProductFileUtil;
 import com.raytheon.viz.gfe.product.TextDBUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Composite containing the product editor controls.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -137,20 +138,25 @@ import com.raytheon.viz.gfe.product.TextDBUtil;
  * 21 SEP 2010  5817       jnjanga     Fix attribution phrase append from issuance to issuance.
  * 27 OCT 2010  5817       jnjanga     Fix N.P.E caused when call getVTECActionCodes on non VTEC products.
  * 31 AUG 2012 15178       mli         Add autoWrite and autoStore capability
- * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition             
- * 
+ * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition
+ * 07 Nov 2012 1298        rferrel     Changes for non-blocking CallToActionsDlg.
+ *                                     Changes for non-blocking FindReplaceDlg.
+ *                                     Changes for non-blocking StoreTransmitDlg.
+ *                                     Changes for non-blocking WrapLengthDialog.
+ * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
- * 
+ *
  */
 public class ProductEditorComp extends Composite implements
         INotificationObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductEditorComp.class);
 
-    private static final String EMPTY = "";
+    private final String EMPTY = "";
 
     /**
      * Parent composite.
@@ -296,27 +302,27 @@ public class ProductEditorComp extends Composite implements
 
     private String autoSendAddress;
 
-    private String longLocalFmtStr = "hmm a z EEE MMM d yyyy";
+    private final String longLocalFmtStr = "hmm a z EEE MMM d yyyy";
 
-    private TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
+    private final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
 
-    private int initialYear = year(SimulatedTime.getSystemTime().getTime());
+    private final int initialYear = year(SimulatedTime.getSystemTime()
+            .getTime());
 
     // for CTA dialogs
     private String phenSig = null;
 
     private boolean HazardCTA = false;
 
-    private boolean ProductCTA = false;
-
-    private boolean GenericCTA = false;
+    private CallToActionsDlg ctaDialog;
 
     private ProductDataStruct prodDataStruct;
 
     private TimeZone localTimeZone;
-    
+
     private enum Action {
-    	STORE, TRANSMIT, AUTOSTORE };
+        STORE, TRANSMIT, AUTOSTORE
+    };
 
     /**
      * Product transmission callback to report the state of transmitting a
@@ -324,17 +330,17 @@ public class ProductEditorComp extends Composite implements
      */
     private ITransmissionState transmissionCB;
 
-    private SimpleDateFormat purgeTimeFmt = new SimpleDateFormat("ddHHmm");
+    private final SimpleDateFormat purgeTimeFmt = new SimpleDateFormat("ddHHmm");
 
-    private SimpleDateFormat vtecTimeFmt = new SimpleDateFormat(
+    private final SimpleDateFormat vtecTimeFmt = new SimpleDateFormat(
             "yyMMdd'T'HHmm'Z'");
 
-    private Pattern vtecRE = Pattern
+    private final Pattern vtecRE = Pattern
             .compile("/[OTEX]\\.([A-Z]{3})\\.([A-Z]{4})\\.([A-Z]{2})\\."
                     + "([WAYSOFN])\\.([0-9]{4})\\.([0-9]{6})T([0-9]{4})Z-"
                     + "([0-9]{6})T([0-9]{4})Z/");
 
-    private Map<String, Map<String, Integer>> newYearETNs = new HashMap<String, Map<String, Integer>>();
+    private final Map<String, Map<String, Integer>> newYearETNs = new HashMap<String, Map<String, Integer>>();
 
     /**
      * Job to update times in product
@@ -345,7 +351,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Enumeration of product types.
-     * 
+     *
      * @author lvenable
      */
     public enum productTypeEnum {
@@ -356,14 +362,14 @@ public class ProductEditorComp extends Composite implements
         REG, PE, COR;
     }
 
-    private static final String[] REG_PTypes = { "rou", "AAA", "AAB", "AAC",
-            "AAD", "AAE", "RRA", "RRB", "RRC" };
+    private final String[] REG_PTypes = { "rou", "AAA", "AAB", "AAC", "AAD",
+            "AAE", "RRA", "RRB", "RRC" };
 
-    private static final String[] PE_PTypes = { "res", "RRA", "RRB", "RRC" };
+    private final String[] PE_PTypes = { "res", "RRA", "RRB", "RRC" };
 
-    private static final String[] COR_PTypes = { "CCA", "CCB", "CCC" };
+    private final String[] COR_PTypes = { "CCA", "CCB", "CCC" };
 
-    private static final String ZERO_VTEC = "000000T0000Z";
+    private final String ZERO_VTEC = "000000T0000Z";
 
     private List<ActiveTableRecord> activeVtecRecords = null;
 
@@ -390,7 +396,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent composite.
      */
@@ -654,7 +660,7 @@ public class ProductEditorComp extends Composite implements
         transmitMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	storeTransmit(Action.TRANSMIT);
+                storeTransmit(Action.TRANSMIT);
             }
         });
         menuItems.add(transmitMI);
@@ -862,14 +868,27 @@ public class ProductEditorComp extends Composite implements
         wrapLengthMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                WrapLengthDialog wrapLengthDialog = new WrapLengthDialog(
+                // The dialog being opened is modal to the parent dialog. This
+                // will prevent the launching of another dialog until the modal
+                // dialog is closed.
+                final WrapLengthDialog wrapLengthDialog = new WrapLengthDialog(
                         getShell());
                 wrapLengthDialog.setWrapLength(wrapColumn);
-                int result = wrapLengthDialog.open();
-                if (result == Window.OK) {
-                    wrapColumn = wrapLengthDialog.getWrapLength();
-                    textComp.setWrapColumn(wrapColumn);
-                }
+                wrapLengthDialog.setBlockOnOpen(false);
+                wrapLengthDialog.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof Integer) {
+                            int result = (Integer) returnValue;
+                            if (result == Window.OK) {
+                                wrapColumn = wrapLengthDialog.getWrapLength();
+                                textComp.setWrapColumn(wrapColumn);
+                            }
+                        }
+                    }
+                });
+                wrapLengthDialog.open();
             }
         });
     }
@@ -1036,11 +1055,10 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Store or Transmit text product.
-     * 
+     *
      * @param action
-     * 				STORE: 		show the Store dialog
-     * 				TRANSMITT: 	shows the Transmit dialog.
-     * 				AUTOSTORE:  implement autoStore
+     *            STORE: show the Store dialog TRANSMITT: shows the Transmit
+     *            dialog. AUTOSTORE: implement autoStore
      */
     private void storeTransmit(Action action) {
 
@@ -1067,22 +1085,21 @@ public class ProductEditorComp extends Composite implements
         }
 
         if (fixText()) {
-        	
+
             // autoStore
             if (action == Action.AUTOSTORE) {
                 if (testVTEC) {
                     devStore(textdbPil.substring(3));
                 } else {
-                    TextDBUtil.storeProduct(textdbPil, getProductText(), testVTEC);
+                    TextDBUtil.storeProduct(textdbPil, getProductText(),
+                            testVTEC);
                 }
 
                 return;
             }
-        	
-           // Store/transmit...
+
+            // Store/transmit...
             boolean showStore = (action == Action.STORE) ? true : false;
-            StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB);
             String pid;
             if (showStore) {
                 pid = guessTDBPil();
@@ -1093,10 +1110,16 @@ public class ProductEditorComp extends Composite implements
                     pid = "kkkknnnxxx";
                 }
             }
-            storeDlg.open(pid);
+
+            // The dialog being opened is modal to the parent dialog. This will
+            // prevent the launching of another dialog until the modal dialog is
+            // closed.
+            StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
+                    showStore, this, transmissionCB, pid);
+            storeDlg.open();
         }
     }
- 
+
     private boolean fixText() {
         textComp.startUpdate();
         // mmaron #7285: make sure there is \n in the end - to allow
@@ -1114,7 +1137,6 @@ public class ProductEditorComp extends Composite implements
 
         boolean retVal = true;
         if (!textComp.isCorMode()) {
-            detachAttributionPhrase();
             retVal = changeTimes();
         }
 
@@ -1213,70 +1235,6 @@ public class ProductEditorComp extends Composite implements
             vtecList.add(vtec);
         }
         return vtecList;
-    }
-
-    /**
-     * get the list of VTEC Action Codes for this segment one Action code per
-     * VTEC line
-     */
-    private List<String> getVTECActionCodes(SegmentData segData,
-            ProductDataStruct pds) {
-
-        HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
-        TextIndexPoints tipVtec = segMap.get("vtec");
-        if (tipVtec == null) {
-            return new ArrayList<String>();
-        }
-
-        int lineCount = tipVtec.getEndIndex().x - tipVtec.getStartIndex().x;
-        ArrayList<String> actioncodes = new ArrayList<String>(lineCount);
-        for (int i = 0; i < lineCount; i++) {
-            String vtec = pds.getProductTextArray()[i
-                    + tipVtec.getStartIndex().x];
-            // extract the action code
-            String vline = vtec.split("/", 3)[1];
-            String ac = vline.split("\\.")[1];
-            actioncodes.add(ac);
-        }
-        return actioncodes;
-    }
-
-    private void detachAttributionPhrase() {
-        final String attributionPhraseRgx = "THE NATIONAL WEATHER SERVICE IN [A-Z0-9\\p{Punct}\\s]+?\\n\\n";
-        Pattern attribPattern = Pattern.compile(attributionPhraseRgx);
-        StyledTextComp stc = textComp;
-        ProductDataStruct pds = stc.getProductDataStruct();
-        List<SegmentData> segs = pds.getSegmentsArray();
-        for (SegmentData segData : segs) {
-            String newSegTxt = null;
-            String oldSegTxt = segData.getSementMap().get("ugc").getText();
-            TextIndexPoints oldSegTip = segData.getSementMap().get("ugc");
-            List<String> actioncodes = getVTECActionCodes(segData, pds);
-            if (actioncodes == null || actioncodes.isEmpty()) {
-                return;
-            }
-
-            if (actioncodes.contains("NEW") || actioncodes.contains("EXA")
-                    || actioncodes.contains("EXB")) {
-                continue;
-            } else {
-                // all actions in {"CON","CAN","UPG","EXT","EXP"}
-                // Not the first issuance, strip the attribution phrase from
-                // segment text.
-                Matcher matcher = attribPattern.matcher(oldSegTxt);
-                while (matcher.find()) {
-                    newSegTxt = matcher.replaceAll("");
-                    final int segNum = segs.indexOf(segData) + 1;
-                    statusHandler.handle(Priority.INFO,
-                            "Detached attribution phrase from segment data number "
-                                    + segNum);
-                }
-            }
-
-            if (newSegTxt != null) {
-                textComp.replaceText(oldSegTip, newSegTxt);
-            }
-        }
     }
 
     /**
@@ -1552,7 +1510,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Decodes the start and end times of VTEC, return null if all zeros.
-     * 
+     *
      * @param vt
      *            The VTEC date string in "yyMMdd'T'HHmm'Z'" format
      * @return Date object that corresponds to the specified VTEC time or null
@@ -1883,7 +1841,7 @@ public class ProductEditorComp extends Composite implements
     /**
      * Returns a Date from an encoded YYMMDD and hhmm string. Function name is a
      * misnomer, but kept from porting AWIPS1 equivalent function.
-     * 
+     *
      * @param day
      *            The "calendar day" of the time in Java's "yyMMdd" format.
      * @param time
@@ -1907,7 +1865,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Convert time string in DDHHMM format to a Date.
-     * 
+     *
      * @param dtgString
      *            time string in DDHHMM format
      * @return time converted from input string
@@ -2065,14 +2023,14 @@ public class ProductEditorComp extends Composite implements
      * returns the appropriate expiration time. Expiration time is the earliest
      * of the specified expiration time, 1 hr if a CAN code is detected, or the
      * ending time of ongoing events (CON, EXT, EXB, NEW).
-     * 
+     *
      * @param issTime
      *            issue time
      * @param expTime
      *            expire time
      * @param vtecStr
      *            vtec string
-     * 
+     *
      * @return expire time
      */
     public Date getExpireTime(Date issTime, Date expTime, String vtecStr) {
@@ -2248,47 +2206,47 @@ public class ProductEditorComp extends Composite implements
             }
         }
     }
-    
+
     /*
-     *  handle autoWrite, autoStore
+     * handle autoWrite, autoStore
      */
     public void doAutoStuff() {
         int autoWrite = 0;
         Object autoWrite_obj = productDefinition.get("autoWrite");
         if (autoWrite_obj != null)
-            autoWrite = (Integer)autoWrite_obj;
-        
+            autoWrite = (Integer) autoWrite_obj;
+
         int autoStore = 0;
         Object autoStore_obj = productDefinition.get("autoStore");
         if (autoStore_obj != null)
-            autoStore = (Integer)autoStore_obj;
+            autoStore = (Integer) autoStore_obj;
 
-    	if (autoWrite == 1) {
+        if (autoWrite == 1) {
             autoWrite();
-    	}
-    	
-    	if (autoStore == 1) {
+        }
+
+        if (autoStore == 1) {
             storeTransmit(Action.AUTOSTORE);
-    	}
+        }
     }
-    
+
     /*
      * autoWrite
      */
     private void autoWrite() {
-        String fname = null; 
+        String fname = null;
         if (productDefinition.get("outputFile") != null) {
             fname = getDefString("outputFile");
-            if (fname.equals(EMPTY)) return;
+            if (fname.equals(EMPTY))
+                return;
         } else {
             return;
         }
-        
+
         fname = fixfname(fname);
 
         try {
-            ProductFileUtil.writeFile(getProductText(), new File(
-                    fname));
+            ProductFileUtil.writeFile(getProductText(), new File(fname));
         } catch (IOException e) {
             MessageBox mb = new MessageBox(parent.getShell(), SWT.OK
                     | SWT.ICON_WARNING);
@@ -2296,21 +2254,20 @@ public class ProductEditorComp extends Composite implements
             mb.open();
         }
     }
-    
+
     /*
      * Replace {prddir} with siteConfig.GFESUITE_PRDDIR if applicable.
      */
     private String fixfname(String fname) {
         if (fname.contains("{prddir}"))
             fname = fname.replace("{prddir}", prdDir);
-    	
+
         return fname;
     }
 
     private String guessFilename() {
         if (productDefinition.get("outputFile") != null) {
-            String basename = new File(
-                    getDefString("outputFile")).getName();
+            String basename = new File(getDefString("outputFile")).getName();
             return basename;
         } else {
             return guessTDBPil();
@@ -2319,7 +2276,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Get the directory.
-     * 
+     *
      * @return The directory
      */
     private String getDir() {
@@ -2422,51 +2379,47 @@ public class ProductEditorComp extends Composite implements
     }
 
     private void displayCallToActionsDialog(int callToActionType) {
+        // Allow only one of the 3 types of dialogs to be displayed.
+        if (ctaDialog != null && ctaDialog.getShell() != null
+                && !ctaDialog.isDisposed()) {
+            ctaDialog.bringToTop();
+            return;
+        }
 
         if (callToActionType == 1) {
-
-            if (!ProductCTA && !GenericCTA && !HazardCTA) {
-                HazardCTA = true;
-                CTAHazCB(callToActionType);
-                HazardCTA = false;
-            }
+            CTAHazCB(callToActionType);
         }
         if (callToActionType == 2) {
-
-            if (!HazardCTA && !GenericCTA && !ProductCTA) {
-                String[] Sig = new String[1];
-                String pil = getDefString("pil");
-                if (pil != null) {
-                    Sig[0] = pil.substring(0, 3);
-                    ProductCTA = true;
-                    CallToActionsDlg productCTAsDlg = new CallToActionsDlg(
-                            parent.getShell(), callToActionType, Sig, this);
-                    productCTAsDlg.open();
-                    ProductCTA = false;
-                }
+            String[] Sig = new String[1];
+            String pil = getDefString("pil");
+            if (pil != null) {
+                Sig[0] = pil.substring(0, 3);
+                ctaDialog = new CallToActionsDlg(parent.getShell(),
+                        callToActionType, Sig, this);
+                ctaDialog.setBlockOnOpen(false);
+                ctaDialog.open();
             }
         }
         if (callToActionType == 3) {
-
-            if (!ProductCTA && !HazardCTA && !GenericCTA) {
-                GenericCTA = true;
-                String[] Sig = new String[1];
-                CallToActionsDlg genericCTAsDlg = new CallToActionsDlg(
-                        parent.getShell(), callToActionType, Sig, this);
-                genericCTAsDlg.open();
-                GenericCTA = false;
-            }
+            String[] Sig = new String[1];
+            ctaDialog = new CallToActionsDlg(parent.getShell(),
+                    callToActionType, Sig, this);
+            ctaDialog.setBlockOnOpen(false);
+            ctaDialog.open();
         }
     }
 
     /**
      * Display the Find or Find & Replace dialog.
-     * 
+     *
      * @param findAndReplace
      *            If true show the Find & Replace dialog, false shows the Find
      *            dialog.
      */
     private void displayFindReplaceDialog(boolean findAndReplace) {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         FindReplaceDlg findAndReplaceDlg = new FindReplaceDlg(
                 parent.getShell(), findAndReplace, textComp);
         findAndReplaceDlg.open();
@@ -2560,9 +2513,22 @@ public class ProductEditorComp extends Composite implements
                     }
                 }
             }// loop
-            CallToActionsDlg hazardCTAsDlg = new CallToActionsDlg(
-                    parent.getShell(), callToActionType, Sig, this);
-            hazardCTAsDlg.open();
+
+            HazardCTA = true;
+            ctaDialog = new CallToActionsDlg(parent.getShell(),
+                    callToActionType, Sig, this);
+            ctaDialog.setBlockOnOpen(false);
+            ctaDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    HazardCTA = false;
+                    ctaDialog = null;
+                }
+            });
+            ctaDialog.open();
+            // Found segment the cursor is in no need to check more segments.
+            break;
         }// loop
     }
 
@@ -2570,8 +2536,6 @@ public class ProductEditorComp extends Composite implements
 
         textEditorST = getTextEditorST();
         prodDataStruct = textComp.getProductDataStruct();
-
-        String product = getProductText();
 
         int offset = textEditorST.getCaretOffset();
         if (offset >= (textEditorST.getCharCount() - 1)) {
@@ -2679,7 +2643,7 @@ public class ProductEditorComp extends Composite implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
      * notificationArrived
      * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
@@ -2850,7 +2814,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Word-wrap the text selected by the user.
-     * 
+     *
      */
     private void doWrapSelection() {
         StyledText styledText = textComp.getTextEditorST();
@@ -2931,7 +2895,7 @@ public class ProductEditorComp extends Composite implements
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
          * IProgressMonitor)
          */
@@ -2952,21 +2916,21 @@ public class ProductEditorComp extends Composite implements
         }
 
     }
-    
+
     /*
      * Handle bad characters in text formatter definition.
      */
     private String getDefString(String key) {
         String str = null;
-    	
+
         Object obj = productDefinition.get(key);
-        if (obj != null && obj instanceof Collection ) {
+        if (obj != null && obj instanceof Collection) {
             Collection<?> collection = (Collection<?>) obj;
-            str = (String)(collection.toArray())[0];
+            str = (String) (collection.toArray())[0];
         } else {
             str = (String) productDefinition.get(key);
         }
-    	
+
         return str;
     }
 }

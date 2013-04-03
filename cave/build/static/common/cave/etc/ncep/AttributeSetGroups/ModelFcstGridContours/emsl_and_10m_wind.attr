@@ -1,16 +1,16 @@
 !
-! Restore File : emsl_and_10m_wind
+! Restore File : mul(1e-2,emsl)_and_10m_wind
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
 ! J. Carr/HPC         5/15/97   Changed PMSL to EMSL and changed hilo ranges
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
 !
 GLEVEL =  10!0
 GVCORD =  hght!none
 SKIP   =    0/1                                                                     
+FILTER=y
 SCALE  =   0
-GDPFUN =  mag(kntv(wnd))!sm5s(mul(1e-2,pmsl)) ! kntv(wnd@10%hght)
+GDPFUN =  mag(kntv(wnd))!sm5s(pmsl) ! kntv(wnd@10%hght)
 TYPE   =    c/f!c ! b
 CINT   =    5/20!4
 LINE   =    32/1/2/2!19//2
@@ -20,8 +20,7 @@ HILO   =    0!20/H#;L#/1020-1070;900-1012
 HLSYM  =   0!1.5;1.5//22;22/3;3/hw
 !CLRBAR =  1/V/LL!0
 WIND   =    9/0.7/2/112
-TITLE  =   1/-1/~ EMSL, 10m WIND (AGL; KTS)
+TITLE  =   1/-1/~ EMSL, 10m WIND   = (AGL; KTS)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
