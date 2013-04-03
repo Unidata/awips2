@@ -97,7 +97,8 @@ public class VizGroupResource extends
             PaintProperties paintProps) throws VizException {
         for (ResourcePair rp : this.resourceData.resourceList) {
             if (rp.getResource() != null) {
-                paintProps.setDataTime(descriptor.getTimeForResource(rp.getResource()));
+                paintProps.setDataTime(descriptor.getTimeForResource(rp
+                        .getResource()));
                 rp.getResource().paint(target, paintProps);
             }
         }
@@ -116,9 +117,9 @@ public class VizGroupResource extends
         String value = "No Data";
         for (ResourcePair pair : rl) {
             if (pair.getResource() != null) {
-                AbstractVizResource<?,?> rsc = pair.getResource();
+                AbstractVizResource<?, ?> rsc = pair.getResource();
                 value = rsc.inspect(coord);
-                if (value.equals(NO_DATA) == false) {
+                if (NO_DATA.equalsIgnoreCase(value) == false) {
                     return value;
                 }
             }
@@ -156,16 +157,17 @@ public class VizGroupResource extends
                 resource.registerListener(this);
             }
         }
-//        this.dataTimes = new ArrayList<DataTime>(resourceData.getMap().keySet());
+        // this.dataTimes = new
+        // ArrayList<DataTime>(resourceData.getMap().keySet());
 
         // If child resources have capabilities that this does not, steal them
         for (AbstractVizResource<?, ?> rcs : getResourceData().getRscs()) {
             for (AbstractCapability capability : rcs.getCapabilities()
                     .getCapabilityClassCollection()) {
-//                if (!hasCapability(capability.getClass())) {
+                // if (!hasCapability(capability.getClass())) {
                 this.getCapabilities().addCapability(capability);
                 capability.setResourceData(resourceData);
-//                }
+                // }
             }
         }
         // Spread my master capability set to all my children

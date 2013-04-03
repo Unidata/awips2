@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRPixelToTempConverter;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRTempToPixelConverter;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
+import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
 
 import java.io.File;
 import java.text.ParseException;
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -52,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
@@ -71,6 +74,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Provides satellite raster rendering support 
@@ -100,21 +104,25 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  
  *  06/07/2012      #717     archana     Added the method generateAndStoreColorBarLabelingInformation(),
  *                                       and the abstract methods getImageTypeNumber(),getParameterList(),getLocFilePathForImageryStyleRule()     
+ *  11/29/2012      #630     ghull       IGridGeometryProvider                             
+ *  12/19/2012      #960     Greg Hull   override propertiesChanged() to update colorBar.
+ *                                         
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
- 
 public abstract class AbstractSatelliteResource extends
         AbstractNatlCntrsResource<SatelliteResourceData, MapDescriptor>
-        implements INatlCntrsResource, IResourceDataChanged {
+        implements IGridGeometryProvider, INatlCntrsResource, IResourceDataChanged {
 
 	protected SatelliteResourceData satRscData;
 	
     protected FileBasedTileSet baseTile;
 
     protected GridGeometry2D baseGeom;
+
+    protected ISpatialObject baseCoverage;
 
     // private Map<SatelliteRecord, ByteDataRecord> fullDataSetMap = new
     // HashMap<SatelliteRecord, ByteDataRecord>();
@@ -141,6 +149,12 @@ public abstract class AbstractSatelliteResource extends
         return	fd.getTileSet();
     }
 
+    // ISpatialEnabled
+    public ISpatialObject getSpatialObject() {
+    	FrameData fd = (FrameData)getCurrentFrame();
+    	return (fd == null ? baseCoverage : fd.frameCoverage);
+    }
+
     protected class FrameData extends AbstractFrameData {
     	FileBasedTileSet tileSet;
 
@@ -153,6 +167,7 @@ public abstract class AbstractSatelliteResource extends
 
 		//    	PluginDataObject  satRec;
         GridGeometry2D gridGeom;
+        ISpatialObject frameCoverage;
 
 		DataTime     tileTime; // the time of the data used to create the tileset
 						        // used to determine if we need to replace the tile 
@@ -166,15 +181,24 @@ public abstract class AbstractSatelliteResource extends
 		public boolean updateFrameData( IRscDataObject rscDataObj ) {
             PluginDataObject satRec = ((DfltRecordRscDataObj) rscDataObj)
                     .getPDO();
+            
         	if( !(satRec instanceof ISpatialEnabled) ) {
-                System.out
-                        .println("AbstractSatelliteResource.updateFrameData: PDO "
+                System.out.println("AbstractSatelliteResource.updateFrameData: PDO "
                                 + satRec.getClass().toString()
                                 + " doesn't implement ISpatialEnabled");
 				return false;
 			}
+            else {
+            	if( baseCoverage == null ) {
+            		baseCoverage = ((ISpatialEnabled)satRec).getSpatialObject();
+            	}
+            	if( frameCoverage == null ) {
+            		frameCoverage = ((ISpatialEnabled)satRec).getSpatialObject();
+            	}
+            }
 			
 			synchronized (this) {
+            	
 				try {
 					// TODO : need to decide if this image is a better timeMatch
 					// for this frame than the existing one.
@@ -188,38 +212,37 @@ public abstract class AbstractSatelliteResource extends
 					
 		            if (baseTile == null) {
 		            	
-                        if (getProjectionFromRecord(satRec).equalsIgnoreCase(
-                                "STR")
-                                || getProjectionFromRecord(satRec)
-                                        .equalsIgnoreCase("MER")
-                                || getProjectionFromRecord(satRec)
-                                        .equalsIgnoreCase("LCC")) {
+                        if( getProjectionFromRecord(satRec).equalsIgnoreCase( "STR") ||
+                            getProjectionFromRecord(satRec).equalsIgnoreCase("MER") ||
+                            getProjectionFromRecord(satRec).equalsIgnoreCase("LCC")) {
+                        	
 							/*
 							 * for remapped projections such as MER, LCC, STR
 							 */
                             gridGeom = baseGeom = MapUtil
-                                    .getGridGeometry(((ISpatialEnabled) satRec)
-                                            .getSpatialObject());
+                                    .getGridGeometry( getSpatialObject() );
                             tileSet = baseTile = new McidasFileBasedTileSet(
                                     satRec, "Data", numLevels, 256, gridGeom,
                                     AbstractSatelliteResource.this,
 		                        PixelInCell.CELL_CORNER, viewType);
 							tileTime = satRec.getDataTime();
-                        } else {
+                        } 
+                        else {
 							/*
                              * for native Satellite projections. Note native
                              * projections can vary with each image. cannot
                              * specify a baseTile or baseGeom.
 							 */
 							gridGeom = createNativeGeometry(satRec);
+                            
                             tileSet = new McidasFileBasedTileSet(satRec,
                                     "Data", numLevels, 256, gridGeom,
                                     AbstractSatelliteResource.this,
 				                        PixelInCell.CELL_CORNER, viewType);
 							tileTime = satRec.getDataTime();
 						}
-						
-		            } else {
+                    }
+                    else {
 		            	// if the tileset is already set, and the new record is 
 						   // is not a better match then return					
 						if( tileSet != null && tileTime != null ) {
@@ -723,30 +746,6 @@ public abstract class AbstractSatelliteResource extends
 		return legendStr;
 	}
 	
-	public GeneralGridGeometry getImageGeometry() {
-		FrameData currFrame = (FrameData) getCurrentFrame();
-		return currFrame.gridGeom;
-	}
-	
-//    private String getLegend( PluginDataObject record ) {       
-//    	if( legendStr == null ) {
-//    		String productName = null;
-//    		DerivedParameterRequest request = 
-//    			 (DerivedParameterRequest) record.getMessageData();
-//    		
-//    		if( request == null ) {
-//    			productName = getImageTypeFromRecord( record );
-//    		} else {
-//    			productName = request.getParameterAbbreviation();
-//    		}
-//    		legendStr =  SatelliteConstants.getLegend( 
-//    				productName,  getCreatingEntityFromRecord( record ) );
-//    		// ((SatelliteRecord) record).getCreatingEntity());
-//    	}
-//
-//    	return legendStr;
-//    }
-
 	@Override
 	public void resourceChanged(ChangeType type, Object object) {
         if ( type != null && type == ChangeType.CAPABILITY ){
@@ -1008,4 +1007,37 @@ public abstract class AbstractSatelliteResource extends
 
 	}
 	
+	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
+
+    // for IGridGeometryProvider
+	@Override
+	public GeneralGridGeometry getGridGeometry() {
+		return ((IGridGeometryProvider)getResourceData()).getGridGeometry();
+	}
+
+	@Override
+	public String getProviderName() {
+		return ((IGridGeometryProvider)getResourceData()).getProviderName();
+	}
+
+	@Override
+	public double[] getMapCenter() {
+		return ((IGridGeometryProvider)getResourceData()).getMapCenter();
+	}
+
+	@Override
+	public String getZoomLevel() {
+		return ((IGridGeometryProvider)getResourceData()).getZoomLevel();
+	}
+	
+	@Override
+	public void setZoomLevel( String zl ) {
+		((IGridGeometryProvider)getResourceData()).setZoomLevel( zl );
+	}
 }

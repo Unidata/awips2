@@ -88,7 +88,7 @@ import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 import com.raytheon.viz.skewt.SkewtDisplay;
 import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.MenuLoader;
+import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -1078,7 +1078,7 @@ public class ProductTableComp extends Composite {
 
             Bundle b = new Bundle();
             b.setDisplays(new AbstractRenderableDisplay[] { display });
-            Job j = new MenuLoader(b, editor);
+            Job j = new BundleProductLoader(editor, b);
             j.schedule();
         }
     }

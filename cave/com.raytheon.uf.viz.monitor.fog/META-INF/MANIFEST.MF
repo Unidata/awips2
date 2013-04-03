@@ -20,6 +20,7 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.colormap
-Export-Package: com.raytheon.uf.viz.monitor.fog.threshold,
+Export-Package: com.raytheon.uf.viz.monitor.fog,
+ com.raytheon.uf.viz.monitor.fog.threshold,
  com.raytheon.uf.viz.monitor.fog.ui.resource,
  com.raytheon.uf.viz.monitor.fog.xml

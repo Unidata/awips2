@@ -1,0 +1,144 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<schema targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" 
+  xmlns="http://www.w3.org/2001/XMLSchema" 
+  xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" 
+  xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema  http://www.w3.org/2001/XMLSchema.xsd"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  >
+  
+  <annotation>
+    <documentation xml:lang="en">The schema for OASIS ebXML Registry Services</documentation>
+  </annotation>
+  <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" schemaLocation="rim.xsd"/>
+  <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" schemaLocation="rs.xsd"/>
+
+  <simpleType name="mode">
+    <restriction base="NCName">
+      <enumeration value="CreateOrReplace"/>
+      <enumeration value="CreateOrVersion"/>
+      <enumeration value="CreateOnly"/>
+    </restriction>
+  </simpleType>
+
+  <element name="SubmitObjectsRequest">
+    <annotation>
+      <documentation xml:lang="en">This SubmitObjects protocol allows a client to submit RegistryObjects to the server. It also allows a client to completely replace existing RegistryObjects in the server.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <element ref="rim:RegistryObjectList" minOccurs="0" maxOccurs="1"/>
+          </sequence>
+          <attribute name="checkReferences" type="boolean" use="optional" default="false"/>
+          <attribute name="mode" type="tns:mode" use="optional" default="CreateOrReplace"/>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  
+  <complexType name="UpdateActionType">
+    <annotation>
+      <documentation xml:lang="en">
+      </documentation>
+    </annotation>
+    <sequence>
+      <!-- Value for attribute or element -->
+      <element name="ValueHolder" type="rim:ValueType" minOccurs="0" maxOccurs="1"/>
+      <!-- 
+      Value of selector is an XPATH expression that uniquely identifies an attribute 
+      or an element within target documents.    
+      -->
+      <element name="Selector" type="rim:QueryExpressionType" minOccurs="1" maxOccurs="1"/>
+    </sequence>
+
+    <!--
+    Specifies whether to insert, update or delete a fragment from target document.
+    -->
+    <attribute name="mode" use="required">
+      <simpleType>
+        <restriction base="NCName">
+          <enumeration value="Insert"/>
+          <enumeration value="Update"/>
+          <enumeration value="Delete"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+  </complexType>
+    
+  <element name="UpdateObjectsRequest">
+    <annotation>
+      <documentation xml:lang="en">This UpdateObjectsRequest allows a client to updates elements and attributes within RegistryObjects already existing in the server.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <!-- Query and ObjectRefList select objects to update -->
+            <element name="Query" type="rim:QueryType" minOccurs="0" maxOccurs="1" />
+            <element ref="rim:ObjectRefList" minOccurs="0" maxOccurs="1" />
+            
+            <!-- Specifies how to update selected objects -->
+            <element name="UpdateAction" type="tns:UpdateActionType" minOccurs="1" maxOccurs="unbounded"/>
+          </sequence>
+          <attribute name="checkReferences" type="boolean" use="optional" default="false"/>
+          <attribute name="mode" type="tns:mode" use="optional" default="CreateOrReplace"/>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+    
+  <element name="RemoveObjectsRequest">
+    <annotation>
+      <documentation xml:lang="en">
+        The ObjectRefList is the list of
+        refs to the registry entries being removed
+      </documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <element name="Query" type="rim:QueryType" minOccurs="0" maxOccurs="1" />
+            <element ref="rim:ObjectRefList" minOccurs="0" maxOccurs="1" />
+          </sequence>
+          <attribute name="checkReferences" type="boolean" use="optional" default="false"/>
+          <attribute name="deleteChildren" type="boolean" use="optional" default="false"/>
+          <attribute name="deletionScope" type="rim:objectReferenceType" use="optional" default="urn:oasis:names:tc:ebxml-regrep:DeletionScopeType:DeleteAll"/>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+</schema>

@@ -28,6 +28,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 
 
 /**
@@ -40,6 +41,7 @@ import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
  * 06/09			#142	S. Gilbert 	Created from PgenExtrapTool
  * 04/10			#165	G. Zhang	Added isInterpolableSigmet()
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 11/12		#?			J. Wu		Added GFA
  * </pre>
  * 
  * @author	S. Gilbert
@@ -130,6 +132,9 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		DrawableElement el1 = drawingLayer.getNearestElement( loc, interpFilter );
             		if ( selectionIsValid(el1) ) {
             			drawingLayer.setSelected( el1 );
+            			if ( useGfaFcsthr( el1 ) ) {
+            				 interpDlg.setStartTime( ((Gfa)el1).getGfaFcstHr() );
+            			}
                 		status = SELECT_STATUS.SELECTED_1;
             		}
             		break;
@@ -150,6 +155,9 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
             		DrawableElement first = selectedEls.get(0).getPrimaryDE();
             		if ( comparisonIsValid(el2,first) ) {
             			drawingLayer.addSelected(el2);
+            			if ( useGfaFcsthr(el2) ) {
+           				    interpDlg.setEndTime( ((Gfa)el2).getGfaFcstHr() );
+           			    }
                 		status = SELECT_STATUS.SELECTED_2;
             		}
             		break;
@@ -236,6 +244,8 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
     /**
      * Compares a new element with an original one to make sure that both 
      * are of the same Pgen Category AND that both are open or both are closed
+     * 
+     * Note: For GFA, both should have the same hazard type and tag/desk.
      * @param el2 new element
      * @param orig original element
      * @return true if the comparison indicates the second element is valid
@@ -245,6 +255,19 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
     	if ( orig==null || el2==null ) return false; 
     	if ( orig == el2 ) return false;
     	
+    	if ( orig instanceof Gfa ) {
+    		
+    		if ( el2 instanceof Gfa && 
+    			((Gfa)el2).getGfaHazard().equals( ((Gfa)orig).getGfaHazard() ) &&
+    			((Gfa)el2).getGfaTag().equals( ((Gfa)orig).getGfaTag() ) && 
+    			((Gfa)el2).getGfaDesk().equals( ((Gfa)orig).getGfaDesk() ) ) {
+    			return true;
+    		}
+    		else 
+    			return false;
+
+    	}
+    	else {  	  	
 		if ( el2.getPgenCategory().equals( orig.getPgenCategory() ) ) {
 			
 				if ( bothClosed(orig, el2) ||  bothOpen(orig, el2) ) {
@@ -252,10 +275,10 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
 				}
 				else
 					return false;
-				
 		}		
 		else
 			return false;
+    	}
 		
 	}
 
@@ -268,12 +291,14 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
 		
 		if ( el1 == null ) return false;
 		
-    	if ( el1.getPgenCategory().equals("Lines") ||  el1.getPgenCategory().equals("Front") || isInterpolableSigmet(el1)  ) 	
+    	if ( el1.getPgenCategory().equals("Lines") ||  el1.getPgenCategory().equals("Front") 
+    		 || isInterpolableSigmet(el1) || el1 instanceof Gfa ) 	
     		return true;
     	else 
     		return false;
 	}
 
+	
 	/**
 	 * Performs the interpolation between the two selected elements using the properties(parameters)
 	 * specified in the Interpolation Dialog.  New elements are created and are added 
@@ -284,15 +309,14 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
     	
 		/*
 		 * get interpolation properties from the dialog
+		 * reverse the interval is starting time > end time.
 		 */
-    	InterpolationProperties props = new InterpolationProperties( interpDlg.getStartTime(), interpDlg.getEndTime(),
-    			                               interpDlg.getInterval() );
+		InterpolationProperties props = new InterpolationProperties( interpDlg.getStartTime(),
+									interpDlg.getEndTime(), interpDlg.getInterval() );
     	
     	/*
     	 * perform the interpolation and get back new elements
     	 */
-//    	List<AbstractDrawableComponent> deList = PgenInterpolator.interpolate(selectedEls.get(0).getPrimaryDE(), selectedEls.get(1).getPrimaryDE(), 
-//    			props, mapEditor.getDescriptor() );
     	List<AbstractDrawableComponent> deList = PgenInterpolator.interpolate(selectedEls.get(0).getPrimaryDE(), selectedEls.get(1).getPrimaryDE(), 
     			props, getDescriptor( mapEditor ) );
 
@@ -367,6 +391,24 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
         return descriptor;
     }
 
+    /*
+     * Check if it is a GFA and if its forecast hour can be used.
+     */
+	private boolean useGfaFcsthr( DrawableElement el ){
+	    if ( !(el instanceof Gfa) ) {
+	    	return false;
+	    }
+	    else {
+	    	String fcstHr = ((Gfa)el).getGfaFcstHr();
+	    	if ( fcstHr.contains("-") || fcstHr.contains(":") ) {
+	    		return false;
+	    	}
+	    	else 
+	    		return true;
+	    }
+
+	}
+   
 
 
 }

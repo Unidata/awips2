@@ -9,8 +9,9 @@
 GLEVEL =  0!0!500:1000!500:1000!0
 GVCORD =  none!none!PRES!PRES!none
 SKIP   =    0
+FILTER=y
 SCALE  =   0!0!-1!-1!0
-GDPFUN =  quo(pwtr;25.4)//pw!pw!ldf(hght)//tk!tk!sm9s(mul(1e-2,pmsl))
+GDPFUN =  quo(pwtr;25.4)//pw!pw!ldf(hght)//tk!tk!sm9s(pmsl)
 TYPE   =    c/f!c!c
 CINT   =    0.25/0.5/1.0!0.25/1.25/6.0!6/460/540!6/546!4
 LINE   =    22//1!32//2/1!17/5/2!20/5/2!6//3
@@ -24,4 +25,3 @@ TITLE  =   1/-1/~ PW, PMSL, THICKNESS!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
