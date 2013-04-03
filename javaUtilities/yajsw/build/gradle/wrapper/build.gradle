@@ -1,0 +1,54 @@
+projectHome = '../../..'
+
+// set the sources for this build
+sourceSets.main.java.srcDirs = ["$projectHome/src/main/java", "$projectHome/src/app/java"]
+sourceSets.main.resources.srcDirs = ["$projectHome/src/main/java"]
+sourceSets.main.resources.includes  = ['resources/*']
+
+// this project uses the ahessian sub-project
+dependencies {
+    compile project(':ahessian')
+}
+
+dependencies {
+    compile group: 'commons-cli', 				name: 'commons-cli', 							version: "$commons_cli_version"
+    compile group: 'commons-collections', name: 'commons-collections', 			version: "$commons_collections_version"
+    compile group: 'commons-configuration', name: 'commons-configuration', 	version: "$commons_configuration_version"
+    compile group: 'commons-io', 					name: 'commons-io', 							version: "$commons_io_version"
+    compile group: 'commons-lang', 				name: 'commons-lang', 						version: "$commons_lang_version"
+    compile group: 'commons-logging', 		name: 'commons-logging', 					version: "$commons_logging_version"
+    compile group: 'commons-vfs2', 				name: 'commons-vfs2', 							version: "$commons_vfs2_version"
+    compile group: 'groovy-all', 					name: 'groovy-all', 							version: "$groovy_all_version"
+    compile group: 'jna', 								name: 'jna', 											version: "$jna_version"
+    compile group: 'platform', 						name: 'platform', 								version: "$platform_version"
+    compile group: 'netty', 							name: 'netty', 										version: "$netty_version"
+    compile group: 'jrexx', 							name: 'jrexx', 										version: "$jrexx_version"
+    compile group: 'quartz', 							name: 'quartz', 									version: "$quartz_version"
+    compile group: 'abeille', 						name: 'formsrt', 									version: "$formsrt_version"
+    compile group: 'forms', 							name: 'forms', 										version: "$forms_version"
+    compile group: 'velocity', 						name: 'velocity', 								version: "$velocity_version"
+}
+
+//println '---------------------------'
+//println 'dependency jars:'
+//println '---------------------------'
+//configurations.compile.each { File file -> println file.absolutePath }
+//println '---------------------------'
+
+// name of jar file
+jar.baseName = 'wrapper'
+
+// TODO generate manifest instead of editing
+jar {
+    manifest {
+        from '../../MANIFEST.MF'
+    }
+    exclude 'org/rzo/yajsw/app/AbstractWrapperJVMMain*'
+    exclude 'org/rzo/yajsw/app/WrapperGroovyMain*'
+    exclude 'org/rzo/yajsw/app/WrapperJVMMain*'
+    exclude 'org/rzo/yajsw/app/WrapperMainServiceUnix*'
+    exclude 'org/rzo/yajsw/app/WrapperMainServiceWin*'
+    exclude 'org/rzo/yajsw/app/WrapperManager.class'
+    exclude 'org/rzo/yajsw/app/WrapperManagerClassLoader*'
+    exclude 'org/rzo/yajsw/app/WrapperManagerProxy*'
+}
