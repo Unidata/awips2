@@ -5,32 +5,16 @@
  *
  * L. Lin       04/09   Creation
  * S. Gurung    09/11  Renamed H5 to Nc and h5 to nc
+ * D. Johnson   08/12  Upgrade to JUnit 4.10.
  * </pre>
  *
  */
 package gov.noaa.nws.ncep.edex.plugin.ncuair.util;
 
-import static org.junit.Assert.*;
-import java.util.Calendar;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairLiftedIndex;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairMaxWind;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairObsLevels;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairTropopause;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairRecord;
-import gov.noaa.nws.ncep.edex.plugin.ncuair.util.NcUairParser;
-import gov.noaa.nws.ncep.edex.plugin.ncuair.util.NcUairWindGroup;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.*;
-
-import gov.noaa.nws.ncep.edex.tools.decoder.MndTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TimeZone;
+import org.junit.Test;
 
 public class NcUairParserTest {
 	String report = "USUS41 KLWX 190000\r\r\n" + 
@@ -68,7 +52,7 @@ public class NcUairParserTest {
 	@Test
 	public void testGetUairType() {
 		Integer uairType = NcUairParser.getUairType("TTAA");
-		assertEquals( 1, uairType);
+        assertEquals(1, uairType.intValue());
 	}
 }
 

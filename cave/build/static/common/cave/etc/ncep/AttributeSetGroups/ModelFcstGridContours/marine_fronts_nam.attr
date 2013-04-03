@@ -7,8 +7,9 @@
 GLEVEL =  9823                            ! 850:1000
 GVCORD =  sgma                            ! pres
 SKIP   =    0
+FILTER=y
 SCALE  =   7                               ! -1
-GDPFUN =  sdiv(mixr(dwpc;mul(1e-2,pres@0%none)),obs ! (sub(hght@850,hght@1000) ! kntv(wnd@30:0%pdly)
+GDPFUN =  sdiv(mixr(dwpc;pres@0%none),obs) ! (sub(hght@850,hght@1000) ! kntv(wnd@30:0%pdly)
 TYPE   =    c/f                             ! c                        ! b
 CINT   =    1//-1                           ! 1
 LINE   =    32/1/1/2                        ! 6/5/1/1
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ 1000-850mb THK, BL MOISTURE CONVERGENCE & WIND   = (KT)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

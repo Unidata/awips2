@@ -115,7 +115,6 @@ public abstract class AbstractRequestableResourceData extends
                 PluginDataObject record = RecordFactory.getInstance()
                         .loadRecordFromUri(dataURI);
                 objectToSend = record;
-
             } else {
                 attribs.put("dataURI", message.dataURI);
                 objectToSend = Loader.loadData(attribs);
@@ -275,6 +274,20 @@ public abstract class AbstractRequestableResourceData extends
         Validate.isTrue(updateData instanceof Object[],
                 "Update expected Object[]");
 
+        if (updateData instanceof PluginDataObject[]) {
+            for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
+                DataTime time = pdo.getDataTime();
+                if (binOffset != null) {
+                    time = binOffset.getNormalizedTime(time);
+                }
+                synchronized (cachedAvailableTimes) {
+                    if (!cachedAvailableTimes.contains(time)) {
+                        cachedAvailableTimes.add(time);
+                    }
+                }
+            }
+        }
+
         this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
     }
 
@@ -430,13 +443,8 @@ public abstract class AbstractRequestableResourceData extends
      */
     public PluginDataObject[] getLatestPluginDataObjects(DataTime[] desired,
             DataTime[] current) throws VizException {
-        if (desired == null || desired.length == 0 || !this.retrieveData) {
-            return new PluginDataObject[0];
-        }
-
-        // If resource is handling requests itself, do not send full record
-        // updates
-        if (isUpdatingOnMetadataOnly() || !isRequeryNecessaryOnTimeMatch()) {
+        if (desired == null || desired.length == 0 || !isRetrieveData()
+                || !isRequeryNecessaryOnTimeMatch()) {
             return new PluginDataObject[0];
         }
 
@@ -669,7 +677,6 @@ public abstract class AbstractRequestableResourceData extends
         int result = 1;
         result = prime * result
                 + ((binOffset == null) ? 0 : binOffset.hashCode());
-        result = prime * result + (isUpdatingOnMetadataOnly ? 1231 : 1237);
         result = prime * result
                 + ((metadataMap == null) ? 0 : metadataMap.hashCode());
         result = prime * result
@@ -707,10 +714,6 @@ public abstract class AbstractRequestableResourceData extends
         AbstractRequestableResourceData other = (AbstractRequestableResourceData) obj;
 
         if (!isObjectsEqual(binOffset, other.binOffset)) {
-            return false;
-        }
-
-        if (isUpdatingOnMetadataOnly != other.isUpdatingOnMetadataOnly) {
             return false;
         }
 

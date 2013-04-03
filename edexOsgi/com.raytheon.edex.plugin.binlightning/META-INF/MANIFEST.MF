@@ -8,8 +8,7 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: org.apache.commons.logging,
  com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- javax.persistence
+ javax.persistence,
+ com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.12.1174";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.dataplugin.binlightning,
- com.raytheon.uf.common.dataplugin.binlightning.dao,
- com.raytheon.uf.common.dataplugin.binlightning.impl
+Export-Package: com.raytheon.edex.plugin.binlightning.dao

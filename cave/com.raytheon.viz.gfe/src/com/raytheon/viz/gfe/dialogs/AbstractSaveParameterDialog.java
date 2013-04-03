@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2011            randerso     Initial creation
+ * Oct 30, 2012 1298       rferrel     Code clean for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -68,10 +69,10 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
         implements DisposeListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractSaveParameterDialog.class);
 
-    protected static final int MAX_CONCURRENT_SAVES = 5;
+    private final int MAX_CONCURRENT_SAVES = 5;
 
     protected DataManager dataManager;
 

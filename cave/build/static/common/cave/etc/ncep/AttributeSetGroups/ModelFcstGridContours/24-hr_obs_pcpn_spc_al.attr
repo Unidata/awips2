@@ -7,6 +7,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  p24i
 TYPE   =    f
@@ -22,4 +23,3 @@ TITLE  =   1/-1/COOPERATIVE RAINFALL REPORTS FOR 24 hrs ENDING 12 UTC: ~
 COLORS =                                                                         
 MARKER =                                                                         
 GRDLBL =                                                                         
-FILTER =  0

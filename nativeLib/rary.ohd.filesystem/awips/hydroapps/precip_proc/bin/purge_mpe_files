@@ -34,6 +34,8 @@ RUN_FROM_DIR=`dirname $0`
 
 # set up some environment variables for WHFS applications
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
 export LIGHTNING_LOG_DIR=$(get_apps_defaults lightning_log_dir)
 export GAQ_LOG_DIR=$(get_apps_defaults gaq_log_dir)
 export MPE_QPE_SBN_DIR=$(get_apps_defaults mpe_qpe_sbn_dir)

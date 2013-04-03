@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 
 /**
  * 
@@ -53,6 +54,8 @@ public class DataCubeAlertMessageParser extends AbstractAlertMessageParser {
     public Object parseAlertMessage(AlertMessage message,
             AbstractRequestableResourceData reqResourceData)
             throws VizException {
+        reqResourceData.fireChangeListeners(ChangeType.DATA_REMOVE,
+                message.decodedAlert.get("dataTime"));
         return null;
     }
 

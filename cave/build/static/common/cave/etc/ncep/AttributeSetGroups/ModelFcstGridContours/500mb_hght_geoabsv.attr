@@ -3,14 +3,14 @@
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
-! T. Lee/GSC		 6/99	Changed contour SKIP = 0
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
+! T. Lee/GSC		 6/99	Changed contour SKIP   = = 0
 ! J. Carr/HPC            7/99   Smoothed height lines. Changed contur to a 2 for height.
-! Archana/Chugach    9/2012     #866   Added CLRBAR
 !
 GLEVEL =  500
 GVCORD =  pres
 SKIP   =    0
+FILTER=y
 SCALE  =   5                  !5             !-1
 GDPFUN =  abs(avor(geo))//v  !v             !sm5s(hght)
 TYPE   =    c/f                !c             !c
@@ -26,4 +26,3 @@ TITLE  =   5/0/~ @ HEIGHTS AND GEO ABS VORTICITY!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

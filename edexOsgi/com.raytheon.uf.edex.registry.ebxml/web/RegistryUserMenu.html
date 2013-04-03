@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<style type="text/css">
+		a {font-weight:bold;}
+		table{border:3;}
+		td {width:200; background-color:deepskyblue}
+		th {width:200; background-color:aqua; font-size:14pt;} 
+		input{width:200;}
+	</style>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" type="text/css" media="screen, projection" href="dataDelivery.css"/>
+    <script type="text/javascript" src='/registryEbxml/dwr/engine.js'></script>
+    <script type="text/javascript" src='/registryEbxml/dwr/util.js'></script>
+    <script type='text/javascript' src='/registryEbxml/dwr/interface/RegistryWeb.js'></script>
+    <script type='text/javascript' src='/registryEbxml/dataDeliveryUtil.js'></script>
+  <title>Data Delivery Registry Admin</title>
+</head>
+<body onload="getUsers()">
+<h2>Registry User Management Interface</h2> 
+<a href="RegistryOrganizationMenu.html">View Organizations</a> 
+<p>
+<table>
+	<tr>
+		<td style="width:100; background-color: transparent">First Name</td>
+		<td style="width:100; background-color: transparent"> <input type="text" id="firstNameText" onkeyup="getUsers()"/></td>
+	</tr>
+	
+	<tr>
+		<td style="width:100; background-color: transparent">Last Name</td>
+		<td style="width:100; background-color: transparent"><input type="text" id="lastNameText" onkeyup="getUsers()"/></td>
+	</tr>
+</table>
+<p> 
+<p>
+<hr width="500" align="left"/> 
+<p>
+<button type="button" id="newUserButton" onclick="location.href='RegistryUserInterface.html?mode=add'">Add New User</button>
+<hr width="500" align="left"/> 
+<p>
+<span id="resultsSpan"></span>
+</body>
+
+<script language="JavaScript">
+	function getUsers() {
+		var firstName= getElementValue("firstNameText");
+		var lastName=getElementValue("lastNameText");
+		RegistryWeb.getUser(firstName,lastName,function(output){self.updateResults(output);}); 
+	} 
+	
+	function updateResults(result){
+		document.getElementById("resultsSpan").innerHTML = result;
+	} 
+	
+</script>
+
+</html>

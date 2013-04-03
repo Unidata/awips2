@@ -26,7 +26,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.sounding.adapter.AbstractVerticalSoundingAdapter;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.sounding.adapters.GribSoundingAdapter;
+import com.raytheon.uf.viz.sounding.adapters.GridSoundingAdapter;
 import com.raytheon.uf.viz.sounding.adapters.IPointSounding;
 import com.raytheon.viz.skewt.rsc.SkewTResource;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -66,7 +66,7 @@ public class GribSoundingSkewTResourceData extends SkewTResourceData implements
     @Override
     protected SkewTResource constructResource(LoadProperties loadProperties,
             PluginDataObject[] objects) throws VizException {
-        AbstractVerticalSoundingAdapter adapter = new GribSoundingAdapter(this);
+        AbstractVerticalSoundingAdapter adapter = new GridSoundingAdapter(this);
         adapter.setObjects(objects);
         this.soundings = adapter.createSoundings();
         SkewTResource rsc = new SkewTResource(this, loadProperties);
