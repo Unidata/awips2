@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,7 +45,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -58,7 +57,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
  * The product generation scripts dialog.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -66,11 +65,9 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 	Mar 7, 2008			   Eric Babin   Initial Creation
  * Oct 27, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
  * Oct 25, 2012 1287       rferrel     Code changes for non-blocking PublishDialog.
- * Nov 30, 2012 15575      ryu         Added variable replacement for SelectedStart, 
- *                                     SelectedEnd, and home
- *
+ * 
  * </pre>
- *
+ * 
  * @author ebabin
  * @version 1.0
  */
@@ -86,8 +83,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
     private String[] scripts;
 
     private Map<String, String> scriptDict;
-
-    private String gfeHome;
 
     private String prddir;
 
@@ -108,8 +103,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataManager = dataManager;
 
-        gfeHome = Activator.getDefault().getPreferenceStore()
-                .getString("GFESUITE_HOME");
         prddir = Activator.getDefault().getPreferenceStore()
                 .getString("GFESUITE_PRDDIR");
         scripts = Activator.getDefault().getPreferenceStore()
@@ -145,7 +138,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
     }
 
     /**
-     *
+     * 
      */
     private void runScripts() {
         int[] idxs = scriptsList.getSelectionIndices();
@@ -177,15 +170,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                         .getSpatialEditorTime();
                 Date seEnd = new Date(seStart.getTime() + 60 * 1000);
 
-                Date selStart = new Date(0);
-                Date selEnd = new Date(0);
-                TimeRange selectedTR = dataManager.getParmOp()
-                        .getSelectionTimeRange();
-                if (selectedTR != null) {
-                    selStart = selectedTR.getStart();
-                    selEnd = selectedTR.getEnd();
-                }
-
                 // The following variables are replaced by known values:
                 cmd = cmd.replace("{host}", hostParts[0]);
                 cmd = cmd.replace("{port}", hostParts[1]);
@@ -193,13 +177,8 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 cmd = cmd.replace("{productDB}", productDB.toString());
                 cmd = cmd.replace("{SEstart}", gmtTime.format(seStart));
                 cmd = cmd.replace("{SEend}", gmtTime.format(seEnd));
-                cmd = cmd.replace("{SelectedStart}",
-                        gmtTime.format(selStart));
-                cmd = cmd.replace("{SelectedEnd}",
-                        gmtTime.format(selEnd));
                 cmd = cmd.replace("{time}", curLocalTime);
                 cmd = cmd.replace("{ztime}", curGMTTime);
-                cmd = cmd.replace("{home}", gfeHome);
                 cmd = cmd.replace("{prddir}", prddir);
 
                 // The user is prompted to enter the value with which to replace
@@ -418,7 +397,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
      * .Shell)
