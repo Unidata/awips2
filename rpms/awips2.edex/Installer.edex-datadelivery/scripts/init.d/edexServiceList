@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Default Services to start
+export SERVICES=('registry')
+

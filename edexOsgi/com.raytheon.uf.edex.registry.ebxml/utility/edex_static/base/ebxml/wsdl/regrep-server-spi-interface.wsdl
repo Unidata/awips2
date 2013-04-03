@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<definitions name="regrep-server-spi-interface" 
+  targetNamespace="urn:oasis:names:tc:ebxml-regrep:wsdl:spi:interfaces:4.0" 
+  xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:spi="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0"
+  xmlns:interfaces="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0"
+  xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" 
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:wsdl:spi:interfaces:4.0" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl"
+  >
+  <documentation>
+    $Header:$
+    Author: Farrukh Najmi
+    This is the the normative abstract interface definition in WSDL for the ebXML RegRep SPI.
+  </documentation>
+  <import location="regrep-server-interface.wsdl" namespace="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0"/>
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0" schemaLocation="../../xsd/spi.xsd"/>
+      <xsd:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" schemaLocation="../../xsd/rs.xsd"/>
+    </xsd:schema>
+  </types>
+  
+  <!-- The Response message definitions. -->
+  <message name="msgValidateObjectsResponse">
+    <documentation>Defines a ValidateObjectsResponse message.</documentation>
+    <part element="spi:ValidateObjectsResponse" name="partValidateObjectsResponse"/>
+  </message>
+  <message name="msgCatalogObjectsResponse">
+    <documentation>Defines a CatalogObjectsResponse message.</documentation>
+    <part element="spi:CatalogObjectsResponse" name="partCatalogObjectsResponse"/>
+  </message>
+  <message name="msgFilterObjectsResponse">
+    <documentation>Defines a FilterObjectsResponse message.</documentation>
+    <part element="spi:FilterObjectsResponse" name="partFilterObjectsResponse"/>
+  </message>
+  <!-- Request message definitions. -->
+  <message name="msgValidateObjectsRequest">
+    <part element="spi:ValidateObjectsRequest" name="partValidateObjectsRequest"/>
+    <!--
+         mime:part for payload not included as cardinality is variable per AP 1.0:
+         R2923 A SENDER MAY send non-root MIME parts not described in the WSDL MIME binding.
+    -->
+  </message>
+  <message name="msgCatalogObjectsRequest">
+    <part element="spi:CatalogObjectsRequest" name="partCatalogObjectsRequest"/>
+    <!--
+         mime:part for payload not included as cardinality is variable per AP 1.0:
+         R2923 A SENDER MAY send non-root MIME parts not described in the WSDL MIME binding.
+    -->
+  </message>
+  <message name="msgFilterObjectsRequest">
+    <part element="spi:FilterObjectsRequest" name="partFilterObjectsRequest"/>
+    <!--
+         mime:part for payload not included as cardinality is variable per AP 1.0:
+         R2923 A SENDER MAY send non-root MIME parts not described in the WSDL MIME binding.
+    -->
+  </message>
+  <portType name="Validator">
+    <documentation>The Validator interface.</documentation>
+    <operation name="validateObjects">
+      <input message="tns:msgValidateObjectsRequest"/>
+      <output message="tns:msgValidateObjectsResponse"/>
+      <fault name="registryException" message="interfaces:msgRegistryException"/>
+    </operation>
+  </portType>
+  <portType name="Cataloger">
+    <documentation>The Cataloger interface.</documentation>
+    <operation name="catalogObjects">
+      <input message="tns:msgCatalogObjectsRequest"/>
+      <output message="tns:msgCatalogObjectsResponse"/>
+      <fault name="registryException" message="interfaces:msgRegistryException"/>
+    </operation>
+  </portType>
+  <portType name="Filter">
+    <documentation>The Filter interface.</documentation>
+    <operation name="filterObjects">
+      <input message="tns:msgFilterObjectsRequest"/>
+      <output message="tns:msgFilterObjectsResponse"/>
+      <fault name="registryException" message="interfaces:msgRegistryException"/>
+    </operation>
+  </portType>
+</definitions>

@@ -106,7 +106,7 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                  */
                 @Override
                 public String getId() {
-                    return "IncludeSubMenuContributionId_" + subMenuName;
+                    return "IncludeSubMenuContributionId_"+subMenuName;
                 }
             };
             return new IContributionItem[] { submenuCont };

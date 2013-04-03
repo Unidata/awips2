@@ -73,12 +73,12 @@
             <bean ref="smartInitQueue" method="fireSmartInit" />                                
         </route>
 
-        <!--  gribNotification not clustered and has two threads to read due to throughput of messages during model run times -->
-        <route id="gfeGribIngestNotification">
-            <from uri="jms-generic:queue:gribNotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=2" />
+        <!--  gfeIngestNotification not clustered and has two threads to read due to throughput of messages during model run times -->
+        <route id="gfeIngestNotification">
+            <from uri="jms-generic:queue:gfeDataURINotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=2" />
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift" />
-                <bean ref="gfeIngestFilter" method="filterGribNotifications" />
+                <bean ref="gfeIngestFilter" method="filterDataURINotifications" />
 
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
@@ -105,18 +105,6 @@
             </doTry>
 		</route>
 
-		<route id="gfeSatIngestNotification">
-			<from uri="jms-generic:queue:satNotification?destinationResolver=#qpidDurableResolver" />
-			<doTry>
-				<bean ref="serializationUtil" method="transformFromThrift" />
-				<bean ref="gfeIngestFilter" method="filterSatelliteNotifications" />
-
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:gfeIngestFilter?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
-				</doCatch>
-			</doTry>
-		</route>
 		<route id="gfeVtecChangeNotification">
 			<from uri="jms-generic:topic:edex.alerts.vtec"/>
 			<doTry>
@@ -128,7 +116,42 @@
 				</doCatch>
 			</doTry>
 		</route>
+		
+		<!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
+		<route id="gfeDataURINotificationQueueRoute">
+			<from uri="jms-gfe-notify:topic:edex.alerts?clientId=gfeNotify&amp;durableSubscriptionName=gfeNotificationSubscription" />
+			<doTry>
+				<to uri="jms-generic:queue:gfeDataURINotification"/>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:gfeIngestFilter?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
 	</camelContext>
+	
+	<!-- Beans to define a custom jms connection which will allow a durable subscription -->
+	<bean id="gfeNotifyConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@gfeNotify/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+    </bean>
+
+	<bean id="gfeNotifyJmsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+		<property name="listenerConnectionFactory" ref="gfeNotifyConnectionFactory" />
+    </bean>
+
+    <bean id="gfeNotifyThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean>
+
+    <bean id="jms-gfe-notify" class="org.apache.camel.component.jms.JmsComponent">
+       <constructor-arg ref="gfeNotifyJmsConfig" />
+       <property name="taskExecutor" ref="gfeNotifyThreadPool" />
+	</bean>
+	<!-- end of custom JMS beans -->
 
 	<bean factory-bean="clusteredCamelContextMgr"
 		factory-method="register">

@@ -3,11 +3,11 @@
     <inventoryName>gefs</inventoryName>
     <inventoryParameters>pluginName,dataTime</inventoryParameters>
     <baseConstraints>
-        <mapping key="modelName">
+        <mapping key="info.datasetId">
             <constraint constraintValue="gefs" constraintType="EQUALS"/>
         </mapping>
         <mapping key="pluginName">
-            <constraint constraintValue="ncgrib" constraintType="EQUALS"/>
+            <constraint constraintValue="grid" constraintType="EQUALS"/>
         </mapping>
     </baseConstraints>
 </NcInventoryDefinition>

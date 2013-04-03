@@ -47,7 +47,6 @@ import net.sf.ehcache.management.ManagementService;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -64,6 +63,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
@@ -71,7 +71,6 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
@@ -83,7 +82,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * <p>
  * Data types which must be persisted to the database must have an associated
  * dao which extends this class. Each class needing a dao must also extend the
- * PersistableDataObject class.
+ * PersistableDataObject<T> class.
  * <p>
  * NOTE: Direct instantiation of this class is discouraged. Use
  * DaoPool.getInstance().borrowObject() for retrieving all data access objects
@@ -96,6 +95,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in   
  * 5/14/08      1076        brockwoo    Fix for distinct with multiple properties
+ * Oct 10, 2012 1261        djohnson    Incorporate changes to DaoConfig, add generic to {@link IPersistableDataObject}.
  * 
  * </pre>
  * 
@@ -103,7 +103,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * @version 1
  */
 public class CoreDao extends HibernateDaoSupport {
-    protected static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(CoreDao.class);
+    protected static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CoreDao.class);
+
     /**
      * The Hibernate transaction manager. Methods do not directly use this
      * class. Instead, use the Transaction template
@@ -112,11 +114,6 @@ public class CoreDao extends HibernateDaoSupport {
 
     /** The convenience wrapper for the Hibernate transaction manager */
     protected final TransactionTemplate txTemplate;
-
-    /**
-     * The cache region to store query
-     */
-    private final String QUERY_CACHE_REGION = "Queries";
 
     /** The class associated with this dao */
     protected Class<?> daoClass;
@@ -132,16 +129,11 @@ public class CoreDao extends HibernateDaoSupport {
      * has been assigned
      */
     public CoreDao(DaoConfig config) {
-        txManager = (HibernateTransactionManager) EDEXUtil
-                .getESBComponent(config.getTxManagerName());
+        this.txManager = config.getTxManager();
         txTemplate = new TransactionTemplate(txManager);
-        // SessionFactory sf = ((DatabaseSessionFactoryBean)
-        // EDEXUtil.getESBComponent("&" + config
-        // .getSessionFactoryName())).getMoreBetterSessionFactory();
-        setSessionFactory((SessionFactory) EDEXUtil.getESBComponent(config
-                .getSessionFactoryName()));
+        setSessionFactory(config.getSessionFactory());
 
-        daoClass = config.getDaoClassName();
+        this.daoClass = config.getDaoClass();
         getHibernateTemplate().setCacheQueries(true);
     }
 
@@ -192,7 +184,7 @@ public class CoreDao extends HibernateDaoSupport {
      * @param obj
      *            The object to be persisted to the database
      */
-    public void saveOrUpdate(final PersistableDataObject obj) {
+    public <T> void saveOrUpdate(final PersistableDataObject<T> obj) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -223,7 +215,7 @@ public class CoreDao extends HibernateDaoSupport {
      * @param obj
      *            The object to be persisted to the database
      */
-    public void update(final PersistableDataObject obj) {
+    public <T> void update(final PersistableDataObject<T> obj) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -265,15 +257,15 @@ public class CoreDao extends HibernateDaoSupport {
 
     private static final String mergeSqlFormat = "select id from awips.%s where dataURI=:dataURI";
 
-    public List<PersistableDataObject> mergeAll(
-            final List<PersistableDataObject> obj) {
-        List<PersistableDataObject> duplicates = new ArrayList<PersistableDataObject>();
+    public <T> List<PersistableDataObject<T>> mergeAll(
+            final List<PersistableDataObject<T>> obj) {
+        List<PersistableDataObject<T>> duplicates = new ArrayList<PersistableDataObject<T>>();
         Session s = this.getHibernateTemplate().getSessionFactory()
                 .openSession();
         Transaction tx = s.beginTransaction();
         try {
             Map<String, Query> pluginQueryMap = new HashMap<String, Query>();
-            for (PersistableDataObject pdo : obj) {
+            for (PersistableDataObject<T> pdo : obj) {
                 if (pdo == null) {
                     logger.error("Attempted to insert null PersistableDataObject");
                     continue;
@@ -291,11 +283,8 @@ public class CoreDao extends HibernateDaoSupport {
                     if (!pdo.isOverwriteAllowed()) {
                         duplicates.add(pdo);
                     } else {
-                        statusHandler.handle(
-                                Priority.DEBUG,
-                                "Overwriting "
-                                        + ((PersistableDataObject) pdo)
-                                                .getIdentifier());
+                        statusHandler.handle(Priority.DEBUG, "Overwriting "
+                                + pdo.getIdentifier());
                     }
                 }
             }
@@ -310,43 +299,6 @@ public class CoreDao extends HibernateDaoSupport {
             }
         }
         return duplicates;
-
-        // return (List<PersistableDataObject>) txTemplate
-        // .execute(new TransactionCallback() {
-        // @Override
-        // public List<PersistableDataObject> doInTransaction(
-        // TransactionStatus arg0) {
-        // Session s = getHibernateTemplate().getSessionFactory()
-        // .getCurrentSession();
-        // List<PersistableDataObject> duplicates = new
-        // ArrayList<PersistableDataObject>();
-        // Map<String, Query> pluginQueryMap = new HashMap<String, Query>();
-        // for (PersistableDataObject pdo : obj) {
-        // if (pdo == null) {
-        // logger
-        // .error("Attempted to insert null PersistableDataObject");
-        // continue;
-        // }
-        // String plugin = ((PluginDataObject) pdo)
-        // .getPluginName();
-        // Query q = pluginQueryMap.get(plugin);
-        // if (q == null) {
-        // q = s.createSQLQuery(String.format(
-        // mergeSqlFormat, plugin));
-        // pluginQueryMap.put(plugin, q);
-        // }
-        // q
-        // .setString("dataURI", (String) pdo
-        // .getIdentifier());
-        // if (q.list().size() == 0) {
-        // s.persist(pdo);
-        // } else {
-        // duplicates.add(pdo);
-        // }
-        // }
-        // return duplicates;
-        // }
-        // });
     }
 
     /**
@@ -355,7 +307,7 @@ public class CoreDao extends HibernateDaoSupport {
      * @param obj
      *            The object to delete
      */
-    public void delete(final PersistableDataObject obj) {
+    public <T> void delete(final PersistableDataObject<T> obj) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -373,12 +325,14 @@ public class CoreDao extends HibernateDaoSupport {
      * @return The object with the matching id.<br>
      *         Null if not found
      */
-    public PersistableDataObject queryById(final Serializable id) {
-        PersistableDataObject retVal = (PersistableDataObject) txTemplate
+    public <T> PersistableDataObject<T> queryById(final Serializable id) {
+        @SuppressWarnings("unchecked")
+        PersistableDataObject<T> retVal = (PersistableDataObject<T>) txTemplate
                 .execute(new TransactionCallback() {
-                    public PersistableDataObject doInTransaction(
+                    @Override
+                    public PersistableDataObject<T> doInTransaction(
                             TransactionStatus status) {
-                        return (PersistableDataObject) getHibernateTemplate()
+                        return (PersistableDataObject<T>) getHibernateTemplate()
                                 .get(daoClass, id);
                     }
                 });
@@ -392,10 +346,12 @@ public class CoreDao extends HibernateDaoSupport {
      *            The id
      * @return The object
      */
-    public PersistableDataObject queryById(final PluginDataObject id) {
-        PersistableDataObject retVal = (PersistableDataObject) txTemplate
+    public <T> PersistableDataObject<T> queryById(final PluginDataObject id) {
+        @SuppressWarnings("unchecked")
+        PersistableDataObject<T> retVal = (PersistableDataObject<T>) txTemplate
                 .execute(new TransactionCallback() {
-                    public PersistableDataObject doInTransaction(
+                    @Override
+                    public PersistableDataObject<T> doInTransaction(
                             TransactionStatus status) {
                         DetachedCriteria criteria = DetachedCriteria.forClass(
                                 id.getClass())
@@ -425,11 +381,12 @@ public class CoreDao extends HibernateDaoSupport {
      * @return A list of similar objects
      */
     @SuppressWarnings("unchecked")
-    public List<PersistableDataObject> queryByExample(
-            final PersistableDataObject obj, final int maxResults) {
-        List<PersistableDataObject> retVal = (List<PersistableDataObject>) txTemplate
+    public <T> List<PersistableDataObject<T>> queryByExample(
+            final PersistableDataObject<T> obj, final int maxResults) {
+        List<PersistableDataObject<T>> retVal = (List<PersistableDataObject<T>>) txTemplate
                 .execute(new TransactionCallback() {
-                    public List<PersistableDataObject> doInTransaction(
+                    @Override
+                    public List<PersistableDataObject<T>> doInTransaction(
                             TransactionStatus status) {
                         return getHibernateTemplate().findByExample(obj, 0,
                                 maxResults);
@@ -448,7 +405,8 @@ public class CoreDao extends HibernateDaoSupport {
      *            The partially populated object
      * @return A list of similar objects
      */
-    public List<PersistableDataObject> queryByExample(PersistableDataObject obj) {
+    public <T> List<PersistableDataObject<T>> queryByExample(
+            PersistableDataObject<T> obj) {
         return queryByExample(obj, -1);
     }
 
@@ -468,6 +426,7 @@ public class CoreDao extends HibernateDaoSupport {
             // Get a session and create a new criteria instance
             rowsDeleted = (Integer) txTemplate
                     .execute(new TransactionCallback() {
+                        @Override
                         public Integer doInTransaction(TransactionStatus status) {
                             String queryString = query.createHQLDelete();
                             Query hibQuery = getSession(false).createQuery(
@@ -504,6 +463,7 @@ public class CoreDao extends HibernateDaoSupport {
             // Get a session and create a new criteria instance
             queryResult = (List<?>) txTemplate
                     .execute(new TransactionCallback() {
+                        @Override
                         public List<?> doInTransaction(TransactionStatus status) {
                             String queryString = query.createHQLQuery();
                             Query hibQuery = getSession(false).createQuery(
@@ -529,6 +489,15 @@ public class CoreDao extends HibernateDaoSupport {
             throw new DataAccessLayerException("Transaction failed", e);
         }
         return queryResult;
+    }
+
+    public void deleteAll(final List<?> objs) {
+        txTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                getHibernateTemplate().deleteAll(objs);
+            }
+        });
     }
 
     /**
@@ -723,6 +692,7 @@ public class CoreDao extends HibernateDaoSupport {
 
         QueryResult result = (QueryResult) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public QueryResult doInTransaction(TransactionStatus status) {
                         Query hibQuery = getSession(false)
                                 .createQuery(hqlQuery);
@@ -776,6 +746,7 @@ public class CoreDao extends HibernateDaoSupport {
 
         int queryResult = (Integer) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public Integer doInTransaction(TransactionStatus status) {
                         Query hibQuery = getSession(false).createQuery(hqlStmt);
                         // hibQuery.setCacheMode(CacheMode.NORMAL);
@@ -800,6 +771,7 @@ public class CoreDao extends HibernateDaoSupport {
         long start = System.currentTimeMillis();
         List<?> queryResult = (List<?>) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public List<?> doInTransaction(TransactionStatus status) {
                         return getSession(false).createSQLQuery(sql).list();
                     }
@@ -814,6 +786,7 @@ public class CoreDao extends HibernateDaoSupport {
         long start = System.currentTimeMillis();
         List<?> queryResult = (List<?>) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public List<?> doInTransaction(TransactionStatus status) {
 
                         Criteria crit = getSession(false).createCriteria(
@@ -848,6 +821,7 @@ public class CoreDao extends HibernateDaoSupport {
         long start = System.currentTimeMillis();
         int updateResult = (Integer) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public Integer doInTransaction(TransactionStatus status) {
                         return getSession(false).createSQLQuery(sql)
                                 .executeUpdate();

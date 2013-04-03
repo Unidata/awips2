@@ -44,7 +44,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
-import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
 
 /**
  * Provides a base implementation for creating visualizations that participate
@@ -329,10 +328,6 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         status = ResourceStatus.LOADING;
         initInternal(target);
         status = ResourceStatus.INITIALIZED;
-
-        if (isTimeAgnostic() == false) {
-            getCapabilities().addCapability(TimeMatchBasisCapability.class);
-        }
 
         for (IInitListener listener : initListeners) {
             listener.inited(this);

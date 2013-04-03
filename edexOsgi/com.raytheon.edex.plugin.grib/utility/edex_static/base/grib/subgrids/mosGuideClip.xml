@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>MOSGuide</modelNames>
-   <referenceModel>MOSGuide</referenceModel>
+   <referenceGrid>197</referenceGrid>
    <nx>350</nx>
    <ny>350</ny>
    <!-- 

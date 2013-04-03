@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.viz.grid;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.grid.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.dataplugin.grid.coverage
 Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -22,10 +22,12 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- com.raytheon.uf.viz.points;bundle-version="1.0.0"
+ com.raytheon.uf.viz.points;bundle-version="1.0.0",
+ com.raytheon.uf.common.gridcoverage,
+ org.apache.commons.beanutils;bundle-version="1.8.3",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.grid,
- com.raytheon.viz.grid.gridcache,
  com.raytheon.viz.grid.inv,
  com.raytheon.viz.grid.rsc,
  com.raytheon.viz.grid.rsc.general,
@@ -34,17 +36,12 @@ Export-Package: com.raytheon.viz.grid,
 Import-Package: com.raytheon.edex.scriptfactory,
  com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.dataplugin.grib.exception,
- com.raytheon.uf.common.dataplugin.grib.request,
- com.raytheon.uf.common.dataplugin.grib.spatial.projections,
- com.raytheon.uf.common.dataplugin.grib.subgrid,
- com.raytheon.uf.common.dataplugin.grib.util,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.message.response,
+ com.raytheon.uf.common.parameter,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.time,

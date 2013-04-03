@@ -197,7 +197,7 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
 
         			// add the labeled line to PGEN resource
         			if ( attrDlg.isAddLineMode()) {
-        				if( labeledLine == null ) {
+        	/*			if( labeledLine == null ) {
         					labeledLine = getLabeledLineInCurrentLayer( pgenType );
         				}
         				
@@ -211,13 +211,13 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         				labeledLine = newll;
         			}
         			else {
-        				//new labeled line
+        		*/			//new labeled line
         				elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
         						points, null, drawingLayer.getActiveLayer());
         					
         				drawingLayer.addElement( elem );
         				labeledLine = (LabeledLine)elem;
-        			}
+        	//			}
         			}
 
         			if("CCFP_SIGMET".equals(pgenType) ) {

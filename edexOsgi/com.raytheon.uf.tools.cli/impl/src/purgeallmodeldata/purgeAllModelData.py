@@ -23,6 +23,7 @@
 import logging
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.grib.request import DeleteAllModelDataRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.grid.request import DeleteAllGridDataRequest
 from ufpy import ThriftClient
 from ufpy import UsageArgumentParser
 
@@ -63,13 +64,20 @@ def main():
     
     client = ThriftClient.ThriftClient(options.host, options.port)
     for model in options.models:
+        logger.info("Deleting all data for model [" + model + "]...")
         try:
-            logger.info("Deleting all data for model [" + model + "]...")
             req = DeleteAllModelDataRequest(model)
             client.sendRequest(req)
-            logger.info("Model data for model [" + model + "] successfully deleted...")
+            logger.info("Grib data for model [" + model + "] successfully deleted...")
         except Exception:
-            logger.exception("Could not purge data for model [" + model + "]:")
+            logger.exception("Could not purge grib data for model [" + model + "]:")
+            
+        try:
+            req = DeleteAllGridDataRequest(model)
+            client.sendRequest(req)
+            logger.info("Grid data for model [" + model + "] successfully deleted...")
+        except Exception:
+            logger.exception("Could not purge grid data for model [" + model + "]:")
     logger.info("purgeAllModelData is complete.")
 
 

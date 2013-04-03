@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------ ---------- ----------- --------------------------
  * 04/2012      #615       S. Gurung   Initial Creation
  * 04/2012      #606       Greg Hull   
+ * 12/2012      #947       Greg Hull   add pluginName to localization path
  *                       
  * </pre>
  * 
@@ -45,6 +46,8 @@ public class ConditionalFilterMngr {
 
 	private static ConditionalFilterMngr instance = null;
 
+	public static final String NullFilterName = "NoFilter";
+	
 	private ConditionalFilterMngr() {
 	}
 
@@ -56,7 +59,6 @@ public class ConditionalFilterMngr {
 	
 	// read in all the xml files in the conditionalFilters directory.
 	synchronized private void readConditionalFilters() {
-		
 		if( conditionalFilters == null ) {
 			conditionalFilters = new HashMap<String,ConditionalFilter>();
 
@@ -66,6 +68,9 @@ public class ConditionalFilterMngr {
         				NcPathConstants.CONDITIONAL_FILTERS_DIR, 
         				       new String[]{ ".xml" }, true, true );
 			
+			// we are expecting the files to be under a sub-directory that is the name of the plugin.
+			// if this is not the case then display a warning msg.
+			//
 			for( LocalizationFile lFile : condFilterLclFiles.values() ) {
 				try {
 					ConditionalFilter ConditionalFilter = null;
@@ -133,22 +138,21 @@ public class ConditionalFilterMngr {
 	
 	public String[] getAllConditionalFiltersByPlugin( String plgn ) {
 		
+		if( plgn == null || plgn.isEmpty() ) {
+			return new String[0];
+		}
+
 		readConditionalFilters();
 		
 		ArrayList<String> cfList = new ArrayList<String>();
 		for( ConditionalFilter pm : conditionalFilters.values() ) {
-			if(plgn == null || plgn.equalsIgnoreCase( pm.getPlugin() ) ) {
+			if( plgn.equalsIgnoreCase( pm.getPlugin() ) ) {
 				cfList.add(pm.getName());
 			}
 		}	
 
-		String[] condFiltersArray = new String[cfList.size()+1];
+		String[] condFiltersArray = cfList.toArray( new String[0] );
 		
-		int i;
-		for (i=0; i<cfList.size(); i++) {
-			condFiltersArray[i] = cfList.get(i);
-		}
-		condFiltersArray[i] = "";
 		Arrays.sort(condFiltersArray);
 		
 		return condFiltersArray;
@@ -175,9 +179,15 @@ public class ConditionalFilterMngr {
 		
 		readConditionalFilters();
 		
-		if( condFilter == null ||
-				condFilter.getName() == null ) {
+		if( condFilter == null || condFilter.getSize() == 0 || 
+			condFilter.getName() == null || condFilter.getName().isEmpty() ) {
+			
 			throw new VizException( "saveConditionalFilter: ConditionalFilter is null or doesn't have a name?");
+		}
+		if( condFilter.getName().equals( NullFilterName ) ) {
+			if( condFilter.getSize() != 0 ) {
+				throw new VizException( "Can't save a non-null filter as "+NullFilterName  );				
+			}
 		}
 		
 		// create a localization file for the ConditionalFilter
@@ -185,7 +195,8 @@ public class ConditionalFilterMngr {
 				LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 
 		LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(
-    								NcPathConstants.CONDITIONAL_FILTERS_DIR + File.separator + condFilter.getName());
+				condFilter.createLocalizationFilename() );
+		//NcPathConstants.CONDITIONAL_FILTERS_DIR + File.separator + condFilter.getName());
       	
 		// if the file exists overwrite it.
 		if( lFile == null || 
@@ -280,7 +291,7 @@ public class ConditionalFilterMngr {
 		
 	public ConditionalFilter getDefaultConditionalFilter( String plugin ) {
 	    ConditionalFilter dfltPM = new ConditionalFilter();
-	    dfltPM.setName("default");
+	    dfltPM.setName( NullFilterName );
 	    dfltPM.setPlugin( plugin );
 	    dfltPM.setDescription("");
 	    dfltPM.getConditionalFilterElements(); 
@@ -288,13 +299,14 @@ public class ConditionalFilterMngr {
 	}
 	
 	// TODO Add logic for if the conditionalFilter is in the base/site level and provide appropriate confirmation message
-    public static boolean conditionalFilterFileExists(String name ) {
+    public static boolean conditionalFilterFileExists(String plugin, String name ) {
 		String fname = name;
 		if( !name.endsWith(".xml")) {
 			fname = fname + ".xml";
 		}
     	File f = NcPathManager.getInstance().getStaticFile( 
-    			NcPathConstants.CONDITIONAL_FILTERS_DIR + File.separator + fname);
+    			NcPathConstants.CONDITIONAL_FILTERS_DIR + File.separator +
+    							plugin + File.separator+fname );
 
         return ( f != null && f.exists() );
     }

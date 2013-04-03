@@ -50,6 +50,7 @@ import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.suppress.SuppressMap;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 
 /**
  * Area
@@ -176,6 +177,7 @@ public class Area {
         GeodeticCalculator gc = new GeodeticCalculator();
         for (GeospatialData regionFeature : countyMap.values()) {
             Geometry regionGeom = regionFeature.geometry;
+            PreparedGeometry preparedRegionGeom = regionFeature.prepGeom;
             AffectedAreas area = new AffectedAreas();
             area.name = regionFeature.attributes.get(areaField).toString();
             area.fips = regionFeature.attributes.get(fipsField).toString();
@@ -237,7 +239,7 @@ public class Area {
             if (ptFeatures != null) {
                 List<String> pointList = new ArrayList<String>();
                 for (SpatialQueryResult ptRslt : ptFeatures) {
-                    if (regionGeom.contains(ptRslt.geometry)) {
+                    if (preparedRegionGeom.contains(ptRslt.geometry)) {
                         pointList.add(String.valueOf(ptRslt.attributes
                                 .get(pointField)));
                     }
@@ -331,7 +333,7 @@ public class Area {
         }
         return retVal;
     }
-    
+
     public static List<String> converFeAreaToPartList(String feArea) {
         final List<String> partList = new ArrayList<String>();
         if (feArea == null) {

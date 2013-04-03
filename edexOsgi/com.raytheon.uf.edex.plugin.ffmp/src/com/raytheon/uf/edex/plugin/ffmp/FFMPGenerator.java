@@ -31,16 +31,24 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
@@ -65,6 +73,7 @@ import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
+import com.raytheon.uf.common.monitor.xml.FFTIAttributeXML.ATTRIBUTE;
 import com.raytheon.uf.common.monitor.xml.FFTISourceXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
@@ -78,6 +87,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
@@ -90,8 +100,10 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.plugin.ffmp.common.FFMPConfig;
 import com.raytheon.uf.edex.plugin.ffmp.common.FFMPProcessor;
 import com.raytheon.uf.edex.plugin.ffmp.common.FFTI;
+import com.raytheon.uf.edex.plugin.ffmp.common.FFTIAccum;
 import com.raytheon.uf.edex.plugin.ffmp.common.FFTIData;
 import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
+import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
 
 /**
  * 
@@ -104,6 +116,9 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
  * 06/21/2009   2521       dhladky     Initial Creation.
  * 02/03/2011   6500       cjeanbap    Fixed NullPointerException.
  * 07/31/2011   578        dhladky     FFTI modifications
+ * 01/27/13     1478       D. Hladky   Added creation of full cache records to help read write stress on NAS
+ * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
+ * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
  * </pre>
  * 
  * @author dhladky
@@ -112,19 +127,18 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIProcessor;
 
 public class FFMPGenerator extends CompositeProductGenerator implements
         MonitorConfigListener {
+    
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPGenerator.class);
-
     /**
      * Public constructor for FFMPGenerator
      * 
      * @param name
      * @param compositeProductType
      */
-    public FFMPGenerator(Executor executor, Executor processexecutor) {
+    public FFMPGenerator(Executor executor) {
 
         super(genName, productType, executor);
-        this.processexecutor = processexecutor;
     }
 
     private static final String genName = "FFMP";
@@ -132,6 +146,18 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     private static final String templateTaskName = "FFMP Template";
 
     private static final String productType = "ffmp";
+
+    /**
+     * The thought was this will eventually be dynamic when We start writing
+     * long time source records to a DAO.  This is the time backward limit for FFTI and cache load data.
+     */
+    public static final int SOURCE_CACHE_TIME = 6;
+
+    /**
+     * The thought was this will eventually be dynamic, static in AWIPS I.
+     * This is the time back limit for Flash Flood Guidance sources
+     */
+    public static final int FFG_SOURCE_CACHE_TIME = 24;
 
     /** ArrayList of domains to filter for */
     private ArrayList<DomainXML> domains = null;
@@ -144,9 +170,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /** ffti finished processing **/
     public boolean fftiDone = true;
-
-    /** products **/
-    private ConcurrentHashMap<String, FFMPRecord[]> products = null;
 
     /** Processes map <dataKey, SourceXML> **/
     private ConcurrentHashMap<String, SourceXML> processes = null;
@@ -168,9 +191,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /** checks for initial load **/
     public ArrayList<String> loadedData = new ArrayList<String>();
-    
-    /** thread the productkeys **/
-    public ConcurrentHashMap<String, ArrayList<String>> productKeys = new ConcurrentHashMap<String, ArrayList<String>>();
 
     /** template config manager **/
     public FFMPTemplateConfigurationManager tempConfig = null;
@@ -187,18 +207,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             "apps_dir")
             + File.separator + "ffmp" + File.separator;
 
-    /** source bins used for finding basin to data correlations **/
-    private HashMap<String, SourceBinList> sourceBins = new HashMap<String, SourceBinList>();
-
-    /** thread executor **/
-    public Executor processexecutor = null;
-
     @Override
     protected void configureFilters() {
 
         this.pathManager = PathManagerFactory.getPathManager();
 
-        statusHandler.handle(Priority.DEBUG, getGeneratorName()
+        statusHandler.handle(Priority.INFO, getGeneratorName()
                 + " process Filter Config...");
         domains = new ArrayList<DomainXML>();
         boolean configValid = getRunConfig().isPopulated();
@@ -375,8 +389,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 statusHandler.handle(Priority.PROBLEM,
                         "Couldn't create FFMP Filter.." + " primary Domain: "
                                 + domain.getCwa()
-                                + " this RUNNER is not a viable FFMP config.");
-                e.printStackTrace();
+                                + " this RUNNER is not a viable FFMP config.", e);
             }
         }
 
@@ -417,7 +430,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             }
                         } else {
                             statusHandler
-                                    .debug(getGeneratorName()
+                                    .info(getGeneratorName()
                                             + ": templates not loaded yet. Skipping product");
                         }
                     }
@@ -433,7 +446,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 long time = System.currentTimeMillis();
                 this.config = new FFMPConfig(
                         (FFMPURIGenerateMessage) genMessage, this);
-                products = new ConcurrentHashMap<String, FFMPRecord[]>();
                 processes = new ConcurrentHashMap<String, SourceXML>();
                 // read config updates, make sure we don't miss something
                 getRunConfig().readConfigXml();
@@ -447,7 +459,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 }
 
                 // start threads
-
                 for (String source : processes.keySet()) {
                     this.getExecutor().execute(
                             new ProcessProduct(processes.get(source), this));
@@ -457,71 +468,48 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 while (processes.size() > 0) {
                     // wait for all threads to finish before returning
                     try {
-                        Thread.sleep(100);
-                        statusHandler.handle(Priority.DEBUG,
-                                "Checking status ..." + processes.size());
-                        for (String source : processes.keySet()) {
+                        Thread.sleep(50);
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                             statusHandler.handle(Priority.DEBUG,
-                                    "Still processing ..." + source);
+                                    "Checking status ..." + processes.size());
+                            for (String source : processes.keySet()) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "Still processing ..." + source);
+                            }
                         }
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        statusHandler.handle(Priority.ERROR, "Process thread had been interupted!", e);
                     }
                 }
 
-                if (products.size() > 0) {
+                if (fftiSources.size() > 0) {
+                    this.getExecutor().execute(new FFTI(this));
+                }
 
-                    // Do the FFTI evaluation, if we have FFTI sources
-                    if (fftiSources.size() > 0) {
-                        this.getExecutor().execute(new FFTI(this));
-                    }
-
-                    ArrayList<FFMPRecord> records = new ArrayList<FFMPRecord>(
-                            products.size());
-                    for (String source : products.keySet()) {
-                        for (FFMPRecord rec : products.get(source)) {
-                            records.add(rec);
-                        }
-                    }
-
-                    FFMPRecord[] recs = new FFMPRecord[records.size()];
-                    for (int i = 0; i < records.size(); i++) {
-                        recs[i] = records.get(i);
-                    }
-
-                    this.setPluginDataObjects(recs);
-                    this.setPluginDao(new FFMPDao(getCompositeProductType(),
-                            template, fscm, config.getCWA()));
-
-                    while (fftiSources.size() > 0) {
-                        try {
-                            Thread.sleep(100);
+                while (fftiSources.size() > 0) {
+                    try {
+                        Thread.sleep(50);
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                             statusHandler.handle(Priority.DEBUG,
                                     "Checking status ..." + fftiDone);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
                         }
+                    } catch (InterruptedException e) {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Checking status failed!" + e);
                     }
-
-                    statusHandler.handle(
-                            Priority.INFO,
-                            config.getCWA() + " finished, duration: "
-                                    + (System.currentTimeMillis() - time)
-                                    + " ms, wrote " + records.size() + " ");
-
-                } else {
-                    statusHandler.handle(Priority.WARN, config.getCWA()
-                            + " no new products to produce.");
                 }
-                // dump data we don't need anymore
+
+                statusHandler.handle(Priority.INFO, config.getCWA()
+                        + " finished, duration: "
+                        + (System.currentTimeMillis() - time) + " ms ");
+
                 ffmpData.clear();
                 // suggest garbage collection
                 System.gc();
 
             } catch (Throwable e) {
                 statusHandler.handle(Priority.ERROR,
-                        "Unable to process FFMP Records.");
-                e.printStackTrace();
+                        "Unable to process FFMP Records.", e);
             }
         }
     }
@@ -567,22 +555,25 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     private class ProcessProduct implements Runnable {
 
         SourceXML ffmpProduct;
-
         FFMPGenerator generator;
 
         @Override
         public void run() {
             try {
-                logger.debug("ProcessProduct: Starting thread "
-                        + ffmpProduct.getSourceName());
+                statusHandler.handle(
+                        Priority.DEBUG,
+                        "ProcessProduct: Starting thread "
+                                + ffmpProduct.getSourceName());
                 process();
-                logger.debug("ProcessProduct: Finishing thread "
-                        + ffmpProduct.getSourceName());
+                statusHandler.handle(
+                        Priority.DEBUG,
+                        "ProcessProduct: Finishing thread "
+                                + ffmpProduct.getSourceName());
             } catch (Exception e) {
+                statusHandler.handle(Priority.ERROR, "ProcessProduct: removed "
+                        + ffmpProduct.getSourceName(), e);
+            } finally {
                 processes.remove(ffmpProduct.getSourceName());
-                logger.error("ProcessProduct: removed "
-                        + ffmpProduct.getSourceName());
-                e.printStackTrace();
             }
         }
 
@@ -598,9 +589,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             HashMap<String, Object> dataHash = config.getSourceData(ffmpProduct
                     .getSourceName());
-            ArrayList<FFMPRecord> ffmpRecords = new ArrayList<FFMPRecord>(
-                    dataHash.size());
-
+            
             FFMPRunXML runner = getRunConfig().getRunner(config.getCWA());
 
             // process all of the dataKeys for this source
@@ -678,78 +667,85 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                     sites.add(siteKey);
                 }
-                
-                int i = 0;
-                if (sites != null) {
-                    // set the latch keys
-                    ArrayList<String> lsites = new ArrayList<String>();
-                    for (String site: sites) {
-                        lsites.add(site);
-                    }
-                    
-                    productKeys.put(ffmpProduct.getSourceName(), lsites);
-                }
-                
-                for (String productKey : sites) {
-                    
+
+                // Go over all of the sites, if mosaic source, can be many.
+                for (String siteKey : sites) {
+
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
-                    ffmpRec.setSiteKey(productKey);
+                    ffmpRec.setSiteKey(siteKey);
                     ffmpRec.setPluginName(getCompositeProductType());
                     ffmpRec.setWfo(config.getCWA());
                     FFMPProcessor ffmp = new FFMPProcessor(config, generator,
                             ffmpRec, template);
                     ffmpRec = ffmp.processFFMP(ffmpProduct);
                     ffmpRec.constructDataURI();
-
+ 
                     if (ffmpRec != null) {
                         
+                        persistRecord(ffmpRec);
+                        processDataContainer(ffmpRec, siteKey);
+                        // Now that we have the data container, 
+                        // we can process FFTI for this piece of the mosaic
+
                         if (ffmp.isFFTI()) {
+                            
                             fftiDone = false;
-                            if (!fftiSources.contains(ffmp.getFFTISource())) {
+                            FFTISourceXML fftiSource = ffmp.getFFTISource();
+                            
+                            // This only runs once for the site key loop
+                            if (!fftiSources.contains(fftiSource)) {
                                 FFTIProcessor ffti = new FFTIProcessor(
                                         generator, ffmpRec,
                                         ffmp.getFFTISource());
                                 fftiSources.add(ffmp.getFFTISource());
-                                //System.out.println("Adding source to FFTISources!!!!!!!!!!!!"+ffmpRec.getSourceName());
                                 ffti.processFFTI();
                             }
-                        }
-                        // this is a threaded process!!!!!!!!!!!
-                        // Added this to speed the processing of mosaiced sources.
-                        // Before all processing was in line to the source thread.
-                        // This caused slowness in the overall processing.
-                        // By allowing the mosaic components to be concurrently
-                        // processed it has drastically sped up overall FFMP performance.
-                        processDataContainer(ffmpRec, productKey);
-                        ffmpRecords.add(ffmpRec);
-                    }
-                    i++;
-                }
-                
-                while (productKeys.size() > 0) {
-                    // wait for all threads to finish before returning
-                    try {
-                        Thread.sleep(50);
-                        statusHandler.handle(Priority.DEBUG,
-                                "Checking status ..." + productKeys.size());
-                        for (String source : productKeys.keySet()) {
-                            statusHandler.handle(Priority.DEBUG,
-                                    "Still processing ..." + source);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
 
-            FFMPRecord[] recs = new FFMPRecord[ffmpRecords.size()];
-            for (int i = 0; i < ffmpRecords.size(); i++) {
-                recs[i] = ffmpRecords.get(i);
+                            // Do the accumulation now, more memory efficient.
+                            // Only one piece in memory at a time
+                            for (String attribute : ffmp.getAttributes()) {
+                                if (attribute.equals(ATTRIBUTE.ACCUM
+                                        .getAttribute())) {
+                                    FFTIAccum accum = getAccumulationForSite(
+                                            ffmpProduct.getDisplayName(),
+                                            siteKey, dataKey,
+                                            fftiSource.getDurationHour(),
+                                            ffmpProduct.getUnit(siteKey));
+                                    if (statusHandler
+                                            .isPriorityEnabled(Priority.DEBUG)) {
+                                        statusHandler
+                                                .debug("Accumulating FFTI for source: "
+                                                        + ffmpProduct
+                                                                .getDisplayName()
+                                                        + " site: "
+                                                        + siteKey
+                                                        + " data: "
+                                                        + dataKey
+                                                        + " duration: "
+                                                        + fftiSource
+                                                                .getDurationHour()
+                                                        + " accumulation: "
+                                                        + accum.getAccumulation());
+                                    }
+                                }
+                            }
+                        }
+                        
+                        SourceXML source = getSourceConfig().getSource(
+                                ffmpRec.getSourceName());
+
+                        if (!source.getSourceType().equals(
+                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                            String sourceSiteDataKey = getSourceSiteDataKey(source,
+                                    dataKey, ffmpRec);
+                            ffmpData.remove(sourceSiteDataKey);
+                            statusHandler.info("Removing from memory: "+sourceSiteDataKey);
+                        }
+                    }
+                }
             }
-            products.put(ffmpProduct.getSourceName(), recs);
-            processes.remove(ffmpProduct.getSourceName());
         }
     }
 
@@ -859,9 +855,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     // Didn't process a domain, locked by another cluster
                     // member, sleep and try again
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                     } catch (InterruptedException e) {
-
+                        statusHandler.handle(Priority.WARN,
+                                "Domain processing Interrupted!", e);
                     }
                 }
             }
@@ -970,8 +967,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 getAbsoluteSourceFileName(sourceId));
 
         try {
-            sbl = (SourceBinList) SerializationUtil
-                    .transformFromThrift(FileUtil.file2bytes(f.getFile(), true));
+            sbl = SerializationUtil
+                    .transformFromThrift(SourceBinList.class, FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to locate file " + f.getName());
@@ -979,7 +976,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.ERROR,
                     "Unable to read file " + f.getName());
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "General IO problem with file "
+                    + f.getName(), ioe);
         }
 
         return sbl;
@@ -1016,15 +1014,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @return
      */
     public SourceBinList getSourceBinList(String sourceId) {
-        SourceBinList sbl = null;
-        if (!sourceBins.containsKey(sourceId)) {
-            sbl = readSourceBins(sourceId);
-            sourceBins.put(sourceId, sbl);
-        } else {
-            sbl = sourceBins.get(sourceId);
-        }
-
-        return sbl;
+        return readSourceBins(sourceId);
     }
 
     /**
@@ -1033,7 +1023,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @param sbl
      */
     public void setSourceBinList(SourceBinList sbl) {
-        sourceBins.put(sbl.getSourceId(), sbl);
         writeSourceBins(sbl);
     }
 
@@ -1049,10 +1038,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         for (String rfc : filter.getRFC()) {
             // get a hash of the sources and their grib ids
-            HashMap<String, Integer> sources = FFMPUtils.getFFGModelInfo(rfc);
+            Set<String> sources = FFMPUtils.getFFGParameters(rfc);
             if (sources != null) {
                 if (sources.size() > 0) {
-                    for (String source : sources.keySet()) {
+                    for (String source : sources) {
 
                         SourceXML sourceXml = getSourceConfig().getSource(
                                 source);
@@ -1061,8 +1050,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                             String plugin = getSourceConfig().getSource(source)
                                     .getPlugin();
-                            uris.add(FFMPUtils.getFFGDataURI(
-                                    sources.get(source), plugin));
+                            uris.add(FFMPUtils.getFFGDataURI(rfc, source,
+                                    plugin));
                         }
                     }
                 }
@@ -1088,7 +1077,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         statusHandler.handle(
                                 Priority.ERROR,
                                 "Unable to locate new FFG file. "
-                                        + pattern.toString());
+                                        + pattern.toString(), e);
                     }
                 }
             }
@@ -1120,11 +1109,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 siteKey = parts[0];
             }
 
-            container = loadFFMPDataContainer(siteSourceKey,
-
-            hucs, siteKey,
-
-            config.getCWA(), backDate);
+            container = loadFFMPDataContainer(siteSourceKey, hucs, siteKey,
+                    config.getCWA(), backDate);
 
             if (container != null) {
                 ffmpData.put(siteSourceKey, container);
@@ -1196,238 +1182,187 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.ERROR, getGeneratorName()
                     + ": filter: " + filter.getName()
                     + ": failed to route filter to generator", e);
-            e.printStackTrace();
         }
 
         filter.setValidTime(new Date(System.currentTimeMillis()));
         filter.reset();
     }
-    
+
     /**
-     * Process this data container
-     * 
-     * @param sourceSiteDataKey
-     * @param huc
-     * @param wfo
-     * @return
+     * Process the ffmp data container
+     * @param ffmpRec
+     * @param productKey
      */
     public void processDataContainer(FFMPRecord ffmpRec, String productKey) {
 
-        this.getProcessExecutor().execute(new ProcessDataContainer(ffmpRec, productKey));
-    }
-    
-    /**
-     * Inner class to thread writing of BuddyFiles
-     * 
-     * @author dhladky
-     * 
-     */
-    private class ProcessDataContainer implements Runnable {
+        String sourceName = null;
+        Date backDate = null;
+        String sourceSiteDataKey = null;
+        FFMPDataContainer fdc = null;
+        boolean write = true;
 
-        private FFMPRecord ffmpRec;
-        private String productKey;
+        try {
+            // write out the fast loader cache file
+            long ptime = System.currentTimeMillis();
+            SourceXML source = getSourceConfig().getSource(
+                    ffmpRec.getSourceName());
+            String dataKey = ffmpRec.getDataKey();
 
-        public void run() {
-            try {
-                processDataContainer(ffmpRec, productKey);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR,
-                        "ProcessDataContainer: removed " + e.getMessage());
+            if (source.getSourceType().equals(
+                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                sourceName = source.getDisplayName();
+                sourceSiteDataKey = sourceName;
+                // FFG is so infrequent go back a day
+                backDate = new Date(
+                        config.getDate().getTime()
+                                - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+            } else {
+                sourceName = ffmpRec.getSourceName();
+                sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
+                        + "-" + dataKey;
+                backDate = new Date(ffmpRec.getDataTime().getRefTime()
+                        .getTime()
+                        - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
             }
-        }
 
-        public ProcessDataContainer(FFMPRecord ffmpRec, String productKey) {
-            this.ffmpRec = ffmpRec;
-            this.productKey = productKey;
-        }
+            // deal with setting of needed HUCS
+            ArrayList<String> hucs = template.getTemplateMgr()
+                    .getHucLevels();
 
-        /**
-         * Process this data container
-         * 
-         * @param ffmpRec
-         * @param write
-         */
-        private void processDataContainer(FFMPRecord ffmpRec, String productKey) {
+            if (source.getSourceType().equals(
+                    SOURCE_TYPE.GAGE.getSourceType())
+                    || source.getSourceType().equals(
+                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                hucs.clear();
+                hucs.add("ALL");
+            } else {
+                hucs.remove("VIRTUAL");
+            }
 
-            String sourceName = null;
-            Date backDate = null;
-            String sourceSiteDataKey = null;
-            FFMPDataContainer fdc = null;
-            boolean write = true;
-            
-            try {
-                // write out the fast loader buddy file
+            // pull from disk if there
+            fdc = getFFMPDataContainer(sourceSiteDataKey, hucs, backDate);
 
-                long ptime = System.currentTimeMillis();
-                SourceXML source = getSourceConfig().getSource(
-                        ffmpRec.getSourceName());
-                String dataKey = ffmpRec.getDataKey();
+            // brand new or initial load up
+            if (fdc == null || !loadedData.contains(sourceSiteDataKey)) {
 
-                if (source.getSourceType().equals(
+                long time = System.currentTimeMillis();
+                fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
+                fdc = FFTIProcessor.populateDataContainer(fdc, template,
+                        hucs, backDate, ffmpRec.getDataTime().getRefTime(),
+                        ffmpRec.getWfo(), source, ffmpRec.getSiteKey());
+
+                if (!loadedData.contains(sourceSiteDataKey)) {
+                    loadedData.add(sourceSiteDataKey);
+                }
+
+                long time2 = System.currentTimeMillis();
+                statusHandler.handle(Priority.DEBUG,
+                        "Populated new source: in " + (time2 - time)
+                                + " ms: source: " + sourceSiteDataKey);
+
+            } else {
+
+                long time = System.currentTimeMillis();
+                // guidance sources are treated as a mosaic and are handled
+                // differently. They are force read at startup.
+                // This is the main line sequence a source will take when
+                // updated.
+                if (!source.getSourceType().equals(
                         SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                    sourceName = source.getDisplayName();
-                    sourceSiteDataKey = sourceName;
-                    // FFG is so infrequent go back a day
-                    backDate = new Date(config.getDate().getTime()
-                            - (3600 * 1000 * 24));
-                } else {
-                    sourceName = ffmpRec.getSourceName();
-                    sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
-                            + "-" + dataKey;
-                    backDate = new Date(ffmpRec.getDataTime().getRefTime()
-                            .getTime()
-                            - (3600 * 1000 * 6));
-                }
-               
-                // deal with setting of needed HUCS
-                ArrayList<String> hucs = template.getTemplateMgr()
-                        .getHucLevels();
 
-                if (source.getSourceType().equals(
-                        SOURCE_TYPE.GAGE.getSourceType())
-                        || source.getSourceType().equals(
-                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                    hucs.clear();
-                    hucs.add("ALL");
-                } else {
-                    hucs.remove("VIRTUAL");
-                }
+                    Date newDate = fdc.getNewest();
+                    Date oldDate = fdc.getOldest();
 
-                // pull from disk if there
-                fdc = getFFMPDataContainer(sourceSiteDataKey, hucs, backDate);
+                    if (newDate != null && oldDate != null) {
+                        if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
+                                .getTime()) >= (source
+                                .getExpirationMinutes(ffmpRec.getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)) {
+                            // force a re-query back to the newest time in
+                            // existing source container, this will fill in
+                            // gaps
+                            // if
+                            // they exist.
+                            fdc = FFTIProcessor.populateDataContainer(fdc,
+                                    template, null, newDate, ffmpRec
+                                            .getDataTime().getRefTime(),
+                                    ffmpRec.getWfo(), source, ffmpRec
+                                            .getSiteKey());
 
-                // brand new or initial load up
-                if (fdc == null || !loadedData.contains(sourceSiteDataKey)) {
-
-                    long time = System.currentTimeMillis();
-                    fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
-                    fdc = FFTIProcessor.populateDataContainer(fdc, template,
-                            hucs, backDate, ffmpRec.getDataTime().getRefTime(),
-                            ffmpRec.getWfo(), source, ffmpRec.getSiteKey());
-
-                    if (!loadedData.contains(sourceSiteDataKey)) {
-                        loadedData.add(sourceSiteDataKey);
+                        } else if (oldDate
+                                .after(new Date(
+                                        backDate.getTime()
+                                                - (source
+                                                        .getExpirationMinutes(ffmpRec
+                                                                .getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)))) {
+                            // force a re-query back to barrierTime for
+                            // existing source container, this happens if
+                            // the
+                            // ingest was turned off for some period of
+                            // time.
+                            fdc = FFTIProcessor.populateDataContainer(fdc,
+                                    template, null, backDate, oldDate,
+                                    ffmpRec.getWfo(), source,
+                                    ffmpRec.getSiteKey());
+                        }
                     }
 
                     long time2 = System.currentTimeMillis();
                     statusHandler.handle(Priority.DEBUG,
-                            "Populated new source: in " + (time2 - time)
+                            "Checked Source files: in " + (time2 - time)
                                     + " ms: source: " + sourceSiteDataKey);
+                }
+            }
 
+            // add current record data
+            for (String huc : hucs) {
+                fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(),
+                        source, ffmpRec.getBasinData(huc), huc,
+                        ffmpRec.getSiteKey());
+            }
+            // set the name
+            fdc.setFilePath("" + sharePath + ffmpRec.getWfo() + "/"
+                    + sourceSiteDataKey);
+            // cache it temporarily for FFTI use
+            if (source.getSourceType().equals(
+                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                // only write last one
+                write = false;
+
+                if (!ffmpData.containsKey(sourceSiteDataKey)) {
+                    ffmpData.put(sourceSiteDataKey, fdc);
                 } else {
+                    ffmpData.replace(sourceSiteDataKey, fdc);
+                }
+            }
 
-                    long time = System.currentTimeMillis();
-                    // guidance sources are treated as a mosaic and are handled
-                    // differently. They are force read at startup.
-                    // This is the main line sequence a source will take when
-                    // updated.
-                    if (!source.getSourceType().equals(
-                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            statusHandler.handle(
+                    Priority.INFO,
+                    "Processed FFMPDataContainer: in "
+                            + (System.currentTimeMillis() - ptime)
+                            + " ms: source: " + sourceSiteDataKey);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Failed Processing FFMPDataContainer" + e.getMessage());
 
-                        Date newDate = fdc.getNewest();
-                        Date oldDate = fdc.getOldest();
-
-                        if (newDate != null && oldDate != null) {
-                            if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
-                                    .getTime()) >= (source
-                                    .getExpirationMinutes(ffmpRec.getSiteKey()) * 60 * 1000)) {
-                                // force a re-query back to the newest time in
-                                // existing source container, this will fill in
-                                // gaps
-                                // if
-                                // they exist.
-                                fdc = FFTIProcessor.populateDataContainer(fdc,
-                                        template, null, newDate, ffmpRec
-                                                .getDataTime().getRefTime(),
-                                        ffmpRec.getWfo(), source, ffmpRec
-                                                .getSiteKey());
-
-                            } else if (oldDate.after(new Date(backDate
-                                    .getTime()
-                                    - (source.getExpirationMinutes(ffmpRec
-                                            .getSiteKey()) * 60 * 1000)))) {
-                                // force a re-query back to barrierTime for
-                                // existing source container, this happens if
-                                // the
-                                // ingest was turned off for some period of
-                                // time.
-                                fdc = FFTIProcessor.populateDataContainer(fdc,
-                                        template, null, backDate, oldDate,
-                                        ffmpRec.getWfo(), source,
-                                        ffmpRec.getSiteKey());
-                            }
-                        }
-
-                        long time2 = System.currentTimeMillis();
-                        statusHandler.handle(Priority.DEBUG,
-                                "Checked Source files: in " + (time2 - time)
-                                        + " ms: source: " + sourceSiteDataKey);
-                    }
+        } finally {
+            // purge it up
+            if (fdc != null) {
+                // this is defensive for if errors get thrown
+                if (backDate == null) {
+                    backDate = new Date((System.currentTimeMillis())
+                            - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
                 }
 
-                // add current record data
-                for (String huc : hucs) {
-                    fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(),
-                            source, ffmpRec.getBasinData(huc), huc,
-                            ffmpRec.getSiteKey());
-                }
-                // set the name
-                fdc.setFilePath("" + sharePath + ffmpRec.getWfo() + "/"
-                        + sourceSiteDataKey);
-                // cache it temporarily for FFTI use
-                if (source.getSourceType().equals(
-                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                    // only write last one
-                    write = false;
-                    
-                    if (!ffmpData.containsKey(sourceSiteDataKey)) {
-                        ffmpData.put(sourceSiteDataKey, fdc);
-                    } else {
-                        ffmpData.replace(sourceSiteDataKey, fdc);
-                    }
-                }
+                fdc.purge(backDate);
 
-                statusHandler.handle(
-                        Priority.INFO,
-                        "Processed FFMPDataContainer: in "
-                                + (System.currentTimeMillis() - ptime)
-                                + " ms: source: " + sourceSiteDataKey);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Failed Processing FFMPDataContainer" + e.getMessage());
-
-            } finally {
-                // moved writing here to remain safe from possible race condition between processing threads
-                if (productKeys != null) {
-                    if (productKeys.containsKey(ffmpRec.getSourceName())) {
-                        productKeys.get(ffmpRec.getSourceName()).remove(productKey);
-                        //System.out.println("Removed productKey: "+productKey);
-                        if (productKeys.get(ffmpRec.getSourceName()).size() == 0) {
-                            //System.out.println("Removed source: "+ffmpRec.getSourceName()+" now writing");
-                            productKeys.remove(ffmpRec.getSourceName());
-                            // last one, allow write
-                            write = true;
-                        }
-                    }
-                }
-                // purge it up
-                if (fdc != null) {
-                    // this is defensive for if errors get thrown
-                    if (backDate == null) {
-                        backDate = new Date((System.currentTimeMillis())
-                                - (3600 * 1000 * 6));
-                    }
-                    
-                    fdc.purge(backDate);
-
-                    if (write) {
-                        // write it out
-                        writeLoaderBuddyFiles(fdc);
-                    }
+                if (write) {
+                    // write it out
+                    writeCacheFiles(fdc);
                 }
             }
         }
     }
+
 
     /**
      * load existing container
@@ -1443,37 +1378,31 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         long time = System.currentTimeMillis();
         FFMPDataContainer fdc = null;
+        FFMPAggregateRecord record = null;
+        boolean populated = false;
 
-        synchronized (hucs) {
-            for (String huc : hucs) {
-
-                FFMPBasinData basinData = null;
-
-                if (checkBuddyFile(sourceSiteDataKey, huc, wfo, backDate)) {
-                    try {
-                        basinData = readLoaderBuddyFile(sourceSiteDataKey, huc,
-                                wfo, backDate);
-                    } catch (Exception e) {
-                        statusHandler.handle(
-                                Priority.ERROR,
-                                "General Error Reading buddy file: "
-                                        + e.getMessage());
-                    }
-
-                    if (fdc == null) {
-                        fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
-                    }
-                }
-
-                if (basinData != null) {
-                    fdc.setBasinBuddyData(basinData, huc);
-                }
+        if (checkCacheFile(sourceSiteDataKey, wfo, backDate)) {
+            try {
+                record = readCacheFile(sourceSiteDataKey, wfo, backDate);
+            } catch (Exception e) {
+                statusHandler.handle(Priority.ERROR,
+                        "General Error Reading cache file: " + e.getMessage());
             }
+
+            if (fdc == null && record != null) {
+                // creates a place holder for this source
+                fdc = new FFMPDataContainer(sourceSiteDataKey, hucs, record);
+                populated = true;
+            }
+        }
+
+        if (record != null && !populated) {
+            fdc.setCacheData(record);
         }
 
         if (fdc != null) {
             long time2 = System.currentTimeMillis();
-            statusHandler.handle(Priority.DEBUG, "Loaded Source files: in "
+            statusHandler.handle(Priority.INFO, "Loaded Source files: in "
                     + (time2 - time) + " ms: source: " + sourceSiteDataKey);
         }
 
@@ -1481,63 +1410,59 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Load existing buddy file
+     * Load existing cache file
      * 
      * @param sourceSiteDataKey
-     * @param huc
      * @param wfo
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
-    private FFMPBasinData readLoaderBuddyFile(String sourceSiteDataKey,
-            String huc, String wfo, Date backDate) throws IOException {
+    private FFMPAggregateRecord readCacheFile(String sourceSiteDataKey, String wfo,
+            Date backDate) throws IOException {
 
-        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
-                + huc + ".bin");
-        FFMPBasinData basinData = null;
-        BufferedInputStream is = null;
+        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + ".bin");
+        FFMPAggregateRecord record = null;
+        GZIPInputStream gis = null;
 
         try {
-            is = new BufferedInputStream(
-                    new FileInputStream(file));
+            gis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)));
             DynamicSerializationManager dsm = DynamicSerializationManager
                     .getManager(SerializationType.Thrift);
-            basinData = (FFMPBasinData) dsm.deserialize(is);
+            record = (FFMPAggregateRecord) dsm.deserialize(gis);
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Serialization Error Reading buddy file: "
-                            + e.getMessage());
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Serialization Error Reading cache file: "
+                                    + e.getMessage());
+
         } catch (IOException e) {
             statusHandler.handle(Priority.ERROR,
-                    "IO Error Reading buddy file: "
-                            + e.getMessage());
+                    "IO Error Reading cache file: " + e.getMessage());
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "General Error Reading buddy file: "
-                            + e.getMessage());
+                    "General Error Reading cache file: " + e.getMessage());
         } catch (Throwable t) {
             statusHandler.handle(Priority.ERROR,
-                    "Bogus Thrift Error Reading buddy file: "
-                            + t.getMessage());
+                    "Bogus Thrift Error Reading cache file: " + t.getMessage());
         } finally {
-            if (is != null) {
-                is.close();
+            if (gis != null) {
+                gis.close();
             }
         }
 
-        return basinData;
+        return record;
 
     }
 
     /**
-     * Write buddy file
+     * Write cache file
      * 
      * @param sourceSiteDataKey
      * @param huc
      * @param wfo
      * @return
      */
-    public void writeLoaderBuddyFiles(FFMPDataContainer fdc) {
+    public void writeCacheFiles(FFMPDataContainer fdc) {
 
         // Write all huc levels in separate files
         File fileDir = new File("" + sharePath + config.getCWA());
@@ -1550,7 +1475,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Inner class to thread writing of BuddyFiles
+     * Inner class to thread writing of cache files
      * 
      * @author dhladky
      * 
@@ -1564,7 +1489,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 long time = System.currentTimeMillis();
                 write();
                 long time2 = System.currentTimeMillis();
-                statusHandler.handle(Priority.DEBUG, "Wrote loader files: in "
+                statusHandler.handle(Priority.INFO, "Wrote cache file: in "
                         + (time2 - time) + " ms  :" + fdc.getFilePath());
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
@@ -1599,61 +1524,69 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                     if (lockfile.canWrite()) {
                         // write the lock if we can even write to anything
-                        synchronized (fdc.getKeys()) {
-                            for (String huc : fdc.getKeys()) {
+                        FFMPAggregateRecord cacheRecord = null;
 
-                                FFMPBasinData fbd = fdc.getBasinData(huc);
+                        synchronized (fdc) {
 
-                                if (fbd.getBasins().size() > 0) {
+                            cacheRecord = new FFMPAggregateRecord();
+                            // times for Guidance basins will be null
+                            cacheRecord.setTimes(fdc.getOrderedTimes());
 
-                                    String tmpFilePath = fileName + "-" + huc
-                                            + ".tmp";
-                                    BufferedOutputStream os = null;
+                            for (Entry<String, FFMPBasinData> entry : fdc
+                                    .getBasinMap().entrySet()) {
+                                FFMPBasinData fbd = entry.getValue();
+                                fbd.setCache();
+                                cacheRecord.setBasinData(fbd);
+                            }
+                        }
 
-                                    try {
-                                        File file = new File(tmpFilePath);
-                                        file.createNewFile();
+                        if (cacheRecord.getBasinsMap().size() > 0) {
 
-                                        if (file.canWrite()) {
-                                            os = new BufferedOutputStream(
-                                                    new FileOutputStream(file));
-                                            DynamicSerializationManager dsm = DynamicSerializationManager
-                                                    .getManager(SerializationType.Thrift);
-                                            dsm.serialize(fbd, os);
-                                            fileNames.put(tmpFilePath, fileName
-                                                    + "-" + huc + ".bin");
-                                        } else {
-                                            statusHandler
-                                                    .handle(Priority.WARN,
-                                                            "Can not write buddy file: "
-                                                                    + file.getAbsolutePath());
-                                        }
-                                    } catch (SerializationException e) {
-                                        statusHandler.handle(Priority.ERROR,
-                                                "Serialization Error Writing buddy file: "
-                                                        + e.getMessage());
-                                    } catch (IOException e) {
-                                        statusHandler.handle(Priority.ERROR,
-                                                "IO Error Writing buddy file: "
-                                                        + e.getMessage());
-                                    } catch (Exception e) {
-                                        statusHandler.handle(Priority.ERROR,
-                                                "General Error Writing buddy file: "
-                                                        + e.getMessage());
-                                    } finally {
-                                        if (os != null) {
-                                            os.close();
-                                        }
-                                    }
+                            String tmpFilePath = fileName + ".tmp";
+                            GZIPOutputStream gos = null;
+
+                            try {
+                                File file = new File(tmpFilePath);
+                                file.createNewFile();
+
+                                if (file.canWrite()) {
+                                    gos = new GZIPOutputStream(new BufferedOutputStream(
+                                            new FileOutputStream(file)));
+                                    DynamicSerializationManager dsm = DynamicSerializationManager
+                                            .getManager(SerializationType.Thrift);
+                                    dsm.serialize(cacheRecord, gos);
+                                    fileNames.put(tmpFilePath, fileName
+                                            + ".bin");
+                                } else {
+                                    statusHandler.handle(
+                                            Priority.WARN,
+                                            "Can not write cache file: "
+                                                    + file.getAbsolutePath());
+                                }
+                            } catch (SerializationException e) {
+                                statusHandler.handle(Priority.ERROR,
+                                        "Serialization Error Writing cache file: "
+                                                + e.getMessage());
+                            } catch (IOException e) {
+                                statusHandler.handle(
+                                        Priority.ERROR,
+                                        "IO Error Writing cache file: "
+                                                + e.getMessage());
+                            } catch (Exception e) {
+                                statusHandler.handle(Priority.ERROR,
+                                        "General Error Writing cache file: "
+                                                + e.getMessage());
+                            } finally {
+                                if (gos != null) {
+                                    gos.close();
                                 }
                             }
                         }
                     }
+
                 } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.ERROR,
-                                    "Error writing Buddy File group: "
-                                            + e.getMessage());
+                    statusHandler.handle(Priority.ERROR,
+                            "Error writing cache File: " + e.getMessage());
                 } finally {
                     // rename the files to real path
                     try {
@@ -1679,31 +1612,29 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     } catch (Exception e) {
                         statusHandler.handle(
                                 Priority.ERROR,
-                                "IO Error Renaming buddy file: "
+                                "IO Error Renaming cache file: "
                                         + e.getMessage());
                     }
                 }
 
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "IO Error writing buddy files: " + e.getMessage());
+                        "IO Error writing cache files: " + e.getMessage());
             }
         }
     }
 
     /**
-     * Load existing buddy file
+     * Load existing cache file
      * 
      * @param sourceSiteDataKey
-     * @param huc
      * @param wfo
      * @return
      */
-    public boolean checkBuddyFile(String sourceSiteDataKey, String huc,
-            String wfo, Date backDate) {
+    public boolean checkCacheFile(String sourceSiteDataKey, String wfo,
+            Date backDate) {
 
-        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
-                + huc + ".bin");
+        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + ".bin");
 
         String sourceName = sourceSiteDataKey.split("-")[0];
         SourceXML source = getSourceConfig().getSourceByDisplayName(sourceName);
@@ -1717,7 +1648,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             } else {
                 if (file.exists() && file.canRead() && file.canWrite()
                         && (file.lastModified() > backDate.getTime())) {
-                    // System.out.println("File update and exists..."+sourceSiteDataKey);
                     return true;
                 }
             }
@@ -1763,10 +1693,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             ffgCheck = false;
             resetFilters();
-
-            if (sourceBins != null) {
-                sourceBins.clear();
-            }
 
             loadedData.clear();
 
@@ -1870,14 +1796,14 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 getAbsoluteFFTIFileName(fftiName));
 
         try {
-            ffti = (FFTIData) SerializationUtil.transformFromThrift(FileUtil
-                    .file2bytes(f.getFile(), true));
+            ffti = SerializationUtil.transformFromThrift(FFTIData.class,
+                    FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to locate file " + f.getName(), fnfe);
         } catch (SerializationException se) {
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to serialize file " + f.getName(), se);
+            statusHandler.handle(Priority.ERROR, "Unable to serialize file "
+                    + f.getName(), se);
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
                     "IO problem reading file " + f.getName(), ioe);
@@ -1928,16 +1854,313 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
     
     /**
-     * the executor runner
+     * Get value for an individual piece of the puzzle
      * 
+     * @param fftiSourceKey
+     * @param fftiSiteKey
+     * @param fftiDataKey
+     * @param duration
+     * @param unit
      * @return
      */
-    public Executor getProcessExecutor() {
-        return processexecutor;
-    }
+    public FFTIAccum getAccumulationForSite(String fftiSourceKey,
+            String fftiSiteKey, String fftiDataKey, double duration, String unit) {
 
-    public void setProcessExecutor(Executor processexecutor) {
-        this.processexecutor = processexecutor;
+        SourceXML ffmpSource = getSourceConfig()
+                .getSourceByDisplayName(fftiSourceKey);
+        FFTIAccum accumulator = null;
+        String siteDataKey = ffmpSource.getDisplayName() + "-" + fftiSiteKey
+                + "-" + fftiDataKey;
+
+        if (isFFTI(siteDataKey)) {
+            accumulator = (FFTIAccum) getFFTIData(siteDataKey);
+        } else {
+            accumulator = new FFTIAccum();
+        }
+
+        // This will only happen at initial load, update, and duration changes.
+        if (accumulator.isReset() || accumulator.getDuration() != duration) {
+
+            accumulator.setDuration(duration);
+            accumulator.setUnit(unit);
+
+            if (ffmpSource.isMosaic()) {
+                accumulator.setName(ffmpSource.getDisplayName());
+            } else {
+                accumulator.setName(fftiSiteKey + "-" + fftiSourceKey);
+            }
+
+            long cur = config.getDate().getTime();
+            long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
+            Date backDate = new Date(cur - timeBack);
+            long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
+
+            FFMPDataContainer fdc = null;
+
+            ArrayList<String> hucs = new ArrayList<String>();
+            hucs.add("ALL");
+
+            fdc = getFFMPDataContainer(siteDataKey, hucs, backDate);
+
+            if (fdc != null) {
+
+                FFMPBasinData fbd = fdc.getBasinData("ALL");
+
+                // go over the list of CWAs gathering the pfaf list
+                ArrayList<Long> pfafs = new ArrayList<Long>();
+                ArrayList<String> cwaList = config.fdm.getCwaList();
+
+                Double gap = FFTI.getGap(fdc, ffmpSource, config.getDate(), duration, fftiSiteKey);
+
+                if (!Double.isNaN(gap)) {
+                    for (Long key : fbd.getBasins().keySet()) {
+                        for (String cwa : cwaList) {
+
+                            boolean primary = false;
+                            if (cwa.equals(config.getCWA())) {
+                                primary = true;
+                            }
+
+                            FFMPBasinMetaData fmdb = template.getBasin(
+                                    fftiSiteKey, key);
+
+                            if (fmdb == null) {
+                                continue;
+                            }
+
+                            // Gets buffer zones adjacent to CWA
+                            if ((cwa.equals(fmdb.getCwa()))
+                                    || (primary && fmdb.isPrimaryCwa())) {
+                                if (!pfafs.contains(key)) {
+                                    pfafs.add(key);
+                                }
+                            }
+                        }
+                    }
+
+                    double amount = fdc.getMaxValue(pfafs, backDate,
+                            config.getDate(), expirationTime,
+                            ffmpSource.isRate());
+
+                    // max value for monitored area
+                    accumulator.setAccumulation(amount);
+                    accumulator.setGap(gap);
+                }
+            }
+
+            ffmpData.remove(siteDataKey);
+            statusHandler.info("Removing from memory: "+siteDataKey);
+            accumulator.setReset(false);
+            writeFFTIData(siteDataKey, accumulator);
+        }
+
+        return accumulator;
+    }
+    
+    /**
+     * Gets the ratio and difference values for this site
+     * 
+     * @param qSourceKey
+     * @param qSiteKey
+     * @param ffgType
+     * @param duration
+     * @param unit
+     * @return
+     */
+    public FFTIRatioDiff getRatioAndDiffForSite(String qSourceKey,
+            String qSiteKey, String ffgType, double duration, String unit) {
+
+        FFTIRatioDiff values = null;
+        SourceXML ffmpQSource = fscm.getSourceByDisplayName(qSourceKey);
+
+        if (ffmpQSource == null) {
+            ffmpQSource = fscm.getSource(qSourceKey);
+        }
+
+        String siteDataKey = ffgType + "-" + ffmpQSource.getSourceName() + "-"
+                + qSiteKey;
+
+        if (isFFTI(siteDataKey)) {
+            values = (FFTIRatioDiff) getFFTIData(siteDataKey);
+            if (values.getGuids() == null || values.getQpes() == null) {
+                values.setReset(true);
+            }
+        } else {
+            values = new FFTIRatioDiff();
+        }
+
+        // This will only happen at initial load, update, and duration changes.
+        if (values.isReset() || values.getDuration() != duration) {
+
+            values.setDuration(duration);
+            values.setUnit(unit);
+
+            long cur = config.getDate().getTime();
+            long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
+            Date backDate = new Date(cur - timeBack);
+            long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
+
+            // make sure we have data
+            Date ffgBackDate = new Date(config.getDate().getTime()
+                    - (TimeUtil.MILLIS_PER_HOUR * FFMPGenerator.FFG_SOURCE_CACHE_TIME));
+
+            String primarySource = fscm.getPrimarySource(ffmpQSource);
+            ProductXML product = fscm.getProduct(primarySource);
+            ArrayList<String> hucs = new ArrayList<String>();
+            hucs.add("ALL");
+
+            FFMPDataContainer guidContainer = getFFMPDataContainer(
+                    ffgType, hucs, ffgBackDate);
+
+            long guidSourceExpiration = 0l;
+
+            if (guidContainer == null) {
+                guidContainer = new FFMPDataContainer(ffgType, hucs);
+            }
+
+            for (SourceXML iguidSource : product
+                    .getGuidanceSourcesByType(ffgType)) {
+
+                if (guidSourceExpiration == 0l) {
+                    guidSourceExpiration = iguidSource
+                            .getExpirationMinutes(qSiteKey) * TimeUtil.MILLIS_PER_MINUTE;
+                    break;
+                }
+            }
+
+            // if still nothing, punt!
+            if (guidContainer.size() == 0) {
+
+                statusHandler.handle(Priority.PROBLEM,
+                        "FFTI: No guidance sources available for " + qSiteKey
+                                + " " + qSourceKey + " " + " comparison.");
+                return values;
+            }
+            
+            String qpeSiteSourceDataKey = ffmpQSource.getSourceName() + "-" + qSiteKey + "-"+ qSiteKey;
+            FFMPDataContainer qpeContainer = getFFMPDataContainer(qpeSiteSourceDataKey, hucs, backDate);
+
+            if (qpeContainer != null) {
+                // go over the list of CWAs gathering the pfaf list
+                ArrayList<Long> pfafs = new ArrayList<Long>();
+                ArrayList<String> cwaList = config.fdm.getCwaList();
+                FFMPBasinData fbd = qpeContainer.getBasinData("ALL");
+
+                for (Long key : fbd.getBasins().keySet()) {
+                    for (String cwa : cwaList) {
+
+                        boolean primary = false;
+                        if (cwa.equals(config.getCWA())) {
+                            primary = true;
+                        }
+
+                        FFMPBasinMetaData fmdb = template.getBasin(qSiteKey,
+                                key);
+
+                        if (fmdb == null) {
+                            continue;
+                        }
+
+                        // Gets buffer zones adjacent to CWA
+                        if ((cwa.equals(fmdb.getCwa()))
+                                || (primary && fmdb.isPrimaryCwa())) {
+                            if (!pfafs.contains(key)) {
+                                pfafs.add(key);
+                            }
+                        }
+                    }
+                }
+
+                Double gap = FFTI.getGap(qpeContainer, ffmpQSource, config.getDate(), duration,
+                        qSiteKey);
+
+                if (!Double.isNaN(gap)) {
+
+                    ArrayList<Float> qpes = qpeContainer.getBasinData("ALL")
+                            .getAccumValues(pfafs, backDate, config.getDate(),
+                                    expirationTime, false);
+
+                    FFMPGuidanceInterpolation interpolator = new FFMPGuidanceInterpolation(
+                            fscm, product, frcm.getRunner(
+                                    config.getCWA()).getProduct(qSiteKey),
+                            primarySource, ffgType, qSiteKey);
+                    interpolator.setInterpolationSources(duration);
+
+                    ArrayList<Float> guids = guidContainer.getBasinData("ALL")
+                            .getGuidanceValues(pfafs, interpolator,
+                                    guidSourceExpiration);
+
+                    values.setQpes(qpes);
+                    values.setGuids(guids);
+                    values.setGap(gap);
+                }
+            } else {
+                return values;
+            }
+
+            // replace or insert it
+            ffmpData.remove(qpeSiteSourceDataKey);
+            statusHandler.info("Removing from memory: "+qpeSiteSourceDataKey);
+            values.setReset(false);
+            writeFFTIData(siteDataKey, values);
+        }
+
+        return values;
+    }
+    
+    /**
+     * Persist the record that has finished processing.
+     * This is different than other DAT tools.
+     * Other tools wait until all are finished processing 
+     * before persisting.  FFMP persists as it goes in order
+     * to lessen the data surge being sent to pypies.
+     * 
+     * @param record
+     * @return
+     */
+    private synchronized void persistRecord(FFMPRecord record) {
+        
+        // persist out this record
+        try {
+            setPluginDataObjects(new FFMPRecord[]{record});
+            setPluginDao(new FFMPDao(getCompositeProductType(),
+                    template, fscm, config.getCWA()));
+            persistRecords();
+            fireTopicUpdate();
+            // clear out pdos that are written
+            pdos = null;
+        } catch (PluginException e) {
+            statusHandler.handle(Priority.PROBLEM, "Couldn't persist the record.", e);
+        }
+        
+    }
+    
+    
+    /**
+     * Find siteSourceDataKey
+     * 
+     * @param source
+     * @param dataKey
+     * @param ffmpRec
+     * @return
+     */
+    private String getSourceSiteDataKey(SourceXML source, String dataKey, FFMPRecord ffmpRec) {
+ 
+        String sourceName = source.getSourceName();
+        String sourceSiteDataKey = null;
+        
+        if (source.getSourceType().equals(
+                SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            sourceName = source.getDisplayName();
+            sourceSiteDataKey = sourceName;
+       
+        } else {
+            sourceName = ffmpRec.getSourceName();
+            sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
+                    + "-" + dataKey;
+        }
+        
+        return sourceSiteDataKey;
     }
 
 }
