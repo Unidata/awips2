@@ -54,6 +54,7 @@ import com.raytheon.viz.gfe.smarttool.Tool;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2010            njensen     Initial creation
  * Jan 18, 2013    1509  njensen  Garbage collect after running tool
+ * Apr 03, 2013    1855  njensen   Never dispose interpreters until shutdown
  * 
  * </pre>
  * 
@@ -67,11 +68,6 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
      * Maximum number of jobs to keep for a given Data Manager.
      */
     private final static int maxJobs = 3;
-
-    /**
-     * Amount of time to keep inactive jobs servers around.
-     */
-    private final static long expireTime = 5L * 60L * 1000L;
 
     /**
      * Index of job with the queue. Will break code if not zero.
@@ -114,14 +110,12 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         SmartToolController python = null;
-        long starTime = System.currentTimeMillis();
-        boolean expireJob = instanceMap.get(dataMgr).get(QUEUE_JOB_INDEX) != this;
         try {
             python = SmartToolFactory.buildController(dataMgr);
         } catch (JepException e) {
             SmartToolJob.removeJob(dataMgr, this);
             return new Status(IStatus.ERROR, StatusConstants.PLUGIN_ID,
-                    "Error initializing guidance python", e);
+                    "Error initializing smart tool python", e);
         }
 
         try {
@@ -139,7 +133,6 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
 
                     synchronized (this) {
                         if (request != null) {
-                            starTime = System.currentTimeMillis();
                             python.processFileUpdates();
                             EditAction ea = request.getPreview()
                                     .getEditAction();
@@ -170,11 +163,6 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
                                 req = request;
                                 request = null;
                             }
-                        } else if (expireJob
-                                && ((instanceMap.get(dataMgr).size() > maxJobs) || (System
-                                        .currentTimeMillis() - starTime) > expireTime)) {
-                            SmartToolJob.removeJob(dataMgr, this);
-                            break;
                         }
                     }
                 } catch (InterruptedException e) {
@@ -201,10 +189,8 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
                     req = null;
                 }
             }
-            System.err.println("SmartToolJob exit loop: "
-                    + monitor.isCanceled());
         } finally {
-            System.err.println("shutdown instance of SmartToolJob");
+            System.err.println("Shutdown instance of SmartToolJob");
             if (python != null) {
                 python.dispose();
                 python = null;
@@ -277,10 +263,9 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
             }
         }
 
-        // All jobs for data manager are busy add another.
-        // To mimic AWIPS I allow any number of jobs.
-        // The check in the run will reduce the number to maxJobs.
-        if (jobAvailable == false) {
+        // All jobs for data manager are busy, add another if we haven't reached
+        // the limit
+        if (!jobAvailable && jobList.size() < maxJobs) {
             SmartToolJob job = new SmartToolJob(dataMgr);
             job.setSystem(true);
             jobList.add(job);
