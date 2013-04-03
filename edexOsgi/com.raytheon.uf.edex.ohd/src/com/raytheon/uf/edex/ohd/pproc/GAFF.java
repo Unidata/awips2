@@ -32,9 +32,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -47,6 +46,7 @@ import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -226,23 +226,22 @@ public class GAFF {
 
         this.hsa = db.getHsa();
     }
-    
-    public boolean shouldGAFFRun()
-    {
-    	// Only run every 12 minutes
-    	final int minutesBetweenRuns = 12;
-    	
-    	Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-    	if (cal.getTimeInMillis() - this.lastRunTime < minutesBetweenRuns * 60 * 1000) {
-    		if (log.isDebugEnabled()) {
-    			float time = (cal.getTimeInMillis() - this.lastRunTime) / 1000 / 60;
+
+    public boolean shouldGAFFRun() {
+        // Only run every 12 minutes
+        final int minutesBetweenRuns = 12;
+
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        if (cal.getTimeInMillis() - this.lastRunTime < minutesBetweenRuns * 60 * 1000) {
+            if (log.isDebugEnabled()) {
+                float time = (cal.getTimeInMillis() - this.lastRunTime) / 1000 / 60;
                 log.debug("Only run every 12 minutes.  " + time
-                  + " minutes since last run.");    			
-    		}
-    		return false;
-    	}
-    	
-    	return true;
+                        + " minutes since last run.");
+            }
+            return false;
+        }
+
+        return true;
     }
 
     public void process() {
@@ -348,12 +347,12 @@ public class GAFF {
                     continue;
                 }
 
-                GribRecord gr = new GribRecord(uri);
-                GribDao gd = null;
+                GridRecord gr = new GridRecord(uri);
+                PluginDao gd = null;
 
-                gd = (GribDao) PluginFactory.getInstance().getPluginDao(
+                gd = PluginFactory.getInstance().getPluginDao(
                         gr.getPluginName());
-                gr = (GribRecord) gd.getMetadata(uri);
+                gr = (GridRecord) gd.getMetadata(uri);
                 grReftime = gr.getDataTime().getRefTime();
 
                 dataStore = gd.getDataStore(gr);

@@ -26,6 +26,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationFile.ModifiableLocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 
 /**
@@ -46,20 +47,6 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
  */
 
 public class CollaborationLocalizationAdapter implements ILocalizationAdapter {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationAdapter#getDirNameForType
-     * (
-     * com.raytheon.uf.common.localization.LocalizationContext.LocalizationType)
-     */
-    @Override
-    public String getDirNameForType(LocalizationType type) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     /*
      * (non-Javadoc)
@@ -108,13 +95,12 @@ public class CollaborationLocalizationAdapter implements ILocalizationAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.localization.ILocalizationAdapter#save(java.io
-     * .File, com.raytheon.uf.common.localization.LocalizationContext,
-     * java.lang.String)
+     * com.raytheon.uf.common.localization.ILocalizationAdapter#save(com.raytheon
+     * .uf.common.localization.LocalizationFile. ModifiableLocalizationFile)
      */
     @Override
-    public boolean save(File localFile, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException {
+    public boolean save(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException {
         // TODO Auto-generated method stub
         return false;
     }
@@ -182,13 +168,12 @@ public class CollaborationLocalizationAdapter implements ILocalizationAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.localization.ILocalizationAdapter#delete(java.
-     * io.File, com.raytheon.uf.common.localization.LocalizationContext,
-     * java.lang.String)
+     * com.raytheon.uf.common.localization.ILocalizationAdapter#delete(com.raytheon
+     * .uf.common.localization.LocalizationFile. ModifiableLocalizationFile)
      */
     @Override
-    public boolean delete(File file, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException {
+    public boolean delete(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException {
         // TODO Auto-generated method stub
         return false;
     }

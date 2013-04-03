@@ -16,10 +16,13 @@ import java.awt.Color;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -59,6 +62,7 @@ public class PgenLayeringDialog extends Dialog {
     protected Product		currentProduct = null;
     protected Layer			currentLayer = null;                 
 	
+	protected Point shellLocation;
     
     /**
      * Constructor.
@@ -102,6 +106,18 @@ public class PgenLayeringDialog extends Dialog {
         // Create and initialize all of the controls and layouts
         initializeComponents();
         
+        /*
+         * Add a "CLOSE" listenser to the shell to handle the event when the 
+         * user clicks the "X" in the shell window.
+         */
+        Listener[] closeListeners = shell.getListeners( SWT.Close );
+        if ( closeListeners != null && closeListeners.length > 0 ) {
+        	for ( Listener ls : closeListeners ) {
+        		shell.removeListener( SWT.Close, ls );
+        	}
+        }
+        
+        shell.addListener( SWT.Close, new shellCloseListener() );
         
         // Pack and open
         shell.pack();
@@ -151,8 +167,12 @@ public class PgenLayeringDialog extends Dialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
+		if ( shellLocation == null) {
         Point pt = parent.getLocation();
         shell.setLocation( pt.x,  pt.y );
+		} else {
+			shell.setLocation(shellLocation);
+		}
     }
     
     /**
@@ -200,8 +220,38 @@ public class PgenLayeringDialog extends Dialog {
      */
     public void close() {
         if ( shell != null && !shell.isDisposed() ) {
+			Rectangle bounds = shell.getBounds();
+			shellLocation = new Point(bounds.x, bounds.y);
         	shell.dispose();
         }
     }   
+   
+    /*
+     * A listener to handle the event when the user clicks on the "X" on the dialog.
+     */
+    private class shellCloseListener implements Listener {
+    	  public void handleEvent(Event e) {
+    	    switch ( e.type ) {
+    	    case SWT.Close:
+    	       exit();
+        	   break;
+     	    }
+    	 }
+     }  
+
+    /*
+     *  Exit the dialog - default is to close the dialog. 
+     */
+    protected void exit() {
+    	close();
+    }  
+    
+    /*
+     *  Check if need to save changes. 
+     */
+    protected boolean needSaving() {  
+    	return PgenSession.getInstance().getPgenResource().getResourceData().isNeedsSaving();
+    }  
+
    
 }

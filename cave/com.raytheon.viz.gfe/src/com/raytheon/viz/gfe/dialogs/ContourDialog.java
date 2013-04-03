@@ -34,13 +34,11 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * TODO Add Description
+ * Dialog for getting contour intervals.
  * 
  * <pre>
  * 
@@ -48,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 5, 2009            randerso     Initial creation
+ * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -56,9 +55,10 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class ContourDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ContourDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ContourDialog.class);
 
-    private static final int RESET_ID = IDialogConstants.CLIENT_ID;
+    private final int RESET_ID = IDialogConstants.CLIENT_ID;
 
     private Parm parm;
 

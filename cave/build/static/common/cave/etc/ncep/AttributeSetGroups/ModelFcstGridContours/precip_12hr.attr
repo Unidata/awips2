@@ -3,13 +3,14 @@
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
 ! J. Carr/HPC            2/99   Removed the contour from type and left just fill
 !                               Also changed the fint and time interval
 !
 GLEVEL =  0                                                                       
 GVCORD =  none                                                                    
 SKIP   =  0                                                                       
+FILTER=y
 SCALE  =  0                                                                       
 GDPFUN =  p12i
 TYPE   =  f
@@ -25,5 +26,4 @@ TITLE  =  5/-1/~ 12-HR TOTAL PRECIPITATION ! 0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
 GDATTIM=  f12-last-6

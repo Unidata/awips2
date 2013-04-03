@@ -14,6 +14,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.display.IMultiPoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -110,15 +111,22 @@ public class PgenInterpolator {
 		LinearInterpolator interp = new LinearInterpolator(mapping);
 		
 		/*
-		 * calculate the coordinates for each new object
+		 * calculate the coordinates for each new objects
+		 * 
+		 * Note - reverse the starting and ending time if starting time > ending time.
 		 */
 		int start = props.getStartingTime();
 		int end = props.getEndingTime();
 		int interval = props.getInterval();
+		if ( start > end )  {
+			start = -start;
+			end = -end;
+		}
+		
 		for ( int i=start+interval; i < end; i+=interval) {
 
 			//  calculate the fractional distance of the new object from the original
-			double fraction = (double)( i - start )  / (double)(end - start) ;
+			double fraction = Math.abs( (double)( i - start )  / (double)(end - start) ) ;
 			
 			/*
 			 * calculate the interpolated coordinates at the specified fractional distance 
@@ -133,6 +141,20 @@ public class PgenInterpolator {
 			DrawableElement de = (DrawableElement) from.copy();
 			de.setPoints(newPts);
 			newElems.add(de);
+		}
+		
+		/*
+		 * Adjust for Gfa text box location and forecast hour
+		 */
+		if ( newElems.size() > 0 && newElems.get(0) instanceof Gfa ) {
+			ArrayList<Coordinate>  txtLoc = interpolate( ((Gfa)from).getGfaTextCoordinate(), ((Gfa)to).getGfaTextCoordinate(), 
+					props, mapDescriptor );
+			
+			int len = Math.min(newElems.size(), txtLoc.size());
+			for ( int ii =start+interval, jj = 0; ii < end && jj<len; ii+=interval, jj++ ) {
+				((Gfa)newElems.get( jj )).setGfaTextCoordinate( txtLoc.get(jj) );
+				((Gfa)newElems.get( jj )).setGfaFcstHr( "" + Math.abs(ii) );
+			}
 		}
 		
 		return newElems;
@@ -238,9 +260,72 @@ public class PgenInterpolator {
 		return coords;
 	}
 
-	/*
-	 * Converts a list of pixel Coordinates to Lat/Lon Coordinates
+	
+	/**
+	 * Generates new points between two given points using the specified InterpolationProperties.
+	 * @param from 	starting point 
+	 * @param to 	end point
+	 * @param props interpolation properties
+	 * @param mapDescriptor used for converting lat/lon coordinates to/from pixel coordinates
+	 * @return ArrayList<Coordinate>
 	 */
+	public static ArrayList<Coordinate> interpolate( Coordinate from, Coordinate to, 
+			InterpolationProperties props, IMapDescriptor mapDescriptor ) {
+		
+		if ( from == null || to == null ) 
+			throw new IllegalArgumentException("PgenInterpolator: Start/End point must not be null.");
+		
+		ArrayList<Coordinate> newPts = new ArrayList<Coordinate>();
+
+		Coordinate[] pointsInMap = new Coordinate[2];
+		pointsInMap[0] = from;
+		pointsInMap[1] = to;
+
+		/*
+		 * Convert from Lat/Lon coordinates to pixel coordinates for from/to points
+		 */
+		double[][] ptsPixel = PgenUtil.latlonToPixel( pointsInMap, mapDescriptor);
+		
+		/*
+		 * Convert points from double[][] to Coordinate[]
+		 */
+		Coordinate[] ptsCoord = toCoordinates( ptsPixel );
+		
+		/*
+		 * calculate the coordinates
+		 */		
+		int start = props.getStartingTime();
+		int end = props.getEndingTime();
+		int interval = props.getInterval();
+		if ( start > end )  {
+			start = -start;
+			end = -end;
+		}
+		
+		for ( int i=start+interval; i < end; i+=interval) {
+
+			//  calculate the fractional distance of the new object from the original
+			double fraction = (double)( i - start )  / (double)(end - start) ;
+			
+	/*
+			 * calculate the interpolated coordinate at the specified fractional distance
+			 * from the start point. 
+	 */
+			double dx = ( ptsCoord[1].x - ptsCoord[0].x ) * fraction;
+			double dy = ( ptsCoord[1].y - ptsCoord[0].y ) * fraction;
+
+           	Coordinate pt = new Coordinate( ptsCoord[0].x + dx,  ptsCoord[0].y + dy);
+            newPts.add( pt );
+    					
+		}
+		
+		//Convert back to Lat/Lon
+		newPts = toWorld( newPts, mapDescriptor );
+		
+		return newPts;
+	}
+	
+
 	private static ArrayList<Coordinate> toWorld( ArrayList<Coordinate> coords, IMapDescriptor mapDescriptor ) {
 		
 		ArrayList<Coordinate> latlons = new ArrayList<Coordinate>();

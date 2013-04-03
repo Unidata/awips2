@@ -40,13 +40,13 @@
                     <resourceData xsi:type="ffgVizGroupResourceData" 
                     	retrieveData="false" name="${name}">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="FFG-TUA,FFG-ACR,FFG-STR,FFG-RSA,FFG-ORN,FFG-RHA,FFG-KRF,FFG-MSR,FFG-TAR,FFG-PTR,FFG-TIR-HiRes,FFG-ALR,FFG-FWR"
 									constraintType="IN" />
 							</mapping>
@@ -64,13 +64,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-KRF" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -89,13 +89,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-MSR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -114,13 +114,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-RHA" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -139,13 +139,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-TUA" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -164,13 +164,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-ACR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -189,13 +189,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-STR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -214,13 +214,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-RSA" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -239,13 +239,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-ORN" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -264,13 +264,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-TAR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -289,13 +289,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-PTR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -314,13 +314,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-TIR-HiRes" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -339,13 +339,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-ALR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
@@ -364,13 +364,13 @@
  			                </loadProperties>
 		                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 		                        <metadataMap>
-		                            <mapping key="modelInfo.parameterAbbreviation">
+		                            <mapping key="info.parameter.abbreviation">
 		                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="pluginName">
-		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+		                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 		                            </mapping>
-		                            <mapping key="modelInfo.modelName">
+		                            <mapping key="info.datasetId">
 		                                <constraint constraintValue="FFG-FWR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>

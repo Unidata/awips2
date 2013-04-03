@@ -155,8 +155,8 @@ public class EditPlotModelComposite extends Composite {
 	private void createTextAttrControls() {
 		Group textAttrGrp = new Group ( topComposite, SWT.SHADOW_NONE );
 		GridLayout gl = new GridLayout(7, false);
-		gl.marginTop = 7;
-		gl.marginBottom = 8;
+		gl.marginTop = 0;
+		gl.marginBottom = 3;
 		gl.marginRight = 0;
 		textAttrGrp.setLayout( gl );
 		textAttrGrp.setText("Text");
@@ -310,11 +310,15 @@ public class EditPlotModelComposite extends Composite {
 		// Create Top position button    
 		Composite comp = new Composite( topComposite, SWT.NONE);
 		GridLayout gl = new GridLayout(3, true);
+		gl.verticalSpacing = 0;
+		gl.marginHeight = 0;
+		
 		comp.setLayout(gl);
 
-		GridData gd = new GridData(SWT.FILL);
+		GridData gd = new GridData();
 		gd.horizontalAlignment = GridData.CENTER;
 		gd.grabExcessHorizontalSpace = true;
+		gd.grabExcessVerticalSpace = true;
 		
 		comp.setLayoutData(gd);
 
@@ -323,6 +327,7 @@ public class EditPlotModelComposite extends Composite {
 		gd = new GridData();
 		gd.horizontalAlignment = GridData.BEGINNING;
 		gd.grabExcessHorizontalSpace = true;
+		gd.verticalAlignment = GridData.CENTER;
 		clearPlotModelBtn.setLayoutData( gd );
 		clearPlotModelBtn.setEnabled( false );
 		
@@ -344,6 +349,7 @@ public class EditPlotModelComposite extends Composite {
 		gd = new GridData();
 		gd.horizontalAlignment = GridData.END;
 		gd.grabExcessHorizontalSpace = true;
+		gd.verticalAlignment = GridData.CENTER;
 		resetPlotModelBtn.setLayoutData( gd );
 		resetPlotModelBtn.setEnabled( false );
 		
@@ -351,11 +357,15 @@ public class EditPlotModelComposite extends Composite {
 
 		comp = new Composite(topComposite, SWT.NONE);
 		gl = new GridLayout(3, true);
+		gl.verticalSpacing = 0;
+		gl.marginHeight = 0;
 		comp.setLayout(gl);
 
 		gd = new GridData();
 		gd.horizontalAlignment = GridData.CENTER;
 		gd.grabExcessHorizontalSpace = true;
+		gd.grabExcessVerticalSpace = true;
+
 		comp.setLayoutData(gd);
 
 		for ( int i=1; i <= 9; i++) {
@@ -387,10 +397,14 @@ public class EditPlotModelComposite extends Composite {
 	 
 		comp = new Composite(topComposite, SWT.NONE);
 		gl = new GridLayout(1, true);
+		gl.horizontalSpacing = 0;
+		gl.verticalSpacing = 0;
+		gl.marginHeight = 0;
 		comp.setLayout(gl);
 
 		gd = new GridData();
 		gd.horizontalAlignment = GridData.CENTER;
+		gd.grabExcessHorizontalSpace = true;
 		gd.grabExcessHorizontalSpace = true;
 		comp.setLayoutData(gd);
 
@@ -423,13 +437,19 @@ public class EditPlotModelComposite extends Composite {
 			// (the position must be set.)
 			grp = new Group ( topComp, SWT.SHADOW_ETCHED_OUT );
 			grp.setLayout(new GridLayout(2, false));
-			grp.setLayoutData(new GridData(90, 65));
+			GridData gd = new GridData(SWT.FILL);//90,60);
+			gd.widthHint = 90;
+			gd.heightHint = 60;
+			gd.minimumHeight = 60;
+			gd.grabExcessVerticalSpace = true;
+			
+			grp.setLayoutData( gd );
 
 			checkBtn = new Button(grp, SWT.CHECK | SWT.SHADOW_ETCHED_OUT);
 			checkBtn.setLayoutData(new GridData(15, 12));
 			
 			parmBtn = new Button(grp, SWT.TOGGLE);
-			parmBtn.setLayoutData(new GridData(62, 57));	
+			parmBtn.setLayoutData(new GridData(62, 53));	
 						
 			checkBtn.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -955,9 +975,10 @@ public class EditPlotModelComposite extends Composite {
 						
 		ctrGrp = new Group ( topComposite, SWT.SHADOW_NONE );
 		GridLayout gl = new GridLayout(6, false);
-		gl.marginTop = 5;
-		gl.marginBottom = 8;
-		gl.marginRight = 50;
+		gl.marginLeft = 25;
+		gl.marginTop = 2;
+		gl.marginBottom = 3;
+		gl.marginRight = 52;
 		ctrGrp.setLayout( gl );
 		ctrGrp.setText("Center Only Parameters");
 			

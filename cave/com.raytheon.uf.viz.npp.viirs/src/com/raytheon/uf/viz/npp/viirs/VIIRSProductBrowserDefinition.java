@@ -46,8 +46,7 @@ public class VIIRSProductBrowserDefinition extends
     public VIIRSProductBrowserDefinition() {
         productName = "viirs";
         displayName = "VIIRS";
-        order = new String[] { "pluginName", "region", "channelType",
-                "wavelength" };
+        order = new String[] { "region", "channelType", "wavelength" };
         order = getOrder();
         loadProperties = new LoadProperties();
     }
