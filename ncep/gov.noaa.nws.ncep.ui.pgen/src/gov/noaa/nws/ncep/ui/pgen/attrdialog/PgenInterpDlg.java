@@ -13,6 +13,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -43,6 +44,7 @@ import gov.noaa.nws.ncep.ui.pgen.tools.PgenInterpolationTool;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 08/09		#142		S. Gilbert	Initial creation from PgenExtrapDlg
+ * 11/12		#?			J. Wu		Allow using Gfa forecast hour
  *
  * </pre>
  * 
@@ -325,6 +327,37 @@ public class PgenInterpDlg extends AttrDlg {
 			}
 		}
 		
+	}
+
+	/**
+	 * Sets the end time value from the Text widget
+	 */
+	public void setStartTime( String startTime ) {
+		if ( startTime != null ) {
+			for ( Listener ls : this.startTimeText.getListeners( SWT.Verify ) ) {
+			    this.startTimeText.removeListener( SWT.Verify, ls );
+			}
+			
+			this.startTimeText.setText( startTime  );
+			
+			startTimeText.addVerifyListener(new DigitVerifyListener() );					
+		}
+	}
+
+	/**
+	 * Sets the end time value from the Text widget
+	 */
+	public void setEndTime( String endTime ) {
+		if ( endTime != null ) {
+			for ( Listener ls : this.endTimeText.getListeners( SWT.Verify ) ) {
+			    this.endTimeText.removeListener( SWT.Verify, ls );
+			}
+			
+			this.endTimeText.setText( endTime  );
+			
+			endTimeText.addVerifyListener(new DigitVerifyListener() );
+					
+		}
 	}
 
 }

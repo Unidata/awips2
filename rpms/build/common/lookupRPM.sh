@@ -115,6 +115,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pycairo"
       return 0
    fi
+   if [ "${1}" = "awips2-python-shapely" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.shapely"
+      return 0
+   fi
 
    # awips2 rpms.
    if [ "${1}" = "Installer.ncep-database" ]; then

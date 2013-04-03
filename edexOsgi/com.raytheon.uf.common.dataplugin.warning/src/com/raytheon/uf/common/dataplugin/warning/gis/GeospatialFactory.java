@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
@@ -61,6 +62,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Apr 11, 2012  #14691    Qinglu Lin  For marine warnings, getFeAreaField() returns null.
  *                                     So, do not add the returned value of getFeAreaField() 
  *                                     to areaFields.
+ * Jan  9, 2013   15600    Qinglu Lin  Execute "timezones = myTimeZones;" even if timezones != null.
  * 
  * </pre>
  * 
@@ -86,13 +88,12 @@ public class GeospatialFactory {
         boolean generate = true;
         if (lastRunTime != null) {
             System.out.println("Loading areas from disk");
-
             // load from disk
             try {
                 long t0 = System.currentTimeMillis();
                 dataSet = loadAreaGeoData(site, lastRunTime);
                 System.out.println("Loading areas from disk took "
-                        + (System.currentTimeMillis() - t0));
+                        + (System.currentTimeMillis() - t0) + "ms");
             } catch (Exception e) {
                 statusHandler.handle(Priority.WARN,
                         "Failed to load area geometry files from disk", e);
@@ -118,9 +119,7 @@ public class GeospatialFactory {
         GeospatialData[] parentAreas = dataSet.getParentAreas();
         GeospatialData[] myTimeZones = dataSet.getTimezones();
         if (myTimeZones != null && myTimeZones.length > 0) {
-            if (timezones == null) {
-                timezones = myTimeZones;
-            }
+            timezones = myTimeZones;
 
             for (GeospatialData tz : myTimeZones) {
                 tz.prepGeom = PreparedGeometryFactory.prepare(tz.geometry);
@@ -139,7 +138,6 @@ public class GeospatialFactory {
 
             list.add(data);
         }
-
         GeospatialData[] uniqueAreas = new GeospatialData[uniqueAreasMap.size()];
         int index = 0;
         for (String key : uniqueAreasMap.keySet()) {
@@ -149,34 +147,15 @@ public class GeospatialFactory {
             // if multiple areas share a common fips ID, the smaller areas will
             // have to merge will the largest area
             if (list.size() > 1) {
-                double maxArea = -1;
-                for (GeospatialData item : list) {
-                    double area = item.getGeometry().getArea();
-                    if (area > maxArea) {
-                        data = item;
-                        maxArea = area;
-                    }
-                }
-
-                // collect all individual geometries that are not a part
-                // of the maxArea
+                // collect all individual geometries
                 List<Geometry> geometries = new ArrayList<Geometry>();
                 for (GeospatialData item : list) {
-                    if (data != item) {
-                        GeometryUtil.buildGeometryList(geometries,
-                                item.geometry);
-                    }
+                    GeometryUtil.buildGeometryList(geometries, item.geometry);
                 }
-
-                for (int i = 0; i < geometries.size(); i++) {
-                    // convexHull will remove any side location conflicts
-                    // convexHull the geometries individually because they are
-                    // usually not next to each other.
-                    // data.geometry = data.geometry.union(geometries.get(i)
-                    // .convexHull());
-                    data.geometry = data.geometry.union(geometries.get(i)
-                            .convexHull());
-                }
+                // Create multi geometry out of combined areas
+                data.geometry = new GeometryFactory()
+                        .createGeometryCollection(geometries
+                                .toArray(new Geometry[0]));
             }
             uniqueAreas[index] = data;
             index++;
@@ -205,7 +184,7 @@ public class GeospatialFactory {
 
         // Prepare the geometries
         for (GeospatialData data : areas) {
-            data.prepGeom = PreparedGeometryFactory.prepare(data.geometry);
+            data.prepGeom = new PreparedGeometryCollection(data.geometry);
         }
 
         return areas;

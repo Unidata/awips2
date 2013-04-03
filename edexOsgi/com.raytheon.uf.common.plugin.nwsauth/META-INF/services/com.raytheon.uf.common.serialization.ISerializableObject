@@ -1,1 +1,5 @@
 com.raytheon.uf.common.plugin.nwsauth.user.UserId
+com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData
+com.raytheon.uf.common.plugin.nwsauth.xml.PermissionXML
+com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML
+com.raytheon.uf.common.plugin.nwsauth.xml.UserXML

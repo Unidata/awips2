@@ -41,5 +41,7 @@
 230:230:ICAO Height at Embedded Cumulonimbus Bas:m:HECBB
 231:231:ICAO Height at Embedded Cumulonimbus To:m:HECBT
 232:232:Volcanic Ash Forecast Transport and Dispersion:log10(kg/m^3):VAFTD
+233:233:Icing probability:non-dim:ICPRB
+234:234:Icing severity:non-dim:ICSEV
 255:255:Missing
 

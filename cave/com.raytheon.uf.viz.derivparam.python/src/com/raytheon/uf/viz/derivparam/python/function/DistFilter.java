@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import jep.INumpyable;
 
-import com.raytheon.uf.viz.derivparam.python.PythonNumpyFloatArray;
+import com.raytheon.uf.common.python.PythonNumpyFloatArray;
 
 /**
  * TODO Add Description

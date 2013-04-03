@@ -68,6 +68,16 @@ public class MetarPrecipResourceData extends AbstractRequestableResourceData {
     }
 
     @Override
+    public boolean isUpdatingOnMetadataOnly() {
+        return true;
+    }
+
+    @Override
+    public boolean isRetrieveData() {
+        return false;
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();

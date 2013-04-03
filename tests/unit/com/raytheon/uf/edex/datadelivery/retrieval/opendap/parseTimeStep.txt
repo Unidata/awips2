@@ -1,0 +1,10 @@
+input="12hr"
+output=12,hr
+input="3hr"
+output=3,hr
+input="1hr"
+output=1,hr
+input="1mo"
+output=1,mo
+input="1dy"
+output=1,dy

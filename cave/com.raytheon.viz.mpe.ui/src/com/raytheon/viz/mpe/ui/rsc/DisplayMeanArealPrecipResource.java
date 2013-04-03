@@ -40,9 +40,9 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
@@ -375,9 +375,7 @@ public class DisplayMeanArealPrecipResource extends
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
-                gridDisplay = new GriddedImageDisplay2(buf2, gridGeometry,
-                        this, target.getViewType());
-                gridDisplay.init(target);
+                gridDisplay = new GriddedImageDisplay2(buf2, gridGeometry, this);
             }
 
             gridDisplay.paint(target, paintProps);

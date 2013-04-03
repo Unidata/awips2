@@ -34,9 +34,10 @@
 		<echo message="this is a base for other ant files, do not call directly" />
 	</target>
 
-	<target name="deploy" depends="util.deploy" >
-                <echo message="Basedir: ${basedir}"/>
-                <echo message="bin dir: ${BIN.DIR}"/>
+	<target name="deploy" depends="util.deploy,resources.deploy">
+	    <echo message="Basedir: ${basedir}"/>
+	    <echo message="bin dir: ${BIN.DIR}"/>
+
 		<!-- The build files that inherite from this base are designed to be 
 		called from a master build file located in the build.edex directory. 
 		To override and use locally, set the 'dest.dir' property on the command 
@@ -104,13 +105,25 @@
 		<antcall target="component-substitute.utility-substitute"></antcall>
 	</target>
 	
-	<!-- this target deploys the component's Utility Service Configurations if applicable -->
-	<target name="util.deploy" if="util.deploy.ready" >
+	<target name="util.deploy" if="util.deploy.ready" description="Deploys the component's Utility Service Configurations">
 		<echo message="deploying utility files to ${util.dest.dir}" />
 		<copy todir="${util.dest.dir}" overwrite="true" >
 			<fileset dir="${basedir}/${UTIL.DIR}"/>
 		</copy>
 		<antcall target="utility-substitute"></antcall>
+	</target>
+
+	<target name="resources.deploy" description="Deploy the component's resource files">
+	    <if>
+	        <available file="${basedir}/resources" type="dir" />
+	        <then>
+	            <echo message="deploying resource files to ${resources.dest.dir}" />
+	            <mkdir dir="${resources.dest.dir}" />
+	            <copy todir="${resources.dest.dir}" overwrite="true">
+	                <fileset dir="${basedir}/resources" />
+	            </copy>
+	        </then>
+	    </if>
 	</target>
 
 	&substitute-targets;

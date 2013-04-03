@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Parameter
+Bundle-SymbolicName: com.raytheon.uf.common.parameter
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
+Import-Package: com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.dataquery.requests,
+ com.raytheon.uf.common.dataquery.responses,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ javax.measure.converter,
+ javax.measure.unit,
+ javax.persistence
+Export-Package: com.raytheon.uf.common.parameter,
+ com.raytheon.uf.common.parameter.lookup,
+ com.raytheon.uf.common.parameter.mapping,
+ com.raytheon.uf.common.parameter.request
+Require-Bundle: com.raytheon.uf.common.util;bundle-version="1.12.1174"
