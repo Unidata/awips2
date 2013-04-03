@@ -46,10 +46,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.viz.awipstools.ToolsDataManager;
@@ -70,6 +72,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  07-11-12     #875       rferrel    Bug fix for check box on
  *                                      unapplied points.
  *  07-31-12     #875       rferrel    Use MenuButton to show points in groups.
+ *  11-05-12     #1304      rferrel    Added Point Change Listener.
+ *  11-29-12     #1365      rferrel    Properly close dialog when not on UI thread.
  * 
  * </pre>
  * 
@@ -77,15 +81,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class RangeRingDialog extends CaveJFACEDialog implements
-        IResourceDataChanged {
+        IResourceDataChanged, IPointChangedListener {
 
-    private static final String FIXED_LABELS[] = { "None", "1", "2", "3", "12",
-            "13", "23", "123", "C", "C1", "C2", "C3", "C12", "C13", "C23",
-            "C123" };
+    private final String FIXED_LABELS[] = { "None", "1", "2", "3", "12", "13",
+            "23", "123", "C", "C1", "C2", "C3", "C12", "C13", "C23", "C123" };
 
-    private static final String MOVABLE_LABELS[] = { "None", "1", "C", "C1" };
+    private final String MOVABLE_LABELS[] = { "None", "1", "C", "C1" };
 
-    private static final String LATLON = "Lat/Lon";
+    private final String LATLON = "Lat/Lon";
 
     private class FixedRingRow {
 
@@ -151,6 +154,8 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
     private int rowIdWidth = SWT.DEFAULT;
 
+    private MenuButton pointsMenuButton;
+
     public Widget lastActiveWidget;
 
     private FocusListener lastActiveListener = new FocusListener() {
@@ -172,8 +177,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         super(parShell);
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
         this.resourceData = abstractResourceData;
-        // resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
-        // resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, true);
         resourceData.addChangeListener(this);
     }
 
@@ -250,8 +253,33 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 true, true, 1, 1));
         new Label(createComposite, SWT.NONE).setText("New at: ");
 
-        MenuButton menuButton = new MenuButton(createComposite);
-        Menu menu = new Menu(menuButton);
+        pointsMenuButton = new MenuButton(createComposite);
+        populatePointsMenuButton();
+
+        pointsDataManager.addPointsChangedListener(this);
+
+        pointsMenuButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                MenuButton menuButton = (MenuButton) e.widget;
+                MenuItem mi = menuButton.getSelectedItem();
+                addMovableRing(mi.getText());
+                menuButton.setSelectedItem("Select One");
+            }
+        });
+
+        Button delete = new Button(createComposite, SWT.PUSH);
+        delete.setText("Delete");
+        delete.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event event) {
+                deleteMovableRing();
+            }
+        });
+    }
+
+    private void populatePointsMenuButton() {
+        Menu menu = new Menu(pointsMenuButton);
         MenuItem mi0 = new MenuItem(menu, SWT.PUSH);
         mi0.setText("Select One");
 
@@ -275,14 +303,14 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         mi = new MenuItem(menu, SWT.SEPARATOR);
 
         // Now add in the points organized in groups.
-        menuButton.setMinimumSize(SWT.DEFAULT, SWT.DEFAULT);
+        pointsMenuButton.setMinimumSize(SWT.DEFAULT, SWT.DEFAULT);
         populatePoints(menu, null);
 
-        menuButton.setMenu(menu);
-        menuButton.setSelectedItem(mi0);
+        pointsMenuButton.setMenu(menu);
+        pointsMenuButton.setSelectedItem(mi0);
 
         // Determine the maximum row.id's width
-        rowIdWidth = menuButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        rowIdWidth = pointsMenuButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 
         for (RangeRing ring : rangeRings) {
             if (ring.getType() != RangeRingType.FIXED) {
@@ -290,25 +318,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 fillMovableRow(row, ring);
             }
         }
-
-        menuButton.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                MenuButton menuButton = (MenuButton) e.widget;
-                MenuItem mi = menuButton.getSelectedItem();
-                addMovableRing(mi.getText());
-                menuButton.setSelectedItem("Select One");
-            }
-        });
-
-        Button delete = new Button(createComposite, SWT.PUSH);
-        delete.setText("Delete");
-        delete.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event event) {
-                deleteMovableRing();
-            }
-        });
     }
 
     private void populatePoints(Menu menu, IPointNode root) {
@@ -606,13 +615,21 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
+     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
+     * java.lang.Object)
+     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (object instanceof Boolean) {
             boolean b = (Boolean) object;
             if (b == false) {
                 this.resourceData.removeChangeListener(this);
-                close();
+                performClose();
             }
             return;
         } else if (object instanceof RangeRing[]) {
@@ -633,23 +650,45 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         } else if (object instanceof EditableCapability) {
             if (!((EditableCapability) object).isEditable()) {
                 this.resourceData.removeChangeListener(this);
-                close();
+                performClose();
             }
         }
-
-        /*
-         * VizApp.runAsync(new Runnable() {
-         * 
-         * @Override public void run() { load(); }
-         * 
-         * });
-         */
     }
 
+    /**
+     * Close dialog when not on the UI thread.
+     */
+    private void performClose() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                close();
+            }
+        });
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.Dialog#close()
+     */
     @Override
     public boolean close() {
         // passing true tells the resource that editable should be turned off
         this.resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, true);
+        pointsDataManager.removePointsChangedListener(this);
         return super.close();
+    }
+
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.points.IPointChangedListener#pointChanged()
+     */
+    @Override
+    public void pointChanged() {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                populatePointsMenuButton();
+            }
+        });
     }
 }

@@ -63,6 +63,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *                                      based on the current Fcst hr selected.
  * 05/12		#808		J. Wu		update vor text.
  * 07/12        #663        Q. Zhou     Add selected Gfa in movetext listener. Added get/set for MoveTextBtn
+ * 12/12		#908		B. Yin		Added empty items in drop-down menus for multi-selecting
+ * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
  * </pre>
  * 
  * @author mlaryukhin
@@ -850,7 +852,10 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setAttrForDlg(GfaAttrDlg.this);
+				if ( !PgenSession.getInstance().getPgenPalette().getCurrentAction()
+						.equalsIgnoreCase("MultiSelect")) {
 				populateTagCbo();
+			}
 			}
 		};
 		deskCbo.addSelectionListener(saveSettings);
@@ -1061,8 +1066,12 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 				typeLastUsed = (attr.getGfaType() == null) ? "": attr.getGfaType();
 				type.setText(typeLastUsed);
 
-				// parse type and update typeCheckboxes and addRemoveDlgCheckboxes
-				String[] types = typeLastUsed.split(":");
+				/*
+				 *  parse type and update typeCheckboxes and addRemoveDlgCheckboxes
+				 *  Note - The "/" to separate CIG and VIS is temporarily replaced 
+				 *         as ":" since types for VIS is also separated by "/".
+				 */
+				String[] types = typeLastUsed.replace("/VIS", ":VIS").split(":");
 				for(String key: typeCheckboxes.keySet()){
 					if(key.isEmpty()) continue;
 					typeCheckboxes.put(key, false);
@@ -1121,7 +1130,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		StringBuilder sb = new StringBuilder(200);
 		for(String key: typeCheckboxes.keySet()){
 			if(typeCheckboxes.get(key)){
-				if(sb.length() > 0) sb.append(":");
+				if(sb.length() > 0) sb.append("/");
 				sb.append(key);
 			}
 		}
@@ -1138,10 +1147,14 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		if(sb.length() == 0){
 			sb = sb2;
 		} else if (sb2.length() != 0){
-			sb.append(":").append(sb2); 
+			sb.append("/").append(sb2); 
 		}
 				
-		type.setText(sb.toString());
+		String typeStr = sb.toString();
+		if ( typeStr.contains("CIG") ) values.put( "CIG", "BLW_010" );
+		if ( typeStr.contains("VIS") ) values.put( "VIS", "BLW_3SM" );
+				
+		type.setText( typeStr );
 	}
 	
 	/**
@@ -1351,7 +1364,11 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		}
 		
 		createOtherText();
+		
+		if ( !PgenSession.getInstance().getPgenPalette().getCurrentAction()
+				.equalsIgnoreCase("MultiSelect")) {
 		populateTagCbo();
+		}
 
 		// update color 
 		String hazard = hazardCbo.getText();
@@ -1392,7 +1409,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	public void okPressed() {
 
 		// validate first
-		if (!validateRequiredFields())
+		if ( !PgenSession.getInstance().getPgenPalette().getCurrentAction()
+				.equalsIgnoreCase("MultiSelect") && !validateRequiredFields())
 			return;
 
 		for (String key : widgets.keySet()) {
@@ -1434,7 +1452,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 						((Gfa)newEl).snap();
 						lastUsedGfa = (Gfa)newEl;
 						de = lastUsedGfa;
-						lastUsedGfa.setGfaValues(values);
+						//lastUsedGfa.setGfaValues(values);
 					}
 				}
 			}
@@ -1459,7 +1477,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 				&& !otherText.isDisposed()) {
 			otherTextLastUsed = otherText.getText();
 		}
-		if(tagCbo!= null && !tagCbo.isDisposed() && lastUsedGfa != null) {
+		if(tagCbo!= null && !tagCbo.isDisposed() && lastUsedGfa != null
+			&& ( !PgenSession.getInstance().getPgenPalette().getCurrentAction()
+						.equalsIgnoreCase("MultiSelect"))) {
 			tagLastUsed = lastUsedGfa.getGfaTag();
 			populateTagCbo();
 		}
@@ -1477,6 +1497,19 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	public int open() {
 		if(statesBtnEnabled || (top != null && !top.isDisposed())) {
 			return CANCEL;
+		}
+		
+		if ( PgenSession.getInstance().getPgenPalette().getCurrentAction()
+				.equalsIgnoreCase("MultiSelect")) {
+			initMultiSelect();
+		}
+		
+		
+		this.create();
+
+		if ( PgenSession.getInstance().getPgenPalette().getCurrentAction()
+				.equalsIgnoreCase("MultiSelect")) {
+			configMultiSelect();
 		}
 		
 		int open = super.open();
@@ -1961,6 +1994,37 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	 */
 	public void enableMoveTextBtn( boolean flag ){
 		moveTextBtn.setEnabled(flag);
+	}
+	
+	/**
+	 *	Prepare to create attribute dialog for multiple selection 
+	 */
+	private void initMultiSelect(){
+		typeCheckboxes.clear();
+		this.addRemoveDlgCheckboxes.clear();
+		typeLastUsed ="";
+		
+		values.clear();
+	}
+	
+	/**
+	 *  Add empty items in menus for multiple selection
+	 */
+	private void configMultiSelect(){
+		tagCbo.add("");
+		int index = tagCbo.indexOf("");
+		tagCbo.select(index);
+		
+		deskCbo.add("");
+		index = deskCbo.indexOf("");
+		deskCbo.select(index);
+		
+		issueTypeCbo.add("");
+		index = issueTypeCbo.indexOf("");
+		issueTypeCbo.select(index);
+
+		index = fcstHrCbo.indexOf("Other");
+		fcstHrCbo.select(index);
 	}
 }
 

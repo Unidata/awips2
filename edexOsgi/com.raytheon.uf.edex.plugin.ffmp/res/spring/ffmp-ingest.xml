@@ -8,20 +8,20 @@
 
 	<bean id="ffmpThreadPool"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="4" />
-		<property name="keepAliveSeconds" value="60000" />
-	</bean>
-	<bean id="ffmpProcessThreadPool"
-		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="3" />
-		<property name="maxPoolSize" value="5" />
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
 		<property name="keepAliveSeconds" value="60000" />
 	</bean>
 	
+	<!--  <bean id="ffmpProcessThreadPool"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="2" />
+		<property name="keepAliveSeconds" value="60000" />
+	</bean>-->
+	
    <bean id="ffmpGenerator" class="com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator">
    	    <constructor-arg ref="ffmpThreadPool"/>
-   	    <constructor-arg ref="ffmpProcessThreadPool"/>
    </bean>
           
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">

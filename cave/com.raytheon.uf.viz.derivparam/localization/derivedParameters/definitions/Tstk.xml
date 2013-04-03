@@ -31,7 +31,7 @@
     <Method levels="MB,C" name="Union">
         <Field abbreviation="T"/>
     </Method>
-    <Method levels="ZAGL,C" name="Union">
+    <Method levels="FHAG,C" name="Union">
         <Field abbreviation="T"/>
     </Method>
 </DerivedParameter>

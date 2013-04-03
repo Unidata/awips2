@@ -855,7 +855,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 			mapEditor.refresh();
 			//NctextuiModalTool.setModal();
 			// QUERY DB now....Object[0] = Rawrecord text data, Object[1] = issuesite
-			List<List<Object[]>>  rptLstList = query.getProductDataListList(nctextuiPaletteWindow.getCurrentProductName(), StnPt, nctextuiPaletteWindow.getTimeCovered(), nctextuiPaletteWindow.isState(),null);
+			List<List<Object[]>>  rptLstList = query.getProductDataListList(nctextuiPaletteWindow.selectedGp,nctextuiPaletteWindow.getCurrentProductName(), StnPt, nctextuiPaletteWindow.getTimeCovered(), nctextuiPaletteWindow.isState(),null);
 			if(rptLstList.isEmpty()){
 				if(nctextuiPaletteWindow.isState())
 					text.append("--State " +StnPt.getState()+ "--" + nctextuiPaletteWindow.getCurrentProductName()+

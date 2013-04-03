@@ -1,0 +1,42 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="ebxmlSessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="configLocation">
+			<value>file:///${edex.home}/conf/db/hibernateConfig/ebxml/hibernate.cfg.xml</value>
+		</property>	
+		<property name="packagesToScan">
+			<list>		
+				<value>oasis.names.tc.ebxml.regrep.xsd.rim.v4</value>
+				<value>oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4</value>
+				<value>oasis.names.tc.ebxml.regrep.xsd.lcm.v4</value>
+				<value>oasis.names.tc.ebxml.regrep.xsd.query.v4</value>
+				<value>oasis.names.tc.ebxml.regrep.xsd.rs.v4</value>
+				<value>oasis.names.tc.ebxml.regrep.xsd.spi.v4</value>
+				<value>com.raytheon.uf.edex.registry.ebxml.services.cataloger</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="ebxmlTxManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="ebxmlSessionFactory" />
+	</bean>
+	
+    <bean id="edexRegistryManager" class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager" />
+    
+    <bean id="registryHandler" class="com.raytheon.uf.common.registry.ebxml.FactoryRegistryHandler">
+        <property name="txManager" ref="edexRegistryManager"/>
+        <property name="lcmFactory" ref="edexRegistryManager"/>
+        <property name="queryFactory" ref="edexRegistryManager"/>
+    </bean>
+    
+    <bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
+        <constructor-arg ref="registryHandler" />
+    </bean>
+    
+</beans>

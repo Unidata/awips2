@@ -6,6 +6,8 @@
       </properties>
       <resourceData xsi:type="LocatorResourceData">
          <color>${color}</color>
+         <fontName>${fontName}</fontName>
+         <fontSize>${fontSize}</fontSize>
          <pos1LocatorSource>${pos1LocatorSource}</pos1LocatorSource>
 		 <pos1RoundToNearest>${pos1RoundToNearest}</pos1RoundToNearest>
 		 <pos1DisplayUnit>${pos1DisplayUnit}</pos1DisplayUnit>

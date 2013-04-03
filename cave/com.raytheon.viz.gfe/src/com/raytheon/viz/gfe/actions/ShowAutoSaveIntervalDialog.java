@@ -25,9 +25,11 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.AutoSaveIntervalDialog;
 import com.raytheon.viz.gfe.jobs.AutoSaveJob;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
@@ -69,8 +71,9 @@ public class ShowAutoSaveIntervalDialog extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
+            final IWorkbenchWindow window = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow();
+            Shell shell = window.getShell();
 
             int interval = AutoSaveJob.getInterval();
             boolean autoSaveEnabled = interval > 0;
@@ -87,14 +90,22 @@ public class ShowAutoSaveIntervalDialog extends AbstractHandler {
                     if (returnValue instanceof Integer) {
                         int returnCode = (Integer) returnValue;
                         if (returnCode == Window.OK) {
+                            DataManager dm = DataManagerUIFactory
+                                    .findInstance(window);
                             // update
                             if (dialog.isAutoSaveEnabled()) {
                                 int interval = dialog.getCurrentInterval();
                                 AutoSaveJob.setInterval(interval);
-                                DataManager.enableAutoSave();
+                                if (dm != null) {
+                                    dm.enableAutoSave();
+                                }
+                                DataManagerUIFactory.findInstance(window)
+                                        .enableAutoSave();
                             } else {
                                 AutoSaveJob.setInterval(0);
-                                DataManager.disableAutoSave();
+                                if (dm != null) {
+                                    dm.disableAutoSave();
+                                }
                             }
 
                         }
