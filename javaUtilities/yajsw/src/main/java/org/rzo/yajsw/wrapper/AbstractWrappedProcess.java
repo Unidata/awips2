@@ -184,7 +184,13 @@ public abstract class AbstractWrappedProcess implements WrappedProcess, Constant
 	boolean								_reconnecting				= false;
 	boolean								_init						= false;
 
-        public static final int                         INFINITE_PROCESS_LOGGING        = -1;
+	/*
+	 * bkowal - added constant.
+	 */
+    public static final int             INFINITE_PROCESS_LOGGING        = -1;
+    /*
+     * bkowal - switched from 40 to infinite constant
+     */
 	public static final int				MIN_PROCESS_LINES_TO_LOG	= INFINITE_PROCESS_LOGGING;
 	
 	List<Thread>						_shutdownHooks = new ArrayList<Thread>();
@@ -1020,6 +1026,10 @@ public abstract class AbstractWrappedProcess implements WrappedProcess, Constant
 			_controller.processStarted();
 			_totalRestartCount++;
 			postStart();
+			/*
+			 * bkowal
+			 * Suppress extraneous output unless debug is enabled.
+			 */
 			if (_debug)
 			{
 				getWrapperLogger().info("started process with pid " + _osProcess.getPid());
@@ -1919,6 +1929,10 @@ public abstract class AbstractWrappedProcess implements WrappedProcess, Constant
 		shutdownWaitTime += _config.getInt("wrapper.jvm_exit.timeout", Constants.DEFAULT_JVM_EXIT_TIMEOUT) * 1000;
 		if (shutdownWaitTime > Integer.MAX_VALUE)
 			shutdownWaitTime = Integer.MAX_VALUE;
+		/*
+		 * bkowal
+		 * Suppress extraneous output unless debug is enabled.
+		 */
 		if (_debug)
 		{
 			getWrapperLogger().info(
@@ -2014,6 +2028,10 @@ public abstract class AbstractWrappedProcess implements WrappedProcess, Constant
 		}
 		_osProcess.destroy();
 
+		/*
+		 * bkowal
+		 * Suppress extraneous output unless debug is enabled.
+		 */
 		if (_debug)
 		{
 			getWrapperLogger().info("process exit code: " + _osProcess.getExitCode());
@@ -2740,6 +2758,9 @@ public abstract class AbstractWrappedProcess implements WrappedProcess, Constant
 						_drainBuffer.write(line);
                                         }
 
+										/*
+										 * bkowal - added logic to check for the infinite indicator
+										 */
                                         if (MIN_PROCESS_LINES_TO_LOG == INFINITE_PROCESS_LOGGING ||
                                             k <= MIN_PROCESS_LINES_TO_LOG)
                                         {
