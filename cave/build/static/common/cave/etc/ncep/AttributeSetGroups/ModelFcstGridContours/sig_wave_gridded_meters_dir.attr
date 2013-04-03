@@ -10,6 +10,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    /-1;1
+FILTER=y
 SCALE  =   0
 GDPFUN =  HTSGW           ! vecn(mul(sin(mul(dirpw,DTR)),-10),mul(cos(mul(dirpw,DTR)),-10))
 TYPE   =    p               ! a
@@ -25,4 +26,3 @@ TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (m) and PEAK SWELL DIR!0
 COLORS =  1
 MARKER =  0
 GRDLBL =                                                                         
-FILTER =  no

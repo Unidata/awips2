@@ -54,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/12/2008              chammack    Initial Creation.
+ * Oct 23, 2012 1322       djohnson    Allow test code in the same package to clear fileCache.
  * 
  * </pre>
  * 
@@ -62,10 +63,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class PathManager implements IPathManager {
-    private static transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PathManager.class, "Localization");
 
-    private static final Map<LocalizationFileKey, LocalizationFile> fileCache = new ConcurrentHashMap<LocalizationFileKey, LocalizationFile>();
+    // @VisibleForTesting
+    static final Map<LocalizationFileKey, LocalizationFile> fileCache = new ConcurrentHashMap<LocalizationFileKey, LocalizationFile>();
 
     final ILocalizationAdapter adapter;
 
@@ -145,6 +147,7 @@ public class PathManager implements IPathManager {
         return file != null ? file.getFile() : null;
     }
 
+    @Override
     public Map<LocalizationLevel, LocalizationFile> getTieredLocalizationFile(
             LocalizationType type, String name) {
         Map<LocalizationLevel, LocalizationFile> map = new HashMap<LocalizationLevel, LocalizationFile>();
@@ -220,22 +223,13 @@ public class PathManager implements IPathManager {
             }
 
             if (entry != null) {
-                for (ListResponse lr : entry) {
-                    // A null File means the file can never exist, therefore we
-                    // set
-                    // the context/name key as a null file object to avoid
-                    // requesting data about the non-existent file again
-                    LocalizationFile file = new LocalizationFile();
-                    File local = adapter.getPath(lr.context, name);
-                    if (local != null) {
-                        file = new LocalizationFile(this.adapter, lr.context,
-                                local, lr.date, name, lr.checkSum,
-                                lr.isDirectory, lr.existsOnServer,
-                                lr.protectedLevel);
-                        availableFiles.put(file.getContext(), file);
+                synchronized (fileCache) {
+                    for (ListResponse lr : entry) {
+                        LocalizationFile file = createFromResponse(lr);
+                        if (file.isNull() == false) {
+                            availableFiles.put(file.getContext(), file);
+                        }
                     }
-                    fileCache.put(new LocalizationFileKey(lr.fileName,
-                            lr.context), file);
                 }
             }
         }
@@ -250,6 +244,43 @@ public class PathManager implements IPathManager {
         }
 
         return rval.toArray(new LocalizationFile[rval.size()]);
+    }
+
+    /**
+     * Creates a LocalizationFile from a {@link ListResponse}, callers need to
+     * synchronize on fileCache before calling
+     * 
+     * @param response
+     * @return LocalizationFile for response (never null), but be sure to check
+     *         isNull() on file object
+     */
+    private LocalizationFile createFromResponse(ListResponse response) {
+        // able to resolve file, lf will be set, check cache
+        LocalizationFileKey key = new LocalizationFileKey(response.fileName,
+                response.context);
+        LocalizationFile lf = fileCache.get(key);
+        if (lf != null && lf.isNull() == false) {
+            // Ensure latest data for file, will only be null if no File can be
+            // returned for path/context.
+            lf.update(response);
+        } else {
+            // Not in cache or null reference, see if file can be resolved
+            if (lf == null) {
+                // Default to null file if not from cache
+                lf = new LocalizationFile();
+            }
+            File file = this.adapter.getPath(response.context,
+                    response.fileName);
+            if (file != null) {
+                // No cache file available and path is resolved, create
+                lf = new LocalizationFile(this.adapter, response.context, file,
+                        response.date, response.fileName, response.checkSum,
+                        response.isDirectory, response.existsOnServer,
+                        response.protectedLevel);
+            }
+            fileCache.put(key, lf);
+        }
+        return lf;
     }
 
     /*
@@ -277,6 +308,7 @@ public class PathManager implements IPathManager {
      * .edex.utility.LocalizationContext[], java.lang.String,
      * java.lang.String[])
      */
+    @Override
     public LocalizationFile[] listFiles(LocalizationContext[] contexts,
             String name, String[] filter, boolean recursive, boolean filesOnly) {
         try {
@@ -284,41 +316,13 @@ public class PathManager implements IPathManager {
             ListResponse[] entries = this.adapter.listDirectory(contexts, name,
                     recursive, filesOnly);
 
-            for (ListResponse entry : entries) {
-                if (entry.isDirectory
-                        || matchesExtension(entry.fileName, filter)) {
-                    File file = this.adapter.getPath(entry.context,
-                            entry.fileName);
-                    if (file != null) {
-                        LocalizationFileKey key = new LocalizationFileKey(
-                                entry.fileName, entry.context);
-                        LocalizationFile lf = fileCache.get(key);
-                        boolean fromCache = true;
-                        if (lf == null) {
-                            fromCache = false;
-                            // No cache file available
-                            lf = new LocalizationFile(this.adapter,
-                                    entry.context, file, entry.date,
-                                    entry.fileName, entry.checkSum,
-                                    entry.isDirectory, entry.existsOnServer,
-                                    entry.protectedLevel);
-                            fileCache.put(key, lf);
-                        }
-                        if (lf.exists()) {
-                            files.add(lf);
-                        } else if (fromCache) {
-                            // File from cache does not exist, check if entry
-                            // from response exists. If so update cache with new
-                            // file created from entry
-                            lf = new LocalizationFile(this.adapter,
-                                    entry.context, file, entry.date,
-                                    entry.fileName, entry.checkSum,
-                                    entry.isDirectory, entry.existsOnServer,
-                                    entry.protectedLevel);
-                            if (lf.exists()) {
-                                files.add(lf);
-                                fileCache.put(key, lf);
-                            }
+            synchronized (fileCache) {
+                for (ListResponse entry : entries) {
+                    if (entry.isDirectory
+                            || matchesExtension(entry.fileName, filter)) {
+                        LocalizationFile file = createFromResponse(entry);
+                        if (file.exists()) {
+                            files.add(file);
                         }
                     }
                 }

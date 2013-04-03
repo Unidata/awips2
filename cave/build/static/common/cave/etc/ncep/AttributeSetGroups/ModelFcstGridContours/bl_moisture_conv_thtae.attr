@@ -8,8 +8,9 @@
 GLEVEL =  9950!9950!9950!9950!0
 GVCORD =  sgma!sgma!sgma!sgma!none
 SKIP   =    0/1;-1
+FILTER=y
 SCALE  =   7!0
-GDPFUN =  sdiv(mixr(dwpc;mul(1e-2,pres@0%none)),obs!thte(mul(1e-2,pres@0%none),tmpc,dwpc)//e!e!e!mul(1e-2,pmsl)!kntv(wnd%sgma@9950)
+GDPFUN =  sdiv(mixr(dwpc;pres@0%none),obs)!thte(pres@0%none,tmpc,dwpc)//e!e!e!pmsl!kntv(wnd%sgma@9950)
 TYPE   =    c/f!c!c!c!c ! b
 CINT   =    1//-1!4//296!4/300/320!4/324!1;2
 LINE   =    32/1/1/2!30/1/1/0!29/1/1/0!7/1/1/1!1
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ (~995 MB) MOISTURE CONVERGENCE, WIND   = (KTS), THTAE!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

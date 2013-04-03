@@ -1,0 +1,5 @@
+oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory
+oasis.names.tc.ebxml.regrep.xsd.query.v4.ObjectFactory
+oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory
+oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectFactory
+oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory

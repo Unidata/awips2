@@ -55,6 +55,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2008            snaples     Initial creation
  * Aug 8, 2012   15271	   snaples     Updated hourly slot
+ * Jan 02, 2013	 15565     snaples     Fixed problem with wrong time being sent to mpe_fieldgen
  * </pre>
  * 
  * @author snaples
@@ -277,9 +278,8 @@ public class RegenHrFlds {
             /* Read Gage Data and store in structure */
             /*-------------------------------------------------------------------------*/
             Calendar cl = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cl.setTime(datetime);
+            cl.setTimeInMillis(datetime.getTime());
             int hh = cl.get(Calendar.HOUR_OF_DAY);
-            hh = hour_slot;
             String hour = "" + hh;
             if (hh < 10) {
                 hour = "0" + hh;

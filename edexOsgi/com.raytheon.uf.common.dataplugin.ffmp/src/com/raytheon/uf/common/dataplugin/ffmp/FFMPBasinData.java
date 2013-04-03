@@ -22,11 +22,7 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -42,14 +38,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
+ * 01/27/13      1478       D. Hladky   Added support for write of aggregate record cache
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFMPBasinData implements ISerializableObject {
 
@@ -62,11 +57,9 @@ public class FFMPBasinData implements ISerializableObject {
 
     // defaults
     @DynamicSerializeElement
-    @XmlElement
     private String hucLevel;
 
     @DynamicSerializeElement
-    @XmlElement
     private HashMap<Long, FFMPBasin> basins = new HashMap<Long, FFMPBasin>();
 
     /**
@@ -86,7 +79,7 @@ public class FFMPBasinData implements ISerializableObject {
     }
 
     /**
-     * Used only internally
+     * get the basin map
      * 
      * @return
      */
@@ -95,7 +88,7 @@ public class FFMPBasinData implements ISerializableObject {
     }
 
     /**
-     * DONT USE THIS EVER!!!!!
+     * Sets the basin map
      * 
      * @param basins
      */
@@ -543,6 +536,26 @@ public class FFMPBasinData implements ISerializableObject {
     public void purgeData(Date date) {
         for (FFMPBasin basin : basins.values()) {
             basin.purgeData(date);
+        }
+    }
+    
+    /**
+     * populates data from the cache
+     * 
+     * @param times
+     */
+    public void populate(List<Long> times) {
+        for (FFMPBasin basin : basins.values()) {
+            basin.populate(times);
+        }
+    }
+
+    /**
+     * populates the serialized array/objects
+     */
+    public void setCache() {
+        for (FFMPBasin basin : basins.values()) {
+            basin.setCache();
         }
     }
 

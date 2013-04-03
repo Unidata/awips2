@@ -10,8 +10,7 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.monitor;bundle-version="1.11.5"
-Import-Package: com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.dataplugin.radar
+Import-Package: com.raytheon.uf.common.dataplugin.radar
 Export-Package: com.raytheon.uf.common.dataplugin.vil,
  com.raytheon.uf.common.dataplugin.vil.dao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -86,6 +86,7 @@ fi
 
 if [ "${1}" = "-python-qpid" ]; then
    buildRPM "awips2"
+   buildRPM "awips2-python-qpid"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-dynamicserialize"
@@ -97,7 +98,6 @@ if [ "${1}" = "-python-qpid" ]; then
    buildRPM "awips2-python-pil"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-tables"
@@ -127,6 +127,7 @@ if [ "${1}" = "-python-qpid" ]; then
    #buildRPM "awips2-postgresql"
    #buildRPM "awips2-psql"
    #buildRPM "awips2-tools"
+   buildRPM "awips2-python-shapely"
 
    exit 0
 fi
@@ -249,6 +250,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-openfire"
    buildRPM "awips2-httpd-collaboration"
+   buildRPM "awips2-python-shapely"
 
    exit 0
 fi
@@ -278,6 +280,7 @@ if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-shapely"
    buildQPID -ade
    if [ $? -ne 0 ]; then
       exit 1
@@ -339,9 +342,9 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
-   buildRPM "Installer.ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
+   buildRPM "Installer.ncep-database"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -355,14 +358,6 @@ if [ "${1}" = "-qpid" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-
-   exit 0
-fi
-
-if [ "${1}" = "-gfesuite" ]; then
-   buildRPM "awips2"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
 
    exit 0
 fi

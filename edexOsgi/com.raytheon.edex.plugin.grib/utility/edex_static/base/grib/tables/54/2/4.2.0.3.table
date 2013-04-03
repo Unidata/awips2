@@ -1,0 +1,24 @@
+# Product Discipline 0: Meteorological products, Parameter Category 3: Mass
+# 192-254 Reserved for local use
+192:192:MSLP (Eta model reduction):Pa:MSLET:EMSP
+193:193:5-Wave Geopotential Height:gpm:5WAVH:WGH
+194:194:Zonal Flux of Gravity Wave Stress:N/m^2:U-GWD
+195:195:Meridional Flux of Gravity Wave Stress:N/m^2:V-GWD
+196:196:Planetary Boundary Layer Height:m:HPBL
+197:197:5-Wave Geopotential Height Anomaly:gpm:5WAVA
+198:198:MSLP (MAPS System Reduction):Pa:MSLPM:MMSP
+199:199:3-hr pressure tendency (Std. Atmos. Reduction):Pa/s:TSLSA
+200:200:Pressure of level from which parcel was lifted:Pa:PLPL
+201:201:X-gradient of Log Pressure:m^-1:LPS X
+202:202:Y-gradient of Log Pressure:m^-1:LPS Y
+203:203:X-gradient of Height:m^-1:HGT X
+204:204:Y-gradient of Height:m^-1:HGT Y
+205:205:Layer Thickness:m:LAYTH
+206:206:Natural Log of Surface Pressure:ln(kPa):NLGSP
+207:207:Convective updraft mass flux:mm/s:CNVUMF
+208:208:Convective downdraft mass flux:mm/s:CNVDMF
+209:209:Convective detrainment mass flux:mm/s:CNVDEMF
+210:210:Mass Point Model Surface::LMH
+211:211:Geopotential Height (nearest grid point):gpm:HGTN
+212:212:Pressure (nearest grid point):Pa:PRESN
+ 255:255:Missing
