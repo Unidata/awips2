@@ -164,6 +164,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 03/28/2013   DR 15973   Qinglu Lin  Added adjustVertex() and applied it invalid polygon.
  * 03/28/2013   DR 15974   D. Friedman Preserve the set of selected counties when recreating the polygon from the
  *                                     hatched area and remember marked counties outside the polygon on followup.
+ * 04/03/2013   1858       jsanchez    Handled creating follow up warnings when created before 0z but issued after 0z.
  * </pre>
  * 
  * @author mschenke
@@ -293,7 +294,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         GeometryFactory gf = new GeometryFactory();
                         LinearRing lr = gf.createLinearRing(coords);
                         hatchedArea = gf.createPolygon(lr, null);
-                        if (! hatchedArea.isValid())
+                        if (!hatchedArea.isValid())
                             hatchedArea = adjustVertex(hatchedArea);
                         hatchedWarningArea = createWarnedArea(
                                 latLonToLocal(hatchedArea),
@@ -1217,7 +1218,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     for (String id : ids) {
                         if (fips.endsWith(id)) {
                             if (idsOutsidePolygon != null) {
-                                idsOutsidePolygon.remove(fips.substring(0, 2) + '-' + id);
+                                idsOutsidePolygon.remove(fips.substring(0, 2)
+                                        + '-' + id);
                             }
                             newList.add(geom);
                             break;
@@ -1320,7 +1322,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon) throws VizException {
+    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon)
+            throws VizException {
         updateWarnedAreas(snapHatchedAreaToPolygon, false);
     }
 
@@ -1331,8 +1334,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      *            eliminated.
      * @throws VizException
      */
-    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon, boolean preservedSelection)
-            throws VizException {
+    public void updateWarnedAreas(boolean snapHatchedAreaToPolygon,
+            boolean preservedSelection) throws VizException {
         if (getPolygon() == null) {
             return;
         }
@@ -1341,9 +1344,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         Geometry warningArea = state.getWarningArea();
         Geometry warningPolygon = state.getWarningPolygon();
-        Geometry newWarningArea = createWarnedArea(latLonToLocal((snapHatchedAreaToPolygon || warningArea == null) ? warningPolygon
-                : warningArea),
-                preservedSelection && warningArea != null ? latLonToLocal(warningArea) : null);
+        Geometry newWarningArea = createWarnedArea(
+                latLonToLocal((snapHatchedAreaToPolygon || warningArea == null) ? warningPolygon
+                        : warningArea), preservedSelection
+                        && warningArea != null ? latLonToLocal(warningArea)
+                        : null);
         updateWarnedAreaState(newWarningArea, snapHatchedAreaToPolygon);
 
         System.out.println("determining hatchedArea took "
@@ -1360,7 +1365,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      *            inclusion filter
      * @return
      */
-    private Geometry createWarnedArea(Geometry hatchedArea, Geometry preservedSelection) {
+    private Geometry createWarnedArea(Geometry hatchedArea,
+            Geometry preservedSelection) {
         Geometry oldWarningPolygon = latLonToLocal(state.getOldWarningPolygon());
         Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
         Geometry newHatchedArea = null;
@@ -1381,33 +1387,39 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 // Get intersection between county and hatched boundary
                 intersection = GeometryUtil.intersection(hatchedArea, prepGeom);
                 if (oldWarningArea != null) {
-                    intersection = GeometryUtil.intersection(intersection, oldWarningArea);
+                    intersection = GeometryUtil.intersection(intersection,
+                            oldWarningArea);
                 }
                 if (intersection.isEmpty()) {
                     if (selectedFips == null
                             || !selectedFips.contains(getFips(f))) {
                         continue;
-                    } else if (! selectedFips.isEmpty()) {
+                    } else if (!selectedFips.isEmpty()) {
                         /*
                          * Add whatever part of the area was previously hatched
                          * despite being outside the new polygon.
                          */
                         if (selectedGeoms == null) {
                             selectedGeoms = new ArrayList<Geometry>();
-                            GeometryUtil.buildGeometryList(selectedGeoms, preservedSelection);
+                            GeometryUtil.buildGeometryList(selectedGeoms,
+                                    preservedSelection);
                         }
                         intersection = null;
-                        String prefix = GeometryUtil.getPrefix(f.geometry.getUserData());
+                        String prefix = GeometryUtil.getPrefix(f.geometry
+                                .getUserData());
                         for (Geometry g : selectedGeoms) {
                             if (g.getUserData() != null) {
-                                if (prefix.equals(GeometryUtil.getPrefix(g.getUserData()))) {
-                                    intersection = intersection == null ? g :
-                                        GeometryUtil.union(intersection, g);
+                                if (prefix.equals(GeometryUtil.getPrefix(g
+                                        .getUserData()))) {
+                                    intersection = intersection == null ? g
+                                            : GeometryUtil.union(intersection,
+                                                    g);
                                 }
                             }
                         }
                         if (intersection == null) {
-                            // This part of the area was not previously selected.
+                            // This part of the area was not previously
+                            // selected.
                             continue;
                         }
                     }
@@ -1424,8 +1436,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 else
                     include = filterArea(f, intersection, true)
                             && (oldWarningPolygon == null
-                                    || prepGeom.intersects(oldWarningPolygon)
-                                    || isOldAreaOutsidePolygon(f));
+                                    || prepGeom.intersects(oldWarningPolygon) || isOldAreaOutsidePolygon(f));
                 if (include) {
                     if (newHatchedArea == null) {
                         newHatchedArea = intersection;
@@ -1508,7 +1519,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             String[] gids = GeometryUtil.getGID(newArea);
                             boolean flag = false;
                             for (String gid : gids) {
-                                if (! selectedGids.contains(gid)) {
+                                if (!selectedGids.contains(gid)) {
                                     flag = true;
                                     break;
                                 }
@@ -1584,9 +1595,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
             warningAreaChanged();
         }
     }
-    
-    /** Determine if the given area of the reference area passes the
-     * inclusion filter.  Subroutine of {@link #filterArea}.
+
+    /**
+     * Determine if the given area of the reference area passes the inclusion
+     * filter. Subroutine of {@link #filterArea}.
+     * 
      * @param areaToConsider
      * @param wholeArea
      * @param areaInMetersSq
@@ -1605,23 +1618,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
         boolean areaOk = areaInKmSqOfIntersection > getConfiguration()
                 .getHatchedAreaSource().getInclusionArea();
         return getConfiguration().getHatchedAreaSource().getInclusionAndOr()
-                .equalsIgnoreCase("AND") ?
-                        percentOk && areaOk : percentOk || areaOk;
+                .equalsIgnoreCase("AND") ? percentOk && areaOk : percentOk
+                || areaOk;
     }
 
-    /** Determine if a feature should be included based on how much of it
-     * is hatched and the configured inclusion criteria.
+    /**
+     * Determine if a feature should be included based on how much of it is
+     * hatched and the configured inclusion criteria.
+     * 
      * @param feature
-     * @param featureAreaToConsider the portion of the feature that is hatched
-     * @param localCoordinates if true, use local CRS; otherwise, use lat/lon
-     * @param anyAmountOfArea if true, ignore the configured criteria and
-     * include the feature if event a small amount is hatched.
+     * @param featureAreaToConsider
+     *            the portion of the feature that is hatched
+     * @param localCoordinates
+     *            if true, use local CRS; otherwise, use lat/lon
+     * @param anyAmountOfArea
+     *            if true, ignore the configured criteria and include the
+     *            feature if event a small amount is hatched.
      * @return true if the feature should be included
      */
-    private boolean filterArea(GeospatialData feature, Geometry featureAreaToConsider, boolean localCRS) {
-        Geometry geom = localCRS ?
-                (Geometry) feature.attributes.get(GeospatialDataList.LOCAL_GEOM) :
-                    feature.geometry;
+    private boolean filterArea(GeospatialData feature,
+            Geometry featureAreaToConsider, boolean localCRS) {
+        Geometry geom = localCRS ? (Geometry) feature.attributes
+                .get(GeospatialDataList.LOCAL_GEOM) : feature.geometry;
         double areaOfGeom = (Double) feature.attributes.get(AREA);
 
         if (filterCheck(featureAreaToConsider, geom, areaOfGeom))
@@ -1642,18 +1660,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
             List<Geometry> geoms = new ArrayList<Geometry>();
             GeometryUtil.buildGeometryList(geoms, oldWarningArea);
             Geometry oldSelectedArea = null;
-            String prefix = GeometryUtil.getPrefix(feature.geometry.getUserData());
+            String prefix = GeometryUtil.getPrefix(feature.geometry
+                    .getUserData());
             for (Geometry g : geoms) {
                 if (g.getUserData() != null) {
                     if (prefix.equals(GeometryUtil.getPrefix(g.getUserData()))) {
-                        oldSelectedArea = oldSelectedArea == null ? g :
-                            GeometryUtil.union(oldSelectedArea, g);
+                        oldSelectedArea = oldSelectedArea == null ? g
+                                : GeometryUtil.union(oldSelectedArea, g);
                     }
                 }
             }
             if (oldSelectedArea != null) {
-                double ratioOfOldArea = featureAreaToConsider.getArea() /
-                    oldSelectedArea.getArea();
+                double ratioOfOldArea = featureAreaToConsider.getArea()
+                        / oldSelectedArea.getArea();
                 /*
                  * Ideally, we would only allow the exact same area, but due to
                  * possible loss of precision in all of the calculations, we
@@ -2104,6 +2123,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             int day = warnRecord.getIssueTime().get(Calendar.DAY_OF_MONTH);
             int hour = Integer.parseInt(m.group(1));
             int minute = Integer.parseInt(m.group(2));
+            // Handles when a warning is created before 0Z but issued after 0Z
+            if (hour > warnRecord.getIssueTime().get(Calendar.HOUR_OF_DAY)) {
+                day -= 1;
+            }
             frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             frameTime.set(Calendar.DAY_OF_MONTH, day);
             frameTime.set(Calendar.HOUR_OF_DAY, hour);
@@ -2584,7 +2607,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return removeCounties(warningArea, set);
     }
 
-    private Geometry removeCounties(Geometry warningArea, Set<String> fipsToRemove) {
+    private Geometry removeCounties(Geometry warningArea,
+            Set<String> fipsToRemove) {
         if (fipsToRemove == null || fipsToRemove.isEmpty())
             return warningArea;
         List<Geometry> toKeep = new ArrayList<Geometry>(
@@ -2818,12 +2842,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 index[3] = index[2] + 1;
                 if (index[3] >= length)
                     index[3] = index[3] - length + 1;
-                ls1 = new LineSegment(coord[index[0]],coord[index[1]]);
-                ls2 = new LineSegment(coord[index[2]],coord[index[3]]);
+                ls1 = new LineSegment(coord[index[0]], coord[index[1]]);
+                ls2 = new LineSegment(coord[index[2]], coord[index[3]]);
                 intersectCoord = ls1.intersection(ls2);
                 if (intersectCoord != null) {
-                    for (int j = 0; j < index.length-2; j++) {
-                        d[j] = calculateDistance(intersectCoord,coord[index[j]]);
+                    for (int j = 0; j < index.length - 2; j++) {
+                        d[j] = calculateDistance(intersectCoord,
+                                coord[index[j]]);
                     }
                     if (d[0] < d[1]) {
                         index[4] = index[0];
@@ -2843,7 +2868,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         d[5] = d[3];
                         indexOfTheOtherEnd[1] = index[2];
                     }
-                    // index of the vertex on a line segment (line segment A), which will be moved along line segment A.
+                    // index of the vertex on a line segment (line segment A),
+                    // which will be moved along line segment A.
                     int replaceIndex;
                     // index of the vertex at the other end of line segment A.
                     int theOtherIndex;
@@ -2851,32 +2877,40 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         replaceIndex = index[4];
                         theOtherIndex = indexOfTheOtherEnd[0];
                     } else {
-                        replaceIndex= index[5];
+                        replaceIndex = index[5];
                         theOtherIndex = indexOfTheOtherEnd[1];
                     }
-                    // move the bad vertex, which is on line segment A and has the shortest distance to intersectCoord, 
-                    // along line segment A to the other side of line segment B which intersects with line segment A.
+                    // move the bad vertex, which is on line segment A and has
+                    // the shortest distance to intersectCoord,
+                    // along line segment A to the other side of line segment B
+                    // which intersects with line segment A.
                     double delta;
                     double min = 0.00001;
                     if (Math.abs(intersectCoord.x - coord[replaceIndex].x) < min) {
                         // move the bad vertex along a vertical line segment.
                         delta = intersectCoord.y - coord[theOtherIndex].y;
-                        coord[replaceIndex].y += 0.01 * (delta / Math.abs(delta));
-                    } else if (Math.abs(intersectCoord.y - coord[replaceIndex].y) < min) {
+                        coord[replaceIndex].y += 0.01 * (delta / Math
+                                .abs(delta));
+                    } else if (Math.abs(intersectCoord.y
+                            - coord[replaceIndex].y) < min) {
                         // move the bad vertex along a horizontal line segment.
                         delta = intersectCoord.x - coord[theOtherIndex].x;
-                        coord[replaceIndex].x += 0.01 * (delta / Math.abs(delta));
+                        coord[replaceIndex].x += 0.01 * (delta / Math
+                                .abs(delta));
                     } else {
-                        // move the bad vertex along a line segment which is neither vertical nor horizontal.
-                        double slope = computeSlope(coord, replaceIndex, theOtherIndex);
+                        // move the bad vertex along a line segment which is
+                        // neither vertical nor horizontal.
+                        double slope = computeSlope(coord, replaceIndex,
+                                theOtherIndex);
                         delta = coord[theOtherIndex].y - intersectCoord.y;
-                        coord[replaceIndex].y = intersectCoord.y + 0.005 * (delta / Math.abs(delta));
-                        coord[replaceIndex].x = (coord[replaceIndex].y - coord[theOtherIndex].y) / slope
-                            + coord[theOtherIndex].x;
+                        coord[replaceIndex].y = intersectCoord.y + 0.005
+                                * (delta / Math.abs(delta));
+                        coord[replaceIndex].x = (coord[replaceIndex].y - coord[theOtherIndex].y)
+                                / slope + coord[theOtherIndex].x;
                     }
                     PolygonUtil.round(coord, 2);
                     if (replaceIndex == 0)
-                        coord[length-1] = new Coordinate(coord[replaceIndex]);
+                        coord[length - 1] = new Coordinate(coord[replaceIndex]);
                     else if (replaceIndex == length - 1)
                         coord[0] = new Coordinate(coord[replaceIndex]);
                     lr = gf.createLinearRing(coord);
@@ -2896,10 +2930,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public double computeSlope(Coordinate[] coords, int i, int j) {
         double min = 1.0E-08;
-        double dx = coords[i].x-coords[j].x;
+        double dx = coords[i].x - coords[j].x;
         double slope = 0.0;
-        if (Math.abs(dx)>min) {
-            slope = (coords[i].y-coords[j].y)/dx;
+        if (Math.abs(dx) > min) {
+            slope = (coords[i].y - coords[j].y) / dx;
         }
         return slope;
     }
