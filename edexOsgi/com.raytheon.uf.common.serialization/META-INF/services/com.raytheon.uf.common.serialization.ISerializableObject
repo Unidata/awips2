@@ -1,1 +1,2 @@
 com.raytheon.uf.common.serialization.adapters.GridGeometrySerialized
+com.raytheon.uf.common.serialization.adapters.ReferencedEnvelopeSerialized

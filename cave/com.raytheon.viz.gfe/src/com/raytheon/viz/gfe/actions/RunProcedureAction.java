@@ -48,6 +48,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 4, 2008            njensen     Initial creation
+ * Nov 15, 2012 1298       rferrel     Changes for non-blocking ProcedureSelectionDlg.
  * </pre>
  * 
  * @author njensen
@@ -55,7 +56,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  */
 
 public class RunProcedureAction extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RunProcedureAction.class);
 
     /*
@@ -84,10 +85,15 @@ public class RunProcedureAction extends AbstractHandler {
                     }
                 }
             } else {
+                // The ProcedureSelectionDlg changes based on the procedure.
+                // Since it is non-modal several dialogs may be displayed. This
+                // mimics the AWIPS 1 behavior.
+
                 // make the gui, let it handle running the procedure
                 SelectionDlg sd = new ProcedureSelectionDlg(PlatformUI
                         .getWorkbench().getActiveWorkbenchWindow().getShell(),
                         procedureName, dm, varList);
+                sd.setBlockOnOpen(false);
                 sd.open();
             }
         } catch (JepException e) {

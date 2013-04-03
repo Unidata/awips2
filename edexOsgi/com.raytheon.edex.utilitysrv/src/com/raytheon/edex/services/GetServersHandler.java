@@ -19,12 +19,15 @@
  **/
 package com.raytheon.edex.services;
 
+import java.util.Collections;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.util.registry.GenericRegistry;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
@@ -37,6 +40,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
+ * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -44,7 +48,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * @version 1.0
  */
 
-public class GetServersHandler implements IRequestHandler<GetServersRequest> {
+public class GetServersHandler extends GenericRegistry<String, String>
+        implements IRequestHandler<GetServersRequest> {
 
     private static final Log logger = LogFactory.getLog(UtilityManager.class);
 
@@ -59,6 +64,7 @@ public class GetServersHandler implements IRequestHandler<GetServersRequest> {
         logger.info("http.server=" + httpServer);
         logger.info("jms.server=" + jmsServer);
         logger.info("pypies.server=" + pypiesServer);
+        logger.info("server locations=" + registry);
 
         String hdf5DataDir = PropertiesFactory.getInstance().getEnvProperties()
                 .getEnvValue("HDF5DIR");
@@ -67,7 +73,8 @@ public class GetServersHandler implements IRequestHandler<GetServersRequest> {
         response.setJmsServer(jmsServer);
         response.setPypiesServer(pypiesServer);
         response.setServerDataDir(hdf5DataDir);
+        response.setServerLocations(Collections.unmodifiableMap(this.registry));
+
         return response;
     }
-
 }

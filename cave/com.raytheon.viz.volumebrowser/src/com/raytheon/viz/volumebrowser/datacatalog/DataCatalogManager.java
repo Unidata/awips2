@@ -168,7 +168,7 @@ public class DataCatalogManager {
     private DataCatalogManager() {
         // TODO these should be read from an extension point.
         catalogs = new ArrayList<IDataCatalog>();
-        catalogs.add(new GribDataCatalog());
+        catalogs.add(new GridDataCatalog());
         catalogs.add(new AcarsSoundingDataCatalog());
         catalogs.add(new DmdDataCatalog());
         catalogs.add(new PointDataCatalog());

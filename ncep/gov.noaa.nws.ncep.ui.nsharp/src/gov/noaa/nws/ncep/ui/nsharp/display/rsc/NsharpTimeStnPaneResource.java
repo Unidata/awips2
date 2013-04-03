@@ -83,12 +83,15 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 	}
 	
 	private void drawNsharpColorNotation(IGraphicsTarget target,  Rectangle rect) throws VizException {
+		
 		PixelExtent extent = new PixelExtent(rect);
 		RGB color;
 		target.setupClippingPlane(extent);
 		target.drawRect(extent,NsharpConstants.backgroundColor, 1.0f, 1.0f);
 		//plot notations:
-
+		if(dtHeight >= paneHeight)
+			return;
+    		//draw time line page title etc. only when pane box height is larger than timeline box height
 		double x = cnXOrig+5*xRatio;
 		double y = cnYOrig+1.5*charHeight;
 		//double xGap = paneWidth/3*xRatio;
@@ -135,50 +138,60 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     	PixelExtent extent = new PixelExtent(rect);
     	target.setupClippingPlane(extent);
     	target.drawRect(extent,NsharpConstants.backgroundColor, 1.0f, 1.0f);
-    	double x = dtXOrig;
-    	double y = dtYOrig-1.5*charHeight*yRatio;
-    	String s = timeLineStateList.size() + " time lines, page " + curTimeLinePage+"/"+totalTimeLinePage;
-    	target.drawString(font10, s, x,
-    			y, 0.0,
-    			IGraphicsTarget.TextStyle.NORMAL,
-    			NsharpConstants.color_green,
-    			HorizontalAlignment.LEFT,
-    			VerticalAlignment.TOP, null);
-    	y = dtYOrig;
-    	target.drawLine(dtXOrig, y, 0.0,dtXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
-    	//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
+    	double x;
+		double y;
+		String s;
+    	if(dtHeight < paneHeight){
+    		//draw time line page title etc. only when pane box height is larger than timeline box height
+    		x = dtXOrig;
+    		y = dtYOrig-1.5*charHeight*yRatio;
+    		s = timeLineStateList.size() + " time lines, page " + curTimeLinePage+"/"+totalTimeLinePage;
+    		target.drawString(font10, s, x,
+    				y, 0.0,
+    				IGraphicsTarget.TextStyle.NORMAL,
+    				NsharpConstants.color_green,
+    				HorizontalAlignment.LEFT,
+    				VerticalAlignment.TOP, null);
+    		y = dtYOrig;
+    		target.drawLine(dtXOrig, y, 0.0,dtXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
+    		//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
 
-    	x = dtXOrig +dtWidth/2;
-    	// line divide nextPage and prevPage strings
-    	target.drawLine(x, y, 0.0, 
-    			x , y+1.2*charHeight*yRatio, 0.0, 
-    			NsharpConstants.color_white,1, LineStyle.SOLID);
+    		x = dtXOrig +dtWidth/2;
+    		// line divide nextPage and prevPage strings
+    		target.drawLine(x, y, 0.0, 
+    				x , y+1.2*charHeight*yRatio, 0.0, 
+    				NsharpConstants.color_white,1, LineStyle.SOLID);
 
-    	x = dtXOrig + 5;
-    	y = y+1.2*charHeight*yRatio;
-    	s = "nextPage";
-    	target.drawString(font10, s, x,
-    			y, 0.0,
-    			IGraphicsTarget.TextStyle.NORMAL,
-    			NsharpConstants.color_yellow,
-    			HorizontalAlignment.LEFT,  
-    			VerticalAlignment.BOTTOM, null);
-    	x= dtXOrig + dtWidth/2 + 5;
-    	s = "prevPage";
-    	target.drawString(font10, s, x,
-    			y, 0.0,
-    			IGraphicsTarget.TextStyle.NORMAL,
-    			NsharpConstants.color_yellow,
-    			HorizontalAlignment.LEFT,  
-    			VerticalAlignment.BOTTOM, null);
-    	
-    	//line below nextPage string
-    	target.drawLine(dtXOrig, y, 0.0, 
-    			dtXEnd , y, 0.0, 
-    			NsharpConstants.color_white,1, LineStyle.SOLID);
+    		x = dtXOrig + 5;
+    		y = y+1.2*charHeight*yRatio;
+    		s = "nextPage";
+    		target.drawString(font10, s, x,
+    				y, 0.0,
+    				IGraphicsTarget.TextStyle.NORMAL,
+    				NsharpConstants.color_yellow,
+    				HorizontalAlignment.LEFT,  
+    				VerticalAlignment.BOTTOM, null);
+    		x= dtXOrig + dtWidth/2 + 5;
+    		s = "prevPage";
+    		target.drawString(font10, s, x,
+    				y, 0.0,
+    				IGraphicsTarget.TextStyle.NORMAL,
+    				NsharpConstants.color_yellow,
+    				HorizontalAlignment.LEFT,  
+    				VerticalAlignment.BOTTOM, null);
 
+    		//line below nextPage string
+    		target.drawLine(dtXOrig, y, 0.0, 
+    				dtXEnd , y, 0.0, 
+    				NsharpConstants.color_white,1, LineStyle.SOLID);
 
+    	}
     	int numTimeLineToShowPerPage = (cnYOrig-dtNextPageEnd)/charHeight;
+    	if(numTimeLineToShowPerPage <1){
+    		numTimeLineToShowPerPage = dtHeight/charHeight;
+    		if(numTimeLineToShowPerPage <1)
+    			numTimeLineToShowPerPage=1;
+    	}
     	int startIndex = (curTimeLinePage-1) * numTimeLineToShowPerPage;
     	
     	if(timeLineStateList!= null){
@@ -257,50 +270,60 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
         PixelExtent extent = new PixelExtent(rect);
     	target.setupClippingPlane(extent);
     	target.drawRect(extent,NsharpConstants.backgroundColor, 1.0f, 1.0f);
-		double x = stnXOrig;
-		double y = stnYOrig -1.5*charHeight*yRatio;
-		String s = stnStateList.size() + " stations, page " + curStnIdPage+"/"+totalStnIdPage;
-		target.drawString(font10, s, x,
-				y, 0.0,
-				IGraphicsTarget.TextStyle.NORMAL,
-				NsharpConstants.color_green,
-				HorizontalAlignment.LEFT,
-				VerticalAlignment.TOP, null);
-    	y = dtYOrig;
-    	target.drawLine(stnXOrig, y, 0.0,stnXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
-    	//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
-    	x = stnXOrig +dtWidth/2;
-    	// line divide nextPage and prevPage strings
-    	target.drawLine(x, y, 0.0, 
-    			x , y+1.2*charHeight*yRatio, 0.0, 
-    			NsharpConstants.color_white,1, LineStyle.SOLID);
+    	double x;
+		double y;
+		String s;
+		if(dtHeight < paneHeight){
+			//draw time line page title etc. only when pane box height is larger than timeline box height
+			x = stnXOrig;
+			y = stnYOrig -1.5*charHeight*yRatio;
+			s = stnStateList.size() + " stations, page " + curStnIdPage+"/"+totalStnIdPage;
+			target.drawString(font10, s, x,
+					y, 0.0,
+					IGraphicsTarget.TextStyle.NORMAL,
+					NsharpConstants.color_green,
+					HorizontalAlignment.LEFT,
+					VerticalAlignment.TOP, null);
+			y = dtYOrig;
+			target.drawLine(stnXOrig, y, 0.0,stnXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
+			//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
+			x = stnXOrig +dtWidth/2;
+			// line divide nextPage and prevPage strings
+			target.drawLine(x, y, 0.0, 
+					x , y+1.2*charHeight*yRatio, 0.0, 
+					NsharpConstants.color_white,1, LineStyle.SOLID);
 
-    	x = stnXOrig + 5;
-    	y = y+1.2*charHeight*yRatio;
-    	s = "nextPage";
-    	target.drawString(font10, s, x,
-    			y, 0.0,
-    			IGraphicsTarget.TextStyle.NORMAL,
-    			NsharpConstants.color_yellow,
-    			HorizontalAlignment.LEFT,  
-    			VerticalAlignment.BOTTOM, null);
-    	
-    	x= stnXOrig + dtWidth/2 + 5;
-    	s = "prevPage";
-    	target.drawString(font10, s, x,
-    			y, 0.0,
-    			IGraphicsTarget.TextStyle.NORMAL,
-    			NsharpConstants.color_yellow,
-    			HorizontalAlignment.LEFT,  
-    			VerticalAlignment.BOTTOM, null);
-    	
-    	//line below neextPage string
-    	target.drawLine(stnXOrig, y, 0.0, 
-    			stnXEnd , y, 0.0, 
-    			NsharpConstants.color_white,1, LineStyle.SOLID);
-        
-        
+			x = stnXOrig + 5;
+			y = y+1.2*charHeight*yRatio;
+			s = "nextPage";
+			target.drawString(font10, s, x,
+					y, 0.0,
+					IGraphicsTarget.TextStyle.NORMAL,
+					NsharpConstants.color_yellow,
+					HorizontalAlignment.LEFT,  
+					VerticalAlignment.BOTTOM, null);
+
+			x= stnXOrig + dtWidth/2 + 5;
+			s = "prevPage";
+			target.drawString(font10, s, x,
+					y, 0.0,
+					IGraphicsTarget.TextStyle.NORMAL,
+					NsharpConstants.color_yellow,
+					HorizontalAlignment.LEFT,  
+					VerticalAlignment.BOTTOM, null);
+
+			//line below neextPage string
+			target.drawLine(stnXOrig, y, 0.0, 
+					stnXEnd , y, 0.0, 
+					NsharpConstants.color_white,1, LineStyle.SOLID);
+		}
+
         int numStnToShow = (cnYOrig-dtNextPageEnd)/charHeight;
+    	if(numStnToShow <1){
+    		numStnToShow = dtHeight/charHeight;
+    		if(numStnToShow <1)
+    			numStnToShow=1;
+    	}
     	int startIndex = (rscHandler.getCurStnIdPage()-1) * numStnToShow;
         int compIndex= 1;
     	int colorIndex;
@@ -453,16 +476,26 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 		float prevWidth = paneWidth;
 		paneHeight = (int) ext.getHeight();
 		paneWidth = (int) (ext.getWidth());
-		xRatio = xRatio* paneWidth/prevWidth;
-		yRatio = yRatio* paneHeight/prevHeight;
-		//charHeight = (int)(NsharpConstants.CHAR_HEIGHT_*yRatio);
+		//xRatio = xRatio* paneWidth/prevWidth;
+		//DEBUGGING yRatio = yRatio* paneHeight/prevHeight;
+		xRatio = 1;
+		yRatio = 1;
+		//if pane height is less than 10 char height, then just plot time line. not plot "messages/title/notations" etc.. 
+		if(paneHeight > (int)(10* charHeight*yRatio)){
+			dtYOrig = (int) ext.getMinY()+(int)(2* charHeight*yRatio);
+			cnHeight = (int)(3* charHeight*yRatio);
+			dtHeight = paneHeight-(int)(5* charHeight*yRatio);
+			dtNextPageEnd = dtYOrig+ (int) (2*charHeight*yRatio);
+		}
+		else {
+			dtYOrig = (int) (ext.getMinY());
+		    cnHeight = 0;
+		    dtHeight = paneHeight;
+		    dtNextPageEnd = dtYOrig;
+		}
 		dtXOrig = (int) (ext.getMinX());
-	    dtYOrig = (int) ext.getMinY()+(int)(2* charHeight*yRatio);
 	    dtWidth = paneWidth/2;
 	    dtXEnd = dtXOrig + dtWidth;
-	    cnHeight = (int)(3* charHeight*yRatio);
-	    dtHeight = paneHeight-dtYOrig-cnHeight;
-	    dtNextPageEnd = dtYOrig+ (int) (2*charHeight*yRatio);
 	    stnXOrig = dtXEnd;
 	    stnYOrig = dtYOrig;
 	    stnWidth = dtWidth;

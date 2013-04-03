@@ -31,20 +31,32 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class FFMPSplash extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
+/**
+ * Display FFMP Basin Table's splash page dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 7, 2012  1353       rferrel     Covert to CaveSWTDialog and make non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
+public class FFMPSplash extends CaveSWTDialog {
     /**
      * The display control.
      */
@@ -70,20 +82,19 @@ public class FFMPSplash extends Dialog {
     private Image loadImage = null;
 
     public FFMPSplash(Shell parent) {
-        super(parent, 0);
-
-        open();
+        super(parent, SWT.NO_TRIM | SWT.ON_TOP, CAVE.DO_NOT_BLOCK);
     }
 
-    /**
-     * Open method to show the dialog.
+    /*
+     * (non-Javadoc)
      * 
-     * @return Null.
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.NO_TRIM | SWT.ON_TOP);
+    @Override
+    protected void initializeComponents(Shell shell) {
+        display = shell.getDisplay();
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -93,14 +104,17 @@ public class FFMPSplash extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+    }
 
-        shell.pack();
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
         centerOnScreen();
-
-        shell.setVisible(true);
-
-        return null;
     }
 
     private void initializeComponents() {
@@ -185,11 +199,15 @@ public class FFMPSplash extends Dialog {
         return path;
     }
 
-    public void disposeDialog() {
-        if (shell != null) {
-            textFont.dispose();
-            loadImage.dispose();
-            shell.dispose();
-        }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        textFont.dispose();
+        loadImage.dispose();
+        shell.dispose();
     }
 }

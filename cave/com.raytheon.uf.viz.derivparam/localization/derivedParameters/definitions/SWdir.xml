@@ -21,7 +21,7 @@
 <DerivedParameter name="Swell Direction" abbreviation="SWdir" xmlns:ns2="group">
     <Method name="Vector">
     	<ConstantField value="20"/>
-        <Field abbreviation="SWDIR"/>
+        <Field abbreviation="SWDIR" unit="deg"/>
         <ConstantField value="1"/>
     </Method>
 </DerivedParameter>

@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
  * 5/8/12       #600       dgilling    Implement clone().
+ * 01/18/13    #1504       randerso    Removed setters since class should be immutable
  * 
  * </pre>
  * 
@@ -95,12 +96,7 @@ public class ParmID implements Comparable<ParmID>, Serializable,
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(parmName).append("_");
-        buffer.append(parmLevel).append(":");
-        buffer.append(dbId.toString());
-
-        return buffer.toString();
+        return this.parmId;
     }
 
     /*
@@ -140,7 +136,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = defaultLevel();
         this.dbId = new DatabaseID(parmModel);
-        this.compositeName = parmName + "_" + defaultLevel();
         encodeIdentifier();
     }
 
@@ -158,7 +153,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = level;
         this.dbId = new DatabaseID(parmModel);
-        this.compositeName = parmName + "_" + level;
         encodeIdentifier();
     }
 
@@ -170,7 +164,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
     public ParmID(String parmIdentifier) {
         decodeIdentifier(parmIdentifier);
-        this.compositeName = this.parmName + "_" + this.parmLevel;
         encodeIdentifier();
     }
 
@@ -186,7 +179,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = defaultLevel();
         this.dbId = dbId;
-        this.compositeName = parmName + "_" + defaultLevel();
         encodeIdentifier();
     }
 
@@ -204,7 +196,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = level;
         this.dbId = dbId;
-        this.compositeName = parmName + "_" + level;
         encodeIdentifier();
     }
 
@@ -333,11 +324,9 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
 
     private void encodeIdentifier() {
+        this.compositeName = this.parmName + "_" + this.parmLevel;
         shortParmId = this.compositeName + ":" + dbId.getShortModelId();
-
-        if (parmId == null || parmId.length() == 0) {
-            parmId = this.compositeName + ":" + dbId.getModelId();
-        }
+        parmId = this.compositeName + ":" + dbId.getModelId();
     }
 
     /**
@@ -440,30 +429,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
             return false;
         }
         return true;
-    }
-
-    public void setParmName(String parmName) {
-        this.parmName = parmName;
-    }
-
-    public void setParmLevel(String parmLevel) {
-        this.parmLevel = parmLevel;
-    }
-
-    public void setDbId(DatabaseID dbId) {
-        this.dbId = dbId;
-    }
-
-    public void setCompositeName(String compositeName) {
-        this.compositeName = compositeName;
-    }
-
-    public void setShortParmId(String shortParmId) {
-        this.shortParmId = shortParmId;
-    }
-
-    public void setParmId(String parmId) {
-        this.parmId = parmId;
     }
 
     /*

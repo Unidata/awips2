@@ -1,4 +1,23 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 
 /**
  * gap for FFMP
@@ -10,6 +29,7 @@ package com.raytheon.uf.common.dataplugin.ffmp;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/03/11     7334        D. Hladky   Initial release
+ * 01/27/13     1478        D. Hladky   Added use of constants for calculations
  * 
  * </pre>
  * 
@@ -19,6 +39,9 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 public class FFMPGap {
 
@@ -62,21 +85,25 @@ public class FFMPGap {
     }
 
     /**
-     * Gets the GAP calculation for an FFMP source
+     * Get the gaps in the FFMP data
      * 
-     * @return Array of Gap data
+     * @param times
+     * @param expirationTime
+     * @param barrierTime
+     * @param mostRecentTime
+     * @return
      */
-    public static ArrayList<FFMPGap> getGaps(ArrayList<Date> times,
+    public static List<FFMPGap> getGaps(List<Date> times,
             long expirationTime, Date barrierTime, Date mostRecentTime) {
         ArrayList<FFMPGap> gaps = new ArrayList<FFMPGap>();
-        long gapStep = expirationTime * 60 * 1000;
+        long gapStep = expirationTime * TimeUtil.MILLIS_PER_MINUTE;
         Date prevTime = null;
 //        System.out.println("Calling getGaps()...Recent Time: " + mostRecentTime
 //                + " BarrierTime: " + barrierTime);
         if (times.size() == 1) {
             FFMPGap gap = new FFMPGap();
             long totalMillis = mostRecentTime.getTime() - barrierTime.getTime() - gapStep;
-            float gapMinutes = (totalMillis)/(60 * 1000);
+            float gapMinutes = totalMillis/TimeUtil.MILLIS_PER_MINUTE;
             if (gapMinutes < 0.0) {
                 gapMinutes = 0.0f;
             }
@@ -100,7 +127,7 @@ public class FFMPGap {
                 FFMPGap gap = new FFMPGap(prevTime, time);
                 // convert to minutes and set gap
                 // Need to subtract the expirationTime from the gapTime as well
-                gap.setGap((gapTime - gapStep) / (60 * 1000));
+                gap.setGap((gapTime - gapStep) / TimeUtil.MILLIS_PER_MINUTE);
                 gaps.add(gap);
             }
             prevTime = time;

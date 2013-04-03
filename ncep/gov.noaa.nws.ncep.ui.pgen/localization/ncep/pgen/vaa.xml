@@ -7,7 +7,7 @@
 <header-information orig-stn="KNES" vaac="/WASHINGTON" wmoid="/XX" wmo-header-number="/20;21;22;23;24;25;26;27"></header-information>
 <header-information orig-stn="PANC"  vaac="/ANCHORAGE"     wmoid="/AK"        wmo-header-number="/20;21;22;23;24"></header-information>
 <header-information orig-stn="CWAO"  vaac="/MONTREAL"      wmoid="/CN"        wmo-header-number="/01;02;03;04"></header-information>
-<header-information orig-stn="SABM"  vaac="/BUENOS AIRES"  wmoid="/XX"        wmo-header-number="/01"></header-information>
+<header-information orig-stn="SABM"  vaac="/BUENOS AIRES"  wmoid="/AG"        wmo-header-number="/01"></header-information>
 <header-information orig-stn="ADRM"  vaac="/DARWIN"        wmoid="/AU"        wmo-header-number="/01;02;03;04"></header-information>
 <header-information orig-stn="EGRR"  vaac="/LONDON"        wmoid="/UK"        wmo-header-number="/01"></header-information>
 <header-information orig-stn="RJTD"  vaac="/TOKYO"         wmoid="/FE"        wmo-header-number="/01"></header-information>

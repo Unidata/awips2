@@ -43,6 +43,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 15, 2011 10557      rferrel     Initial creation
  * Jul 17, 2012 14274      rferrel     Now use eclipse Printer instead of awt.
  *                                      Text is printed using same font as the GUI
+ * Dec 31, 2012 15651	   M Gamazaychikov	Added setFont method to scale font for printing
  * 
  * </pre>
  * 
@@ -118,11 +119,72 @@ public class PrintDisplay {
         thread.start();
     }
 
-    private void printIt() {
+    protected void setFont() {
+    	/*
+    	 * get the max number of characters in a line of text
+    	 * and add a length of tab
+    	 */
+    	String [] textLines = textToPrint.split("[\n]");
+    	int maxChar =  textLines[0].length();
+    	for ( int counter=1; counter<textLines.length; counter++){
+    		if (textLines[counter].length() > maxChar){
+    			maxChar = textLines[counter].length();
+    		}
+    	}
+    	maxChar = maxChar + 4;
+    	
+    	/*
+    	 * get the original font size and set the gc font.
+    	 */
+    	float origFontSize = printerFontData.getHeight();
+        Font printerFont = new Font(printer, printerFontData);
+        gc.setFont(printerFont);
+        
+        /*
+         * Create a buffer for computing line width in pixels.
+         */
+        StringBuilder aBuffer = new StringBuilder(maxChar);
+        for (int i = 0; i < maxChar; i++) {
+        	aBuffer.append(' ');
+        }
+        /*
+         * Get the line width in pixels and the device's width in pixels
+         */
+        int lineWidthPixels = gc.stringExtent(aBuffer.toString()).x;
+    	int deviceWidthPixels = rightMargin - leftMargin;
+
+    	/*
+    	 * Scale the original font size;
+    	 */
+    	float fontSize = (float)deviceWidthPixels / (float)lineWidthPixels * (float)origFontSize;
+    	
+        /*
+         * Validate that the line width in scaled font does not exceed the deviceWidthPixelx
+         */
+		boolean isValidated = false;
+		while (!isValidated) {
+			printerFontData.setHeight((int) (fontSize));
+			gc.setFont(new Font(printer, printerFontData));
+			lineWidthPixels = gc.stringExtent(aBuffer.toString()).x;
+			if (lineWidthPixels < deviceWidthPixels) {
+				isValidated = true;
+			} else {
+				fontSize--;
+			}
+		}
+        printerFont.dispose();
+    	/*
+    	 * Set the printerFont Data font to the scaled font
+    	 */
+    	printerFontData.setHeight((int)(fontSize));
+    	gc.setFont(new Font(printer, printerFontData));
+	}
+
+	private void printIt() {
         if (printer.startJob("Text")) { // the string is the job name - shows up
                                         // in the printer's job list
             Rectangle clientArea = printer.getClientArea();
-            Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+            Rectangle trim = printer.computeTrim(0, 0, 0, 0);            
             Point dpi = printer.getDPI();
 
             // one inch from left side of paper
@@ -145,12 +207,10 @@ public class PrintDisplay {
              * foreground color.
              */
             gc = new GC(printer);
-            Font printerFont = new Font(printer, printerFontData);
+            setFont();            
             Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
             Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
                     255));
-
-            gc.setFont(printerFont);
             gc.setForeground(printerForegroundColor);
             gc.setBackground(printerBackgroundColor);
             tabWidth = gc.stringExtent(tabs).x;
@@ -161,7 +221,7 @@ public class PrintDisplay {
             printer.endJob();
 
             // Cleanup graphics resources used in printing
-            printerFont.dispose();
+            
             printerForegroundColor.dispose();
             printerBackgroundColor.dispose();
             gc.dispose();
