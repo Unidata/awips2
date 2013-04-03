@@ -96,6 +96,10 @@ def writeLLWS(ident, data):
         _Logger.error('Cannot write LLWS file for %s', ident)
 
 def retrieve(siteID, info):
+    from datetime import timedelta
+    day = timedelta(days=1)
+    secondsPerDay = day.total_seconds()
+    msPerSecond = 1000.0
     th = LLWSThread.Server(info)
     t = 0
     d = {}
@@ -115,7 +119,7 @@ def retrieve(siteID, info):
     # This may be ok if database is purged frequently.
     # How far back should it go 1, 6, 12, 24 hours?
     #    acarsRec = LlwsManager.getAcarsRecord(siteID, 0)
-    refTime = long((time.time() - (24.0*3600.0)) * 1000.0)
+    refTime = long((time.time() - secondsPerDay) * msPerSecond)
     acarsRec = LlwsManager.getAcarsRecord(siteID, refTime)
     if acarsRec:
         acarsId = siteID[1:]
