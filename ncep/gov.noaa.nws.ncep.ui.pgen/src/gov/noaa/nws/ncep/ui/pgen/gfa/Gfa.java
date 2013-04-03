@@ -43,13 +43,20 @@ import com.vividsolutions.jts.geom.Polygon;
  * 01/2012					J. Wu		Avoid null pointer in copy().
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 05/2012		#808		J. Wu		Add VOR_TEXT & processing
+ * 11/2012		#911		J. Wu		Added isValid() to check if the GFA polygon
+ *                                      is valid in map and grid coordinate.
+ * 11/2012		#901/917	J. Wu		Fixed the display of GFA text box.
+ * 12/2012		#543		J. Wu		Deep copy "OUTLOOK_END_TIME".
+ * 12/2012		#908		B. Yin		Don't set attribute if its value is empty
+ * 12/2012  	#937    	J. Wu    	Update G_Airmet layers/hazard - "C&V"
  * 
  * </pre>
  * 
  * @author mlaryukhin
  */
 @ElementOperations( { Operation.COPY_MOVE, Operation.DELETE_PART, Operation.DELETE_POINT,
-		Operation.ADD_POINT, Operation.MODIFY, Operation.GFA_FROM } )
+		Operation.ADD_POINT, Operation.MODIFY, Operation.GFA_FROM, Operation.INTERPOLATE, 
+		Operation.EXTRAPOLATE } )
 public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 
 	private String hazard = "";
@@ -95,6 +102,8 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 	public static final String SNAPSHOT_TYPE = "SNAPSHOT_TYPE";
 	public static final String ISSUE_TIME = "ISSUE_TIME";
 	public static final String UNTIL_TIME = "UNTIL_TIME";
+	public static final String OUTLOOK_END_TIME = "OUTLOOK_END_TIME";
+	public static final String AIRMET_TAG = "AIRMET_TAG";
 
 	public static final String FROM = "FROM";
 	public static final String BOUNDED_BY = "BOUNDED BY";
@@ -102,6 +111,9 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 	public static final String VOR_TEXT = "FROM LINE";  //FROM line
 	
 	private static final String REDUCE_FLAGS = "REDUCE_FLAGS";
+
+	public static final String CIG = "CIG";
+	public static final String VIS = "VIS";
 
 	// areas
 	public static final String MIA = "MIA";
@@ -153,6 +165,13 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		setGfaBeginning(beginning);
 		setGfaEnding(ending);
 		setGfaStates(states);
+		
+		if ( hazard.equals("ICE") &&
+				 ( values.get("Type") == null || 
+				   values.get("Type").trim().length() == 0  ) ) {
+			setGfaValue( "Type", "ICE");
+		}
+
 	}
 	
 	/**
@@ -194,6 +213,13 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		setGfaCycleHour(PgenCycleTool.getCycleHour());
 		setGfaTextCoordinate(getCentroid());
 		setGfaValues(values);
+		
+		if ( hazard.equals("ICE") &&
+				 ( values.get("Type") == null || 
+				   values.get("Type").trim().length() == 0  ) ) {
+				setGfaValue( "Type", "ICE");
+		}
+
 	}
 
 	@Override
@@ -287,6 +313,13 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		    gfa.addAttribute( Gfa.UNTIL_TIME, untilTime );
 		}
 		
+		cal = this.getAttribute( Gfa.OUTLOOK_END_TIME, Calendar.class );
+		if ( cal != null ) {
+		    Calendar  otlkEndTime = Calendar.getInstance(); 
+		    otlkEndTime.setTimeInMillis( cal.getTimeInMillis() );		
+		    gfa.addAttribute( Gfa.OUTLOOK_END_TIME, otlkEndTime );
+		}
+		
 		if( "ICE".equals( this.getGfaHazard() ) ){
 			gfa.setGfaValue( "Type", new String( nvl( this.getGfaValue( "Type" ) ) ) );
 		}		
@@ -316,12 +349,42 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 			IGfa attr = (IGfa) iattr;
 			setSizeScale(1.0);
 			setGfaHazard(attr.getGfaHazard());
+			
+			if ( !attr.getGfaTag().isEmpty() ){
 			setGfaTag(attr.getGfaTag());
-			setGfaFcstHr(attr.getGfaFcstHr());
+			}
+			
+			if ( !attr.getGfaDesk().isEmpty() ){
 			setGfaDesk(attr.getGfaDesk());
+			}
+			
+			if ( !attr.getGfaIssueType().isEmpty() ){
 			setGfaIssueType(attr.getGfaIssueType());
+			}
+			
+			if ( attr.getGfaType() != null && !attr.getGfaType().isEmpty() ){
 			setGfaType(attr.getGfaType());
-			setGfaValues(attr.getGfaValues());
+			}
+			
+			if ( attr.getGfaFcstHr() != null && !attr.getGfaFcstHr().isEmpty()){
+				setGfaFcstHr(attr.getGfaFcstHr());
+			}
+			
+			if ( attr.getGfaValues() != null ) {
+					HashMap<String, String> values = attr.getGfaValues();
+					if ( values.size() != 0 ){
+						
+						boolean reset = false;
+						for ( String key : values.keySet() ){
+							reset =  values.get(key)!= null &&  !values.get(key).isEmpty();
+							if ( reset ) break;
+						}
+						
+						
+						if ( reset ) setGfaValues(attr.getGfaValues());
+					}
+			}
+			
 			setGfaArea(attr.getGfaArea());
 			setGfaBeginning(attr.getGfaBeginning());
 			setGfaEnding(attr.getGfaEnding());
@@ -329,6 +392,12 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 			setGfaCycleDay(attr.getGfaCycleDay());
 			setGfaCycleHour(attr.getGfaCycleHour());
 			setClosed(!"Open".equalsIgnoreCase(values.get(Gfa.CONTOUR)));
+			
+			if ( attr.getGfaHazard().equals("ICE") &&
+				 ( attr.getGfaValues().get("Type") == null || 
+				   attr.getGfaValues().get("Type").trim().length() == 0  ) ) {
+				setGfaValue( "Type", "ICE");
+			}
 		}
 	}
 
@@ -412,6 +481,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		String typeToDisplay = hazard;
 		if(type != null && !type.isEmpty()) typeToDisplay += " " + type;
 		if("TS".equals(hazard) && "true".equals(getGfaValue("GR"))) typeToDisplay += " " + "GR";
+		
 		for(Node n: getDisplayTextNodes()){
 			typeToDisplay = typeToDisplay.replaceAll(n.valueOf("@originalText"), 
 					n.valueOf("@displayAs").replace(",,", "\n"));
@@ -444,7 +514,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 				list.add(line);
 			}
 		} else if ("SFC_WND".equals(hazard)){
-			list.add("");
+//			list.add("");
 		}
 		String[] a = new String[list.size()];
 		return list.toArray(a);
@@ -466,7 +536,33 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 	 */
 	public static String[] justify(int width, String str) {
 		width = (width < MIN_WIDTH_GFA_TEXT) ? MIN_WIDTH_GFA_TEXT : width; 
+
 		StringBuffer buf = new StringBuffer(str);
+        
+		//Adjust for IFR/MVFR CIG, VIS
+		int visLoc = buf.indexOf("VIS"); 
+		if ( visLoc > 0 && buf.indexOf("CIG") >= 0 ) {
+			buf.setCharAt( visLoc-1, '\n' );
+		}
+		
+		// Must start with a new line for the first "type" found.
+		int firstBackSlash = buf.indexOf("/");
+		int  reset = -1;
+		if ( firstBackSlash > 0 ) {
+			
+			int jj = firstBackSlash;
+			while ( jj > 0 ) {
+				if ( buf.charAt( jj ) == ' ' || buf.charAt( jj ) == '\n' ) {
+					reset = jj;
+					buf.setCharAt( jj, '\n' );
+					break;
+				}
+				
+				jj--;
+			}
+			
+		}
+		
 		int lastDelimeter = -1; 
 		int lineStart = 0;
 		int i = 0;
@@ -477,7 +573,12 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 				lastDelimeter = -1;
 				lineStart = i + 1;
 			}
-			if (i > lineStart + width - 1) {
+			
+			// Adjust the width of each line.
+			if ( visLoc > 0 && i >= visLoc ) width = 12;
+			if ( reset > 0 && i > reset ) width = 6;
+			
+			if (i > (lineStart + width - 1 ) ) {
 				if (lastDelimeter != -1) {
 					buf.insert(lastDelimeter, '\n');
 					lineStart = lastDelimeter + 1;
@@ -489,6 +590,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 			}
 			i++;
 		}
+				
 		return buf.toString().split("\n");
 	}
 
@@ -937,4 +1039,24 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		return s;
 	}
 
+	/**
+	 * Check if this GFA is valid.
+	 * @param gfa
+	 */
+	public boolean isValid() {
+	    boolean valid = true;
+	    
+	    Polygon pp =  this.toPolygon();
+	    if ( pp == null || !pp.isValid() )	   {
+	    	valid = false;
+	    }
+	    else {
+	    	Polygon pg =  GfaClip.getInstance().gfaToPolygonInGrid( this );
+		    if ( pg == null || !pg.isValid() )	   {
+		    	valid = false;
+		    }
+	    }
+	    
+		return valid;
+	}
 }

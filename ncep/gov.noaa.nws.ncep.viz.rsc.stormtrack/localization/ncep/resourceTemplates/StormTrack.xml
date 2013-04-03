@@ -13,108 +13,175 @@
             	   <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
            	  	   <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
              	   <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
-                   <legendName>Storm Track</legendName> 
-                   <legendColor>${legendColor}</legendColor>
+                   <legend>${legend}</legend> 
                         
-                   <gfsoEnable>${gfsoEnable}</gfsoEnable>
-                   <gfsoColor>${gfsoColor}</gfsoColor>
-                   <gfsoLineWidth>${gfsoLineWidth}</gfsoLineWidth>
-                   <gfsoSymbolWidth>${gfsoSymbolWidth}</gfsoSymbolWidth>
-                   <gfsoSymbolSize>${gfsoSymbolSize}</gfsoSymbolSize> 
-                   <namEnable>${namEnable}</namEnable>
-                   <namColor>${namColor}</namColor>
-                   <namLineWidth>${namLineWidth}</namLineWidth>
-                   <namSymbolWidth>${namSymbolWidth}</namSymbolWidth>
-                   <namSymbolSize>${namSymbolSize}</namSymbolSize>  
-                   <ukxEnable>${ukxEnable}</ukxEnable>
-                   <ukxColor>${ukxColor}</ukxColor>
-                   <ukxLineWidth>${ukxLineWidth}</ukxLineWidth>
-                   <ukxSymbolWidth>${ukxSymbolWidth}</ukxSymbolWidth>
-                   <ukxSymbolSize>${ukxSymbolSize}</ukxSymbolSize>
-                   <ngxEnable>${ngxEnable}</ngxEnable>
-                   <ngxColor>${ngxColor}</ngxColor>
-                   <ngxLineWidth>${ngxLineWidth}</ngxLineWidth>
-                   <ngxSymbolWidth>${ngxSymbolWidth}</ngxSymbolWidth>
-                   <ngxSymbolSize>${ngxSymbolSize}</ngxSymbolSize> 
-                   <ec00Enable>${ec00Enable}</ec00Enable>
-                   <ec00Color>${ec00Color}</ec00Color>
-                   <ec00LineWidth>${ec00LineWidth}</ec00LineWidth>
-                   <ec00SymbolWidth>${ec00SymbolWidth}</ec00SymbolWidth>
-                   <ec00SymbolSize>${ec00SymbolSize}</ec00SymbolSize> 
-                   <ep01Enable>${ep01Enable}</ep01Enable>
-                   <ep01Color>${ep01Color}</ep01Color>
-                   <ep01LineWidth>${ep01LineWidth}</ep01LineWidth>
-                   <ep01SymbolWidth>${ep01SymbolWidth}</ep01SymbolWidth>
-                   <ep01SymbolSize>${ep01SymbolSize}</ep01SymbolSize>
-                   <ep02Enable>${ep02Enable}</ep02Enable>
-                   <ep02Color>${ep02Color}</ep02Color>
-                   <ep02LineWidth>${ep02LineWidth}</ep02LineWidth>
-                   <ep02SymbolWidth>${ep02SymbolWidth}</ep02SymbolWidth>
-                   <ep02SymbolSize>${ep02SymbolSize}</ep02SymbolSize> 
-                   <ep03Enable>${ep03Enable}</ep03Enable>
-                   <ep03Color>${ep03Color}</ep03Color>
-                   <ep03LineWidth>${ep03LineWidth}</ep03LineWidth>
-                   <ep03SymbolWidth>${ep03SymbolWidth}</ep03SymbolWidth>
-                   <ep03SymbolSize>${ep03SymbolSize}</ep03SymbolSize>  
-                    <ep04Enable>${ep04Enable}</ep04Enable>
-                   <ep04Color>${ep04Color}</ep04Color>
-                   <ep04LineWidth>${ep04LineWidth}</ep04LineWidth>
-                   <ep04SymbolWidth>${ep04SymbolWidth}</ep04SymbolWidth>
-                   <ep04SymbolSize>${ep04SymbolSize}</ep04SymbolSize>
-                   <ep05Enable>${ep05Enable}</ep05Enable>
-                   <ep05Color>${ep05Color}</ep05Color>
-                   <ep05LineWidth>${ep05LineWidth}</ep05LineWidth>
-                   <ep05SymbolWidth>${ep05SymbolWidth}</ep05SymbolWidth>
-                   <ep05SymbolSize>${ep05SymbolSize}</ep05SymbolSize>
-                   <ep06Enable>${ep06Enable}</ep06Enable>
-                   <ep06Color>${ep06Color}</ep06Color>
-                   <ep06LineWidth>${ep06LineWidth}</ep06LineWidth>
-                   <ep06SymbolWidth>${ep06SymbolWidth}</ep06SymbolWidth>
-                   <ep06SymbolSize>${ep06SymbolSize}</ep06SymbolSize>  
-                   <ep07Enable>${ep07Enable}</ep07Enable>
-                   <ep07Color>${ep07Color}</ep07Color>
-                   <ep07LineWidth>${ep07LineWidth}</ep07LineWidth>
-                   <ep07SymbolWidth>${ep07SymbolWidth}</ep07SymbolWidth>
-                   <ep07SymbolSize>${ep07SymbolSize}</ep07SymbolSize>   
-                    <ep08Enable>${ep08Enable}</ep08Enable>
-                   <ep08Color>${ep08Color}</ep08Color>
-                   <ep08LineWidth>${ep08LineWidth}</ep08LineWidth>
-                   <ep08SymbolWidth>${ep08SymbolWidth}</ep08SymbolWidth>
-                   <ep08SymbolSize>${ep08SymbolSize}</ep08SymbolSize>
-                   <ep09Enable>${ep09Enable}</ep09Enable>
-                   <ep09Color>${ep09Color}</ep09Color>
-                   <ep09LineWidth>${ep09LineWidth}</ep09LineWidth>
-                   <ep09SymbolWidth>${ep09SymbolWidth}</ep09SymbolWidth>
-                   <ep09SymbolSize>${ep09SymbolSize}</ep09SymbolSize>
-                    <ep10Enable>${ep10Enable}</ep10Enable>
-                   <ep10Color>${ep10Color}</ep10Color>
-                   <ep10LineWidth>${ep10LineWidth}</ep10LineWidth>
-                   <ep10SymbolWidth>${ep10SymbolWidth}</ep10SymbolWidth>
-                   <ep10SymbolSize>${ep10SymbolSize}</ep10SymbolSize>
-                    <ep11Enable>${ep11Enable}</ep11Enable>
-                   <ep11Color>${ep11Color}</ep11Color>
-                   <ep11LineWidth>${ep11LineWidth}</ep11LineWidth>
-                   <ep11SymbolWidth>${ep11SymbolWidth}</ep11SymbolWidth>
-                   <ep11SymbolSize>${ep11SymbolSize}</ep11SymbolSize>
-                   <ep12Enable>${ep12Enable}</ep12Enable>
-                   <ep12Color>${ep12Color}</ep12Color>
-                   <ep12LineWidth>${ep12LineWidth}</ep12LineWidth>
-                   <ep12SymbolWidth>${ep12SymbolWidth}</ep12SymbolWidth>
-                   <ep12SymbolSize>${ep12SymbolSize}</ep12SymbolSize>            
-                    <ep13Enable>${ep13Enable}</ep13Enable>
-                   <ep13Color>${ep13Color}</ep13Color>
-                   <ep13LineWidth>${ep13LineWidth}</ep13LineWidth>
-                   <ep13SymbolWidth>${ep13SymbolWidth}</ep13SymbolWidth>
-                   <ep13SymbolSize>${ep13SymbolSize}</ep13SymbolSize>           
-                    <ep14Enable>${ep14Enable}</ep14Enable>
-                   <ep14Color>${ep14Color}</ep14Color>
-                   <ep14LineWidth>${ep14LineWidth}</ep14LineWidth>
-                   <ep14SymbolWidth>${ep14SymbolWidth}</ep14SymbolWidth>
-                   <ep14SymbolSize>${ep14SymbolSize}</ep14SymbolSize>           
-                   <dateTimeEnable>${dateTimeEnable}</dateTimeEnable>
-                   <pressureEnable>${pressureEnable}</pressureEnable>
-                   <markerEnable>${markerEnable}</markerEnable>
-                   <colorCodeEnable>${colorCodeEnable}</colorCodeEnable>
+                   	<tropDepressionEnable>${tropDepressionEnable}</tropDepressionEnable>
+					<tropDepressionColor>${tropDepressionColor}</tropDepressionColor>
+					<tropDepressionUpperLimit>${tropDepressionUpperLimit}</tropDepressionUpperLimit>
+					<galeEnable>${galeEnable}</galeEnable>
+					<galeColor>${galeColor}</galeColor>
+					<galeUpperLimit>${galeUpperLimit}</galeUpperLimit>
+					<tropStormEnable>${tropStormEnable}</tropStormEnable>
+					<tropStormColor>${tropStormColor}</tropStormColor>
+					<tropStormUpperLimit>${tropStormUpperLimit}</tropStormUpperLimit>
+					<hurricaneEnable>${hurricaneEnable}</hurricaneEnable>
+					<hurricaneColor>${hurricaneColor}</hurricaneColor>
+					<hurricaneUpperLimit>${hurricaneUpperLimit}</hurricaneUpperLimit>
+                        
+                   <forecastHourEnable>${forecastHourEnable}</forecastHourEnable>
+                   <forecastHour>${forecastHour}</forecastHour>
+
+                   <model01Name>${model01Name}</model01Name>
+                   <model01Enable>${model01Enable}</model01Enable>
+                   <model01Color>${model01Color}</model01Color>
+                   <model01LineWidth>${model01LineWidth}</model01LineWidth>
+                   <model01SymbolSize>${model01SymbolSize}</model01SymbolSize> 
+                   
+                   <model02Name>${model02Name}</model02Name>
+                   <model02Enable>${model02Enable}</model02Enable>
+                   <model02Color>${model02Color}</model02Color>
+                   <model02LineWidth>${model02LineWidth}</model02LineWidth>
+                   <model02SymbolSize>${model02SymbolSize}</model02SymbolSize>  
+                   
+                   <model03Name>${model03Name}</model03Name>
+                   <model03Enable>${model03Enable}</model03Enable>
+                   <model03Color>${model03Color}</model03Color>
+                   <model03LineWidth>${model03LineWidth}</model03LineWidth>
+                   <model03SymbolSize>${model03SymbolSize}</model03SymbolSize>
+                   
+                   <model04Name>${model04Name}</model04Name>
+                   <model04Enable>${model04Enable}</model04Enable>
+                   <model04Color>${model04Color}</model04Color>
+                   <model04LineWidth>${model04LineWidth}</model04LineWidth>
+                   <model04SymbolSize>${model04SymbolSize}</model04SymbolSize> 
+                   
+                   <model05Name>${model05Name}</model05Name>
+                   <model05Enable>${model05Enable}</model05Enable>
+                   <model05Color>${model05Color}</model05Color>
+                   <model05LineWidth>${model05LineWidth}</model05LineWidth>
+                   <model05SymbolSize>${model05SymbolSize}</model05SymbolSize> 
+                   
+                   <model06Name>${model06Name}</model06Name>
+                   <model06Enable>${model06Enable}</model06Enable>
+                   <model06Color>${model06Color}</model06Color>
+                   <model06LineWidth>${model06LineWidth}</model06LineWidth>
+                   <model06SymbolSize>${model06SymbolSize}</model06SymbolSize>
+                   
+                   <model07Name>${model07Name}</model07Name>
+                   <model07Enable>${model07Enable}</model07Enable>
+                   <model07Color>${model07Color}</model07Color>
+                   <model07LineWidth>${model07LineWidth}</model07LineWidth>
+                   <model07SymbolSize>${model07SymbolSize}</model07SymbolSize>
+                   
+                   <model08Name>${model08Name}</model08Name>
+                   <model08Enable>${model08Enable}</model08Enable>
+                   <model08Color>${model08Color}</model08Color>
+                   <model08LineWidth>${model08LineWidth}</model08LineWidth>
+                   <model08SymbolSize>${model08SymbolSize}</model08SymbolSize> 
+                   
+                   <model09Name>${model09Name}</model09Name>
+                   <model09Enable>${model09Enable}</model09Enable>
+                   <model09Color>${model09Color}</model09Color>
+                   <model09LineWidth>${model09LineWidth}</model09LineWidth>
+                   <model09SymbolSize>${model09SymbolSize}</model09SymbolSize>  
+                   
+                   <model10Name>${model10Name}</model10Name>
+                   <model10Enable>${model10Enable}</model10Enable>
+                   <model10Color>${model10Color}</model10Color>
+                   <model10LineWidth>${model10LineWidth}</model10LineWidth>
+                   <model10SymbolSize>${model10SymbolSize}</model10SymbolSize>
+                   
+                   <model11Name>${model11Name}</model11Name>
+                   <model11Enable>${model11Enable}</model11Enable>
+                   <model11Color>${model11Color}</model11Color>
+                   <model11LineWidth>${model11LineWidth}</model11LineWidth>
+                   <model11SymbolSize>${model11SymbolSize}</model11SymbolSize>
+                   
+                   <model12Name>${model12Name}</model12Name>
+                   <model12Enable>${model12Enable}</model12Enable>
+                   <model12Color>${model12Color}</model12Color>
+                   <model12LineWidth>${model12LineWidth}</model12LineWidth>
+                   <model12SymbolSize>${model12SymbolSize}</model12SymbolSize>  
+                   
+                   <model13Name>${model13Name}</model13Name>
+                   <model13Enable>${model13Enable}</model13Enable>
+                   <model13Color>${model13Color}</model13Color>
+                   <model13LineWidth>${model13LineWidth}</model13LineWidth>
+                   <model13SymbolSize>${model13SymbolSize}</model13SymbolSize>   
+                   
+                   <model14Name>${model14Name}</model14Name>
+                   <model14Enable>${model14Enable}</model14Enable>
+                   <model14Color>${model14Color}</model14Color>
+                   <model14LineWidth>${model14LineWidth}</model14LineWidth>
+                   <model14SymbolSize>${model14SymbolSize}</model14SymbolSize>
+                   
+                   <model15Name>${model15Name}</model15Name>
+                   <model15Enable>${model15Enable}</model15Enable>
+                   <model15Color>${model15Color}</model15Color>
+                   <model15LineWidth>${model15LineWidth}</model15LineWidth>
+                   <model15SymbolSize>${model15SymbolSize}</model15SymbolSize>
+                                      
+                   <model16Name>${model16Name}</model16Name>
+                   <model16Enable>${model16Enable}</model16Enable>
+                   <model16Color>${model16Color}</model16Color>
+                   <model16LineWidth>${model16LineWidth}</model16LineWidth>
+                   <model16SymbolSize>${model16SymbolSize}</model16SymbolSize>
+                   
+                   <model17Name>${model17Name}</model17Name>
+                   <model17Enable>${model17Enable}</model17Enable>
+                   <model17Color>${model17Color}</model17Color>
+                   <model17LineWidth>${model17LineWidth}</model17LineWidth>
+                   <model17SymbolSize>${model17SymbolSize}</model17SymbolSize>
+                   
+                   <model18Name>${model18Name}</model18Name>
+                   <model18Enable>${model18Enable}</model18Enable>
+                   <model18Color>${model18Color}</model18Color>
+                   <model18LineWidth>${model18LineWidth}</model18LineWidth>
+                   <model18SymbolSize>${model18SymbolSize}</model18SymbolSize>            
+                   
+                   <model19Name>${model19Name}</model19Name>
+                   <model19Enable>${model19Enable}</model19Enable>
+                   <model19Color>${model19Color}</model19Color>
+                   <model19LineWidth>${model19LineWidth}</model19LineWidth>
+                   <model19SymbolSize>${model19SymbolSize}</model19SymbolSize>           
+                   
+                   <model20Name>${model20Name}</model20Name>
+                   <model20Enable>${model20Enable}</model20Enable>
+                   <model20Color>${model20Color}</model20Color>
+                   <model20LineWidth>${model20LineWidth}</model20LineWidth>
+                   <model20SymbolSize>${model20SymbolSize}</model20SymbolSize>           
+                   
+                   <drawBeginDateTime>${drawBeginDateTime}</drawBeginDateTime>
+                   <drawForecastHour>${drawForecastHour}</drawForecastHour>
+                   <drawPressure>${drawPressure}</drawPressure>
+                   <drawWindSpeed>${drawWindSpeed}</drawWindSpeed>
+                   <drawModelName>${drawModelName}</drawModelName>
+                   <drawCycloneID>${drawCycloneID}</drawCycloneID>
+                   <drawMarker>${drawMarker}</drawMarker>
+                   <colorCodeByWindSpeed>${colorCodeByWindSpeed}</colorCodeByWindSpeed>
+
+<!-- The color bar for now is just used to show the wind speed colors and intervals
+     based on the above attributes (ie galeColor)
+     The color bar object is created in the resource data class 
+					<windSpeedColorBar>
+	                       <showLabels>true</showLabels>
+					       <drawToScale>false</drawToScale>
+					       <orientation>Horizontal</orientation>
+					       <anchorLoc>LowerLeft</anchorLoc>
+					       <length>0.3</length>
+					       <width>10</width>
+					       <numDecimals>1</numDecimals>
+					       <IntervalValue>0.0</IntervalValue>
+					       <IntervalValue>34.0</IntervalValue>
+					       <IntervalValue>48.0</IntervalValue>
+					       <IntervalValue>64.0</IntervalValue>
+					       <IntervalValue>200.0</IntervalValue>
+					       <IntervalColor>RGB {255, 255, 0}</IntervalColor>
+					       <IntervalColor>RGB {255, 0, 255}</IntervalColor>
+					       <IntervalColor>RGB {255, 127, 0}</IntervalColor>
+					       <IntervalColor>RGB {255, 0, 0}</IntervalColor>
+                   </windSpeedColorBar>
+-->
                    <requestStyle>METADATA</requestStyle> 
               <metadataMap>
                <mapping key="pluginName">

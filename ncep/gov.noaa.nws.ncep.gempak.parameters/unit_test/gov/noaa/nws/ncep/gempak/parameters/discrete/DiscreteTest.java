@@ -3,43 +3,45 @@
  */
 package gov.noaa.nws.ncep.gempak.parameters.discrete;
 
-import static org.junit.Assert.*;
-
-import gov.noaa.nws.ncep.gempak.parameters.discrete.Discrete;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 import org.junit.Test;
-/**<pre>
-* 
-* Junit test for {@link gov.noaa.nws.ncep.gempak.parameters.discrete.Discrete}.
-* 
-* 
-* SOFTWARE HISTORY
-* Date          Ticket#     Engineer     Description
-* ------------ ---------- ----------- --------------------------
-* 10-Dec-2009    205       Archana.S   Initial Creation
-* 18-Dec-2009    205       Archana.S   Updated per review comments:
-*                                      ----------------------------
-*                                      1. Removed all references to hard-coded tolerance value
-*                                         (0.000001) and replaced it with the method
-*                                         getTolerance(). Accordingly updated Javadoc for the corresponding
-*                                         tests. 
-*                                      2. Updated all test-cases, to replace the '-' delimiter in the
-*                                         input string with '~' 
-*                                      3. Added the following test-cases: 
-*                                      a. To parse negative numbers in the Discrete string.
-*                                      b. Test for extra arguments.
-* 
-* </pre>
-* @author Archana.S
-* @version 1
-*/
+
+/**
+ * <pre>
+ * 
+ * Junit test for {@link gov.noaa.nws.ncep.gempak.parameters.discrete.Discrete}.
+ * 
+ * 
+ * SOFTWARE HISTORY
+ * Date          Ticket#     Engineer     Description
+ * ------------ ---------- ----------- --------------------------
+ * 10-Dec-2009    205       Archana.S   Initial Creation
+ * 18-Dec-2009    205       Archana.S   Updated per review comments:
+ *                                      ----------------------------
+ *                                      1. Removed all references to hard-coded tolerance value
+ *                                         (0.000001) and replaced it with the method
+ *                                         getTolerance(). Accordingly updated Javadoc for the corresponding
+ *                                         tests. 
+ *                                      2. Updated all test-cases, to replace the '-' delimiter in the
+ *                                         input string with '~' 
+ *                                      3. Added the following test-cases: 
+ *                                      a. To parse negative numbers in the Discrete string.
+ *                                      b. Test for extra arguments.
+ * 25-Aug-2012   743        djohnson    Upgrade to JUnit 4.10.
+ * </pre>
+ * 
+ * @author Archana.S
+ * @version 1
+ */
 public class DiscreteTest {
-	private static int testCaseNumber;
+    private static final double ALLOWABLE_DOUBLE_DELTA = 0.1;
+
+    private static int testCaseNumber;
 	private List<Float> testList;
 	/**
 	 * Test valid input string with multiple start/end/discrete value strings.
@@ -64,33 +66,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -121,33 +123,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -179,33 +181,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -238,33 +240,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -297,33 +299,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -356,33 +358,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -414,33 +416,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -461,7 +463,7 @@ public class DiscreteTest {
 		System.out.println("Test input string with invalid delimiters\n");
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		System.out.println("Size of discrete data list = "+discreteObj.getDiscreteDataList().size());
-		assertEquals(discreteObj.getDiscreteDataList().size(), 0);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 0);
 		testCaseNumber++;
 		System.out.println("==========================================");
 	}
@@ -493,33 +495,33 @@ public class DiscreteTest {
 			System.out.println("Discrete value = "+discreteObj
 					.getDiscreteDataList().get(i).getDiscreteValue());
 			if(i==0){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(0));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(1));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(2));
 			}
 			else if(i==1){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(3));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(4));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(5));
 			}
 			else if(i==2){
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getStartValue(),testList.get(6));
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getEndValue(),testList.get(7));			
 
-				assertEquals(discreteObj.getDiscreteDataList()
+                assertFloatComparison(discreteObj.getDiscreteDataList()
 						.get(i).getDiscreteValue(),testList.get(8));
 			}
 		}
@@ -556,7 +558,7 @@ public class DiscreteTest {
 		System.out.println("Test empty string\n");
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		System.out.println("Size of discrete data list = "+discreteObj.getDiscreteDataList().size());
-		assertEquals(discreteObj.getDiscreteDataList().size(), 0);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 0);
 		
 		
 		Discrete discreteObj2 = new Discrete(null);
@@ -565,7 +567,7 @@ public class DiscreteTest {
 		System.out.println("Test empty string\n");
 		System.out.println("The input string is "+discreteObj2.getStrDiscrete());
 		System.out.println("Size of discrete data list = "+discreteObj2.getDiscreteDataList().size());
-		assertEquals(discreteObj2.getDiscreteDataList().size(), 0);
+        assertEquals(discreteObj2.getDiscreteDataList().size(), 0);
 		
 		Discrete discreteObj3 = new Discrete("           ");
 
@@ -573,7 +575,7 @@ public class DiscreteTest {
 		System.out.println("Test empty string\n");
 		System.out.println("The input string is "+discreteObj3.getStrDiscrete());
 		System.out.println("Size of discrete data list = "+discreteObj3.getDiscreteDataList().size());
-		assertEquals(discreteObj3.getDiscreteDataList().size(), 0);
+        assertEquals(discreteObj3.getDiscreteDataList().size(), 0);
 		
 		System.out.println("==========================================");
 		testCaseNumber++;
@@ -591,7 +593,7 @@ public class DiscreteTest {
 		System.out.println("Test input string with non numeric inputs\n");
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		System.out.println("Size of discrete data list = "+discreteObj.getDiscreteDataList().size());
-		assertEquals(discreteObj.getDiscreteDataList().size(), 0);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 0);
 		testCaseNumber++;
 		System.out.println("==========================================");
 	}
@@ -609,19 +611,31 @@ public class DiscreteTest {
 		
 		System.out.println("Discrete Value to the left of 3.6 = "+discreteObj.getPrecedingDiscreteValue(3.6f));
 		System.out.println("Discrete Value to the left of 0.444 = "+discreteObj.getPrecedingDiscreteValue(0.444f));
-		assertEquals(discreteObj.getPrecedingDiscreteValue(3.6f), 1.105f);
-	assertEquals(discreteObj.getPrecedingDiscreteValue(0.444f),0.444f);	
+        assertFloatComparison(discreteObj.getPrecedingDiscreteValue(3.6f),
+                1.105f);
+        assertFloatComparison(discreteObj.getPrecedingDiscreteValue(0.444f),
+                0.444f);
 	testCaseNumber++;
 		System.out.println("==========================================");
 	}
-	
-	/**
-	 * Test the method getDiscreteValueClosestToTwoContourLines() when the following conditions are satisfied:
-	 * The absolute difference between the current start value and the first parameter in the function is 
-	 * less than the tolerance value and   
-	 * The absolute difference between the current end value and the second parameter in the function is 
-	 * less than the tolerance value
-	 */
+
+    /**
+     * @param precedingDiscreteValue
+     * @param f
+     */
+    private void assertFloatComparison(Float precedingDiscreteValue, float f) {
+        assertEquals(precedingDiscreteValue.floatValue(), f,
+                ALLOWABLE_DOUBLE_DELTA);
+    }
+
+    /**
+     * Test the method getDiscreteValueClosestToTwoContourLines() when the
+     * following conditions are satisfied: The absolute difference between the
+     * current start value and the first parameter in the function is less than
+     * the tolerance value and The absolute difference between the current end
+     * value and the second parameter in the function is less than the tolerance
+     * value
+     */
 	@Test
 	public void testGetDiscreteValueClosestToTwoContourLines1(){
 		Discrete discreteObj = new Discrete("0.1~.5=0.444;0.6~0.9=0.75;0.99~1.15=1.105;1.25~3.5=3.6");
@@ -635,7 +649,9 @@ public class DiscreteTest {
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		
 		System.out.println("Discrete Value between 0.99 and 1.15 = "+discreteObj.getDiscreteValueClosestToTwoContourLines(0.99f,1.15f));
-		assertEquals(discreteObj.getDiscreteValueClosestToTwoContourLines(0.99f, 1.15f),1.105f);
+        assertFloatComparison(
+                discreteObj.getDiscreteValueClosestToTwoContourLines(0.99f,
+                        1.15f), 1.105f);
 		
 		testCaseNumber++;
 		System.out.println("==========================================");	
@@ -661,7 +677,9 @@ public class DiscreteTest {
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		
 		System.out.println("Discrete Value between 0.990001 and 1.15 = "+discreteObj.getDiscreteValueClosestToTwoContourLines(0.990001f,1.15f));
-		assertEquals(discreteObj.getDiscreteValueClosestToTwoContourLines(0.990001f, 1.15f),Float.NaN);
+        assertFloatComparison(
+                discreteObj.getDiscreteValueClosestToTwoContourLines(0.990001f,
+                        1.15f), Float.NaN);
 		
 		testCaseNumber++;
 		System.out.println("==========================================");	
@@ -687,7 +705,9 @@ public class DiscreteTest {
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		
 		System.out.println("Discrete Value between 0.99 and 1.150001 = "+discreteObj.getDiscreteValueClosestToTwoContourLines(0.99f,1.150001f));
-		assertEquals(discreteObj.getDiscreteValueClosestToTwoContourLines(0.99f, 1.150001f),Float.NaN);
+        assertFloatComparison(
+                discreteObj.getDiscreteValueClosestToTwoContourLines(0.99f,
+                        1.150001f), Float.NaN);
 		
 		testCaseNumber++;
 		System.out.println("==========================================");	
@@ -716,7 +736,9 @@ public class DiscreteTest {
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		
 		System.out.println("Discrete Value between Float.MAX-VALUE and 1.15 = "+discreteObj.getDiscreteValueClosestToTwoContourLines(Float.MAX_VALUE, 0.5f));
-		assertEquals(discreteObj.getDiscreteValueClosestToTwoContourLines(Float.MAX_VALUE, 0.5f),0.444f);
+        assertFloatComparison(
+                discreteObj.getDiscreteValueClosestToTwoContourLines(
+                        Float.MAX_VALUE, 0.5f), 0.444f);
 		
 		testCaseNumber++;
 		System.out.println("==========================================");	
@@ -744,7 +766,9 @@ public class DiscreteTest {
 		System.out.println("The input string is "+discreteObj.getStrDiscrete());
 		
 		System.out.println("Discrete Value between 1.25 and Float.MAX-VALUE = "+discreteObj.getDiscreteValueClosestToTwoContourLines(1.25f,Float.MAX_VALUE));
-		assertEquals(discreteObj.getDiscreteValueClosestToTwoContourLines(1.25f,Float.MAX_VALUE),3.6f);
+        assertFloatComparison(
+                discreteObj.getDiscreteValueClosestToTwoContourLines(1.25f,
+                        Float.MAX_VALUE), 3.6f);
 		
 		testCaseNumber++;
 		System.out.println("==========================================");	
@@ -765,10 +789,13 @@ public class DiscreteTest {
 		System.out.println("The starting value="+discreteObj.getDiscreteDataList().get(0).getStartValue());
 		System.out.println("The ending value="+discreteObj.getDiscreteDataList().get(0).getEndValue());
 		System.out.println("The discrete value="+discreteObj.getDiscreteDataList().get(0).getDiscreteValue());
-		assertEquals(discreteObj.getDiscreteDataList().size(),1);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getStartValue(), 0.1f);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getEndValue(), 0.5f);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getDiscreteValue(), 0.444f);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 1);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getStartValue(), 0.1f);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getEndValue(), 0.5f);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getDiscreteValue(), 0.444f);
 		testCaseNumber++;
 		System.out.println("==========================================");	
 		
@@ -790,10 +817,13 @@ public class DiscreteTest {
 		System.out.println("The starting value="+discreteObj.getDiscreteDataList().get(0).getStartValue());
 		System.out.println("The ending value="+discreteObj.getDiscreteDataList().get(0).getEndValue());
 		System.out.println("The discrete value="+discreteObj.getDiscreteDataList().get(0).getDiscreteValue());
-		assertEquals(discreteObj.getDiscreteDataList().size(),1);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getStartValue(), 0.1f);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getEndValue(), 0.5f);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getDiscreteValue(), 0.444f);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 1);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getStartValue(), 0.1f);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getEndValue(), 0.5f);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getDiscreteValue(), 0.444f);
 		testCaseNumber++;
 		System.out.println("==========================================");	
 	}
@@ -813,10 +843,13 @@ public class DiscreteTest {
 		System.out.println("The starting value="+discreteObj.getDiscreteDataList().get(0).getStartValue());
 		System.out.println("The ending value="+discreteObj.getDiscreteDataList().get(0).getEndValue());
 		System.out.println("The discrete value="+discreteObj.getDiscreteDataList().get(0).getDiscreteValue());
-		assertEquals(discreteObj.getDiscreteDataList().size(),1);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getStartValue(), -Float.MAX_VALUE);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getEndValue(), 0.5f);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getDiscreteValue(), 0.444f);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 1);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getStartValue(), -Float.MAX_VALUE);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getEndValue(), 0.5f);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getDiscreteValue(), 0.444f);
 		testCaseNumber++;
 		System.out.println("==========================================");	
 	}
@@ -837,10 +870,13 @@ public class DiscreteTest {
 		System.out.println("The starting value="+discreteObj.getDiscreteDataList().get(0).getStartValue());
 		System.out.println("The ending value="+discreteObj.getDiscreteDataList().get(0).getEndValue());
 		System.out.println("The discrete value="+discreteObj.getDiscreteDataList().get(0).getDiscreteValue());
-		assertEquals(discreteObj.getDiscreteDataList().size(),1);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getStartValue(),0.5f );
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getEndValue(), Float.MAX_VALUE);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getDiscreteValue(), 0.444f);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 1);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getStartValue(), 0.5f);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getEndValue(), Float.MAX_VALUE);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getDiscreteValue(), 0.444f);
 		testCaseNumber++;
 		System.out.println("==========================================");	
 	}	
@@ -862,10 +898,13 @@ public class DiscreteTest {
 		System.out.println("The starting value="+discreteObj.getDiscreteDataList().get(0).getStartValue());
 		System.out.println("The ending value="+discreteObj.getDiscreteDataList().get(0).getEndValue());
 		System.out.println("The discrete value="+discreteObj.getDiscreteDataList().get(0).getDiscreteValue());
-		assertEquals(discreteObj.getDiscreteDataList().size(),1);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getStartValue(),-Float.MAX_VALUE );
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getEndValue(), Float.MAX_VALUE);
-		assertEquals(discreteObj.getDiscreteDataList().get(0).getDiscreteValue(), 0.444f);
+        assertEquals(discreteObj.getDiscreteDataList().size(), 1);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getStartValue(), -Float.MAX_VALUE);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getEndValue(), Float.MAX_VALUE);
+        assertFloatComparison(discreteObj.getDiscreteDataList().get(0)
+                .getDiscreteValue(), 0.444f);
 		testCaseNumber++;
 		System.out.println("==========================================");	
 	}

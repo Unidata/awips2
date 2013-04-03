@@ -28,6 +28,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
 import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
 
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
@@ -56,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 01/29/2008              chammack    Initial Class Skeleton.
  * 03/25/2008   879        rbell       Legacy conversion.
+ * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * 
  * </pre>
  * 
@@ -445,7 +447,8 @@ public class VectorGridData extends OrderedGridData implements Cloneable {
     }
 
     @Override
-    protected boolean translateDataFrom(IGridData source) {
+    protected boolean translateDataFrom(IGridData source)
+            throws FactoryException {
         if (!(source instanceof VectorGridData)) {
             throw new IllegalArgumentException(
                     "Expected VectorGridData as source.");

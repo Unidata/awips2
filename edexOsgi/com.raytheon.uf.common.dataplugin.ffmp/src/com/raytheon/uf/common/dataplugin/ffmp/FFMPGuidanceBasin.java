@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -27,22 +24,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/22/10      3437       D. Hladky   Initial release
+ * 01/17/13      1478        D. Hladky  Removed un-needed XML attributes
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject {
+    
     public FFMPGuidanceBasin() {
 
     }
 
     @DynamicSerializeElement
-    @XmlElement
     protected TreeMap<Date, HashMap<String, Float>> guidValues;
 
     @Transient
@@ -100,7 +96,7 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
             return Float.NaN;
         }
     }
-    
+
     /**
      * purge out old entries
      * 
@@ -178,14 +174,14 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
 
         return val;
     }
-    
+
     /**
      * Gets a Value for a FFG source
      * 
      * @param date
      * @return
      */
-    public Float getValue(String sourceName, 
+    public Float getValue(String sourceName,
             FFMPGuidanceInterpolation interpolation, long expiration) {
         Float dvalue = Float.NaN;
 
@@ -209,23 +205,23 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
      */
     public Float getValue(String sourceName, Date date,
             FFMPGuidanceInterpolation interpolation, long expiration) {
-    	
+
         Float dvalue = Float.NaN;
         Float value = Float.NaN;
         Date closestDate = getClosest(sourceName, date, expiration);
-        
+
         if (closestDate != null) {
             value = getValue(closestDate, sourceName);
         }
-        
+
         if (!value.isNaN()) {
             FFFGDataMgr dman = FFFGDataMgr.getInstance();
             if (dman.isExpired() == false) {
 
-                dvalue = dman.adjustValue(dvalue, sourceName, this.pfaf,
+                dvalue = dman.adjustValue(value, sourceName, this.pfaf,
                         this.countyFips);
             } else {
-            	dvalue = value;
+                dvalue = value;
             }
         }
 
@@ -244,30 +240,30 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
         Date rdate = null;
 
         if (guidValues != null && guidValues.size() > 0) {
-        	
-        	Date markerDate = guidValues.firstKey();
-        	
-			for (Date checkDate : guidValues.keySet()) {
-	    
-				if (guidValues.get(checkDate).containsKey(sourceName)) {
-					float val = guidValues.get(checkDate).get(sourceName);
-					if (val != FFMPUtils.MISSING) {
-						
-						long time1 = markerDate.getTime();
-	                    long time2 = checkDate.getTime();
-	                    
-		                if ((time1 - time2) < expiration) {
-		                	rdate = checkDate;
-		                } 
-		                break;
-					}
-				}
-			}
+
+            Date markerDate = guidValues.firstKey();
+
+            for (Date checkDate : guidValues.keySet()) {
+
+                if (guidValues.get(checkDate).containsKey(sourceName)) {
+                    float val = guidValues.get(checkDate).get(sourceName);
+                    if (val != FFMPUtils.MISSING) {
+
+                        long time1 = markerDate.getTime();
+                        long time2 = checkDate.getTime();
+
+                        if ((time1 - time2) < expiration) {
+                            rdate = checkDate;
+                        }
+                        break;
+                    }
+                }
+            }
         }
 
         return rdate;
     }
-    
+
     /**
      * Get Closest Key
      * 
@@ -284,14 +280,14 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
 
             if (guidValues.containsKey(date)) {
                 if (guidValues.get(date).containsKey(sourceName)) {
-                
+
                     float val = guidValues.get(date).get(sourceName);
-                
+
                     if (val != FFMPUtils.MISSING) {
                         rdate = date;
                     }
                 }
-            } 
+            }
 
             if (rdate == null) {
 
@@ -411,7 +407,10 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
     }
 
     /**
-     * useful constructor
+     * Constructor used in producing a new GuidanceBasin
+     * 
+     * @param pfaf
+     * @param aggregated
      */
     public FFMPGuidanceBasin(Long pfaf, boolean aggregated) {
         setPfaf(pfaf);
@@ -457,5 +456,15 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
         }
         return buff.toString();
     }
-
+    
+    public void populate(List<Long> times) {
+     // does nothing here, don't need to populate anything.
+    }
+    
+    /**
+     * populates the serialized array
+     */
+    public void setCache() {
+        // does nothing here, this class is serialized as is.
+    }
 }

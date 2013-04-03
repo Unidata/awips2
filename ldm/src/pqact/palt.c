@@ -1149,6 +1149,7 @@ prodAction(product *prod, palt *pal, const void *xprod, size_t xlen)
         static char    buf1[_POSIX_ARG_MAX];
         static char    buf2[_POSIX_ARG_MAX];
         static char*   argv[1 + _POSIX_ARG_MAX/2];
+        char *result = 0;
 
         regsub(pal, prod->info.ident, buf1);
         buf1[sizeof(buf1)-1] = 0;
@@ -1156,16 +1157,22 @@ prodAction(product *prod, palt *pal, const void *xprod, size_t xlen)
         gm_strftime(buf2, sizeof(buf2), buf1, prod->info.arrival.tv_sec);
         buf2[sizeof(buf2)-1] = 0;
 
+        /*
+         * Alternate between buf1 and buf2 as input/output. If more functions
+         * added here make sure result is assigned the proper buffer.
+         */
         date_sub(buf2, buf1, prod->info.arrival.tv_sec);
         buf1[sizeof(buf1)-1] = 0;
 
-        seq_sub(buf2, buf1, prod->info.seqno);
-        buf1[sizeof(buf1)-1] = 0;
+        seq_sub(buf1, buf2, prod->info.seqno);
+        buf2[sizeof(buf2)-1] = 0;
+
+        result = &buf2[0];
 
         if (ulogIsVerbose())
-            uinfo("               %s: %s and the ident is %s", s_actiont(&pal->action), buf1, prod->info.ident);
+            uinfo("               %s: %s and the ident is %s", s_actiont(&pal->action), result, prod->info.ident);
 
-        argc = tokenize(buf1, argv, ARRAYLEN(argv));
+        argc = tokenize(result, argv, ARRAYLEN(argv));
 
         if (argc < ARRAYLEN(argv))
         {
@@ -1174,7 +1181,7 @@ prodAction(product *prod, palt *pal, const void *xprod, size_t xlen)
         }
         else
         {
-            uerror("Too many PIPE arguments: \"%s\"", buf1);
+            uerror("Too many PIPE arguments: \"%s\"", result);
             status = -1;
         }
     }

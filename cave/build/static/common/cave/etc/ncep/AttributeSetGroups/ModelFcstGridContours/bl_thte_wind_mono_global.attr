@@ -7,8 +7,9 @@
 GLEVEL =  9950
 GVCORD =  sgma
 SKIP   =    0!0!0!0
+FILTER=y
 SCALE  =   0
-GDPFUN =  thte(mul(1e-2,pres@0%none);tmpc;dwpc)!thte(mul(1e-2,pres@0%none);tmpc;dwpc)!thte(mul(1e-2,pres@0%none);tmpc;dwpc)!kntv(wnd)
+GDPFUN =  thte(pres@0%none;tmpc;dwpc)!thte(pres@0%none;tmpc;dwpc)!thte(pres@0%none;tmpc;dwpc)!kntv(wnd)
 TYPE   =    c                        !c         !c    !b
 CINT   =    4/200/308                !4/312/324/!4/328
 LINE   =    18/10/4                  !18/2/3    !18/1/2
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ BL (5 MB AGL) THTE AND WIND (KTS)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

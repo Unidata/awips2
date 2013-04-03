@@ -37,6 +37,7 @@ import com.raytheon.uf.common.util.RunProcess;
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2010            bfarmer     Initial creation
  * Sep 19, 2011 10955      rferrel     Use RunProcess
+ * Jan 10, 2012  4550	   mgamazaychikov	Fixed the sshCommand
  * 
  * </pre>
  * 
@@ -150,14 +151,17 @@ public class FaxSender {
         }
         // Execute faxSender.csh on ldad fax script file (system exec)
         StringBuilder sshCommand = new StringBuilder();
-        sshCommand.append("ssh ls1 -l ldad -n \"");
+        /*
+         * DR4550 - the sshCommand should be:
+         * ssh -n ls1 -l ldad $LDAD_EXTERNAL_HOME/bin/faxSender.csh filename
+         */
+        sshCommand.append("ssh -n ls1 -l ldad ");
         sshCommand.append(System.getenv("LDAD_EXTERNAL_HOME"));
         sshCommand.append("/bin/faxSender.csh ");
         sshCommand.append(ldadScriptFilename);
-        sshCommand.append("\"");
         // DR#10955
         RunProcess sshCommandExec = RunProcess.getRunProcess().exec(
-                sshCommand.toString());
+        		sshCommand.toString());
         error = sshCommandExec.getStderr().trim();
         if (error.length() != 0) {
             // Send back an appropriate error string.
