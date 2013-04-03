@@ -316,6 +316,13 @@ if [ "${1}" = "-ade" ]; then
       exit 1
    fi
 
+   # Build the source jar file
+   ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB13.2.1-CM"
+   cd $ade_work_dir
+   ./build_source_jar.sh
+   cp -v /tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
+
+
    # Tar the directory.
    pushd . > /dev/null 2>&1
    cd ${WORKSPACE}
