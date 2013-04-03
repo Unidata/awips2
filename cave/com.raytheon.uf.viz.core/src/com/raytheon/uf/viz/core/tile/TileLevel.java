@@ -19,10 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.tile;
 
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
@@ -50,6 +49,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 8, 2012            mschenke     Initial creation
+ * Apr 03, 2013 1824       bsteffen    Fix Tile Geometry creation.
  * 
  * </pre>
  * 
@@ -272,7 +272,7 @@ public class TileLevel {
      * @return
      */
     private Tile createTile(int x, int y) {
-        GridEnvelope range = levelGeometry.getGridRange();
+        GridEnvelope2D range = levelGeometry.getGridRange2D();
         // Get grid range ranges and calculate grid range for the tile
         int startX = range.getLow(0);
         int startY = range.getLow(1);
@@ -282,29 +282,22 @@ public class TileLevel {
         int tileY = startY + y * tileSize;
         int tileX = startX + x * tileSize;
 
-        int tileEndX = Math.min(endX, tileX + tileSize);
-        int tileEndY = Math.min(endY, tileY + tileSize);
+        int tileWidth = Math.min(endX - tileX, tileSize);
+        int tileHeight = Math.min(endY - tileY, tileSize);
 
+        
+        range = new GridEnvelope2D(tileX, tileY, tileWidth,
+                tileHeight);
+        Envelope envelope = null;
         // Convert grid range into crs envelope range
-        double[] in = new double[] { tileX, tileY, tileEndX, tileEndY };
-        double[] out = new double[in.length];
         try {
-            gridToCRS.transform(in, 0, out, 0, 2);
+            envelope = levelGeometry.gridToWorld(range);
         } catch (TransformException e) {
             throw new RuntimeException("Error getting tile envelope from grid",
                     e);
         }
-        double envTileX = out[0];
-        double envTileY = out[1];
-        double envTileEndX = out[2];
-        double envTileEndY = out[3];
-
         // Create tile GridGeometry
-        range = new GeneralGridEnvelope(new int[] { tileX, tileY }, new int[] {
-                tileEndX, tileEndY }, false);
-        GridGeometry2D tileGridGeom = new GridGeometry2D(range, new Envelope2D(
-                levelGeometry.getCoordinateReferenceSystem(), out[0], envTileY,
-                envTileEndX - envTileX, envTileEndY - envTileY));
+        GridGeometry2D tileGridGeom = new GridGeometry2D(range, envelope);
 
         // Calculate the border in target grid space for the Tile
         Geometry border = null;
