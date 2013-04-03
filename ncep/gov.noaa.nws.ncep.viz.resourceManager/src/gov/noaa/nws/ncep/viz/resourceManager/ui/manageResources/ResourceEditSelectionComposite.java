@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -49,7 +50,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 07/25/11      #450        Greg Hull   use NcPathManager for Localization
  * 03/14/12      #606        Greg Hull   get types/sub-types from ncInventory
  * 06/06/2012     #816       Greg Hull   Alphabetize lists. Change content of listViewer to ResourceDefinitions
-
+ * 12/13/2012    #957        Greg Hull   Show the localization level of files 
+ *
  * </pre>
  * 
  * @author ghull
@@ -76,14 +78,17 @@ public class ResourceEditSelectionComposite extends Composite {
     private ListViewer rscGroupLViewer = null;
     private ListViewer rscAttrSetLViewer = null;
     
+    private Label  rscTypeLocLbl  = null;
     private Button copyRscTypeBtn = null;
     private Button editRscTypeBtn = null;
     private Button removeRscTypeBtn = null;    // TODO : not implemented
     
+    private Label  rscGroupLocLbl  = null;
     private Button copyRscGroupBtn = null;
     private Button editRscGroupBtn = null;
     private Button removeRscGroupBtn = null;
     
+    private Label  attrSetLocLbl  = null;
     private Button copyRscAttrSetBtn = null;
     private Button editRscAttrSetBtn = null;
     private Button removeRscAttrSetBtn = null;
@@ -177,7 +182,7 @@ public class ResourceEditSelectionComposite extends Composite {
     	fd.height = rscListViewerHeight;
     	fd.top = new FormAttachment( 0, 35 );
     	fd.left = new FormAttachment( 0, 10 );
-    	fd.bottom = new FormAttachment( 100, -110 );
+    	fd.bottom = new FormAttachment( 100, -130 );
     	fd.right = new FormAttachment( 25, -3 );
     	rscCatLViewer.getList().setLayoutData( fd );
 
@@ -207,10 +212,18 @@ public class ResourceEditSelectionComposite extends Composite {
     	
     	rscTypeLbl.setLayoutData( fd );
     	
+    	rscTypeLocLbl = new Label(sel_rsc_comp, SWT.NONE);
+    	rscTypeLocLbl.setText("Loc");
+    	fd = new FormData();
+    	fd.top = new FormAttachment( rscTypeLViewer.getList(), 6, SWT.BOTTOM );
+    	fd.left = new FormAttachment( rscTypeLViewer.getList(), 0, SWT.LEFT );
+    	fd.right = new FormAttachment( rscTypeLViewer.getList(), 0, SWT.RIGHT );
+    	rscTypeLocLbl.setLayoutData( fd );
+    	
         copyRscTypeBtn = new Button( sel_rsc_comp, SWT.TOGGLE );
         copyRscTypeBtn.setText("Copy ...");
         fd = new FormData(100,25);
-    	fd.top = new FormAttachment( rscTypeLViewer.getList(), 10, SWT.BOTTOM );
+    	fd.top = new FormAttachment( rscTypeLocLbl, 10, SWT.BOTTOM );
     	fd.left = new FormAttachment( rscTypeLViewer.getList(), -50, SWT.CENTER );
     	copyRscTypeBtn.setLayoutData( fd );
         
@@ -248,11 +261,18 @@ public class ResourceEditSelectionComposite extends Composite {
     	fd.right = new FormAttachment( rscGroupLViewer.getList(), 0, SWT.RIGHT );
     	rscTypeGroupLbl.setLayoutData( fd );
        	
+    	rscGroupLocLbl = new Label(sel_rsc_comp, SWT.NONE);
+    	rscGroupLocLbl.setText("Loc");
+    	fd = new FormData();
+    	fd.top = new FormAttachment( rscGroupLViewer.getList(), 6, SWT.BOTTOM );
+    	fd.left = new FormAttachment( rscGroupLViewer.getList(), 0, SWT.LEFT );
+    	fd.right = new FormAttachment( rscGroupLViewer.getList(), 0, SWT.RIGHT );
+    	rscGroupLocLbl.setLayoutData( fd );
     	
         copyRscGroupBtn = new Button( sel_rsc_comp, SWT.TOGGLE );
         copyRscGroupBtn.setText("Copy ...");
         fd = new FormData(100,25);
-    	fd.top = new FormAttachment( rscGroupLViewer.getList(), 7, SWT.BOTTOM );
+    	fd.top = new FormAttachment( rscGroupLocLbl, 10, SWT.BOTTOM );
     	fd.left = new FormAttachment( rscGroupLViewer.getList(), -50, SWT.CENTER );
     	copyRscGroupBtn.setLayoutData( fd );
         
@@ -290,10 +310,18 @@ public class ResourceEditSelectionComposite extends Composite {
         fd.bottom = new FormAttachment( rscAttrSetLViewer.getList(), -5, SWT.TOP );
         rscAttrsLbl.setLayoutData( fd );
         
+    	attrSetLocLbl = new Label(sel_rsc_comp, SWT.NONE);
+    	attrSetLocLbl.setText("Loc");
+    	fd = new FormData();
+    	fd.top = new FormAttachment( rscAttrSetLViewer.getList(), 6, SWT.BOTTOM );
+    	fd.left = new FormAttachment( rscAttrSetLViewer.getList(), 0, SWT.LEFT );
+    	fd.right = new FormAttachment( rscAttrSetLViewer.getList(), 0, SWT.RIGHT );
+    	attrSetLocLbl.setLayoutData( fd );
+
         copyRscAttrSetBtn = new Button( sel_rsc_comp, SWT.TOGGLE );
         copyRscAttrSetBtn.setText("Copy ...");
         fd = new FormData(100,25);
-    	fd.top = new FormAttachment( rscAttrSetLViewer.getList(), 7, SWT.BOTTOM );
+    	fd.top = new FormAttachment( attrSetLocLbl, 10, SWT.BOTTOM );
     	fd.left = new FormAttachment( rscAttrSetLViewer.getList(), -50, SWT.CENTER );
     	copyRscAttrSetBtn.setLayoutData( fd );
         
@@ -332,6 +360,8 @@ public class ResourceEditSelectionComposite extends Composite {
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
    		});
    		
+   		// The Elements of the ListViewer are ResourceDefinitions.
+   		//
     	rscTypeLViewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
@@ -376,7 +406,16 @@ public class ResourceEditSelectionComposite extends Composite {
     	rscTypeLViewer.setLabelProvider(  new LabelProvider() {
 	    	public String getText( Object element ) {
 	    		ResourceDefinition rd = (ResourceDefinition)element;
-	    		return (rd == null ? "null" : rd.getResourceDefnName());
+	    		if( rd == null ) {
+	    			return "error";
+	    		}
+	    		LocalizationLevel lLvl = rd.getLocalizationFile().getContext().getLocalizationLevel();
+	    		if( lLvl == LocalizationLevel.BASE ) {
+	    			return rd.getResourceDefnName();
+	    		}
+	    		else {
+	    			return rd.getResourceDefnName()+" ("+lLvl.name().charAt(0)+")";
+	    		}
 	    	}
         });
     	
@@ -399,6 +438,8 @@ public class ResourceEditSelectionComposite extends Composite {
             }
     	});
     	
+   		// The Elements of the ListViewer are AttrSetGroups.
+   		//
     	rscGroupLViewer.setContentProvider(  new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
@@ -412,15 +453,19 @@ public class ResourceEditSelectionComposite extends Composite {
 					if( rscDefnsMngr.doesResourceUseAttrSetGroups( rscType ) ) {
 
 						// for PGEN there is only 1 'default' attrSetGroup 
-						if( seldResourceName.isPgenResource() ) {
-							rscTypeGroupLbl.setText("PGEN Attribute Group");
-							return new String[]{"PGEN"};
-						}
+//						if( seldResourceName.isPgenResource() ) {
+//							rscTypeGroupLbl.setText("PGEN Attribute Group");
+////							return new String[]{"PGEN"};
+//							rscDefnsMngr.getAttrSetGroupsForResource(rscType)
+//						}
 
-						List<String> rscAttrSetsList = rscDefnsMngr.getAttrSetGroupNamesForResource( rscType );
+//						List<String> rscAttrSetsList = rscDefnsMngr.getAttrSetGroupNamesForResource( rscType );
 
-						if( rscAttrSetsList != null &&
-								!rscAttrSetsList.isEmpty() ) {
+						List<AttrSetGroup> rscAttrSetGroupsList = 
+							    rscDefnsMngr.getAttrSetGroupsForResource( rscType );
+
+						if( rscAttrSetGroupsList != null &&
+								!rscAttrSetGroupsList.isEmpty() ) {
 							if( rscType.length() < 8 ) {
 								rscTypeGroupLbl.setText( rscType+" Attribute Groups " );
 							}
@@ -428,27 +473,29 @@ public class ResourceEditSelectionComposite extends Composite {
 								rscTypeGroupLbl.setText( rscType+" Attr Groups " );
 							}
 
-							return rscAttrSetsList.toArray();
+							return rscAttrSetGroupsList.toArray();
 						}
 					}
 					else {			
-						try {
-							String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
-
-							rscTypeGroupLbl.setText( rscType+" Sub-Types");
-
-							if( rscGroups != null && rscGroups.length != 0 ) {
-								return rscGroups;//.toArray();
-							}
-						}
-						catch ( VizException e ) {
-				        	MessageDialog errDlg = new MessageDialog( 
-				        			NmapUiUtils.getCaveShell(), 
-				        			"Error", null, 
-				        			"Error getting sub-types\n"+ e.getMessage(),
-				        			MessageDialog.ERROR, new String[]{"OK"}, 0);
-				        	errDlg.open();
-						}						
+						rscTypeGroupLbl.setText("N/A");
+						return new String[0];
+//						try {
+//							String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
+//
+//							rscTypeGroupLbl.setText( rscType+" Sub-Types");
+//
+//							if( rscGroups != null && rscGroups.length != 0 ) {
+//								return rscGroups;//.toArray();
+//							}
+//						}
+//						catch ( VizException e ) {
+//				        	MessageDialog errDlg = new MessageDialog( 
+//				        			NmapUiUtils.getCaveShell(), 
+//				        			"Error", null, 
+//				        			"Error getting sub-types\n"+ e.getMessage(),
+//				        			MessageDialog.ERROR, new String[]{"OK"}, 0);
+//				        	errDlg.open();
+//						}						
 					}
 				}
 				else {
@@ -473,19 +520,37 @@ public class ResourceEditSelectionComposite extends Composite {
             }
     	});
 
-//    	rscGroupLViewer.setLabelProvider( NmapCommon.createFileLabelProvider() );
+    	rscGroupLViewer.setLabelProvider( new LabelProvider() { 	   
+    		public String getText( Object element ) {
+    			AttrSetGroup asg = (AttrSetGroup)element;
+    			if( asg == null ) {
+    				return "error";
+    			}
+    			else {
+    				LocalizationLevel lLvl = 
+    					asg.getLocalizationFile().getContext().getLocalizationLevel();
     	
+    				if( lLvl == LocalizationLevel.BASE ) {
+    					return asg.getAttrSetGroupName();
+    				}
+    				else {
+    					return asg.getAttrSetGroupName() + " ("+lLvl.name().charAt(0)+")";
+    				}
+    			}
+    		}
+    	});
+
+   		// The Elements of the ListViewer are AttributeSets.
+   		//
     	rscAttrSetLViewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
 				
 				// if an attrSetGroup is selected, return the attrSets in the group
 				if( !seldResourceName.getRscType().isEmpty() ) {
-					return rscDefnsMngr.getAttrSetsForResource( seldResourceName, false );
+					List<AttributeSet> attrSetsList = rscDefnsMngr.getAttrSetsForResource( seldResourceName, false );
 
-//					if( attrSets != null && !attrSets.isEmpty() ) {
-//						return attrSets.toArray();
-//					}
+					return attrSetsList.toArray( new AttributeSet[0] );
 				}
 				return new String[]{};
 			}
@@ -499,29 +564,40 @@ public class ResourceEditSelectionComposite extends Composite {
     	rscAttrSetLViewer.setComparator( new ViewerComparator() {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
-            	if( ((String)e1).equals("default") ||
-            		((String)e1).equals("standard")	) {
+            	AttributeSet a1 = (AttributeSet) e1;
+            	AttributeSet a2 = (AttributeSet) e2;
+            	
+            	if( a1.getName().equals("default") ||
+            		a1.getName().equals("standard")	) {
             		return -1;
             	}
-            	else if( ((String)e2).equals("default") ||
-                		 ((String)e2).equals("standard")	) {
+            	else if( a2.getName().equals("default") ||
+                		 a2.getName().equals("standard")	) {
                 	return 1;
                 }
             	else {
-            		return super.compare(viewer, e1, e2);
+            		// super calls getText which can trigger a bunch of inventory queries in some cases
+            		return (a1.getName().compareTo( a2.getName() ) ); //super.compare(viewer, e1, e2);
             	}
             }
     	});
 
         rscAttrSetLViewer.setLabelProvider( new LabelProvider() {
 	    	public String getText( Object element ) {
-	    		String attrSetName = (String)element;
-	    		if( attrSetName.endsWith(".attr") ) {
-	    			return attrSetName.substring(0, attrSetName.length()-5);
+	    		AttributeSet attrSet = (AttributeSet)element;
+	    		
+	    		if( attrSet == null ) {
+	    			return "error";
+	    		}
+				LocalizationLevel lLvl = attrSet.getLocalizationLevel();
+				
+				if( lLvl == LocalizationLevel.BASE ) {
+					return attrSet.getName();
 	    		}
 	    		else {
-	    			return attrSetName;
+					return attrSet.getName() + " ("+lLvl.name().charAt(0)+")";
 	    		}
+
 	    	}
         });
    	}
@@ -601,7 +677,10 @@ public class ResourceEditSelectionComposite extends Composite {
        	rscGroupLViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection();               
-            	seldResourceName.setRscGroup( (String)seld_elem.getFirstElement() );
+            	AttrSetGroup asg =  (AttrSetGroup)seld_elem.getFirstElement();
+            	
+            	seldResourceName.setRscGroup( 
+            			(asg == null ? null  : asg.getAttrSetGroupName() ) );
             	seldResourceName.setRscAttrSetName( "" );
 
             	updateResourceAttrSets();
@@ -612,7 +691,7 @@ public class ResourceEditSelectionComposite extends Composite {
             public void selectionChanged(SelectionChangedEvent event) {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection(); 
             	
-            	seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
+            	seldResourceName.setRscAttrSetName( ((AttributeSet)seld_elem.getFirstElement()).getName() );
 
             	updateSelectedResource();
             }
@@ -627,8 +706,12 @@ public class ResourceEditSelectionComposite extends Composite {
 //       	});
    	}
    	
+    // allow calling with null as a 'refresh' of the currently selected rscName
+    // This is used for updating the ListViewers when the localization level changes.
     public void updateResourceSelections( ResourceName newSeldRscName ) {
+    	if( newSeldRscName != null ) {
     	seldResourceName = newSeldRscName;
+    	}
     	
 //    	if( fcstCatSelected ) {
 //    		prevFcstCatSeldRscNames.put( seldResourceName.getRscCategory(), seldResourceName );
@@ -637,7 +720,9 @@ public class ResourceEditSelectionComposite extends Composite {
 //    		prevObsvdCatSeldRscNames.put( seldResourceName.getRscCategory(), seldResourceName );
 //    	}
     	
+    	if( seldResourceName != null ) {
     	updateResourceCategories();
+    }
     }
     
    	// set the initial values of the widgets. 
@@ -657,7 +742,7 @@ public class ResourceEditSelectionComposite extends Composite {
 		
 		// update the cat list
 		rscCatLViewer.setInput( rscDefnsMngr );
-		rscCatLViewer.refresh();
+		rscCatLViewer.refresh( true );
 		
 		rscCatLViewer.getList().deselectAll();
 
@@ -697,7 +782,7 @@ public class ResourceEditSelectionComposite extends Composite {
 	private void updateResourceTypes() {
 		
 		rscTypeLViewer.setInput( rscDefnsMngr );
-		rscTypeLViewer.refresh();
+		rscTypeLViewer.refresh( true );
 		
 		rscTypeLViewer.getList().deselectAll();
 
@@ -706,7 +791,9 @@ public class ResourceEditSelectionComposite extends Composite {
 			for( int itmIndx=0 ; 
 					 itmIndx < rscTypeLViewer.getList().getItemCount() ; itmIndx++ )  {
 				
-				if( rscTypeLViewer.getList().getItem(itmIndx).equals( 
+				ResourceDefinition rd = (ResourceDefinition)rscTypeLViewer.getElementAt(itmIndx);
+				
+				if( rd.getResourceDefnName().equals( 
 						                       seldResourceName.getRscType() ) ) {
 					rscTypeLViewer.getList().select( itmIndx );
 					break;
@@ -744,6 +831,7 @@ public class ResourceEditSelectionComposite extends Composite {
 			editRscTypeBtn.setEnabled( true );
 			
 			removeRscTypeBtn.setEnabled( false );			
+			rscTypeLocLbl.setText("");
 		}
 
 		updateResourceGroups();
@@ -751,7 +839,7 @@ public class ResourceEditSelectionComposite extends Composite {
 
 	private void updateResourceGroups() {
 		rscGroupLViewer.setInput( rscDefnsMngr );
-		rscGroupLViewer.refresh();
+		rscGroupLViewer.refresh( true );
 		
 		// if there are no groups 
 		if( rscGroupLViewer.getList().getItemCount() == 0 ) {
@@ -772,7 +860,9 @@ public class ResourceEditSelectionComposite extends Composite {
 				for( int itmIndx=0 ; 
 						 itmIndx < rscGroupLViewer.getList().getItemCount() ; itmIndx++ )  {
 
-					if( rscGroupLViewer.getList().getItem(itmIndx).equals( 
+					AttrSetGroup asg = (AttrSetGroup)rscGroupLViewer.getElementAt( itmIndx ); 
+					
+					if( asg.getAttrSetGroupName().equals( 
 							seldResourceName.getRscGroup() ) ) {
 						rscGroupLViewer.getList().select( itmIndx );
 						break;
@@ -792,7 +882,8 @@ public class ResourceEditSelectionComposite extends Composite {
 				rscGroupLViewer.getList().select(0);
 				StructuredSelection seld_elem = (StructuredSelection)rscGroupLViewer.getSelection();
 
-				seldResourceName.setRscGroup( (String)seld_elem.getFirstElement() );
+				seldResourceName.setRscGroup( 
+						((AttrSetGroup)seld_elem.getFirstElement()).getAttrSetGroupName() );
 				seldResourceName.setRscAttrSetName(""); 
 			}
 		}
@@ -810,12 +901,14 @@ public class ResourceEditSelectionComposite extends Composite {
 			copyRscGroupBtn.setEnabled( false );
 			editRscGroupBtn.setEnabled( false );
 			removeRscGroupBtn.setEnabled( false );			
+			rscGroupLocLbl.setText("");
 		}
 		// Also, PGEN groups are the PGEN files which can't be edited here.
 		else if( seldResourceName.getRscCategory().equals("PGEN") ) {
 			copyRscGroupBtn.setEnabled( false );
 			editRscGroupBtn.setEnabled( false );
 			removeRscGroupBtn.setEnabled( false );			
+			rscGroupLocLbl.setText("");
 		}
 		else {
 			copyRscGroupBtn.setEnabled( true );
@@ -823,6 +916,7 @@ public class ResourceEditSelectionComposite extends Composite {
 			removeRscTypeBtn.setEnabled( false );
 
 			AttrSetGroup asg = rscDefnsMngr.getAttrSetGroupForResource( seldResourceName );
+			
 			if( asg != null ) {
 				LocalizationLevel lLvl = asg.getLocalizationFile().getContext().getLocalizationLevel();
 
@@ -837,30 +931,51 @@ public class ResourceEditSelectionComposite extends Composite {
 		
 		rscTypeGroupLbl.setVisible( !seldResourceName.getRscGroup().isEmpty() );
 
-		LocalizationLevel lLvl = rscDefn.getLocalizationFile().getContext().getLocalizationLevel();
+		LocalizationContext locCxt = rscDefn.getLocalizationFile().getContext();
 		
-		removeRscTypeBtn.setEnabled( (lLvl == LocalizationLevel.USER) );	
+		removeRscTypeBtn.setEnabled( (locCxt.getLocalizationLevel() == LocalizationLevel.USER) );	
+
+		String locStr = "Unknown";
+		
+		if( locCxt.getLocalizationLevel() == LocalizationLevel.BASE ) {
+			locStr = "Location=BASE";
+		}
+		else {
+			locStr = locCxt.getLocalizationLevel().name()+"="+locCxt.getContextName(); 
+		}
+		
+		rscTypeLocLbl.setText( locStr );
 
 		updateResourceAttrSets();
 	}
 
 	private void updateResourceAttrSets() {
 		
-		
 		// if there is a group set it is from the BASE or SITE level then don't let the user 
 		// delete it.
 		if( !seldResourceName.getRscGroup().isEmpty() ) {		
 			AttrSetGroup asg = rscDefnsMngr.getAttrSetGroupForResource( seldResourceName );
 
-			if( asg == null ) {
+			// PGEN just has 1 default/hardcoded group that the user can't edit
+			if( asg == null || asg.getAttrSetGroupName().equals("PGEN") ) {
 				removeRscGroupBtn.setEnabled( false );
-			}
-			else if( asg.getLocalizationFile().getContext().getLocalizationLevel() == 
-												          LocalizationLevel.USER ) {
-				removeRscGroupBtn.setEnabled( true );					
+				rscGroupLocLbl.setText("");
 			}
 			else {
+				String locStr = "Unknown";
+				LocalizationContext locCxt = asg.getLocalizationFile().getContext();
+				
+				if( locCxt.getLocalizationLevel() == LocalizationLevel.BASE ) {
+
+					locStr = "Location=BASE";
 				removeRscGroupBtn.setEnabled( false );
+			}
+				else {
+					locStr = locCxt.getLocalizationLevel().name()+"="+locCxt.getContextName(); 
+					removeRscGroupBtn.setEnabled( true );					
+				}
+				
+				rscGroupLocLbl.setText( locStr );
 			}
 		}
 		
@@ -874,8 +989,9 @@ public class ResourceEditSelectionComposite extends Composite {
 			for( int itmIndx=0 ; 
 					 itmIndx < rscAttrSetLViewer.getList().getItemCount() ; itmIndx++ )  {
 				
-				if( rscAttrSetLViewer.getList().getItem(itmIndx).equals( 
-						                          seldResourceName.getRscAttrSetName() ) ) {
+				AttributeSet as = (AttributeSet)rscAttrSetLViewer.getElementAt( itmIndx );
+				
+				if( as.getName().equals( seldResourceName.getRscAttrSetName() ) ) {
 					rscAttrSetLViewer.getList().select( itmIndx );
 					break;
 				}
@@ -893,7 +1009,8 @@ public class ResourceEditSelectionComposite extends Composite {
 			rscAttrSetLViewer.getList().select(0);
 			StructuredSelection seld_elem = (StructuredSelection)rscAttrSetLViewer.getSelection();
 			
-			seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
+			seldResourceName.setRscAttrSetName( 
+					((AttributeSet)seld_elem.getFirstElement()).getName() );
 		}		
 		
 		updateSelectedResource( );
@@ -916,12 +1033,25 @@ public class ResourceEditSelectionComposite extends Composite {
 			// The user can not edit or delete a BASE, SITE or DESK level file.
 			AttributeSet selAttrSet = rscDefnsMngr.getAttrSet( seldResourceName );
 
-			if( selAttrSet != null && 
-				selAttrSet.getLocalizationLevel() == LocalizationLevel.USER ) {
-				removeRscAttrSetBtn.setEnabled( true );
+			if( selAttrSet == null ) {
+				removeRscAttrSetBtn.setEnabled( false );
 			}
 			else {							
+
+				String locStr = "Unknown";
+				LocalizationContext locCxt = selAttrSet.getFile().getContext();
+				
+				if( locCxt.getLocalizationLevel() == LocalizationLevel.BASE ) {
+
+					locStr = "Location=BASE";
 				removeRscAttrSetBtn.setEnabled( false );
+			}
+				else {
+					locStr = locCxt.getLocalizationLevel().name()+"="+locCxt.getContextName();
+					removeRscAttrSetBtn.setEnabled( true );
+				}
+				
+				attrSetLocLbl.setText( locStr );
 			}
 		}
 	}

@@ -7,6 +7,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0/1
+FILTER=y
 SCALE  =   0!0!0
 GDPFUN =  sm9s(pwtr) !sm9s(pwtr)!sm9s(pwtr)     !kntv(wnd@850%PRES)
 TYPE   =    c          !c         !c              !b
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ 850mb WIND    (KTS) and PRECIP WATER (MM) !0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

@@ -43,6 +43,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.*;
  * 07/11        #450        G. Hull     NcPathManager
  * 10/11        #?          J. Wu       Match "OBS" with "F00"
  * 02/12		#481,2,3	B. Yin		Fixed VAA text output issues.
+ * 11/12		#889		B. Yin		Look in PGEN working directory for the advisory number.
  *
  * </pre>
  * 
@@ -604,7 +605,7 @@ public class VaaInfo {
 	 */	
 	public static String getLatestAdvNo(String vol, String fFormat){
 		
-		String dir = ".";
+		String dir = PgenUtil.getPgenActivityTextProdPath();
 		File f = new File(dir);
 
 		//---final for use in the FilenameFilter		

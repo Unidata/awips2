@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.plugin.fssobs;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import com.raytheon.edex.site.SiteUtil;
@@ -46,6 +47,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2010            skorolev     Initial creation
+ * Nov 26, 2012 1297       skorolev     Changed ArrayList to List.Clean code
  * 
  * </pre>
  * 
@@ -57,17 +59,56 @@ public class FSSObsUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsUtils.class);
 
+    /**
+     * Value of missed data.
+     */
     public static final float MISSING = -9999.0f;
 
-    // The constant representing the sky condition for sky clear
-    public static final int SKC_SKY_CONDITION = 9999999;
+    /**
+     * The constant representing the sky condition for sky clear
+     */
+    private static final int SKC_SKY_CONDITION = 9999999;
 
-    // The constant representing the sky condition for clear sky
-    public static final int CLR_SKY_CONDITION = 8888888;
+    /**
+     * The constant representing the sky condition for clear sky
+     */
+    private static final int CLR_SKY_CONDITION = 8888888;
 
+    /** Monitor ID **/
+    private enum monID {
+        ss, fog, snow
+    };
+
+    /** Plug-in name **/
+    private enum plgn {
+        obs, sfcobs, ldadmesonet
+    };
+
+    /** Selected column in database **/
+    private static String slct = "dataURI";
+
+    /** Equal sign **/
+    private static String equ = "=";
+
+    /** Database **/
+    private static String db = "metadata";
+
+    /** SQL expression **/
+    private static String sqlexp = "select name from common_obs_spatial where ( catalogtype=1 or catalogtype=33 or catalogtype = 32 or catalogtype = 1000) and stationid = '";
+
+    /**
+     * Constructor
+     */
     private FSSObsUtils() {
     }
 
+    /**
+     * Gets METAR records from Obs.
+     * 
+     * @param uri
+     * @return Metar record
+     * @throws PluginException
+     */
     public static FSSObsRecord getRecordFromMetar(String uri)
             throws PluginException {
 
@@ -75,14 +116,13 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery("obs");
+            request = new PointDataQuery(plgn.obs.toString());
             request.requestAllLevels();
-            request.addParameter("dataURI", uri, "=");
+            request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.OBS_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
                 recFromMetar = FSSObsDataTransform.fromMetarRecord(result);
-
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -90,42 +130,60 @@ public class FSSObsUtils {
         return recFromMetar;
     }
 
+    /**
+     * Gets station name from database.
+     * 
+     * @param stnId
+     * @return station name
+     */
     public static String getStationName(String stnId) {
         String retVal = null;
         ISpatialQuery sq = null;
-        String sql = "select name from common_obs_spatial where ( catalogtype=1 or catalogtype=33 or catalogtype = 32 or catalogtype = 1000) and stationid = '"
-                + stnId + "'";
+        String sql = sqlexp + stnId + "'";
         try {
             sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, "metadata");
+            Object[] results = sq.dbRequest(sql, db);
             retVal = (String) results[0];
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, e.getMessage());
         }
         return retVal;
     }
 
+    /**
+     * Gets Maritime record from sfcobs.
+     * 
+     * @param uri
+     * @return maritaime record
+     * @throws PluginException
+     */
     public static FSSObsRecord getRecordFromMaritime(String uri)
             throws PluginException {
         FSSObsRecord recFromMaritime = null;
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery("sfcobs");
-            request.addParameter("dataURI", uri, "=");
+            request = new PointDataQuery(plgn.sfcobs.toString());
+            request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.SFCOBS_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
                 recFromMaritime = FSSObsDataTransform
                         .fromMaritimeRecord(result);
-
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         }
         return recFromMaritime;
     }
 
+    /**
+     * Gets Mesowest record from ldadmesonet.
+     * 
+     * @param uri
+     * @return mesowest record
+     * @throws PluginException
+     */
     public static FSSObsRecord getRecordFromMesowest(String uri)
             throws PluginException {
 
@@ -133,8 +191,8 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery("ldadmesonet");
-            request.addParameter("dataURI", uri, "=");
+            request = new PointDataQuery(plgn.ldadmesonet.toString());
+            request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.MESOWEST_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
@@ -163,18 +221,14 @@ public class FSSObsUtils {
 
         // Temperature must be lower than -4.8C (23F) to avoid a calculation
         // error (a negative number to -1.668 power is NAN)
-
         if (temperatureC < -4.8)
             fbMinutes = ((-24.5f * ((0.667f * windspeedKPH) + 4.8f)) + 2111f)
                     * (float) Math.pow((-4.8 - temperatureC), -1.668);
         else
             return MISSING;
-
         // Check for frost bite boundaries
-
         if (!(fbMinutes <= 30 && windspeedKPH > 25.0 && windspeedKPH <= 80.5))
             fbMinutes = MISSING;
-
         return fbMinutes;
     }
 
@@ -189,11 +243,9 @@ public class FSSObsUtils {
      */
     public static float calcWindChill(float temp, float windSpd) {
         float spd;
-
         /* arbitrarily do the calculation only for temps at or below 60F */
         if (temp > 16.)
             return 1e37f;
-
         /* no chilling if speed < 4 mph = 6.44km/h */
         if (windSpd < 6.4)
             return temp;
@@ -202,7 +254,6 @@ public class FSSObsUtils {
             spd = 128.75f;
         else
             spd = windSpd;
-
         spd = (float) Math.pow(spd, 0.16);
         float windChillTemp = 13.12f + 0.6215f * temp - 11.37f * spd + 0.3965f
                 * temp * spd;
@@ -258,7 +309,6 @@ public class FSSObsUtils {
      */
     public static Float getRH(float dewpoint, float temperature) {
         float retVal = MISSING;
-
         // From http://www.hpc.ncep.noaa.gov/html/dewrh.shtml
         // to Celsius
         if (dewpoint != MISSING && temperature != MISSING) {
@@ -277,6 +327,8 @@ public class FSSObsUtils {
     }
 
     /**
+     * Gets snow data.
+     * 
      * @param tableRow
      * @return -- Snow data from METAR
      */
@@ -310,10 +362,9 @@ public class FSSObsUtils {
                 }
             }
         }
-
         if ((tableRow.getTemperature() != MISSING)
-                && (tableRow.getTemperature() < 4.4f) // 277.6) // 40 F =
-                                                      // 4.44444 Celsium
+                && (tableRow.getTemperature() < 4.4f)
+                // 277.6 K = 40 F = 4.44444 Celsium
                 && (tableRow.getWindSpeed() != MISSING)
                 && (tableRow.getWindSpeed() <= 43.0f && tableRow.getWindSpeed() >= 14.0f)) {
             float speedKPH = tableRow.getWindSpeed() * 1.6f;
@@ -326,9 +377,10 @@ public class FSSObsUtils {
         return retVal;
     }
 
-    // Routine to calculate dewpoint depression from temperature
-    // and relative humidity.
     /**
+     * Routine to calculate dewpoint depression from temperature and relative
+     * humidity.
+     * 
      * @param TK
      *            - temperature in K
      * @param RH
@@ -346,30 +398,36 @@ public class FSSObsUtils {
         return retVal;
     }
 
-    public static ArrayList<String> getStations(String monitor) {
+    /**
+     * Gets stations which FSS monitor is using.
+     * 
+     * @param monitor
+     * @return stations
+     */
+    public static List<String> getStations(String monitor) {
         String currentSite = SiteUtil.getSite();
-        ArrayList<String> stations = new ArrayList<String>();
-        // Which monitor should use this station: fog, ss or snow
 
-        if (monitor.equals("fog")) {
+        List<String> stations = new ArrayList<String>();
+        // Which monitor should use this station: fog, ss or snow
+        if (monitor.equals(monID.fog.name())) {
             FogMonitorConfigurationManager fogConfigManager = FogMonitorConfigurationManager
                     .getInstance();
             fogConfigManager.readConfigXml(currentSite);
-            ArrayList<String> fogStations = fogConfigManager.getStations();
+            List<String> fogStations = fogConfigManager.getStations();
             stations.addAll(fogStations);
         }
-        if (monitor.equals("ss")) {
+        if (monitor.equals(monID.ss.name())) {
             SSMonitorConfigurationManager ssConfigManger = SSMonitorConfigurationManager
                     .getInstance();
             ssConfigManger.readConfigXml(currentSite);
-            ArrayList<String> ssStaitions = ssConfigManger.getStations();
+            List<String> ssStaitions = ssConfigManger.getStations();
             stations.addAll(ssStaitions);
         }
-        if (monitor.equals("snow")) {
+        if (monitor.equals(monID.snow.name())) {
             SnowMonitorConfigurationManager snowConfigManager = SnowMonitorConfigurationManager
                     .getInstance();
             snowConfigManager.readConfigXml(currentSite);
-            ArrayList<String> snowStations = snowConfigManager.getStations();
+            List<String> snowStations = snowConfigManager.getStations();
             stations.addAll(snowStations);
         }
         return stations;

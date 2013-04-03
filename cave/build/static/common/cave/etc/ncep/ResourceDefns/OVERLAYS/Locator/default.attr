@@ -1,4 +1,8 @@
-color= RGB {0, 255, 0}
+! The fontSize and color are currently set in the Locator Resource Definition
+! but they may be overridden here or by any of the other attribute sets. 
+!color= RGB {0, 255, 0}
+!fontSize=18
+!
 ! Position 1
 pos1LocatorSource=LATLON
 pos1RoundToNearest=omit

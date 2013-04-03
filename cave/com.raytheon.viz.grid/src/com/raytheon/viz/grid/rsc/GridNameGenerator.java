@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
@@ -28,6 +27,24 @@ import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 
+/**
+ * 
+ * Name generator that creates names for grids based off a standards set of
+ * LegendParameters.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 20, 2012            bsteffen     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
 public class GridNameGenerator extends AbstractNameGenerator {
 
     public interface IGridNameResource {
@@ -35,13 +52,20 @@ public class GridNameGenerator extends AbstractNameGenerator {
     }
 
     public static class LegendParameters {
-        public GribModel model = null;
+
+        public String model = "";
+
+        public String parameter = "";
+
+        public Level level;
 
         public String type = "";
 
         public String unit = "";
 
         public DataTime dataTime;
+
+        public String ensembleId;
 
         public boolean isPlaneLabelDisplayed = true;
     }
@@ -92,16 +116,16 @@ public class GridNameGenerator extends AbstractNameGenerator {
     }
 
     private String getLegendName(LegendParameters legendParams) {
-        String plane = this.planeLabelString == null ? lookupPlane(legendParams.model
-                .getLevel()) : this.planeLabelString;
+        String plane = this.planeLabelString == null ? lookupPlane(legendParams.level)
+                : this.planeLabelString;
         String pert = "";
-        if (legendParams.model.getPerturbationNumber() != null) {
-            pert = "Perturbation " + legendParams.model.getPerturbationNumber();
+        if (legendParams.ensembleId != null) {
+            pert = "Perturbation " + legendParams.ensembleId;
         }
         if (legendParams.unit == null) {
             legendParams.unit = "";
         }
-        String modelTitle = legendParams.model.getModelTitle();
+        String modelTitle = legendParams.model;
         // Camel case single word lower case titles, like radar
         if (modelTitle.matches("[a-z]*")) {
             modelTitle = modelTitle.substring(0, 1).toUpperCase()
@@ -109,11 +133,11 @@ public class GridNameGenerator extends AbstractNameGenerator {
         }
         if (legendParams.isPlaneLabelDisplayed) {
             return String.format("%s %s %s %s (%s) %s ", modelTitle, plane,
-                    legendParams.model.getParameterName(), legendParams.type,
+                    legendParams.parameter, legendParams.type,
                     legendParams.unit, pert);
         } else {
             return String.format("%s %s %s (%s) %s ", modelTitle,
-                    legendParams.model.getParameterName(), legendParams.type,
+                    legendParams.parameter, legendParams.type,
                     legendParams.unit, pert);
         }
     }
