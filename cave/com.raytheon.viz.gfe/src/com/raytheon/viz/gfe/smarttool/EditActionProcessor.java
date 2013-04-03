@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.dataplugin.gfe.StatusConstants;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -61,6 +60,8 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 3, 2010            njensen     Initial creation
+ * Nov 7, 2012  1298       rferrel     Keep EmptyEditAreaWarningDialog blocking.
+ *                                     Keep TimeRangeWarningdialog blocking.
  * 
  * </pre>
  * 
@@ -69,7 +70,8 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
  */
 
 public class EditActionProcessor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(EditActionProcessor.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EditActionProcessor.class);
 
     private DataManager dataMgr;
 
@@ -454,9 +456,11 @@ public class EditActionProcessor {
                 VizApp.runSync(new Runnable() {
                     @Override
                     public void run() {
+                        // Simple warning keep as a blocking dialog.
                         TimeRangeWarningDialog prompt = new TimeRangeWarningDialog(
                                 PlatformUI.getWorkbench()
                                         .getActiveWorkbenchWindow().getShell());
+                        prompt.setBlockOnOpen(true);
                         returnCode = prompt.open();
                     }
                 });
@@ -471,9 +475,11 @@ public class EditActionProcessor {
                 VizApp.runSync(new Runnable() {
                     @Override
                     public void run() {
+                        // Simple warning keep as a blocking dialog.
                         EmptyEditAreaWarningDialog prompt = new EmptyEditAreaWarningDialog(
                                 PlatformUI.getWorkbench()
                                         .getActiveWorkbenchWindow().getShell());
+                        prompt.setBlockOnOpen(true);
                         returnCode = prompt.open();
                     }
                 });

@@ -27,18 +27,18 @@
 						retrieveData="true" isUpdatingOnMetadataOnly="false"
 						isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="PTNN" constraintType="IN" />
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="CPCoutlook211"
 									constraintType="EQUALS" />
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="-999999" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS" />
+								<constraint constraintValue="grid" constraintType="EQUALS" />
 							</mapping>
 
 						</metadataMap>

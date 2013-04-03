@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
+ * 15 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -104,10 +105,15 @@ public class GhgAlertDlg extends CaveSWTDialog {
      *            Parent Shell.
      */
     public GhgAlertDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("GHG Monitor Alert Dialog");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -118,11 +124,13 @@ public class GhgAlertDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    @Override
-    protected void disposed() {
-        setReturnValue(alerts);
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
@@ -264,7 +272,8 @@ public class GhgAlertDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 updateAlertingValues();
-                shell.dispose();
+                setReturnValue(alerts);
+                close();
             }
         });
 
@@ -275,8 +284,8 @@ public class GhgAlertDlg extends CaveSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                alerts = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }

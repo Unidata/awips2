@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.monitor.listeners;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -27,8 +27,8 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
 
 /**
  * 
- * IMonitorControlListener, Interface that gives some measure of control to dialogs 
- * over their corresponding monitors.
+ * IMonitorControlListener, Interface that gives some measure of control to
+ * dialogs over their corresponding monitors.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -42,20 +42,19 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * 
  */
 public interface IMonitorControlListener {
-    
+
     public void fireConfigUpdate(IMonitorConfigurationEvent imce);
-    
+
     public void fireThresholdUpdate(IMonitorThresholdEvent imte);
-    
+
     public void fireKillMonitor();
-   
+
     public void addMonitorControlListener(IMonitor monitor);
 
-    public void removeMonitorContorlListener(IMonitor monitor); 
-    
-    public ArrayList<IMonitor> getMonitorControlListeners();
-    
+    public void removeMonitorContorlListener(IMonitor monitor);
+
+    public List<IMonitor> getMonitorControlListeners();
+
     public void fireDialogShutdown(IMonitorListener iml);
- 
 
 }

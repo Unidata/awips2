@@ -20,5 +20,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^FAAK2.*</regex>
-    <regex>^FAUS2.*</regex>
+    <regex>^FAUS2[0-6].*</regex>
 </requestPatterns>

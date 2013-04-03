@@ -114,7 +114,7 @@ public abstract class AbstractVizPerspectiveManager implements
                 if (mgr != null) {
                     for (AbstractModalTool tool : mgr.getToolManager()
                             .getSelectedModalTools()) {
-                        if (tool != null) {
+                        if (tool != null && tool.getCurrentEditor() != part) {
                             tool.deactivate();
                             tool.setEditor((IDisplayPaneContainer) part);
                             tool.activate();
@@ -136,6 +136,20 @@ public abstract class AbstractVizPerspectiveManager implements
 
         @Override
         public void partDeactivated(IWorkbenchPart part) {
+            // update editor on last selected modal tool
+            if (part instanceof IEditorPart
+                    && part instanceof IDisplayPaneContainer) {
+                AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+                        .getCurrentPerspectiveManager();
+                if (mgr != null) {
+                    for (AbstractModalTool tool : mgr.getToolManager()
+                            .getSelectedModalTools()) {
+                        if (tool.getCurrentEditor() == part) {
+                            tool.deactivate();
+                        }
+                    }
+                }
+            }
         }
 
         @Override
@@ -360,12 +374,6 @@ public abstract class AbstractVizPerspectiveManager implements
 
             perspectiveEditors.add(ref);
             page.hideEditor(ref);
-        }
-
-        for (AbstractModalTool tool : toolManager.getSelectedModalTools()) {
-            if (tool != null) {
-                tool.deactivate();
-            }
         }
 
         deactivateDialogs();

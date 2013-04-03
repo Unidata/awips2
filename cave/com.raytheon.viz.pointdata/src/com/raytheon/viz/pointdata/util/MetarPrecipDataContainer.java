@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +52,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2011            bsteffen     Initial creation
+ * Jan 10, 2013            snaples      updated getBasePrecipData to use correct data for 1 hour precip.
  * 
  * </pre>
  * 
@@ -126,15 +126,15 @@ public class MetarPrecipDataContainer {
 
     private static final long SIX_HOUR = 6 * ONE_HOUR;
 
-    private int duration;
+    private final int duration;
 
     private Map<String, RequestConstraint> rcMap = null;
 
-    private Map<Long, Map<String, PrecipData>> cache3 = new HashMap<Long, Map<String, PrecipData>>();
+    private final Map<Long, Map<String, PrecipData>> cache3 = new HashMap<Long, Map<String, PrecipData>>();
 
-    private Map<Long, Map<String, PrecipData>> cache6 = new HashMap<Long, Map<String, PrecipData>>();
+    private final Map<Long, Map<String, PrecipData>> cache6 = new HashMap<Long, Map<String, PrecipData>>();
 
-    private Map<DataTime, Set<String>> baseStations = new HashMap<DataTime, Set<String>>();
+    private final Map<DataTime, Set<String>> baseStations = new HashMap<DataTime, Set<String>>();
 
     public MetarPrecipDataContainer(int duration,
             Map<String, RequestConstraint> rcMap) {
@@ -148,15 +148,19 @@ public class MetarPrecipDataContainer {
         if (duration == 1) {
             PointDataContainer pdc = requestPointData(rcMap, validTime, 1,
                     P1_KEY);
+            Map<String, PrecipData> precipMap1 = null;
             if (pdc != null) {
-                Map<String, PrecipData> precipMap1 = createPrecipData(pdc,
+                precipMap1 = createPrecipData(pdc,
                         validTime - ONE_HOUR, validTime, P1_KEY);
-                Map<String, PrecipData> precipMap1old = createPrecipData(pdc,
+                if (precipMap1 == null) {
+                precipMap1 = createPrecipData(pdc,
                         validTime - ONE_HOUR + FIFTEEN_MIN, validTime
                                 - FIFTEEN_MIN, P1_KEY);
+                }
                 // Data frame 15 minutes ago is better then data now for some
                 // reason
-                precipMap = combine(precipMap1old, precipMap1);
+                precipMap = precipMap1;
+
             }
         } else if (duration == 3) {
             precipMap = getRawPrecipData3(validTime);
