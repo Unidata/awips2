@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
+ * 08 NOV 2012  1298       rferrel     Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  */
 public class SaveDeleteComboDlg extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SaveDeleteComboDlg.class);
 
     private Map<String, Integer> comboDict;

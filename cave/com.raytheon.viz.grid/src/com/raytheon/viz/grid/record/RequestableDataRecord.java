@@ -23,25 +23,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.viz.grid.data.GribRequestableData;
+import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.data.TiltRequestableData.TiltCenterPoint;
-import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.TiltRequest;
 
 /**
- * The RequestableDataRecord Class
+ * A PDO that extends GridRecord and wraps a AbstractRequestableData to allow
+ * derived parameters to be used anywhere GridRecords can be used.
  *
  * <pre>
  *
@@ -57,7 +55,7 @@ import com.raytheon.viz.grid.util.TiltRequest;
  * @version 1.0
  */
 
-public class RequestableDataRecord extends GribRecord {
+public class RequestableDataRecord extends GridRecord {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,30 +64,22 @@ public class RequestableDataRecord extends GribRecord {
     public RequestableDataRecord(AbstractRequestableData requester)
             throws VizException {
         this.requester = requester;
-        GridCoverage coverage = CoverageUtils.getInstance().getCoverage(
-                requester.getSource());
-        if (coverage == null && requester instanceof GribRequestableData) {
-            coverage = ((GribRequestableData) requester).getGribSource()
-                    .getModelInfo().getLocation();
-            CoverageUtils.getInstance().setCoverage(requester.getSource(),
-                    coverage);
+        GridCoverage coverage = null;
+        if (requester.getSpace() instanceof GridCoverage) {
+            coverage = (GridCoverage) requester.getSpace();
+        if (requester instanceof GridRequestableData) {
+            setSecondaryId(((GridRequestableData) requester).getGridSource().getSecondaryId());
         }
-        GribModel modelInfo = new GribModel();
-        if (requester instanceof GribRequestableData) {
-            setGridVersion(((GribRequestableData) requester).getGribSource().getGridVersion());
         }
-        modelInfo.setModelName(requester.getSource());
-        modelInfo.setLocation(coverage);
-        modelInfo.setLevel(requester.getLevel());
-        modelInfo.setParameterAbbreviation(requester.getParameter());
-        modelInfo.setParameterName(requester.getParameterName());
-        if (requester.getUnit() != Unit.ONE) {
-            modelInfo.setParameterUnit(UnitFormat.getUCUMInstance().format(
-                    requester.getUnit()));
-        }
-        setPluginName("grib");
+        setDatasetId(requester.getSource());
+        setLocation(coverage);
+        setLevel(requester.getLevel());
+        Parameter parameter = new Parameter(requester.getParameter(),
+                requester.getParameterName(), requester.getUnit());
+
+        setParameter(parameter);
+        setPluginName(GridConstants.GRID);
         setDataTime(requester.getDataTime());
-        setModelInfo(modelInfo);
         try {
             constructDataURI();
         } catch (PluginException e) {
@@ -97,9 +87,9 @@ public class RequestableDataRecord extends GribRecord {
         }
     }
 
-    public RequestableDataRecord(GribRequestableData requester)
+    public RequestableDataRecord(GridRequestableData requester)
             throws VizException {
-        super(requester.getGribSource());
+        super(requester.getGridSource());
         this.requester = requester;
     }
 
@@ -125,8 +115,8 @@ public class RequestableDataRecord extends GribRecord {
         } else if (obj instanceof IDataRecord) {
             return new IDataRecord[] { (IDataRecord) obj };
         } else if (obj instanceof Number) {
-            Integer nx = this.getModelInfo().getLocation().getNx();
-            Integer ny = this.getModelInfo().getLocation().getNy();
+            Integer nx = 0;
+            Integer ny = 0;
             if (request != null) {
                 switch (request.getType()) {
                 case POINT:
@@ -146,15 +136,18 @@ public class RequestableDataRecord extends GribRecord {
                     ny = request.getIndices().length;
                     nx = 1;
                     break;
+                default:
+                    nx = this.getLocation().getNx();
+                    ny = this.getLocation().getNy();
                 }
             }
             float[] data = new float[nx * ny];
             for (int i = 0; i < nx * ny; i++) {
                 data[i] = ((Number) obj).floatValue();
             }
-            FloatDataRecord rec = new FloatDataRecord(this.getModelInfo()
-                    .getParameterName(), this.getPluginName(), data, 2,
-                    new long[] { nx, ny });
+            FloatDataRecord rec = new FloatDataRecord(this.getParameter()
+                    .getName(), this.getPluginName(), data, 2, new long[] { nx,
+                    ny });
             return new IDataRecord[] { rec };
         }
         return null;
@@ -163,15 +156,15 @@ public class RequestableDataRecord extends GribRecord {
     /**
      * @return
      */
-    public Collection<GribRequestableData> getGribRequests() {
-        List<GribRequestableData> results = new ArrayList<GribRequestableData>();
+    public Collection<GridRequestableData> getGribRequests() {
+        List<GridRequestableData> results = new ArrayList<GridRequestableData>();
         List<AbstractRequestableData> list = new ArrayList<AbstractRequestableData>();
         list.add(requester);
         AbstractRequestableData current = null;
         for (int i = 0; i < list.size(); i++) {
             current = list.get(i);
-            if (current.getClass().equals(GribRequestableData.class)) {
-                results.add((GribRequestableData) current);
+            if (current.getClass().equals(GridRequestableData.class)) {
+                results.add((GridRequestableData) current);
             } else {
                 for (AbstractRequestableData data : current.getDependencies()) {
                     if (data != null) {

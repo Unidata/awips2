@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Shell;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/2012      #615       S. Gurung   Initial Creation.
+ * 12/2012      #947       Greg Hull   Allow pre-load editing
  * 
  * </pre>
  * 
@@ -81,14 +82,14 @@ public class EditConditionalFilterAttrDialog extends Dialog {
 		});
 
 		Button applyBtn = new Button( okCanComp, SWT.PUSH );
-		applyBtn.setText("  Apply  ");
+		applyBtn.setText("  OK  ");
 		fd = new FormData();
 		fd.width = 80;
 		fd.bottom = new FormAttachment( 100, -5 );
 		fd.left = new FormAttachment( 40, -40 );		
 		applyBtn.setLayoutData( fd );
-		if ("".equals(editedConditionalFilter.getName()))
-			applyBtn.setEnabled(false);
+//		if ("".equals(editedConditionalFilter.getName()))
+//			applyBtn.setEnabled(false);
 
 		applyBtn.addSelectionListener( new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -108,7 +109,8 @@ public class EditConditionalFilterAttrDialog extends Dialog {
 		revertBtn.addSelectionListener( new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
-				editedConditionalFilter = ConditionalFilterMngr.getInstance().getConditionalFilter(editedConditionalFilter.getPlugin(), editedConditionalFilter.getName() );
+				editedConditionalFilter = ConditionalFilterMngr.getInstance().getConditionalFilter(
+						editedConditionalFilter.getPlugin(), editedConditionalFilter.getName() );
 				ok=true;
                 shell.dispose();
 			}

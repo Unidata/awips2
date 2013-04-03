@@ -460,6 +460,9 @@
 #define gd_opnf         gd_opnf_
 #define gd_wpgd		gd_wpgd_
 #define gdc_open        gdc_open_
+#define gdc_gcyc        gdc_gcyc_
+#define gd_gtmf         gd_gtmf_
+#define gdc_gtmf        gdc_gtmf_
 
 #define gdarr		gdarr_
 #define gdedat          gdedat_

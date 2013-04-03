@@ -135,7 +135,7 @@ Expects files from acqserver. File name determines data type.
             return self.doMetar(bulletin)
         elif fname.startswith('FT'):
             return self.doTaf(bulletin)
-        elif fname.startswith('FAUS2'):
+        elif fname.startswith('FAUS2') or fname.startswith('FAUS30'):
             return self.doCCFP(bulletin)
         else:
             _Logger.info('Unknown data type: %s' % fname)

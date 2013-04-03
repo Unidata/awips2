@@ -304,7 +304,6 @@ public class KmlExportJob extends Job {
                 lastIndex = Math.min(lastIndex, descriptor.getNumberOfFrames());
                 rscmonitor.beginTask("Saving " + rsc.getName(), lastIndex
                         - startIndex);
-                addColorMap(resourceOut, display.getBackgroundColor(), rsc);
                 DataTime[] times = descriptor.getFramesInfo().getTimeMap()
                         .get(rsc);
                 if ((times == null || times.length == 0)
@@ -352,6 +351,7 @@ public class KmlExportJob extends Job {
                         return;
                     }
                 }
+                addColorMap(resourceOut, display.getBackgroundColor(), rsc);
             }
             rp.getProperties().setVisible(false);
             if (options.isPreserveVisibility() && !visibility.get(c)) {
@@ -550,6 +550,10 @@ public class KmlExportJob extends Job {
             xAnchor = Math.min(1, cap.getResourceIndex());
         }
         IColorMap colorMap = parameters.getColorMap();
+        if (colorMap == null) {
+            // the resource isn't actually using it's color bar.
+            return;
+        }
         BufferedImage bi = new BufferedImage(colorMap.getSize() * 2, 25,
                 BufferedImage.TYPE_INT_RGB);
         Graphics graphics = bi.getGraphics();

@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<!-- blends two sets of up to 4 radar products displaying only the best res 
+	 ones on each side in four panels, each panel is a different elevation
+	 
+	 substitution keys:
+	 	product1	the productCode of the highest resolution data on the left
+	 	product2	the productCode of the next highest resolution data on the left
+	 	product3	the productCode of the next highest resolution data on the left, or empty string for none
+	 	product4	the productCode of the lowesr resolution data on the left, or empty string for none
+	 	product5	the productCode of the highest resolution data on the right
+	 	product6	the productCode of the next highest resolution data on the right
+	 	product7	the productCode of the next highest resolution data on the right, or empty string for none
+	 	product8	the productCode of the lowesr resolution data on the right, or empty string for none
+	 	mode1		the special mode for the resource on the left, most of the time an empty string
+	 	mode2		the special mode for the resource on the right, most of the time an empty string
+	 	icao		the icao, kxxx or something like that
+	 	elev2		the elevation to load in the upper left panel
+	 	elev3		the elevation to load in the upper right panel
+	 	elev4		the elevation to load in the lower right panel
+	 	elev4		the elevation to load in the lower left panel
+ -->
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="imagingCapability"
+								interpolationState="false" brightness="1.0" contrast="1.0"
+								alpha="1.0" />
+							<capability xsi:type="rangeRingsOverlayCapability" />
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false" isVisible="true">
+					</properties>
+					<resourceData xsi:type="blendedResourceData">
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode1}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true">
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product1},${product2},${product3},${product4}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation1}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+						    </resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode2}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true" >
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product5},${product6},${product7},${product8}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation1}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</resource>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="imagingCapability"
+								interpolationState="false" brightness="1.0" contrast="1.0"
+								alpha="1.0" />
+							<capability xsi:type="rangeRingsOverlayCapability" />
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false" isVisible="true">
+					</properties>
+					<resourceData xsi:type="blendedResourceData">
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode1}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true">
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product1},${product2},${product3},${product4}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation2}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+						    </resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode2}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true" >
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product5},${product6},${product7},${product8}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation2}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</resource>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays><displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0" />
+							<capability xsi:type="rangeRingsOverlayCapability" />
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+					</properties>
+					<resourceData xsi:type="blendedResourceData">
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode1}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true">
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product1},${product2},${product3},${product4}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation4}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+						    </resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode2}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true" >
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product5},${product6},${product7},${product8}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation4}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</resource>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="imagingCapability"
+								interpolationState="false" brightness="1.0" contrast="1.0"
+								alpha="1.0" />
+							<capability xsi:type="rangeRingsOverlayCapability" />
+						</capabilities>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false" isVisible="true">
+					</properties>
+					<resourceData xsi:type="blendedResourceData">
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode1}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true">
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product1},${product2},${product3},${product4}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation3}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+						    </resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="true">
+								<capabilities>
+									<capability xsi:type="imagingCapability"
+										interpolationState="false" brightness="1.0" contrast="1.0"
+										alpha="1.0" />
+									<capability xsi:type="rangeRingsOverlayCapability" />
+								</capabilities>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false" isVisible="true">
+							</properties>
+							<resourceData xsi:type="radarResourceData" mode="${mode2}"
+										isUpdatingOnMetadataOnly="false"
+										isRequeryNecessaryOnTimeMatch="true" >
+								<metadataMap>
+									<mapping key="productCode">
+										<constraint constraintValue="${product5},${product6},${product7},${product8}"
+											constraintType="IN" />
+									</mapping>
+									<mapping key="icao">
+										<constraint constraintValue="${icao}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="radar" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="primaryElevationAngle">
+										<constraint constraintValue="${elevation3}"
+											constraintType="BETWEEN" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</resource>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+		
+	</displayList>
+</bundle>

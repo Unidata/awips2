@@ -20,14 +20,14 @@
 package com.raytheon.uf.common.localization;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.raytheon.uf.common.localization.FileLocker.Type;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.ILocalizationAdapter.ListResponse;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -58,12 +58,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class LocalizationNotificationObserver {
 
-    private static class LocalizationFileKey {
+    private static class LocalizationTypeFileKey {
         private final LocalizationType type;
 
         private final String path;
 
-        public LocalizationFileKey(LocalizationType type, String path) {
+        public LocalizationTypeFileKey(LocalizationType type, String path) {
             super();
             this.type = type;
             this.path = path;
@@ -89,7 +89,7 @@ public class LocalizationNotificationObserver {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final LocalizationFileKey other = (LocalizationFileKey) obj;
+            final LocalizationTypeFileKey other = (LocalizationTypeFileKey) obj;
             if (path == null) {
                 if (other.path != null) {
                     return false;
@@ -119,7 +119,7 @@ public class LocalizationNotificationObserver {
 
     private Set<ILocalizationFileObserver> globalObservers = new HashSet<ILocalizationFileObserver>();
 
-    private final Map<LocalizationFileKey, Set<LocalizationFileRef>> observedFiles;
+    private final Map<LocalizationTypeFileKey, Set<LocalizationFile>> observedFiles;
 
     private PathManager pm;
 
@@ -137,24 +137,25 @@ public class LocalizationNotificationObserver {
      * @param lf
      */
     void addObservedFile(LocalizationFile lf) {
-        LocalizationFileKey key = new LocalizationFileKey(lf.getContext()
-                .getLocalizationType(), lf.getName());
+        LocalizationTypeFileKey key = new LocalizationTypeFileKey(lf
+                .getContext().getLocalizationType(), lf.getName());
 
-        LocalizationFileRef ref = new LocalizationFileRef(lf);
-        Set<LocalizationFileRef> lfList;
+        Set<LocalizationFile> lfList;
         synchronized (observedFiles) {
             lfList = observedFiles.get(key);
             if (lfList == null) {
-                lfList = new HashSet<LocalizationFileRef>();
-                // add now so cleanUpRefs() cannot remove the set
-                lfList.add(ref);
+                lfList = new HashSet<LocalizationFile>();
                 observedFiles.put(key, lfList);
             }
         }
         synchronized (lfList) {
-            lfList.add(ref);
+            if (lfList.add(lf) == false) {
+                // Contract between IPathManager/LocalizationFile will force
+                // this to never occur and will be developer mistake if so
+                throw new RuntimeException(
+                        "Internal Error: Attempted to register LocalizationFile which had already been registered");
+            }
         }
-        cleanUpRefs();
     }
 
     /**
@@ -182,118 +183,79 @@ public class LocalizationNotificationObserver {
     }
 
     private LocalizationNotificationObserver() {
-        observedFiles = new ConcurrentHashMap<LocalizationFileKey, Set<LocalizationFileRef>>();
+        observedFiles = new ConcurrentHashMap<LocalizationTypeFileKey, Set<LocalizationFile>>();
         pm = (PathManager) PathManagerFactory.getPathManager();
     }
 
-    public void fileUpdateMessageRecieved(FileUpdatedMessage fum) {
+    public synchronized void fileUpdateMessageRecieved(FileUpdatedMessage fum) {
         LocalizationType type = fum.getContext().getLocalizationType();
-        LocalizationLevel level = fum.getContext().getLocalizationLevel();
-        String contextName = fum.getContext().getContextName();
         String filename = LocalizationUtil.getSplitUnique(fum.getFileName());
 
-        // Cleanup LocalizationFiles that have been GC'd
-        cleanUpRefs();
+        // Check if file update is older than latest file data
+        Collection<LocalizationFile> potentialFiles = getLocalizationFiles(
+                type, filename);
+
+        // Find exact match first:
+        for (LocalizationFile file : potentialFiles) {
+            if (file.getContext().equals(fum.getContext())) {
+                // exact match found, skip old updates (in case we have changed
+                // the file since this update)
+                try {
+                    FileLocker.lock(this, file.file, Type.WRITE);
+                    Date fileTS = file.getTimeStamp();
+                    if (fileTS != null && fileTS.getTime() > fum.getTimeStamp()) {
+                        // Update is older than latest file data, skip update as
+                        // a newer one should be coming
+                        return;
+                    } else {
+                        // Proceed with update process
+                        processUpdate(fum, file);
+                        break;
+                    }
+                } finally {
+                    FileLocker.unlock(this, file.file);
+                }
+            }
+        }
 
         // If file deleted, delete from filesystem if non directory
         if (fum.getChangeType() == FileChangeType.DELETED) {
             File local = pm.adapter.getPath(fum.getContext(), filename);
             if (local != null && local.isDirectory() == false && local.exists()) {
-                local.delete();
+                try {
+                    FileLocker.lock(this, local, Type.WRITE);
+                    local.delete();
+                } finally {
+                    FileLocker.unlock(this, local);
+                }
             }
         }
 
-        // Response map, only request updated data once per file reference key
-        Map<Object, ListResponse> responseMap = new HashMap<Object, ListResponse>();
+        // Process other file, skipping context match that was processed above
+        for (LocalizationFile file : potentialFiles) {
+            if (file.getContext().equals(fum.getContext()) == false) {
+                processUpdate(fum, file);
+            }
+        }
 
-        do {
-            LocalizationFileKey key = new LocalizationFileKey(type, filename);
+        // Split parts so we update sub directories
+        String[] parts = LocalizationUtil.splitUnique(filename);
+        for (int idx = parts.length - 1; idx > 0; --idx) {
+            String subpath = "";
+            for (int i = 0; i < idx; ++i) {
+                subpath += parts[i];
+                if (i < (idx - 1)) {
+                    subpath += IPathManager.SEPARATOR;
+                }
+            }
+
             // Get the file references for the key to notify
-            Set<LocalizationFileRef> lfList;
-            synchronized (observedFiles) {
-                lfList = observedFiles.get(key);
+            Collection<LocalizationFile> files = getLocalizationFiles(type,
+                    subpath);
+            for (LocalizationFile file : files) {
+                processUpdate(fum, file);
             }
-            if (lfList != null) {
-                Set<LocalizationFileRef> copy;
-                synchronized (lfList) {
-                    copy = new HashSet<LocalizationFileRef>(lfList);
-                }
-                // Flags so we only delete or request once
-                boolean requested = false;
-                for (LocalizationFileRef ref : copy) {
-                    LocalizationFile lf = ref.get();
-                    if (lf != null) {
-                        // If null, means it was garbage collected, will be
-                        // caught next update
-                        int compVal = lf.getContext().getLocalizationLevel()
-                                .compareTo(level);
-                        if (compVal <= 0) {
-                            boolean notify = false;
-
-                            if (compVal < 0) {
-                                // Different level, check our context name to
-                                // make sure it matches update message
-                                String ourContextName = pm.getContext(type,
-                                        level).getContextName();
-                                if ((ourContextName == null && contextName == null)
-                                        || (ourContextName != null && ourContextName
-                                                .equals(contextName))) {
-                                    notify = true;
-                                }
-                            }
-
-                            // This file should be NOTIFEID based on update...
-                            ListResponse resp = null;
-                            if (fum.getContext().equals(lf.getContext())) {
-                                // context perfectly matches, make sure we
-                                // notify
-                                notify = true;
-                                // This file should be MODIFIED based on
-                                // update...
-                                if (lf.isDirectory() == false) {
-                                    resp = responseMap.get(ref.getKey());
-                                    if (resp == null) {
-                                        // Make sure we only request metadata
-                                        // once per file update
-                                        resp = getMetadata(lf);
-                                        responseMap.put(ref.getKey(), resp);
-                                    }
-
-                                    // Update file with new metadata
-                                    lf.update(resp);
-
-                                    // If we are still not a directoy and we
-                                    // should request the file, request it
-                                    if (lf.isDirectory() == false
-                                            && lf.fileRequested && !requested) {
-                                        switch (fum.getChangeType()) {
-                                        case UPDATED:
-                                        case ADDED: {
-                                            requested = true;
-                                            lf.getFile();
-                                            break;
-                                        }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (notify) {
-                                // Notify file of change
-                                lf.notifyObservers(fum);
-                            }
-                        }
-                    }
-                }
-            }
-
-            int pos = filename.lastIndexOf(IPathManager.SEPARATOR);
-            if (pos > 0) {
-                filename = filename.substring(0, pos);
-            } else {
-                filename = "";
-            }
-        } while (!filename.isEmpty());
+        }
 
         // Notify system wide listeners
         synchronized (globalObservers) {
@@ -301,6 +263,74 @@ public class LocalizationNotificationObserver {
                 obs.fileUpdated(fum);
             }
         }
+    }
+
+    private void processUpdate(FileUpdatedMessage fum, LocalizationFile file) {
+        LocalizationContext context = fum.getContext();
+        LocalizationLevel level = context.getLocalizationLevel();
+        LocalizationType type = context.getLocalizationType();
+        String contextName = context.getContextName();
+
+        int compVal = file.getContext().getLocalizationLevel().compareTo(level);
+        if (compVal <= 0) {
+            boolean notify = false;
+            if (compVal < 0) {
+                // Different level, check our context name to
+                // make sure it matches update message
+                String ourContextName = pm.getContext(type, level)
+                        .getContextName();
+                if ((ourContextName == null && contextName == null)
+                        || (ourContextName != null && ourContextName
+                                .equals(contextName))) {
+                    notify = true;
+                }
+            }
+
+            if (fum.getContext().equals(file.getContext())) {
+                // context perfectly matches, make sure we
+                // notify
+                notify = true;
+                // This file should be MODIFIED based on
+                // update...
+                if (file.isDirectory() == false) {
+                    // Update file with new metadata
+                    file.update(getMetadata(file));
+
+                    // If we are still not a directoy and we
+                    // should request the file, request it
+                    if (file.isDirectory() == false && file.fileRequested) {
+                        switch (fum.getChangeType()) {
+                        case UPDATED:
+                        case ADDED: {
+                            file.getFile();
+                            break;
+                        }
+                        }
+                    }
+                }
+            }
+
+            if (notify) {
+                // Notify file of change
+                file.notifyObservers(fum);
+            }
+        }
+    }
+
+    private Collection<LocalizationFile> getLocalizationFiles(
+            LocalizationType type, String fileName) {
+        Set<LocalizationFile> copy = new HashSet<LocalizationFile>();
+        Set<LocalizationFile> lfList;
+        synchronized (observedFiles) {
+            lfList = observedFiles.get(new LocalizationTypeFileKey(type,
+                    fileName));
+        }
+        if (lfList != null) {
+            synchronized (lfList) {
+                copy = new HashSet<LocalizationFile>(lfList);
+            }
+        }
+        return copy;
     }
 
     /**
@@ -328,33 +358,4 @@ public class LocalizationNotificationObserver {
         return rval;
     }
 
-    /**
-     * Clean up stale references
-     */
-    private void cleanUpRefs() {
-        List<LocalizationFileKey> keysToRemove = new ArrayList<LocalizationFileKey>();
-        for (LocalizationFileKey key : observedFiles.keySet()) {
-            Set<LocalizationFileRef> refs = observedFiles.get(key);
-            if (refs == null || refs.size() == 0) {
-                keysToRemove.add(key);
-            } else {
-                synchronized (refs) {
-                    List<LocalizationFileRef> toRemove = new ArrayList<LocalizationFileRef>();
-                    for (LocalizationFileRef ref : refs) {
-                        if (ref.get() == null) {
-                            toRemove.add(ref);
-                        }
-                    }
-                    refs.removeAll(toRemove);
-                    if (refs.size() == 0) {
-                        keysToRemove.add(key);
-                    }
-                }
-            }
-        }
-
-        for (LocalizationFileKey key : keysToRemove) {
-            observedFiles.remove(key);
-        }
-    }
 }

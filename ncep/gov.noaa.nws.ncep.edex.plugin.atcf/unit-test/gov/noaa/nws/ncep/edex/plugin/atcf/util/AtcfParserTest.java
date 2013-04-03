@@ -1,39 +1,36 @@
 package gov.noaa.nws.ncep.edex.plugin.atcf.util;
 
-import static org.junit.Assert.*;
-import gov.noaa.nws.ncep.common.dataplugin.atcf.*;
+import static org.junit.Assert.assertEquals;
+import gov.noaa.nws.ncep.common.dataplugin.atcf.AtcfRecord;
+
 import java.util.Calendar;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AtcfParserTest {
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
+    private static final double ALLOWABLE_DOUBLE_DELTA = 0.00001;
 
 	@Test
 	public void testProcessLatLon() {
-		Float latLon;
-		latLon = AtcfParser.processLatLon("975W");
-		assertEquals (-97.5, latLon);
+        float latLon = AtcfParser.processLatLon("975W");
+        assertEquals(-97.5F, latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("1605E");
-		assertEquals (160.5, latLon);
+        assertEquals(160.5, latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("1605W");
-		assertEquals (-160.5, latLon);
+        assertEquals(-160.5, latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("623E");
-		assertEquals (62.3, latLon);
+        assertEquals(62.3, latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("62N");
-		assertEquals (6.2, latLon);
+        assertEquals(6.2, latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("847S");
-		assertEquals (-84.7, latLon);
+        assertEquals(-84.7, latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("847G");
-		assertEquals (999999., latLon);
+        assertEquals(999999., latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon("");
-		assertEquals (999999., latLon);
+        assertEquals(999999., latLon, ALLOWABLE_DOUBLE_DELTA);
 		latLon = AtcfParser.processLatLon(" ");
-		assertEquals (999999., latLon);
+        assertEquals(999999., latLon, ALLOWABLE_DOUBLE_DELTA);
 	}
 
 	@Test
@@ -95,19 +92,19 @@ public class AtcfParserTest {
 		assertEquals (2, record.getTechniqueNum());
 		assertEquals ("ZGFS", record.getTechnique());
 		assertEquals (0, record.getFcstHour());
-		assertEquals (999999., record.getClat());
-		assertEquals (-96.6, record.getClon());
-		assertEquals (25., record.getWindMax());
-		assertEquals (1008., record.getMslp());
+        assertEquals(999999., record.getClat(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(-96.6, record.getClon(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(25., record.getWindMax(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(1008., record.getMslp(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("XX", record.getIntensity());
-		assertEquals (34., record.getRadWind());
+        assertEquals(34., record.getRadWind(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("NEQ", record.getRadWindQuad());
-		assertEquals (100., record.getQuad1WindRad());
-		assertEquals (85., record.getQuad2WindRad());
-		assertEquals (70., record.getQuad3WindRad());
-		assertEquals (85., record.getQuad4WindRad());
-		assertEquals (999999., record.getClosedP());
-		assertEquals (999999., record.getRadClosedP());
+        assertEquals(100., record.getQuad1WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(85., record.getQuad2WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(70., record.getQuad3WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(85., record.getQuad4WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(999999., record.getClosedP(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(999999., record.getRadClosedP(), ALLOWABLE_DOUBLE_DELTA);
 		//
 		theBulletin = "CP, 85, 2010053012, 03, OFCL,   3, 242N, 1568W, 100,  960, HU,  34, NEQ,  130,  132,  134,  135,    0,    0,   0, 120,  20,   C,   0, RMT,  25,   9,   HURCNAME,  , 12, NEQ, 130, 131, 132, 133\n";
 		record = AtcfParser.processFields(theBulletin);
@@ -121,35 +118,35 @@ public class AtcfParserTest {
 		assertEquals (3, record.getTechniqueNum());
 		assertEquals ("OFCL", record.getTechnique());
 		assertEquals (3, record.getFcstHour());
-		assertEquals (24.2, record.getClat());
-		assertEquals (-156.8, record.getClon());
-		assertEquals (100., record.getWindMax());
-		assertEquals (960., record.getMslp());
+        assertEquals(24.2, record.getClat(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(-156.8, record.getClon(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(100., record.getWindMax(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(960., record.getMslp(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("HU", record.getIntensity());
-		assertEquals (34., record.getRadWind());
+        assertEquals(34., record.getRadWind(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("NEQ", record.getRadWindQuad());
-		assertEquals (130., record.getQuad1WindRad());
-		assertEquals (132., record.getQuad2WindRad());
-		assertEquals (134., record.getQuad3WindRad());
-		assertEquals (135., record.getQuad4WindRad());
-		assertEquals (0., record.getClosedP());
-		assertEquals (0., record.getRadClosedP());
-		assertEquals (0., record.getMaxWindRad());
-		assertEquals (120., record.getGust());
-		assertEquals (20., record.getEyeSize());
+        assertEquals(130., record.getQuad1WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(132., record.getQuad2WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(134., record.getQuad3WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(135., record.getQuad4WindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(0., record.getClosedP(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(0., record.getRadClosedP(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(0., record.getMaxWindRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(120., record.getGust(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(20., record.getEyeSize(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("C", record.getSubRegion());
-		assertEquals (0., record.getMaxSeas());
+        assertEquals(0., record.getMaxSeas(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("RMT", record.getForecaster());
-		assertEquals (25., record.getStormDrct());
-		assertEquals (9., record.getStormSped());
+        assertEquals(25., record.getStormDrct(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(9., record.getStormSped(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("HURCNAME", record.getStormName());
 		assertEquals (" ", record.getStormDepth());
-		assertEquals (12., record.getRadWave());
+        assertEquals(12., record.getRadWave(), ALLOWABLE_DOUBLE_DELTA);
 		assertEquals ("NEQ", record.getRadWaveQuad());
-		assertEquals (130., record.getQuad1WaveRad());
-		assertEquals (131., record.getQuad2WaveRad());
-		assertEquals (132., record.getQuad3WaveRad());
-		assertEquals (133., record.getQuad4WaveRad());		
+        assertEquals(130., record.getQuad1WaveRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(131., record.getQuad2WaveRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(132., record.getQuad3WaveRad(), ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(133., record.getQuad4WaveRad(), ALLOWABLE_DOUBLE_DELTA);
 	}
 
 }

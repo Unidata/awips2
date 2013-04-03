@@ -20,26 +20,21 @@
 package com.raytheon.uf.viz.derivparam.tree;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.CubeRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher.MatchResult;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -66,9 +61,9 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * @author bsteffen
  * @version 1.0
  */
-public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
+public abstract class AbstractCubeLevelNode extends AbstractDerivedDataNode {
 
-    protected List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> levels;
+    protected List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> levels;
 
     public AbstractCubeLevelNode(AbstractCubeLevelNode that) {
         super(that);
@@ -77,7 +72,7 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
     }
 
     public AbstractCubeLevelNode(
-            List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> levels,
+            List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> levels,
             String modelName) {
         this.levels = levels;
         this.modelName = modelName;
@@ -87,7 +82,7 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
     public AbstractCubeLevelNode(
             Level level,
             String modelName,
-            List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> levels) {
+            List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> levels) {
         this.setLevel(level);
         this.levels = levels;
         this.modelName = modelName;
@@ -99,7 +94,7 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
             DerivParamDesc desc,
             DerivParamMethod method,
             String modelName,
-            List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> levels) {
+            List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> levels) {
         super(level, desc, method, modelName);
         this.levels = levels;
         this.setValue("3D");
@@ -111,90 +106,69 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
     }
 
     @Override
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        for (CubeLevel<AbstractRequestableNode, AbstractRequestableNode> level : levels) {
+            result.put(level.getParam(), availability);
+            result.put(level.getPressure(), availability);
+        }
+        return result;
+    }
+
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        List<AbstractRequestableLevelNode> requests = new ArrayList<AbstractRequestableLevelNode>(
-                levels.size());
-        List<AbstractRequestableLevelNode> timeAgnosticRequests = new ArrayList<AbstractRequestableLevelNode>();
-        List<AbstractRequestableData> rawRecords = new ArrayList<AbstractRequestableData>(
-                levels.size());
-        List<AbstractRequestableData> timeAgnosticRecords = new ArrayList<AbstractRequestableData>();
-
-        for (CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode> level : levels) {
-            AbstractRequestableLevelNode node = level.getParam();
-            if (cache.containsKey(node)) {
-                List<AbstractRequestableData> cachedRecords = cache.get(node);
-                if (node.isTimeAgnostic()) {
-                    timeAgnosticRecords.addAll(cachedRecords);
-                } else {
-                    boolean foundMissingTime = false;
-                    Set<DataTime> selectedTimes = new HashSet<DataTime>(
-                            Arrays.asList(property.getSelectedEntryTime()));
-                    for (AbstractRequestableData cRec : cachedRecords) {
-                        if (!selectedTimes.contains(cRec.getDataTime())) {
-                            foundMissingTime = true;
-                            break;
-                        }
-                    }
-                    if (foundMissingTime) {
-                        requests.add(node);
-                    } else {
-                        rawRecords.addAll(cachedRecords);
-                    }
+        Map<TimeAndSpace, List<AbstractRequestableData>> paramMap = new HashMap<TimeAndSpace, List<AbstractRequestableData>>();
+        Map<TimeAndSpace, List<AbstractRequestableData>> presMap = new HashMap<TimeAndSpace, List<AbstractRequestableData>>();
+        for (CubeLevel<AbstractRequestableNode, AbstractRequestableNode> level : levels) {
+            Set<AbstractRequestableData> paramRecs = dependencyData.get(level
+                    .getParam());
+            for (AbstractRequestableData paramRec : paramRecs) {
+                TimeAndSpace ast = paramRec.getTimeAndSpace();
+                List<AbstractRequestableData> paramList = paramMap.get(ast);
+                if (paramList == null) {
+                    paramList = new ArrayList<AbstractRequestableData>();
+                    paramMap.put(ast, paramList);
                 }
-            } else {
-                if (node.isTimeAgnostic()) {
-                    timeAgnosticRequests.add(node);
-                } else {
-                    requests.add(node);
-                }
+                paramList.add(paramRec);
             }
-        }
-
-        retrieveRecords(requests, property, timeOut, cache, rawRecords);
-        retrieveRecords(timeAgnosticRequests, property, timeOut, cache,
-                timeAgnosticRecords);
-        Map<DataTime, CubeRequestableData> bins = new HashMap<DataTime, CubeRequestableData>(
-                (int) (property.getSelectedEntryTime().length * 1.3));
-        processRecords(rawRecords, property, true, false, bins);
-        processRecords(timeAgnosticRecords, property, true, true, bins);
-        requests.clear();
-        timeAgnosticRequests.clear();
-        rawRecords.clear();
-        timeAgnosticRecords.clear();
-        for (CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode> level : levels) {
-            AbstractRequestableLevelNode node = level.getPressure();
-            if (cache.containsKey(node)) {
-                List<AbstractRequestableData> cachedRecords = cache.get(node);
-                if (node.isTimeAgnostic()) {
-                    timeAgnosticRecords.addAll(cachedRecords);
-                } else {
-                    rawRecords.addAll(cachedRecords);
+            Set<AbstractRequestableData> presRecs = dependencyData.get(level
+                    .getPressure());
+            for (AbstractRequestableData presRec : presRecs) {
+                TimeAndSpace ast = presRec.getTimeAndSpace();
+                List<AbstractRequestableData> presList = presMap.get(ast);
+                if (presList == null) {
+                    presList = new ArrayList<AbstractRequestableData>();
+                    presMap.put(ast, presList);
                 }
-            } else {
-                if (node.isTimeAgnostic()) {
-                    timeAgnosticRequests.add(node);
-                } else {
-                    requests.add(node);
-                }
+                presList.add(presRec);
             }
-        }
-        retrieveRecords(requests, property, timeOut, cache, rawRecords);
-        retrieveRecords(timeAgnosticRequests, property, timeOut, cache,
-                timeAgnosticRecords);
-        processRecords(rawRecords, property, false, false, bins);
-        processRecords(timeAgnosticRecords, property, false, true, bins);
 
-        List<AbstractRequestableData> records = new ArrayList<AbstractRequestableData>(
-                bins.size());
-        for (Entry<DataTime, CubeRequestableData> entry : bins.entrySet()) {
-            CubeRequestableData record = entry.getValue();
+        }
+        Map<TimeAndSpace, MatchResult> matches = new TimeAndSpaceMatcher()
+                .match(paramMap.keySet(), presMap.keySet());
+        Set<AbstractRequestableData> records = new HashSet<AbstractRequestableData>();
+        for (Entry<TimeAndSpace, MatchResult> match : matches.entrySet()) {
+            List<AbstractRequestableData> paramList = paramMap.get(match
+                    .getValue().get1());
+            CubeRequestableData record = new CubeRequestableData(
+                    paramList.get(0));
+            for (AbstractRequestableData paramRec : paramList) {
+                record.addParam(paramRec);
+            }
+            List<AbstractRequestableData> presList = presMap.get(match
+                    .getValue().get2());
+            for (AbstractRequestableData presRec : presList) {
+                record.addPressure(presRec);
+            }
             record.validate();
             if (record.size() >= 2) {
-                record.setDataTime(entry.getKey());
+                record.setDataTime(match.getKey().getTime());
+                record.setSpace(match.getKey().getSpace());
                 modifyRequest(record);
                 records.add(record);
             }
@@ -202,183 +176,25 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
         return records;
     }
 
-    private void retrieveRecords(
-            List<AbstractRequestableLevelNode> requests,
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache,
-            List<AbstractRequestableData> retrievedRecords) throws VizException {
-        retrievedRecords.addAll(mergedGetData(merge(requests), property,
-                timeOut));
-        for (AbstractRequestableLevelNode request : requests) {
-            retrievedRecords.addAll(request.getData(property, timeOut, cache));
-        }
-    }
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
+            throws VizException {
+        // things in one are available for one level
+        Set<TimeAndSpace> one = new HashSet<TimeAndSpace>();
+        // things in two are available for two levels.
+        Set<TimeAndSpace> two = new HashSet<TimeAndSpace>();
 
-    private void processRecords(List<AbstractRequestableData> records,
-            LayerProperty property, boolean isParam, boolean isTimeAgnostic,
-            Map<DataTime, CubeRequestableData> bins) {
-        DataTime[] keys = new DataTime[1];
-        if (isTimeAgnostic) {
-            keys = property.getSelectedEntryTime();
-        }
-
-        for (AbstractRequestableData record : records) {
-            if (!isTimeAgnostic) {
-                keys[0] = record.getDataTime();
-            }
-
-            for (DataTime dt : keys) {
-                if (dt != null) {
-                    CubeRequestableData bin = bins.get(dt);
-                    if (bin == null) {
-                        bin = new CubeRequestableData(record);
-                        bins.put(dt, bin);
-                    }
-                    if (isParam) {
-                        bin.addParam(record);
-                    } else {
-                        bin.addPressure(record);
-                    }
+        for (CubeLevel<AbstractRequestableNode, AbstractRequestableNode> level : levels) {
+            for (TimeAndSpace time : availability.get(level.getParam())) {
+                if (one.contains(time)) {
+                    two.add(time);
+                } else {
+                    one.add(time);
                 }
             }
         }
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        boolean timeAgnostic = true;
-
-        for (CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode> level : levels) {
-            if (!level.getPressure().isTimeAgnostic()
-                    || !level.getParam().isTimeAgnostic()) {
-                timeAgnostic = false;
-                break;
-            }
-        }
-        return timeAgnostic;
-    }
-
-    /**
-     * Perform any filtering on the requestContraintsToFilter based on the
-     * baseRequestConstraints.
-     * 
-     * @param baseRequestConstraints
-     * @param requestContraintsToFilter
-     */
-    protected abstract void filter(
-            Map<String, RequestConstraint> baseRequestConstraints,
-            Map<String, RequestConstraint> requestContraintsToFilter);
-
-    @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
-            throws VizException {
-        Set<DataTime> results = new HashSet<DataTime>();
-        List<AbstractRequestableLevelNode> requests = new ArrayList<AbstractRequestableLevelNode>(
-                levels.size() * 2);
-
-        for (CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode> level : levels) {
-            AbstractRequestableLevelNode node = level.getPressure();
-            if (cache.containsKey(node)) {
-                results.addAll(cache.get(node));
-            } else if (!node.isTimeAgnostic()) {
-                requests.add(node);
-            }
-            node = level.getParam();
-            if (cache.containsKey(node)) {
-                results.addAll(cache.get(node));
-            } else if (!node.isTimeAgnostic()) {
-                requests.add(node);
-            }
-        }
-
-        if (requests.size() == 0 && results.size() == 0) {
-            return TIME_AGNOSTIC;
-        }
-
-        results.addAll(mergedTimeQuery(merge(requests), latestOnly));
-        for (AbstractRequestableLevelNode request : requests) {
-            results.addAll(request.timeQuery(originalRequest, latestOnly,
-                    cache, latestOnlyCache));
-        }
-        return results;
-    }
-
-    /**
-     * A merged time query performs a single time query from multiple requests
-     * when possible and removes those requests from the list.
-     * 
-     * @param requests
-     * @param latestOnly
-     * @return
-     * @throws VizException
-     */
-    protected Set<DataTime> mergedTimeQuery(
-            List<Map<String, RequestConstraint>> requests, boolean latestOnly)
-            throws VizException {
-        Set<DataTime> results = new HashSet<DataTime>();
-        for (Map<String, RequestConstraint> mergeMap : requests) {
-            DataTime[] resultsArr = CatalogQuery.performTimeQuery(mergeMap,
-                    latestOnly, null);
-
-            if (resultsArr != null) {
-                for (int i = 0; i < resultsArr.length; i++) {
-                    results.add(resultsArr[i]);
-                }
-            }
-        }
-        return results;
-    }
-
-    protected List<AbstractRequestableData> mergedGetData(
-            List<Map<String, RequestConstraint>> requests,
-            LayerProperty property, int timeOut) throws VizException {
-        List<Object> results = new ArrayList<Object>();
-        Map<String, RequestConstraint> oldQuery = property
-                .getEntryQueryParameters(false);
-        int numberOfImages = property.getNumberOfImages();
-        if (numberOfImages < 9999) {
-            property.setNumberOfImages(9999);
-        }
-        try {
-            for (Map<String, RequestConstraint> mergeMap : requests) {
-                Map<String, RequestConstraint> newQuery = new HashMap<String, RequestConstraint>(
-                        mergeMap);
-                filter(oldQuery, newQuery);
-                property.setEntryQueryParameters(newQuery, false);
-                // TODO: replace
-                String scriptToExecute = ScriptCreator.createScript(property);
-
-                results.addAll(Loader.loadScripts(
-                        new String[] { scriptToExecute }, timeOut));
-            }
-        } finally {
-            property.setNumberOfImages(numberOfImages);
-            property.setEntryQueryParameters(oldQuery, false);
-        }
-
-        return wrapRawRecord(results);
-    }
-
-    protected abstract List<AbstractRequestableData> wrapRawRecord(
-            List<Object> objs) throws VizException;
-
-    protected List<Map<String, RequestConstraint>> merge(
-            List<AbstractRequestableLevelNode> requests) {
-        List<Map<String, RequestConstraint>> mergeMaps = new ArrayList<Map<String, RequestConstraint>>(
-                requests.size());
-        Iterator<AbstractRequestableLevelNode> iter = requests.iterator();
-        while (iter.hasNext()) {
-            AbstractRequestableLevelNode request = iter.next();
-            if (request.hasRequestConstraints()) {
-                mergeMaps.add(request.getRequestConstraintMap());
-                iter.remove();
-            }
-        }
-        return mergeConstraints(mergeMaps);
+        return two;
     }
 
     /*
@@ -390,7 +206,7 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
     public List<Dependency> getDependencies() {
         List<Dependency> dependencies = new ArrayList<Dependency>(
                 levels.size() * 2);
-        for (CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode> level : levels) {
+        for (CubeLevel<AbstractRequestableNode, AbstractRequestableNode> level : levels) {
             dependencies.add(new Dependency(level.getPressure(), 0));
             dependencies.add(new Dependency(level.getParam(), 0));
         }

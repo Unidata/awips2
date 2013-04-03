@@ -47,7 +47,7 @@
    </features>
 
    <configurations>
-      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="5" />
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
    </configurations>
 

@@ -82,7 +82,7 @@ public class ScriptTestDriver {
         if (pluginName == null) {
             script = new String();
         } else {
-            if ("grib".equals(pluginName)) {
+            if ("grid".equals(pluginName)) {
                 library = "GridRequest";
             } else if ("satellite".equals(pluginName)) {
                 library = "SatelliteRequest";

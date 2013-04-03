@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.persistence.Column;
@@ -66,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/03/09     2521     D. Hladky   Initial release
+ * 01/27/13     1478        D. Hladky   OUN memory help
  * 
  * </pre>
  * 
@@ -757,6 +759,40 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
 
     public String getSiteKey() {
         return siteKey;
+    }
+    
+    /**
+     * Get the fully cache ready object
+     * @param fileName
+     * @return
+     */
+    public FFMPAggregateRecord getCacheRecord() {
+        FFMPAggregateRecord fdcr = new FFMPAggregateRecord();
+        
+        for (Entry<String,FFMPBasinData> entry: basinsMap.entrySet()) {
+            fdcr.setBasinData(entry.getValue());
+        }
+        
+        return fdcr;
+    }
+    
+    /**
+     * Creates and populates a version of this record from a cache record
+     * 
+     * @param fdcr
+     */
+    public FFMPRecord(FFMPAggregateRecord fdcr) {
+
+        List<Long> times = fdcr.getTimes();
+
+        for (Entry<String, FFMPBasinData> entry : fdcr.getBasinsMap()
+                .entrySet()) {
+
+            FFMPBasinData fbd = entry.getValue();
+            // Keep in mind times can be null, Guidance basins are like that
+            fbd.populate(times);
+            setBasinData(fbd, fbd.getHucLevel());
+        }
     }
 
 }

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: fits
+Bundle-SymbolicName: gov.nasa.gsfc.fits
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: fits.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: nom.tam.fits,
+ nom.tam.util

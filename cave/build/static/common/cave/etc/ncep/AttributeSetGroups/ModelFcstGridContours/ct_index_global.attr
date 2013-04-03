@@ -6,8 +6,10 @@
 !
 GLEVEL= 0!700!9950!0
 GVCORD= none!pres!sgma!none
+SKIP=
+FILTER=y
 SCALE = 0
-GDPFUN= sm9s(ctot)!sm9s(tmpc)!sm9s(dwpf)!sm9s(mul(1e-2,pmsl))
+GDPFUN= sm9s(ctot)!sm9s(tmpc)!sm9s(dwpf)!sm9s(pmsl)
 TYPE  = f!c
 CINT  = 2/16/36!2/6!50;55;60;65;70;75;80!4
 CONTUR= 2

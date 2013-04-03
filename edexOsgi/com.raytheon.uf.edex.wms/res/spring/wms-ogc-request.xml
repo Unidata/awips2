@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  <bean id="gmlFeatureFormatter" class="com.raytheon.uf.edex.wms.format.GmlFeatureFormatter" >
+	</bean>
+	
+	<bean id="htmlFeatureFormatter" class="com.raytheon.uf.edex.wms.format.HtmlFeatureFormatter" >
+	</bean>
+  
+	<bean id="jaxbManager" class="com.raytheon.uf.edex.ogc.common.jaxb.OgcJaxbManager">
+		<constructor-arg>
+			<list>
+				<value type="java.lang.Class">net.opengis.wms.v_1_3_0.ObjectFactory</value>
+				<value type="java.lang.Class">net.opengis.sld.v_1_1_0.ObjectFactory</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="sldReg" class="com.raytheon.uf.edex.wms.sld.SldParserRegistryImpl" />
+	
+	
+	<bean factory-bean="sldReg" factory-method="register" >
+		<constructor-arg>
+		<list>
+			<bean class="com.raytheon.uf.edex.wms.sld.SldParser100"/>
+		</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="gmTranslator" class="com.raytheon.uf.edex.wms.provider.OgcGetMapTranslator" >
+		<constructor-arg ref="sldReg"/>
+	</bean>
+
+	<bean id="wmsHttpPool" class="com.raytheon.uf.edex.ogc.common.http.OgcHttpPool" destroy-method="drain">
+		<constructor-arg ref="wmsFactory" />
+	</bean>
+
+	<bean id="wmsFactory" class="com.raytheon.uf.edex.wms.WmsHttpFactory">
+		<constructor-arg ref="jaxbManager" />
+		<constructor-arg ref="gmTranslator" />
+	</bean>
+ 
+	<bean id="wmserv" class="com.raytheon.uf.edex.ogc.common.http.OgcHttpEndpoint">
+		<constructor-arg ref="wmsHttpPool" />
+	</bean>
+
+	<camelContext id="wms-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+		<route id="WmsRest">
+			<from uri="jetty:http://0.0.0.0:8085/wms" />
+			<bean ref="wmserv" />
+		</route>
+
+	</camelContext>
+  
+  
+  </beans>

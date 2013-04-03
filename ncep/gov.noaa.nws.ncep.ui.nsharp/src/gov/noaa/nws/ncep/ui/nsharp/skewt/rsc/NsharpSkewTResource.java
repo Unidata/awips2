@@ -1670,7 +1670,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		}
 		//set data time to descriptor
 		//this is necessary for looping	
-        if ((descriptor.getTimeMatcher() == null || descriptor.getTimeMatcher().getTimeMatchBasis() == null)&& !getTimeMatcher) {
+        if ((descriptor.getFramesInfo().getFrameCount() == 0)&& !getTimeMatcher) {
             //DataTime[] dataTimes = new DataTime[dataTimelineList.size()];
         	//Chin Note: we just have to do this once and set dataTimes size bigger than 1. 
         	//Nsharp handles changing frame itself. It just need system to send change frame notice. 
