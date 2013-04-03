@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2011  #8393     dgilling     Initial creation
+ * 02/19/13     #1637      randerso    Added exception handling for Discrete and Weather
  * 
  * </pre>
  * 
@@ -689,47 +690,43 @@ public class ASCIIGrid {
         RemapGrid remap = new RemapGrid(sourceDomain, outputDomain);
 
         // some data overlaps and remapping is possible
-        switch (gs.getGridInfo().getGridType()) {
-        case SCALAR:
-            ScalarGridSlice scalar = (ScalarGridSlice) gs;
-            try {
+        try {
+            switch (gs.getGridInfo().getGridType()) {
+            case SCALAR:
+                ScalarGridSlice scalar = (ScalarGridSlice) gs;
                 scalar.setScalarGrid(remap.remap(scalar.getScalarGrid(),
                         -99999.99f, maxLimit, minLimit, minLimit));
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to remap scalar ASCIIGrid", e);
-                return false;
-            }
-            break;
-        case VECTOR:
-            VectorGridSlice vector = (VectorGridSlice) gs;
-            Grid2DFloat mag = new Grid2DFloat(outputDomain.getNx(),
-                    outputDomain.getNy());
-            Grid2DFloat dir = new Grid2DFloat(outputDomain.getNx(),
-                    outputDomain.getNy());
-            try {
+                break;
+            case VECTOR:
+                VectorGridSlice vector = (VectorGridSlice) gs;
+                Grid2DFloat mag = new Grid2DFloat(outputDomain.getNx(),
+                        outputDomain.getNy());
+                Grid2DFloat dir = new Grid2DFloat(outputDomain.getNx(),
+                        outputDomain.getNy());
                 remap.remap(vector.getMagGrid(), vector.getDirGrid(),
                         -99999.99f, maxLimit, minLimit, minLimit, mag, dir);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to remap vector ASCIIGrid", e);
-                return false;
+                vector.setMagGrid(mag);
+                vector.setDirGrid(dir);
+                break;
+            case WEATHER:
+                WeatherGridSlice weather = (WeatherGridSlice) gs;
+                weather.setWeatherGrid(remap.remap(weather.getWeatherGrid(),
+                        255, 0));
+                break;
+            case DISCRETE:
+                DiscreteGridSlice discrete = (DiscreteGridSlice) gs;
+                discrete.setDiscreteGrid(remap.remap(
+                        discrete.getDiscreteGrid(), 255, 0));
+                break;
+            default:
+                statusHandler.handle(Priority.WARN,
+                        "Illegal data type detected.");
+                break;
             }
-            vector.setMagGrid(mag);
-            vector.setDirGrid(dir);
-            break;
-        case WEATHER:
-            WeatherGridSlice weather = (WeatherGridSlice) gs;
-            weather.setWeatherGrid(remap.remap(weather.getWeatherGrid(), 255, 0));
-            break;
-        case DISCRETE:
-            DiscreteGridSlice discrete = (DiscreteGridSlice) gs;
-            discrete.setDiscreteGrid(remap.remap(discrete.getDiscreteGrid(),
-                    255, 0));
-            break;
-        default:
-            statusHandler.handle(Priority.WARN, "Illegal data type detected.");
-            break;
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to remap ASCIIGrid",
+                    e);
+            return false;
         }
 
         return true;

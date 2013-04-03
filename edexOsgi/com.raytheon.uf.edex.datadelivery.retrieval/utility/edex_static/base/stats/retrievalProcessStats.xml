@@ -1,0 +1,29 @@
+<statisticsConfig>
+    <!-- Event Type should be fully qualified name of stat event -->
+    <statisticsEvent type="com.raytheon.uf.common.datadelivery.event.retrieval.SubscriptionRetrievalEvent"
+        displayName="Subscription Retrieval" category="Data Delivery">
+        <statisticsGroup name="plugin" displayName="Data Type" />
+        <statisticsGroup name="provider" displayName="Data Provider" />
+        <statisticsGroup name="owner" displayName="Owner" />
+        <statisticsGroup name="network" displayName="Network Route" />
+        <statisticsGroup name="subscriptionType" displayName="Subscription Type" />
+        <statisticsAggregate field="numFailed"
+            displayName="Number of Failed Subscriptions" displayUnit="Count" />
+        <statisticsAggregate field="numComplete"
+            displayName="Number of Completed Subscriptions" displayUnit="Count" />
+    </statisticsEvent>
+    <statisticsEvent type="com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent"
+        displayName="Data Retrieval" category="Data Delivery">
+        <statisticsGroup name="plugin" displayName="Data Type" />
+        <statisticsGroup name="provider" displayName="Data Provider" />
+        <statisticsGroup name="owner" displayName="Owner" />
+        <statisticsGroup name="network" displayName="Network Route" />
+        <!-- 
+           Display unit options are bytes, KB, MB, GB
+        -->
+        <statisticsAggregate field="bytes"
+            displayName="Amount of Data Downloaded" displayUnit="MB" />
+        <statisticsAggregate field="numRecords"
+            displayName="Number of Records Downloaded" displayUnit="Count" />
+    </statisticsEvent>
+</statisticsConfig>

@@ -48,13 +48,20 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    Date          Ticket#     Engineer    Description
  *    ------------	----------	-----------	--------------------------
  *    7/1/06                    chammack    Initial Creation.
+ *    Sep 12, 2012  1167        djohnson    Add datadelivery servers.
  * 
  * </pre>
  * 
  * @author chammack
  * 
  */
-public class VizApp {
+public final class VizApp {
+
+    /**
+     * Disabled constructor.
+     */
+    private VizApp() {
+    }
 
     private static final String USER_FLAG = "-u";
 
@@ -65,6 +72,12 @@ public class VizApp {
     private static String jmsServer;
 
     private static String pypiesServer;
+
+    private static String dataDeliveryServer;
+
+    private static String dataDeliveryLcmServer;
+
+    private static String dataDeliveryQueryServer;
 
     private static String serverDataDir;
 

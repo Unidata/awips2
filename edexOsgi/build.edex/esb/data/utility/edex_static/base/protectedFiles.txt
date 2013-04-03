@@ -9,7 +9,7 @@
 SITE:common_static/scan/SCANRunSiteConfig.xml
 
 #AvnFPS files
-SITE:cave_static/aviation/avnwatch/aviationForecasterConfig.xml
+#SITE:cave_static/aviation/avnwatch/aviationForecasterConfig.xml
 
 #D2D files
 BASE:cave_static/derivedParameters/DerivedParameterInterface.py

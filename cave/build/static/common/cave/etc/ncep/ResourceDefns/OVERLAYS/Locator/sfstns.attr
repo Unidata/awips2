@@ -1,4 +1,3 @@
-color= RGB {0, 255, 0}
 ! Position 1
 pos1LocatorSource=SFSTATIONS
 pos1RoundToNearest=1

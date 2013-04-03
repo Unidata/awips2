@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.core.data;
 import java.awt.Rectangle;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -47,7 +46,8 @@ import java.nio.ShortBuffer;
 public class BufferSlicer {
 
     /**
-     * Given a Buffer, a Rectangle for the Buffer, and a totalBounds
+     * Slices a Buffer represented by a 2D bounds totalBounds into a Buffer
+     * represented by bounds dataBounds.
      * 
      * @param data
      * @param dataBounds
@@ -57,72 +57,138 @@ public class BufferSlicer {
      */
     public static Buffer slice(Buffer data, Rectangle dataBounds,
             Rectangle totalBounds) {
+        if (dataBounds.getMinX() < totalBounds.getMinX()
+                || dataBounds.getMinY() < totalBounds.getMinY()
+                || dataBounds.getMaxX() > totalBounds.getMaxX()
+                || dataBounds.getMaxY() > totalBounds.getMaxY()) {
+            throw new RuntimeException(
+                    "Data bounds defines region outside of buffer's total bounds");
+        }
+
+        data = duplicate(data);
         int dataSize = dataBounds.width * dataBounds.height;
         if (dataSize == totalBounds.width * totalBounds.height) {
             return data;
         }
-        Buffer newData = null;
-        // Get our new Buffer object
         if (data instanceof ByteBuffer) {
-            if (data.isDirect()) {
-                newData = ByteBuffer.allocateDirect(dataSize).order(
-                        ByteOrder.nativeOrder());
-            } else {
-                newData = ByteBuffer.allocate(dataSize);
-            }
+            return slice((ByteBuffer) data, dataBounds, totalBounds, dataSize);
         } else if (data instanceof ShortBuffer) {
-            if (data.isDirect()) {
-                newData = ByteBuffer.allocateDirect(dataSize * 2)
-                        .order(ByteOrder.nativeOrder()).asShortBuffer();
-            } else {
-                newData = ShortBuffer.allocate(dataSize);
-            }
+            return slice((ShortBuffer) data, dataBounds, totalBounds, dataSize);
         } else if (data instanceof IntBuffer) {
-            if (data.isDirect()) {
-                newData = ByteBuffer.allocateDirect(dataSize * 4)
-                        .order(ByteOrder.nativeOrder()).asIntBuffer();
-            } else {
-                newData = IntBuffer.allocate(dataSize);
-            }
+            return slice((IntBuffer) data, dataBounds, totalBounds, dataSize);
         } else if (data instanceof FloatBuffer) {
-            if (data.isDirect()) {
-                newData = ByteBuffer.allocateDirect(dataSize * 4)
-                        .order(ByteOrder.nativeOrder()).asFloatBuffer();
-            } else {
-                newData = FloatBuffer.allocate(dataSize);
-            }
+            return slice((FloatBuffer) data, dataBounds, totalBounds, dataSize);
         } else {
-            // Unsupported type
-            return data;
+            throw new RuntimeException(
+                    "Unhandled buffer passed in: " + data != null ? data
+                            .getClass().getSimpleName() : null);
+        }
+    }
+
+    private static Buffer duplicate(Buffer data) {
+        if (data instanceof ByteBuffer) {
+            return ((ByteBuffer) data).duplicate();
+        } else if (data instanceof ShortBuffer) {
+            return ((ShortBuffer) data).duplicate();
+        } else if (data instanceof IntBuffer) {
+            return ((IntBuffer) data).duplicate();
+        } else if (data instanceof FloatBuffer) {
+            return ((FloatBuffer) data).duplicate();
+        } else {
+            throw new RuntimeException(
+                    "Unhandled buffer passed in: " + data != null ? data
+                            .getClass().getSimpleName() : null);
+        }
+    }
+
+    private static ByteBuffer slice(ByteBuffer data, Rectangle dataBounds,
+            Rectangle totalBounds, int dataSize) {
+        ByteBuffer newData = null;
+        // Get our new Buffer object
+        if (data.isDirect()) {
+            newData = ByteBuffer.allocateDirect(dataSize).order(data.order());
+        } else {
+            newData = ByteBuffer.allocate(dataSize);
         }
 
-        // Synchronize on the data buffer if multi threads slicing same buffer
-        // at the same time
-        synchronized (data) {
-            newData.position(0);
-            for (int i = 0; i < dataBounds.height; ++i) {
-                data.position((dataBounds.y * totalBounds.width + dataBounds.x)
-                        + i * totalBounds.width);
-                if (data instanceof ByteBuffer) {
-                    byte[] bytes = new byte[dataBounds.width];
-                    ((ByteBuffer) data).get(bytes);
-                    ((ByteBuffer) newData).put(bytes);
-                } else if (data instanceof ShortBuffer) {
-                    short[] shorts = new short[dataBounds.width];
-                    ((ShortBuffer) data).get(shorts);
-                    ((ShortBuffer) newData).put(shorts);
-                } else if (data instanceof IntBuffer) {
-                    int[] ints = new int[dataBounds.width];
-                    ((IntBuffer) data).get(ints);
-                    ((IntBuffer) newData).put(ints);
-                } else {
-                    // FloatBuffer by default
-                    float[] floats = new float[dataBounds.width];
-                    ((FloatBuffer) data).get(floats);
-                    ((FloatBuffer) newData).put(floats);
-                }
-            }
+        newData.position(0);
+        byte[] bytes = new byte[dataBounds.width];
+        for (int i = 0; i < dataBounds.height; ++i) {
+            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+                    * totalBounds.width);
+            data.get(bytes);
+            newData.put(bytes);
         }
-        return newData.rewind();
+        newData.rewind();
+        return newData;
+    }
+
+    private static ShortBuffer slice(ShortBuffer data, Rectangle dataBounds,
+            Rectangle totalBounds, int dataSize) {
+        ShortBuffer newData = null;
+        // Get our new Buffer object
+        if (data.isDirect()) {
+            newData = ByteBuffer.allocateDirect(dataSize * 2)
+                    .order(data.order()).asShortBuffer();
+        } else {
+            newData = ShortBuffer.allocate(dataSize);
+        }
+
+        newData.position(0);
+        short[] shorts = new short[dataBounds.width];
+        for (int i = 0; i < dataBounds.height; ++i) {
+            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+                    * totalBounds.width);
+            data.get(shorts);
+            newData.put(shorts);
+        }
+        newData.rewind();
+        return newData;
+    }
+
+    private static IntBuffer slice(IntBuffer data, Rectangle dataBounds,
+            Rectangle totalBounds, int dataSize) {
+        IntBuffer newData = null;
+        // Get our new Buffer object
+        if (data.isDirect()) {
+            newData = ByteBuffer.allocateDirect(dataSize * 4)
+                    .order(data.order()).asIntBuffer();
+        } else {
+            newData = IntBuffer.allocate(dataSize);
+        }
+
+        newData.position(0);
+        int[] ints = new int[dataBounds.width];
+        for (int i = 0; i < dataBounds.height; ++i) {
+            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+                    * totalBounds.width);
+            data.get(ints);
+            newData.put(ints);
+        }
+        newData.rewind();
+        return newData;
+    }
+
+    private static FloatBuffer slice(FloatBuffer data, Rectangle dataBounds,
+            Rectangle totalBounds, int dataSize) {
+        FloatBuffer newData = null;
+        // Get our new Buffer object
+        if (data.isDirect()) {
+            newData = ByteBuffer.allocateDirect(dataSize * 4)
+                    .order(data.order()).asFloatBuffer();
+        } else {
+            newData = FloatBuffer.allocate(dataSize);
+        }
+
+        newData.position(0);
+        float[] floats = new float[dataBounds.width];
+        for (int i = 0; i < dataBounds.height; ++i) {
+            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+                    * totalBounds.width);
+            data.get(floats);
+            newData.put(floats);
+        }
+        newData.rewind();
+        return newData;
     }
 }

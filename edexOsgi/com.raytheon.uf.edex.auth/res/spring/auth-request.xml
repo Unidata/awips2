@@ -26,4 +26,9 @@
 	  	<constructor-arg value="com.raytheon.uf.common.serialization.comm.RemoteServiceRequest"/>
 	  	<constructor-arg ref="webservice"/>
   	</bean>
+    
+    <bean factory-bean="serverLocationRegistry" factory-method="register">
+        <constructor-arg ref="requestServerKey" />
+        <constructor-arg value="${http.server}" />
+    </bean>
 </beans>
