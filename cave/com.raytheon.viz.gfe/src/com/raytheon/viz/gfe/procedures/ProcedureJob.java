@@ -58,6 +58,8 @@ import com.raytheon.viz.gfe.jobs.AsyncProgressJob;
  * Oct 8, 2009             njensen     Initial creation
  * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
  * Jan 18, 2013 1509       njensen     Garbage collect after running procedure
+ * Apr 03, 2013    1855  njensen   Never dispose interpreters until shutdown and
+ *                                                      reuse interpreter if called from procedure
  * 
  * </pre>
  * 
@@ -69,12 +71,7 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
     /**
      * Maximum number of jobs to keep for a given Data Manager.
      */
-    private final static int maxJobs = 3;
-
-    /**
-     * Amount of time to keep inactive jobs servers around.
-     */
-    private final static long expireTime = 5L * 60L * 1000L;
+    private final static int maxJobs = 4;
 
     /**
      * Index of job with the queue. Will break code if not zero.
@@ -121,14 +118,12 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        long starTime = System.currentTimeMillis();
-        boolean expireJob = instanceMap.get(dataMgr).get(QUEUE_JOB_INDEX) != this;
         try {
             python = ProcedureFactory.buildController(dataMgr);
         } catch (JepException e) {
             ProcedureJob.removeJob(dataMgr, this);
             return new Status(IStatus.ERROR, StatusConstants.PLUGIN_ID,
-                    "Error initializing guidance python", e);
+                    "Error initializing procedure python", e);
         }
 
         try {
@@ -151,15 +146,10 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
                             if (request != null) {
                                 request.requestComplete(null);
                             }
-                        } else if (expireJob
-                                && ((instanceMap.get(dataMgr).size() > maxJobs) || (System
-                                        .currentTimeMillis() - starTime) > expireTime)) {
-                            ProcedureJob.removeJob(dataMgr, this);
-                            break;
                         }
                     } catch (Throwable t) {
                         statusHandler.handle(Priority.PROBLEM,
-                                "Error running tool ", t);
+                                "Error running procedure ", t);
                         if (request != null) {
                             request.requestComplete(t);
                         }
@@ -229,6 +219,7 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
             instanceMap = new HashMap<DataManager, List<ProcedureJob>>();
         }
 
+        Thread currentThread = Thread.currentThread();
         List<ProcedureJob> jobList = instanceMap.get(dataMgr);
         if (jobList == null) {
             jobList = new ArrayList<ProcedureJob>();
@@ -241,17 +232,26 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
             job.schedule();
         }
         boolean jobAvailable = false;
+        ProcedureJob alreadyOnThread = null;
         for (ProcedureJob job : jobList) {
-            if (job.request == null) {
+            Thread jobThread = job.getThread();
+            if (currentThread == jobThread) {
+                // this occurs when a running procedure uses
+                // SmartScript.callProcedure()
+                // for efficiency we want to just stay on this thread
+                alreadyOnThread = job;
+                jobAvailable = true;
+                break;
+            } else if (job.request == null) {
                 jobAvailable = true;
                 break;
             }
         }
 
-        // All jobs for data manager are busy add another.
-        // To mimic AWIPS I allow any number of jobs.
-        // The check in the run will reduce the number to maxJobs.
-        if (jobAvailable == false) {
+        // All jobs for data manager are busy, add another if we haven't
+        // reached the limit.
+        if (alreadyOnThread == null && !jobAvailable
+                && jobList.size() < maxJobs) {
             ProcedureJob job = new ProcedureJob(dataMgr);
             job.setSystem(true);
             jobList.add(job);
@@ -261,7 +261,18 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
             jobAvailable = true;
         }
 
-        jobList.get(QUEUE_JOB_INDEX).enqueue(request);
+        if (alreadyOnThread != null) {
+            try {
+                alreadyOnThread.processRequest(request);
+                request.requestComplete(null);
+            } catch (Throwable t) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error running procedure ", t);
+                request.requestComplete(t);
+            }
+        } else {
+            jobList.get(QUEUE_JOB_INDEX).enqueue(request);
+        }
         return jobAvailable;
     }
 
