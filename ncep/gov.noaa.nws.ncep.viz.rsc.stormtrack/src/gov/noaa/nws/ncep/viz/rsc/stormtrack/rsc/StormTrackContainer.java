@@ -5,6 +5,7 @@ package gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc;
 
 import gov.noaa.nws.ncep.common.dataplugin.stormtrack.StormTrackRecord;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import java.util.Set;
  */
 public class StormTrackContainer {
 
+//	private Map<StormIdentifier, StormTrack> modelMap;
 	private Map<String, Map<StormIdentifier, StormTrack> >  modelMap;
 
 	/**
@@ -28,7 +30,12 @@ public class StormTrackContainer {
 	}
 	
 	public Collection<StormTrack> getStormTracksByModel(String modelName) {
+		if( modelMap.containsKey( modelName ) ) {
 		return modelMap.get(modelName).values();
+	}
+		else {
+			return new ArrayList<StormTrack>();
+		}
 	}
 	
 	public void addStormRecord(StormTrackRecord record) {

@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.d2d.gfe.rsc;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -58,8 +59,6 @@ import com.raytheon.viz.grid.rsc.general.GeneralGridData;
  */
 public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
 
-    private GridGeometry2D gridGeometry;
-
     private ParmID parmId;
 
     protected GFEGridResource(GFEGridResourceData resourceData,
@@ -80,9 +79,6 @@ public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
             GFERecord gfeRecord = (GFERecord) pdo;
             if (parmId == null) {
                 parmId = gfeRecord.getParmId();
-                populateGridParmInfo(gfeRecord);
-                gridGeometry = MapUtil.getGridGeometry(gfeRecord.getGridInfo()
-                        .getGridLoc());
             }
             super.addDataObject(pdo);
         }
@@ -106,27 +102,26 @@ public class GFEGridResource extends AbstractGridResource<GFEGridResourceData> {
     }
 
     @Override
-    public GridGeometry2D getGridGeometry() {
-        return gridGeometry;
-    }
-
-    @Override
-    public GeneralGridData getData(DataTime time, List<PluginDataObject> pdos)
-            throws VizException {
+    public List<GeneralGridData> getData(DataTime time,
+            List<PluginDataObject> pdos) throws VizException {
         if (pdos == null) {
             return null;
         }
         GFERecord gfeRecord = (GFERecord) pdos.get(0);
         IGridSlice slice = GFEUtil.getSlice(gfeRecord);
+        populateGridParmInfo(gfeRecord);
+        GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gfeRecord
+                .getGridInfo().getGridLoc());
         if (slice instanceof VectorGridSlice) {
             VectorGridSlice vSlice = (VectorGridSlice) slice;
-            return GeneralGridData.createVectorData(vSlice.getMagGrid()
-                    .getBuffer(), vSlice.getDirGrid().getBuffer(), slice
-                    .getGridInfo().getUnitObject());
+            return Arrays.asList(GeneralGridData.createVectorData(gridGeometry,
+                    vSlice.getMagGrid().getBuffer(), vSlice.getDirGrid()
+                            .getBuffer(), slice.getGridInfo().getUnitObject()));
         } else if (slice instanceof ScalarGridSlice) {
             ScalarGridSlice sSlice = (ScalarGridSlice) slice;
-            return GeneralGridData.createScalarData(sSlice.getScalarGrid()
-                    .getBuffer(), slice.getGridInfo().getUnitObject());
+            return Arrays.asList(GeneralGridData.createScalarData(gridGeometry,
+                    sSlice.getScalarGrid().getBuffer(), slice.getGridInfo()
+                            .getUnitObject()));
         } else if (slice == null) {
             throw new VizException("Unable to load GFE Slice Data");
         } else {

@@ -7,8 +7,9 @@
 GLEVEL =  700        !9950       !700   !700   !0      !700
 GVCORD =  pres       !sgma       !pres  !pres  !none   !pres
 SKIP   =    0/1;1
+FILTER=y
 SCALE  =   0
-GDPFUN =  sm9s(relh) !sm9s(dwpf)!sm9s(relh)!sm9s(tmpc)!mul(1e-2,pmsl)!sm9s(relh)!kntv(wnd@9950%sgma)!kntv(wnd@700%pres)
+GDPFUN =  sm9s(relh) !sm9s(dwpf)!sm9s(relh)!sm9s(tmpc)!pmsl!sm9s(relh)!kntv(wnd@9950%sgma)!kntv(wnd@700%pres)
 TYPE   =    c/f        !c/f       !c         !c         !c   !c         !b!a
 CINT   =    10;20;30;40!50;53;56;59;62;65;68;71;74!-5;50!3!4//1016!10;20;30;40
 LINE   =    10/1/2     !32/1/2/1                  !8/1/5!4/5/3!5//3!10/1/2
@@ -18,5 +19,4 @@ HILO   =    0!0!0!0!5/H#;L#/1080-2000;900-1012!0
 HLSYM  =   !!!!!1.5;1.5//22/3/hw!
 !CLRBAR=  0!1/V/LL!0
 WIND   =    !!!!!!9/0.8/2/112!6/.3/2/221/.4
-TITLE  =   1/-2/~ BL DWPT AND WIND, 700mb TEMP, RH AND WND, PMSL!0
-FILTER =  no
+TITLE  =   1/-2/~ BL DWPT AND WIND   =, 700mb TEMP, RH AND WND, PMSL!0

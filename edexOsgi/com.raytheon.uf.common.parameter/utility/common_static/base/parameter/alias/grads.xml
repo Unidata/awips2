@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="GrADS">
+	<!-- Parameters defined for surface level -->
+	<alias base="CAPE">capesfc</alias>
+	<alias base="CIn">cinsfc</alias>
+	<alias base="CFRZR">cfrzrsfc</alias>
+	<alias base="CRAIN">crainsfc</alias>
+	<alias base="CICEP">cicepsfc</alias>
+	<alias base="CSNOW">csnowsfc</alias>
+	<alias base="CP">cpratsfc</alias>
+	<alias base="WVDIR">wvdirsfc</alias>
+	<alias base="DIRSW">dirswsfc</alias>
+	<alias base="DIRPW">dirpwsfc</alias>
+	<alias base="EPT">epotsfc</alias>
+	<alias base="GH">hgtsfc</alias>
+	<alias base="Heli">hlcysfc</alias>
+	<alias base="LgSP">ncpcpsfc</alias>
+	<alias base="WVPER">wvpersfc</alias>
+	<alias base="PERSW">perswsfc</alias>
+	<alias base="PERPW">perpwsfc</alias>
+	<alias base="PR">pratesfc</alias>
+	<alias base="P">pressfc</alias>
+	<alias base="SCP">snowcsfc</alias>
+	<alias base="SnD">snodsfc</alias>
+	<alias base="SLI">lftxsfc</alias>
+	<alias base="T">tmpsfc</alias>
+	<alias base="TP">apcpsfc</alias>
+	<alias base="uW">ugrdsfc</alias>
+	<alias base="vW">vgrdsfc</alias>
+	<alias base="Vis">vissfc</alias>
+	<alias base="WD">wdirsfc</alias>
+	<alias base="WGS">gustsfc</alias>
+	<alias base="WS">windsfc</alias>
+	<alias base="WEASD">weasdsfc</alias>
+	<!-- Parameters defined for pressure levels -->
+	<alias base="AV">absvprs</alias>
+	<alias base="DpT">dptprs</alias>
+	<alias base="GH">hgtprs</alias>
+	<alias base="RH">rhprs</alias>
+	<alias base="uW">ugrdprs</alias>
+	<alias base="vW">vgrdprs</alias>
+	<alias base="PVV">vvelprs</alias>
+	<alias base="SH">spfhprs</alias>
+	<alias base="T">tmpprs</alias>
+	<!-- Parameters defined for 2 meters above ground -->
+	<alias base="AV">absvprs</alias>
+	<alias base="DpT">dpt2m</alias>
+	<alias base="DpD">depr2m</alias>
+	<alias base="PoT">pot2m</alias>
+	<alias base="RH">rh2m</alias>
+	<alias base="uW">ugrd2m</alias>
+	<alias base="vW">vgrd2m</alias>
+	<alias base="SH">spfh2m</alias>
+	<alias base="T">tmp2m</alias>
+	<!-- Parameters defined for tropopause -->
+	<alias base="PoT">pottrop</alias>
+	<alias base="GH">hgttrop</alias>
+	<alias base="P">prestrop</alias>
+	<alias base="T">tmptrop</alias>
+	<alias base="uW">ugrdtrop</alias>
+	<alias base="vW">vgrdtrop</alias>
+	<!-- Parameters defined for Max Wind Layer -->
+	<alias base="GH">hgtmwl</alias>
+	<alias base="P">presmwl</alias>
+	<alias base="T">tmpmwl</alias>
+	<alias base="uW">ugrdmwl</alias>
+	<alias base="vW">vgrdmwl</alias>
+	<!-- Parameters defined for 10 meters above ground -->
+	<alias base="uW">ugrd10m</alias>
+	<alias base="vW">vgrd10m</alias>
+	<alias base="WD">wdir10m</alias>
+	<alias base="WS">wind10m</alias>
+	<!-- Parameters defined for Atmospheric Column -->
+	<alias base="CWAT">cwatclm</alias>
+	<alias base="PW">pwatclm</alias>
+	<alias base="RH">rhclm</alias>
+	<alias base="TCC">tcdcclm</alias>
+	<!-- Parameters defined for Cloud Layers -->
+	<alias base="HCDC">tcdchcll</alias>
+	<alias base="LCDC">tcdclcll</alias>
+	<alias base="MCDC">tcdcmcll</alias>
+	<!-- Parameters defined for Mean Sea Level -->
+	<alias base="PMSL">prmslmsl</alias>
+	<alias base="EMSP">msletmsl</alias>
+	<!-- Parameters defined at 500mb -->
+	<alias base="AV">absv500mb</alias>
+	<alias base="WGH">no5wavh500mb</alias>
+</aliasList>

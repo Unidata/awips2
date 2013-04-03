@@ -339,6 +339,7 @@ public class ContourSupport {
             long t2 = System.currentTimeMillis();
             if ( svalues != null  && svalues.size() > 0 ) {
             	genContour ();
+            	if ( ! isCntrsCreated ) return;
             }
             else {
             	logger.debug("Re-load contour line values took: " + (t2-t1));
@@ -1241,7 +1242,6 @@ public class ContourSupport {
     		long t1c = System.currentTimeMillis();
     		logger.debug("ContourGenerator.setContourValues(allvalues) took: " + (t1c-t1b));
 //    		System.out.println("ContourGenerator init took:" + (t1c-t0));
-    
     
     		try {
     			cgen.generateContours();

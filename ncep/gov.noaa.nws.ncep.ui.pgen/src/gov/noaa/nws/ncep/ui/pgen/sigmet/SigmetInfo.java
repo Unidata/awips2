@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 02/2012      #675        Q.Zhou      Modified PHEN_MAP.   
  * 02/2012      #597        S. Gurung   Moved snap functionalities to SnapUtil. Removed GUI snapping for Non ConvSigmet.
  * 02/2012                  S. Gurung   Moved back isSnapADC() and getNumOfCompassPts() to SigmetInfo from SnapUtil
+ * 11/12		#893		J. Wu		TTR635 - Fix volcano in alphabetical breakdown order.
  * </pre>
  * 
  * @author	gzhang
@@ -160,32 +161,30 @@ public class SigmetInfo {
 		
 		java.util.Collections.sort(volcanoList);
 		
-		for(int i=0,j=0; i<volcanoList.size() && j<VOL_NAME_BUCKET_ARRAY.length; i++){//VOL_NAME_BUCKET_ARRAY
-			if(i==0){ 			result.put(VOL_NAME_BUCKET_ARRAY[j], null);j++;}
-			if(i>=1	 && i<15){	result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(0, 15));	if(i==1)j++;}
-			if(i>=15 && i<35){ 	result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(15, 35));	if(i==15)j++;}
-			if(i>=35 && i<55){ 	result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(35, 55));	if(i==35)j++;}
-			if(i>=55 && i<70){ 	result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(55, 70));	if(i==55)j++;}
-			if(i>=70 && i<82){ 	result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(70, 82));	if(i==70)j++;}
-			if(i>=82 && i<102){ result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(82, 102));	if(i==82)j++;}
-			if(i>=102 && i<112){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(102, 112));if(i==102)j++;}
-			if(i>=112 && i<129){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(112, 129));if(i==112)j++;}
-			if(i>=129 && i<138){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(129, 138));if(i==129)j++;}
-			if(i>=138 && i<157){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(138, 157));if(i==138)j++;}
-			if(i>=157 && i<174){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(157, 174));if(i==157)j++;}
-			if(i>=174 && i<198){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(174, 198));if(i==174)j++;}
-			if(i>=198 && i<216){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(198, 216));if(i==198)j++;}
-			if(i>=216 && i<235){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(216, 235));if(i==216)j++;}
-			if(i>=235 && i<249){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(235, 249));if(i==235)j++;}
-			if(i>=249 && i<264){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(249, 264));if(i==249)j++;}
-			if(i>=264 && i<286){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(264, 286));if(i==264)j++;}
-			if(i>=286 && i<305){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(286, 305));if(i==286)j++;}
-			if(i>=305 && i<327){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(305, 327));if(i==305)j++;}
-			if(i>=327 && i<351){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(327, 351));if(i==327)j++;}
-			if(i>=351 && i<365){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(351, 365));if(i==351)j++;}
-			if(i>=365 && i<380){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(365, 380));if(i==365)j++;}
-			if(i>=380 && i<395){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(380, 395));if(i==380)j++;}
-			if(i>=395 && i<415){result.put(VOL_NAME_BUCKET_ARRAY[j], volcanoList.subList(395, 415));if(i==395)j++;}
+		// Put each volcano into its bucket in the drop-down menu.
+		for ( int ii = 1; ii < VOL_NAME_BUCKET_ARRAY.length; ii++ ) {
+			String bktStr = VOL_NAME_BUCKET_ARRAY[ ii ];
+			String[] keys = bktStr.toUpperCase().split("-");
+			ArrayList<String>  volSubList = new ArrayList<String>();
+			
+			if ( keys != null && keys.length >= 1 ) {
+				
+				char key0 = keys[0].charAt(0);
+				char key1 = ( keys[0].length() > 1 ) ? keys[0].charAt(1) : 'A';
+				char key2 = ( keys.length > 1 ) ? keys[1].charAt(0) : keys[0].charAt(0);
+				char key3 = ( keys.length > 1 && keys[1].length() > 1) ? keys[1].charAt(1) : 'Z';
+				
+				for ( String volName : volcanoList ) {
+					String volN = new String( volName ).toUpperCase();
+
+					if ( key0 <= volN.charAt( 0 ) && volN.charAt( 0 ) <= key2  &&
+						 key1 <= volN.charAt( 1 ) && volN.charAt( 1 ) <= key3	) {
+						volSubList.add( volName );
+					}
+				}
+			}
+
+			result.put( bktStr, volSubList );
 		}
 		
 		return result;

@@ -11,6 +11,9 @@
  * 06/2009		87/114			L. Lin		Increase size of locationLine and location
  *                          				and generalize method "processLocation".
  * 07/2009		87/114			L. Lin		Migration to TO11
+ * 07/2011		87/114			F. J. Yen	Fix for RTN TTR 9973--ConvSigmet Decoder Ignoring
+ * 											time range--implemented fix from Steven Harris,
+ * 											RTN to set the end time range
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -34,6 +37,8 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 public class ConvSigmetDecoder extends AbstractDecoder {
@@ -147,6 +152,8 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                 /*
                  * process each section in a order of section and location line
                  */
+                Calendar min = null;
+                Calendar max = null;
                 for (String segment : segmentList) {
 
                     // starts a new section
@@ -162,6 +169,14 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                                 .processSection(segment, issueTime, startTime,
                                         region, headers);
                         record.addConvSigmetSection(section);
+
+                        // keep track of time range
+                        if (min == null || min.getTime().after(section.getStartTime().getTime())) {
+                        	min = section.getStartTime();
+                        }
+                        if (max == null || max.getTime().before(section.getEndTime().getTime())) {
+                        	max = section.getEndTime();
+                        }
                     } else if (whatSection.equals("VALID")) {
                         segment = "OUTLOOK".concat(segment);
 
@@ -184,6 +199,12 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                             ConvSigmetSection outlook = ConvSigmetParser
                                     .processOutLook(segment, region, headers);
                             record.addConvSigmetSection(outlook);
+                            if (min == null || min.getTime().after(outlook.getStartTime().getTime())) {
+                            	min = outlook.getStartTime();
+                            }
+                            if (max == null || max.getTime().before(outlook.getEndTime().getTime())) {
+                            	max = outlook.getEndTime();
+                            }
                         } else {
                             /*
                              * Here are more than one outlook areas Store the
@@ -200,10 +221,21 @@ public class ConvSigmetDecoder extends AbstractDecoder {
                                         .processOutLook(outlookSection, region,
                                                 headers);
                                 record.addConvSigmetSection(outlook);
+                                if (min == null || min.getTime().after(
+                                		outlook.getStartTime().getTime())) {
+                                	min = outlook.getStartTime();
+                                }
+                                if (max == null || max.getTime().before(
+                                		outlook.getEndTime().getTime())) {
+                                	max = outlook.getEndTime();
+                                }
                             }
                         }
                     }
                 }
+                record.setDataTime(new DataTime(record.getDataTime().getRefTimeAsCalendar(),
+                		new TimeRange(min.getTime(),
+                		max.getTimeInMillis() - min.getTimeInMillis())));
             } catch (Exception e) {
                 logger.error("Error processing decoded sigmet", e);
                 record = null;
