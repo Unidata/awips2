@@ -302,7 +302,8 @@ public class DbQueryRequest implements IServerRequest {
                 + ", orderBy="
                 + (orderBy == null ? "null" : String.format(
                         "[field=%s, mode=%s]", orderBy.field,
-                        orderBy.mode.toString())) + "]";
+                        orderBy.mode.toString()))
+                + (limit == null ? "" : ", limit=" + limit) + "]";
     }
 
 }
