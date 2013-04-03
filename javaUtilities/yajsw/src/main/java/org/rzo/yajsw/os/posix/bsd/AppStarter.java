@@ -33,6 +33,10 @@ public class AppStarter
 		CLibrary.INSTANCE.umask(0);
 		CLibrary.INSTANCE.setsid();
 
+		/*
+		 * bkowal
+		 * Suppress extraneous output.
+		 */
 		//System.out.println("calling exec");
 		// close streams ?
 		if (!isPipeStreams())
