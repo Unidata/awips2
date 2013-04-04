@@ -52,7 +52,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -61,8 +61,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.core.notification.NotificationMessageContainsType;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableComp;
@@ -125,6 +125,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /** TableDataManager object. */
     private TableDataManager<SubscriptionManagerRowData> subManagerData;
+
+    /** Checks for the notification message to be those we care about. **/
+    private final NotificationMessageContainsType notificationMessageChecker = new NotificationMessageContainsType(
+            BaseSubscriptionNotificationResponse.class);
 
     /**
      * Enumeration to determine the type of subscription dialog this class is
@@ -828,28 +832,14 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
-        final ArrayList<Subscription> updatedSubscriptions = new ArrayList<Subscription>();
-        try {
-            for (NotificationMessage msg : messages) {
-                Object obj = msg.getMessagePayload();
-                if (obj instanceof SubscriptionNotificationResponse) {
-                    SubscriptionNotificationResponse response = (SubscriptionNotificationResponse) obj;
-                    Subscription sub = response.getSubscription();
-                    if (sub != null) {
-                        updatedSubscriptions.add(sub);
-                    }
-                }
-            }
-        } catch (NotificationException e) {
-            statusHandler.error("Error when receiving notification", e);
-        }
 
-        if (updatedSubscriptions.isEmpty() == false) {
+        if (notificationMessageChecker.matchesCondition(messages)) {
+            // Just refresh the whole table on a notification arriving
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    if (isDisposed() == false) {
-                        updateTable(updatedSubscriptions);
+                    if (!isDisposed()) {
+                        handleRefresh();
                     }
                 }
             });
