@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.auth.roles;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
+
 /**
  * Storage class for roles. Should have a concept of a default role which all
  * users get by default and the ability to lookup a role given an id. NOTE, ALL
@@ -40,19 +42,32 @@ package com.raytheon.uf.edex.auth.roles;
 public interface IRoleStorage {
 
     /**
-     * Given the (case insensitive) role id, return the role object
+     * Determine if the permission is valid for the user in the application.
      * 
-     * @param roleId
-     * @return
+     * @param permission
+     *            The permissions id
+     * @param user
+     *            The user id
+     * @param application
+     *            The application
+     * 
+     * @return true if the permission is authorized for the user in the
+     *         specified application
+     * @throws AuthorizationException
      */
-    public IRole lookupRole(String roleId);
+    public boolean isAuthorized(String permission, String user,
+            String application) throws AuthorizationException;
 
     /**
-     * Given the role, determine if it is the default role
+     * Get all the defined permissions for this application.
      * 
-     * @param role
-     * @return
+     * @param application
+     *            The application
+     * 
+     * @return String[] of permissions
+     * @throws AuthorizationException
      */
-    public boolean isDefaultRole(IRole role);
+    public String[] getAllDefinedPermissions(String application)
+            throws AuthorizationException;
 
 }

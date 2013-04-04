@@ -44,8 +44,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -107,6 +105,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
@@ -159,7 +158,9 @@ import com.vividsolutions.jts.geom.Envelope;
  * 03/01/2008              chammack    Initial Creation.
  * Aug 20, 2008            dglazesk    Update for the ColorMap interface change
  * Nov 23, 2011            mli         set vector lineStyle
- * May 11, 2012            njensen    Allow rsc to be recycled
+ * May 11, 2012            njensen     Allow rsc to be recycled
+ * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
+ * Mar 04, 2013 1637       randerso    Fix time matching for ISC grids
  * 
  * </pre>
  * 
@@ -171,28 +172,28 @@ import com.vividsolutions.jts.geom.Envelope;
 public class GFEResource extends
         AbstractVizResource<GFEResourceData, MapDescriptor> implements
         IResourceDataChanged, IContextMenuContributor, IMessageClient {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEResource.class);
 
     /** maximum label size in pixels */
-    private static final int maxLabelLength = 100;
+    private final int maxLabelLength = 100;
 
     /** maximum label height in pixels */
     @SuppressWarnings("unused")
-    private static final int maxLabelHeight = 40;
+    private final int maxLabelHeight = 40;
 
     /** distance between labels */
-    private static final int pixelDistance = 125;
+    private final int pixelDistance = 125;
 
-    private static final Set<VisualizationType> OUTLINE_TYPES = EnumSet.of(
+    private final Set<VisualizationType> OUTLINE_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
             VisualizationType.WIND_BARB, VisualizationType.BOUNDED_AREA);
 
-    private static final Set<VisualizationType> DENSITY_TYPES = EnumSet.of(
+    private final Set<VisualizationType> DENSITY_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
             VisualizationType.WIND_BARB);
 
-    private static final Set<VisualizationType> MAG_TYPES = EnumSet.of(
+    private final Set<VisualizationType> MAG_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
             VisualizationType.WIND_BARB, VisualizationType.BOUNDED_AREA);
 
@@ -254,6 +255,7 @@ public class GFEResource extends
         @Override
         public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
             resetFrame(timeRange);
+            TimeMatchingJob.scheduleTimeMatch(getDescriptor());
         }
 
     };
@@ -274,7 +276,7 @@ public class GFEResource extends
         }
 
     };
-    
+
     /**
      * Construct a resource that is capable of displaying a particular parm
      * 
@@ -310,7 +312,6 @@ public class GFEResource extends
         lastIscMode = dataManager.getParmManager().iscMode();
 
         updateRightClickMenu();
-
     }
 
     public void reset() {
@@ -455,7 +456,14 @@ public class GFEResource extends
             PaintProperties paintProps) throws VizException {
 
         GFEPaintProperties myPaintProps = (GFEPaintProperties) paintProps;
-        this.curTime = myPaintProps.getDataTime();
+
+        // TODO: Time matching changes for Hazard Services broke display of ISC
+        // grids when in ISC mode with no Fcst grid present. This fixes the
+        // issue for now but will need to be resolved for Hazard Services
+
+        // this.curTime = myPaintProps.getDataTime();
+        this.curTime = new DataTime(this.dataManager.getSpatialDisplayManager()
+                .getSpatialEditorTime());
 
         if (curTime == null) {
             return;
@@ -585,8 +593,9 @@ public class GFEResource extends
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         vectorSlice = new VectorGridSlice();
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                new GridID(this.parm, this.curTime
-                                        .getValidPeriod().getStart()), true,
+                                new GridID(this.parm, this.dataManager
+                                        .getSpatialDisplayManager()
+                                        .getSpatialEditorTime()), true,
                                 vectorSlice);
                     }
 
@@ -655,8 +664,9 @@ public class GFEResource extends
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         scalarSlice = new ScalarGridSlice();
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                new GridID(this.parm, this.curTime
-                                        .getValidPeriod().getStart()), true,
+                                new GridID(this.parm, this.dataManager
+                                        .getSpatialDisplayManager()
+                                        .getSpatialEditorTime()), true,
                                 scalarSlice);
 
                     }
@@ -701,8 +711,9 @@ public class GFEResource extends
 
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         slice = new DiscreteGridSlice();
-                        GridID gid = new GridID(parm, this.curTime
-                                .getValidPeriod().getStart());
+                        GridID gid = new GridID(parm, this.dataManager
+                                .getSpatialDisplayManager()
+                                .getSpatialEditorTime());
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
                                 gid, true, slice);
                     }
@@ -784,8 +795,9 @@ public class GFEResource extends
 
                     if (dataManager.getParmManager().iscMode() || iscParm) {
                         slice = new WeatherGridSlice();
-                        GridID gid = new GridID(parm, this.curTime
-                                .getValidPeriod().getStart());
+                        GridID gid = new GridID(parm, this.dataManager
+                                .getSpatialDisplayManager()
+                                .getSpatialEditorTime());
                         mask = dataManager.getIscDataAccess().getCompositeGrid(
                                 gid, true, slice);
                     }
@@ -1202,7 +1214,6 @@ public class GFEResource extends
     }
 
     private class FuzzValueAction extends AbstractRightClickAction {
-
         public FuzzValueAction() {
             super("Set Fuzz Value...");
 
@@ -1210,13 +1221,7 @@ public class GFEResource extends
 
         @Override
         public void run() {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            FuzzValueDialog fuzz = new FuzzValueDialog(shell, dataManager);
-
-            fuzz.setBlockOnOpen(true);
-            fuzz.open();
+            FuzzValueDialog.openDialog(dataManager);
         }
     }
 

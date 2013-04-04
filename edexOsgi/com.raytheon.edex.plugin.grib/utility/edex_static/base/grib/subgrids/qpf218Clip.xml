@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>HPCqpf</modelNames>
-   <referenceModel>RFCqpf</referenceModel>
+   <referenceGrid>226</referenceGrid>
    <nx>175</nx>
    <ny>175</ny>
    <!-- 

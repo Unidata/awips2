@@ -28,6 +28,7 @@ import com.raytheon.viz.warngen.text.ICommonPatterns;
  * ------------	----------	-----------	--------------------------
  * Jul 22, 2008	#1284			bwoodle	Initial creation
  * Oct 18, 2012 15332           jsanchez Fixed refactor bugs.
+ * Mar 13, 2013 DR 15892    D. Friedman  Handle SMW format in canceledAreasFromText
  * 
  * </pre>
  * 
@@ -42,6 +43,8 @@ public class FollowUpUtil {
 
     public static final Pattern vtecPtrn = Pattern
             .compile("/[OTEX]\\.([A-Z]{3})\\.[A-Za-z0-9]{4}\\.[A-Z]{2}\\.[WAYSFON]\\.\\d{4}\\.\\d{6}T\\d{4}Z-\\d{6}T\\d{4}Z/");
+
+    private static final String SMW_CANCELED_AREAS_HEADER = "THE AFFECTED AREAS WERE...";
 
     /**
      * This method checks whether a particular followup should be available
@@ -173,7 +176,8 @@ public class FollowUpUtil {
         String headline = "";
         Pattern listOfAreaNamePtrn = Pattern
                 .compile(ICommonPatterns.listOfAreaName);
-        for (String line : originalText.trim().split("\n")) {
+        String[] splitLines = originalText.trim().split("\n");
+        for (String line : splitLines) {
             if (line.contains("TEST") || line.trim().length() == 0) {
                 continue;
             }
@@ -198,8 +202,15 @@ public class FollowUpUtil {
                 headline += line;
             }
         }
-        String[] ugcs = ugcLine.split("-");
-        String[] names = namesLine.split("-");
+        String[] ugcs = FipsUtil.getListCounties(ugcLine).toArray(new String[0]);
+        String[] names;
+        boolean smwAreas = false;
+        if (namesLine.length() > 0)
+            names = namesLine.split("-");
+        else {
+            names = parseSMWCanceledAreas(splitLines);
+            smwAreas = true;
+        }
         String[] areas = headline.split("\\.\\.\\.");
 
         ArrayList<AffectedAreas> al = new ArrayList<AffectedAreas>();
@@ -222,13 +233,21 @@ public class FollowUpUtil {
                     areasNotation = "COUNTIES";
                 }
             }
+            
+            if (ugc.length() < 3)
+                continue; // TODO: log?
 
             fips = ugc.substring(ugc.length() - 3);
 
             if (i < names.length) {
-                name = names[i].substring(0, names[i].length() - 3);
-                stateAbbreviation = names[i].substring(names[i].length() - 2);
-            }
+                if (!smwAreas && names[i].length() >= 3) {
+                    name = names[i].substring(0, names[i].length() - 3);
+                    stateAbbreviation = names[i].substring(names[i].length() - 2);
+                } else {
+                    name = names[i];
+                }
+            } else
+                break;
 
             if (name != null) {
                 for (String area : areas) {
@@ -333,5 +352,33 @@ public class FollowUpUtil {
         }
 
         return rval;
+    }
+
+    /** Parses the canceled areas of an SMW, which have a different format
+     * from other products.
+     */
+    private static String[] parseSMWCanceledAreas(String[] splitLines) {
+        StringBuilder text = new StringBuilder(64);
+        boolean inAreas = false;
+        for (String line : splitLines) {
+            String trimmedLine = line.trim();
+            if (SMW_CANCELED_AREAS_HEADER.equals(trimmedLine))
+                inAreas = true;
+            else if (inAreas) {
+                if (trimmedLine.length() > 0) {
+                    text.append(trimmedLine);
+                    text.append('\n');
+                } else
+                    break;
+            }
+        }
+        int len = text.length();
+        if (len >= 4 && "...\n".equals(text.substring(len - 4)))
+            text.delete(len - 4, len);
+        String[] areas = text.toString().split("\\.\\.\\.\\n");
+        // Unwrap lines.
+        for (int i = 0; i < areas.length; ++i)
+            areas[i] = areas[i].replace("\n", " ");
+        return areas;
     }
 }

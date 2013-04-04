@@ -1,7 +1,7 @@
 # Product Discipline 2: Land surface products, Parameter Category 0: Vegetation/Biomass
 #192-254 Reserved for local use
 192:192:Volumetric soil moisture content:Proportion:SOILW
-193:192:Ground heat flux:W/m^2:GFLUX
+193:193:Ground heat flux:W/m^2:GFLUX
 194:194:Moisture availability:%:MSTAV
 195:195:Exchange coefficient:kg*m^-2*s^-1:SFEXC
 196:196:Plant canopy surface water:mm:CNWAT

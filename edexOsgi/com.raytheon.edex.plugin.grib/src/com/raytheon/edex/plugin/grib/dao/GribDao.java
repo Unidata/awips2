@@ -68,7 +68,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
- * Data access object for accessing Grib records from the database
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -79,12 +79,15 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 4/7/09       1994        bphillip    Initial Creation
  * 5/31/12      #674        dgilling    Re-factor so all purge methods
  *                                      call updateCaches().
+ * 11/05/12     #1310       dgilling    Remove code from updateCatches()
+ *                                      that sent notification to D2DParmIdCache.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Deprecated
 public class GribDao extends PluginDao {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -95,8 +98,6 @@ public class GribDao extends PluginDao {
     private static final String HYBRID_LEVELS = "hybridLevels";
 
     private static final String THINNED_PTS = "thinnedPts";
-
-    private static final String REBUILD_CACHE_TOPIC = "jms-generic:topic:rebuildD2DCache";
 
     private static final String PURGE_MODEL_CACHE_TOPIC = "jms-generic:topic:purgeGribModelCache";
 
@@ -148,7 +149,6 @@ public class GribDao extends PluginDao {
      * @throws PluginException
      */
     private void updateCaches() throws PluginException {
-        Exception rethrow = null;
 
         try {
             List<Integer> orphanedIds = purgeGribModelOrphans();
@@ -156,24 +156,11 @@ public class GribDao extends PluginDao {
                     orphanedIds);
         } catch (DataAccessLayerException e) {
             statusHandler.error("Error purging orphaned grib model entries", e);
-            rethrow = e;
+            throw new PluginException("Error updating GribModelCache", e);
         } catch (EdexException e1) {
             statusHandler.error(
                     "Error sending message to purge grib model topic", e1);
-            rethrow = e1;
-        }
-        try {
-            EDEXUtil.getMessageProducer().sendAsyncUri(REBUILD_CACHE_TOPIC,
-                    null);
-        } catch (EdexException e) {
-            statusHandler.error(
-                    "Error sending message to rebuild D2D Cache topic", e);
-            rethrow = e;
-        }
-
-        if (rethrow != null) {
-            throw new PluginException(
-                    "Error updating GribModelCache or D2DParmIDCache", rethrow);
+            throw new PluginException("Error updating GribModelCache", e1);
         }
     }
 
@@ -261,6 +248,23 @@ public class GribDao extends PluginDao {
     }
 
     @Override
+    public IDataStore getDataStore(IPersistable obj) {
+        String persistDir = PLUGIN_HDF5_DIR.replace("grib", "grid")
+                + pathProvider.getHDFPath(this.pluginName, obj)
+                + File.separator;
+        String archive = pathProvider.getHDFFileName(this.pluginName, obj);
+
+        File persistFile = new File(persistDir, archive);
+        /* connect to the data store and retrieve the data */
+        return DataStoreFactory.getDataStore(persistFile);
+    }
+
+    @Override
+    protected String getHDF5Path(String productKey) {
+        return super.getHDF5Path(productKey).replace("grib", "grid");
+    }
+
+    @Override
     public List<IDataRecord[]> getHDF5Data(List<PluginDataObject> objects,
             int tileSet) throws PluginException {
 
@@ -284,23 +288,11 @@ public class GribDao extends PluginDao {
                     } else {
                         /* connect to the data store and retrieve the data */
 
-                        record = new IDataRecord[4];
+                        record = new IDataRecord[1];
 
-                        record[0] = dataStore.retrieve(obj.getDataURI(),
-                                "Data", Request.ALL);
-
-                        if (obj.isLocalSectionUsed()) {
-                            record[1] = dataStore.retrieve(obj.getDataURI(),
-                                    LOCAL_SECTION, Request.ALL);
-                        }
-                        if (obj.isHybridGrid()) {
-                            record[2] = dataStore.retrieve(obj.getDataURI(),
-                                    HYBRID_LEVELS, Request.ALL);
-                        }
-                        if (obj.isThinnedGrid()) {
-                            record[3] = dataStore.retrieve(obj.getDataURI(),
-                                    THINNED_PTS, Request.ALL);
-                        }
+                        record[0] = dataStore.retrieve(GribPathProvider
+                                .getInstance().getGroup(obj), "Data",
+                                Request.ALL);
 
                         retVal.add(record);
                     }

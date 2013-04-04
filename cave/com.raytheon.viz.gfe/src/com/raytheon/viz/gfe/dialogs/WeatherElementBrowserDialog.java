@@ -54,6 +54,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
@@ -72,6 +73,8 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 09/12/2012   #1117      dgilling    Revert previous changes, retrieve
  *                                     database list from ParmManager
  *                                     not EDEX.
+ * 10/30/2012   1298       rferrel     Code clean up non-blocking dialog.
+ *                                      Changes for non-blocking WeatherElementGroupDialog.
  * </pre>
  * 
  * @author ebabin
@@ -109,9 +112,9 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private ParmID[] currentDisplayedParms;
 
-    private static final Point size = new Point(603, 778);
+    private final Point size = new Point(603, 778);
 
-    private static final String IFP = "IFP";
+    private final String IFP = "IFP";
 
     /**
      * Constructor
@@ -197,32 +200,48 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     /**
      * Show the save weather element dialog.
      */
-    private void showSaveWeatherElementGroup(Menu loadWeatherElementGroupMenu) {
-
-        WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
+    private void showSaveWeatherElementGroup(
+            final Menu loadWeatherElementGroupMenu) {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
+        final WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
                 getShell(), dataManager, true);
-        dialog.setBlockOnOpen(true);
+        dialog.setBlockOnOpen(false);
+        dialog.setCloseCallback(new ICloseCallback() {
 
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (returnValue instanceof Integer) {
+                    int returnCode = (Integer) returnValue;
+                    if (returnCode == Window.OK) {
+                        String groupName = dialog.getSelectedItem();
+                        doSaveWeatherElementGroup(loadWeatherElementGroupMenu,
+                                groupName);
+                    }
+                }
+            }
+        });
         dialog.open();
-        if (dialog.getReturnCode() == Window.OK) {
-            String groupName = dialog.getSelectedItem();
-            if (groupName != null) {
-                ParmID[] selectedParmIds = getSelectedParmIDS();
-                if ((selectedParmIds != null) && (selectedParmIds.length > 0)) {
-                    ParmID[] availIds = selectedType.getPossibleParmIDs();
-                    if ((availIds != null) && (availIds.length != 0)) {
-                        dataManager.getWEGroupManager().save(groupName,
-                                selectedParmIds, availIds);
-                        boolean alreadyListed = false;
-                        for (MenuItem item : loadWeatherElementGroupMenu
-                                .getItems()) {
-                            if (item.getText().equals(groupName)) {
-                                alreadyListed = true;
-                            }
+    }
+
+    private void doSaveWeatherElementGroup(Menu loadWeatherElementGroupMenu,
+            String groupName) {
+        if (groupName != null) {
+            ParmID[] selectedParmIds = getSelectedParmIDS();
+            if ((selectedParmIds != null) && (selectedParmIds.length > 0)) {
+                ParmID[] availIds = selectedType.getPossibleParmIDs();
+                if ((availIds != null) && (availIds.length != 0)) {
+                    dataManager.getWEGroupManager().save(groupName,
+                            selectedParmIds, availIds);
+                    boolean alreadyListed = false;
+                    for (MenuItem item : loadWeatherElementGroupMenu.getItems()) {
+                        if (item.getText().equals(groupName)) {
+                            alreadyListed = true;
                         }
-                        if (!alreadyListed) {
-                            addWEGroup(loadWeatherElementGroupMenu, groupName);
-                        }
+                    }
+                    if (!alreadyListed) {
+                        addWEGroup(loadWeatherElementGroupMenu, groupName);
                     }
                 }
             }
@@ -232,22 +251,36 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     /**
      * Show delete weather element dialog.
      */
-    private void showDeleteWeatherElementGroup(Menu loadWeatherElementGroupMenu) {
+    private void showDeleteWeatherElementGroup(
+            final Menu loadWeatherElementGroupMenu) {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         final WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
                 getShell(), this.dataManager, false);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
-        if ((dialog.getReturnCode() == Window.OK)
-                && (dialog.getSelectedItem() != null)) {
-            String groupName = dialog.getSelectedItem();
-            // we may have just overridden a site or base level group, need to
-            // verify menu item can be deleted
-            if (dataManager.getWEGroupManager().remove(groupName)
-                    && !dataManager.getWEGroupManager().getInventory()
-                            .contains(groupName)) {
-                removeWEGroup(loadWeatherElementGroupMenu, groupName);
+        dialog.setBlockOnOpen(false);
+        dialog.setCloseCallback(new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (returnValue instanceof Integer) {
+                    int returnCode = (Integer) returnValue;
+                    if (returnCode == Window.OK
+                            && dialog.getSelectedItem() != null) {
+                        String groupName = dialog.getSelectedItem();
+                        // we may have just overridden a site or base level
+                        // group, need to verify menu item can be deleted
+                        if (dataManager.getWEGroupManager().remove(groupName)
+                                && !dataManager.getWEGroupManager()
+                                        .getInventory().contains(groupName)) {
+                            removeWEGroup(loadWeatherElementGroupMenu,
+                                    groupName);
+                        }
+                    }
+                }
             }
-        }
+        });
+        dialog.open();
     }
 
     /**

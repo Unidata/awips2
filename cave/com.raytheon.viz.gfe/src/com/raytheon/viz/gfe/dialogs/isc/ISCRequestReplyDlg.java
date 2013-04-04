@@ -39,6 +39,9 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -55,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ----------  ----------- --------------------------
  * 08/20/09      1995       lvenable    Initial port
  * 10/24/2008   1287        rferrel     Made dialog non-blocking.
+ * 12/28/2012   DR15587     jzeng       Query weather elements from fcst DB 
  * 
  * </pre>
  * 
@@ -226,6 +230,26 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
         this.xml = (String) response[0];
         this.weList = (List<String>) response[1];
         Collections.sort(this.weList);
+        
+        /*
+         * If the weList is empty, get it from database
+         */
+        if (this.weList.isEmpty() ){
+            String query = "Select distinct (parmname) from awips.gfe";
+            List<Object[]> list = null;
+            try {
+            	list = DirectDbQuery.executeQuery(query, "metadata",
+                    QueryLanguage.SQL);
+            	for (Object[] we : list){
+                    weList.add(we[0].toString());
+            	}
+            } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error querying database", e);
+            }
+        }
+
+        
         domainDict = (Map<String, Map<String, List<Map<String, String>>>>) response[2];
         serverDictT2S = (Map<String, Map<String, String>>) response[4];
 

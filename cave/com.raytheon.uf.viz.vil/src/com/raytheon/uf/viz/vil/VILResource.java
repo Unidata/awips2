@@ -49,7 +49,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
@@ -79,7 +78,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class VILResource extends
         AbstractVizResource<VILResourceData, MapDescriptor> implements
         IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(VILResource.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VILResource.class);
 
     public String icao;
 
@@ -218,9 +218,7 @@ public class VILResource extends
         gridDisplay = griddedDisplayMap.get(displayedDataTime);
         if (gridDisplay == null) {
             gridDisplay = new GriddedImageDisplay2(FloatBuffer.wrap(record
-                    .getDataArray()), record.getGridGeometry(), this,
-                    target.getViewType());
-            gridDisplay.init(target);
+                    .getDataArray()), record.getGridGeometry(), this);
             this.previousDataTime = displayedDataTime;
             griddedDisplayMap.put(displayedDataTime, gridDisplay);
         }
@@ -334,7 +332,7 @@ public class VILResource extends
         for (DataTime dTime : griddedDisplayMap.keySet()) {
             GriddedImageDisplay2 gDisplay = griddedDisplayMap.get(dTime);
             if (gDisplay != null) {
-                gDisplay.reproject();
+                gDisplay.project(descriptor.getGridGeometry());
             }
         }
     }

@@ -33,8 +33,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format.TextMode;
 import org.jdom.output.XMLOutputter;
-
+import org.jdom.output.Format;
 
 public class SacXMLTester
 {
@@ -473,14 +474,13 @@ public class SacXMLTester
 	public String toString()
 	{
 		StringWriter stringWriter = new StringWriter();
-		XMLOutputter outputter = new XMLOutputter();
+		Format format = Format.getPrettyFormat();
+		format = format.setIndent("	");
+		XMLOutputter outputter = new XMLOutputter(format);
 		String returnValue = null;
 		
 		try
 		{
-			outputter.setTextTrim( true );
-			outputter.setIndent( "	" );
-			outputter.setNewlines( true );
 			outputter.output( _inputXMLDoc, stringWriter );
 			returnValue = stringWriter.toString();
 		}
@@ -494,7 +494,9 @@ public class SacXMLTester
 
     private void writeXmlToFile(Document outputXmlDoc, String xmlFileName)
     {
-        XMLOutputter _xmlOutputter = new XMLOutputter("   ", true);
+    	Format format = Format.getRawFormat();
+    	format.setIndent("   ");
+        XMLOutputter _xmlOutputter = new XMLOutputter(format);
   
         try
         {
