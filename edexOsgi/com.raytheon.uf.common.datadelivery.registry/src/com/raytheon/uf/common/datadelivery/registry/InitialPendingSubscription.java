@@ -19,16 +19,6 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.registry.annotations.RegistryObject;
-import com.raytheon.uf.common.registry.annotations.SlotAttribute;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Initial Pending Subscription Object.
@@ -39,89 +29,51 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep  24, 2012           mpduff      Initial creation
- * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
- * Dec 12, 2012 1433       bgonzale    Use new Subscription copy ctor.
- * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
+ * Apr 02, 2013 1841       djohsnon    Converted to interface
  * 
  * </pre>
  * 
- * @author mpduff
+ * @author djohnson
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-@RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
-        Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
-        Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
-public class InitialPendingSubscription extends UserSubscription {
-    private static final long serialVersionUID = 2779084460608459754L;
+public interface InitialPendingSubscription extends Subscription {
 
-    public static final String CHANGE_REQUEST_ID_SLOT = "changeReqId";
-
-    /** ID of the user requesting the change */
-    @XmlAttribute
-    @DynamicSerializeElement
-    @SlotAttribute(CHANGE_REQUEST_ID_SLOT)
-    private String changeReqId;
-
-    /** Reason for requesting the change */
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String changeReason;
+    String CHANGE_REQUEST_ID_SLOT = "changeReqId";
 
     /**
-     * Constructor
+     * Set the change request id
+     * 
+     * @param changeReqId
+     *            the changeReqId to set
      */
-    public InitialPendingSubscription() {
-        //empty
-    }
+    void setChangeReqId(String changeReqId);
 
     /**
-     * Constructor
-     *
-     * @param subscription
-     *           subscription object
-     * @param user
-     *           user
-     */
-    public InitialPendingSubscription(UserSubscription subscription, String user) {
-        super(subscription);
-
-        this.setChangeReqId(user);
-        this.setDeleted(subscription.isDeleted());
-        this.setId(RegistryUtil.getRegistryObjectKey(this));
-    }
-
-
-
-    /**
-     * @param changeReqId the changeReqId to set
-     */
-    public void setChangeReqId(String changeReqId) {
-        this.changeReqId = changeReqId;
-    }
-
-    /**
+     * Retrieve the change request id
+     * 
      * @return the changeReqId
      */
-    public String getChangeReqId() {
-        return changeReqId;
-    }
+    String getChangeReqId();
 
     /**
+     * Get the change reason.
+     * 
      * @return the changeReason
      */
-    public String getChangeReason() {
-        return changeReason;
-    }
+    String getChangeReason();
 
     /**
-     * @param changeReason the changeReason to set
+     * Set the change reason.
+     * 
+     * @param changeReason
+     *            the changeReason to set
      */
-    public void setChangeReason(String changeReason) {
-        this.changeReason = changeReason;
-    }
+    void setChangeReason(String changeReason);
+
+    /**
+     * Create the subscription this pending subscription represents.
+     * 
+     * @return the subscription
+     */
+    Subscription subscription();
 }
