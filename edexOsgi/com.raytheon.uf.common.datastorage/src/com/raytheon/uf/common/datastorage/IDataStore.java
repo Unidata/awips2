@@ -37,7 +37,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Feb 9, 2007             chammack    Initial Creation.
  * Apr 1, 2008             chammack    Added delete API
  * Aug 3, 2009             chammack    Modified to support Request
- * Sep 27, 2010  5091   njensen       Added deleteFiles(String)
+ * Sep 27, 2010      5091  njensen     Added deleteFiles(String)
+ * Feb 12, 2013     #1608  randerso    Added explicit methods for deleting groups and datasets
  * 
  * </pre>
  * 
@@ -88,18 +89,30 @@ public interface IDataStore extends ISerializableObject {
     public abstract StorageStatus store() throws StorageException;
 
     /**
-     * Delete a (set of) location(s), where a location is either a group or a
-     * dataset. If all datasets have been deleted from a file, the file will be
-     * deleted also.
+     * Delete one or more datasets. If all datasets have been deleted from a
+     * file, the file will be deleted also.
      * 
-     * @param location
-     *            the full path to the group or dataset
+     * @param datasets
+     *            the full path to the dataset(s) to be deleted
      * @throws StorageException
      *             if deletion fails
      * @throws FileNotFoundException
      */
-    public abstract void delete(String... location) throws StorageException,
-            FileNotFoundException;
+    public abstract void deleteDatasets(String... datasets)
+            throws StorageException, FileNotFoundException;
+
+    /**
+     * Delete one or more groups and all subgroups/datasets they contain. If all
+     * datasets have been deleted from a file, the file will be deleted also.
+     * 
+     * @param groups
+     *            the full path to the group(s) to be deleted
+     * @throws StorageException
+     *             if deletion fails
+     * @throws FileNotFoundException
+     */
+    public abstract void deleteGroups(String... groups)
+            throws StorageException, FileNotFoundException;
 
     /**
      * Store all data records to a given data group, or replace it the group
@@ -163,10 +176,11 @@ public interface IDataStore extends ISerializableObject {
             Request request) throws StorageException, FileNotFoundException;
 
     /**
-     * Retrieve a set of datasets at given the Request parameters
+     * Retrieve multiple datasets from a single file
      * 
      * 
      * @param datasetGroupPath
+     *            the full path to a dataset.
      * @param request
      *            the request type to perform
      * @return a set of datarecords
@@ -177,7 +191,8 @@ public interface IDataStore extends ISerializableObject {
             Request request) throws StorageException, FileNotFoundException;
 
     /**
-     * Retrieve multiple groups from a single file
+     * Retrieve multiple groups from a single file, retrieves all datasets from
+     * each group.
      * 
      * NOTE: The request is applied to every group
      * 

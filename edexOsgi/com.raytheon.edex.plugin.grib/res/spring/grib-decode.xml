@@ -86,7 +86,7 @@
 							<pipeline>
 								<bean ref="stringToFile" />
 								<bean ref="largeFileChecker" />
-								<bean ref="gribDecoder" method="decode" />
+								<bean ref="gribDecoder" />
 								<bean ref="gribSplitter" method="clean" />
 								<!-- send for processing -->
 								<bean ref="gribPostProcessor" method="process" />

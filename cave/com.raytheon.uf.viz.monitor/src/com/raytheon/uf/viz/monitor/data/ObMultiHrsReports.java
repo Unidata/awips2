@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Dec 24, 2009  3424       zhao       added getTrendDataSet() that returns ObTrendDataSet object
  * Jan 25, 2010  4281, 3888, 3877 wkwock/zhao added getHistTableData method
  * Oct.31, 2012  1297       skorolev    Clean code.
+ * Jan. 29, 2013 15654      zhao       add Wind Chill calculation for SNOW  
  * 
  * </pre>
  * 
@@ -146,6 +147,16 @@ public class ObMultiHrsReports {
             report.setDewpointDepr(report.getTemperature()
                     - report.getDewpoint());
         }
+        /**
+         * DR15654: set Wind Chill for SNOW
+         */
+        if ( appName == AppName.SNOW ) {
+            if ( report.getTemperature() != ObConst.MISSING && report.getWindSpeed() != ObConst.MISSING ) {
+            	report.setWindChill(calcWindChill( report.getTemperature(), report.getWindSpeed() ));
+            }
+        	
+        }
+        
         if (multiHrsReports.containsKey(nominalTime)) {
             multiHrsReports.get(nominalTime).addReport(report);
         } else {
@@ -161,7 +172,28 @@ public class ObMultiHrsReports {
         }
     }
 
-    /**
+	/**
+	 * DR 15654:
+	 * Wind Chill calculation formula based on 
+	 * http://www.nws.noaa.gov/om/windchill/
+	 * as of Jan. 29, 2013
+	 * 
+	 * @param temperature in degree F
+	 * @param windSpeed in knots
+	 * @return wind chill in degree F
+	 */
+	private float calcWindChill(float temp, float windSpd) {
+		if ( temp > 50.0 || windSpd < 3.0 ) {
+			return ObConst.MISSING;
+		}
+		/**
+		 *  1 knots = 1.15078 mph
+		 */
+		float spd = (float) Math.pow(1.15078*windSpd, 0.16);
+		return 35.74f + 0.6215f*temp - 35.75f*spd + 0.4275f*temp*spd;
+	}
+
+	/**
      * Returns a zone TableData object of the latest nominal time. If no data
      * available (the map is empty), returns an empty zone TableData object
      * (table cells filled with "N/A").

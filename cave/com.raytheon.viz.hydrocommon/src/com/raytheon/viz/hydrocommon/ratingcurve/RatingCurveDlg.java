@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
@@ -73,6 +74,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 21 Feb 2010  4167        mpduff      Added TimeZone to SimpleDateFormat.
  * 29 Apr 2010  4993        mpduff      Fixed date format in error message.
  * 26 Jul 2012  14711/963   mpduff      Fix problems adding/removing shift points
+ * 22 Jan 2013  15682       lbousaidi   fix openfile problem and changed the path to
+ *                                      whfs_import_dir for "Import Curve" button.
  * </pre>
  * 
  * @author lvenable
@@ -517,16 +520,19 @@ public class RatingCurveDlg extends CaveSWTDialog {
         curveImportBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	final String tokenizedDir = "whfs_import_dir";                
+                String importRating= AppsDefaults.getInstance().getToken(tokenizedDir);
                 FileDialog fd = new FileDialog(shell, SWT.OPEN);
-                fd.setText("Open");
-                fd.setFilterPath("$HOME");
+                fd.setFilterPath(importRating);
                 String[] filterExt = { "*." + extension };
                 fd.setFilterExtensions(filterExt);
-                
-                String file = fd.open();
-                if (file != null) {
-                    importCurveData(importRatingCurve(fd.open()));
-                }
+                String filename = fd.open();
+                if (filename == null) {
+                    return;
+                } else {                   
+                    importCurveData(importRatingCurve(filename));
+                }      
+               
             }
         });
 

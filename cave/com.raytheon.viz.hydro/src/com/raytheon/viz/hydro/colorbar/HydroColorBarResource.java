@@ -62,6 +62,9 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2009            mpduff     Initial creation
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -193,8 +196,6 @@ public class HydroColorBarResource extends
                     .getCapability(ColorMapCapability.class);
             DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(
                     ColorMapCapability.class).getColorMapParameters());
-            ;
-            cmap.interpolate = false;
             cmap.alpha = 1.0f;
 
             // The y value to use for drawing

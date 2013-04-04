@@ -37,7 +37,7 @@ float mu_layer   = 400.0;   /* most-unstable layer */
 /* Titling junk */
 char raobtitle[80], stn_abbrev[4], raob_type[80], mdl_type[80];
 char raobtitle2[80], stn_abbrev2[4], raob_type2[80], mdl_type2[80];
-char raobsavefilename[256], sars_filename[80], sup_filename[80];
+char raobsavefilename[256], sars_filename[256], sup_filename[256]; //CHIN, change from 80 to 256
 
 History hist;
 

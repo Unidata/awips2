@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20080107            720  jkorman     remove default assignments from attributes.
  * 20080708           1174  jkorman     Added persistenceTime handling.
  * 20090206           1990  bphillip    Removed populateDataStore method
+ * 20130227        DCS 152  jgerth/elau Support for WWLLN and multiple sources
  * </pre>
  * 
  * @author jkorman
@@ -135,6 +136,13 @@ public class BinLightningRecord extends
     @DynamicSerializeElement
     @XmlAttribute
     private Calendar stopTime;
+    
+    // JJG - source of lightning data
+    @Column(length = 5)
+    @DataURI(position = 3)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String lightSource;
 
     // Used to track
     @Transient
@@ -207,7 +215,24 @@ public class BinLightningRecord extends
      *            A strike report to add.
      */
     public void addStrike(LightningStrikePoint strike) {
-        if (insertIndex < obsTimes.length) {
+		// jjg add
+		if (lightSource == null) {
+			if (strike.getLightSource() == null) {
+				lightSource = (String) "NLDN";
+			} else if (strike.getLightSource().isEmpty()) {
+				lightSource = (String) "UNKN";
+			} else {
+				lightSource = (String) strike.getLightSource();
+			}
+		} else {
+			if (strike.getLightSource() == null) {
+				lightSource = (String) "NLDN";
+			} else if (!lightSource.equals(strike.getLightSource()))
+				lightSource = (String) "UNKN";
+		}
+		// end
+
+    	if (insertIndex < obsTimes.length) {
             long t1 = startTimeMillis;
 
             Calendar c = TimeTools.getBaseCalendar(strike.getYear(),
@@ -380,6 +405,24 @@ public class BinLightningRecord extends
         return strikeCounts;
     }
 
+    /**
+     * JJG - Get the lightning source
+     * 
+     * @return
+     */
+    public String getLightSource() {
+        return lightSource;
+    }
+
+    /**
+     * JJG - Set the lightning source
+     * 
+     * @param lightSource
+     */
+    public void setLightSource(String lightSource) {
+        this.lightSource = lightSource;
+    }
+    
     /**
      * Get the IDecoderGettable reference for this record.
      * 

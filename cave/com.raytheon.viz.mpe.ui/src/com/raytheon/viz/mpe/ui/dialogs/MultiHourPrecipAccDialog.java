@@ -21,8 +21,6 @@ package com.raytheon.viz.mpe.ui.dialogs;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -35,28 +33,23 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.viz.hydrocommon.util.MPEColors;
-import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
-import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.DisplayMeanArealPrecipResource;
-import com.raytheon.viz.mpe.ui.rsc.DisplayMeanArealPrecipResourceData;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.ArealDisplay;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * TODO Add Description
@@ -74,17 +67,9 @@ import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
  * @version 1.0
  */
 
-public class MultiHourPrecipAccDialog extends Dialog {
-
-    private Shell shell;
+public class MultiHourPrecipAccDialog extends CaveSWTDialog {
 
     private Font font;
-
-    private Button okBtn;
-
-    private Button cancelBtn;
-
-    private int retval = 0;
 
     private Scale durScale;
 
@@ -104,133 +89,95 @@ public class MultiHourPrecipAccDialog extends Dialog {
 
     private Button valChk;
 
-    private boolean vals = false;
-
     private Button idChk;
-
-    private boolean ids = false;
 
     private Combo prodSetCbo;
 
     private final MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
 
-    private static final List<NamedColorUseSet> pColorSetGroup = MPEColors
-            .build_mpe_colors();
-
     private final MPEDataManager dataMgr = MPEDataManager.getInstance();
 
-    String[] accumAreaTypes = { "Grid", "Basin", "County", "Zone" };
+    private String[] accumAreaTypes = { "Grid", "Basin", "County", "Zone" };
 
-    String[] precipAccumInterval = { "1 Hour", "3 Hour", "6 Hour", "12 Hour",
-            "24 Hour", "36 Hour", "48 Hour", "72 Hour", "Other..." };
+    private ArealDisplay[] arealTypeObjects = { ArealDisplay.GRID,
+            ArealDisplay.BASIN, ArealDisplay.COUNTY, ArealDisplay.ZONE };
 
-    int[] precipAccumInt = { 1, 3, 6, 12, 24, 36, 48, 72 };
+    private String[] precipAccumInterval = { "1 Hour", "3 Hour", "6 Hour",
+            "12 Hour", "24 Hour", "36 Hour", "48 Hour", "72 Hour", "Other..." };
 
-    String[] displayType;
+    private int[] precipAccumInt = { 1, 3, 6, 12, 24, 36, 48, 72 };
 
-    String[] dispTypeName;
+    private String[] dispTypeName;
 
     private int accum_interval = 1;
 
-    private static final String APPLICATION_NAME = "hmapmpe";
-
-    HashMap<String, Integer> dispMap = new HashMap<String, Integer>();
-
-    DisplayFieldData[] dfDataMap;
-
-    String user_id = System.getProperty("user.name");
-
-    String app_name = APPLICATION_NAME;
-
-    List<Colorvalue> pColorSet = GetColorValues.get_colorvalues(user_id,
-            app_name, displayMgr.getDisplayFieldType().getCv_use(), displayMgr
-                    .getDisplayFieldType().getCv_duration(), "E",
-            pColorSetGroup);
+    private DisplayFieldData[] displayTypes;
 
     private Combo dispCbo;
 
     private DisplayMeanArealPrecipResource dma;
 
-    private XmrgResource xmrgRsc;
-
-    private IDescriptor descriptor;
-
     public MultiHourPrecipAccDialog(Shell parentShell) {
         super(parentShell);
+        setText("Multi-Hour Precipitation Accumulation");
     }
 
-    /**
-     * Open method used to display the Group Edit Stations dialog.
+    /*
+     * (non-Javadoc)
      * 
-     * @return Null.
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
-    public int open() {
-        Shell parent = getParent();
-        Display display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("Multi-Hour Precipitation Accumulation");
-
-        // Create the main layout for the shell.
+    @Override
+    protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, true);
         mainLayout.marginHeight = 1;
         mainLayout.marginWidth = 1;
-        shell.setLayout(mainLayout);
-
-        font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
-
-        // Initialize all of the controls and layouts
-        initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        font.dispose();
-
-        return retval;
+        return mainLayout;
     }
 
-    /**
-     * Initialize the dialog components.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
-    private void initializeComponents() {
+    @Override
+    protected void initializeComponents(Shell shell) {
+        font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
+
+        prevDate = displayMgr.getCurrentEditDate();
         cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        prevDate = displayMgr.getCurrentDate();
         cal.setTime(prevDate);
-        displayType = MPEDisplayManager.mpe_qpe_fields;
-        dispTypeName = new String[displayType.length];
-        dfDataMap = new DisplayFieldData[displayType.length];
-        int i = 0;
-        for (i = 0; i < displayType.length; i++) {
-            for (DisplayFieldData d : DisplayFieldData.values()) {
-                if (displayType[i].equalsIgnoreCase(d.name())) {
-                    dispTypeName[i] = d.toString();
-                    dispMap.put(displayType[i], i);
-                    dfDataMap[i] = d;
-                    break;
-                } else {
-                    continue;
-                }
-            }
+
+        displayTypes = MPEDisplayManager.mpe_qpe_fields;
+        dispTypeName = new String[displayTypes.length];
+        for (int i = 0; i < displayTypes.length; i++) {
+            dispTypeName[i] = displayTypes[i].toString();
         }
 
-        createProdListComp();
-        createIntervalComp();
-        createEndTimeComp();
+        createProdListComp(shell);
+        createIntervalComp(shell);
+        createEndTimeComp(shell);
         updateTimeControls();
-        createAccDispComp();
-        createButtonComp();
+        createAccDispComp(shell);
+        createButtonComp(shell);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        font.dispose();
     }
 
     /**
      * Create the data options group and controls.
      */
-    private void createProdListComp() {
+    private void createProdListComp(Shell shell) {
 
         // Create a container to hold the label and the combo box.
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -247,19 +194,25 @@ public class MultiHourPrecipAccDialog extends Dialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         prodSetCbo = new Combo(prodListComp, SWT.LEFT | SWT.DROP_DOWN
                 | SWT.READ_ONLY);
-        int selector = dispMap.get("Xmrg");
-        DisplayFieldData dstype = MPEDisplayManager.getCurrent()
-                .getDisplayFieldType();
-        if ((dstype != null) && dispMap.containsKey(dstype.name())) {
-            selector = dispMap.get(dstype.name());
+
+        int selector = -1;
+        DisplayFieldData currData = displayMgr.getDisplayFieldType();
+        if (currData == null) {
+            currData = DisplayFieldData.Xmrg;
         }
+        for (selector = 0; selector < displayTypes.length; ++selector) {
+            if (displayTypes[selector] == currData) {
+                break;
+            }
+        }
+
         prodSetCbo.setTextLimit(35);
         prodSetCbo.setLayoutData(gd);
         prodSetCbo.setItems(dispTypeName);
         prodSetCbo.select(selector);
     }
 
-    private void createIntervalComp() {
+    private void createIntervalComp(Shell shell) {
         Group intervalOptionsGroup = new Group(shell, SWT.NONE);
         intervalOptionsGroup.setText("Accumulation Interval Setup");
         GridLayout groupLayout = new GridLayout(1, false);
@@ -335,7 +288,7 @@ public class MultiHourPrecipAccDialog extends Dialog {
 
     }
 
-    private void createEndTimeComp() {
+    private void createEndTimeComp(Shell shell) {
         // create date area
         Group dateComp = new Group(shell, SWT.SHADOW_ETCHED_IN);
         GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -410,7 +363,7 @@ public class MultiHourPrecipAccDialog extends Dialog {
         });
     }
 
-    private void createAccDispComp() {
+    private void createAccDispComp(Shell shell) {
         Group accDispCompGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
         GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         accDispCompGroup.setLayoutData(data);
@@ -439,8 +392,6 @@ public class MultiHourPrecipAccDialog extends Dialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (dispCbo.getText().equalsIgnoreCase("Grid")) {
-                    ids = false;
-                    vals = false;
                     valChk.setEnabled(false);
                     idChk.setEnabled(false);
                 } else {
@@ -459,26 +410,14 @@ public class MultiHourPrecipAccDialog extends Dialog {
         valChk.setText("Values");
         valChk.setData(0);
         valChk.setEnabled(false);
-        valChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                vals = !vals;
-            }
-        });
 
         idChk = new Button(dispComp, SWT.CHECK);
         idChk.setText("Ids");
         idChk.setData(1);
         idChk.setEnabled(false);
-        idChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ids = !ids;
-            }
-        });
     }
 
-    private void createButtonComp() {
+    private void createButtonComp(Shell shell) {
         // Create a container to hold the button.
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Composite okBtnComp = new Composite(shell, SWT.NONE);
@@ -487,96 +426,28 @@ public class MultiHourPrecipAccDialog extends Dialog {
         okBtnComp.setLayoutData(gd);
 
         GridData bd = new GridData(110, 30);
-        okBtn = new Button(okBtnComp, SWT.PUSH);
+        Button okBtn = new Button(okBtnComp, SWT.PUSH);
         okBtn.setText("Show Data");
         okBtn.setLayoutData(bd);
         okBtn.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
-                retval = 1;
-                displayMgr.clearMPEData();
-                MPEDisplayManager.getCurrent().setAccum_interval(accum_interval);
-                MPEDisplayManager.getCurrent().setCurrentDate(cal.getTime());
-                displayMgr.setAccum_interval(accum_interval);
-                displayMgr.setOtherDispType(DisplayFieldData.multiHour);
-                IRenderableDisplay display = displayMgr.getRenderableDisplay();
-                IDescriptor descriptor = display.getDescriptor();
-                MultiHourPrecipAccDialog.this.descriptor = descriptor;
-                xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                        .getDisplayedResource();
-                // Update the screen
-                if (dispCbo.getText().equalsIgnoreCase("Grid")) {
-                    if (descriptor.getResourceList().containsRsc(dma)) {
-                        descriptor.getResourceList().removeRsc(dma);
-                        dma.dispose();
-                    }
-                    displayMgr.setDisplayFieldType(dfDataMap[prodSetCbo
-                            .getSelectionIndex()]);
-                    xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                            .getDisplayedResource();
-
-                    xmrgRsc.updateXmrg(false);
-                } else {
-                    if (descriptor.getResourceList().containsRsc(dma)) {
-                        descriptor.getResourceList().removeRsc(dma);
-                        dma.dispose();
-                    }
-
-                    displayMgr.setDisplayFieldType(dfDataMap[prodSetCbo
-                            .getSelectionIndex()]);
-                    ResourcePair rp = new ResourcePair();
-                    DisplayMeanArealPrecipResourceData dmad = new DisplayMeanArealPrecipResourceData(
-                            displayMgr, dispCbo.getText().toUpperCase(),
-                            pColorSet);
-                    rp.setResourceData(dmad);
-                    descriptor.getResourceList().add(rp);
-                    descriptor.getResourceList().instantiateResources(
-                            descriptor, true);
-                    dma = (DisplayMeanArealPrecipResource) rp.getResource();
-
-                    DisplayMeanArealPrecipResource.vals = vals;
-                    DisplayMeanArealPrecipResource.ids = ids;
-                }
+                showAccumulationData();
             }
         });
 
         bd = new GridData(110, 30);
-        cancelBtn = new Button(okBtnComp, SWT.PUSH);
+        Button cancelBtn = new Button(okBtnComp, SWT.PUSH);
         cancelBtn.setText("Close");
         cancelBtn.setLayoutData(bd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
-                retval = 0;
                 if (dma != null) {
-                    if (descriptor.getResourceList().containsRsc(dma)) {
-                        descriptor.getResourceList().removeRsc(dma);
-                    }
-                    dma.dispose();
+                    displayMgr.getRenderableDisplay().getDescriptor()
+                            .getResourceList().removeRsc(dma);
                 }
-                // if (xmrgRsc != null) {
-                // if (descriptor.getResourceList().containsRsc(xmrgRsc)) {
-                // descriptor.getResourceList().removeRsc(xmrgRsc);
-                // }
-                // xmrgRsc.dispose();
-                // }
-                shell.dispose();
+                close();
             }
         });
     }
@@ -592,5 +463,43 @@ public class MultiHourPrecipAccDialog extends Dialog {
         monthText.setText(Integer.toString(cal.get(Calendar.MONTH) + 1));
         daySpinner.setSelection(cal.get(Calendar.DAY_OF_MONTH));
         hourSpinner.setSelection(cal.get(Calendar.HOUR_OF_DAY));
+    }
+
+    private void showAccumulationData() {
+        int accumHrs = accum_interval;
+        Date editTime = cal.getTime();
+        ArealDisplay arealDisplay = arealTypeObjects[dispCbo
+                .getSelectionIndex()];
+        DisplayFieldData displayField = displayTypes[prodSetCbo
+                .getSelectionIndex()];
+
+        IRenderableDisplay display = displayMgr.getRenderableDisplay();
+        IDescriptor descriptor = display.getDescriptor();
+        if (displayMgr.setCurrentEditDate(editTime)) {
+            if (dma != null) {
+                descriptor.getResourceList().removeRsc(dma);
+                dma = null;
+            }
+
+            if (arealDisplay == ArealDisplay.GRID) {
+                displayMgr.displayFieldData(displayField, accumHrs,
+                        arealDisplay);
+                MPEFieldResource resource = displayMgr
+                        .getDisplayedFieldResource();
+                resource.getResourceData().setDisplayIds(idChk.getSelection());
+                resource.getResourceData().setDisplayValues(
+                        valChk.getSelection());
+                resource.issueRefresh();
+            } else {
+                // TODO: Move functionality of this resource to
+                // AbstractMPEGriddedResource and delete this one
+                displayMgr.displayFieldData(displayField);
+                dma = new DisplayMeanArealPrecipResource(displayMgr,
+                        arealDisplay.name(), displayField, accumHrs);
+                DisplayMeanArealPrecipResource.vals = valChk.getSelection();
+                DisplayMeanArealPrecipResource.ids = idChk.getSelection();
+                descriptor.getResourceList().add(dma);
+            }
+        }
     }
 }

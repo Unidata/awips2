@@ -33,7 +33,7 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 27, 2009 #2161      lvenable     Initial creation
- * 
+ * Jan 24, 2013 #1516      rferrel     Added setActiveDataSelection
  * </pre>
  * 
  * @author lvenable
@@ -57,4 +57,11 @@ public interface IDataMenuAction {
      * @return The active data selection.
      */
     DataSelection getActiveDataSelection();
+
+    /**
+     * Set the active data selection.
+     * 
+     * @param dataSelection
+     */
+    void setActiveDataSelection(DataSelection dataSelection);
 }

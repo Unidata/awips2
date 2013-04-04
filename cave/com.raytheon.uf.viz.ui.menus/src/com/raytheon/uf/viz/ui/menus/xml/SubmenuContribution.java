@@ -65,7 +65,8 @@ public class SubmenuContribution extends
             return new IContributionItem[0];
 
         return new IContributionItem[] { new SubmenuContributionItem(subs,
-                item.menuText, item.contributions, new HashSet<String>()) };
+                item.id, item.menuText, item.contributions,
+                new HashSet<String>()) };
     }
 
 }

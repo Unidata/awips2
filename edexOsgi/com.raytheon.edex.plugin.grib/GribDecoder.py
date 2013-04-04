@@ -129,6 +129,8 @@ THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/7/09         #1994         bphillip       Initial Creation.
+#    Mar 25, 2013    1821          bsteffen       Reshape grib data arrays in
+#                                                 place to improve performance.
 #    
 class GribDecoder():
 
@@ -327,7 +329,7 @@ class GribDecoder():
         if scanMode is not None:
             
             if not thinnedGrid:
-                numpyDataArray = numpy.resize(data, (ny, nx))
+                numpyDataArray = numpy.reshape(data, (ny, nx))
                     
             # Check if rows are scanned in opposite direction.  If so, we need to flip them around 
             if scanMode & 16 == 16:
@@ -373,7 +375,7 @@ class GribDecoder():
         if subCoverage is not None:
             subGrid = spatialCache.getSubGrid(modelName, gridCoverage)
             # resize the data array
-            numpyDataArray = numpy.resize(numpyDataArray, (ny, nx))
+            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
             startx = subGrid.getUpperLeftX()
             starty = subGrid.getUpperLeftY()
             subnx = subGrid.getNX()
@@ -399,7 +401,7 @@ class GribDecoder():
             # set the new coverage
             gdsSectionValues['coverage'] = subCoverage
 
-        numpyDataArray = numpy.resize(numpyDataArray, (1, metadata[4]))        
+        numpyDataArray = numpy.reshape(numpyDataArray, (1, metadata[4]))        
         
         newAbbr = GribParamTranslator.getInstance().translateParameter(2, pdsSectionValues['parameterAbbreviation'], pdsSectionValues['centerid'], pdsSectionValues['subcenterid'], pdsSectionValues['genprocess'], dataTime, gridCoverage)
         
