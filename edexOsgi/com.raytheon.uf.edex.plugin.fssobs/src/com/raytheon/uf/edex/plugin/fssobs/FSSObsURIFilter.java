@@ -1,9 +1,9 @@
 package com.raytheon.uf.edex.plugin.fssobs;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -13,40 +13,68 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * FSSObs URI Filter
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Dec 5, 2012  #1351      skorolev    Cleaned code
+ * 
+ * </pre>
+ * 
+ * @author skorolev
+ * @version 1.0
+ */
 public class FSSObsURIFilter extends URIFilter {
 
-    public String stn; // station
+    /** Station ID **/
+    private String stn;
 
-    public String cwa;
+    /** CWA **/
+    private String cwa;
 
-    public String monitorName;
+    /** Monitor's name **/
+    private String monitorName;
 
-    public Coordinate stationCoor = null;
+    /** Station coordinates **/
+    private Coordinate stationCoor = null;
 
-    /** patterns used for matching URI's **/
+    /** Patterns used for matching URI's **/
     private HashMap<String, Pattern> patternKeys = null;
 
-    public Pattern MetarPattern = null;
+    /** METAR Pattern **/
+    private Pattern MetarPattern = null;
 
-    public Pattern MaritimePattern = null;
+    /** Maritime Pattern **/
+    private Pattern MaritimePattern = null;
 
-    public Pattern MesowestPattern = null;
+    /** Mesowest Pattern **/
+    private Pattern MesowestPattern = null;
 
-    // IDecoderConstants
-
-    // callback to the generator
-    public FSSObsGenerator fssgen = null;
-
-    // Current data type #METAR, #Maritime or #Mesonet
+    /** Current data type #METAR, #Maritime or #Mesonet **/
     private String dataType;
 
+    /** Current Site **/
     private String currentSite = SiteUtil.getSite();
 
-    // dataTypes to process
-    private HashMap<String, Pattern> dataTypes;
+    /** Date format **/
+    private static String datePattern = "yyyy-MM-dd_HH:mm:ss.S";
 
-    public static String datePattern = "yyyy-MM-dd_HH:mm:ss.S";
+    /** Station type **/
+    private enum StnType {
+        METAR, MARITIME, MESONET
+    };
 
+    /**
+     * Constructor
+     * 
+     * @param name
+     *            Monitor name
+     */
     public FSSObsURIFilter(String name) {
         super(name);
         logger.info("FSSObsFilter " + name + " Filter construction...");
@@ -61,22 +89,28 @@ public class FSSObsURIFilter extends URIFilter {
         setMatchURIs();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.edex.urifilter.URIFilter#setMatchURIs()
+     */
     @Override
     public void setMatchURIs() {
-        ArrayList<String> stns = FSSObsUtils.getStations(name);
+        List<String> stns = FSSObsUtils.getStations(name);
+        Pattern pat = Pattern.compile("#");
         for (String st : stns) {
-            String[] tokens = st.split("#");
+            String[] tokens = pat.split(st);
             setStn(tokens[0]);
             setDataType(tokens[1]);
-            if (getDataType().equals("METAR")) {
+            if (getDataType().equals(StnType.METAR.name())) {
                 setMetarPattern();
                 getMatchURIs().put(getMetarPattern(), 0l);
             }
-            if (getDataType().equals("MARITIME")) {
+            if (getDataType().equals(StnType.MARITIME.name())) {
                 setMaritimePattern();
                 getMatchURIs().put(getMaritimePattern(), 0l);
             }
-            if (getDataType().equals("MESONET")) {
+            if (getDataType().equals(StnType.MESONET.name())) {
                 setMesowestPattern();
                 getMatchURIs().put(getMesowestPattern(), 0l);
             }
@@ -86,6 +120,13 @@ public class FSSObsURIFilter extends URIFilter {
     /**
      * @param message
      * @return boolean
+     */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.urifilter.URIFilter#isMatched(com.raytheon.edex.msg
+     * .DataURINotificationMessage)
      */
     @Override
     public boolean isMatched(DataURINotificationMessage message) {
@@ -112,11 +153,16 @@ public class FSSObsURIFilter extends URIFilter {
                                     + " Age of MatchedURI: " + duration
                                     / (1000 * 60) + " minutes");
 
-                            // got a replacement
-                            logger.debug(name + ": not new. " + dataUri
-                                    + " Age of MatchURI: "
-                                    + getMatchURIs().get(pattern).longValue()
-                                    / (1000 * 60) + " minutes");
+                            if (logger.isDebugEnabled()) {
+                                // got a replacement
+                                logger.debug(name
+                                        + ": not new. "
+                                        + dataUri
+                                        + " Age of MatchURI: "
+                                        + getMatchURIs().get(pattern)
+                                                .longValue() / (1000 * 60)
+                                        + " minutes");
+                            }
                             if (duration <= getMatchURIs().get(pattern)
                                     .longValue()) {
                                 // replace
@@ -143,10 +189,10 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
-     * gets the matching key for a matching pattern
+     * Gets the matching key for a matching pattern
      * 
      * @param pattern
-     * @return
+     * @return key
      */
     public String getPatternName(Pattern pattern) {
         for (String key : patternKeys.keySet()) {
@@ -158,6 +204,12 @@ public class FSSObsURIFilter extends URIFilter {
         return null;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.urifilter.URIFilter#applyWildCards(java.lang.String)
+     */
     @Override
     protected String applyWildCards(String key) {
 
@@ -177,6 +229,12 @@ public class FSSObsURIFilter extends URIFilter {
         return newKey.toString();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.urifilter.URIFilter#removeWildCards(java.lang.String)
+     */
     @Override
     protected String removeWildCards(String key) {
 
@@ -198,22 +256,45 @@ public class FSSObsURIFilter extends URIFilter {
         return newKey.toString();
     }
 
+    /**
+     * Gets CWA
+     * 
+     * @return cwa
+     */
     public String getCwa() {
         return cwa;
     }
 
+    /**
+     * Sets CWA
+     * 
+     * @param cwa
+     */
     public void setCwa(String cwa) {
         this.cwa = cwa;
     }
 
+    /**
+     * Gets station coordinates
+     * 
+     * @return stationCoor
+     */
     public Coordinate getStationCoor() {
         return stationCoor;
     }
 
+    /**
+     * Gets Metar Pattern.
+     * 
+     * @return MetarPattern
+     */
     public Pattern getMetarPattern() {
         return MetarPattern;
     }
 
+    /**
+     * Sets Metar Pattern.
+     */
     public void setMetarPattern() {
         // "/obs/2010-11-01_14:15:00.0/METAR<SPECI???>/null/K0A9/36.371/-82.173"
         MetarPattern = Pattern.compile("/obs/" + wildCard + uriSeperator
@@ -221,10 +302,18 @@ public class FSSObsURIFilter extends URIFilter {
                 + uriSeperator);
     }
 
+    /**
+     * Gets Maritime Pattern.
+     * 
+     * @return MaritimePattern
+     */
     public Pattern getMaritimePattern() {
         return MaritimePattern;
     }
 
+    /**
+     * Sets Maritime Pattern
+     */
     public void setMaritimePattern() {
         // /sfcobs/2010-10-28_10:36:00.0/1004/null/BEPB6/32.373/-64.703
         MaritimePattern = Pattern.compile("/sfcobs/" + wildCard + uriSeperator
@@ -233,6 +322,8 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
+     * Gets Mesowest Pattern.
+     * 
      * @return the mesowestPattern
      */
     public Pattern getMesowestPattern() {
@@ -240,6 +331,8 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
+     * Sets Mesowest Pattern.
+     * 
      * @param mesowestPattern
      *            the mesowestPattern to set
      */
@@ -250,12 +343,19 @@ public class FSSObsURIFilter extends URIFilter {
                 + uriSeperator + getStn());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.edex.urifilter.URIFilter#createGenerateMessage()
+     */
     @Override
     public URIGenerateMessage createGenerateMessage() {
         return new FSSObsURIGenrtMessage(this);
     }
 
     /**
+     * Gets station name
+     * 
      * @return the stn
      */
     public String getStn() {
@@ -263,6 +363,8 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
+     * Sets station name.
+     * 
      * @param stn
      *            the stn to set
      */
@@ -271,14 +373,18 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
+     * Sets data type.
+     * 
      * @param the
      *            dataType to set
      */
-    public void setDataType(String marine) {
-        this.dataType = marine;
+    public void setDataType(String type) {
+        this.dataType = type;
     }
 
     /**
+     * Gets data type.
+     * 
      * @return the dataType
      */
     public String getDataType() {
@@ -286,6 +392,8 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
+     * Gets Monitor Name.
+     * 
      * @return the monitorName
      */
     public String getMonitorName() {
@@ -293,6 +401,8 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
+     * Sets Monitor Name.
+     * 
      * @param monitorName
      *            the monitorName to set
      */

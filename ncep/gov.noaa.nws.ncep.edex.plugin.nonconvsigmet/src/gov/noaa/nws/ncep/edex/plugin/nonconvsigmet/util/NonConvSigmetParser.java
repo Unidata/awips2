@@ -8,6 +8,9 @@
  * Date     	Author		Description
  * ------------	----------	-----------	--------------------------
  * 06/2009		Uma Josyula	Initial creation	
+ * 07/2011		F. J. Yen	Fix for RTN TTR 9973--ConvSigment Decoder Ignoring
+ * 							time range (NonConvsigmet, too).  Set the rangeEnd
+ * 							time to the endTime
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -22,12 +25,14 @@ import gov.noaa.nws.ncep.edex.util.UtilN;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
@@ -72,8 +77,10 @@ public class NonConvSigmetParser {
                     headers);
             currentRecord.setIssueTime(issueTime);
 
+            /* 999999999999999999999999999999
             DataTime dataTime = new DataTime(issueTime);
             currentRecord.setDataTime(dataTime);
+            999 */
         }
         return currentRecord;
     }
@@ -130,6 +137,11 @@ public class NonConvSigmetParser {
             currentRecord.setEndTime(endTime);
         }
 
+        /* 9999999999999999999999999999999 */
+        DataTime dataTime = new DataTime(stTime, new TimeRange (stTime.getTime(),
+        		endTime.getTimeInMillis() - stTime.getTimeInMillis()) );
+        currentRecord.setDataTime(dataTime);
+        /* 999 */
         return currentRecord;
     }
 
@@ -184,9 +196,9 @@ public class NonConvSigmetParser {
 
         final String HAZARDCOND_EXP = "(CONDS [\\w| ]*)(\\x0d\\x0d\\x0a)?([\\w| ]*)([0-9]{4})Z";
 
-        final String STATELIST_EXP = "(([A-Z]{2})( [A-Z]{2})*)[\\r\\n]+";
+        final String STATELIST_EXP = "(([A-Z]{2})( [A-Z]{2})*)\\x0d\\x0d\\x0a";
 
-        final String AWIPSID_EXP = "([A-Z]{2}[0-9]{1}[A-Z]{1})( )*[\\r\\n]+";
+        final String AWIPSID_EXP = "([A-Z]{2}[0-9]{1}[A-Z]{1})( )*\\x0d\\x0d\\x0a";
 
         final String CORREMARK_EXP = "(COR|AMD|TEST)";
 
@@ -292,7 +304,7 @@ public class NonConvSigmetParser {
             locationRecord = sclocations.next();
 
             Scanner scLocationLine = new Scanner(locationRecord)
-                    .useDelimiter("[\\r\\n]+");
+                    .useDelimiter("\\x0d\\x0d\\x0a");
             String lines = " ";
             String curLine = null;
             ArrayList<String> locationList = new ArrayList<String>();

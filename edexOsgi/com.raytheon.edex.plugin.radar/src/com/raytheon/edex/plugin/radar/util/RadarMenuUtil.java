@@ -35,7 +35,6 @@ import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.TerminalRadarUtils;
-import com.raytheon.uf.common.menus.AbstractMenuUtil;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuItem;
@@ -48,6 +47,7 @@ import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.menus.AbstractMenuUtil;
 
 /**
  * Builds menus using JAXB

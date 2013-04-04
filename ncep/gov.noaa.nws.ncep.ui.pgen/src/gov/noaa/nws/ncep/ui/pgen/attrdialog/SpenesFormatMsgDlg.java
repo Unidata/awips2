@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.Spenes;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 /**
 * Singleton for a Spenes format message dialog.
 * 
@@ -80,7 +81,7 @@ public class SpenesFormatMsgDlg extends CaveJFACEDialog{
 	private String getTxtFileName() {
 		String connector = "_";
 		StringBuilder sb = new StringBuilder();
-		sb.append(PgenUtil.getWorkingDirectory()+ File.separator);
+		sb.append(PgenUtil.getPgenActivityTextProdPath()+ File.separator);
 		sb.append( spenes.getName());
 		sb.append(connector);
         String initDataTime = spenes.getInitDateTime().replace(" ", connector).replace("/", connector);
@@ -182,19 +183,11 @@ public class SpenesFormatMsgDlg extends CaveJFACEDialog{
 	@Override
 	protected void okPressed() {
 		String txtFileName = txtFileLabel.getText();
-		System.out.println("File saved: " + txtFileName);
+		//System.out.println("File saved: " + txtFileName);
 		/*
 		 * Save SPENES button pressed.  Save SPENES Message to a file
 		 */
-		File out = new File(txtFileName);
-		try {
-			FileWriter fw = new FileWriter(out);
-			fw.write(spenesMsg);
-			fw.close();
-		}
-		catch (Exception e) {
-			System.out.println("Problem writing to file "+out.getAbsolutePath());
-		}
+		FileTools.writeFile(txtFileName, spenesMsg);
 		
 		super.okPressed();
 	}

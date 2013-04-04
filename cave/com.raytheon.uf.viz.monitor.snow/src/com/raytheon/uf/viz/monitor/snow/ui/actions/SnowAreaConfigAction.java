@@ -25,7 +25,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
 import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
 
 /**
@@ -38,6 +37,7 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
  * ------------ ---------- ----------- --------------------------
  * Dec 28, 2009 3963       dhladky    Initial creation.
  * March 5, 2012 14413     zhao       Launch AreaConfigDlg w/o monitor
+ * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog
  * 
  * </pre>
  * 
@@ -47,19 +47,17 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
 
 public class SnowAreaConfigAction extends AbstractHandler {
 
+    private SnowMonitoringAreaConfigDlg configDlg;
+
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-    	
-    	System.out.println("Activating/Action the Snow Area Config...");
-        
-    	//SnowMonitor monitor = SnowMonitor.getInstance();
-    	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        //monitor.launchDialog("area", shell);
-        
-    	SnowMonitoringAreaConfigDlg configDlg= new SnowMonitoringAreaConfigDlg(shell, "SNOW Monitor Area Configuration");
+        if (configDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            configDlg = new SnowMonitoringAreaConfigDlg(shell,
+                    "SNOW Monitor Area Configuration");
+        }
         configDlg.open();
-   
         return null;
     }
-
 }

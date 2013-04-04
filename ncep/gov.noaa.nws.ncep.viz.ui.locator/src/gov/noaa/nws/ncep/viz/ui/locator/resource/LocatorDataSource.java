@@ -40,7 +40,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/07/2011    #561       G. Hull    use SerializationUtil; 
  * 12/07/2011    #561       G. Hull    renamed class; split table into multiple files; use NcPathManager
  * 12/23/2011    #561       G. Hull    use BoundsDataSource,PointDataSource classes to lookup data
- * 01/03/2011    #561                              
+ * 12/14/2012    #903       G. Hull    add the Source name when there is no data found.
+ *                              
  * </pre>
  * 
  * @author M. Li
@@ -253,7 +254,7 @@ public class LocatorDataSource implements ISerializableObject {
 			PointData nearestPt = pointSource.calculateNearestPoint2( coord );//, dispAttrs );
 			
 			if( nearestPt == null ) {
-				return NOT_AVAILABLE;
+				return "No "+dispAttrs.getLocatorSource()+" Data";//NOT_AVAILABLE;
 			}
 
 			StringBuilder sb = new StringBuilder();

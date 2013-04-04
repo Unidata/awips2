@@ -38,6 +38,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Jul 7, 2008	1194		mpduff	Initial creation
  * May 11,2011  9281		lbousaid nothing get display in right y-axis when 
  * 							there is no rating curve
+ * Jan 03,2013  15652       wkwock      Fix stage to discharge
  * 
  * 
  * </pre>
@@ -52,8 +53,10 @@ public class StageDischargeUtils {
     
     private static String RATING_QUERY = "select lid,stage,discharge from rating where lid=':lid' order by stage asc";
     
-    private static String RATING_SHIFT_QUERY = "select lid,date,shift_amount from ratingshift where lid = ':lid' and active='T' order by date asc";
-
+    private static String RATING_SHIFT_QUERY = "select lid,date,shift_amount from ratingshift where lid = ':lid' and active='T' order by date desc";
+    
+    private static boolean needToFindShiftAmount = false;
+    
     /**
      * Returns the corresponding stage value for the discharge value passed in.
      * 
@@ -78,7 +81,8 @@ public class StageDischargeUtils {
         try {
             if ((ratingData == null) || !ratingData.getLid().equalsIgnoreCase(lid)) {
                 ratingData = queryRatingData(lid);
-                /* Check the Rating object for data and return true if data are available*/
+                needToFindShiftAmount = true;
+               /* Check the Rating object for data and return true if data are available*/
                 if (ratingData.getStage().size() > 2) {
                     retVal = true;
                 }
@@ -88,7 +92,8 @@ public class StageDischargeUtils {
                 }
             } else {
                 if (ratingData.getLid().equalsIgnoreCase(lid)) {
-                	ratingData = queryRatingData(lid);              	
+                	ratingData = queryRatingData(lid);
+                	needToFindShiftAmount = true;
                 	if (ratingData.getStage().size() > 2) {
                 		retVal = true;
                 	} else {
@@ -125,7 +130,6 @@ public class StageDischargeUtils {
         }
          
         double discharge = HydroConstants.MISSING_VALUE;
-        boolean needToFindShiftAmount = false;
         
         /*
          * If the lid passed in is NOT the same as the previous lid
@@ -133,11 +137,11 @@ public class StageDischargeUtils {
          */
        if (!lid.equals(previousLid)) {
           previousLid = lid;
-          needToFindShiftAmount = true;
           
           try {
               if ((ratingData == null) || !ratingData.getLid().equalsIgnoreCase(lid)) {
-                  ratingData = queryRatingData(lid);
+                 needToFindShiftAmount = true;
+                 ratingData = queryRatingData(lid);
               }
           } catch (VizException e) {
               // TODO Auto-generated catch block
@@ -188,7 +192,8 @@ public class StageDischargeUtils {
                    stageRatingCurve.set(i, d);
                }
                ratingData.setStage(stageRatingCurve);
-           }
+               needToFindShiftAmount = false;
+          }
        }
        
        ArrayList<Double> dischargeList = ratingData.getDischarge();
@@ -291,6 +296,7 @@ public class StageDischargeUtils {
             try {
                 if ((ratingData == null) || !ratingData.getLid().equalsIgnoreCase(lid)) {
                     ratingData = queryRatingData(lid);
+                    needToFindShiftAmount = true;
                 }
             } catch (VizException e) {
                 // TODO Auto-generated catch block
@@ -422,10 +428,12 @@ public class StageDischargeUtils {
         
         List<Object[]> results = DirectDbQuery.executeQuery(RATING_QUERY.replace(":lid", lid), HydroConstants.IHFS, QueryLanguage.SQL);
         if (results != null) {
+        	//the Rating constructor already add stage and discharge to it. so clear it...
+        	rating.getStage().clear();
+        	rating.getDischarge().clear();
             for (int i = 0; i < results.size(); i++) {
                 Object[] sa = results.get(i);
                 if (((sa[1] != null) || (sa[1] != "")) && ((sa[2] != null) || (sa[2] != ""))) {
-                    // TODO check these types
                     rating.addStage((Double)sa[1]);
                     rating.addDischarge((Double)sa[2]);
                 }
@@ -446,7 +454,7 @@ public class StageDischargeUtils {
         /* Query the ratingShift table */
         ArrayList<Object[]> results = null;
         try {
-            results = (ArrayList<Object[]>)DirectDbQuery.executeQuery(RATING_SHIFT_QUERY, HydroConstants.IHFS, QueryLanguage.SQL);           
+            results = (ArrayList<Object[]>)DirectDbQuery.executeQuery(RATING_SHIFT_QUERY.replace(":lid", lid), HydroConstants.IHFS, QueryLanguage.SQL);           
         } catch (VizException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {

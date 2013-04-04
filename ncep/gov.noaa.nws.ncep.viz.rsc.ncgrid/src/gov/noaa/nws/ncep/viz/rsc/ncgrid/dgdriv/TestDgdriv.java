@@ -33,17 +33,15 @@ import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag;
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag.gempak;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.DgdrivException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 //import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcDataTree;
-//import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcLevelNode;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LambertConformalNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LatLonNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.MercatorNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.NcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.PolarStereoNcgridCoverage;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
+import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 //import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 //import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 
@@ -101,7 +99,6 @@ public class TestDgdriv {
 	private ISpatialObject spatialObj; 
 	private ArrayList<DataTime> dataForecastTimes;
 	private static Connector conn;
-	private NcDataTree dataTree;
 //	private NcInventory inventory;
 	
    /*
@@ -1077,14 +1074,14 @@ public class TestDgdriv {
 	
 	private static String getGridNavigationContent(ISpatialObject obj) {
 
-		NcgridCoverage gc = (NcgridCoverage) obj;
+		GridCoverage gc = (GridCoverage) obj;
 		StringBuffer resultsBuf = new StringBuffer();
 
-		if (gc instanceof LatLonNcgridCoverage) {
+		if (gc instanceof LatLonGridCoverage) {
 			/*
 			 * LatLonGridCoverage
 			 */
-			LatLonNcgridCoverage llgc = (LatLonNcgridCoverage) gc;
+			LatLonGridCoverage llgc = (LatLonGridCoverage) gc;
 			resultsBuf.append("CED");
 			resultsBuf.append(";");
 			resultsBuf.append(llgc.getNx());
@@ -1111,10 +1108,10 @@ public class TestDgdriv {
 			resultsBuf.append(";");
 			dummy = llgc.getDy() * 10000;
 			resultsBuf.append(dummy.intValue());
-		} else if (gc instanceof LambertConformalNcgridCoverage) {
+		} else if (gc instanceof LambertConformalGridCoverage) {
 			resultsBuf.append("LCC");
 			resultsBuf.append(";");
-			LambertConformalNcgridCoverage lcgc = (LambertConformalNcgridCoverage) gc;
+			LambertConformalGridCoverage lcgc = (LambertConformalGridCoverage) gc;
 			resultsBuf.append(lcgc.getNx());
 			resultsBuf.append(";");
 			resultsBuf.append(lcgc.getNy());
@@ -1139,8 +1136,8 @@ public class TestDgdriv {
 			resultsBuf.append(";");
 			dummy = lcgc.getDy() * 10000;
 			resultsBuf.append(dummy.intValue());
-		} else if (gc instanceof MercatorNcgridCoverage) {
-			MercatorNcgridCoverage mgc = (MercatorNcgridCoverage) gc;
+		} else if (gc instanceof MercatorGridCoverage) {
+			MercatorGridCoverage mgc = (MercatorGridCoverage) gc;
 			resultsBuf.append("MER");
 			resultsBuf.append(";");
 			resultsBuf.append(mgc.getNx());
@@ -1167,11 +1164,11 @@ public class TestDgdriv {
 			resultsBuf.append(";");
 			dummy = mgc.getDy() * 10000;
 			resultsBuf.append(dummy.intValue());
-		} else if (gc instanceof PolarStereoNcgridCoverage) {
+		} else if (gc instanceof PolarStereoGridCoverage) {
 			/*
 			 * PolarStereoGridCoverage
 			 */
-			PolarStereoNcgridCoverage psgc = (PolarStereoNcgridCoverage) gc;
+			PolarStereoGridCoverage psgc = (PolarStereoGridCoverage) gc;
 			resultsBuf.append("STR");
 			resultsBuf.append(";");
 			resultsBuf.append(psgc.getNx());
@@ -1257,7 +1254,7 @@ public class TestDgdriv {
 
 		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
 
-		NcgribRecord rec = (NcgribRecord) pdoList[0];
+		GridRecord rec = (GridRecord) pdoList[0];
 		long t1 = System.currentTimeMillis();
         System.out.println("\tgetDataURI took: " + (t1-t0));
         //logger.info("getDataURI took: " + (t1-t0));

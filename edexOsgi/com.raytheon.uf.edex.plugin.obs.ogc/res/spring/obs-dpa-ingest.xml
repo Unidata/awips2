@@ -1,0 +1,73 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="obsDecoder" class="com.raytheon.edex.plugin.obs.ObsDecoder">
+        <constructor-arg ref="obsPluginName" />
+    </bean>
+    
+    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform"/>
+    	
+	<bean id="obsSeparator" class="com.raytheon.edex.plugin.obs.metar.MetarSeparator" />
+
+	<bean id="obsDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="obs" />
+		<constructor-arg value="jms-dist:queue:Ingest.obs?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="obsCamelRegistered" factory-bean="contextManager"
+		factory-method="register" 
+		depends-on="persistCamelRegistered">
+		<constructor-arg ref="obs-camel"/>
+  	</bean>
+  	
+  	<bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" >
+		<constructor-arg ref="metarLayerTransformer" />
+	</bean>
+
+	<camelContext id="obs-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<!-- Begin METAR routes -->
+ 		<route id="metarIngestRoute">
+			<from uri="jms-generic:queue:Ingest.obs?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>obs</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="obsDecoder" method="decode" />
+					<bean ref="metarPointData" method="toPointData" />
+					<multicast>
+						<to uri="directvm:persistIndexAlert" />
+						<bean ref="metarLayerCollector" method="add"/>
+					</multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:metar?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+		
+		<route id="metarLayerRoute">
+			<from uri="quartz://metar/layers?cron=0+*+*+*+*+?" />
+			<bean ref="metarLayerCollector" method="updateDB" />
+		</route>
+		
+		<route id="metarPurgeExpired">
+			<from uri="jms-generic:queue:Purge.expired.metar.layers?destinationResolver=#qpidDurableResolver" />
+			<bean ref="metarLayerCollector" method="purgeExpired"/>
+		</route>
+		
+		<route id="metarPurgeAll">
+			<from uri="jms-generic:queue:Purge.all.metar.layers?destinationResolver=#qpidDurableResolver" />
+			<bean ref="metarLayerCollector" method="purgeAll"/>
+		</route>
+	</camelContext>
+</beans>

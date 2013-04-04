@@ -41,18 +41,18 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
-import com.raytheon.viz.gfe.core.script.NewInputValidator;
 import com.raytheon.viz.gfe.smarttool.SmartToolEdit;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * Dialog for creating new smart tools
+ * Dialog for creating new smart tools.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2008            njensen     Initial creation
+ * Nov 12, 2012 1298       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -74,6 +74,7 @@ public class NewToolDialog extends CaveJFACEDialog {
         super(aShell);
         title = aTitle;
         this.validator = validator;
+        setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
     }
 
     /*
@@ -133,13 +134,9 @@ public class NewToolDialog extends CaveJFACEDialog {
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
 
-        // okButton = createButton(parent, IDialogConstants.OK_ID,
-        // IDialogConstants.OK_LABEL, true);
         createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
                 true);
 
-        // cancelButton = createButton(parent, IDialogConstants.CANCEL_ID,
-        // IDialogConstants.CANCEL_LABEL, false);
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
     }
@@ -164,8 +161,6 @@ public class NewToolDialog extends CaveJFACEDialog {
         top.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
         Label label = new Label(top, SWT.NONE);
-        // label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-        // false));
         label.setText("Name");
 
         text = new Text(top, SWT.BORDER);
@@ -192,22 +187,6 @@ public class NewToolDialog extends CaveJFACEDialog {
         } else {
             parms.setSelection(0);
         }
-
-        // Group typeGroup = new Group(comp, SWT.BORDER);
-        // typeGroup.setText("Tool Type:");
-        //
-        // Button numericButton = new Button(typeGroup, SWT.RADIO);
-        // numericButton.setText("numeric");
-        // numericButton.setLayoutData(new GridData(SWT.BEGINNING,
-        // SWT.BEGINNING,
-        // false, false));
-        // numericButton.setBounds(10, 20, 120, 30);
-        //
-        // Button pointButton = new Button(typeGroup, SWT.RADIO);
-        // pointButton.setText("point-based");
-        // pointButton.setBounds(10, 50, 120, 30);
-        //
-        // typeGroup.pack();
 
         applyDialogFont(composite);
         return composite;
@@ -237,12 +216,4 @@ public class NewToolDialog extends CaveJFACEDialog {
     private boolean isInputValid() {
         return (validator.isValid(text.getText()) == null);
     }
-
-    public static void main(String[] args) {
-        Shell shell = new Shell(SWT.DIALOG_TRIM);
-        NewToolDialog d = new NewToolDialog(shell, "MyTool",
-                new NewInputValidator());
-        d.open();
-    }
-
 }

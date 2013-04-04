@@ -3161,7 +3161,7 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="C&amp;V" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
@@ -3186,6 +3186,9 @@
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="NCON" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3226,7 +3229,7 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="C&amp;V" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
@@ -3253,6 +3256,9 @@
         <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
+        <ns2:PgenLayer Name="NCON" OnOff="false" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>       
         <ns2:PgenSave outputFile="G_AIRMET.East.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns2:ProductType>
     <ns2:ProductType Name="" Type="G_AIRMET" Subtype="Cntr">
@@ -3291,7 +3297,7 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="C&amp;V" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
@@ -3316,6 +3322,9 @@
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="NCON" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.Cntr.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3356,7 +3365,7 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="C&amp;V" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
@@ -3381,6 +3390,9 @@
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="NCON" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.West.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3421,7 +3433,7 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="C&amp;V" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
@@ -3446,6 +3458,9 @@
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="NCON" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.Merged.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3486,7 +3501,7 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="C&amp;V" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
@@ -3511,6 +3526,9 @@
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="NCON" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.Metwatch.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>

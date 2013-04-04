@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:CAVE?after=group1">
+         <command
+               commandId="com.raytheon.uf.viz.useradmin.useradminui"
+               label="AWIPS User Administration..."
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.raytheon.uf.viz.useradmin.useradminui"
+            name="AWIPS User Administration">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.useradmin.actions.UserAdminAction"
+            commandId="com.raytheon.uf.viz.useradmin.useradminui">
+      </handler>
+   </extension>
+
+</plugin>

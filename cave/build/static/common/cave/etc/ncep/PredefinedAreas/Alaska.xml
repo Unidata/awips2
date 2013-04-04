@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<predefinedArea predefinedAreaName="Alaska">
-       <predefinedArea xsi:type="NC-MapRenderableDisplay" zoomLevel="0.09" mapCenter="-160.00 63.0 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <predefinedAreaName>Alaska</predefinedAreaName>
-            
-            <descriptor xsi:type="NCMapDescriptor">
-                <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 10000" rangeX="0 10000">
+<predefinedArea areaName="Alaska" mapCenter="-160.00 63.0 0.0">
+ <zoomLevel>0.09</zoomLevel>
+  <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 9999" rangeX="0 9999">
                     <CRS>PROJCS["Polar_Stereographic",
   GEOGCS["WGS84",
     DATUM["WGS84",
@@ -25,6 +22,4 @@
   AXIS["Easting", EAST],
   AXIS["Northing", NORTH]]</CRS>
                 </gridGeometry>
-            </descriptor>
-        </predefinedArea>
 </predefinedArea>

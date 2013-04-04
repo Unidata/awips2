@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.edex.auth;
 
+import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestRouter;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
+import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler;
 
 /**
  * Routes the request directly to the RemoteRequestServer.
@@ -31,7 +33,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2010            rjpeter     Initial creation
+ * Dec 9, 2010             rjpeter     Initial creation
+ * Nov 15, 2012 1322       djohnson    Allow servers the ability to bypass authorization.
  * 
  * </pre>
  * 
@@ -41,6 +44,12 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
 public class ServerRequestRouter implements IRequestRouter {
     @Override
     public Object route(IServerRequest request) throws Exception {
+        // Wrap privileged requests so they are not checked for privileges
+        // internally to the server
+        if (request instanceof AbstractPrivilegedRequest) {
+            request = new ServerPrivilegedRequestHandler.ServerPrivilegedRequest(request);
+        }
+
         return RemoteRequestServer.getInstance().handleThriftRequest(request);
     }
 

@@ -46,7 +46,7 @@
  * 1/10/2010		TBD		Chin Chen	Initial coding
  * 1/26/2010				Chin Chen	Make changes to use NCEP database for station info sources
  * 										instead of using XML files. 
- *
+ * 12/10/2012               Chin Chen   Add support for "Observed Data" group
  * </pre>
  * 
  * @author Chin Chen
@@ -56,16 +56,29 @@ package gov.noaa.nws.ncep.ui.nctextui.dbutil;
 
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.pointdata.PointDataRequest;
 
 
 public class NctextDbQuery {
@@ -74,6 +87,28 @@ public class NctextDbQuery {
 	private final String NCTEXT_STATIC_DB_NAME = "ncep";
 	private final String NCTEXT_STATIC_GP_TABLE_NAME = "nwx.datatypegrouplist";	
 	private final String NCTEXT_DATA_DB_TABLE = "awips.nctext";
+	private static final String OBS_DATA_GROUP = "Observed Data";
+	private static final String OBS_SFC_HRLY_TABLE = "obs";
+	private static final String OBS_SFC_HRLY_RAW_DATA_KEY = "rawMETAR";
+	private static final String OBS_SFC_HRLY_TIME_KEY = "timeObs";
+	private static final String OBS_SFC_HRLY_PRODUCT_NAME = "Surface Hourlies";
+	private static final String OBS_SND_DATA_TABLE = "ncuair";
+	private static final String OBS_SND_DATA_RAW_DATA_KEY = "RAWDATA";
+	private static final String OBS_SND_DATA_TIME_KEY = "OBSTIME";
+	private static final String OBS_SND_DATA_COR_KEY = "CORR";
+	private static final String OBS_SND_DATA_NIL_KEY = "NIL";
+	private static final String OBS_SND_DATA_STATIONID_KEY = "STATIONID";
+	private static final String OBS_SND_DATA_STNUM_KEY = "STNUM";
+	private static final String OBS_SND_DATA_TYPE_KEY = "DATATYPE";
+	private static final String OBS_SND_DATA_PRODUCT_NAME = "Sounding Data";
+	private static final String OBS_SYN_DATA_TABLE = "sfcobs";
+	private static final String OBS_SYN_DATA_RAW_DATA_KEY = "rawReport";
+	private static final String OBS_SYN_DATA_TIME_KEY = "timeNominal";
+	private static final String OBS_SYN_DATA_PRODUCT_NAME = "Synoptic Data";
+	/*private static final String OBS_TAF_DATA_TABLE = "nctaf";
+	private static final String OBS_TAF_DATA_RAW_DATA_KEY = "TAFTEXT";
+	private static final String OBS_TAF_DATA_TIME_KEY = "START_DATE";
+	private static final String OBS_TAF_DATA_PRODUCT_NAME = "TAFs Decoded";*/
 	//private final String NCTEXT_STATION_GP_TABLE_NAME = "awips.nctext_stn_group";
 	private final String  NCTEXT_FILE_TYPE_TABLE_NAME = "awips.nctext_inputfile_type";
 	//List of data type group
@@ -443,6 +478,418 @@ public class NctextDbQuery {
 		}
 		return rtnList;
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static Map<Object, Object> mapSortByComparator(Map<Object, Object> unsortMap) {
+		  
+		List list = new LinkedList(unsortMap.entrySet());
+ 
+		//Chin: sort list based on comparator
+		//Key value is date time.
+		//sorted in descending order. I.e. latest time will be shown first.
+		Collections.sort(list, new Comparator() {
+			public int compare(Object o2, Object o1) {
+				return ((Comparable) ((Map.Entry) (o1)).getKey())
+                                       .compareTo(((Map.Entry) (o2)).getKey());
+			}
+		});
+ 
+		// put sorted list into map again
+                //LinkedHashMap make sure order in which keys were inserted
+		Map sortedMap = new LinkedHashMap();
+		for (Iterator it = list.iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			sortedMap.put(entry.getKey(), entry.getValue());
+		}
+		return sortedMap;
+	}
+	private List<List<Object[]>> getOBSSfcHrlyDataListList(List<NctextStationInfo> listOfStateStn,
+			EReportTimeRange rptTimeRange, boolean isState) {
+		
+		List<Object[]> rtnList;
+		List<List<Object[]>> rtnListList = new ArrayList<List<Object[]>> ();
+		Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
+		rcMap.put("pluginName", new RequestConstraint( OBS_SFC_HRLY_TABLE, ConstraintType.EQUALS ) );
+		if(rptTimeRange.getTimeRange()>0) {
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			SimpleDateFormat timeInSimple = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date(cal.getTimeInMillis()-rptTimeRange.getTimeRange()* 3600000);
+			String dateStr = timeInSimple.format(date);
+			rcMap.put("dataTime.refTime", 
+					new RequestConstraint(dateStr, ConstraintType.GREATER_THAN_EQUALS ) );
+			//System.out.println("date time = "+dateStr);
+		}
+
+		for (NctextStationInfo sta: listOfStateStn){
+			rtnList = new ArrayList<Object[]> ();
+			//System.out.println("Station "+ sta.getStnid() + " -  " + sta.getStnname());
+			
+			String myStnId;
+			//Chin Note; in nwx.sfstns table, those US stations' id started with K, its heading 'K' letter has been removed.
+			// in "obs" table, US station id started with K is still coded with K at head.
+			// so, we have add K in front of station id for query to 'obs' table.
+			if(sta.stnid.length() < 4)
+				myStnId = "K" + sta.stnid;
+			else
+				myStnId = sta.stnid;;
+			rcMap.put("location.stationId", 
+	        		new RequestConstraint(myStnId, ConstraintType.EQUALS ) );
+			List<String> parameters = new ArrayList<String>();
+            
+	        parameters.add(OBS_SFC_HRLY_RAW_DATA_KEY);
+	        parameters.add(OBS_SFC_HRLY_TIME_KEY);
+			PointDataContainer pdc = requestObsPointData(parameters,rcMap,OBS_SFC_HRLY_TABLE);
+			String report= new String();
+			/*
+			 * Chin Note: A typical report from "obs" DB table
+			 * Header+Str1 (starting with station id)\r\r\n   +str2+optional \r\r\n....
+			 * Example: KTPH as station id.
+			 * A raw report 1
+			 * "SAUS70 KWBC 250000
+			 * METAR KTPH 251456Z AUTO 05007KT 10SM CLR M02/M10 A3009 RMK AO2 SLP197\r\r\n
+			 *      T10221100 53003 FZRANO"
+			 *      
+			 * or report 2,
+			 * "SAUS70 KWBC 250000
+			 * METAR KTPH 252242Z AUTO 30012KT 10SM CLR 16/M13 A3000 RMK AO2 WSHFT 2222\r\r\n
+			 *
+             * $\r\r\n
+             * 712 
+             * SPCN31 KWBC 252246
+             *
+             * SPECI"
+             * 
+             * We will display them as,
+             * "KTPH 251456Z AUTO 05007KT 10SM CLR M02/M10 A3009 RMK AO2 SLP197 T10221100 53003 FZRANO"
+			 * and as,
+			 * "KTPH 252242Z AUTO 30012KT 10SM CLR 16/M13 A3000 RMK AO2 WSHFT 2222 $"
+			 */
+			if(pdc !=null) {
+				Map<Object, Object> timeDataMap = new HashMap<Object, Object>(); 
+				for (int i = 0; i < pdc.getCurrentSz(); i++) {
+					PointDataView pdv = pdc.readRandom(i);
+					String oneReport;
+					oneReport = pdv.getString(OBS_SFC_HRLY_RAW_DATA_KEY);
+					int index = oneReport.indexOf(myStnId);
+					if(index  == -1)
+						continue;
+					oneReport = oneReport.substring(index);
+					index = oneReport.indexOf('\r');
+					if(index  > 0) {
+						String str2="";
+						String str1 = oneReport.substring(0,index);
+						
+						String temStr = oneReport.substring(index);
+						// find the head of str2, by get rid off \r, \n, Space in the front of temStr
+						for(int j =0; j< temStr.length(); j++){
+							if(temStr.charAt(j) > 33 && temStr.charAt(j)< 127) {
+								str2= temStr.substring(j);
+								// also get rid of tailing \r, \n etc..at end of str2 if there are existing
+								index = str2.indexOf('\r');
+								if(index  >0)
+									str2 = str2.substring(0, index);
+								break;
+							}
+						}
+						oneReport = str1+ " "+ str2;
+					}
+					timeDataMap.put(pdv.getLong(OBS_SFC_HRLY_TIME_KEY), oneReport);
+					//report = report + oneReport+"\n";
+					System.out.println("raw data::"+i+ "::"+pdv.getString(OBS_SFC_HRLY_RAW_DATA_KEY));
+
+				}
+				timeDataMap = mapSortByComparator(timeDataMap);
+				for (Map.Entry<Object, Object> entry : timeDataMap.entrySet()) {
+					report = report + entry.getValue()+"\n";
+				}
+				Object[] rtnObj = new Object[2];
+				rtnObj[0] =report;
+				rtnObj[1]= myStnId;
+				//System.out.println("final raw data::\n"+report);
+				rtnList.add(rtnObj);
+				rtnListList.add(rtnList);
+			}
+			rcMap.remove("location.stationId");
+		}
+		return rtnListList;
+	
+	}
+	private List<List<Object[]>> getOBSSynDataListList(List<NctextStationInfo> listOfStateStn,
+			EReportTimeRange rptTimeRange, boolean isState) {
+		List<Object[]> rtnList;
+		List<List<Object[]>> rtnListList = new ArrayList<List<Object[]>> ();
+		Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
+		rcMap.put("pluginName", new RequestConstraint( OBS_SYN_DATA_TABLE, ConstraintType.EQUALS ) );
+		if(rptTimeRange.getTimeRange()>0) {
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			SimpleDateFormat timeInSimple = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date(cal.getTimeInMillis()-rptTimeRange.getTimeRange()* 3600000);
+			String dateStr = timeInSimple.format(date);
+			rcMap.put("dataTime.refTime", 
+					new RequestConstraint(dateStr, ConstraintType.GREATER_THAN_EQUALS ) );
+			//System.out.println("date time = "+dateStr);
+		}
+		Date date = new Date();
+		@SuppressWarnings("deprecation")
+		int timeoffset = date.getTimezoneOffset();
+		for (NctextStationInfo sta: listOfStateStn){
+			rtnList = new ArrayList<Object[]> ();
+			//System.out.println("Station "+ sta.getStnid() + " -  " + sta.getStnname());
+			
+			String myProdId;
+			/*
+			 * Chin Note; 
+			 * in nwx.lsfstns table, 'productId' was coded with 6 digits (characters)
+			 * with the last digit always coded as '0'. This id is sent by GUI for data query.
+			 * However, in OBS_SYN_DATA_TABLE (awips.sfcobs) DB table, its equivalent field is 
+			 * 'stationid' and coded with only 5 digits (the first 5 chars of productId).
+			 * Therefore, we will get rid of the last digit of 'productId' and used as stationId (as key) to search
+			 * through OBS_SYN_DATA_TABLE.
+			 * 
+			 * TBD:::
+			 * However, some productId in nwx.lsfstns table only have 5 digits. In such case, how do we handle it?? TBD Chin.
+			 */
+			
+			myProdId = sta.productid.substring(0, 5);
+			rcMap.put("location.stationId", 
+	        		new RequestConstraint(myProdId, ConstraintType.EQUALS ) );
+			List<String> parameters = new ArrayList<String>();
+            
+	        parameters.add(OBS_SYN_DATA_RAW_DATA_KEY);
+	        parameters.add(OBS_SYN_DATA_TIME_KEY);
+			PointDataContainer pdc = requestObsPointData(parameters,rcMap,OBS_SYN_DATA_TABLE);
+			String report= new String();
+			
+			if(pdc !=null) {
+				Map<Object, Object> timeDataMap = new HashMap<Object, Object>(); 
+				for (int i = 0; i < pdc.getCurrentSz(); i++) {
+					PointDataView pdv = pdc.readRandom(i);
+					String oneReport;
+					oneReport = pdv.getString(OBS_SYN_DATA_RAW_DATA_KEY);
+					
+					int index = oneReport.indexOf(myProdId);
+					if(index  == -1)
+						continue;
+					oneReport = oneReport.substring(index);
+					oneReport = oneReport.replace('\n', ' ');
+					long obsTime = pdv.getLong(OBS_SYN_DATA_TIME_KEY);
+					SimpleDateFormat timeInSimple = new SimpleDateFormat("ddHHmm");					
+					date.setTime(obsTime+timeoffset*60000);
+					String dateStr = timeInSimple.format(date);
+					oneReport = dateStr +" "+oneReport;
+										
+					timeDataMap.put(pdv.getLong(OBS_SYN_DATA_TIME_KEY), oneReport);
+					//report = report + oneReport+"\n";
+					System.out.println("raw data::"+i+ "::"+pdv.getString(OBS_SYN_DATA_RAW_DATA_KEY));
+
+				}
+				timeDataMap = mapSortByComparator(timeDataMap);
+				for (Map.Entry<Object, Object> entry : timeDataMap.entrySet()) {
+					report = report + entry.getValue()+"\n";
+				}
+				report = sta.stnid+ " - "+sta.productid +"\n"+report;
+				Object[] rtnObj = new Object[2];
+				rtnObj[0] =report;
+				rtnObj[1]= myProdId;
+				//System.out.println("final raw data::\n"+report);
+				rtnList.add(rtnObj);
+				rtnListList.add(rtnList);
+			}
+			rcMap.remove("location.stationId");
+		}
+		return rtnListList;
+	
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	void addToSndPdvList(PointDataView pdv, List<PointDataView> pdvlst){
+		boolean shouldAddToList = true;
+		// First step, add the pdv to list.
+		// If pdv's data type is Not found in any pdv in list, then just add it to list.
+		// If pdv's data type is already found in one of the pdv in list. Then comparing its
+		// "correction" string. The latest "corrected" one is used.
+		for (Iterator it = pdvlst.iterator(); it.hasNext();) {
+			PointDataView tpdv = (PointDataView) it.next();
+			if(tpdv.getString(OBS_SND_DATA_TYPE_KEY).equals(pdv.getString(OBS_SND_DATA_TYPE_KEY))){
+				if(tpdv.getString(OBS_SND_DATA_COR_KEY).compareTo((pdv.getString(OBS_SND_DATA_COR_KEY))) < 0){
+					pdvlst.remove(tpdv);
+				}
+				else{
+					shouldAddToList = false;
+				}
+				break;
+			}
+		}
+		if(shouldAddToList){
+			pdvlst.add(pdv);
+		}
+		// NWX report data in the order of "TTAA, PPAA, TTBB, PPBB, TTCC, ...etc. We will have to do the same way.
+		// do sorting based on such rule.
+		Collections.sort(pdvlst, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				String first2of1= ((PointDataView) (o1)).getString(OBS_SND_DATA_TYPE_KEY).substring(0,2);
+				String first2of2= ((PointDataView) (o2)).getString(OBS_SND_DATA_TYPE_KEY).substring(0,2);
+				String last2of1 = ((PointDataView) (o1)).getString(OBS_SND_DATA_TYPE_KEY).substring(2);
+				String last2of2 = ((PointDataView) (o2)).getString(OBS_SND_DATA_TYPE_KEY).substring(2);
+				
+					if(last2of1.compareTo(last2of2) > 0)
+						return 1;
+					else if(last2of1.compareTo(last2of2) < 0)
+						return -1;
+					else {
+						if(first2of1.compareTo(first2of2) > 0)
+							return -1;
+						else if(first2of1.compareTo(first2of2) < 0)
+							return 1;
+						return 0;
+					}
+				
+			}
+		});
+		return;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<List<Object[]>> getOBSSndDataListList(List<NctextStationInfo> listOfStateStn,
+			EReportTimeRange rptTimeRange, boolean isState) {
+
+		List<Object[]> rtnList;
+		List<List<Object[]>> rtnListList = new ArrayList<List<Object[]>> ();
+		Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
+		rcMap.put("pluginName", new RequestConstraint( OBS_SND_DATA_TABLE, ConstraintType.EQUALS ) );
+		rcMap.put("nil", new RequestConstraint( "FALSE", ConstraintType.EQUALS ) ); 
+		if(rptTimeRange.getTimeRange()>0) {
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			SimpleDateFormat timeInSimple = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date(cal.getTimeInMillis()-rptTimeRange.getTimeRange()* 3600000);
+			String dateStr = timeInSimple.format(date);
+			rcMap.put("dataTime.refTime", 
+					new RequestConstraint(dateStr, ConstraintType.GREATER_THAN_EQUALS ) );
+			System.out.println("date time = "+dateStr);
+		}
+		List<PointDataView> pdvList=null;
+		Map<Object, Object> timeDataMap = new HashMap<Object, Object>(); 
+		Date date = new Date();
+		@SuppressWarnings("deprecation")
+		int timeoffset = date.getTimezoneOffset();
+		for (NctextStationInfo sta: listOfStateStn){
+			rtnList = new ArrayList<Object[]> ();
+			//System.out.println("Station "+ sta.getStnid() + " -  " + sta.getStnname());
+			timeDataMap.clear();
+			String myStnId = sta.stnid;
+			String myProdId = sta.productid;
+			//Chin Note; in nwx.snstns table, US stations' id are not completed coded.
+			// Therefore, use its productId as searching key. ProductId is a miss leading name. It is actually
+			// is the station number.
+			// The equivalent filed of productId in OBS_SND_DATA_TABLE is 'stnum'.
+			
+			rcMap.put("stnum", 
+	        		new RequestConstraint(myProdId, ConstraintType.EQUALS ) );
+			List<String> parameters = new ArrayList<String>();
+            
+	        parameters.add(OBS_SND_DATA_RAW_DATA_KEY);
+	        parameters.add(OBS_SND_DATA_TIME_KEY);
+	        parameters.add(OBS_SND_DATA_COR_KEY);
+	        parameters.add(OBS_SND_DATA_NIL_KEY);
+	        parameters.add(OBS_SND_DATA_STATIONID_KEY);
+	        parameters.add(OBS_SND_DATA_STNUM_KEY);
+	        parameters.add(OBS_SND_DATA_TYPE_KEY);
+			PointDataContainer pdc = requestObsPointData(parameters,rcMap,OBS_SND_DATA_TABLE);
+			String oneRefTimeReport= new String();
+			String finalReport= new String();
+			
+			if(pdc !=null) {
+				PointDataView pdv=null;
+				/*
+				 * Chin Note:
+				 * Each TTAA, TTBB...PPAA.. data are stored in its own record with "correction"
+				 * We have to keep the latest corrected data and discard earlier "not correct" data
+				 * We then store same obs time data in one pdvList and then put into
+				 * timeDataMap<Obstime, pdvList> for later time sorting.
+				 */
+				for (int i = 0; i < pdc.getCurrentSz(); i++) {
+					pdv = pdc.readRandom(i);
+					long sndTime= pdv.getLong(OBS_SND_DATA_TIME_KEY);
+					pdvList = (List<PointDataView>)timeDataMap.get(sndTime);
+					if(pdvList==null){
+						pdvList = new ArrayList<PointDataView>();
+					}
+					addToSndPdvList(pdv, pdvList);
+					timeDataMap.put(sndTime, pdvList); // replace pdvList with latest one
+					System.out.println("raw data::::"+i+"::"+pdv.getString(OBS_SND_DATA_RAW_DATA_KEY));
+				}
+				//We have to sort data based on observed time before creating final report.   
+				timeDataMap = mapSortByComparator(timeDataMap);
+				
+				//now create report : use the same format as NWX
+				for (Map.Entry<Object, Object> entry : timeDataMap.entrySet()) {
+					pdvList = (List<PointDataView>) entry.getValue();
+					long obsTime= (Long) entry.getKey();
+					for (@SuppressWarnings("rawtypes")
+					Iterator it = pdvList.iterator(); it.hasNext();) {
+						pdv = (PointDataView) it.next();
+						String oneRecord;
+						oneRecord = pdv.getString(OBS_SND_DATA_RAW_DATA_KEY);
+						int indexTT = oneRecord.indexOf("TT");
+						int indexPP = oneRecord.indexOf("PP");
+						int index;
+						if(indexTT  == -1 && indexPP  == -1)
+							continue;
+						else if(indexTT  == -1)
+							index = indexPP;
+						else
+							index = indexTT;
+						
+						oneRecord = oneRecord.substring(index);
+						// beautify report. 
+						//replace all Space (may be several Spaces), \n, etc.. with "one" Space
+						oneRecord= oneRecord.replaceAll("\\s+", "S");		   
+						// Every 12 digit strings displayed in one line, as NWX does.
+						int spaceCount=0;
+						char[] recordAry = oneRecord.toCharArray();
+						for (int charindex=0; charindex <oneRecord.length(); ){
+							String temStr = oneRecord.substring(charindex);
+							int spaceIndex = temStr.indexOf("S");
+							if(spaceIndex > 0){
+								charindex = charindex + spaceIndex;
+								spaceCount++;
+								if(spaceCount%12 == 0){
+									recordAry[charindex] = '\n';
+								}
+								else{
+									recordAry[charindex] = ' ';
+								}
+								charindex++;
+							}
+							else
+								break;
+						}
+						oneRefTimeReport = oneRefTimeReport + String.valueOf(recordAry)+"\n";
+					}
+					SimpleDateFormat timeInSimple = new SimpleDateFormat("yyMMdd/HHmm");//("yyyy-MM-dd HH:mm:ss");
+					
+					date.setTime(obsTime+timeoffset*60000);
+					String dateStr = timeInSimple.format(date);
+					oneRefTimeReport = pdv.getString(OBS_SND_DATA_STATIONID_KEY)+" - "+
+						pdv.getString(OBS_SND_DATA_STNUM_KEY)+ " at "+ dateStr+"\n" +oneRefTimeReport;
+					finalReport = finalReport + oneRefTimeReport+"\n";
+					oneRefTimeReport="";
+				}
+				
+				/*timeDataMap = mapSortByComparator(timeDataMap);
+				for (Map.Entry<Object, Object> entry : timeDataMap.entrySet()) {
+					report = report + entry.getValue()+"\n";
+				}*/
+				Object[] rtnObj = new Object[2];
+				rtnObj[0] =finalReport;
+				rtnObj[1]= myStnId;
+				//System.out.println("final raw data::\n"+report);
+				rtnList.add(rtnObj);
+				rtnListList.add(rtnList);
+			}
+			rcMap.remove("stnum");
+		}
+		return rtnListList;
+	
+	}
 	/*
 	 * Return A List(A) which element is a List(B) with elements of Object[] type.
 	 * Object[] - contain one DB query result. Object[0]= text rawrecord, Object[1] = text issuesite
@@ -450,7 +897,7 @@ public class NctextDbQuery {
 	 * List(A) - List<List<Object[]>> - contain one state's query result. its size = numer of Stations of this state having report
 	 * In case of single station query, there will be only one station on List(A).
 	 */
-	public List<List<Object[]>> getProductDataListList(String productName,NctextStationInfo station,
+	public List<List<Object[]>> getProductDataListList(String groupName,String productName,NctextStationInfo station,
 			EReportTimeRange rptTimeRange, boolean isState, String outputFileName){
 		List<NctextStationInfo> listOfStateStn;
 		if(isState){
@@ -463,7 +910,22 @@ public class NctextDbQuery {
 			listOfStateStn = new ArrayList<NctextStationInfo> ();
 			listOfStateStn.add(station);
 		}
-		
+		if(groupName.equals(OBS_DATA_GROUP)){
+			//Note: when products need query to its own DB table (NOT to "nctext" table)
+			// It should do its own query and return from here.
+			if(productName.equals(OBS_SFC_HRLY_PRODUCT_NAME)){
+				return (getOBSSfcHrlyDataListList(listOfStateStn,
+						rptTimeRange,  isState) );
+			} else if(productName.equals(OBS_SND_DATA_PRODUCT_NAME)){
+				return (getOBSSndDataListList(listOfStateStn,
+						rptTimeRange,  isState) );
+			} else if(productName.equals(OBS_SYN_DATA_PRODUCT_NAME)){
+				return (getOBSSynDataListList( listOfStateStn,
+						rptTimeRange,  isState) );
+			}
+			//Note: Agricurtural Obs (*.AGO), TAF(*.taf) and RADAT (*.FZL) data are decoded by Nctext decoder. 
+		}
+		// All other products, fall through here....
 		List<Object[]> list = null;
 		List<Object[]> rtnList;
 		List<List<Object[]>> rtnListList = new ArrayList<List<Object[]>> ();
@@ -505,4 +967,33 @@ public class NctextDbQuery {
 		listOfStateStn = productStateStationInfoListMap.get(key);
 		return listOfStateStn;
 	}
+	private PointDataContainer requestObsPointData(List<String> parameters,
+            Map<String, RequestConstraint> rcMap, String tableName)  {
+       
+        PointDataContainer pdc = null;
+        try {
+            pdc = DataCubeContainer.getPointData(tableName,
+                    parameters.toArray(new String[parameters.size()]), null,rcMap);
+        } catch (VizException e) {
+        	System.out.println("requestObsPointData-DataCubeContainer:Error getting raw data from "+tableName+" ::" +
+                    e);
+        }
+        if(pdc==null){
+        	try {
+        		pdc = PointDataRequest.requestPointDataAllLevels(
+        				null, tableName, 
+        				parameters.toArray( new String[parameters.size()] ),
+        				null, rcMap );
+        	} catch (VizException e) {
+        		System.out.println("requestObsPointData-PointDataRequest: Error getting raw data from "+tableName+" ::" +
+                    e);
+        	}
+        }
+        if (pdc != null) {
+            pdc.setCurrentSz(pdc.getAllocatedSz());
+            return pdc;
+        }
+        else 
+        	return null;
+    }
 }

@@ -7,7 +7,8 @@
 GLEVEL= 7200:9400  !850                  !850       !850       !9950
 GVCORD= sgma       !pres                 !pres      !pres      !sgma
 SKIP  = 0
-SCALE = 0          !0                    !0         !1         !0
+FILTER=y
+SCALE = 0          !0                    !0         !3         !0
 GDPFUN= sm5s(relh) !sub(tmpc@2%hght,tmpc)!sm9s(tmpc)!sm5s(omeg)!kntv(wnd)
 TYPE  = c/f        !c                    !c         !c         !s
 CINT  = 60;65;70;75!1/10                 !1//0      !1//-1
