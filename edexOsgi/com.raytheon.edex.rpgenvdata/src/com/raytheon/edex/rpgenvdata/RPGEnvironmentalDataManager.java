@@ -94,8 +94,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 * 	??	               			??	    	Initial Creation
 * 1-3-2013		DR 15667 	M.Porricelli 	Made EnvironParamsLevelTable.xml
 *                                        	accessible from SITE level
-* 03/21/2013    DR 15872    D. Friedman     Correct clipped grid coordinates. (From DR 14770.)
-*                                           Correct grid orientation.
+* 04/02/2013    DR 15872    D. Friedman     Correct clipped grid coordinates. (From DR 14770.)
+*                                           Correct grid orientation.  Ensure square grid.
 **/
 public class RPGEnvironmentalDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -118,6 +118,8 @@ public class RPGEnvironmentalDataManager {
     private boolean anyTimeIsGood = false;
 
     private boolean compressionEnabled = true;
+
+    private boolean squareGrid = true;
 
     public RPGEnvironmentalDataManager() {
         try {
@@ -598,6 +600,43 @@ public class RPGEnvironmentalDataManager {
             crsToGrid.transform(new DirectPosition2D(cx2, cy2), c);
             i2 = (int) Math.round(c.x);
             j2 = maxY - (int) Math.round(c.y);
+
+            if (squareGrid) {
+                /*
+                 * ORPG may have a problem with non-square grids. This will be
+                 * fixed in a later release of the ORPG software. For now,
+                 * ensure the output is square.
+                 */
+
+                /*
+                 * Try to expand one edge if needed so as to not go out of
+                 * bounds. If that fails, try shrinking one edge.
+                 */
+                int outputSpan = Math.max(i2 - i1, j2 - j1);
+                boolean solved = false;
+                for (int nTries = 0; !solved && nTries < 2; ++nTries) {
+                    solved = false;
+                    if (i2 - i1 != outputSpan) {
+                        if (i1 + outputSpan <= ge.getHigh(0)) {
+                            i2 = i1 + outputSpan;
+                            solved = true;
+                        } else if (i2 - outputSpan >= ge.getLow(0)) {
+                            i1 = i2 - outputSpan;
+                            solved = true;
+                        }
+                    } else if (j2 - j1 != outputSpan) {
+                        if (j1 + outputSpan <= ge.getHigh(1)) {
+                            j2 = j1 + outputSpan;
+                            solved = true;
+                        } else if (j2 - outputSpan >= ge.getLow(1)) {
+                            j1 = j2 - outputSpan;
+                            solved = true;
+                        }
+                    } else
+                        solved = true;
+                    outputSpan = Math.min(i2 - i1, j2 - j1);
+                }
+            }
 
             if (i1 < ge.getLow(0) || i2 > ge.getHigh(0) || j1 < ge.getLow(1)
                     || j2 > ge.getHigh(1)) {
@@ -1132,6 +1171,14 @@ public class RPGEnvironmentalDataManager {
 
     public void setCompressionEnabled(boolean compressionEnabled) {
         this.compressionEnabled = compressionEnabled;
+    }
+
+    public boolean isSquareGrid() {
+        return squareGrid;
+    }
+
+    public void setSquareGrid(boolean squareGrid) {
+        this.squareGrid = squareGrid;
     }
 
     public String getMessages() {
