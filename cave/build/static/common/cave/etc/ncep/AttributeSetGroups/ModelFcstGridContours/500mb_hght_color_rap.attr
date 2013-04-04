@@ -9,6 +9,7 @@
 GLEVEL =  500
 GVCORD =  pres
 SKIP   =    0
+FILTER=y
 SCALE  =   -1
 GDPFUN =  sm5s(hght)
 TYPE   =    c/f
@@ -24,4 +25,3 @@ TITLE  =   1/-1/~ 500mb HEIGHTS !0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

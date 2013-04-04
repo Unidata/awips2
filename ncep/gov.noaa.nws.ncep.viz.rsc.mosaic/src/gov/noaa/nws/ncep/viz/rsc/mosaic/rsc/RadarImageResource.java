@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -100,6 +101,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07-11-2011              Greg Hull    create initResource to create the colorBarResource.
  * 09-04-2012              B. Hebbard   Add getGridGeometry() to descriptor per OB12.9.1 RTS
  *                                      change IRadialMeshExtension.constructMesh 2nd param
+ * 12/19/2012     #960        Greg Hull   override propertiesChanged() to update colorBar.
  * 
  * </pre>
  * 
@@ -691,6 +693,14 @@ params = /*new ColorMapParameters();//*/ColorMapParameterFactory.build((Object) 
         rrcap.setRangeableResource(this);
         rrcap.paint(target, paintProps);    	
     }    
+
+	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
 
 //	public void resourceChanged(ChangeType type, Object object) {
 //	}

@@ -26,6 +26,9 @@
         <Field abbreviation="TP_ECMWF"/>
     </Method>
     <Method name="ModelRun">
+        <Field abbreviation="TP"/>
+    </Method>    
+    <Method name="ModelRun">
         <Field abbreviation="TP1hr"/>
     </Method>
     <Method name="ModelRun">

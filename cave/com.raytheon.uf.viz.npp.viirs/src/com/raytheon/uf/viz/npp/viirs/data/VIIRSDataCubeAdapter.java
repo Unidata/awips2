@@ -40,8 +40,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.viz.npp.viirs.Activator;
 import com.raytheon.uf.viz.npp.viirs.data.VIIRSRequestableData.VIIRSRequest;
 
@@ -173,7 +174,7 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
      * evaluateRequestConstraints(java.util.Map)
      */
     @Override
-    protected List<AbstractRequestableLevelNode> evaluateRequestConstraints(
+    protected List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> constraints) {
         return inventory.evaluateRequestConstraints(constraints);
     }
@@ -236,9 +237,9 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
     @Override
     public List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
             Map<String, RequestConstraint> constraints) {
-        List<AbstractRequestableLevelNode> nodes = evaluateRequestConstraints(constraints);
+        List<AbstractRequestableNode> nodes = evaluateRequestConstraints(constraints);
         List<Map<String, RequestConstraint>> baseConstraints = new ArrayList<Map<String, RequestConstraint>>();
-        for (AbstractRequestableLevelNode node : nodes) {
+        for (AbstractRequestableNode node : nodes) {
             getBaseUpdateConstraints(baseConstraints, node);
         }
         return baseConstraints;
@@ -246,13 +247,22 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
 
     private void getBaseUpdateConstraints(
             List<Map<String, RequestConstraint>> baseConstraints,
-            AbstractRequestableLevelNode node) {
-        if (node.hasRequestConstraints()) {
-            baseConstraints.add(node.getRequestConstraintMap());
-        } else {
-            for (Dependency d : node.getDependencies()) {
+            AbstractRequestableNode node) {
+
+        if (node instanceof VIIRSRequestableLevelNode) {
+            VIIRSRequestableLevelNode viirsNode = (VIIRSRequestableLevelNode) node;
+            baseConstraints.add(viirsNode.getRequestConstraintMap());
+        } else if (node instanceof AbstractDerivedDataNode) {
+            AbstractDerivedDataNode derivedNode = (AbstractDerivedDataNode) node;
+            for (Dependency d : derivedNode.getDependencies()) {
                 getBaseUpdateConstraints(baseConstraints, d.node);
             }
+        } else if (!node.isConstant()) {
+            // If everything is working correctly than this is dead code, but it is here just in case I missed something.
+            Activator.statusHandler.handle(Priority.WARN, this.getClass()
+                    .getSimpleName()
+                    + " cannot determine base constraints for "
+                    + node.getClass().getSimpleName());
         }
     }
 

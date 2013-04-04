@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.viz.core.requests;
 
+import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestRouter;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
+import com.raytheon.uf.viz.core.VizServers;
+import com.raytheon.uf.viz.core.auth.UserController;
 
 /**
  * Serializes the request using thrift and sends it to the server.
@@ -31,7 +34,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2010            rjpeter     Initial creation
+ * Dec 09, 2010            rjpeter     Initial creation
+ * Dec 03, 2012 1377       djohnson    Use serviceKey to find destination url.
  * 
  * </pre>
  * 
@@ -39,9 +43,28 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * @version 1.0
  */
 public class ServerRequestRouter implements IRequestRouter {
-    @Override
-    public Object route(IServerRequest request) throws Exception {
-        return ThriftClient.sendRequest(request);
+    private final String serviceKey;
+
+    private String httpAddress;
+
+    public ServerRequestRouter(String serviceKey) {
+        this.serviceKey = serviceKey;
     }
 
+    @Override
+    public Object route(IServerRequest request) throws Exception {
+        if (request instanceof AbstractPrivilegedRequest) {
+            ((AbstractPrivilegedRequest) request).setUser(UserController
+                    .getUserObject());
+        }
+        // Must be lazily-created because localization is not initialized when
+        // Spring creates the bean. Does not require synchronization because the
+        // calculated value will always be the same
+        if (httpAddress == null) {
+            httpAddress = VizServers.getInstance()
+                    .getServerLocation(serviceKey);
+        }
+
+        return ThriftClient.sendRequest(request, httpAddress);
+    }
 }

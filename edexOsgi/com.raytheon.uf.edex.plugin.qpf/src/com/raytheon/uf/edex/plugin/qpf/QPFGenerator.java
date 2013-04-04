@@ -29,8 +29,11 @@ import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord;
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord.DATA_TYPE;
 import com.raytheon.uf.common.dataplugin.qpf.dao.QPFDao;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
+import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
+import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
+import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -49,6 +52,7 @@ import com.raytheon.uf.edex.plugin.qpf.common.QPFConfig;
  * 02/07/2009   1981       dhladky    Initial Creation.
  * 04/27/2012   #562       dgilling   Accept getter and setter
  *                                    renames in QPFRecord.
+ * 02/25/13     1660       D. Hladky Fixed configuration bug in scan.
  * 
  * </pre>
  * 
@@ -56,7 +60,8 @@ import com.raytheon.uf.edex.plugin.qpf.common.QPFConfig;
  * @version 1.0
  */
 
-public class QPFGenerator extends CompositeProductGenerator {
+public class QPFGenerator extends CompositeProductGenerator implements
+        MonitorConfigListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(QPFGenerator.class);
@@ -64,6 +69,9 @@ public class QPFGenerator extends CompositeProductGenerator {
     private static final String genName = "QPF";
 
     private static final String productType = "qpf";
+
+    /** run configuration manager **/
+    public SCANRunSiteConfigurationManager srcm = null;
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
@@ -92,7 +100,7 @@ public class QPFGenerator extends CompositeProductGenerator {
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Couldn't create QPF URIFilter.." + icao
-                                + " is not a know RADAR site.");
+                                + " is not a know RADAR site.", e);
                 iter.remove();
             }
         }
@@ -102,11 +110,24 @@ public class QPFGenerator extends CompositeProductGenerator {
     @Override
     protected void configureFilters() {
 
-        logger.info(getGeneratorName() + " process Filter Config...");
-        icaos = new HashSet<String>(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.LOCAL_CONSTANT));
-        icaos.addAll(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.DIAL_CONSTANT));
+        statusHandler.handle(Priority.INFO, getGeneratorName()
+                + " process Filter Config...");
+
+        try {
+            getRunConfig().readConfigXml();
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't read qpf(scan) configuration!!!", e);
+        }
+        boolean configValid = getRunConfig().isPopulated();
+
+        if (!configValid) {
+            statusHandler.handle(Priority.WARN,
+                    "Configuration for qpf(scan) is invalid!!!");
+            return;
+        }
+
+        icaos = new HashSet<String>(getRunConfig().getSiteNames());
     }
 
     @Override
@@ -166,6 +187,28 @@ public class QPFGenerator extends CompositeProductGenerator {
     @Override
     public boolean isRunning() {
         return getConfigManager().getQPFState();
+    }
+
+    /**
+     * run config manager
+     * 
+     * @return
+     */
+    public SCANRunSiteConfigurationManager getRunConfig() {
+        if (srcm == null) {
+            srcm = SCANRunSiteConfigurationManager.getInstance();
+            srcm.addListener(this);
+        }
+        return srcm;
+    }
+
+    @Override
+    public void configChanged(MonitorConfigEvent fce) {
+        if (fce.getSource() instanceof SCANRunSiteConfigurationManager) {
+            statusHandler.handle(Priority.INFO,
+                    "Re-configuring QPF URI filters...Run Site Config change");
+            resetFilters();
+        }
     }
 
 }

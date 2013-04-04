@@ -20,6 +20,7 @@ package com.raytheon.uf.viz.productbrowser;
  * further licensing information.
  **/
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.MenuLoader;
+import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -79,6 +80,9 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRequestableProductBrowserDataDefinition.class);
 
+    // for requestable products, pluginName must be part of the request
+    public String PLUGIN_NAME = "pluginName";
+
     // name of the product for the request constraints
     public String productName;
 
@@ -100,7 +104,7 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
             return null;
         }
         List<Object[]> parameters = null;
-        if (order.length > 1) {
+        if (order.length >= 1) {
             try {
                 DbQuery query = new DbQuery(productName);
                 query.setMaxResults(1);
@@ -135,10 +139,10 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         long time = System.currentTimeMillis();
         List<ProductBrowserLabel> parameters = null;
         boolean product = false;
-        String param = order[selection.length];
+        String param = order[selection.length - 1];
         HashMap<String, RequestConstraint> queryList = getProductParameters(
                 selection, order);
-        product = (selection.length + 1) == order.length;
+        product = selection.length == order.length;
 
         String[] temp = queryData(param, queryList);
         if (temp != null) {
@@ -154,6 +158,7 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
                 parameters.get(i).setProduct(product);
             }
         }
+
         System.out.println("Time to query for "
                 + selection[selection.length - 1] + ": "
                 + (System.currentTimeMillis() - time) + "ms");
@@ -194,12 +199,15 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         constructResource();
     }
 
-    private void constructResource() {
+    protected void constructResource() {
         ResourcePair pair = new ResourcePair();
         pair.setResourceData(resourceData);
         pair.setLoadProperties(loadProperties);
         pair.setProperties(new ResourceProperties());
-        IDescriptor currDesc = null;
+        constructResource(Arrays.asList(pair));
+    }
+
+    protected void constructResource(List<ResourcePair> pairs) {
         // retrieves the correct editor
         getEditor();
         IDisplayPaneContainer container = getEditor();
@@ -209,11 +217,12 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         AbstractRenderableDisplay display = (AbstractRenderableDisplay) container
                 .getActiveDisplayPane().getRenderableDisplay();
         display = (AbstractRenderableDisplay) display.createNewDisplay();
-        display.getDescriptor().getResourceList().add(pair);
+        for (ResourcePair pair : pairs) {
+            display.getDescriptor().getResourceList().add(pair);
+        }
         Bundle b = new Bundle();
         b.setDisplays(new AbstractRenderableDisplay[] { display });
-        new MenuLoader(b, (AbstractEditor) EditorUtil.getActiveEditor())
-                .schedule();
+        new BundleProductLoader(EditorUtil.getActiveVizContainer(), b).schedule();
     }
 
     /**
@@ -227,8 +236,8 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         historyList.add(displayName);
         Map<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
         RequestConstraint contstraint = new RequestConstraint(productName);
-        queryList.put(order[0], contstraint);
-        for (int i = 1; i < order.length; i++) {
+        queryList.put(PLUGIN_NAME, contstraint);
+        for (int i = 0; i < order.length; i++) {
             try {
                 String[] items = CatalogQuery.performQuery(order[i], queryList);
                 List<ProductBrowserLabel> labels = formatData(order[i], items);
@@ -254,11 +263,27 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
     public HashMap<String, RequestConstraint> getProductParameters(
             String[] selection, String[] order) {
         HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(order[0], new RequestConstraint(productName));
-        for (int i = 1; i < selection.length; i++) {
-            queryList.put(order[i], new RequestConstraint(selection[i]));
+        queryList.put(PLUGIN_NAME, new RequestConstraint(productName));
+
+        String[] usedSelection = realignSelection(selection);
+        for (int i = 0; i < usedSelection.length; i++) {
+            queryList.put(order[i], new RequestConstraint(usedSelection[i]));
         }
         return queryList;
+    }
+
+    /**
+     * Reorder the selection so that it lines up with the order
+     * 
+     * @param selection
+     * @return
+     */
+    protected final String[] realignSelection(String[] selection) {
+        String[] usedSelection = new String[selection.length - 1];
+        for (int i = 1; i < selection.length; i++) {
+            usedSelection[i - 1] = selection[i];
+        }
+        return usedSelection;
     }
 
     public ResourceType getResourceType() {

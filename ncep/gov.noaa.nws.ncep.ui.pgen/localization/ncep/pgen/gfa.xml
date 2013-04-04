@@ -25,6 +25,20 @@
 			dropdown. Attributes: "label" - the label placed in front of this text,  
 					 Values: value
 	-->
+	<hazard name="C&amp;V" snapshot="red" smear="violet" outlook="cyan" other="red" category="SIERRA">
+ 	<checkbox label="CIG BLW 010" type="type" checked="false"/>
+		<popup label="VIS BLW 3SM">
+			<checkbox label="PCPN"/>
+			<checkbox label="BR"/>
+			<checkbox label="FG"/>
+			<checkbox label="HZ"/>
+			<checkbox label="FU"/>
+			<checkbox label="BLSN"/>
+		</popup>
+		<text type="type" width="200" height="25" required="true" scrollable="true" editable="false" category="NONE"/>
+	</hazard>
+
+<!-- 
 	<hazard name="IFR" snapshot="red" smear="violet" outlook="cyan" other="red" category="SIERRA">
 		<checkbox label="CIG BLW 010" type="type" checked="false"/>
 		<popup label="VIS BLW 3SM">
@@ -48,6 +62,8 @@
 		</popup>
 		<text type="type" width="200" height="25" scrollable="true" editable="false"/>
 	</hazard>
+-->
+<!--
 	<hazard name="CLD" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE">
 		<text type="input" width="100" height="18" label="Bottom" required="true" scrollable="false" editable="true" characterType="digitsOnly" characterLimit="3" padWithZeros="3"/>
 		<dropdown label="Coverage">
@@ -60,6 +76,7 @@
 		<text type="input" width="100" height="18" label="Top" required="true" scrollable="false" editable="true" characterType="digitsOnly" characterLimit="3" padWithZeros="3"/>
 		<checkbox label="LYR" checked="false"/>
 	</hazard>
+-->
 	<hazard name="MT_OBSC" snapshot="yellow" smear="violet" outlook="cyan" other="yellow" category="SIERRA">
 <!--  		<text type="input" width="100" height="18" label="Top/Bottom" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
 -->		
@@ -76,14 +93,18 @@
 	<hazard name="ICE" snapshot="green" smear="violet" outlook="cyan" other="green" category="ZULU">
 		<fzlText width="100" height="18" label="FZL Top/Bottom" scrollable="false" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
 <!--  		<dropdown label="Type">
+			<value>ICE</value>
+		</dropdown> 
+-->
+<!--  		<dropdown label="Type">
 			<value>RIME/MXD ICGICIP</value>
 			<value>RIME ICGIC</value>
 			<value>CLR ICGIP</value>
 		</dropdown> -->
 	</hazard>
-	<hazard name="TURB" snapshot="blue" smear="blue" outlook="blue" other="blue" category="TANGO">
+<!--	<hazard name="TURB" snapshot="blue" smear="blue" outlook="blue" other="blue" category="TANGO">
 		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-<!--		<dropdown label="DUE TO">
+		<dropdown label="DUE TO">
 			<value></value>
 			<value>STG LOW LVL WNDS</value>
 			<value>UPR TROF AND WIND SHEAR ASSOC WITH JTST</value>
@@ -94,7 +115,36 @@
 			<value>WIND SHEAR ASSOC WITH JTST</value>
 			<value>MTN WAVE ACT</value>
 			<value>WIND SHEAR ASSOC WITH JTST AND MTN WAVE ACT</value>
-		</dropdown> -->
+		</dropdown>
+	</hazard>
+-->
+<!--
+	<hazard name="SIGWX" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
+	<hazard name="CIG_CLD" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
+	<hazard name="TCU_CLD" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
+	<hazard name="MTW" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE">
+		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
+		<dropdown label="Intensity">
+			<value>MOD</value>
+		</dropdown>
+	</hazard>
+-->
+	<hazard name="FZLVL" snapshot="llBlue" smear="lightBlue" outlook="lightBlue" other="llBlue" format="false" category="ZULU">
+		<dropdown label="Contour">
+			<value>Open</value>
+			<value>Closed</value>
+		</dropdown>
+		<dropdown label="Level">
+			<value>SFC</value>
+			<value>040</value>
+			<value>080</value>
+			<value>120</value>
+			<value>160</value>
+		</dropdown>
+		<text type="input" width="100" height="18" label="FZL RANGE" scrollable="false" editable="true"/>
+	</hazard>
+	<hazard name="M_FZLVL" snapshot="cyan" smear="violet" outlook="cyan" other="cyan" category="ZULU">
+		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
 	</hazard>
 	<hazard name="TURB-HI" snapshot="pink" smear="violet" outlook="cyan" other="pink" category="TANGO">
 		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
@@ -132,35 +182,9 @@
 <!--		<value>20KT</value> -->
 		</dropdown>
 	</hazard>
-	<hazard name="SIGWX" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
-	<hazard name="CIG_CLD" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
-	<hazard name="TCU_CLD" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
-	<hazard name="MTW" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE">
-		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-		<dropdown label="Intensity">
-			<value>MOD</value>
-		</dropdown>
-	</hazard>
-	<hazard name="FZLVL" snapshot="llBlue" smear="lightBlue" outlook="lightBlue" other="llBlue" format="false" category="ZULU">
-		<dropdown label="Contour">
-			<value>Open</value>
-			<value>Closed</value>
-		</dropdown>
-		<dropdown label="Level">
-			<value>SFC</value>
-			<value>040</value>
-			<value>080</value>
-			<value>120</value>
-			<value>160</value>
-		</dropdown>
-		<text type="input" width="100" height="18" label="FZL RANGE" scrollable="false" editable="true"/>
-	</hazard>
-	<hazard name="M_FZLVL" snapshot="cyan" smear="violet" outlook="cyan" other="cyan" category="ZULU">
-		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-	</hazard>
 	<hazard name="LLWS" snapshot="cyan" smear="violet" outlook="cyan" other="cyan" category="TANGO">
 	</hazard>
-	<hazard name="TS" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE">
+<!--	<hazard name="TS" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE">
 		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
 		<dropdown label="Category">
 			<value></value>
@@ -173,7 +197,7 @@
 		</dropdown>
 		<checkbox label="GR" checked="false"/>
 	</hazard>
-	
+-->	
 	<!--
 		"Fcst Hr" dropdown values.
 		 
@@ -245,7 +269,13 @@
 				"ICONHERE" keyword will be replaced with the image, corresponding to this particular hazard and its settings.
 	 -->
 	<displayText>
+		<value hazard="C&amp;V" originalText="C&amp;V" displayAs="IFR"/>
+		<value hazard="C&amp;V" originalText="CIG BLW 010:VIS BLW 3SM " displayAs=""/>
+		<value hazard="C&amp;V" originalText="CIG BLW 010/VIS BLW 3SM " displayAs=""/>
+		<value hazard="C&amp;V" originalText="CIG BLW 010" displayAs=""/>
+		<value hazard="C&amp;V" originalText="VIS BLW 3SM" displayAs=""/>
 		<value hazard="IFR" originalText="CIG BLW 010:VIS BLW 3SM " displayAs=""/>
+		<value hazard="IFR" originalText="CIG BLW 010/VIS BLW 3SM " displayAs=""/>
 		<value hazard="IFR" originalText="CIG BLW 010" displayAs="CIG"/>
 		<value hazard="IFR" originalText="VIS BLW 3SM" displayAs="VIS"/>
 		<value hazard="MVFR" originalText="MVFR" displayAs=""/> 
@@ -256,7 +286,7 @@
 		<value hazard="TURB-HI" originalText="TURB-HI" displayAs="ICONHERE,,"/>
 		<value hazard="TURB-LO" originalText="TURB-LO" displayAs="ICONHERE,,"/>
 		<value hazard="SFC_WND" originalText="SFC_WND" displayAs="ICONHERE,,,,"/>
-		<value hazard="M_FZLVL" originalText="M_FZLVL" displayAs="0°"/>
+		<value hazard="M_FZLVL" originalText="M_FZLVL" displayAs="0Â°"/>
 
 		<!-- for all hazards -->
 		<value hazard="" originalText=":" displayAs=" "/> 

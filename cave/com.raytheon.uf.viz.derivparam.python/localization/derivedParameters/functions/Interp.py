@@ -18,7 +18,7 @@
 # further licensing information.
 ##
 from scipy.interpolate import Rbf
-from numpy import zeros, float32, NaN, isnan
+from numpy import zeros, float32, NaN, isnan, array
 
 ##
 # Designed to replace interp_up and interp_down in design files for point data
@@ -31,6 +31,9 @@ def execute(paramArray, vertArray, numLevels, vertPoints, maxGap=None):
         if type(verts) == float32:
             verts = [verts]
         params = paramArray[i]
+        # clone verts and params before modifying
+        verts = array(verts)
+        params = array(params)
         gi = 0
         for ci in range(len(verts)):
             if isnan(verts[ci]) or isnan(params[ci]):

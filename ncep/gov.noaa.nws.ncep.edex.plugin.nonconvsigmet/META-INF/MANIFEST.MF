@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Nonconvsigmet Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.nonconvsigmet
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
