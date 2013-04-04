@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.service;
 
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -39,7 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 public class DeniedPendingSubscriptionNotificationResponse extends
-        SubscriptionNotificationResponse {
+        BaseSubscriptionNotificationResponse<InitialPendingSubscription> {
     /**
      * Id of the denied subscription.
      */
@@ -72,5 +75,13 @@ public class DeniedPendingSubscriptionNotificationResponse extends
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IBaseSubscriptionHandler<InitialPendingSubscription> getSubscriptionHandler() {
+        return DataDeliveryHandlers.getPendingSubscriptionHandler();
     }
 }
