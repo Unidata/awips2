@@ -38,6 +38,8 @@ import com.raytheon.viz.core.gl.images.GLDelegateImage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2011            mschenke     Initial creation
+ * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
+ *                                     format for offscreen textures.
  * 
  * </pre>
  * 
@@ -163,6 +165,11 @@ public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
     @Override
     public double getValue(int x, int y) {
         return image.getValue(x, y);
+    }
+
+    public void setWrappedImage(GLColormappedImage wrappedImage) {
+        this.image.dispose();
+        this.image = wrappedImage;
     }
 
 }
