@@ -37,26 +37,32 @@
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Prob > 0.1 inch" id="probGt01Inch">
 			<substitute key="param" value="PQPF23hr"/>
+			<substitute key="customLegend" value="0-3hr. Probability of Rain > 0.1in."/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Prob > 0.5 inch" id="probGt05Inch">
 			<substitute key="param" value="PQPF33hr"/>
+			<substitute key="customLegend" value="0-3hr. Probability of Rain > 0.5in."/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Prob > 1.0 inch" id="probGt1Inch">
 			<substitute key="param" value="PQPF53hr"/>
+			<substitute key="customLegend" value="0-3hr. Probability of Rain > 1.0in."/>			
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Prob > 2.0 inch" id="probGt2Inch">
 			<substitute key="param" value="PQPF63hr"/>
+			<substitute key="customLegend" value="0-3hr. Probability of Rain > 2.0in."/>			
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Rainfall (inch)" id="rainfall">
 			<substitute key="param" value="SCQP3hr"/>
+<substitute key="customLegend" value="0-3hr. Rainfall Amount"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
 			menuText="0-3hr Prob CG Lightning" id="probCGLightning">
 			<substitute key="param" value="PVORT3hr"/>
+			<substitute key="customLegend" value="0-3hr. CG Lightning Probability"/>
 		</contribute>
 	</contribute>
 </menuTemplate>

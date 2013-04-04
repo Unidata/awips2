@@ -662,7 +662,9 @@ public class DbMapResource extends
         float alpha = paintProps.getAlpha();
 
         if (shadedShape != null && shadedShape.isDrawable() && isShaded) {
-            aTarget.drawShadedShape(shadedShape, alpha);
+            float opacity = getCapability(ShadeableCapability.class)
+                    .getOpacity();
+            aTarget.drawShadedShape(shadedShape, alpha * opacity);
         }
 
         if (outlineShape != null && outlineShape.isDrawable()
@@ -670,7 +672,8 @@ public class DbMapResource extends
             aTarget.drawWireframeShape(outlineShape,
                     getCapability(ColorableCapability.class).getColor(),
                     getCapability(OutlineCapability.class).getOutlineWidth(),
-                    getCapability(OutlineCapability.class).getLineStyle());
+                    getCapability(OutlineCapability.class).getLineStyle(),
+                    alpha);
         } else if (outlineShape == null
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             issueRefresh();

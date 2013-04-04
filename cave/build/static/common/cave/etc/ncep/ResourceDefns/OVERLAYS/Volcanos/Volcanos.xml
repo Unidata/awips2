@@ -7,7 +7,7 @@
 LpiFilename=volcano.lpi
 mapName=Volcanos
     </resourceParameters>
-    <filterLabels>Stations</filterLabels>
+    <filterLabels>NaturalFeatures</filterLabels>
     <rscImplementation>LpiOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

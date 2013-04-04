@@ -2,16 +2,18 @@ package gov.noaa.nws.ncep.gempak.parameters.infill;
 
 
 
-import gov.noaa.nws.ncep.gempak.parameters.infill.FINT;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
 /**
- *<pre>
+ * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#     Engineer     Description
  * ------------ ---------- ----------- --------------------------
@@ -20,7 +22,9 @@ import static org.junit.Assert.*;
  *                                                            updated code in FINT  
  * 03-Aug-2010     184       Archana.S   Updated test-cases to test
  *                                                            updated code in FINT
+ * 25-Aug-2012     743       djohnson    Upgrade to JUnit 4.10.
  * </pre>
+ * 
  * @author Archana.S
  * @version 1
  */
@@ -76,7 +80,15 @@ public class FINTTest {
             testCaseNumber++;
 	}
 	
-	@Test
+    /**
+     * @param doubleValue
+     * @param i
+     */
+    // private static void assertEquals(double doubleValue, int i) {
+    // Assert.assertEquals(doubleValue, i, 0.001);
+    // }
+
+    @Test
 	
 	/* Test for valid FINT string of the form fillInterval/minFillValue/maxFillValue 
 	 * with a negative contourInterval 
@@ -105,7 +117,7 @@ public class FINTTest {
 
 		FINT fint = new FINT("66.1;0.1;5000;76;-.999;12233459390;0.00009988;1234.567890");
 
-		assertEquals(fint.isFINTStringParsed(), true);
+        Assert.assertTrue(fint.isFINTStringParsed());
 		testList = new ArrayList<Double>(Arrays.asList(66.1, 0.1, 5000.0, 76.0, -0.999, 
 				                                          1.223345939E10, 9.988E-5, 1234.56789));
 	    		    keySetList = fint.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
@@ -126,7 +138,7 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 
 		FINT fint = new FINT("  66.1  ;        0.1        ;            5000        ");
 
-		assertEquals(fint.isFINTStringParsed(), true);
+        Assert.assertTrue(fint.isFINTStringParsed());
 		testList = new ArrayList<Double>(Arrays.asList(66.1, 0.1, 5000.0));
 	    		    keySetList = fint.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
 		    assertEquals(keySetList,testList);
@@ -146,9 +158,10 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	/*Test for valid FINT string of the form fillInterval/minFillValue/ */
 	public void testFillIntervalWithMinValueOnly(){
 		FINT fint = new FINT("-0.345/0/");
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),-0.345);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),0);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);	
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL), -0.345);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL), 0);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
 		
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("The input string = " + fint.getUserInputString());
@@ -160,14 +173,23 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 		testCaseNumber++;
 	}
 	
-	@Test
+    /**
+     * @param fillInterval
+     * @param d
+     */
+    private void assertDoubleEquals(Double fillInterval, double d) {
+        Assert.assertEquals(d, fillInterval.doubleValue(), 0.01);
+    }
+
+    @Test
 	
 	/*Test for valid FINT string of the form fillInterval//maxFillValue */
 	public void testFillIntervalWithMaxValueOnly(){
 		FINT fint = new FINT("15//30");
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),15);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),30);	
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL), 15);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL), 30);
 	
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("Is the FINT string parsed correctly? " + fint.isFINTStringParsed());
@@ -185,9 +207,11 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 		
 		FINT fint = new FINT("-0.5/");
 		assertEquals(fint.isFINTStringParsed(),true);
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),-0.5);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL), -0.5);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
 		
 	    System.out.println("=====================Test-Case "+testCaseNumber+"a ========================");
 	    System.out.println("The input string = " + fint.getUserInputString());
@@ -198,9 +222,11 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 
 		FINT fint2 = new FINT("-.89//");
 		assertEquals(fint2.isFINTStringParsed(),true);
-		assertEquals(fint2.getFillInterval(FINT.FIRST_ZOOM_LEVEL),-0.89);
-		assertEquals(fint2.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint2.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
+        assertDoubleEquals(fint2.getFillInterval(FINT.FIRST_ZOOM_LEVEL), -0.89);
+        assertDoubleEquals(fint2.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint2.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
 		
 	    System.out.println("=====================Test-Case "+testCaseNumber+"b ========================");
 	    System.out.println("The input string = " + fint2.getUserInputString());
@@ -218,9 +244,10 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	/*Test for valid FINT string of the form /minFillValue/maxFillValue */
 	public void testFillIntervalWithNoFillIntervalAndWithMinMaxValueOnly(){
 		FINT fint = new FINT("/10/30");
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),30);	
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL), 10);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL), 30);
 	
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("The input string = " + fint.getUserInputString());
@@ -239,9 +266,10 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	 *and maxFillValue are the same*/
 	public void testFillIntervalWithMinValSameAsMaxValAndNoFillIntervalSpecified(){
 		FINT fint = new FINT("/10/10");
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),10);	
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL), 10);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL), 10);
 	    testList = new ArrayList<Double>(Arrays.asList(10.0));
 	    		    keySetList = fint.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
 		    assertEquals(keySetList,testList);
@@ -292,10 +320,10 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	public void testExtraNumArgsFillIntervalString(){
 		
 		FINT fint = new FINT("20/10/70/30/40/500");
-		assertEquals(fint.isFINTStringParsed(), true);
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),20);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),70);
+        Assert.assertTrue(fint.isFINTStringParsed());
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL), 20);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL), 10);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL), 70);
 		
 	    testList = new ArrayList<Double>(Arrays.asList(10.0,30.0,50.0,60.0));
 	    		    keySetList = fint.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
@@ -318,9 +346,12 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	public void testNonNumericFillIntervalString(){
 		FINT fint = new FINT("-def/abc/%^&/30/40");
 		assertEquals(fint.isFINTStringParsed(), false);
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
 		
 		System.out.println("=====================Test-Case "+testCaseNumber+"========================");	
 		System.out.println("The input string      = "+fint.getUserInputString());
@@ -339,9 +370,12 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 		
 		FINT fint = new FINT("5.10.60.9");
 		assertEquals(fint.isFINTStringParsed(), false);
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),Double.NaN);		
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),
+                Double.NaN);
     	
 		System.out.println("=====================Test-Case "+testCaseNumber+"========================");
 		System.out.println("The input string      = "+fint.getUserInputString());
@@ -358,10 +392,10 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	/*Test FINT string by interchanging minFillValue and maxFillValue */
 	public void testMinMaxValuesInterchangedFillIntervalString(){
 		FINT fint = new FINT("-5/20/5");
-		assertEquals(fint.isFINTStringParsed(), true);
-		assertEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL),-5);
-		assertEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),20);
+        Assert.assertTrue(fint.isFINTStringParsed());
+        assertDoubleEquals(fint.getFillInterval(FINT.FIRST_ZOOM_LEVEL), -5);
+        assertDoubleEquals(fint.getMinFillValue(FINT.FIRST_ZOOM_LEVEL), 5);
+        assertDoubleEquals(fint.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL), 20);
 		
 	    testList = new ArrayList<Double>(Arrays.asList(5.0, 10.0, 15.0, 20.0));
 	    		    keySetList = fint.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
@@ -376,9 +410,9 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 		
 		FINT fint2 = new FINT("5/20/5");
 		assertEquals(fint2.isFINTStringParsed(), true);
-		assertEquals(fint2.getFillInterval(FINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(fint2.getMinFillValue(FINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(fint2.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL),20);		
+        assertDoubleEquals(fint2.getFillInterval(FINT.FIRST_ZOOM_LEVEL), 5);
+        assertDoubleEquals(fint2.getMinFillValue(FINT.FIRST_ZOOM_LEVEL), 5);
+        assertDoubleEquals(fint2.getMaxFillValue(FINT.FIRST_ZOOM_LEVEL), 20);
 	    testList = new ArrayList<Double>(Arrays.asList(5.0, 10.0, 15.0, 20.0));
 	    keySetList = fint2.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
 	    assertEquals(testList,keySetList);	
@@ -471,7 +505,7 @@ System.out.println("Fill Values List = "+fint.getFillValuesListAsDouble(FINT.FIR
 	@Test
 	public void testFINTMultipleZoomLevels(){
 	 	FINT fint = new FINT("2/-6/6/3 > 30;50;80 > 60 ; 80 > 0.00009999 > 0.0000001;");
-	 	assertEquals(fint.isFINTStringParsed(), true);
+        Assert.assertTrue(fint.isFINTStringParsed());
 	 	testList = new ArrayList<Double>(Arrays.asList(-6.0, -4.0,-2.0, 0.0, 2.0, 4.0, 6.0));
 	    keySetList = fint.getFillValuesListAsDouble(FINT.FIRST_ZOOM_LEVEL);
 	    assertEquals(testList,keySetList);

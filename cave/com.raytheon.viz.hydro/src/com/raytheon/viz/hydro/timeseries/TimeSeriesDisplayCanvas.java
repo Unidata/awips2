@@ -132,7 +132,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  *                                    to display stage value, also added checking for rating curve for both 
  *                                    stage and discharge. 
  * 13 Nov   2012 15416   lbousaidi    added a check when the colorname is null and a call to 
- *                                    getGroupModeColor                                 
+ *                                    getGroupModeColor   
+ * 09 Jan   2012 15493   lbousaidi    added code to delete data while zooming when you draw a box                         
  * @author lvenable
  * @version 1.0
  * 
@@ -1714,7 +1715,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
                 }
             }
-        } else if (dialog.isDelete()) {
+        } else if  ( traceSelected && dialog.isDelete()) {
             if (mouseDown) {
                 int deleteX1 = selectedX;
                 int deleteY1 = selectedY;
@@ -2111,8 +2112,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             getAgain = false;
         } else if (traceSelected && dialog.isDelete() && (deleteRect != null)) {
             TraceData td = graphData.getTraces().get(selectedTraceId);
+            TimeSeriesPoint[] pointArray= null;
+            if (!zoomed ){
+                 pointArray = td.getTsData();
+            } else {
+                 pointArray = td.getZoomedTsData();                
+            }         
 
-            TimeSeriesPoint[] pointArray = td.getTsData();
             for (int i = 0; i < pointArray.length; i++) {
                 if (deleteRect.contains(pointArray[i].getPixelX(),
                         pointArray[i].getPixelY())) {
@@ -2345,6 +2351,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         int[] dataPts = new int[pointArray.length * 2];
         ArrayList<Integer> dataPtList = new ArrayList<Integer>();
         int dataIndex = 0;
+        int zoomDataIndex=0;
         ArrayList<Integer> al = new ArrayList<Integer>();
         for (int i = 0; i < pointArray.length; i++) {
             if (pointArray[i].getY() != HydroConstants.MISSING_VALUE) {
@@ -2378,11 +2385,15 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         al.add(GRAPHBORDER_LEFT
                                 + x2pixel(graphData, pointArray[i].getX()
                                         .getTime()));
+                        pointArray[i].setPixelX(al.get(zoomDataIndex));
+                        zoomDataIndex++;
                         al.add(GRAPHBORDER
                                 * 2
                                 + graphAreaHeight
                                 - (lowerAxis - y2pixel(graphData,
                                         pointArray[i].getY())));
+                        pointArray[i].setPixely(al.get(zoomDataIndex));
+                        zoomDataIndex++;
                     }
                     int[] pts = new int[al.size()];
                     for (int j = 0; j < al.size(); j++) {

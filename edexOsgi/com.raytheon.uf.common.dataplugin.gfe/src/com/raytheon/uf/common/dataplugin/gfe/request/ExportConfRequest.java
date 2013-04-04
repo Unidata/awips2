@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
-import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -42,7 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class ExportConfRequest extends AbstractPrivilegedRequest {
+public class ExportConfRequest extends AbstractGfePrivilegedRequest {
 
     @DynamicSerializeElement
     private String site;
@@ -70,6 +69,5 @@ public class ExportConfRequest extends AbstractPrivilegedRequest {
     public void setSite(String site) {
         this.site = site;
     }
-
 
 }

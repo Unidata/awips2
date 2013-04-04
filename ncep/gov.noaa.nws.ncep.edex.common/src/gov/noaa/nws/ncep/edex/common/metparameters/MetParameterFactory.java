@@ -311,6 +311,7 @@ public class MetParameterFactory implements ISerializableObject{
 		ncParamsMap.put( ReportTimeInHourMins.class.getSimpleName(), new ReportTimeInHourMins() );		
 		ncParamsMap.put( ProbablePresentWeather.class.getSimpleName(), new ProbablePresentWeather() );	
 		ncParamsMap.put( LowLevelWindShear.class.getSimpleName(), new LowLevelWindShear() );
+		ncParamsMap.put( WxPresent.class.getSimpleName(), new WxPresent() );
 		}
 		catch(Exception e ){
 			e.printStackTrace();

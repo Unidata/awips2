@@ -30,11 +30,10 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -62,13 +61,13 @@ public class TiltUtils {
 
     private static class CacheKey {
 
-        private final int coverageId;
+        private final Integer coverageId;
 
         private final double lat;
 
         private final double lon;
 
-        public CacheKey(int coverageId, double lon, double lat) {
+        public CacheKey(Integer coverageId, double lon, double lat) {
             this.coverageId = coverageId;
             this.lat = lat;
             this.lon = lon;
@@ -78,7 +77,8 @@ public class TiltUtils {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + coverageId;
+            result = prime * result
+                    + ((coverageId == null) ? 0 : coverageId.hashCode());
             long temp;
             temp = Double.doubleToLongBits(lat);
             result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -96,7 +96,10 @@ public class TiltUtils {
             if (getClass() != obj.getClass())
                 return false;
             CacheKey other = (CacheKey) obj;
-            if (coverageId != other.coverageId)
+            if (coverageId == null) {
+                if (other.coverageId != null)
+                    return false;
+            } else if (!coverageId.equals(other.coverageId))
                 return false;
             if (Double.doubleToLongBits(lat) != Double
                     .doubleToLongBits(other.lat))
@@ -148,9 +151,9 @@ public class TiltUtils {
 
     private FloatDataRecord getHeightGrid(RadarStation radar,
             GridCoverage coverage, double tilt) {
-        CacheKey cacheKey = new CacheKey(coverage.getId(), radar.getLon(),
-                radar.getLat());
         if (radar != null) {
+            CacheKey cacheKey = new CacheKey(coverage.getId(), radar.getLon(),
+                    radar.getLat());
             GridGeometry2D geometry = MapUtil.getGridGeometry(coverage);
             GridEnvelope2D gridRange = geometry.getGridRange2D();
             double[] radius = null;
@@ -160,44 +163,33 @@ public class TiltUtils {
             }
             if (radius == null) {
                 try {
+                    MathTransform gridToCrs = geometry.getGridToCRS();
+                    MathTransform fromLatLon = MapUtil
+                            .getTransformFromLatLon(coverage.getCrs());
 
-                    if (!(coverage instanceof LatLonGridCoverage)) {
-                        MathTransform gridToCrs = geometry.getGridToCRS();
-                        MathTransform fromLatLon = MapUtil
-                                .getTransformFromLatLon(coverage.getCrs());
-
-                        double[] radarLonLat = new double[] { radar.getLon(),
-                                radar.getLat() };
-                        double[] radarCrsCoord = new double[2];
-                        fromLatLon.transform(radarLonLat, 0, radarCrsCoord, 0,
-                                1);
-                        int numPoints = gridRange.height * gridRange.width;
-                        double[] gridCoordGrid = new double[numPoints * 2];
-                        int offset = 0;
-                        for (int j = 0; j < gridRange.height; j++) {
-                            for (int i = 0; i < gridRange.width; i++) {
-                                gridCoordGrid[offset++] = i;
-                                gridCoordGrid[offset++] = j;
-                            }
+                    double[] radarLonLat = new double[] { radar.getLon(),
+                            radar.getLat() };
+                    double[] radarCrsCoord = new double[2];
+                    fromLatLon.transform(radarLonLat, 0, radarCrsCoord, 0, 1);
+                    int numPoints = gridRange.height * gridRange.width;
+                    double[] gridCoordGrid = new double[numPoints * 2];
+                    int offset = 0;
+                    for (int j = 0; j < gridRange.height; j++) {
+                        for (int i = 0; i < gridRange.width; i++) {
+                            gridCoordGrid[offset++] = i;
+                            gridCoordGrid[offset++] = j;
                         }
-                        gridToCrs.transform(gridCoordGrid, 0, gridCoordGrid, 0,
-                                numPoints);
-                        radius = new double[numPoints];
-                        offset = 0;
-                        for (int i = 0; i < numPoints; i++) {
-                            double xDist = radarCrsCoord[0]
-                                    - gridCoordGrid[offset++];
-                            double yDist = radarCrsCoord[1]
-                                    - gridCoordGrid[offset++];
-                            radius[i] = Math
-                                    .sqrt(xDist * xDist + yDist * yDist);
-                        }
-                    } else {
-                        // use geodetic calculator
-                        MathTransform gridToLatLon = geometry.getGridToCRS();
-
-                        radius = getRadius(radar, gridRange, gridToLatLon);
-
+                    }
+                    gridToCrs.transform(gridCoordGrid, 0, gridCoordGrid, 0,
+                            numPoints);
+                    radius = new double[numPoints];
+                    offset = 0;
+                    for (int i = 0; i < numPoints; i++) {
+                        double xDist = radarCrsCoord[0]
+                                - gridCoordGrid[offset++];
+                        double yDist = radarCrsCoord[1]
+                                - gridCoordGrid[offset++];
+                        radius[i] = Math.sqrt(xDist * xDist + yDist * yDist);
                     }
                     gridRadiusCache.put(cacheKey, new SoftReference<double[]>(
                             radius));
@@ -206,11 +198,13 @@ public class TiltUtils {
                             .handle(Priority.PROBLEM,
                                     "Error occurred generating height grid for radar tilt",
                                     e);
+                    return null;
                 }
             }
             return getHeightGrid(radar, gridRange, radius, tilt);
+        } else {
+            return null;
         }
-        return null;
     }
 
     public FloatDataRecord getHeightGrid(GridEnvelope2D gridRange,

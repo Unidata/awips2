@@ -1,0 +1,37 @@
+ # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
+#192-254 Reserved for local use
+192:192:Categorical Rain::CRAIN
+193:193:Categorical Freezing Rain::CFRZR
+194:194:Categorical Ice Pellets::CICEP
+195:195:Categorical Snow::CSNOW
+196:196:Convective Precipitation Rate:mm / s:CPRAT
+197:197:Horizontal Moisture Divergence:kg/kg*s:MCONV:MCon
+198:198:Minimum Relative Humidity:%:MINRH
+199:199:Potential Evaporation:mm:PEVAP
+200:200:Potential Evaporation Rage:W/m^2:PEVPR
+201:201:Snow Cover:%:SCP
+202:202:Rain Fraction of Total Liquid Water::FRAIN
+203:203:Rime Factor::FRIME
+204:204:Total Column Integrated Rain:mm:TCOLR
+205:205:Total Column Integrated Snow:mm:TCOLS
+206:206:Total Icing Potential Diagnostic::TIPD
+207:207:Number concentration for ice particles::NCIP
+208:208:Snow Temperature:K:SNOT
+209:209:Total column-integrated supercooled liquid water:mm:TCLSW
+210:210:Total column-integrated melting ice:mm:TCOLM
+211:211:Evaporation - Precipitation:cm/day:EMNP
+212:212:Sublimation (evaporation from snow):W/m^2:SBSNO
+213:213:Deep Convective Moistening Rate:kg/kg*s:CNVMR
+214:214:Shallow Convective Moistening Rate:kg/kg*s:SHAMR
+215:215:Vertical Diffusion Moistening Rate:kg/kg*s:VDFMR
+216:216:Condensation Pressure of Parcal Lifted From Indicate Surface:Pa:CONDP
+217:217:Large scale moistening rate:kg/kg/s:LRGMR
+218:218:Specific humidity at top of viscous sublayer:kg/kg:QZ0
+219:219:Maximum specific humidity at 2m:kg/kg:QMAX
+220:220:Minimum specific humidity at 2m:kg/kg:QMIN
+221:221:Liquid precipitation (rainfall):mm:ARAIN
+222:222:Snow temperature, depth-avg:K:SNOWT
+223:223:Total precipitation (nearest grid point):mm:APCPN
+224:224:Convective precipitation (nearest grid point):mm:ACPCPN
+225:225:Freezing Rain:mm:FRZR
+255:255:Missing

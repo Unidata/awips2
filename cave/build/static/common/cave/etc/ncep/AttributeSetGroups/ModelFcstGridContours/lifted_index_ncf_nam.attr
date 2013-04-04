@@ -8,6 +8,7 @@
 GLEVEL =  180:0
 GVCORD =  pdly
 SKIP   =    0/1
+FILTER=y
 SCALE  =   0
 GDPFUN =  sm5s(lft4)      !sm5s(lft4) !sm5s(lft4) !kntv(wnd@30:0%pdly)
 TYPE   =    c               !c          !c          !b
@@ -17,10 +18,9 @@ FINT   =
 FLINE  =   
 HILO   =    0
 HLSYM  =   0
-CLRBAR =  1/V/LL!0
+!CLRBAR =  1/V/LL!0
 WIND   =    10/0.9/2/112
 TITLE  =   1/-1/~ BEST LI (0-180 MB AGL) AND BL (0-30 MB AGL)WIND   =S (KTS)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

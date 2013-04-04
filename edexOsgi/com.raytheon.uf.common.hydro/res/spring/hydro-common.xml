@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="hydroDataFactory" class="com.raytheon.uf.common.hydro.dataaccess.HydroGeometryFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="ihfsData"/>
+		<constructor-arg value="com.raytheon.uf.common.dataaccess.geom.IGeometryRequest"/>
+		<constructor-arg ref="hydroDataFactory"/>
+	</bean>	
+	
+</beans>
