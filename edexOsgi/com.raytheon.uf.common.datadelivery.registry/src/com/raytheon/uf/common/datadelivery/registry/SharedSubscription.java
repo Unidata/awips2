@@ -104,8 +104,7 @@ public class SharedSubscription extends RecurringSubscription {
      */
     @Override
     public InitialPendingSubscription initialPending(String currentUser) {
-        // TODO: Implement pending subscription types for shared subscriptions
-        return null;
+        return new InitialPendingSharedSubscription(this, currentUser);
     }
 
     /**
@@ -113,7 +112,6 @@ public class SharedSubscription extends RecurringSubscription {
      */
     @Override
     public PendingSubscription pending(String currentUser) {
-        // TODO: Implement pending subscription types for shared subscriptions
-        return null;
+        return new PendingSharedSubscription(this, currentUser);
     }
 }
