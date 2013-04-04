@@ -36,6 +36,7 @@ import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.D2DSatParm;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase.D2DParm;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue;
@@ -77,6 +78,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Mar 25, 2013       1823 dgilling     Trigger SAT smart init based only on record's
  *                                      SectorId and PhysicalElement.
  * Mar 20, 2013      #1774 randerso     Refactor to use grid durations from D2DGridDatabase
+ * Apr 01, 2013      #1774 randerso     Moved wind component checking to GfeIngestNotificaionFilter
  * 
  * </pre>
  * 
@@ -89,10 +91,17 @@ public class GfeIngestNotificationFilter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeIngestNotificationFilter.class);
 
+    // private final IPerformanceStatusHandler perfLog = PerformanceStatus
+    // .getHandler("GFE:");
+
+    private static Map<ParmID, Set<Integer>> windComps = new HashMap<ParmID, Set<Integer>>();
+
     private SmartInitQueue smartInitQueue = null;
 
     public void filterDataURINotifications(DataURINotificationMessage message)
             throws Exception {
+        // ITimer timer = TimeUtil.getTimer();
+        // timer.start();
         Date arrivalTime = new Date();
         List<GridRecord> gridRecords = new ArrayList<GridRecord>(500);
         List<SatelliteRecord> satRecords = new ArrayList<SatelliteRecord>(100);
@@ -110,6 +119,10 @@ public class GfeIngestNotificationFilter {
         if (!satRecords.isEmpty()) {
             filterSatelliteRecords(satRecords, arrivalTime);
         }
+        // timer.stop();
+        // perfLog.logDuration(
+        // "GfeIngestNotificationFilter: processing DataURINotificationMessage",
+        // timer.getElapsedTime());
     }
 
     public void filterGridRecords(List<GridRecord> gridRecords, Date arrivalTime)
@@ -155,20 +168,62 @@ public class GfeIngestNotificationFilter {
                         sendNotification(dbInv);
                     }
 
-                    String abbrev = grid.getParameter().getAbbreviation();
+                    String d2dParamName = grid.getParameter().getAbbreviation();
                     Level level = grid.getLevel();
+                    Integer fcstHour = grid.getDataTime().getFcstTime();
 
                     D2DGridDatabase db = (D2DGridDatabase) GridParmManager
                             .getDb(dbId);
-                    ParmID parmID = db.getParmId(abbrev, level);
+                    String gfeParamName = db.getGfeParmName(d2dParamName);
 
+                    D2DParm parm = db.getD2DParm(d2dParamName, level);
+                    if (parm == null) {
+                        continue;
+                    }
+                    ParmID parmID = parm.getParmId();
+
+                    // check for wind
+                    String otherComponent = null;
+                    String[] components = parm.getComponents();
+                    if (components.length > 1) {
+                        if (components[0].equals(gfeParamName)) {
+                            otherComponent = components[1];
+                        } else {
+                            otherComponent = components[0];
+                        }
+                    }
+
+                    // if wind see if other component is available
+                    if (otherComponent != null) {
+                        ParmID otherPid = new ParmID(otherComponent,
+                                parmID.getDbId(), parmID.getParmLevel());
+                        synchronized (windComps) {
+                            // get the other components times
+                            Set<Integer> otherTimes = windComps.get(otherPid);
+
+                            // if we don't have the other component for this
+                            // fcstHour
+                            if (otherTimes == null
+                                    || !otherTimes.remove(fcstHour)) {
+                                // need to wait for other component
+                                ParmID compPid = new ParmID(gfeParamName,
+                                        parmID.getDbId(), parmID.getParmLevel());
+                                Set<Integer> times = windComps.get(compPid);
+                                if (times == null) {
+                                    times = new HashSet<Integer>();
+                                    windComps.put(compPid, times);
+                                }
+                                times.add(fcstHour);
+                                continue;
+                            }
+                        }
+                    }
                     List<TimeRange> trs = gridInv.get(parmID);
                     if (trs == null) {
                         trs = new ArrayList<TimeRange>();
                         gridInv.put(parmID, trs);
                     }
 
-                    Integer fcstHour = grid.getDataTime().getFcstTime();
                     TimeRange tr = db.getTimeRange(parmID, fcstHour);
                     if (tr != null) {
                         trs.add(tr);
@@ -326,4 +381,19 @@ public class GfeIngestNotificationFilter {
     public void setSmartInitQueue(SmartInitQueue smartInitQueue) {
         this.smartInitQueue = smartInitQueue;
     }
+
+    public static void purgeDbs(List<DatabaseID> dbsToRemove) {
+        List<ParmID> wcToRemove = new ArrayList<ParmID>();
+        synchronized (windComps) {
+            for (ParmID id : windComps.keySet()) {
+                if (dbsToRemove.contains(id.getDbId())) {
+                    wcToRemove.add(id);
+                }
+            }
+            for (ParmID id : wcToRemove) {
+                windComps.remove(id);
+            }
+        }
+    }
+
 }
