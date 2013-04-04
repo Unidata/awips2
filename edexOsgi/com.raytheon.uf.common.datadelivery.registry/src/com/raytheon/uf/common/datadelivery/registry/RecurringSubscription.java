@@ -60,8 +60,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlSeeAlso({ PendingSubscription.class, AdhocSubscription.class,
-        UserSubscription.class, SharedSubscription.class })
+@XmlSeeAlso({ PendingUserSubscription.class, PendingSharedSubscription.class,
+        AdhocSubscription.class, UserSubscription.class,
+        SharedSubscription.class })
 public abstract class RecurringSubscription implements ISerializableObject,
         Serializable, Subscription {
 
