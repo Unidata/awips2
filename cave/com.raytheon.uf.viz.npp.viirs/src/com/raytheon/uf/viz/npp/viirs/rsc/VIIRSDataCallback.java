@@ -24,7 +24,6 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -44,6 +43,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2011            mschenke     Initial creation
+ * Apr 04, 2013            djohnson     Remove color import.
  * 
  * </pre>
  * 
