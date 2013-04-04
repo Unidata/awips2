@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
@@ -152,7 +152,7 @@ public class FFMPConfig {
      * @param dataUri
      * @return
      */
-    public float[] getGribData(GribRecord rec) {
+    public float[] getGribData(GridRecord rec) {
         return ((FloatDataRecord) rec.getMessageData()).getFloatData();
     }
 
@@ -221,12 +221,12 @@ public class FFMPConfig {
     }
 
     /**
-     * Get the DHR record
+     * Get the RADAR record
      * 
      * @param uri
      * @return
      */
-    private Object getDHRRecord(String uri) {
+    private Object getRADARRecord(String uri) {
         Object record = null;
         try {
             record = ScanCommonUtils.getRadarRecord(uri);
@@ -258,10 +258,10 @@ public class FFMPConfig {
      * 
      * @return
      */
-    public GribRecord getGrib(String uri) {
-        GribRecord rec = null;
+    public GridRecord getGrib(String uri) {
+        GridRecord rec = null;
         try {
-            rec = DATUtils.getGribRecord(uri);
+            rec = DATUtils.getGridRecord(uri);
         } catch (PluginException e) {
             e.printStackTrace();
         }
@@ -398,7 +398,7 @@ public class FFMPConfig {
                         } else if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.RADAR
                                         .getDataType())) {
-                            Object dataObject = getDHRRecord(dataUri);
+                            Object dataObject = getRADARRecord(dataUri);
 
                             if (dataObject != null) {
                                 // process as a VGB too

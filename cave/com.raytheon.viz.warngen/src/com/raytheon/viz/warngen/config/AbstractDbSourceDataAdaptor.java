@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.raytheon.viz.warngen.gis.ClosestPointComparator;
+import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -47,6 +48,8 @@ import com.vividsolutions.jts.geom.Point;
  * pre-history
  * Sep 25, 2012 #15425     Qinglu Lin   Added getGid().
  * Oct 17, 2012            jsanchez     Added pathcast algorithm.
+ * Feb 12, 2013  1600      jsanchez     Used adjustAngle method from AbstractStormTrackResource.
+ * Mar  5, 2013  1600      jsanchez     Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
  * 
  * </pre>
  * 
@@ -336,9 +339,9 @@ abstract public class AbstractDbSourceDataAdaptor {
         gc.setStartingGeographicPoint(cp.getPoint().x, cp.getPoint().y);
         gc.setDestinationGeographicPoint(closestCoord.x, closestCoord.y);
         cp.setAzimuth(gc.getAzimuth());
-        cp.setOppositeAzimuth(ClosestPoint.adjustAngle(cp.getAzimuth() + 180));
+        cp.setOppositeAzimuth(AdjustAngle.to360Degrees(cp.getAzimuth() + 180));
         cp.setRoundedAzimuth(GeoUtil.roundAzimuth(cp.getAzimuth()));
-        cp.setOppositeRoundedAzimuth(ClosestPoint.adjustAngle(cp
+        cp.setOppositeRoundedAzimuth(AdjustAngle.to360Degrees(cp
                 .getRoundedAzimuth() + 180));
         cp.setArea(area);
         cp.setParentArea(parentArea);

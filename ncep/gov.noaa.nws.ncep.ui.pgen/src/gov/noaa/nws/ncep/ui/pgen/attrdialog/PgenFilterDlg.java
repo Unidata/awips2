@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.ForecastHourFilter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
@@ -52,6 +53,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 05/12        #637        Archana.S         Updated the code to update the fcst hr in GfaAttrDialog
  *                                            based on the current filter hour selected. 
  *                                            Updated the hot-key behavior to match legacy. 
+ * 11/12		#912		B. Yin			  When an hour is turned off, de-select and close attribute dialog.
  * </pre>
  * 
  * @author	B. Yin
@@ -372,14 +374,19 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 					if ( ((Button)e.widget).getSelection() ){
 						
 						drawingLayer.getFilters().addFilter(filterMap.get(filterText));
-						if ( gfaAttrDlg.isGfaOpen()  )
+
+						if ( gfaAttrDlg.isGfaOpen()  ){
 							updateGfaDialog(true, filterText);
+					}
 					}
 					else {
 						
 						drawingLayer.getFilters().removeFilter(filterMap.get(filterText));
-						if ( gfaAttrDlg.isGfaOpen()  )
+						drawingLayer.removeSelected();
+						PgenUtil.setSelectingMode();
+						if ( gfaAttrDlg.isGfaOpen()  ){
 							updateGfaDialog(false,"");
+					}
 					}
 					
 					

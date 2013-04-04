@@ -22,7 +22,6 @@ package com.raytheon.viz.geotiff.ui;
 
 import java.io.File;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Status;
@@ -34,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.maps.actions.AbstractMapHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -56,7 +56,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * @author chammack
  * @version 1
  */
-public class OpenImageAction extends AbstractHandler {
+public class OpenImageAction extends AbstractMapHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
@@ -76,6 +76,7 @@ public class OpenImageAction extends AbstractHandler {
                 + fd.getFileName();
 
         VizApp.runAsync(new Runnable() {
+            @Override
             public void run() {
                 try {
                     IDescriptor mapDesc = container.getActiveDisplayPane()

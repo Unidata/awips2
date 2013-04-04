@@ -21,11 +21,12 @@ package com.raytheon.viz.gfe.actions;
 
 import java.util.Map;
 
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
+import com.raytheon.viz.ui.UiUtil;
 
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
 import com.raytheon.viz.ui.actions.AbstractDropDownMenuHandler;
 
 /**
@@ -36,6 +37,7 @@ import com.raytheon.viz.ui.actions.AbstractDropDownMenuHandler;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 2, 2008		#1053	randerso	Initial creation
+ * Dec 19,2012		#15535	jdynina		Adjusted size for the button on demand
  * 
  * </pre>
  * 
@@ -54,14 +56,15 @@ public class EditAreaModeButton extends AbstractDropDownMenuHandler implements
      * menus.UIElement, java.util.Map)
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void updateElement(UIElement element, Map parameters) {
         DataManager dm = DataManager.getCurrentInstance();
         if (dm == null) {
             return;
         }
-        RefSetMode mode = dm.getRefManager().getMode();
-        element.setText(mode.getSymbol());
+        element.setText(dm.getRefManager().getMode().getSymbol());
+        UiUtil.updateWindowCoolBar((IWorkbenchWindow) parameters
+                .get("org.eclipse.ui.IWorkbenchWindow"));
     }
 
 }

@@ -7,7 +7,7 @@
 GLEVEL=200
 GVCORD=pres
 SKIP=
-FILTER=
+FILTER=y
 SCALE=5                  !5             !-1
 GDPFUN=abs(avor(wnd))  !abs(avor(wnd))             !kntv(wnd)
 TYPE=c/f                !c             !b

@@ -172,29 +172,20 @@ function buildFeatureRPMs()
    local CONST_SETUP_DIR="Installer.cave-feature/feature.setup"
    local CONST_SETUP_DIR_FULL="${WORKSPACE}/rpms/awips2.cave/${CONST_SETUP_DIR}"
    local CONST_FEATURE_DIR="${WORKSPACE}/build/cave/p2/features"
+   local CONST_FEATURES_TXT="${WORKSPACE}/build/cave/p2/dist/features.txt"
+   
+   if [ ! -f ${CONST_FEATURES_TXT} ]; then
+      echo "ERROR: Unable to find the list of features - ${CONST_FEATURES_TXT}."
+      exit 1
+   fi
 
    local PROCESS_FEATURE_JAR="${WORKSPACE}/build/tools/ProcessFeature.jar"
 
-   if [ -d ${CONST_FEATURE_DIR}/com.raytheon.viz.feature.awips ]; then
-      rm -rf ${CONST_FEATURE_DIR}/com.raytheon.viz.feature.awips
-   fi
-   if [ -d ${CONST_FEATURE_DIR}/com.raytheon.uf.viz.eclipse.feature ]; then
-      rm -rf ${CONST_FEATURE_DIR}/com.raytheon.uf.viz.eclipse.feature
-   fi
-   if [ -d ${CONST_FEATURE_DIR}/com.raytheon.uf.viz.feature.alertviz ]; then
-      rm -rf ${CONST_FEATURE_DIR}/com.raytheon.uf.viz.feature.alertviz
-   fi
-   if [ -d ${CONST_FEATURE_DIR}/com.raytheon.viz.feature.awips.developer ]; then
-      rm -rf ${CONST_FEATURE_DIR}/com.raytheon.viz.feature.awips.developer
-   fi
-
-   # These are variables that will be placed into the environment by sourcing
-   # a shell script.
-   for feature_dir in `ls -1 ${CONST_FEATURE_DIR}`;
+   for feature in `cat ${CONST_FEATURES_TXT}`;
    do
       java -jar ${PROCESS_FEATURE_JAR} \
          -p \
-         ${CONST_FEATURE_DIR}/${feature_dir} \
+         ${CONST_FEATURE_DIR}/${feature} \
          ${CONST_SETUP_DIR_FULL}
       RC=$?
       if [ ${RC} -ne 0 ]; then
@@ -208,6 +199,7 @@ function buildFeatureRPMs()
       fi
       source ${CONST_SETUP_DIR}/feature.setup
 
+      echo "Building Feature ... ${feature}"
       rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
          --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
          --define '_component_name %(echo ${COMPONENT_NAME})' \
@@ -222,7 +214,7 @@ function buildFeatureRPMs()
       RC=$?
       if [ ${RC} -ne 0 ]; then
          exit 1
-      fi
+      fi     
    done
 }
 
