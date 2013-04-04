@@ -53,6 +53,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * 
@@ -65,6 +68,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2009 3072       bsteffen     Initial creation
  * Aug 23, 2012  1096     njensen      Fixed memory leaks
+ * Dec 20, 2012 DCS 135    tk          Changes for CCFP 2010 and 2012 TIN's
  * 
  * </pre>
  * 
@@ -74,15 +78,18 @@ import com.vividsolutions.jts.geom.Point;
 public class CcfpResource extends
         AbstractVizResource<CcfpResourceData, MapDescriptor> {
 
-    private static final String[] coverageValues = { "", "75-100%", "50-74%",
-            "25-49%" };
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+    .getHandler(CcfpResource.class);
+
+    private static final String[] coverageValues = { "", "75-100%", "40-74%",
+    "25-39%" };
 
     private static final String[] confValues = { "", "HIGH", "", "LOW" };
 
-    private static final String[] growthValues = { "", "++", "+", "NC", "-" };
+    private static final String[] growthValues = { "", "+", "NC", "-" };
 
-    private static final String[] topsValues = { "", "370+", "310-370",
-            "250-310" };
+    private static final String[] topsValues = { "", "400", "390", "340",
+    "290" };
 
     private static final String[] resourceTypes = { "", "Solid Coverage",
             "Medium Coverage", "Sparse Coverage", "Line" };
@@ -517,7 +524,13 @@ public class CcfpResource extends
     private void prepareLine(CcfpRecord record, DisplayFrame frame)
             throws VizException {
         Geometry geom = record.getLocation().getGeometry();
-        frame.solidPolygons.addLineSegment(geom.getCoordinates());
+        if (record.getCoverage() == 2) {
+            frame.dottedPolygons.addLineSegment(geom.getCoordinates());
+        }
+        else {
+            frame.solidPolygons.addLineSegment(geom.getCoordinates());
+        }
+
     }
 
     /**
@@ -562,10 +575,43 @@ public class CcfpResource extends
      */
     private String[] getFormattedData(CcfpRecord record) {
         String[] lines = new String[4];
-        lines[0] = "TOPS: " + topsValues[record.getTops()];
-        lines[1] = "GWTH: " + growthValues[record.getGrowth()];
-        lines[2] = "CONF: " + confValues[record.getConf()];
-        lines[3] = "CVRG: " + coverageValues[record.getCoverage()];
+
+        int tops = record.getTops();
+        if (tops < topsValues.length) {
+    		lines[0] = "TOPS: " + topsValues[tops];
+    	} else {
+    		lines[0] = "TOPS: ";
+    		statusHandler.handle(Priority.EVENTA,
+                    "Problem interogating CCFP data: tops value out of range");
+    	}
+        
+        int gwth = record.getGrowth();
+        if (gwth < growthValues.length) {
+    		lines[1] = "GWTH: " + growthValues[gwth];
+    	} else {
+    		 lines[1] = "GWTH: ";
+    		 statusHandler.handle(Priority.EVENTA,
+             "Problem interogating CCFP data: growth value out of range");
+    	}
+        
+        int conf = record.getConf();
+        if (conf < confValues.length) {
+    		lines[2] = "CONF: " + confValues[conf];
+    	} else {
+    		lines[2] = "CONF: ";
+    		statusHandler.handle(Priority.EVENTA,
+            "Problem interogating CCFP data: confidence value out of range");
+    	}
+        
+        int cvrg = record.getCoverage();
+        if (cvrg < coverageValues.length) {
+    		lines[3] = "CVRG: " + coverageValues[cvrg];
+    	} else {
+    		lines[3] = "CVRG: ";
+    		statusHandler.handle(Priority.EVENTA,
+            "Problem interogating CCFP data: coverage value out of range");
+    	}
+        
         return lines;
     }
 

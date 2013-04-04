@@ -11,7 +11,9 @@
 !
 GLEVEL=4700:10000!700    !700                      !850 !30:0
 GVCORD=SGMA      !PRES   !PRES                     !PRES!pdly
-SCALE=0         !1      !1                        !0
+SKIP=
+FILTER=y
+SCALE=0         !3      !3                        !0
 GDPFUN=relh      !sm9s(omeg)!sm9s(omeg)            !tmpc !tmpc
 TYPE=f         !c
 CINT=0         !1/2    !-1;-2;-3;-5;-7;-9;-11;-13;-15;-17;-19;-21;-23;-25!200;0!200;0

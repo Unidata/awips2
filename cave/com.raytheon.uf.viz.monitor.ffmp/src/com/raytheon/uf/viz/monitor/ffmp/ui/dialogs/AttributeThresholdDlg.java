@@ -37,6 +37,23 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * FFMP Basin Table Threshold attribute display dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 6, 2012  1353       rferrel     Changes for non-blocking dialog.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class AttributeThresholdDlg extends CaveSWTDialog {
 
     private Text upperText;
@@ -61,7 +78,7 @@ public class AttributeThresholdDlg extends CaveSWTDialog {
 
     public AttributeThresholdDlg(Shell parent, ThreshColNames threshCol,
             IThreshDisplay threshActionCB) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
 
         this.threshCol = threshCol;
         this.threshActionCB = threshActionCB;

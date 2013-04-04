@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet xmlns:ns2="group">
+	<rule>
+		<id>
+			<pluginName>solarimage</pluginName>
+			<key>default</key>
+		</id>
+		<!--period>27-00:00:00</period-->
+		<logOnly>true</logOnly>
+	</rule>
+</purgeRuleSet>

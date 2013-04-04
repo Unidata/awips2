@@ -28,7 +28,7 @@
     </Method>
     <Method name="Vector">
         <Field abbreviation="wSp"/>
-        <Field abbreviation="WD"/>
+        <Field abbreviation="WD" unit="deg"/>
         <ConstantField value="1.0"/>
     </Method>
     <!-- TODO this should be an auto-generated average however 

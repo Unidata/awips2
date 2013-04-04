@@ -22,8 +22,8 @@ package com.raytheon.viz.hydrocommon.resource;
 import java.util.Date;
 import java.util.List;
 
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -51,12 +51,14 @@ import com.raytheon.viz.hydrocommon.constants.FFGConstants.ResolutionLevel;
 
 public class RFCGriddedBasinFFGResourceData extends AbstractResourceData {
     private ResolutionLevel resolution;
+
     private int duration;
+
     private Date dataDate;
-    
-    private GribRecord gr;
-    
-    public RFCGriddedBasinFFGResourceData(int duration, GribRecord gr, 
+
+    private GridRecord gr;
+
+    public RFCGriddedBasinFFGResourceData(int duration, GridRecord gr,
             ResolutionLevel resolution, Date dataDate) {
         this.duration = duration;
         this.gr = gr;
@@ -126,14 +128,14 @@ public class RFCGriddedBasinFFGResourceData extends AbstractResourceData {
     /**
      * @return the gr
      */
-    public GribRecord getGr() {
+    public GridRecord getGr() {
         return gr;
     }
 
     /**
      * @param gr the gr to set
      */
-    public void setGr(GribRecord gr) {
+    public void setGr(GridRecord gr) {
         this.gr = gr;
     }
 

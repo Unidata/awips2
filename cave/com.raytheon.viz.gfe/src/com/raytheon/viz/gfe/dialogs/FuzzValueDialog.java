@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
@@ -60,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 10, 2008					Eric Babin Initial Creation
+ * Nov 10, 2012 1298       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -69,10 +71,6 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 public class FuzzValueDialog extends CaveJFACEDialog implements
         IDisplayedParmListChangedListener, IActivatedParmChangedListener {
-
-    /**
-     * @param args
-     */
 
     private Scale fuzzSlider;
 
@@ -94,9 +92,25 @@ public class FuzzValueDialog extends CaveJFACEDialog implements
 
     private DataManager dataManager;
 
-    public FuzzValueDialog(Shell parent, DataManager dataManager) {
+    private static FuzzValueDialog dialog;
+
+    public static void openDialog(DataManager dataManager) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+
+            dialog = new FuzzValueDialog(shell, dataManager);
+
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
+    }
+
+    private FuzzValueDialog(Shell parent, DataManager dataManager) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataManager = dataManager;
         this.parm = dataManager.getSpatialDisplayManager().getActivatedParm();
         this.minimum = parm.getGridInfo().getMinValue();

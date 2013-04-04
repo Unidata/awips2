@@ -110,7 +110,7 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
     }
 
     @Override
-    protected PointDataContainer getBaseRecords(
+    public PointDataContainer getBaseRecords(
             Collection<String> baseParameters,
             Map<String, RequestConstraint> queryParams) throws VizException {
         return ((VwpInventory) inventory).getBaseRecords(baseParameters,

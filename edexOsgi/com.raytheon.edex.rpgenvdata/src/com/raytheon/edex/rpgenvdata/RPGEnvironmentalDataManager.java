@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -45,6 +46,7 @@ import org.apache.tools.bzip2.CBZip2OutputStream;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -63,13 +65,14 @@ import com.raytheon.rcm.mqsrvr.ReplyObj.ConfigReply;
 import com.raytheon.rcm.mqsrvr.ReqObj;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendMessageToRPG;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.TransformFactory;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -83,6 +86,17 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
+/**
+* SOFTWARE HISTORY
+* 
+* Date         	Ticket#     Engineer    	Description
+* ------------ 	----------  ----------- 	--------------------------
+* 	??	               			??	    	Initial Creation
+* 1-3-2013		DR 15667 	M.Porricelli 	Made EnvironParamsLevelTable.xml
+*                                        	accessible from SITE level
+* 03/21/2013    DR 15872    D. Friedman     Correct clipped grid coordinates. (From DR 14770.)
+*                                           Correct grid orientation.
+**/
 public class RPGEnvironmentalDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RPGEnvironmentalDataManager.class);
@@ -142,21 +156,33 @@ public class RPGEnvironmentalDataManager {
         LocalizationContext edexStaticBase = pathMgr.getContext(
                 LocalizationContext.LocalizationType.EDEX_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
-
-        File file = pathMgr.getFile(edexStaticBase, "rpgenvdata"
+        
+        LocalizationContext edexStaticSite = pathMgr.getContext(
+                LocalizationContext.LocalizationType.EDEX_STATIC,
+                LocalizationContext.LocalizationLevel.SITE);
+        
+        File basePathFile = pathMgr.getFile(edexStaticBase, "rpgenvdata"
+                + File.separator + "EnvironParamsLevelTable.xml");
+        File sitePathFile = pathMgr.getFile(edexStaticSite, "rpgenvdata"
                 + File.separator + "EnvironParamsLevelTable.xml");
 
-        Unmarshaller u = Configuration.getUnmashaller();
-        configuration = (Configuration) u.unmarshal(file);
+        if (sitePathFile.exists()) {
+            Unmarshaller u = Configuration.getUnmashaller();
+            configuration = (Configuration) u.unmarshal(sitePathFile);
+        } else {
+            Unmarshaller u = Configuration.getUnmashaller();
+            configuration = (Configuration) u.unmarshal(basePathFile);
+        }
 
         if (!validateConfiguration(configuration)) {
             configuration = null;
         }
 
         try {
-            gridDao = PluginFactory.getInstance().getPluginDao("grib");
+            gridDao = PluginFactory.getInstance().getPluginDao(
+                    GridConstants.GRID);
         } catch (PluginException e) {
-            log(Priority.SIGNIFICANT, "Unable to get grib dao", e);
+            log(Priority.SIGNIFICANT, "Unable to get grid dao", e);
         }
 
         rcmClient = new MyRcmClient();
@@ -515,26 +541,24 @@ public class RPGEnvironmentalDataManager {
             GridGeometry2D gridGeom = MapUtil.getGridGeometry(gridCoverage);
             GridEnvelope2D ge = gridGeom.getGridRange2D();
             int maxY = ge.getHigh(1);
-            MathTransform llToGrid;
             MathTransform gridToLL;
+            MathTransform llToCRS;
+            MathTransform crsToGrid;
 
-            llToGrid = TransformFactory.latLonToGrid(gridGeom,
-                    PixelInCell.CELL_CORNER);
+            llToCRS = MapUtil.getTransformFromLatLon(gridGeom.getCoordinateReferenceSystem());
+            crsToGrid = gridGeom.getCRSToGrid2D(PixelOrientation.CENTER);
             gridToLL = TransformFactory.gridToLatLon(gridGeom,
-                    PixelInCell.CELL_CORNER);
+                    PixelInCell.CELL_CENTER);
 
             DirectPosition2D stationLL = new DirectPosition2D(
                     radarStation.getLon(), radarStation.getLat());
-            DirectPosition2D stationIJx = new DirectPosition2D(0, 0);
+            DirectPosition2D stationXY = new DirectPosition2D(0, 0);
 
-            llToGrid.transform(stationLL, stationIJx);
+            llToCRS.transform(stationLL, stationXY);
 
-            long radarI = Math.round(stationIJx.x);
-            long radarJ = maxY - Math.round(stationIJx.y);
             int i1, j1, i2, j2;
+            double delta;
 
-            // TODO: get this from the math transform?...
-            long radInPointsI, radInPointsJ;
             if (gridCoverage instanceof LambertConformalGridCoverage) {
                 LambertConformalGridCoverage lcgc = (LambertConformalGridCoverage) gridCoverage;
                 Unit<?> spacingUnit = Unit.valueOf(lcgc.getSpacingUnit());
@@ -546,11 +570,8 @@ public class RPGEnvironmentalDataManager {
                                     "Grid spacing units (%s) not compatible clip radius units (%s)",
                                     spacingUnit, clipRadUnit));
                 }
-                UnitConverter uc = spacingUnit.getConverterTo(clipRadUnit);
-                radInPointsI = Math.round(configuration.clipRadius.value
-                        / uc.convert(lcgc.getDx()));
-                radInPointsJ = Math.round(configuration.clipRadius.value
-                        / uc.convert(lcgc.getDy()));
+                UnitConverter uc = clipRadUnit.getConverterTo(SI.METER);
+                delta = uc.convert(configuration.clipRadius.value);
 
                 result.tangentPoint = new DirectPosition2D(lcgc.getLov(),
                         lcgc.getLatin1());
@@ -559,10 +580,24 @@ public class RPGEnvironmentalDataManager {
                         "Only Lambert conformal projection is supported");
             }
 
-            i1 = (int) (radarI - radInPointsI);
-            i2 = (int) (radarI + radInPointsI);
-            j1 = (int) (radarJ - radInPointsJ);
-            j2 = (int) (radarJ + radInPointsJ);
+            double cx1 = stationXY.x - delta;
+            double cy1 = stationXY.y - delta;
+            double cx2 = stationXY.x + delta;
+            double cy2 = stationXY.y + delta;
+
+            /*
+             * Note the y-coordinate flipping below. The output grid scans west
+             * to east, south to north, while the input grid from EDEX scans
+             * north to south.
+             */
+
+            DirectPosition2D c = new DirectPosition2D();
+            crsToGrid.transform(new DirectPosition2D(cx1, cy1), c);
+            i1 = (int) Math.round(c.x);
+            j1 = maxY - (int) Math.round(c.y);
+            crsToGrid.transform(new DirectPosition2D(cx2, cy2), c);
+            i2 = (int) Math.round(c.x);
+            j2 = maxY - (int) Math.round(c.y);
 
             if (i1 < ge.getLow(0) || i2 > ge.getHigh(0) || j1 < ge.getLow(1)
                     || j2 > ge.getHigh(1)) {
@@ -622,7 +657,7 @@ public class RPGEnvironmentalDataManager {
 
             for (Field field : configuration.fields) {
                 for (Level levelSpec : field.levels) {
-                    List<GribRecord> records = inventory(dataTime, field,
+                    List<GridRecord> records = inventory(dataTime, field,
                             levelSpec);
                     if (records == null) {
                         continue;
@@ -636,9 +671,8 @@ public class RPGEnvironmentalDataManager {
                             levelSpec);
                     // TODO: more efficient matching
                     for (Double level : levelList) {
-                        for (GribRecord rec : records) {
-                            if (rec.getModelInfo().getLevelOneValue()
-                                    .equals(level)) {
+                        for (GridRecord rec : records) {
+                            if (level.equals(rec.getLevel().getLevelonevalue())) {
                                 grids.add(generateGrid(radarID, field,
                                         levelSpec, level, geoInfo.gridDomain,
                                         geoInfo.clipDomain, rec));
@@ -721,7 +755,7 @@ public class RPGEnvironmentalDataManager {
 
         GridComponent generateGrid(String radarID, Field field,
                 Level levelSpec, double level, GridEnvelope2D domain,
-                GridEnvelope2D clip, GribRecord gridRecord) {
+                GridEnvelope2D clip, GridRecord gridRecord) {
 
             int clippedNx = clip.getSpan(0);
             int clippedNy = clip.getSpan(1);
@@ -758,17 +792,24 @@ public class RPGEnvironmentalDataManager {
                 return null;
             }
 
+            /*
+             * Note the y-coordinate flipping below. The output grid scans west
+             * to east, south to north, while the input grid from EDEX scans
+             * north to south.
+             */
+
             float[] data = dataRecord.getFloatData();
             float[] clippedData = new float[grid.getPointCount()];
             int stride = domain.getSpan(0);
-            int iidx = clip.getLow(0) + clip.getLow(1) * stride;
+            int iidx = clip.getLow(0) +
+                (domain.getHigh(1) - clip.getLow(1)) * stride;
             int oidx = 0;
 
             for (int j = 0; j < clippedNy; ++j) {
                 for (int i = 0; i < clippedNx; ++i) {
                     clippedData[oidx++] = data[iidx + i];
                 }
-                iidx += stride;
+                iidx -= stride;
             }
 
             grid.data = clippedData;
@@ -787,7 +828,7 @@ public class RPGEnvironmentalDataManager {
                     DatabaseQuery q = new DatabaseQuery(gridDao.getDaoClass()
                             .getName());
                     q.addDistinctParameter("dataTime");
-                    q.addQueryParam("modelInfo.modelName",
+                    q.addQueryParam(GridConstants.DATASET_ID,
                             configuration.model.name);
                     q.addOrder("dataTime.refTime", false);
                     q.addOrder("dataTime.fcstTime", false);
@@ -858,7 +899,7 @@ public class RPGEnvironmentalDataManager {
 
                 for (Field field : configuration.fields) {
                     for (Level levelSpec : field.levels) {
-                        List<GribRecord> records = inventory(dt, field,
+                        List<GridRecord> records = inventory(dt, field,
                                 levelSpec);
                         if (records == null) {
                             continue dataTimeLoop;
@@ -866,8 +907,7 @@ public class RPGEnvironmentalDataManager {
 
                         if (gridCoverage == null) {
                             if (records.size() > 0) {
-                                gridCoverage = records.get(0).getModelInfo()
-                                        .getLocation();
+                                gridCoverage = records.get(0).getLocation();
                             }
                         }
 
@@ -878,9 +918,9 @@ public class RPGEnvironmentalDataManager {
                         }
 
                         int nFound = 0;
-                        for (GribRecord gr : records) {
-                            if (desiredLevels.contains(gr.getModelInfo()
-                                    .getLevelOneValue())) {
+                        for (GridRecord gr : records) {
+                            if (desiredLevels.contains(gr.getLevel()
+                                    .getLevelonevalue())) {
                                 ++nFound;
                             }
                         }
@@ -901,17 +941,17 @@ public class RPGEnvironmentalDataManager {
             return null;
         }
 
-        private List<GribRecord> inventory(DataTime dataTime, Field field,
+        private List<GridRecord> inventory(DataTime dataTime, Field field,
                 Level levelSpec) {
             try {
-                TermQuery q = new TermQuery("grib");
-                q.addParameter("modelInfo.modelName", configuration.model.name);
-                q.addParameter("modelInfo.parameterAbbreviation", field.name);
-                q.addParameter("modelInfo.level.masterLevel.name",
-                        levelSpec.name);
+                TermQuery q = new TermQuery(GridConstants.GRID);
+                q.addParameter(GridConstants.DATASET_ID,
+                        configuration.model.name);
+                q.addParameter(GridConstants.PARAMETER_ABBREVIATION, field.name);
+                q.addParameter(GridConstants.MASTER_LEVEL_NAME, levelSpec.name);
                 q.addParameter("dataTime", dataTime.toString());
 
-                return (List<GribRecord>) (List<?>) q.execute();
+                return (List<GridRecord>) (List<?>) q.execute();
             } catch (Exception e) {
                 log(Priority.SIGNIFICANT, String.format(
                         "Unable to get inventory for %s %s %s",
@@ -1057,14 +1097,14 @@ public class RPGEnvironmentalDataManager {
                     }
                     DatabaseQuery q = new DatabaseQuery(gridDao.getDaoClass()
                             .getName());
-                    q.addDistinctParameter("modelInfo.level.levelonevalue");
-                    q.addQueryParam("modelInfo.modelName",
+                    q.addDistinctParameter(GridConstants.LEVEL_ONE);
+                    q.addQueryParam(GridConstants.DATASET_ID,
                             configuration.model.name);
-                    q.addQueryParam("modelInfo.parameterAbbreviation",
+                    q.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
                             field.name);
-                    q.addQueryParam("modelInfo.level.masterLevel.name",
+                    q.addQueryParam(GridConstants.MASTER_LEVEL_NAME,
                             levelSpec.name);
-                    q.addOrder("modelInfo.level.levelonevalue", true);
+                    q.addOrder(GridConstants.LEVEL_ONE, true);
                     levels = (List<Double>) gridDao.queryByCriteria(q);
                 } catch (Exception e) {
                     log(Priority.SIGNIFICANT, String.format(

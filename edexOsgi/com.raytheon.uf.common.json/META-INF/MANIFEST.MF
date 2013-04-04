@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Json
+Bundle-SymbolicName: com.raytheon.uf.common.json
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.codehaus.jackson;bundle-version="1.7.3",
+ org.geotools;bundle-version="2.6.4",
+ org.apache.commons.logging;bundle-version="1.1.1",
+ org.apache.commons.pool;bundle-version="1.3.0"
+Export-Package: com.raytheon.uf.common.json,
+ com.raytheon.uf.common.json.geo,
+ com.raytheon.uf.common.json.impl,
+ com.raytheon.uf.common.json.jackson,
+ com.raytheon.uf.common.json.jackson.util

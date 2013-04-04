@@ -30,9 +30,6 @@ import jep.JepException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -55,6 +52,9 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2011 8065       rferrel     Initial creation
+ * Nov 11, 2012 1298       rferrel     Non-blocking dialog discovered problem
+ *                                      adding dispose listener when not on the
+ *                                      UI thread.
  * 
  * </pre>
  * 
@@ -63,7 +63,7 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  */
 public class PythonCacheGuidanceJob extends
         AbstractQueueJob<CacheGuidanceRequest> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PythonCacheGuidanceJob.class);
 
     /**
@@ -116,14 +116,25 @@ public class PythonCacheGuidanceJob extends
      * 
      * @return pythonCacheJob
      */
-    public static PythonCacheGuidanceJob getInstance() {
+    public static synchronized PythonCacheGuidanceJob getInstance() {
         if (instance == null) {
             instance = new PythonCacheGuidanceJob(
                     "AvnFPS Cache Python Guidance");
             instance.setSystem(true);
             instance.schedule();
         }
+
         return instance;
+    }
+
+    /**
+     * Shutdown and remove instance of this class.
+     */
+    public static synchronized void dispose() {
+        if (instance != null) {
+            instance.shutdown();
+            instance = null;
+        }
     }
 
     /**
@@ -138,7 +149,6 @@ public class PythonCacheGuidanceJob extends
         suspendMonitor = new Object();
         suspendJob = false;
         waitList = new ArrayList<CacheGuidanceRequest>();
-        setupDispose();
     }
 
     /**
@@ -164,7 +174,6 @@ public class PythonCacheGuidanceJob extends
     private void shutdown() {
         shutdown = true;
         restart();
-        instance = null;
     }
 
     /**
@@ -184,21 +193,6 @@ public class PythonCacheGuidanceJob extends
             instance.suspendJob = false;
             instance.suspendMonitor.notify();
         }
-    }
-
-    /**
-     * Setup listener to clean up the instance of this class and any threads it
-     * is running.
-     */
-    private void setupDispose() {
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                .addDisposeListener(new DisposeListener() {
-
-                    @Override
-                    public void widgetDisposed(DisposeEvent e) {
-                        shutdown();
-                    }
-                });
     }
 
     /**

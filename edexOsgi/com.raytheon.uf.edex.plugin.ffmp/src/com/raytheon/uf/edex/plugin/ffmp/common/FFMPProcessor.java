@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -47,7 +48,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBin;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinEntry;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
@@ -93,6 +94,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * 07/14/09      2152       D. Hladky   Initial release
  * 10/25/12		DR 15514    G. Zhang	Fix ConcurrentModificationException
+ * 02/25/13     1660        D. Hladky   FFTI design change to help mosaic processing.
  * </pre>
  * 
  * @author dhladky
@@ -123,7 +125,7 @@ public class FFMPProcessor {
 
     private FFMPRecord ffmpRec = null;
 
-    private GribRecord gribRec = null;
+    private GridRecord gribRec = null;
 
     private float[] gribData = null;
 
@@ -163,6 +165,8 @@ public class FFMPProcessor {
     private static final String sourceBinTaskName = "FFMP Source bin";
 
     private boolean isFFTI = false;
+    
+    private List<String> fftiAttribute = new ArrayList<String>();
 
     private FFTISourceXML fftiSource = null;
 
@@ -305,7 +309,7 @@ public class FFMPProcessor {
                 recdate = imp.getDataTime().getRefTime();
 
             } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.GRID) {
-                gribRec = (GribRecord) config.getSourceData(
+                gribRec = (GridRecord) config.getSourceData(
                         source.getSourceName()).get(dataKey);
                 gribData = config.getGribData(gribRec);
                 recdate = gribRec.getDataTime().getRefTime();
@@ -523,7 +527,7 @@ public class FFMPProcessor {
 
         try {
 
-            gribRec = (GribRecord) config.getSourceData(source.getSourceName())
+            gribRec = (GridRecord) config.getSourceData(source.getSourceName())
                     .get(dataKey);
             setGridGeometry(gribRec);
             gribData = config.getGribData(gribRec);
@@ -1366,7 +1370,7 @@ public class FFMPProcessor {
     /**
      * Sets up the gridgeometry for FFG
      */
-    public void setGridGeometry(GribRecord rec) {
+    public void setGridGeometry(GridRecord rec) {
         ffgNx = rec.getSpatialObject().getNx();
         ffgNy = rec.getSpatialObject().getNy();
         ffgGeometry = MapUtil.getGridGeometry(rec.getSpatialObject());
@@ -1734,16 +1738,16 @@ public class FFMPProcessor {
                                 SOURCE_TYPE.QPE.getSourceType())) {
                             fftiSource = setting.getQpeSource();
                             isFFTI = true;
-                            break;
+                            fftiAttribute.add(setting.getAttribute().getAttributeName());
                         } else if (source.getSourceType().equals(
                                 SOURCE_TYPE.QPF.getSourceType())) {
                             fftiSource = setting.getQpfSource();
                             isFFTI = true;
-                            break;
+                            fftiAttribute.add(setting.getAttribute().getAttributeName());
                         } else {
                             fftiSource = setting.getGuidSource();
                             isFFTI = true;
-                            break;
+                            fftiAttribute.add(setting.getAttribute().getAttributeName());
                         }
                     }
 
@@ -1756,7 +1760,7 @@ public class FFMPProcessor {
                                             .getDisplayName())) {
                                 fftiSource = setting.getQpeSource();
                                 isFFTI = true;
-                                break;
+                                fftiAttribute.add(setting.getAttribute().getAttributeName());
                             }
                         }
                     }
@@ -1771,7 +1775,7 @@ public class FFMPProcessor {
 
                                 fftiSource = setting.getQpfSource();
                                 isFFTI = true;
-                                break;
+                                fftiAttribute.add(setting.getAttribute().getAttributeName());
                             }
                         }
                     }
@@ -1796,6 +1800,14 @@ public class FFMPProcessor {
      */
     public FFTISourceXML getFFTISource() {
         return fftiSource;
+    }
+    
+    /**
+     * Returns the FFTI attributes for this source
+     * @return
+     */
+    public List<String> getAttributes() {
+        return fftiAttribute;
     }
 
     /**

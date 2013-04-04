@@ -24,8 +24,14 @@
 #
 # PhraseBuilder.py
 # Methods for building phrases for Narrative products.
-#
+# 
 # Author: hansen
+# History
+# Time          Ticket Number   Developer   Comments
+# -----------------------------------------------------------------------------
+# 12/28/2012    DR 15596        J.Zeng      Added checkWeatherSimilarity 
+#                                           for two lists based on Virgil's 
+#                                           suggestion
 # ----------------------------------------------------------------------------
 
 import types
@@ -1855,10 +1861,28 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         stats1.sort(self.rankedSortOrder)
         stats2.sort(self.rankedSortOrder)
 
+        diff = []
+        for element in stats1:
+            test = 1
+            for el in stats2:
+                if str(element) == str(el):
+                    test = 0
+            if test and str(element) not in diff:
+                diff.append(str(element))
+        for element in stats2:
+            test = 1
+            for el in stats1:
+                if str(element) == str(el):
+                    test = 0
+            if test and str(element) not in diff:
+                diff.append(str(element))
+        if len(diff) == 0:
+            return 1       
+        
         if stats1 == stats2:
             #print 'checkWx return 1'
             return 1
-
+   
         # Check for equal length of statistics
         if len(stats1) == len(stats2):
             # If there is only one subkey to worry about
