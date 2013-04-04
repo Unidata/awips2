@@ -1995,6 +1995,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             int day = warnRecord.getIssueTime().get(Calendar.DAY_OF_MONTH);
             int hour = Integer.parseInt(m.group(1));
             int minute = Integer.parseInt(m.group(2));
+            // Handles when a warning is created before 0Z but issued after 0Z 
+            if (hour > warnRecord.getIssueTime().get(Calendar.HOUR_OF_DAY)) { 
+                day -= 1; 
+            } 
             frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             frameTime.set(Calendar.DAY_OF_MONTH, day);
             frameTime.set(Calendar.HOUR_OF_DAY, hour);
