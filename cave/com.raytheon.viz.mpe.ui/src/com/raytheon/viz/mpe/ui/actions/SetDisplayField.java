@@ -23,13 +23,13 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
-import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
@@ -59,46 +59,37 @@ public class SetDisplayField extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        String f = event.getParameter("Field");
-
-        IEditorPart editor = (IEditorPart) EditorUtil
-                .getActiveEditorAs(IDisplayPaneContainer.class);
-        if (editor != null) {
-            return setDisplayField((IDisplayPaneContainer) editor, f);
+        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+        if (activeEditor instanceof IDisplayPaneContainer) {
+            String f = event.getParameter("Field");
+            return setDisplayField((IDisplayPaneContainer) activeEditor,
+                    DisplayFieldData.valueOf(f));
         }
         return null;
     }
 
-    public static Object setDisplayField(IDisplayPaneContainer editor, String f) {
+    public static MPEFieldResource setDisplayField(
+            IDisplayPaneContainer editor, DisplayFieldData field) {
         if (editor == null) {
             return null;
         }
-        IDisplayPane pane = (editor).getDisplayPanes()[0];
-        if (editor instanceof IMultiPaneEditor) {
-            IMultiPaneEditor multiPane = (IMultiPaneEditor) editor;
-            if (multiPane.getNumberofPanes() > 1) {
-                pane = multiPane.getSelectedPane(IMultiPaneEditor.LOAD_ACTION);
-                if (pane == null) {
-                    pane = multiPane.getActiveDisplayPane();
+        IDisplayPane[] panes = editor.getDisplayPanes();
+        IDisplayPane pane = panes[0];
+        if (panes.length > 1) {
+            if (editor instanceof IMultiPaneEditor) {
+                IMultiPaneEditor multiPane = (IMultiPaneEditor) editor;
+                IDisplayPane loadTo = multiPane
+                        .getSelectedPane(IMultiPaneEditor.LOAD_ACTION);
+                if (loadTo != null) {
+                    pane = loadTo;
                 }
-            } else {
-                pane = (editor).getDisplayPanes()[0];
             }
-
         }
 
         MPEDisplayManager displayMgr = MPEDisplayManager.getInstance(pane);
-        displayMgr.setAccum_interval(1);
-        DisplayFieldData field = DisplayFieldData.valueOf(f);
-        displayMgr.setDisplayFieldType(field);
-        if (!displayMgr.getOtherDispType().equals(field)) {
-            displayMgr.setOtherDispType(field);
-            displayMgr.setAccum_interval(1);
-        }
+        displayMgr.displayFieldData(field);
 
         // Update the screen
-        XmrgResource xmrgRsc = (XmrgResource) displayMgr.getDisplayedResource();
-        xmrgRsc.updateXmrg(false);
-        return xmrgRsc;
+        return displayMgr.getDisplayedFieldResource();
     }
 }

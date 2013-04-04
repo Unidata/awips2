@@ -45,6 +45,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 9, 2011            snaples     Initial creation
+ * Mar 5, 2013  15884      wkwock      gridPointLL and gridPointUR should be integer
  * 
  * </pre>
  * 
@@ -418,15 +419,15 @@ public class WriteDQCGribGrids {
 
         /* Lower left corner of the main projected grid */
 
-        x1 = ga.gridPointLL.x;
-        y1 = ga.gridPointLL.y;
+        x1 = ga.gridPointLL[0];
+        y1 = ga.gridPointLL[1];
         lon1 = ga.latLonLL.x;
         lat1 = ga.latLonLL.y;
 
         /* upper right corner of the main projected grid */
 
-        x2 = ga.gridPointUR.x;
-        y2 = ga.gridPointUR.y;
+        x2 = ga.gridPointUR[0];
+        y2 = ga.gridPointUR[1];
         lon2 = ga.latLonUR.x;
         lat2 = ga.latLonUR.y;
         /*

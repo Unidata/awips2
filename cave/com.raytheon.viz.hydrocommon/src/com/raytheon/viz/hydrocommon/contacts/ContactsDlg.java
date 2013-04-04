@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 10, 2008				lvenable	Initial creation
+ * Feb 13, 2013 15794       wkwock      Make Sequence number goes up to 99
  * 
  * </pre>
  * 
@@ -260,7 +261,7 @@ public class ContactsDlg extends CaveSWTDialog {
         seqNumSpnr.setPageIncrement(1);
         seqNumSpnr.setSelection(1);
         seqNumSpnr.setMinimum(1);
-        seqNumSpnr.setMaximum(9);
+        seqNumSpnr.setMaximum(99);
         seqNumSpnr.setLayoutData(gd);
 
         gd = new GridData(275, SWT.DEFAULT);

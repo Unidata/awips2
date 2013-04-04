@@ -46,6 +46,13 @@
         </linePattern>
     </patternEntry>
     <patternEntry>
+        <patternId>SHEAR_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Shear Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
         <patternId>ZZZ_LINE</patternId>
         <linePattern hasArrowHead="false" name="Z-Line">
             <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="Z_PATTERN" length="8.0"/>

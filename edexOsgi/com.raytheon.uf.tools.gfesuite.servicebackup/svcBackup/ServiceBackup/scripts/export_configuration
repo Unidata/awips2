@@ -64,6 +64,7 @@ log_msg 30
 # Copies the localization information to the staging area
 log_msg Copying common site configuration for site ${CAPS_SITE} to temporary directory...
 cp -r ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/gfe $commonDest/site
+cp -r ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/vtec $commonDest/site
 log_msg 40
 
 log_msg Copying edex site configuration for site ${CAPS_SITE} to temporary directory...

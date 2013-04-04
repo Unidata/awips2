@@ -64,4 +64,8 @@ public class UnitConvertingDataDestination implements DataDestination {
         wrappedDestination.setDataValue(unitConverter.convert(dataValue), x, y);
     }
 
+    public DataDestination getWrappedDestination() {
+        return wrappedDestination;
+    }
+
 }

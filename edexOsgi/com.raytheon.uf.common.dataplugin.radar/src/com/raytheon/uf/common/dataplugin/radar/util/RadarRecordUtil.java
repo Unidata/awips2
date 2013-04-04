@@ -22,10 +22,10 @@ package com.raytheon.uf.common.dataplugin.radar.util;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.LinkedHashMap;
 
 import org.geotools.referencing.GeodeticCalculator;
 
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
+import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
@@ -55,6 +56,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2010            mnash     Initial creation
  * Dec 28, 2011 11705	   gzhang	 Fix SCAN missing Rows error	
+ * Mar 19, 2013 1804       bsteffen    Reduce useless data stored in radar hdf5
+ * Mar 19, 2013 1804       bsteffen    Remove empty data structures from radar
+ *                                     hdf5.
  * 
  * </pre>
  * 
@@ -83,9 +87,8 @@ public class RadarRecordUtil {
                                             .getTheText())) {
                                 Map<GraphicBlockValues, String> map = new HashMap<GraphicBlockValues, String>();
                                 Matcher m = RadarConstants.graphic_block_pattern
-                                        .matcher(
-                                        		getNormalizedGBText( ((TextSymbolPacket) packets[j]).getTheText() ) 
-                                        		);
+                                        .matcher(getNormalizedGBText(((TextSymbolPacket) packets[j])
+                                                .getTheText()));
                                 if (m.find()) {
                                     String storm_id = m.group(1).trim();
                                     map.put(GraphicBlockValues.AZIMUTH, m
@@ -146,8 +149,7 @@ public class RadarRecordUtil {
             String property) {
         String rval = "";
 
-        for (RadarDataKey curLatLon : record.getSymbologyData()
-                .keySet()) {
+        for (RadarDataKey curLatLon : record.getSymbologyData().keySet()) {
             RadarDataPoint currPoint = record.getSymbologyData().get(curLatLon);
 
             for (Integer type : currPoint.getDisplayGenericPointData().keySet()) {
@@ -167,8 +169,10 @@ public class RadarRecordUtil {
     /**
      * Get the GenericDataComponent.
      * 
-     * @param record The RadarRecord
-     * @param featureId The featureId
+     * @param record
+     *            The RadarRecord
+     * @param featureId
+     *            The featureId
      * 
      * @return The GenericDataComponent, or null if no matches
      */
@@ -189,13 +193,15 @@ public class RadarRecordUtil {
         }
         return null;
     }
-    
+
     public static List<String> getDMDFeatureIDs(RadarRecord record) {
         List<String> rval = new ArrayList<String>();
-
-        for (Layer layer : record.getSymbologyBlock().getLayers()) {
-            for (SymbologyPacket packet : layer.getPackets())
-                rval.addAll(((DMDPacket) packet).getFeatureIDs());
+        SymbologyBlock sb = record.getSymbologyBlock();
+        if (sb != null) {
+            for (Layer layer : sb.getLayers()) {
+                for (SymbologyPacket packet : layer.getPackets())
+                    rval.addAll(((DMDPacket) packet).getFeatureIDs());
+            }
         }
         return rval;
     }
@@ -204,8 +210,7 @@ public class RadarRecordUtil {
             String featureId) {
         Coordinate rval = null;
         AreaComponent currFeature = null;
-        for (RadarDataKey curLatLon : record.getSymbologyData()
-                .keySet()) {
+        for (RadarDataKey curLatLon : record.getSymbologyData().keySet()) {
             RadarDataPoint currPoint = record.getSymbologyData().get(curLatLon);
 
             for (Integer type : currPoint.getDisplayGenericPointData().keySet()) {
@@ -416,31 +421,57 @@ public class RadarRecordUtil {
         return record.srmSourceName != null;
     }
 
-    private static final DHRValues[] ADAP32_VALUES = {
-        DHRValues.BEAMWIDTH, DHRValues.BLOCKAGETHRESHOLD, DHRValues.CLUTTERTHRESHOLD, DHRValues.WEIGHTTHRESHOLD,
-        DHRValues.FULLHYBRIDSCANTHRESH, DHRValues.LOWREFLTHRESHOLD, DHRValues.RAINDETREFLTHRESHOLD, DHRValues.RAINDETAREATHRESHOLD,
-        DHRValues.RAINDETTIMETHRESHOLD, DHRValues.ZRMULTCOEFF, DHRValues.ZRPOWERCOEFF, DHRValues.MINREFLTORATE,
-        DHRValues.MAXREFLTORATE, DHRValues.NUMEXCLZONE, DHRValues.RANGECUTOFF, DHRValues.RANGEEFFCOEFF1,
-        DHRValues.RANGEEFFCOEFF2, DHRValues.RANGEEFFCOEFF3, DHRValues.MINPRECIPRATEINCL, DHRValues.MAXPRECIPRATEALLOW,
-        DHRValues.THRESHELAPSEDTIME, DHRValues.MAXTIMEFORINTERP, DHRValues.MINTIMEHOURLYPERIOD, DHRValues.THRESHOLDHROUTLIER,
-        DHRValues.ENDTIMEGAGEACCUM, DHRValues.MAXPERIODACCUMVAL, DHRValues.MAXHOURLYACCUMVAL, DHRValues.TIMEBIASEST,
-        DHRValues.THRESHNOGAGERADAR, DHRValues.RESETBIASVALUE, DHRValues.LONGESTALLOWLAG, DHRValues.BIASAPPLIEDFLAG
-    };
-    
+    private static final DHRValues[] ADAP32_VALUES = { DHRValues.BEAMWIDTH,
+            DHRValues.BLOCKAGETHRESHOLD, DHRValues.CLUTTERTHRESHOLD,
+            DHRValues.WEIGHTTHRESHOLD, DHRValues.FULLHYBRIDSCANTHRESH,
+            DHRValues.LOWREFLTHRESHOLD, DHRValues.RAINDETREFLTHRESHOLD,
+            DHRValues.RAINDETAREATHRESHOLD, DHRValues.RAINDETTIMETHRESHOLD,
+            DHRValues.ZRMULTCOEFF, DHRValues.ZRPOWERCOEFF,
+            DHRValues.MINREFLTORATE, DHRValues.MAXREFLTORATE,
+            DHRValues.NUMEXCLZONE, DHRValues.RANGECUTOFF,
+            DHRValues.RANGEEFFCOEFF1, DHRValues.RANGEEFFCOEFF2,
+            DHRValues.RANGEEFFCOEFF3, DHRValues.MINPRECIPRATEINCL,
+            DHRValues.MAXPRECIPRATEALLOW, DHRValues.THRESHELAPSEDTIME,
+            DHRValues.MAXTIMEFORINTERP, DHRValues.MINTIMEHOURLYPERIOD,
+            DHRValues.THRESHOLDHROUTLIER, DHRValues.ENDTIMEGAGEACCUM,
+            DHRValues.MAXPERIODACCUMVAL, DHRValues.MAXHOURLYACCUMVAL,
+            DHRValues.TIMEBIASEST, DHRValues.THRESHNOGAGERADAR,
+            DHRValues.RESETBIASVALUE, DHRValues.LONGESTALLOWLAG,
+            DHRValues.BIASAPPLIEDFLAG };
+
     public static Map<DHRValues, Double> getDHRValues(RadarRecord record) {
         Map<DHRValues, Double> map = new HashMap<DHRValues, Double>();
-        String text = record.getAlphanumericValues();
+        String text = null;
+        SymbologyBlock sb = record.getSymbologyBlock();
+        if (sb != null) {
+            // According to the ICD the alphanumeric data for DHR can be found
+            // in the second layer of the symbology block in a TextSymbolPacketn
+            // with code 1.
+            for (Layer layer : sb.getLayers()) {
+                for (SymbologyPacket packet : layer.getPackets()) {
+                    if (packet instanceof TextSymbolPacket) {
+                        TextSymbolPacket tsp = (TextSymbolPacket) packet;
+                        if (tsp.getTheText().contains("PSM")) {
+                            text = tsp.getTheText();
+                        }
+                    }
+                }
+            }
+        }
+        if (text == null) {
+            return map;
+        }
         int vi = 0;
         int nv = text.length() / 8;
         int precipCat = 0;
         boolean biasApplied = false;
         double biasCalculated = 1.0;
         Integer flagZeroHybrid = null;
-        
+
         String[] v = new String[nv];
         for (vi = 0; vi < nv; ++vi)
-            v[vi] = text.substring(vi * 8, (vi+1) * 8);
-        
+            v[vi] = text.substring(vi * 8, (vi + 1) * 8);
+
         vi = 0;
         while (vi < nv) {
             String s = v[vi++];
@@ -455,10 +486,12 @@ public class RadarRecordUtil {
                 while (vi < nv) {
                     s = v[vi++];
                     if (s.equals("SUPL(15)")) {
-                        /* // average scan date/time are never used...
-                        map.put(DHRValues.AVGSCANDATE, parseDHRValue(text, vi + 0));
-                        map.put(DHRValues.AVGSCANTIME, parseDHRValue(text, vi + 1));
-                        */
+                        /*
+                         * // average scan date/time are never used...
+                         * map.put(DHRValues.AVGSCANDATE, parseDHRValue(text, vi
+                         * + 0)); map.put(DHRValues.AVGSCANTIME,
+                         * parseDHRValue(text, vi + 1));
+                         */
                         flagZeroHybrid = (int) parseDHRValue(v[vi + 2]);
                         if (flagZeroHybrid != 0 && flagZeroHybrid != 1)
                             flagZeroHybrid = 0; // should print warning
@@ -469,7 +502,8 @@ public class RadarRecordUtil {
                     }
                 }
             } else if (s.equals("ADAP(38)")) {
-                // Don't have documentation for older formats, so copying logic from A1 decodeDHR.C.
+                // Don't have documentation for older formats, so copying logic
+                // from A1 decodeDHR.C.
                 map.put(DHRValues.ZRMULTCOEFF, parseDHRValue(v[vi + 9]));
                 map.put(DHRValues.ZRPOWERCOEFF, parseDHRValue(v[vi + 10]));
                 map.put(DHRValues.MAXPRECIPRATEALLOW, parseDHRValue(v[vi + 25]));
@@ -501,12 +535,12 @@ public class RadarRecordUtil {
         }
         if (flagZeroHybrid != null)
             map.put(DHRValues.FLAGZEROHYBRID, (double) flagZeroHybrid);
-        if (! biasApplied) {
+        if (!biasApplied) {
             biasCalculated = 1.0;
         }
         map.put(DHRValues.BIAS, biasCalculated);
-        
-        // Also include logic from A1 FFMPContainer::read(), FFMP_ORPG case 
+
+        // Also include logic from A1 FFMPContainer::read(), FFMP_ORPG case
         boolean havePrecip;
         if (flagZeroHybrid == null) {
             havePrecip = precipCat > 0;
@@ -515,11 +549,11 @@ public class RadarRecordUtil {
         }
         map.put(DHRValues.HAVE_PRECIP, havePrecip ? 1.0 : 0);
         map.put(DHRValues.BIAS_TO_USE, havePrecip ? biasCalculated : 1.0);
-        
+
         return map;
     }
 
-    private static double parseDHRValue(String text) {        
+    private static double parseDHRValue(String text) {
         String s = text.trim();
         if (s.equals("T"))
             return 1;
@@ -528,8 +562,8 @@ public class RadarRecordUtil {
         else
             return Double.parseDouble(s);
     }
-    
-    /**
+
+/**
      * DR#11705: SCAN missing row(s) comparing to radar Comb Att Table.
      * 
      * Error cause: RadarConstants.GRAPHIC_BLOCK as a Regular Expression
@@ -542,27 +576,28 @@ public class RadarRecordUtil {
      * @param : Graphic Block Text that may contain ">" and/or "<".
      * @return: String with ">" and/or "<" replaced by space.      
      */
-    private static String getNormalizedGBText(String text){
-    	
-    	if(text == null || text.isEmpty() || ( (!  text.contains(">"))  && (! text.contains("<")) ) ) 
-    		return text;
-    	
-    	/*
-    	 * contains only ">"
-    	 */
-    	if( ! text.contains("<") ) 
-    		return text.replaceAll(">", " ");
-    	
-    	/*
-    	 * contains only "<"
-    	 */
-    	if( ! text.contains(">") ) 
-    		return text.replaceAll("<", " ");
-    	
-    	/*
-    	 * contains both "<" and ">"
-    	 */
-    	return text.replaceAll(">"," ").replaceAll("<", " ");
-   	
+    private static String getNormalizedGBText(String text) {
+
+        if (text == null || text.isEmpty()
+                || ((!text.contains(">")) && (!text.contains("<"))))
+            return text;
+
+        /*
+         * contains only ">"
+         */
+        if (!text.contains("<"))
+            return text.replaceAll(">", " ");
+
+        /*
+         * contains only "<"
+         */
+        if (!text.contains(">"))
+            return text.replaceAll("<", " ");
+
+        /*
+         * contains both "<" and ">"
+         */
+        return text.replaceAll(">", " ").replaceAll("<", " ");
+
     }
 }

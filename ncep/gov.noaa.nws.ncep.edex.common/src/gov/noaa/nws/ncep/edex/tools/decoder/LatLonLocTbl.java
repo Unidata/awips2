@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
@@ -58,24 +59,25 @@ public class LatLonLocTbl {
 
     public static void readLocTable(String tableName) throws Exception {
 
-        final String NCEP_DIR = "ncep";
-        final String stnsDir = "stns";
-        final String vorsLocTableName = "vors.xml";
+//        final String NCEP_DIR = "ncep";
+//        final String stnsDir = "stns";
+//        final String vorsLocTableName = "vors.xml";
 
+        final String VORS_TABLE = "ncep" + File.separator + "stns" + File.separator + "vors.xml";
         IPathManager manager = PathManagerFactory.getPathManager();
 
         LocalizationContext baseContext = null;
-        File baseDir = null;
-        String stnsFileName = null;
-        baseContext = manager.getContext(EDEX_STATIC, LocalizationLevel.BASE);
-        baseContext.setContextName(NCEP_DIR);
-        baseDir = manager.getFile(baseContext, "");
+
+        baseContext = manager.getContext(
+                LocalizationContext.LocalizationType.EDEX_STATIC,
+                LocalizationContext.LocalizationLevel.BASE);
+        LocalizationFile file = null;
         if (tableName == "vors") {
-            stnsFileName = baseDir + File.separator + stnsDir + File.separator
-                    + vorsLocTableName;
+              file = manager.getStaticLocalizationFile(VORS_TABLE); 
         }
-        logger.debug(" stnsFileName=" + stnsFileName);
-        myloc = new StationTable(stnsFileName);
+
+        if ( file != null )
+        myloc = new StationTable(file.getFile().getAbsolutePath());
 
     }
 

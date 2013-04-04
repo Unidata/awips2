@@ -6,7 +6,7 @@
 ! T. Piper/GSC		5/99	Added -1 line position for TITLE  =
 ! T. Lee/SAIC		2/04	Changed AVN to GFS
 !
-GDFILE  nww3 ! nww3 ! gfs
+GDFILE = nww3 ! nww3 ! gfs
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0	

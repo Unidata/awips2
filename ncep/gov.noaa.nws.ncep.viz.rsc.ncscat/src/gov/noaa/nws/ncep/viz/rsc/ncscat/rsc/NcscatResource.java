@@ -130,12 +130,11 @@ public class NcscatResource extends
             // Given the NcscatRecord, locate the associated HDF5 data...
             File location = HDF5Util.findHDF5Location(nsRecord);
 
-            String hdf5File = location.getAbsolutePath();
             String group = nsRecord.getDataURI();
             String dataset = "Ncscat";
 
             // ...and retrieve it
-            IDataStore ds = DataStoreFactory.getDataStore(new File(hdf5File));
+            IDataStore ds = DataStoreFactory.getDataStore(location);
             IDataRecord dr;
             try {
                 dr = ds.retrieve(group, dataset, Request.ALL);
