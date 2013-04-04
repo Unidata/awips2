@@ -1,0 +1,44 @@
+#Code:table:4.5: Fixed surface types and units
+#192-254 Reserved for local use
+192:192:Level at Specified Pressure Difference from Ground to Level:Pa:PDLY:LYRBL
+193:193:Eta Level:Eta value:ELYR:ETA
+200:200:Entire Atmosphere::NONE:EA
+201:201:Entire Ocean::NONE
+204:204:Highest Tropospheric Freezing Level::HTFL
+206:206:Grid Scale Cloud Bottom Level::GSCBL
+207:207:Grid Scale Cloud Top Level::GSCTL
+209:209:Boundary Layer Cloud Bottom Level::BCBL
+210:210:Boundary Layer Cloud Top Level::BCTL
+211:211:Boundary Layer Cloud Layer::BCLY
+212:212:Low Cloud Bottom Level::LCBL
+213:213:Low Cloud Top Level::LCTL
+214:214:Low Cloud Layer::LCLY
+215:215:Cloud Ceiling::CEIL
+220:220:Planetary Boundary Layer:: PLBL 	
+221:221:Layer Between Two Hybrid Levels::NONE
+222:222:Middle Cloud Bottom Level::MCBL
+223:223:Middle Cloud Top Level::MCTL
+224:224:Middle Cloud Layer::MCLY
+232:232:High Cloud Bottom Level::HCBL
+233:233:High Cloud Top Level::HCTL
+234:234:High Cloud Layer::HCLY
+235:235:Ocean Isotherm Level:1/10 ℃:NONE
+236:236:Layer Between Two Depths Below Ocean Surface::NONE
+237:237:Bottom of Ocean Mixed Layer (m):m:NONE
+238:238:Bottom of Ocean Isothermal Layer:m:NONE
+239:239:Layer Ocean Surface and 26C Ocean Isothermal Level::NONE 	
+240:240:Ocean Mixed Layer::NONE
+241:241:Ordered Sequence of Data::OSEQ
+242:242:Convective Cloud Bottom Level::CCBL
+243:243:Convective Cloud Top Level::CCTL
+244:244:Convective Cloud::CCLY
+245:245:Lowest Level of the Wet Bulb Zero::LWBZ
+246:246:Maximum Equivalent Potential Temperature level::MTHE:MEPT
+247:247:Equilibrium Level::EHLT:EL
+248:248:Shallow Convective Cloud Bottom Level::SCCBT
+249:249:Shallow Convective Cloud Top Level::SCCTL
+251:251:Deep Convective Cloud Bottom Level::DCCBL
+252:252:Deep Convective Cloud Top Level::DCCTL
+253:253:Lowest Bottom Level of Supercooled Liquid Water Layer::LBSLW
+254:254:Highest Top Level of Supercooled Liquid Water Layer::HTSLW
+255:255:Missing

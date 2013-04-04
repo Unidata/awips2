@@ -1,8 +1,9 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
-GDPFUN =  sm5s(mul(1e-2,pmsl))
+GDPFUN =  sm5s(pmsl)
 TYPE   =    c
 CINT   =    4
 LINE   =    20/1/1/2
@@ -16,4 +17,3 @@ TITLE  =   1/-1/~ PMSL
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

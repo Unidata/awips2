@@ -55,23 +55,23 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.dat.utils.FreezingLevel;
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * MPE RUC calculator
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#  Engineer    Description
+ * ------------ -------- --------- --------------------------
+ * Nov 19, 2011          dhladky    Initial Creation.
+ * Oct 09, 2012 15168    wkwock     Fix incorrect values.
+ * Jan 10, 2013 1448     bgonzale   Made methods that are used internally private.
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
 public class MpeRUCFreezingLevel {
-
-    /**
-     * MPE RUC calculator
-     * 
-     * <pre>
-     * SOFTWARE HISTORY
-     * Date         Ticket#  Engineer    Description
-     * ------------ -------- --------- --------------------------
-     * Nov 19, 2011          dhladky    Initial Creation.
-     * Oct 09, 2012 15168    wkwock     Fix incorrect values.
-     * 
-     * </pre>
-     * 
-     * @author dhladky
-     * @version 1.0
-     */
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MpeRUCFreezingLevel.class);
@@ -315,6 +315,10 @@ public class MpeRUCFreezingLevel {
      * Process the MPE freezing Levels
      */
     public void processMpeRuc() {
+        if (!AppsDefaults.getInstance().setAppContext(this)) {
+            return;
+        }
+
         Integer forecastHour = null;
         HashMap<String, HashMap<Integer, FreezingLevelXML>> freezingTimeMap = new HashMap<String, HashMap<Integer, FreezingLevelXML>>();
         LinkedHashMap<String, Coordinate> freezingStations = new LinkedHashMap<String, Coordinate>();
@@ -437,7 +441,7 @@ public class MpeRUCFreezingLevel {
      * 
      * @return
      */
-    public String getAbsoluteTempFileName(int forecastHour, String modelName) {
+    private String getAbsoluteTempFileName(int forecastHour, String modelName) {
         return modelOutputFilePath + File.separatorChar + modelName
                 + forecastHour + "zFreezingLevel" + ".bin";
     }
@@ -447,7 +451,7 @@ public class MpeRUCFreezingLevel {
      * 
      * @return
      */
-    public String getAbsoluteOutFileName(Date date, String site) {
+    private String getAbsoluteOutFileName(Date date, String site) {
         return modelOutputFilePath + File.separatorChar + "freezing_1_" + site
                 + "_point_" + getFormattedDate(date);
     }
@@ -457,7 +461,7 @@ public class MpeRUCFreezingLevel {
      * 
      * @param FreezingLevelXML
      */
-    public void writeFreezingLevelTemp(FreezingLevelXML freezingLevel,
+    private void writeFreezingLevelTemp(FreezingLevelXML freezingLevel,
             String modelName) {
 
         try {

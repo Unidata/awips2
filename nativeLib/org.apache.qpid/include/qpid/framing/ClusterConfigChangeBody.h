@@ -40,27 +40,43 @@ namespace qpid {
 namespace framing {
 
 class ClusterConfigChangeBody : public ModelMethod {
-    string current;
+    string members;
+    string joined;
+    string left;
     uint16_t flags;
 public:
     static const ClassId CLASS_ID = 0x80;
     static const MethodId METHOD_ID = 0x11;
     ClusterConfigChangeBody(
-        ProtocolVersion, const string& _current) : 
-        current(_current),
+        ProtocolVersion, const string& _members,
+        const string& _joined,
+        const string& _left) : 
+        members(_members),
+        joined(_joined),
+        left(_left),
         flags(0){
         flags |= (1 << 8);
+        flags |= (1 << 9);
+        flags |= (1 << 10);
     }
     ClusterConfigChangeBody(ProtocolVersion=ProtocolVersion())  : flags(0) {}
     
-    QPID_COMMON_EXTERN void setCurrent(const string& _current);
-    QPID_COMMON_EXTERN const string& getCurrent() const;
-    QPID_COMMON_EXTERN bool hasCurrent() const;
-    QPID_COMMON_EXTERN void clearCurrentFlag();
+    QPID_COMMON_EXTERN void setMembers(const string& _members);
+    QPID_COMMON_EXTERN const string& getMembers() const;
+    QPID_COMMON_EXTERN bool hasMembers() const;
+    QPID_COMMON_EXTERN void clearMembersFlag();
+    QPID_COMMON_EXTERN void setJoined(const string& _joined);
+    QPID_COMMON_EXTERN const string& getJoined() const;
+    QPID_COMMON_EXTERN bool hasJoined() const;
+    QPID_COMMON_EXTERN void clearJoinedFlag();
+    QPID_COMMON_EXTERN void setLeft(const string& _left);
+    QPID_COMMON_EXTERN const string& getLeft() const;
+    QPID_COMMON_EXTERN bool hasLeft() const;
+    QPID_COMMON_EXTERN void clearLeftFlag();
     typedef void ResultType;
 
     template <class T> ResultType invoke(T& invocable) const {
-        return invocable.configChange(getCurrent());
+        return invocable.configChange(getMembers(), getJoined(), getLeft());
     }
 
     using  AMQMethodBody::accept;

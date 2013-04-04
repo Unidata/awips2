@@ -56,8 +56,11 @@ import com.raytheon.uf.viz.core.procedures.BundleUtil.BundleDataItem;
 import com.raytheon.uf.viz.core.rsc.URICatalog;
 import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
 import com.raytheon.uf.viz.ui.menus.xml.BundleMenuContribution;
-import com.raytheon.viz.ui.MenuLoader;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
+import com.raytheon.viz.ui.BundleLoader;
+import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
+import com.raytheon.viz.ui.BundleProductLoader;
+import com.raytheon.viz.ui.UiUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Provides an Eclipse menu contribution that loads a bundle, and is decorated
@@ -345,15 +348,19 @@ public class BundleContributionItem extends ContributionItem {
 
     private void loadBundle(Event event) {
         try {
+            Bundle bundle = BundleLoader.getBundle(
+                    this.menuContribution.xml.bundleFile, substitutions,
+                    BundleInfoType.FILE_LOCATION);
+            AbstractEditor editor = UiUtil.createOrOpenEditor(
+                    this.menuContribution.xml.editorType, bundle.getDisplays());
+            BundleLoader loader;
             if (this.menuContribution.xml.fullBundleLoad == null
                     || this.menuContribution.xml.fullBundleLoad == false) {
-                MenuLoader.loadProduct(this.menuContribution.xml.editorType,
-                        this.menuContribution.xml.bundleFile, substitutions);
+                loader = new BundleProductLoader(editor, bundle);
             } else {
-                LoadSerializedXml.loadTo(PathManagerFactory.getPathManager()
-                        .getStaticFile(this.menuContribution.xml.bundleFile),
-                        substitutions);
+                loader = new BundleLoader(editor, bundle);
             }
+            loader.schedule();
 
             if (this.menuContribution.xml.command != null) {
                 ICommandService service = (ICommandService) PlatformUI

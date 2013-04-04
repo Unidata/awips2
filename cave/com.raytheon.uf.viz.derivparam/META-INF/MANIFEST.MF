@@ -7,26 +7,25 @@ Bundle-Activator: com.raytheon.uf.viz.derivparam.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  javax.measure,
- com.raytheon.uf.common.dataquery,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Import-Package: com.raytheon.edex.meteoLib,
- com.raytheon.edex.util,
- com.raytheon.uf.common.comm,
+Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.derivparam.tree,
+ com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
- com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.adapters,
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.time
+ com.raytheon.uf.common.time,
+ com.vividsolutions.jts.geom,
+ org.opengis.referencing.crs
 Export-Package: com.raytheon.uf.viz.derivparam,
  com.raytheon.uf.viz.derivparam.data,
  com.raytheon.uf.viz.derivparam.inv,

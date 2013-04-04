@@ -32,6 +32,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.monitor.cpg.MonitorStateConfigurationManager;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -41,6 +42,7 @@ import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * CompositeProductGenerator
@@ -55,6 +57,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/07/2009   1981       dhladky    Initial Creation.
+ * 30NOV2012    1372       dhladky    Added statistics
  * 
  * </pre>
  * 
@@ -103,6 +106,8 @@ public abstract class CompositeProductGenerator implements
     public Executor executor = null;
 
     protected String routeId = null;
+
+    protected static final EventBus eventBus = EventBus.getInstance();
 
     public CompositeProductGenerator(String name, String compositeProductType) {
         this(name, compositeProductType, null);
@@ -176,23 +181,24 @@ public abstract class CompositeProductGenerator implements
      */
     public void generate(URIGenerateMessage genMessage) {
         try {
+            genMessage.setDeQueuedTime(System.currentTimeMillis());
             setProductTime(genMessage);
             generateProduct(genMessage);
             persistRecords();
             fireTopicUpdate();
-            clear();
+            log(genMessage);
+
         } catch (Throwable t) {
             statusHandler.handle(Priority.ERROR, "CPG encountered an error", t);
-            t.printStackTrace();
-
         } finally {
-            pdos = null;
+            clear();
         }
     }
 
     /**
      * plugin name for composite product
      */
+    @Override
     public String getCompositeProductType() {
         return compositeProductType;
     }
@@ -200,6 +206,7 @@ public abstract class CompositeProductGenerator implements
     /**
      * plugin name for composite product
      */
+    @Override
     public void setCompositeProductType(String compositeProductType) {
         this.compositeProductType = compositeProductType;
     }
@@ -208,6 +215,7 @@ public abstract class CompositeProductGenerator implements
      * Handled in the subclass, creates the return data object. Up to the
      * extending class what this is.
      */
+    @Override
     public abstract void generateProduct(URIGenerateMessage genMessage);
 
     /**
@@ -236,6 +244,7 @@ public abstract class CompositeProductGenerator implements
      * 
      * @return
      */
+    @Override
     public DataTime getProductTime() {
         return productTime;
     }
@@ -419,4 +428,43 @@ public abstract class CompositeProductGenerator implements
         this.executor = executor;
     }
 
+    /**
+     * Log process statistics
+     * 
+     * @param message
+     */
+    @Override
+    public void log(URIGenerateMessage message) {
+
+        if (getPluginDataObjects() != null && getPluginDataObjects().length > 0) {
+
+            long curTime = System.currentTimeMillis();
+            ProcessEvent processEvent = new ProcessEvent();
+            String pluginName = getPluginDataObjects()[0].getPluginName();
+
+            if (pluginName != null) {
+                processEvent.setPluginName(pluginName);
+            }
+
+            Long dequeueTime = message.getDeQueuedTime();
+            if (dequeueTime != null) {
+                long elapsedMilliseconds = curTime - dequeueTime;
+                processEvent.setProcessingTime(elapsedMilliseconds);
+            }
+
+            Long enqueueTime = message.getEnQueuedTime();
+            if (enqueueTime != null) {
+                long latencyMilliseconds = curTime - enqueueTime;
+                processEvent.setProcessingLatency(latencyMilliseconds);
+            }
+
+            // processing in less than 0 millis isn't trackable, usually due to
+            // an
+            // error occurred and statement logged incorrectly
+            if ((processEvent.getProcessingLatency() > 0)
+                    && (processEvent.getProcessingTime() > 0)) {
+                eventBus.publish(processEvent);
+            }
+        }
+    }
 }
