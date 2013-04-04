@@ -31,6 +31,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -48,7 +49,7 @@ import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Determines the height of a point using gridded data if it is available.
  * 
  * <pre>
  * 
@@ -185,16 +186,18 @@ public class HeightOfRequestableData extends AbstractRequestableData {
 
     private Map<String, RequestConstraint> getConstraints() {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("pluginName", new RequestConstraint("grib"));
-        constraints.put("modelInfo.parameterAbbreviation",
+        constraints.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                GridConstants.GRID));
+        constraints.put(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint("GH"));
-        constraints.put("modelInfo.modelName", new RequestConstraint("GFS212"));
-        constraints.put("modelInfo.level.masterLevel.name",
-                new RequestConstraint(level.getMasterLevel().getName()));
-        constraints.put("modelInfo.level.levelonevalue", new RequestConstraint(
-                level.getLevelOneValueAsString().toString()));
-        constraints.put("modelInfo.level.leveltwovalue", new RequestConstraint(
-                Level.getInvalidLevelValueAsString()));
+        constraints.put(GridConstants.DATASET_ID, new RequestConstraint(
+                "GFS212"));
+        constraints.put(GridConstants.MASTER_LEVEL_NAME, new RequestConstraint(
+                level.getMasterLevel().getName()));
+        constraints.put(GridConstants.LEVEL_ONE, new RequestConstraint(level
+                .getLevelOneValueAsString().toString()));
+        constraints.put(GridConstants.LEVEL_TWO,
+                new RequestConstraint(Level.getInvalidLevelValueAsString()));
         return constraints;
     }
 

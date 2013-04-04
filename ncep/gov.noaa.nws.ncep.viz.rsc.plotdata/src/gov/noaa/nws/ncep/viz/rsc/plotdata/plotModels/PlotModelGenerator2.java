@@ -129,6 +129,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/21/2012              Chin Chen    Modified plotUpperAirData() for performance improvement
  * 04/02/2012   #615       sgurung     Modified code to support conditional filtering: added conditionalFilterMap, 
  * 									   applyConditionalFilters(), and modified constructor to take ConditionalFilter
+ * 12/19/2012   #947       ghull       check for empty conditional filter before applying
  * 
  * </pre>
  * 
@@ -703,8 +704,9 @@ public class PlotModelGenerator2 extends Job {
 
                 	BufferedImage bImage = null;
                 	
-                	if (applyConditionalFilters())
+                	if( applyConditionalFilters() ) {
                 		bImage = plotCreator.getStationPlot( paramsToPlot ); // don't need this anymore, id);
+                	}
 
                 	if (bImage != null ) {
                 		image = target.initializeRaster(new IODataPreparer(
@@ -930,8 +932,9 @@ public class PlotModelGenerator2 extends Job {
                     	
                     	BufferedImage bImage = null;
                     	
-                    	if (applyConditionalFilters())
+                    	if (applyConditionalFilters()) {
                     		bImage = plotCreator.getStationPlot( paramsToPlot ); // don't need this anymore, id);
+                    	}
 
                     	if (bImage != null ) {
                     		image = target.initializeRaster(new IODataPreparer(
@@ -1126,8 +1129,12 @@ public class PlotModelGenerator2 extends Job {
     
     public synchronized boolean applyConditionalFilters() {
     	   	
-    	try {
+    	if( conditionalFilterMap == null ||
+    		conditionalFilterMap.isEmpty() ) {
+    		return true;
+    	}
 						
+    	try {						
 	    	List<Boolean> displayStationPlotBoolList = new ArrayList<Boolean>();
 	    	
 	    	for( PlotParameterDefn plotPrmDefn : plotPrmDefns.getParameterDefns() ) { 
@@ -1135,7 +1142,8 @@ public class PlotModelGenerator2 extends Job {
 				String metParamName = plotPrmDefn.getMetParamName(); 
 				
 				// apply filter conditions            			
-				if (conditionalFilterMap != null && conditionalFilterMap.containsKey(plotParamName) && conditionalFilterMap.get(plotParamName) != null) {
+				if( conditionalFilterMap.containsKey(plotParamName) && 
+					conditionalFilterMap.get(plotParamName) != null) {
 					
 					RequestConstraint reqConstraint = conditionalFilterMap.get(plotParamName);
 					

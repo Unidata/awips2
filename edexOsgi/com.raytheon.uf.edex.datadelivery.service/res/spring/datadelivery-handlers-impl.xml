@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  
+    <!-- Moved in to an EDEX specific file so that the registration of handlers Spring file
+         can be reused for automated testing -->
+    
+    <bean name="SubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler" />
+        
+    <bean name="PendingSubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler" />
+
+    <bean name="GroupDefinitionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.GroupDefinitionHandler" />
+        
+    <bean name="ProviderHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ProviderHandler" />
+
+    <bean name="DataSetNameHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetNameHandler" />
+
+    <bean name="ParameterHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterHandler" />                
+
+    <bean name="ParameterLevelHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterLevelHandler" />
+
+    <bean name="DataSetMetaDataHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetMetaDataHandler" />
+
+    <bean name="GriddedDataSetMetaDataHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.GriddedDataSetMetaDataHandler" />
+
+    <bean name="DataSetHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetHandler" />
+        
+</beans>  

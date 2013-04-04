@@ -368,7 +368,9 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
  		//System.out.println("skewtRsc handleMouseExit");
  		cursorInPane=false;    
  		NsharpSkewTPaneResource skewRsc = (NsharpSkewTPaneResource)getDescriptor().getPaneResource();
- 		skewRsc.setCursorInSkewT(false);
+        if (skewRsc != null) {
+            skewRsc.setCursorInSkewT(false);
+        }
 		return false;
 	}
  	public void disposeCursor(){

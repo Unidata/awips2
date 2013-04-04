@@ -26,6 +26,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *  02/16/11      #408        Greg Hull   add 'backup' categories for obs/fcst surface/uair
  *  01/09/11      #561        Greg Hull   generated equals()
  *  09/13/12      #860        Greg Hull   trim()
+ *  11/19/12      #630        Greg Hull   getAbbrName() (for satellite-area names)
  *
  * </pre>
  * 
@@ -271,6 +272,17 @@ public class ResourceName {
 		return (rscCategory != null && rscCategory.equals( OverlayRscCategory ) );
 	}
 
+	public String getAbbreviatedName() {
+		if( !isValid() ) {
+			return "";
+		}
+		if( !getRscGroup().isEmpty() ) {
+			return rscType + File.separator + rscGroup;
+		}
+		
+		return rscCategory + File.separator + rscType;
+	}
+	
 	public String toString() {
 		if( rscCategory == null || rscCategory.isEmpty() ||
 			rscType     == null || rscType.isEmpty() ||

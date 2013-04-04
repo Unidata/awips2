@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.gfe.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -34,7 +35,7 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
  * ------------ ----------  ----------- --------------------------
  * May 5, 2008              njensen     Initial creation
  * Aug 22, 2008 1502        dglazesk    Changed to JAXB unmarshalling
- * 
+ * Dec 06, 2012 1394        rjpeter     Attend static compiled patterns.
  * </pre>
  * 
  * @author njensen
@@ -45,15 +46,19 @@ public class GridTranslator {
 
     private static final List<String> NEEDS_ZERO = Arrays.asList("BLD", "WBZ");
 
+    private static final Pattern ANY_NUMBER = Pattern.compile("[0-9]");
+
+    private static final Pattern NOT_NUMBER = Pattern.compile("[^0-9]");
+
     private GridTranslator() {
     }
 
     public static String getLevelName(String shorthand) {
-        return shorthand.replaceAll("[0-9]*", "");
+        return ANY_NUMBER.matcher(shorthand).replaceAll("");
     }
 
     public static double[] getLevelValue(String shorthand) {
-        String levelString = shorthand.replaceAll("[^0-9]", "");
+        String levelString = NOT_NUMBER.matcher(shorthand).replaceAll("");
         int length = levelString.length();
         double[] retVal = new double[2];
         retVal[0] = Level.getInvalidLevelValue();
@@ -126,9 +131,9 @@ public class GridTranslator {
         } else {
             tmp.append(name);
 
-            if (levelOne != Level.getInvalidLevelValue()
-                    && (levelOne != 0
-                            || levelTwo != Level.getInvalidLevelValue() || NEEDS_ZERO
+            if ((levelOne != Level.getInvalidLevelValue())
+                    && ((levelOne != 0)
+                            || (levelTwo != Level.getInvalidLevelValue()) || NEEDS_ZERO
                             .contains(name))) {
                 tmp.append(String.valueOf(Math.round(levelOne)));
             }
@@ -166,7 +171,7 @@ public class GridTranslator {
                         + level
                         + " "
                         + Arrays.toString(levels)
-                        + (l1 == levels[0] && l2 == levels[1] ? " passed"
+                        + ((l1 == levels[0]) && (l2 == levels[1]) ? " passed"
                                 : " failed"));
             }
         }
@@ -187,7 +192,7 @@ public class GridTranslator {
                         + level
                         + " "
                         + Arrays.toString(levels)
-                        + (l1 == levels[0] && l2 == levels[1] ? " passed"
+                        + ((l1 == levels[0]) && (l2 == levels[1]) ? " passed"
                                 : " failed"));
             }
         }
@@ -197,26 +202,50 @@ public class GridTranslator {
         l2 = -999999;
         level = GridTranslator.getShortLevelName(levelName, l1, l2);
         levels = GridTranslator.getLevelValue(level);
-        System.out.println(levelName + " " + l1 + " " + l2 + ": " + level + " "
+        System.out.println(levelName
+                + " "
+                + l1
+                + " "
+                + l2
+                + ": "
+                + level
+                + " "
                 + Arrays.toString(levels)
-                + (l1 == levels[0] && l2 == levels[1] ? " passed" : " failed"));
+                + ((l1 == levels[0]) && (l2 == levels[1]) ? " passed"
+                        : " failed"));
 
         levelName = "BLD";
         l1 = 0;
         l2 = -999999;
         level = GridTranslator.getShortLevelName(levelName, l1, l2);
         levels = GridTranslator.getLevelValue(level);
-        System.out.println(levelName + " " + l1 + " " + l2 + ": " + level + " "
+        System.out.println(levelName
+                + " "
+                + l1
+                + " "
+                + l2
+                + ": "
+                + level
+                + " "
                 + Arrays.toString(levels)
-                + (l1 == levels[0] && l2 == levels[1] ? " passed" : " failed"));
+                + ((l1 == levels[0]) && (l2 == levels[1]) ? " passed"
+                        : " failed"));
 
         levelName = "WBZ";
         l1 = 0;
         l2 = -999999;
         level = GridTranslator.getShortLevelName(levelName, l1, l2);
         levels = GridTranslator.getLevelValue(level);
-        System.out.println(levelName + " " + l1 + " " + l2 + ": " + level + " "
+        System.out.println(levelName
+                + " "
+                + l1
+                + " "
+                + l2
+                + ": "
+                + level
+                + " "
                 + Arrays.toString(levels)
-                + (l1 == levels[0] && l2 == levels[1] ? " passed" : " failed"));
+                + ((l1 == levels[0]) && (l2 == levels[1]) ? " passed"
+                        : " failed"));
     }
 }

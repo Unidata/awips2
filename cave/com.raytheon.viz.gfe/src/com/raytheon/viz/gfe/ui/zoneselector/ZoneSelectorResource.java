@@ -587,6 +587,13 @@ public class ZoneSelectorResource extends DbMapResource {
         }
     }
 
+    @Override
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        super.initInternal(target);
+        getCapabilities().removeCapability(ShadeableCapability.class);
+        getCapabilities().removeCapability(LabelableCapability.class);
+    }
+
     /**
      * @param zoneName
      * @param groupLabel
@@ -742,15 +749,9 @@ public class ZoneSelectorResource extends DbMapResource {
                     .getWidth()
                     / paintProps.getCanvasBounds().width;
 
-            double offsetX = getCapability(LabelableCapability.class)
-                    .getxOffset() * screenToWorldRatio;
-            double offsetY = getCapability(LabelableCapability.class)
-                    .getyOffset() * screenToWorldRatio;
             IExtent extent = paintProps.getView().getExtent();
             List<DrawableString> strings = new ArrayList<DrawableString>(
                     labels.size());
-            // List<IExtent> extents = new ArrayList<IExtent>();
-            // String lastLabel = null;
             List<LabelTuple> alreadyDrawn = new ArrayList<ZoneSelectorResource.LabelTuple>(
                     labels.size());
             for (LabelNode node : labels) {
@@ -780,8 +781,8 @@ public class ZoneSelectorResource extends DbMapResource {
                         }
                         DrawableString ds = new DrawableString(text,
                                 RGBColors.getRGBColor("white"));
-                        ds.setCoordinates(node.getLocation()[0] + offsetX,
-                                node.getLocation()[1] - offsetY);
+                        ds.setCoordinates(node.getLocation()[0],
+                                node.getLocation()[1]);
                         ds.font = font;
                         ds.horizontalAlignment = HorizontalAlignment.CENTER;
                         ds.verticallAlignment = VerticalAlignment.MIDDLE;
@@ -832,22 +833,6 @@ public class ZoneSelectorResource extends DbMapResource {
 
                 additionalColumns.add(column.getName());
             }
-        }
-
-        // add the label field
-        String labelField = getCapability(LabelableCapability.class)
-                .getLabelField();
-        if (labelField != null && !additionalColumns.contains(labelField)) {
-            query.append(", ");
-            query.append(labelField);
-        }
-
-        // add the shading field
-        String shadingField = getCapability(ShadeableCapability.class)
-                .getShadingField();
-        if (shadingField != null && !additionalColumns.contains(shadingField)) {
-            query.append(", ");
-            query.append(shadingField);
         }
 
         // add the geometry table

@@ -6,12 +6,14 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.geotiff.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core
+Eclipse-BuddyPolicy: registered, ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
  org.geotools,
  com.raytheon.viz.ui,
- org.apache.commons.lang
+ org.apache.commons.lang,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.viz.geotiff.rsc

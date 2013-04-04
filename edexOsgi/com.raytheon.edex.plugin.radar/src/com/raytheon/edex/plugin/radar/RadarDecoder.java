@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.radar;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -95,6 +96,30 @@ public class RadarDecoder extends AbstractDecoder {
     private static final IUFStatusHandler theHandler = UFStatus
             .getHandler(RadarDecoder.class);
 
+    // radar server sends messages from edex to cave, handle that here
+    private final String EDEX = "EDEX";
+
+    /*
+     * Constants having to do with certain products
+     */
+
+    private final List<String> LEVEL_TWO_IDENTS = new ArrayList<String>(
+            Arrays.asList("ARCH", "AR2V"));
+
+    private final String NOUS = "NOUS";
+
+    private final int USER_ALERT_MESSAGE = 73;
+
+    private final int FREE_TEXT_MESSAGE = 75;
+
+    private final int USER_SELECT_ACCUM = 173;
+
+    private final int CLUTTER_FILTER_CONTROL = 34;
+
+    /*
+     * End constants
+     */
+
     private String traceId = "";
 
     private RadarInfoDict infoDict;
@@ -102,9 +127,6 @@ public class RadarDecoder extends AbstractDecoder {
     private RadarStationDao radarStationDao = new RadarStationDao();
 
     private final String RADAR = "RADAR";
-
-    // radar server sends messages from edex to cave, handle that here
-    private final String EDEX = "EDEX";
 
     public RadarDecoder() throws DecoderException {
 
@@ -146,11 +168,11 @@ public class RadarDecoder extends AbstractDecoder {
         String arch = new String(messageData, 0, 4);
         try {
             // for level2 data, this does not happen very often
-            if ("ARCH".equals(arch) || "AR2V".equals(arch)) {
+            if (LEVEL_TWO_IDENTS.contains(arch)) {
                 decodeLevelTwoData(messageData, recordList);
             }
             // for free text messages, which come in with the following wmo
-            else if ("NOUS".equals(arch)) {
+            else if (NOUS.equals(arch)) {
                 decodeFreeTextMessage(messageData, headers);
             } else {
                 if (headers.get("header") != null) {
@@ -208,24 +230,19 @@ public class RadarDecoder extends AbstractDecoder {
 
                 // -- some product specific decode functionality --
                 // the general status message product
-                if (l3Radar.getMessageCode() == 2) {
+                if (l3Radar.getMessageCode() == l3Radar.GSM_MESSAGE) {
                     record.setGsmMessage(l3Radar.getGsmBlock().getMessage());
                     record.setPrimaryElevationAngle(0.0);
                     record.setTrueElevationAngle(0.0f);
                     handleRadarStatus(record);
                 }
                 // the product request response product
-                else if (l3Radar.getMessageCode() == 3) {
+                else if (l3Radar.getMessageCode() == l3Radar.PRODUCT_REQUEST_RESPONSE_MESSAGE) {
                     // do nothing with this, it will get excessive otherwise!
-                    // EDEXUtil.sendMessageAlertViz(Priority.VERBOSE,
-                    // RadarConstants.PLUGIN_ID, EDEX, RADAR,
-                    // record.getIcao()
-                    // + ": Response Request Message Received",
-                    // l3Radar.getRequestResponseMessage(), null);
                     return new PluginDataObject[0];
                 }
                 // the user alert message product
-                else if (l3Radar.getMessageCode() == 73) {
+                else if (l3Radar.getMessageCode() == USER_ALERT_MESSAGE) {
                     EDEXUtil.sendMessageAlertViz(Priority.VERBOSE,
                             RadarConstants.PLUGIN_ID, EDEX, RADAR,
                             record.getIcao() + ": User Alert Message Received",
@@ -233,21 +250,19 @@ public class RadarDecoder extends AbstractDecoder {
                     return new PluginDataObject[0];
                 }
                 // handle the other case for free text message
-                else if (l3Radar.getMessageCode() == 75) {
+                else if (l3Radar.getMessageCode() == FREE_TEXT_MESSAGE) {
                     // product already stored to the text database, so just send
                     // to alertviz
-                    EDEXUtil.sendMessageAlertViz(
-                            Priority.SIGNIFICANT,
-                            RadarConstants.PLUGIN_ID,
-                            EDEX,
-                            RADAR,
+                    String formattedMsg = l3Radar.getTabularBlock().toString()
+                            .replace("Page 1\n\t", "");
+                    EDEXUtil.sendMessageAlertViz(Priority.SIGNIFICANT,
+                            RadarConstants.PLUGIN_ID, EDEX, RADAR,
                             record.getIcao() + ": Free Text Message Received",
-                            l3Radar.getTabularBlock().toString()
-                                    .replace("Page 1\n\t", ""), null);
+                            formattedMsg, null);
                     return new PluginDataObject[0];
                 }
                 // the alert adaptations parameters product
-                else if (l3Radar.getMessageCode() == 6) {
+                else if (l3Radar.getMessageCode() == l3Radar.ALERT_ADAPTATION_PARAMETERS) {
                     record.setAapMessage(l3Radar.getAapMessage());
                     record.setPrimaryElevationAngle(0.0);
                     record.setTrueElevationAngle(0.0f);
@@ -261,7 +276,7 @@ public class RadarDecoder extends AbstractDecoder {
                             l3Radar.getAapMessage().toString(), null);
                 }
                 // the alert message product
-                else if (l3Radar.getMessageCode() == 9) {
+                else if (l3Radar.getMessageCode() == l3Radar.ALERT_MESSAGE) {
                     record.setPrimaryElevationAngle(0.0);
                     record.setTrueElevationAngle(0.0f);
                     AlertMessage msg = l3Radar.getAlertMessage();
@@ -291,6 +306,8 @@ public class RadarDecoder extends AbstractDecoder {
                     record.setOperationalMode(l3Radar.getOperationalMode());
 
                     record.setElevationNumber(l3Radar.getElevationNumber());
+                    // some products don't have real elevation angles, 0 is a
+                    // default value
                     if (record.getElevationNumber() == 0) {
                         record.setTrueElevationAngle(0f);
                     } else {
@@ -320,13 +337,13 @@ public class RadarDecoder extends AbstractDecoder {
                     }
 
                     // code specific for clutter filter control
-                    if (record.getProductCode() == 34) {
+                    if (record.getProductCode() == CLUTTER_FILTER_CONTROL) {
                         int segment = ((int) (Math.log(l3Radar
                                 .getProductDependentValue(0)) / Math.log(2)));
                         record.setLayer((double) segment);
                     }
                     // code specific for user select accum
-                    else if (record.getProductCode() == 173) {
+                    else if (record.getProductCode() == USER_SELECT_ACCUM) {
                         int layer = 0; // Default to zero
 
                         int timeSpan = l3Radar.getProductDependentValue(1);
@@ -491,7 +508,8 @@ public class RadarDecoder extends AbstractDecoder {
 
         String[] splits = temp.split(" ");
         AFOSProductId afos = new AFOSProductId(
-                RadarTextProductUtil.createAfosId(75, splits[1].substring(1)));
+                RadarTextProductUtil.createAfosId(FREE_TEXT_MESSAGE,
+                        splits[1].substring(1)));
 
         // store the product to the text database
         Calendar cal = (TimeTools.allowArchive() ? header.getHeaderDate()
@@ -510,7 +528,9 @@ public class RadarDecoder extends AbstractDecoder {
         record.setPluginName("radar");
         record.constructDataURI();
         record.setInsertTime(TimeTools.getSystemCalendar());
-        if (record.getProductCode() == 2) {
+        // for GSM, we want all the messages as they have the possibility of
+        // being different
+        if (record.getProductCode() == Level3BaseRadar.GSM_MESSAGE) {
             record.setOverwriteAllowed(true);
         } else {
             record.setOverwriteAllowed(false);
@@ -669,7 +689,8 @@ public class RadarDecoder extends AbstractDecoder {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            theHandler.handle(Priority.ERROR,
+                    "Unable to query for the radar station", e);
         }
 
         return station;

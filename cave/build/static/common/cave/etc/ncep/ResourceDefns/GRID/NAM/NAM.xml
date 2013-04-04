@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>NAM</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <filterLabels>Forecast,Regional</filterLabels>
     <resourceParameters>
 GDFILE=nam
-pluginName=ncgrib
-eventName=%
+pluginName=grid
     </resourceParameters>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

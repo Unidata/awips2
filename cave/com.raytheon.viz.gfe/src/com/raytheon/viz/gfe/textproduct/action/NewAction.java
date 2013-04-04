@@ -34,6 +34,7 @@ import com.raytheon.viz.gfe.dialogs.NewTextProductDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2008 1562       askripsky   Initial creation
+ * Nov 12, 2012 1298       rferrel     Changes for non-blocking NewTextProductDialog.
  * 
  * </pre>
  * 
@@ -58,8 +59,12 @@ public class NewAction extends Action {
         // Do this...
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         NewTextProductDialog dlg = new NewTextProductDialog(shell,
                 "New Text Product", new NewInputValidator());
+        dlg.setBlockOnOpen(false);
         dlg.open();
     }
 }

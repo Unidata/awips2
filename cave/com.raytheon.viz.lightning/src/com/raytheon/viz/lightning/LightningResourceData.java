@@ -81,6 +81,16 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         return rsc;
     }
 
+    @Override
+    public boolean isUpdatingOnMetadataOnly() {
+        return true;
+    }
+
+    @Override
+    public boolean isRetrieveData() {
+        return true;
+    }
+
     /**
      * @return the handlingPositiveStrikes
      */

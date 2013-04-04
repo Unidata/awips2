@@ -26,11 +26,14 @@ import java.util.Set;
 
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.dataplugin.vil.VILRecord;
 import com.raytheon.uf.common.dataplugin.vil.VILRecord.DATA_TYPE;
 import com.raytheon.uf.common.dataplugin.vil.dao.VILDao;
+import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
+import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
+import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +50,7 @@ import com.raytheon.uf.edex.plugin.vil.common.VILConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/07/2009   2037       dhladky    Initial Creation.
+ * 02/25/13     1660       D. Hladky   Fixed SCAN configuration bug.
  * 
  * </pre>
  * 
@@ -54,8 +58,9 @@ import com.raytheon.uf.edex.plugin.vil.common.VILConfig;
  * @version 1.0
  */
 
-public class VILGenerator extends CompositeProductGenerator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class VILGenerator extends CompositeProductGenerator implements
+        MonitorConfigListener {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(VILGenerator.class);
 
     private static final String genName = "VIL";
@@ -64,6 +69,9 @@ public class VILGenerator extends CompositeProductGenerator {
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
+    
+    /** run configuration manager **/
+    public SCANRunSiteConfigurationManager srcm = null;
 
     /**
      * Public constructor for VILGenerator
@@ -88,7 +96,7 @@ public class VILGenerator extends CompositeProductGenerator {
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Couldn't create VIL URIFilter.." + icao
-                                + " is not a know RADAR site.");
+                                + " is not a know RADAR site.", e);
                 iter.remove();
             }
         }
@@ -98,11 +106,24 @@ public class VILGenerator extends CompositeProductGenerator {
     @Override
     protected void configureFilters() {
 
-        statusHandler.handle(Priority.DEBUG, "Process Filter Config...");
-        icaos = new HashSet<String>(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.LOCAL_CONSTANT));
-        icaos.addAll(RadarsInUseUtil.getSite(null,
-                RadarsInUseUtil.DIAL_CONSTANT));
+        statusHandler.handle(Priority.INFO, getGeneratorName()
+                + " process Filter Config...");
+
+        try {
+            getRunConfig().readConfigXml();
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Couldn't read VIL(scan) configuration!!!", e);
+        }
+        boolean configValid = getRunConfig().isPopulated();
+
+        if (!configValid) {
+            statusHandler.handle(Priority.WARN,
+            "Configuration for vil(scan) is invalid!!!");
+            return;
+        }
+
+        icaos = new HashSet<String>(getRunConfig().getSiteNames());
     }
 
     @Override
@@ -159,6 +180,28 @@ public class VILGenerator extends CompositeProductGenerator {
     @Override
     public boolean isRunning() {
         return getConfigManager().getVILState();
+    }
+
+    @Override
+    public void configChanged(MonitorConfigEvent fce) {
+        if (fce.getSource() instanceof SCANRunSiteConfigurationManager) {
+            statusHandler.handle(Priority.INFO,
+                    "Re-configuring VIL URI filters...Run Site Config change");
+            resetFilters();
+        }
+    }
+    
+    /**
+     * run config manager
+     * 
+     * @return
+     */
+    public SCANRunSiteConfigurationManager getRunConfig() {
+        if (srcm == null) {
+            srcm = SCANRunSiteConfigurationManager.getInstance();
+            srcm.addListener(this);
+        }
+        return srcm;
     }
 
 }
