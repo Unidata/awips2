@@ -33,11 +33,14 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
@@ -73,6 +76,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *                                       in the super class.
  *  06-09-10     #5620       bkowal      The tool will load in an editable state by
  *                                       default now.
+ *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
  * 
  * </pre>
  * 
@@ -82,6 +86,8 @@ import com.vividsolutions.jts.geom.LineSegment;
 public class DistanceBearingToolLayer extends
         AbstractMovableToolLayer<LineSegment> implements
         IContextMenuContributor {
+	
+	private IFont labelFont;
 
     public static final String DEFAULT_NAME = "Distance Bearing";
 
@@ -100,6 +106,8 @@ public class DistanceBearingToolLayer extends
             LoadProperties loadProperties) {
         super(resourceData, loadProperties, true);
         getCapabilities().addCapability(new OutlineCapability());
+        // add magnification capability
+        getCapabilities().addCapability(new MagnificationCapability());
         deleteElementAction = new AbstractRightClickAction() {
             public void run() {
                 deleteSelected();
@@ -126,6 +134,10 @@ public class DistanceBearingToolLayer extends
         super.initInternal(target);
         setObjects(ToolsDataManager.getInstance().getDistanceBearings());
         gc = new GeodeticCalculator(descriptor.getCRS());
+        // initialize font for  magnification capability
+        labelFont = target.initializeFont(
+                target.getDefaultFont().getFontName(), 12.0f,
+                new Style[] { Style.BOLD });
     }
 
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
@@ -157,14 +169,17 @@ public class DistanceBearingToolLayer extends
             }
         }
         String label = computeRangeAndAzimuth(line);
+        // set font for  magnification capability
+        labelFont.setMagnification(getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue());
         double[] center = descriptor.worldToPixel(new double[] { line.p0.x,
                 line.p0.y });
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
-        target.drawString(null, label, labelLoc[0], labelLoc[1], 0.0,
+        target.drawString(labelFont, label, labelLoc[0], labelLoc[1], 0.0,
                 TextStyle.NORMAL, color, HorizontalAlignment.LEFT, null);
 
-        target.drawWireframeShape(wireframeShape, color, lineWidth, lineStyle);
+        target.drawWireframeShape(wireframeShape, color, lineWidth, lineStyle, labelFont);
         wireframeShape.dispose();
 
     }

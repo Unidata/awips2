@@ -30,6 +30,7 @@ import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -50,7 +51,7 @@ public class PfcSoundingDialogContents {
 	private Button namBtn, gfsBtn, timeBtn;
 	private boolean timeLimit = false;
 	private List<String> selectedFileList = new ArrayList<String>(); 
-	private List<String> queriedTimeList = new ArrayList<String>(); 
+	private List<String> selectedTimeList = new ArrayList<String>(); 
 	private List<NsharpStationInfo> stnPoints = new ArrayList<NsharpStationInfo>();
 	private NcSoundingProfile.PfcSndType currentSndType = NcSoundingProfile.PfcSndType.NONE;
 	private NsharpLoadDialog ldDia;
@@ -136,12 +137,57 @@ public class PfcSoundingDialogContents {
     	}
     	ldDia.stopWaitCursor();
 	}
+    private void handleAvailFileListSelection(){
+    	String selectedFile=null;	
+    	if (availablefileList.getSelectionCount() > 0 ) {
+			selectedFileList.clear();
+			for(int i=0; i < availablefileList.getSelectionCount(); i++) {
+				selectedFile = availablefileList.getSelection()[i];
+				//System.out.println("selected sounding file is " + selectedFile);
+				selectedFileList.add(selectedFile);
+			}	
+			ldDia.setPfcSelectedFileList(selectedFileList);
+			createPFCSndTimeList(selectedFileList);
+		}
+    }
+    private void handleSndTimeSelection(){
+		String selectedSndTime=null;	
+    	if (sndTimeList.getSelectionCount() > 0 ) {
+			NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
+			nsharpMapResource.setPoints(null);
+			selectedTimeList.clear();
+			ldDia.startWaitCursor();
+			List<String> queriedTimeList = new ArrayList<String>(); 
+			for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
+				selectedSndTime = sndTimeList.getSelection()[i];
+				selectedTimeList.add(selectedSndTime);
+				int endIndex = selectedSndTime.indexOf(" ");
+				String querySndTime = selectedSndTime.substring(0, endIndex);
+				//System.out.println("selected sounding time is " + selectedSndTime);
+				//refTimeStr is same as "PFC file" name in Load dialog display 
+				String refTimeStr=NcSoundingQuery.convertSoundTimeDispStringToRefTime(querySndTime);
+				//while rangeStartStr is same as "sounding Times
+				String rangeStartStr = NcSoundingQuery.convertSoundTimeDispStringToRangeStartTimeFormat(querySndTime);
+				if(queriedTimeList.contains(refTimeStr)== true){
+					addStnPtWithoutQuery(refTimeStr,rangeStartStr,querySndTime);
+				}
+				else {
+					queriedTimeList.add(refTimeStr);
+					queryAndMarkStn(refTimeStr,rangeStartStr,querySndTime);
+				}
+			}
+			
+			ldDia.stopWaitCursor();
+			
+			nsharpMapResource.setPoints(stnPoints);
+			NsharpMapResource.bringMapEditorToTop();
+		}
+    }
 	public void createPfcDialogContents(){
-		selectedFileList.clear();
 		topGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		topGp.setLayout( new GridLayout( 2, false ) );
 		
-		//ldDia.setShellSize(false);
+		currentSndType = ldDia.getActivePfcSndType();
 		ldDia.createSndTypeList(topGp);
 		
 		fileTypeGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
@@ -156,6 +202,7 @@ public class PfcSoundingDialogContents {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.NAMSND;
 				createPFCAvailableFileList();
+				ldDia.setActivePfcSndType(currentSndType);
 			}          		            	 	
 		} );  
 		gfsBtn = new Button(fileTypeGp, SWT.RADIO | SWT.BORDER);
@@ -167,41 +214,9 @@ public class PfcSoundingDialogContents {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.GFSSND;
 				createPFCAvailableFileList();
+				ldDia.setActivePfcSndType(currentSndType);
 			}          		            	 	
 		} );  
-		/*
-		ruc2Btn = new Button(fileTypeGp, SWT.RADIO | SWT.BORDER);
-		ruc2Btn.setText("RUC2SND");
-		ruc2Btn.setEnabled( false );
-		ruc2Btn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, gfsBtn.getBounds().y + gfsBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		ruc2Btn.setFont(newFont);
-		ruc2Btn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				currentSndType = NcSoundingProfile.PfcSndType.RUC2SND;
-				createPFCAvailableFileList();
-			}          		            	 	
-		} );  
-		rucpBtn = new Button(fileTypeGp, SWT.RADIO | SWT.BORDER);
-		rucpBtn.setText("RUCPTYPSND");
-		rucpBtn.setEnabled( false );
-		rucpBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, ruc2Btn.getBounds().y + ruc2Btn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		rucpBtn.setFont(newFont);
-		rucpBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				currentSndType = NcSoundingProfile.PfcSndType.RUCPTYPSND;
-				createPFCAvailableFileList();
-			}          		            	 	
-		} );  
-		browseBtn = new Button(fileTypeGp, SWT.RADIO | SWT.BORDER);
-		browseBtn.setText("BROWSE");
-		browseBtn.setEnabled( false );
-		browseBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, rucpBtn.getBounds().y + rucpBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		browseBtn.setFont(newFont);
-		browseBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				currentSndType = NcSoundingProfile.PfcSndType.BROWSE;
-			}          		            	 	
-		} );  */
 		
 		
 		timeBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
@@ -235,18 +250,8 @@ public class PfcSoundingDialogContents {
 		//create a selection listener to handle user's selection on list
 		availablefileList.setFont(newFont);
 		availablefileList.addListener ( SWT.Selection, new Listener () {
-			private String selectedFile=null;	
-			
-			public void handleEvent (Event e) {   			
-				if (availablefileList.getSelectionCount() > 0 ) {
-					selectedFileList.clear();
-					for(int i=0; i < availablefileList.getSelectionCount(); i++) {
-						selectedFile = availablefileList.getSelection()[i];
-						//System.out.println("selected sounding file is " + selectedFile);
-						selectedFileList.add(selectedFile);
-					}	
-					createPFCSndTimeList(selectedFileList);
-				}
+			public void handleEvent (Event e) {   	
+				handleAvailFileListSelection();
 			}
 		} );
 		
@@ -259,54 +264,32 @@ public class PfcSoundingDialogContents {
 		sndTimeList.setFont(newFont);
 		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight*36/5 );
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
-			private String selectedSndTime=null;
-    		public void handleEvent (Event e) {   			
-    			if (sndTimeList.getSelectionCount() > 0 ) {
-    				NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
-    				nsharpMapResource.setPoints(null);
-    				//.clear();
-    				ldDia.startWaitCursor();
-    				queriedTimeList.clear();
-    				for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
-    					selectedSndTime = sndTimeList.getSelection()[i];
-    					int endIndex = selectedSndTime.indexOf(" ");
-    					selectedSndTime = selectedSndTime.substring(0, endIndex);
-    					//System.out.println("selected sounding time is " + selectedSndTime);
-    					//refTimeStr is same as "PFC file" name in Load dialog display 
-    					String refTimeStr=NcSoundingQuery.convertSoundTimeDispStringToRefTime(selectedSndTime);
-    					//while rangeStartStr is same as "sounding Times
-    					String rangeStartStr = NcSoundingQuery.convertSoundTimeDispStringToRangeStartTimeFormat(selectedSndTime);
-    					if(queriedTimeList.contains(refTimeStr)== true){
-    						addStnPtWithoutQuery(refTimeStr,rangeStartStr,selectedSndTime);
-    					}
-    					else {
-    						queriedTimeList.add(refTimeStr);
-    						queryAndMarkStn(refTimeStr,rangeStartStr,selectedSndTime);
-    					}
-    				}
-    				
-    				ldDia.stopWaitCursor();
-    				
-    				nsharpMapResource.setPoints(stnPoints);
-    				NsharpMapResource.bringMapEditorToTop();
-    			}
+		//	private String selectedSndTime=null;
+    		public void handleEvent (Event e) {  
+    			handleSndTimeSelection();
     		}
+    		
     	});
-		/*
-		newTabBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
-		newTabBtn.setText("new skewT editor");
-		newTabBtn.setEnabled( true );
-		//newTabBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		newTabBtn.setFont(newFont);
-		newTabBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {    
-				if(newTabBtn.getSelection())
-					newtab = true;
-				else
-					newtab = false;
+		if(currentSndType==NcSoundingProfile.PfcSndType.GFSSND || currentSndType==NcSoundingProfile.PfcSndType.NAMSND){
+			if(currentSndType==NcSoundingProfile.PfcSndType.GFSSND)
+				gfsBtn.setSelection(true);
+			else
+				namBtn.setSelection(true);
+			createPFCAvailableFileList();
+			selectedFileList = ldDia.getPfcSelectedFileList();
+			Object[] selFileObjectArray = selectedFileList.toArray();
+			String[] selFileStringArray = Arrays.copyOf(selFileObjectArray, selFileObjectArray.length, String[].class);
+			availablefileList.setSelection(selFileStringArray);
+			handleAvailFileListSelection();
+			
+			selectedTimeList = ldDia.getPfcSelectedTimeList();
+			Object[] selTimeObjectArray = selectedTimeList.toArray();
+			String[] selTimeStringArray = Arrays.copyOf(selTimeObjectArray, selTimeObjectArray.length, String[].class);
+			sndTimeList.setSelection(selTimeStringArray);
+			handleSndTimeSelection();
+			
 				
-			}          		            	 	
-		} );*/
+		}
 	}
 	
 	private void addStnPtWithoutQuery(String refTimeStr,String rangeStartStr, String selectedSndTime) {
@@ -341,7 +324,8 @@ public class PfcSoundingDialogContents {
 				NsharpStationInfo.timeLineSpecific timeLinsSpc =  stn.new timeLineSpecific();
 				
 				int endIndex= Math.min(4, sndTypeStr.length());
-				String dispInfo = stnInfo.getStnId() + " " + selectedSndTime+" "+sndTypeStr.substring(0,endIndex);
+				String packedStnIdStr= stnInfo.getStnId().replace(" ", "_");
+				String dispInfo = packedStnIdStr + " " + selectedSndTime+" "+sndTypeStr.substring(0,endIndex);
 				timeLinsSpc.setDisplayInfo(dispInfo);
 				timeLinsSpc.setTiemLine(stnInfo.getRangeStartTime());
 				stn.addToTimeLineSpList(timeLinsSpc);
@@ -353,7 +337,6 @@ public class PfcSoundingDialogContents {
 				//if(i <10)
 				//	System.out.println( "disP="+dispInfo+" refT= "+stnInfo.getSynopTime()+ " rangSt="+stnInfo.getRangeStartTime());
 				stnPoints.add(stn);
-				;
 			}
 			
 			

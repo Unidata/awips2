@@ -55,8 +55,9 @@ import com.raytheon.viz.gfe.jobs.AsyncProgressJob;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2009            njensen     Initial creation
- * Jan 18, 2013    1509  njensen  Garbage collect after running procedure
+ * Oct 8, 2009             njensen     Initial creation
+ * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
+ * Jan 18, 2013 1509       njensen     Garbage collect after running procedure
  * 
  * </pre>
  * 
@@ -377,8 +378,8 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
         Job progressJob = new AsyncProgressJob(procedureName, this);
         IStatus pjStatus = Status.CANCEL_STATUS;
         try {
-            String[] argNames = controller.getMethodArguments(procedureName,
-                    "execute");
+            List<String> argNames = controller.getMethodArguments(
+                    procedureName, "execute");
             Map<String, Object> argMap = getArgValues(argNames, refSet,
                     timeRange);
             controller.setVarDict(varDict);
@@ -413,7 +414,7 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
      * @return a map of argument names to objects
      * @throws GFEException
      */
-    private Map<String, Object> getArgValues(String[] args,
+    private Map<String, Object> getArgValues(List<String> args,
             ReferenceData refSet, TimeRange timeRange) throws GFEException {
         Map<String, Object> argValueMap = new HashMap<String, Object>();
         // For each argument in args, append a value to the argValueList

@@ -39,6 +39,21 @@ import com.raytheon.rcm.products.ElevationInfo.VCPInfo;
 import com.raytheon.rcm.products.RadarProduct.Format;
 import com.raytheon.rcm.products.RadarProduct.Param;
 
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 03/07/2013   DR15495    zwang       Load elevation info for SSSS radars                                 
+ * 
+ * </pre>
+ * 
+ * @author dfriedman
+ * @version 1.0
+ */
 
 public class Loader {
 	static List<RadarProduct> loadRadarInfoData(Scanner fs) {
@@ -216,6 +231,43 @@ public class Loader {
 		}		
 	}
 
+	public static void loadSsssElevationInfo(Scanner fs,
+					HashMap<Sel, int[]> staticInfo) {
+				Pattern p = Pattern.compile("^k*VCP(\\d+)$");
+				while (fs.hasNext()) {
+					String line = fs.nextLine();
+					Scanner ls = new Scanner(line);		
+					if (skipComments(ls))
+						continue;
+					try {
+						String radarID = ls.next();
+						String id = ls.next();
+						int vcp = 0;
+						ls.next(); // Unused op mode
+						int nElevs = ls.nextInt();
+						int[] elevs = new int[nElevs];
+						for (int i = 0; i < elevs.length; ++i)
+							elevs[i] = (int) (ls.nextDouble() * 10.0);
+						
+						Matcher m = p.matcher(id);
+						if (m.matches())
+							vcp = Integer.parseInt(m.group(1));
+						else if (id.equals("OTR"))
+							vcp = ElevationInfo.OTR_OR_RMR_CODE;
+						else
+							/* RMR is the same as OTR. We do not care about the TDWR
+							 * entries, we will use the radar-specific one.  Actually,
+							 * we shouldn't bother with VCP80 and VCP90 either (TODO: ?)
+							 */
+							continue; 
+						Sel sel = new Sel(radarID, vcp);
+						staticInfo.put(sel, elevs);
+					} catch (NoSuchElementException e) {
+						// TODO:
+					}
+				}		
+			}
+	
 	public static void loadTdwrElevationInfo(Scanner fs,
 			HashMap<Sel, int[]> staticInfo) {
 		ArrayList<Integer> elevs = new ArrayList<Integer>(25);

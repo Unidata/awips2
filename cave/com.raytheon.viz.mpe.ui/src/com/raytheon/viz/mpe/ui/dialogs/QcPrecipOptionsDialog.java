@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -49,7 +51,6 @@ import com.raytheon.viz.mpe.ui.actions.GageQcSelect;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.actions.SaveLevel2Data;
 import com.raytheon.viz.mpe.ui.actions.ScreeningOptions;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
@@ -63,6 +64,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            snaples     Initial creation
+ * Mar 7, 2013   15657    lbousaidi   fixed DQC slider and added listener to the Keys
+ *                                     when pressed. 									      	
  * 
  * </pre>
  * 
@@ -203,19 +206,19 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     public Object open() {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
-        Date prevDate = MPEDisplayManager.getCurrent().getCurrentDate();
+        MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
+        Date prevDate = displayMgr.getCurrentEditDate();
         Date currDate = ChooseDataPeriodDialog.prevDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
-        DisplayFieldData df = MPEDisplayManager.getCurrent()
-                .getDisplayFieldType();
+        DisplayFieldData df = displayMgr.getDisplayFieldType();
         if (currDate == null) {
             currDate = prevDate;
         }
         if (QcArea == null) {
             QcArea = appDefaults.getToken("mpe_site_id");
         }
-        int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
+        int qcDays = displayMgr.getDqcDays();
         // checks to see if area or date has changed since last data load
         DailyQcUtils dqcu = new DailyQcUtils();
         // reloads data if changed
@@ -243,16 +246,16 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         dataType.add("Points+Contours");
         dataType.add("None");
         dataSet.addAll(dataType);
-        if (MPEDisplayManager.getCurrent().isMaxmin()) {
+        if (displayMgr.isMaxmin()) {
             QcTempOptionsDialog.destroy(false);
-            MPEDisplayManager.getCurrent().setMaxmin(false);
+            displayMgr.setMaxmin(false);
         }
-        if (MPEDisplayManager.getCurrent().isZflag()) {
+        if (displayMgr.isZflag()) {
             QcFreezeOptionsDialog.destroy(false);
-            MPEDisplayManager.getCurrent().setZflag(false);
+            displayMgr.setZflag(false);
         }
 
-        MPEDisplayManager.getCurrent().setQpf(true);
+        displayMgr.setQpf(true);
         ddqc = DrawDQCStations.getInstance();
 
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -273,20 +276,20 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         shell.pack();
 
         shell.open();
-        MPEDisplayManager.getCurrent().setQpf(true);
+        displayMgr.setQpf(true);
         isOpen = true;
         isfinished = false;
         opo.chg_precip_time(selsix24Cbo.getSelectionIndex() + 2);
         opo.send_expose();
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
-                MPEDisplayManager.getCurrent().setQpf(false);
+                displayMgr.setQpf(false);
                 isOpen = false;
                 ddqc.destroy();
                 shell.dispose();
             }
             if (isOpen == false) {
-                MPEDisplayManager.getCurrent().setQpf(false);
+                displayMgr.setQpf(false);
                 ddqc.destroy();
                 shell.dispose();
             }
@@ -295,7 +298,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         }
         ddqc.destroy();
-        MPEDisplayManager.getCurrent().setQpf(false);
+        displayMgr.setQpf(false);
         isfinished = true;
         isOpen = false;
         font.dispose();
@@ -303,18 +306,17 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         s2.send_dbase_new_area();
         DailyQcUtils dc = new DailyQcUtils();
         dc.clearData();
-        MPEDisplayManager.getCurrent().setDisplayFieldType(df);
-        XmrgResource xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                .getDisplayedResource();
-        xmrgRsc.updateXmrg(false);
+        displayMgr.displayFieldData(df);
         removePerspectiveListener();
-        final ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
-                getParent().getShell());
-        display.asyncExec(new Runnable() {
-            public void run() {
-                dialog.open();
-            }
-        });
+        if (MPEDisplayManager.getCurrent() != null) {
+            display.asyncExec(new Runnable() {
+                public void run() {
+                    ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
+                            getParent().getShell());
+                    dialog.open();
+                }
+            });
+        }
         return s2;
     }
 
@@ -888,20 +890,40 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         gd.horizontalSpan = 2;
         pntFilter = new Scale(pntControlComp, SWT.BORDER);
         pntFilter.setMinimum(0);
-        pntFilter.setMaximum(500);
+        pntFilter.setMaximum(5000);
+        pntFilter.setIncrement(10);
         pntFilter.setSelection(0);
         pntFilter.setLayoutData(gd);
         pntFilter.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int sel = pntFilter.getSelection();
-                pfvalueLabel.setText(String.format("%4.2f", sel / 100.0f));
+                pfvalueLabel.setText(String.format("%4.2f", sel / 1000.0f));
             }
         });
         pntFilter.addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
             @Override
             public void mouseUp(MouseEvent e) {
                 opo.refresh_exposure();
+            }
+
+        });
+
+        /**
+         * Add a key listener for up and down arrows
+         * to move up and down through the filter
+         * scale
+         */
+
+        pntFilter.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.ARROW_RIGHT) {
+                    opo.refresh_exposure();
+                } else if (e.keyCode == SWT.ARROW_LEFT) {
+                    opo.refresh_exposure();
+                }
+
             }
 
         });
@@ -924,15 +946,15 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         gd.horizontalSpan = 2;
         pntRevFilter = new Scale(pntControlComp, SWT.BORDER);
         pntRevFilter.setMinimum(0);
-        pntRevFilter.setMaximum(2000);
+        pntRevFilter.setMaximum(20000);
         pntRevFilter.setIncrement(10);
         pntRevFilter.setSelection(0);
         pntRevFilter.setLayoutData(gd);
         pntRevFilter.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int sel = 2000 - pntRevFilter.getSelection();
-                prvalueLabel.setText(String.format("%4.2f", sel / 100.0f));
+                int sel = 20000 - pntRevFilter.getSelection();
+                prvalueLabel.setText(String.format("%4.2f", sel / 1000.0f));
             }
         });
         pntRevFilter
@@ -943,6 +965,23 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
                     }
 
                 });
+        /**
+         * Add a key listener for up and down arrows
+         * to move up and down through the reverse filter
+         * scale
+         */
+        pntRevFilter.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.ARROW_RIGHT) {
+                    opo.refresh_exposure();
+                } else if (e.keyCode == SWT.ARROW_LEFT) {
+                    opo.refresh_exposure();
+                }
+
+            }
+
+        });
 
         /**
          * Point elevation scale
@@ -1050,12 +1089,12 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     }
 
     public static float getPointFilterValue() {
-        float sel = pntFilter.getSelection() / 100.0f;
+        float sel = pntFilter.getSelection() / 1000.0f;
         return sel;
     }
 
     public static float getPointFilterReverseValue() {
-        float sel = (2000 - pntRevFilter.getSelection()) / 100.0f;
+        float sel = (20000 - pntRevFilter.getSelection()) / 1000.0f;
         return sel;
     }
 

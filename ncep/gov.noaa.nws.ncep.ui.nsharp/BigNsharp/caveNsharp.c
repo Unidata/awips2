@@ -10,6 +10,13 @@
 #include "Sndglib/profile.h"
 #include "Sndglib/setsndg.h"
 #include "Sndglib/sndglib.h"
+#define cavesars            cavesars_
+#define cavespnsharp        cavespnsharp_
+#define hailcast1       hailcast1_
+void cavesars(float *, float *, float * , float *, float *, float *, float *, float *, float *, int *, float *, float *, float *, float *, char *[15], float *[15], char *[80],int *);
+void cavespnsharp(float *, float *, float * , float *, float *, float *, int *, float *, float *, char *[15], float *[15], char *[80],
+float *, float *, float *,int *);
+
 /*
  * In Cave: parameters are defined dynamically in  "populateSndgDataStatic()" in this file. Its index are defined
  * as followings.
@@ -73,6 +80,86 @@ typedef struct  cloudInfoStr
 	float preStartCE[MAX_CLOUD_LAYER];
 	float preEndCE[MAX_CLOUD_LAYER];
 }CloudInfoStr;
+/*
+typedef struct stpStatsStr
+{
+	int stpcColor;
+	int pwColor;
+	int blMaxColor;
+	int fosbergColor;
+	float stpCin;
+	char sfcRh[60];
+	char sfc[60];
+	char zeroOneKmRh[60];
+	char zeroOneKmMean[60];
+	char blMeanRh[60];
+	char blMean[60];
+	char pw[60];
+	char blMax[60];
+	char fosberg[60];
+} StpStatsStr;
+*/
+#define WINTER_STRING_LEN	60
+typedef struct  winterInfoStr
+{
+	float mopw;
+	/*float htop;
+	float hbot;
+	float mrh;
+	float mq;
+	float mo;
+	float pw;
+	float pLevel;*/
+	char oprh[WINTER_STRING_LEN];
+	char layerDepth[WINTER_STRING_LEN];
+	char meanLayerRh[WINTER_STRING_LEN];
+	char meanLayerMixRat[WINTER_STRING_LEN];
+	char meanLayerPw[WINTER_STRING_LEN];
+	char meanLayerOmega[WINTER_STRING_LEN];
+	char initPhase[100];
+	char tempProfile1[WINTER_STRING_LEN];
+	char tempProfile2[WINTER_STRING_LEN];
+	char tempProfile3[WINTER_STRING_LEN];
+	char wetbulbProfile1[WINTER_STRING_LEN];
+	char wetbulbProfile2[WINTER_STRING_LEN];
+	char wetbulbProfile3[WINTER_STRING_LEN];
+	char bestGuess1[WINTER_STRING_LEN];
+	char bestGuess2[WINTER_STRING_LEN];
+} WinterInfoStr;
+
+#define FIRE_STRING_LEN	60
+typedef struct fireInfoStr
+{
+	int sfcRhColor;
+	int pwColor;
+	int blMaxColor;
+	int fosbergColor;
+	char sfcRh[FIRE_STRING_LEN];
+	char sfc[FIRE_STRING_LEN];
+	char zeroOneKmRh[FIRE_STRING_LEN];
+	char zeroOneKmMean[FIRE_STRING_LEN];
+	char blMeanRh[FIRE_STRING_LEN];
+	char blMean[FIRE_STRING_LEN];
+	char pw[FIRE_STRING_LEN];
+	char blMax[FIRE_STRING_LEN];
+	char fosberg[FIRE_STRING_LEN];
+} FireInfoStr;
+
+#define SARS_STRING_LEN  40
+#define SARS_STRING_LINES  12
+typedef struct sarsInfoStr
+{
+	int numHailstr; //max=12
+	char hailStr[SARS_STRING_LINES][SARS_STRING_LEN];
+	int hailStrColor[SARS_STRING_LINES];
+	//char sighailStr[2][SARS_STRING_LEN];
+	//int sighailStrColor;
+	int numsupcellstr; //max=12
+	char supcellStr[SARS_STRING_LINES][SARS_STRING_LEN];
+	int supcellStrColor[SARS_STRING_LINES];
+	//char torStr[2][SARS_STRING_LEN];
+	//int torStrColor;
+} SarsInfoStr;
 
 struct Sounding staticSounding;
 
@@ -115,6 +202,27 @@ void initStaticGlobalsMem(){
 	}
 	strcpy(new->stid, "ARCH"); // dont care for us
 	strcpy(new->dattim, "ARCH");// dont care for us
+
+
+
+}
+void setSarsSupcellFileName(char sarsFlName[],int sarsLen, char supercellFlName[], int supLen){
+	//init GLOBALS sars_filename and  sup_filename (for supercell)
+	//the following statements are copied from read_nsharp_config();
+	//printf("input super file = %s\n",supercellFlName);
+	int       i;
+	for(i=0; i < sizeof(sars_filename); i++){
+		sars_filename[i]=0x0;
+	}
+	if(sarsLen >0 && sarsLen<= sizeof(sars_filename))
+		strncpy(sars_filename, sarsFlName, sarsLen); //"/export/cdbsrv/cchen/Desktop/bigsharp9-original/nlist.txt");
+	for(i=0; i < sizeof(sup_filename); i++){
+		sup_filename[i]=0x0;
+	}
+	if(supLen>0 && supLen<= sizeof(sup_filename))
+		strncpy(sup_filename, supercellFlName, supLen);
+
+	//printf("copied super file = %s\n",sup_filename);
 }
 Sounding *getSoundingAndInit( short nlev)
 {
@@ -328,7 +436,6 @@ void get_surfaceWind(float* windSp, float * windDir){
 
 void get_effectLayertopBotPres(float *topP, float * botP){
 	//get p_top and p_bot by calling effective_inflow_layer, 100 and -250 are used by BigNsharp
-	//effective_inflow_layer_thermo(100,-250, &p_bot,&p_top);
 	effective_inflow_layer(100,-250, &p_bot,&p_top);
 
 	*topP = 	p_top;
@@ -1156,7 +1263,7 @@ void draw_Clouds( struct  cloudInfoStr *cloudStr )
 	/*****************************************************************/
 	{
 		int startflag,s1,s2,s3,i,spsub,epsub;
-		float T1,T2,T3,dz,d2T,R1,R2,R3,d2R,startpres,endpres,x1,x2,y,t2,p2;
+		float T1,T2,T3,dz,d2T,R1,R2,R3,d2R,startpres,endpres,t2,p2;
 		float Tavg,DDavg,DD;
 		float dd1,dd2,dd3,d2x;
 		int cloudAmt,top,basefound;
@@ -1178,7 +1285,7 @@ void draw_Clouds( struct  cloudInfoStr *cloudStr )
 				T2=sndg[s2][PTEMP];
 				T3=sndg[s3][PTEMP];
 				dz=sndg[s3][PHGHT]-sndg[s1][PHGHT];
-				if (dz==0) dz=1;
+				if (dz==0.0) dz=1;
 				d2T=(T3-2*T2+T1)/(dz*dz);
 				R1=100*mixratio(sndg[s1][PPRESS],sndg[s1][PDEW])/mixratio(sndg[s1][PPRESS],sndg[s1][PTEMP]);
 				R2=100*mixratio(sndg[s2][PPRESS],sndg[s2][PDEW])/mixratio(sndg[s2][PPRESS],sndg[s2][PTEMP]);
@@ -1292,4 +1399,1263 @@ void draw_Clouds( struct  cloudInfoStr *cloudStr )
 			}
 		}
 	}
+
+
+void getWinterInfo( WinterInfoStr * winterInfo )
+/*************************************************************
+ * Chin's note:
+ * This function is based on show_winter_new() of xwvid3.c
+ * by John Hart  NSSFC KCMO
+ * Chin: Rewrite code to get all computed parameters/string for
+ * CAVE.
+ * All original BigNsharp plotting are removed.
+ *************************************************************/
+{
+	float ix1, ix2;
+	float  pose, nege;
+	float ptop, pbot, htop, hbot, mrh, mq, mo, pw, mopw;
+	short  pIndex, zIndex, tIndex;
+	short phase;
+	char st[100];
+	struct _ptype ptype1;
+	//char  pt[80];
+
+	tIndex = getParmIndex("TEMP");
+	pIndex = getParmIndex("PRES");
+	zIndex = getParmIndex("HGHT");
+
+
+	/* Do dendritic growth zone calcs */
+	ptop = temp_lvl(-17, &ix1);
+	pbot = temp_lvl(-12, &ix1);
+	if (ptop < 0) ptop = sndg[sfc()][pIndex];
+	if (pbot < 0) pbot = sndg[sfc()][pIndex];
+	htop = i_hght(ptop, I_PRES);
+	hbot = i_hght(pbot, I_PRES);
+	mrh = mean_relhum(&ix1, pbot, ptop);
+	mq = mean_mixratio(&ix1, pbot, ptop);
+	mo = mean_omeg(&ix1, pbot, ptop) * 1000;
+	pw = precip_water(&ix1, pbot, ptop);
+	mopw = (mo * pw) * mrh / 100;
+
+	//added for cave
+	winterInfo->mopw = mopw;
+
+	// setcliprgn(1,1,xwdth, xhght);
+
+	/* ----- Draw box around parameter area ----- */
+	//setlinestyle(1,1);
+	/*txtlin = skv.tlx + 731;*/
+	//if (display_mode_right == DISPLAY_WINTER_RIGHT)
+	//	{txtlin = skv.tlx + 1066;}
+	//    if (display_mode_left == DISPLAY_WINTER_LEFT)
+	//           {txtlin = skv.tlx + 712;}
+	//    if (display_mode_left == DISPLAY_WINTER_LEFT && display_mode_right == DISPLAY_WINTER_RIGHT)
+	//             {
+	//            setcolor(5);
+	//             set_font(6);
+	//            sprintf( st, "Please choose another inset");
+	//            outgtext ( st, txtlin +394, txtrow + 115);
+	//	}
+	// txtrow = skv.bry + 20;
+	//  setcolor(0);
+	//  rectangle(1, txtlin, txtrow, txtlin + 350, txtrow + 250);
+	//  setcolor(31);
+	//  rectangle(0, txtlin, txtrow, txtlin + 350, txtrow + 250);
+
+	/* ----- Dendritic Zone Data ----- */
+	//    setcolor(5);
+	// set_font(4);
+	//  txtlin += 5;
+	//  txtrow += 11;
+	//  strcpy(st, " * * * DENDRITIC GROWTH ZONE (-12 to -17C) * * *");
+	//ix1 = (350 - getgtextextent(st))/2;
+	//     outgtext(st, txtlin + ix1 - 5, txtrow);
+
+	//    txtrow += 15;
+	//if (mopw < -.1) setcolor(13); else setcolor(31);
+	//sprintf(st, "OPRH (Omega*PW*RH):  %s", qc2(mopw, "", 2));
+	sprintf(winterInfo->oprh, "OPRH (Omega*PW*RH):  %s", qc2(mopw, "", 2));
+	//ix1 = (350 - getgtextextent(st))/2;
+	//    outgtext(st, txtlin + ix1 - 5, txtrow);
+
+	//  set_font(4);
+	//setcolor(31);
+	//    txtrow += 20;
+
+	//strcpy(st, "Layer Depth:");
+	//  outgtext(st, txtlin, txtrow);
+	//sprintf( st, "%.0f ft (%.0f - %.0f ft msl)", mtof(htop-hbot), mtof(hbot), mtof(htop));
+	sprintf( winterInfo->layerDepth, "Layer Depth:     %.0f ft (%.0f - %.0f ft msl)", mtof(htop-hbot), mtof(hbot), mtof(htop));
+	//    outgtext(st, txtlin+100, txtrow);
+
+	//     txtrow += 14;
+	//strcpy(st, "Mean Layer RH:");
+	//    outgtext(st, txtlin, txtrow);
+	//   strcpy( st, qc2(mrh, " %", 0));
+	strcpy( winterInfo->meanLayerRh, "Mean Layer RH:     ");
+	strcat( winterInfo->meanLayerRh, qc2(mrh, " %", 0));
+	//     disp_param( st, txtlin + 150, txtrow);
+
+	//strcpy(st, "Mean Layer MixRat:");
+	//    outgtext(st, txtlin+165, txtrow);
+	//   strcpy( st, qc2(mq, " g/kg", 1));
+	strcpy( winterInfo->meanLayerMixRat,"Mean Layer MixRat:     ");
+	strcat( winterInfo->meanLayerMixRat, qc2(mq, " g/kg", 1));
+		//   disp_param( st, txtlin + 315, txtrow);
+
+	///    txtrow += 14;
+	//strcpy(st, "Mean Layer PW:");
+	//   outgtext(st, txtlin, txtrow);
+	//   strcpy( st, qc2(pw, " in.", 2));
+	strcpy( winterInfo->meanLayerPw, "Mean Layer PW:     ");
+	strcat( winterInfo->meanLayerPw, qc2(pw, " in.", 2));
+		//   disp_param( st, txtlin + 150, txtrow);
+
+	//strcpy(st, "Mean Layer Omega:");
+	//    outgtext(st, txtlin+165, txtrow);
+	//    strcpy( st, qc2(mo, " ub/s", 0));
+	strcpy( winterInfo->meanLayerOmega, "Mean Layer Omega:     ");
+	strcat( winterInfo->meanLayerOmega, qc2(mo, " ub/s", 0));
+	//    disp_param( st, txtlin + 315, txtrow);
+
+	// txtrow += 14;
+	// moveto(txtlin, txtrow);
+	//   lineto(txtlin+320, txtrow);
+	//  moveto(txtlin+160, txtrow);
+	//  lineto(txtlin+160, txtrow-28);
+
+	/* ----- Initial Phase of Precip ----- */
+	//    txtrow += 8;
+	//    set_font(4);
+	//  setcolor(31);
+	strcpy(st, init_phase(&ix1, &phase));
+
+	ptype1.init_phase = phase; //moved from best_guess_ptype() (below) to avoid calling init_phase twice
+	ptype1.init_temp = i_temp(ix1, I_PRES);
+	ptype1.init_lvl = ix1;
+
+
+	if (ix1>100)
+	        {
+		sprintf( winterInfo->initPhase, "Initial Phase:    %s from: %.0fmb (%.0f ft msl ; %.1f C)", st, ix1, mtof(i_hght(ix1, I_PRES)), i_temp(ix1, I_PRES));
+
+	//         sprintf( st1, "Initial Phase:    %s from: %.0fmb (%.0f ft msl ; %.1f C)", st, ix1, mtof(i_hght(ix1, I_PRES)), i_temp(ix1, I_PRES));
+	//         outgtext( st1, txtlin, txtrow);
+	//printf( "%s\n", st1);
+	         }
+	  else
+	          {
+		  sprintf( winterInfo->initPhase, "Initial Phase:  No Precipitation layers found.");
+	//          sprintf( st, "Initial Phase:  No Precipitation layers found.");
+	//          outgtext( st, txtlin, txtrow);
+	          }
+
+	//   txtrow += 15;
+	//   moveto(txtlin, txtrow);
+	//   lineto(txtlin+320, txtrow);
+
+	/* ----- Temperature Pos/Neg Areas ----- */
+	posneg_temperature(-1, &pose, &nege, &ptop, &pbot);
+	ptype1.tpos = pose; //moved from best_guess_ptype() (below) to avoid calling posneg_temperature twice
+	ptype1.tneg = nege;
+	//txtrow += 8;
+	// set_font(4);
+	//setcolor(31);
+	//strcpy(st, "TEMPERATURE PROFILE");
+	//outgtext(st, txtlin, txtrow);
+	//     txtrow += 14;
+
+	if ((pose > 0) && (nege < 0)) {
+		sprintf( winterInfo->tempProfile1, "Pos= %.0f J/kg    Neg=%.0f J/kg", pose, nege); //Added for Cave
+		//sprintf( st, "Pos= %.0f J/kg    Neg=%.0f J/kg", pose, nege);
+		//outgtext(st, txtlin, txtrow);
+		//txtrow += 14;
+		ix1 = mtof(i_hght(ptop, I_PRES)-i_hght(pbot, I_PRES));
+		sprintf(winterInfo->tempProfile2, "Melt Lyr:  %3.0f - %3.0fmb (%.0f ft)", ptop, pbot, ix1); //Added for Cave
+		//sprintf(st, "Melt Lyr:  %3.0f - %3.0fmb (%.0f ft)", ptop, pbot, ix1);
+		//outgtext(st, txtlin, txtrow);
+		// txtrow += 14;
+		ix2 = sndg[sfc()][pIndex];
+		ix1 = mtof(i_hght(pbot, I_PRES)-i_hght(ix2, I_PRES));
+		sprintf(winterInfo->tempProfile3, "Frz Lyr: %3.0f - %4.0fmb (%.0f ft)", pbot, ix2, ix1); //Added for Cave
+		//sprintf(st, "Frz Lyr: %3.0f - %4.0fmb (%.0f ft)", pbot, ix2, ix1);
+		//outgtext(st, txtlin, txtrow);
+	}
+	else {
+		//txtrow += 14;
+		strcpy(winterInfo->tempProfile1, ""); //Added for Cave
+		strcpy(winterInfo->tempProfile2, "Warm/Cold layers not found.\n"); //Added for Cave
+		strcpy(winterInfo->tempProfile3, ""); //Added for Cave
+		// outgtext("Warm/Cold layers not found.", txtlin, txtrow);
+		// txtrow += 14;
+	}
+
+	/* ----- WetBulb Pos/Neg Areas ----- */
+	posneg_wetbulb(-1, &pose, &nege, &ptop, &pbot);
+	//txtrow -= 42;
+	//txtlin += 165;
+	//set_font(4);
+	//setcolor(31);
+	//strcpy(st, "WETBULB PROFILE");
+	//outgtext(st, txtlin, txtrow);
+	//txtrow += 14;
+
+	if ((pose > 0) && (nege < 0)) {
+		sprintf( winterInfo->wetbulbProfile1, "Pos= %.0f J/kg    Neg=%.0f J/kg", pose, nege);
+		//sprintf( st, "Pos= %.0f J/kg    Neg=%.0f J/kg", pose, nege);
+		//outgtext(st, txtlin, txtrow);
+		//txtrow += 14;
+		ix1 = mtof(i_hght(ptop, I_PRES)-i_hght(pbot, I_PRES));
+		sprintf( winterInfo->wetbulbProfile2, "Melt Lyr:  %3.0f - %3.0fmb (%.0f ft)", ptop, pbot, ix1);
+		//sprintf(st, "Melt Lyr:  %3.0f - %3.0fmb (%.0f ft)", ptop, pbot, ix1);
+		//outgtext(st, txtlin, txtrow);
+		//txtrow += 14;
+		ix2 = sndg[sfc()][pIndex];
+		ix1 = mtof(i_hght(pbot, I_PRES)-i_hght(ix2, I_PRES));
+		sprintf( winterInfo->wetbulbProfile3, "Frz Lyr: %3.0f - %4.0fmb (%.0f ft)", pbot, ix2, ix1);
+		//sprintf(st, "Frz Lyr: %3.0f - %4.0fmb (%.0f ft)", pbot, ix2, ix1);
+		//outgtext(st, txtlin, txtrow);
+	}
+	else {
+		//txtrow += 14;
+		//outgtext("Warm/Cold layers not found.", txtlin, txtrow);
+		strcpy(winterInfo->wetbulbProfile1, ""); //Added for Cave
+		strcpy(winterInfo->wetbulbProfile2, "Warm/Cold layers not found."); //Added for Cave
+		strcpy(winterInfo->wetbulbProfile3, ""); //Added for Cave
+		//txtrow += 14;
+	}
+
+	// txtrow += 14;
+	//txtlin -= 165;
+	// moveto(txtlin, txtrow);
+	// lineto(txtlin+320, txtrow);
+	// moveto(txtlin+160, txtrow);
+	// lineto(txtlin+160, txtrow-56);
+
+	/* ----- Best Guess Precip Type ----- */
+	// txtrow += 8;
+	// set_font(4);
+	// setcolor(31);
+	// strcpy(st, "* * * BEST GUESS PRECIP TYPE * * *");
+	// ix1 = (350 - getgtextextent(st))/2;
+	//outgtext(st, txtlin + ix1 - 5, txtrow);
+	// txtrow += 18;
+
+	//best_guess_ptype(txtlin, txtrow);
+	//Chin: the following are derived from best_guess_ptype() of xwvid3.c
+
+	//strcpy(st, init_phase(&ix1, &phase));
+	//Chin: moved these lines up
+	//ptype1.init_phase = phase;
+	//ptype1.init_temp = i_temp(ix1, I_PRES);
+	//ptype1.init_lvl = ix1;
+
+	//posneg_temperature(-1, &pose, &nege, &ptop, &pbot);
+	//Chin: moved these lines up
+	//ptype1.tpos = pose;
+	//ptype1.tneg = nege;
+
+	tIndex = getParmIndex("TEMP");
+
+	if (!sndg || tIndex == -1)
+		ptype1.tsfc = RMISSD;
+	else
+		ptype1.tsfc = sndg[sfc()][tIndex];
+	strcpy(winterInfo->bestGuess1, best_guess(ptype1)); //Cave
+	//strcpy(pt, best_guess(ptype1));
+	//     set_font(6);
+	//     setcolor(31);
+	//	sprintf(st, "%s", pt);
+	//     ix1 = (350 - getgtextextent(st))/2;
+	//     outgtext(st, txtlin + ix1 - 5, txtrow);
+
+	//txtrow += 18;
+	//     set_font(4);
+	sprintf(winterInfo->bestGuess2, "Based on sfc temperature of %.1f F.", ctof(ptype1.tsfc));
+	//sprintf(st, "Based on sfc temperature of %.1f F.", ctof(ptype1.tsfc));
+	//     ix1 = (350 - getgtextextent(st))/2;
+	//    outgtext(st, txtlin + ix1 - 5, txtrow);
+
+}
+void getFireInfo(FireInfoStr * fireInfo)
+/*************************************************************
+ * Chin Note: this function is derived from show_fire() of xwvid3.c
+ * of BigNsharp by Rich Thompson SPC OUN
+ * Chin: Rewrite code to get all computed parameters/string for
+ * CAVE.
+ * All original BigNsharp plotting are removed.
+ *************************************************************/
+{
+	float ix1, ix2, ix3, ix4, pres,  h2, p1, p2, sfctemp, sfcdwpt, sfcpres, sfcrh;
+	short  oldlplchoice, pIndex, zIndex, tIndex;
+	Parcel pcl;
+
+	oldlplchoice = lplvals.flag;
+	tIndex = getParmIndex("TEMP");
+	pIndex = getParmIndex("PRES");
+	zIndex = getParmIndex("HGHT");
+
+
+	define_parcel(1, 0);
+	ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	sfctemp = lplvals.temp;
+	sfcdwpt = lplvals.dwpt;
+	sfcpres = lplvals.pres;
+
+	p1 = sndg[sfc()][pIndex];
+	p2 = sndg[sfc()][pIndex];
+	relh(-1, &ix3);
+	sfcrh = ix3;
+
+
+	if (ix3 > 35) fireInfo->sfcRhColor =8;
+	else if (ix3 > 30) fireInfo->sfcRhColor =18;
+	else  if (ix3 > 20) fireInfo->sfcRhColor =31;
+	else if (ix3 > 15) fireInfo->sfcRhColor =19;
+	else if (ix3 > 10) fireInfo->sfcRhColor =2;
+	else if (ix3 >=  0) fireInfo->sfcRhColor =7;
+	else  fireInfo->sfcRhColor =31;
+
+	sprintf( fireInfo->sfcRh, "SFC RH  = %s", qc2(ix3, "%", 0));
+	mean_wind( p1, p2, &ix1, &ix2, &ix3, &ix4);
+	if (ix3 < 0)
+		strcpy( fireInfo->sfc, "SFC = M");
+	else
+		sprintf( fireInfo->sfc, "SFC = %4.0f/%.0f", ix3, ix4);
+
+	h2 = 1000;
+	sprintf( fireInfo->zeroOneKmRh, "0-1 km RH  = %s", qc2( mean_relhum(&ix3, p1, i_pres(msl(h2))), "%", 0 ));
+	mean_wind( p1, i_pres(msl(h2)), &ix1, &ix2, &ix3, &ix4);
+	if (ix3 < 0)
+		strcpy( fireInfo->zeroOneKmMean, "0-1 km mean = M");
+	else
+		sprintf( fireInfo->zeroOneKmMean, "0-1 km mean = %4.0f/%.0f", ix3, ix4);
+
+	pbl_top(&p2);
+	sprintf( fireInfo->blMeanRh, "BL mean RH  = %s", qc2( mean_relhum(&ix3, p1, p2), "%", 0 ));
+
+	mean_wind( p1, p2, &ix1, &ix2, &ix3, &ix4);
+	if (ix3 < 0)
+		strcpy( fireInfo->blMean, "BL mean = M");
+	else
+		sprintf( fireInfo->blMean, "BL mean = %4.0f/%.0f", ix3, ix4);
+
+	define_parcel(3, 500);
+	parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	precip_water(&ix1, -1, -1);
+	if ((ix1 < 0.5) && (pcl.bplus > 50) && (sfcrh < 35)){
+		fireInfo->pwColor = 2;
+	}
+	sprintf( fireInfo->pw, "PW  = %s", qc2( ix1, "in", 2 ));
+	max_wind(&ix1, &ix2, &ix3, -1, p2);
+	if (ix3 < 0)
+		strcpy( fireInfo->blMax, "BL max = M");
+	else{
+		if (ix3 > 50) fireInfo->blMaxColor =7;
+		else if (ix3 > 40) fireInfo->blMaxColor =2;
+		else if (ix3 > 30) fireInfo->blMaxColor =19;
+		else if (ix3 > 20) fireInfo->blMaxColor =31;
+		else if (ix3 > 10) fireInfo->blMaxColor =18;
+		else fireInfo->blMaxColor =8;
+		sprintf( fireInfo->blMax, "BL max = %4.0f/%.0f", ix2, ix3);
+	}
+	ix3 = fosberg(&ix4);
+	if (ix3 < 0)
+		strcpy( fireInfo->fosberg, "Fosberg FWI = M");
+	else {
+
+		if (ix3 >= 70) fireInfo->fosbergColor =7;
+		else if (ix3 >= 60) fireInfo->fosbergColor =2;
+		else if (ix3 >= 50) fireInfo->fosbergColor =19;
+		else if (ix3 >= 40) fireInfo->fosbergColor =31;
+		else if (ix3 >= 30) fireInfo->fosbergColor =18;
+		else fireInfo->fosbergColor =8;
+		sprintf( fireInfo->fosberg, "Fosberg FWI = %4.0f", ix3);
+	}
+
+
+	/* parcel setback */
+	if (oldlplchoice == 1)
+		pres = 0;
+	else if (oldlplchoice == 2)
+		pres = 0;
+	else if (oldlplchoice == 3)
+		pres = mu_layer;
+	else if (oldlplchoice == 4)
+		pres = mml_layer;
+	else if (oldlplchoice == 5)
+		pres = user_level;
+	else if (oldlplchoice == 6)
+		pres = mu_layer;
+	define_parcel(oldlplchoice, pres);
+
+}
+void getSarsInfo(SarsInfoStr * sarsInfo)
+/*************************************************************
+ * Chin Note: this function is derived from show_sars() of xwvid3.c
+ * of BigNsharp by John Hart  NSSFC KCMO
+ * Chin: Rewrite code to get all computed parameters/string for
+ * CAVE.
+ * All original BigNsharp gui functions are removed.
+ *************************************************************/
+{
+	float ix1, ix2, ix3, ix4, sfctemp, sfcdwpt, sfcpres, j1, j2;
+	float nv_cape, nv_cinh, nv_cap, pres, ptop, pbot, mucape, mumixr, avsize, matches2;
+	float lr75, shr3, shr6, shr9, fzlh, mucinh, ship, esi2, t500;
+	float srh3, matches, p1, p2, haillist[15], suplist[15], oldlplpres;
+	float mucp, mlcp, mllcl, srh1, shr3k, shr6k, shr9k;
+	short txtlin, txtrow, oldlplchoice, pIndex, zIndex, tIndex, trow2, i;
+	short tdIndex, nsndgs, trx, j, temp_mark, y, totalsndgs;
+	char st[100], st1[20], st2[20], sndglist[15][15], tempStr[16];
+	char tortags[3][10] = { "NONTOR", "WEAKTOR", "SIGTOR" };
+	Parcel pcl;
+	Parcel pcl2;
+
+	//initialize SarsInfoStr
+	sarsInfo->numHailstr =SARS_STRING_LINES;
+	sarsInfo->numsupcellstr=SARS_STRING_LINES;
+	//memset(sarsInfo->hailStr,'\0', 600);
+
+	tIndex = getParmIndex("TEMP");
+	pIndex = getParmIndex("PRES");
+	zIndex = getParmIndex("HGHT");
+	tdIndex = getParmIndex("DWPT");
+
+	oldlplchoice = lplvals.flag;
+	oldlplpres = lplvals.pres;
+
+
+	define_parcel(4,100);
+	ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	mlcp = pcl.bplus;
+	mllcl = agl(i_hght(pcl.lclpres, I_PRES));
+
+	define_parcel(3, mu_layer);
+	sfctemp = lplvals.temp;
+	sfcdwpt = lplvals.dwpt;
+	sfcpres = lplvals.pres;
+
+	/* ----- Calculate Parcel Data ----- */
+	ix1 = parcel( -1, -1, sfcpres, sfctemp, sfcdwpt, &pcl);
+	mucp = pcl.bplus;
+	mumixr = mixratio(lplvals.pres, lplvals.dwpt);
+
+
+	/* ----- Titles ----- */
+
+	/* Compute Hail Sars Data */
+	t500 =  i_temp(500, I_PRES);
+	lr75 = lapse_rate(&ix1, 700, 500);
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(6000)), &ix1, &ix2, &ix3, &ix4); shr6 = kt_to_mps(ix4);
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(9000)), &ix1, &ix2, &ix3, &ix4); shr9 = kt_to_mps(ix4);
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(3000)), &ix1, &ix2, &ix3, &ix4); shr3 = kt_to_mps(ix4);
+
+	if (agl(i_hght(p_bot, I_PRES)) > 0){
+		wind_shear(p_bot, i_pres(msl(agl(i_hght(p_top, I_PRES))*0.25)), &ix1, &ix2, &ix3, &ix4);  shr3 = kt_to_mps(ix4);
+		wind_shear(p_bot, i_pres(msl(agl(i_hght(p_top, I_PRES))*0.5)), &ix1, &ix2, &ix3, &ix4);  shr6 = kt_to_mps(ix4);
+		wind_shear(p_bot, i_pres(msl(agl(i_hght(p_top, I_PRES))*0.75)), &ix1, &ix2, &ix3, &ix4);  shr9 = kt_to_mps(ix4);
+	}
+	fzlh = mtof(agl(i_hght(temp_lvl(0, &ix1), I_PRES)));
+	ship = sig_hail(pcl.bplus, mumixr, lr75, t500, kt_to_mps(shr6), fzlh, pcl.bminus, 0, 0, 25, mlcp);
+	srh3 = helicity(0, 3000, st_dir, st_spd, &ix2, &ix3);
+	srh1 = helicity(0, 1000, st_dir, st_spd, &ix2, &ix3);
+
+	if (agl(i_hght(p_bot, I_PRES)) > 0){
+		srh3 = helicity(p_bot, p_top, st_dir, st_spd, &ix2, &ix3);
+		srh1 = helicity(p_bot, p_top, st_dir, st_spd, &ix2, &ix3);
+	}
+
+	cavesars(&mumixr, &mucp, &t500, &lr75, &shr6, &shr9, &shr3, &ship, &srh3, &nsndgs, &matches, &p1, &avsize, &matches2, sndglist, &haillist, &sars_filename,&totalsndgs);
+	// hail match strings...on right side of graphs
+	if (nsndgs>0)
+	{
+		if (nsndgs > 10) nsndgs = 10;
+
+		for (i=0;i<10;i++)
+		{
+			if(i < nsndgs){
+				j = haillist[i];
+				if (j<1) {sarsInfo->hailStrColor[i]=8;}
+				else if (j<2) {sarsInfo->hailStrColor[i]=(18);}
+				else sarsInfo->hailStrColor[i]=(5);
+				//Chin note: sndglist contains matched date and stn from nlist.txt's first column
+				//           haillist contains matched  hail size from nlist.txt's 3rd column
+				memset(tempStr,'\0',16);
+				strncpy(tempStr, sndglist[i],15);
+				//printf("Before:tempSTr::%s hailsize=%.2f hairSTr::%s\n",tempStr,haillist[i],sarsInfo->hailStr[i]);
+				sprintf( sarsInfo->hailStr[i], "%s %.2f%c", tempStr, haillist[i], '\0');
+				//printf("After:hairSTr::%s\n",sarsInfo->hailStr[i]);
+			}
+			else {
+				memset(sarsInfo->hailStr[i], '\0', 1);
+			}
+		}
+		//sarsInfo->numHailstr =  nsndgs;
+	}
+	else
+	{
+		for (i=0;i<10;i++)
+		{
+			memset(sarsInfo->hailStr[i], '\0', 1);
+		}
+		sarsInfo->hailStrColor[5]=31;
+		sprintf( sarsInfo->hailStr[5], "No Quality HAIL Matches");
+		//sarsInfo->numHailstr =  1;
+	}
+
+	//----- Plot Hail SARS Result -----
+	p2 = 100.0 - p1;
+	if (matches>0){
+		sarsInfo->hailStrColor[10]=(31);
+		sarsInfo->hailStrColor[11]=(31);
+		strcpy(st1, "Non-sig Hail");
+	}
+	else if (p1>=50){
+		sarsInfo->hailStrColor[10]= 12;
+		sarsInfo->hailStrColor[11]=12;
+		strcpy(st1, "**SIG HAIL!**");
+	}
+	else {
+		strcpy(st1, "No Matches");
+		sarsInfo->hailStrColor[10]=(31);
+		sarsInfo->hailStrColor[11]=(31);
+	}
+	if ((p1>=50) || (p1<50 && matches>0))
+	{
+		sprintf( sarsInfo->hailStr[10], "(%.0f matches out of %d sndgs)", matches,totalsndgs);
+	}
+	else {
+		sprintf( sarsInfo->hailStr[10],"");
+	}
+
+	sprintf( sarsInfo->hailStr[11], "SARS:  %s  (%.0f%s SIG)", st1, p1, "%");
+
+	//Supercell match plot on left side of graph
+	//fromhere....
+
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(6000)), &ix1, &ix2, &ix3, &ix4); shr6k = ix4;
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(9000)), &ix1, &ix2, &ix3, &ix4); shr9k = ix4;
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(3000)), &ix1, &ix2, &ix3, &ix4); shr3k = ix4;
+
+	cavespnsharp(&mlcp, &mllcl, &t500, &lr75, &shr6k, &srh1, &nsndgs, &matches, &p1, sndglist, &suplist, &sup_filename, &shr3k, &shr9k, &srh3, &totalsndgs);
+	/*
+	for (i=0; i < 15; i++) sndglist[i][14] = '\0';
+	printf( "%d High Quality SUPERCELL Matches were found.\n", nsndgs);
+	for (i=0;i<nsndgs;i++) { printf( "SUPERCELL match = %s %.0f\n", sndglist[i]), suplist[i]; }
+	printf( "%.0f Total matches were found.\n", matches);
+	printf( "%.0f Percent were TOR.\n", p1);
+	 */
+	// ----- Supercell SARS matches -----
+	if (nsndgs>0)
+	{
+		if (nsndgs > 10) nsndgs = 10;
+		for (i=0;i<10;i++)
+		{
+			if(i < nsndgs){
+				// R/J's comments : I am now passing values in suplist (0-3).  I assigned an array of strings called tortags to plot the right stuff on the screen.
+				j = suplist[i];
+				if (j<1) {sarsInfo->supcellStrColor[i]=(18);}
+				else if (j<2) {sarsInfo->supcellStrColor[i]=(6);}
+				else sarsInfo->supcellStrColor[i]=(2);
+				memset(tempStr,'\0',16);
+				strncpy(tempStr, sndglist[i],15);
+				sprintf(sarsInfo->supcellStr[i], "%s  %s%c", tempStr,tortags[j],'\0');
+			}
+			else {
+				memset(sarsInfo->supcellStr[i], '\0', 1);
+			}
+		}
+
+	}
+	else
+	{
+		for (i=0;i<10;i++)
+		{
+			memset(sarsInfo->supcellStr[i], '\0', 1);
+		}
+		sarsInfo->supcellStrColor[5]= 31;
+		sprintf( sarsInfo->supcellStr[5], "No Quality SUPERCELL Matches");
+
+	}
+
+
+
+	// ----- Plot Supercell SARS Result -----
+	p2 = 100.0 - p1;
+	sarsInfo->supcellStrColor[10]=(31);
+	sarsInfo->supcellStrColor[11]=(31);
+	strcpy(st1, "No Matches");
+	define_parcel(1,0);
+	ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	if (pcl.bplus >= 100){
+		if (matches>0){
+			strcpy(st1, "NONTOR");
+		}
+		if (p1>50){
+			sarsInfo->supcellStrColor[10]=12;
+			sarsInfo->supcellStrColor[11]=12;
+			strcpy(st1, "**TOR!**");
+		}
+		if ((p1>50) || (p1<=50 && matches>0)){
+			sprintf( sarsInfo->supcellStr[10], "(%.0f matches out of %d sndgs)", matches,totalsndgs);
+		}
+		else {
+			sprintf( sarsInfo->supcellStr[10],"");
+		}
+
+		sprintf( sarsInfo->supcellStr[11], "SARS:  %s  (%.0f%s TOR)", st1, p1, "%");
+	}
+
+	// ----- Set Parcel Back -----
+	if (oldlplchoice == 1)
+		pres = 0;
+	else if (oldlplchoice == 2)
+		pres = 0;
+	else if (oldlplchoice == 3)
+		pres = mu_layer;
+	else if (oldlplchoice == 4)
+		pres = mml_layer;
+	else if (oldlplchoice == 5)
+		pres = user_level;
+	else if (oldlplchoice == 6)
+		pres = mu_layer;
+	define_parcel(oldlplchoice, pres);
+
+
+}
+/*************************************************************
+ * Chin Note: this function is derived from show_skewtpage1()
+ * plus show_hail_new() of xwvid3.c
+ * of BigNsharp by John Hart  NSSFC KCMO
+ * Chin: Rewrite code to get all computed parameters/string for
+ * CAVE.
+ * All original BigNsharp gui functions are removed.
+ *************************************************************/
+void getHailInfo(){
+	float hvars[30], h2[100];
+	float ix1, ix2, ix3, ix4,  mumixr,esicat;
+	float T0, Td0, el, pbot, ptop, base, depth, effdep, ebs;
+	short tIndex, tdIndex, pIndex,zIndex;
+	float sfctemp, sfcdwpt, sfcpres, j1, j2;
+	float nv_cape, nv_cinh, nv_cap, pres,  mucape, mlcape;
+	float lr75, shr3, shr6, shr9, fzlh, mucinh, ship, esi2, t500;
+	float srh3, matches, matches2, avsize, p1, haillist[15];
+	short txtlin, txtrow, oldlplchoice, trow2, i, j;
+	short nsndgs, trx, temp_mark, y;
+	char st[100], st1[20], sndglist[15][15];
+	Parcel pcl;
+	Parcel pcl2;
+
+	// Chin: use memset() instead
+	memset(h2, 0, sizeof(h2));
+	memset(hvars,0, sizeof(hvars));
+	//was::for (i=0;i<100;i++) {h2[i] = 0.0;}
+	//was::for (i=0;i<30;i++) {hvars[i] = 0.0;}
+
+	/* Compute Effective Vertical Shear.  Default to 6km if not available */
+	ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	pIndex = getParmIndex("PRES");
+	tIndex = getParmIndex("TEMP");
+	tdIndex = getParmIndex("DWPT");
+	zIndex = getParmIndex("HGHT");
+	pbot = sndg[sfc()][pIndex];
+	el = 12000.0;
+	if (pcl.bplus >= 100) {
+		el = agl(i_hght(pcl.elpres, I_PRES));
+		/* 24 Mar 2008 */
+		/*  effective_inflow_layer(100, -250, &pbot, &ptop);*/
+	}
+	base = agl(i_hght(p_bot, I_PRES));
+	depth = (el - base);
+	effdep = base + (depth * 0.5);
+	wind_shear(p_bot, i_pres(msl(effdep)), &ix1, &ix2, &ix3, &ix4);
+	ebs = kt_to_mps(ix4)/effdep;
+	//printf("Shear = %.1f kt    %.1f mps\nEBS = %.6f\nDepth = %.1f m\n", ix4, kt_to_mps(ix4), ebs, effdep);
+	T0 = sndg[sfc()][tIndex];
+	Td0 = sndg[sfc()][tdIndex];
+	hailcast1(&T0, &Td0, &ebs, &hvars, &mumixr, &esicat);
+
+	h2[0]=1;
+	h2[1]=0;
+	for (i=0;i<=30;i++)
+	{
+		printf( "HVARS[%d] = %f\n", i, hvars[i]);
+		h2[i+2] = hvars[i];
+	}
+	//CHin Note::: Above code are from show_skewtpage1(). It does some parameters setting before calling show_hail_new().
+	//Chin note::: From here down are rewriting code of show_hail_new(&h2);
+
+	oldlplchoice = lplvals.flag;
+
+	define_parcel(4, 100);
+	mlcape = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+
+	define_parcel(3, mu_layer);
+	sfctemp = lplvals.temp;
+	sfcdwpt = lplvals.dwpt;
+	sfcpres = lplvals.pres;
+
+	//----- Calculate Parcel Data -----
+	ix1 = parcel( -1, -1, sfcpres, sfctemp, sfcdwpt, &pcl);
+
+	// ----- Hail Model Output -----
+	// Chin:: resume work from here...
+	set_font(4);
+	setcolor(31);
+	sprintf(st, "Hailcast1 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[18], ctof(h2[2]), ctof(h2[3]),h2[25]);
+	outgtext ( st, txtlin, txtrow );
+
+	if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(3);
+	if (h2[24] >= 1.95) setcolor(2);
+
+	txtrow += 15;
+	sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[19], h2[20],h2[21],h2[22], h2[23]);
+	outgtext ( st, txtlin, txtrow );
+
+	txtrow +=20;
+	set_font(4);
+	setcolor(31);
+	if(h2[4] == 0) setcolor(31);
+	sprintf(st, "Hailcast2 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[4], ctof(h2[2]), ctof(h2[3]),h2[17]);
+	outgtext ( st, txtlin, txtrow );
+
+	if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(3);
+	if (h2[15] >= 1.95) setcolor(2);
+
+	if(h2[4] == 0) h2[15] = 0;
+	sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[5], h2[6],h2[7],h2[8], h2[9]);
+	txtrow += 14;
+	outgtext ( st, txtlin, txtrow );
+
+
+
+	txtrow += 15;
+	setcolor(31);
+	moveto(txtlin, txtrow);
+	lineto(txtlin+340, txtrow);
+
+
+
+	setcolor(31);
+	set_font(6);
+	if (h2[4] == 0 && h2[18] == 0) {
+		sprintf(st, "No Convecting Members");
+		txtrow += 6;
+		ix1 = (350 - getgtextextent(st))/2;
+		outgtext(st, txtlin + ix1 - 5, txtrow);
+	}else{
+		// If convecting members then...........
+		txtrow +=4;
+		if (h2[24] < 1.00) setcolor(31);
+		if (h2[24] >= 1.00 && h2[18] >= 1)  setcolor(3);
+		if (h2[24] >= 1.95)  setcolor(2);
+		sprintf(st, "Hailcast1--->   %.1f", h2[24]);
+		ix1 = (350 - getgtextextent(st))/2;
+		outgtext(st, txtlin + ix1 - 85, txtrow);
+
+		if (h2[15] < 1.00)  setcolor(31);
+		if (h2[15] >= 1.00 && h2[4] >= 1)  setcolor(3);
+		if (h2[15] >= 1.95)  setcolor(2);
+		sprintf(st, "Hailcast2--->   %.1f",h2[15]);
+		ix1 = (350 - getgtextextent(st))/2;
+		outgtext(st, txtlin + ix1 + 70, txtrow);
+
+	}
+
+	txtrow += 18;
+	setcolor(31);
+	moveto(txtlin, txtrow);
+	lineto(txtlin+340, txtrow);
+
+	/* Compute SARS Data */
+	define_parcel(4, 100);
+	mlcape = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	define_parcel(3, 400);
+	mucape = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	mumixr = mixratio(lplvals.pres, lplvals.dwpt);
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(6000)), &ix1, &ix2, &ix3, &ix4); shr6 = kt_to_mps(ix4);
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(9000)), &ix1, &ix2, &ix3, &ix4); shr9 = kt_to_mps(ix4);
+	wind_shear(sndg[sfc()][pIndex], i_pres(msl(3000)), &ix1, &ix2, &ix3, &ix4); shr3 = kt_to_mps(ix4);
+
+	if (agl(i_hght(p_bot, I_PRES)) > 0){
+		wind_shear(p_bot, i_pres(msl(agl(i_hght(p_top, I_PRES))*0.25)), &ix1, &ix2, &ix3, &ix4);  shr3 = kt_to_mps(ix4);
+		wind_shear(p_bot, i_pres(msl(agl(i_hght(p_top, I_PRES))*0.5)), &ix1, &ix2, &ix3, &ix4);  shr6 = kt_to_mps(ix4);
+		wind_shear(p_bot, i_pres(msl(agl(i_hght(p_top, I_PRES))*0.75)), &ix1, &ix2, &ix3, &ix4);  shr9 = kt_to_mps(ix4);
+	}
+
+	t500 =  i_temp(500, I_PRES);
+	lr75 = lapse_rate(&ix1, 700, 500);
+	fzlh = mtof(agl(i_hght(temp_lvl(0, &ix1), I_PRES)));
+	ship = sig_hail(pcl.bplus, mumixr, lr75, t500, kt_to_mps(shr6), fzlh, pcl.bminus, 0, 0, 25, mlcape);
+	srh3 = helicity(0, 3000, st_dir, st_spd, &ix2, &ix3);
+	if (agl(i_hght(p_bot, I_PRES)) > 0){
+		srh3 = helicity(p_bot, p_top, st_dir, st_spd, &ix2, &ix3);
+	}
+
+
+	sars(&mumixr, &mucape, &t500, &lr75, &shr6, &shr9, &shr3, &ship, &srh3, &nsndgs, &matches, &p1, &avsize, &matches2, sndglist, &haillist, &sars_filename);
+
+	for (i=0; i < 15; i++) sndglist[i][14] = '\0';
+	printf( "%d High Quality HAIL Matches were found.\n", nsndgs);
+	for (i=0;i<nsndgs;i++) { printf( "HAIL match = %s  %.2f\n", sndglist[i], haillist[i]); }
+	printf( "%.0f Total matches were found.\n", matches);
+	printf( "%.0f Percent were SIG HAIL.\n", p1);
+
+
+	/* ----- SARS matches ----- */
+	/*  SARS hail size */
+	txtrow += 6;
+	set_font(4);
+	 setcolor(5);
+	strcpy( st, "* * * SARS HAIL SIZE * * *" );
+	ix1 = (350 - getgtextextent(st))/2;
+	outgtext(st, txtlin + ix1 - 5, txtrow);
+
+	txtrow += 15;
+	set_font(6);
+	if (matches2 == 0) {
+		 setcolor(31);
+		sprintf(st, "No Matches");
+		ix1 = (350 - getgtextextent(st))/2;
+		outgtext ( st, txtlin + ix1 - 5, txtrow );
+	}
+	if (matches2 == 1 || avsize <= 1.49)  setcolor(31);
+	if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49))  setcolor(3);
+	if (matches2 >= 2 && avsize >= 2.06)  setcolor(2);
+	if (matches2 >= 1) {
+		set_font(6);
+		if (avsize <= 1.49) {
+			sprintf(st, "Best guess from SARS = < 1 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if ((avsize > 1.49) && (avsize <= 1.68)) {
+			sprintf(st, "Best guess from SARS = 1 - 1.5 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if ((avsize > 1.68) && (avsize <= 2.06)) {
+			sprintf(st, "Best guess from SARS = 1.75 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if ((avsize > 2.06) && (avsize <= 2.39)) {
+			sprintf(st, "Best guess from SARS = 2 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if ((avsize > 2.39) && (avsize <= 2.52)) {
+			sprintf(st, "Best guess from SARS = 2.5 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if ((avsize > 2.52) && (avsize <= 2.56)) {
+			sprintf(st, "Best guess from SARS = 2.75 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if ((avsize > 2.56) && (avsize <= 2.64)) {
+			sprintf(st, "Best guess from SARS = 3 - 4 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		if (avsize > 2.64) {
+			sprintf(st, "Best guess from SARS = > 4 inch");
+			ix1 = (350 - getgtextextent(st))/2;
+			outgtext ( st, txtlin + ix1 - 5, txtrow );
+		}
+		txtrow += 18;
+		set_font(4);
+		sprintf(st, "AVG size = %.2f (based on %.0f matches)", avsize, matches2);
+		ix1 = (350 - getgtextextent(st))/2;
+		outgtext(st, txtlin + ix1 - 5, txtrow);
+	}
+
+	txtrow += 18;
+	 setcolor(31);
+	moveto(txtlin, txtrow);
+	lineto(txtlin+340, txtrow);
+	if (matches2 > 0) {
+		txtrow += 7;
+		set_font(4);
+		 setcolor(31);
+		strcpy( st, "SARS output ranges for reported sizes (white)");
+		ix1 = (350 - getgtextextent(st))/2;
+		outgtext(st, txtlin + ix1 - 5, txtrow);
+
+		txtrow += 18;
+		/* SARS for reported < 1" hail */
+		if (avsize <= 1.49) {
+			 setcolor(31);
+			set_font(6);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			set_font(4);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 56, txtrow - 5, txtlin + 91, txtrow + 60);
+		}
+		/* SARS for reported 1-1.5" hail */
+		if ((avsize > 1.49) && (avsize <= 1.68)) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			set_font(6);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			set_font(4);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 91, txtrow - 5, txtlin + 126, txtrow + 60);
+		}
+		/* SARS for reported 1.75" hail */
+		if ((avsize > 1.68) && (avsize <= 2.06)) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			set_font(6);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			set_font(4);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 126, txtrow - 5, txtlin + 161, txtrow + 60);
+		}
+		/* SARS for reported 2" hail */
+		if ((avsize > 2.06) && (avsize <= 2.39)) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			set_font(6);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			set_font(4);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 161, txtrow - 5, txtlin + 196, txtrow + 60);
+		}
+		/* SARS for reported 2.5" hail */
+		if ((avsize > 2.39) && (avsize <= 2.52)) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			set_font(6);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			set_font(4);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 196, txtrow - 5, txtlin + 231, txtrow + 60);
+		}
+		/* SARS for reported 2.75" hail */
+		if ((avsize > 2.52) && (avsize <= 2.56)) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			set_font(6);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			set_font(4);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 231, txtrow - 5, txtlin + 266, txtrow + 60);
+		}
+		/* SARS for reported 3-4" hail */
+		if ((avsize > 2.56) && (avsize <= 2.64)) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			set_font(6);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			set_font(4);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 266, txtrow - 5, txtlin + 301, txtrow + 60);
+		}
+		/* SARS for reported >4" hail */
+		if (avsize > 2.64) {
+			 setcolor(31);
+			set_font(4);
+			strcpy(st, "<1");
+			outgtext(st, txtlin + 60, txtrow);
+			strcpy(st, "1-1.5");
+			outgtext(st, txtlin + 95, txtrow);
+			strcpy(st, "1.75");
+			outgtext(st, txtlin + 130, txtrow);
+			strcpy(st, "2");
+			outgtext(st, txtlin + 165, txtrow);
+			strcpy(st, "2.5");
+			outgtext(st, txtlin + 200, txtrow);
+			strcpy(st, "2.75");
+			outgtext(st, txtlin + 235, txtrow);
+			strcpy(st, "3-4");
+			outgtext(st, txtlin + 270, txtrow);
+			set_font(6);
+			strcpy(st, ">4");
+			outgtext(st, txtlin + 305, txtrow);
+			 setcolor(27);
+			rectangle(0, txtlin + 301, txtrow - 5, txtlin + 336, txtrow + 60);
+		}
+
+		txtrow += 15;
+		 setcolor(31);
+		set_font(4);
+		strcpy(st, "+1 STD");
+		outgtext(st, txtlin, txtrow);
+		 setcolor(27);
+		strcpy(st, "1.9");
+		outgtext(st, txtlin + 60, txtrow);
+		strcpy(st, "2.0");
+		outgtext(st, txtlin + 95, txtrow);
+		strcpy(st, "2.3");
+		outgtext(st, txtlin + 130, txtrow);
+		strcpy(st, "2.8");
+		outgtext(st, txtlin + 165, txtrow);
+		strcpy(st, "2.9");
+		outgtext(st, txtlin + 200, txtrow);
+		strcpy(st, "3.0");
+		outgtext(st, txtlin + 235, txtrow);
+		strcpy(st, "3.0");
+		outgtext(st, txtlin + 270, txtrow);
+		strcpy(st, "3.0");
+		outgtext(st, txtlin + 305, txtrow);
+
+		txtrow += 15;
+		 setcolor(31);
+		strcpy(st, "AVG");
+		outgtext(st, txtlin, txtrow);
+		 setcolor(27);
+		strcpy(st, "1.5");
+		outgtext(st, txtlin + 60, txtrow);
+		strcpy(st, "1.5");
+		outgtext(st, txtlin + 95, txtrow);
+		strcpy(st, "1.8");
+		outgtext(st, txtlin + 130, txtrow);
+		strcpy(st, "2.3");
+		outgtext(st, txtlin + 165, txtrow);
+		strcpy(st, "2.5");
+		outgtext(st, txtlin + 200, txtrow);
+		strcpy(st, "2.5");
+		outgtext(st, txtlin + 235, txtrow);
+		strcpy(st, "2.6");
+		outgtext(st, txtlin + 270, txtrow);
+		strcpy(st, "2.7");
+		outgtext(st, txtlin + 305, txtrow);
+
+		txtrow += 15;
+		 setcolor(31);
+		strcpy(st, "-1 STD");
+		outgtext(st, txtlin, txtrow);
+		 setcolor(27);
+		strcpy(st, "1.1");
+		outgtext(st, txtlin + 60, txtrow);
+		strcpy(st, "1.1");
+		outgtext(st, txtlin + 95, txtrow);
+		strcpy(st, "1.3");
+		outgtext(st, txtlin + 130, txtrow);
+		strcpy(st, "1.7");
+		outgtext(st, txtlin + 165, txtrow);
+		strcpy(st, "2.1");
+		outgtext(st, txtlin + 200, txtrow);
+		strcpy(st, "2.1");
+		outgtext(st, txtlin + 235, txtrow);
+		strcpy(st, "2.2");
+		outgtext(st, txtlin + 270, txtrow);
+		strcpy(st, "2.4");
+		outgtext(st, txtlin + 305, txtrow);
+	}
+
+	/* ----- Set Parcel Back ----- */
+
+	if (oldlplchoice == 1)
+		pres = 0;
+	else if (oldlplchoice == 2)
+		pres = 0;
+	else if (oldlplchoice == 3)
+		pres = mu_layer;
+	else if (oldlplchoice == 4)
+		pres = mml_layer;
+	else if (oldlplchoice == 5)
+		pres = user_level;
+	else if (oldlplchoice == 6)
+		pres = mu_layer;
+	define_parcel(oldlplchoice, pres);
+
+}
+
+/*
+void getStpStats(StpStatsStr * stpStr)
+/*************************************************************
+ * Chin Note: this function is derived from show_stp_stats() of xwvid3.c
+ * of BigNsharp by Rich Thompson SPC OUN
+ * Chin: Rewrite code to get all computed parameters/string for
+ * CAVE.
+ * All original BigNsharp gui are removed.
+ *************************************************************
+{
+float s10th, s25th, s50th, s75th, s90th, w10th, w25th, w50th, w75th, w90th;
+float n10th, n25th, n50th, n75th, n90th, stpc, maxval, ix1, pres;
+short tlx, tly, oldlplchoice, pIndex, zIndex, tIndex, trow2, i, y, hash;
+char st[100];
+Parcel pcl;
+// plot sounding value of STPC
+// max plotted STPC value will be 11
+ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+stpc = sigtorn_cin(st_dir, st_spd);
+if (stpc > 11) stpc = 11;
+y = (short)(240 - (stpc * 20));
+// set line color to match color coding of composite parameter inset
+if (stpc >= 5.95) stpStr->stpcColor =7;
+else if (stpc >= 3.95) stpStr->stpcColor =2;
+else if (stpc >= 1.95) stpStr->stpcColor =19;
+else if (stpc >= .45) stpStr->stpcColor =31;
+else stpStr->stpcColor =8;
+stpStr->stpCin = stpc;
+//
+// * the following from prob_sigt_mlcape() of xwvid3.c
+//*
+oldlplchoice = lplvals.flag;
+
+// lift ML parcel
+define_parcel(4, 100);
+ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+mlcape = pcl.bplus;
+
+if (mlcape >= 4500){ psigt_mlcape=.31;
+setcolor(19);
+}
+else
+        if (mlcape >= 3500 && mlcape < 4500){ psigt_mlcape=.23;
+	setcolor(19);
+	}
+else
+        if (mlcape >= 2500 && mlcape < 3500){ psigt_mlcape=.25;
+	setcolor(19);
+	}
+else
+        if (mlcape >= 1500 && mlcape < 2500){ psigt_mlcape=.14;
+	setcolor(31);
+	}
+else
+        if (mlcape < 1500 && mlcape >= 50){ psigt_mlcape=.08;
+	setcolor(18);
+	}
+else
+if (mlcape < 50){ psigt_mlcape=0.0;
+	setcolor(8);
+	}
+
+sprintf( stpStr->mlcape, "based on CAPE: %.2f", psigt_mlcape);
+disp_param( st, tlx+335, tly+45);
+setcolor(31);
+set_font(4);
+sprintf( st, "based on CAPE: ");
+outgtext( st, tlx+208, tly+45);
+
+// ----- Set Parcel Back -----
+
+if (oldlplchoice == 1)
+  pres = 0;
+else if (oldlplchoice == 2)
+  pres = 0;
+else if (oldlplchoice == 3)
+  pres = mu_layer;
+else if (oldlplchoice == 4)
+  pres = mml_layer;
+else if (oldlplchoice == 5)
+  pres = user_level;
+else if (oldlplchoice == 6)
+  pres = mu_layer;
+define_parcel(oldlplchoice, pres);
+
+}
+*/
+
 

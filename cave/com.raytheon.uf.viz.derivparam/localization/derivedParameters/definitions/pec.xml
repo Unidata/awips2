@@ -32,5 +32,6 @@
     <Method levels="Layer" name="Multiply">
         <Field level="0-3kmAgl" abbreviation="RH"/>
         <Field abbreviation="PW"/>
+        <ConstantField value="0.01" />
     </Method>
 </DerivedParameter>

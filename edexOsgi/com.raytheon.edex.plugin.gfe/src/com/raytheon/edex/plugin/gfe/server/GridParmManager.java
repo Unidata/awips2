@@ -61,11 +61,16 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.purge.PurgeLogger;
 
 /**
  * Class used to manage grid parms
@@ -80,6 +85,14 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 07/12/12     15162      ryu         added check for invalid db
  * 10/10/12     #1260      randerso    Added exception handling for domain not 
  *                                     overlapping the dataset
+ * 02/10/13     #1603      randerso    General code cleanup, improved purge logging,
+ *                                     fixed a purge inefficiency,
+ *                                     fixed error which caused D2D purging to remove 
+ *                                     smartInit hdf5 data
+ * 03/07/13      #1773     njensen     Logged commitGrid() times
+ * 03/15/13       #1795    njensen     Sped up commitGrid()
+ * 03/20/2013     #1774    randerso    Removed dead method, changed to use new 
+ *                                     D2DGridDatabase constructor
  * 
  * </pre>
  * 
@@ -90,6 +103,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
 public class GridParmManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmManager.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     /** The data access object for retrieving GFE grid records */
     private static GFEDao gfeDao;
@@ -248,9 +264,8 @@ public class GridParmManager {
         ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<List<GridUpdateNotification>>();
 
         // process each request
-        for (int r = 0; r < saveRequest.size(); r++) {
+        for (SaveGridRequest req : saveRequest) {
             ServerResponse<?> ssr = null;
-            SaveGridRequest req = saveRequest.get(r);
             GridParm gp = null;
             try {
                 gp = gridParm(req.getParmId());
@@ -343,48 +358,6 @@ public class GridParmManager {
         return sr;
     }
 
-    public static ServerResponse<String> getD2DGridData(
-            List<GetGridRequest> requests) {
-
-        ServerResponse<String> retVal = new ServerResponse<String>();
-
-        // Get the grid data
-        ServerResponse<List<IGridSlice>> sr = getGridData(requests);
-        retVal.addMessages(sr);
-        if (!sr.isOkay()) {
-            return retVal;
-        }
-
-        // // Now store it off in a temp location so the client can get to it
-        // for (IGridSlice slice : sr.getPayload()) {
-        // try {
-        // GridDatabase db = getDb(requests.get(0).getParmId().getDbId());
-        // if (db instanceof D2DGridDatabase) {
-        // File tempDir = GfeUtil.getTempHDF5Dir(
-        // GridDatabase.gfeBaseDataDir, requests.get(0)
-        // .getParmId());
-        // if (!tempDir.exists()) {
-        // tempDir.mkdirs();
-        // }
-        // db.saveGridToHdf5(slice, GfeUtil.getTempHDF5File(
-        // GridDatabase.gfeBaseDataDir, requests.get(0)
-        // .getParmId()), GfeUtil.getHDF5Group(
-        // requests.get(0).getParmId(), slice.getValidTime()));
-        // } else {
-        // retVal
-        // .addMessage("Cannot save temp grids for non-D2D grid databases.");
-        // return retVal;
-        // }
-        // } catch (GfeException e) {
-        // sr.addMessage("Unable to get DB: "
-        // + requests.get(0).getParmId().getDbId());
-        // return retVal;
-        // }
-        // }
-        return retVal;
-
-    }
-
     /**
      * * Request to commit data to the official database. The changes are
      * returned through the calling argument "changes".
@@ -440,6 +413,12 @@ public class GridParmManager {
 
         logger.info("Publish/Commit Grids Request: " + parmReq);
         List<CommitGridRequest> failures = new ArrayList<CommitGridRequest>();
+
+        ITimer inventoryTimer = TimeUtil.getTimer();
+        ITimer retrieveTimer = TimeUtil.getTimer();
+        ITimer historyRetrieveTimer = TimeUtil.getTimer();
+        ITimer historyUpdateTimer = TimeUtil.getTimer();
+        ITimer storeTimer = TimeUtil.getTimer();
 
         // process each request
         ServerResponse<?> srDetailed = new ServerResponse<String>();
@@ -507,6 +486,7 @@ public class GridParmManager {
             }
 
             // get the source data inventory
+            inventoryTimer.start();
             ServerResponse<List<TimeRange>> invSr = sourceGP.getGridInventory();
             List<TimeRange> inventory = invSr.getPayload();
             ssr.addMessages(invSr);
@@ -519,6 +499,7 @@ public class GridParmManager {
 
             // get the destination data inventory
             invSr = destGP.getGridInventory();
+            inventoryTimer.stop();
             List<TimeRange> destInventory = invSr.getPayload();
             ssr.addMessages(invSr);
             if (!ssr.isOkay()) {
@@ -546,10 +527,12 @@ public class GridParmManager {
             // System.out.println("overlapInventory initial size "
             // + overlapInventory.size());
 
+            historyRetrieveTimer.start();
             ServerResponse<Map<TimeRange, List<GridDataHistory>>> history = sourceGP
                     .getGridHistory(overlapInventory);
             Map<TimeRange, List<GridDataHistory>> currentDestHistory = destGP
                     .getGridHistory(overlapInventory).getPayload();
+            historyRetrieveTimer.stop();
 
             Map<TimeRange, List<GridDataHistory>> historyOnly = new HashMap<TimeRange, List<GridDataHistory>>();
             for (TimeRange tr : history.getPayload().keySet()) {
@@ -577,9 +560,11 @@ public class GridParmManager {
                 }
             }
 
+            retrieveTimer.start();
             ServerResponse<List<IGridSlice>> getSr = sourceGP.getGridData(
                     new GetGridRequest(req.getParmId(), overlapInventory),
                     badGridTR);
+            retrieveTimer.stop();
             // System.out.println("Retrieved " + overlapInventory.size()
             // + " grids");
             sourceData = getSr.getPayload();
@@ -608,8 +593,10 @@ public class GridParmManager {
                 }
             }
             if (!officialTR.isEmpty()) {
+                retrieveTimer.start();
                 getSr = destGP.getGridData(new GetGridRequest(destParmId,
                         officialTR), badGridTR);
+                retrieveTimer.stop();
                 officialData = getSr.getPayload();
                 ssr.addMessages(getSr);
                 if (!ssr.isOkay()) {
@@ -685,10 +672,13 @@ public class GridParmManager {
                 histories.put(tr, histList);
             }
 
-            // update the histories into the source database, update the
+            // update the publish times in the source database, update the
             // notifications
-            sr.addMessages(sourceGP.updateGridHistory(histories));
+            historyUpdateTimer.start();
+            sr.addMessages(sourceGP.updatePublishTime(histories.values(),
+                    (Date) nowTime.clone()));
             // System.out.println("Updated " + histories.size() + " histories");
+            historyUpdateTimer.stop();
 
             changes.add(new GridUpdateNotification(req.getParmId(), req
                     .getTimeRange(), histories, requestorId, siteID));
@@ -698,8 +688,10 @@ public class GridParmManager {
             List<TimeRange> historyOnlyList = new ArrayList<TimeRange>();
             historyOnlyList.addAll(historyOnly.keySet());
 
+            historyRetrieveTimer.start();
             Map<TimeRange, List<GridDataHistory>> destHistory = destGP
                     .getGridHistory(historyOnlyList).getPayload();
+            historyRetrieveTimer.stop();
             for (TimeRange tr : destHistory.keySet()) {
                 List<GridDataHistory> srcHistList = histories.get(tr);
                 List<GridDataHistory> destHistList = destHistory.get(tr);
@@ -707,12 +699,22 @@ public class GridParmManager {
                     destHistList.get(i).replaceValues(srcHistList.get(i));
                 }
             }
-            destGP.updateGridHistory(destHistory);
+
+            // only need to update the publish time on the destination histories
+            // of grids that are not being saved (due to no changes), because
+            // the saveGridSlices() call below will update the publish time
+            // of the ones with changes
+            historyUpdateTimer.start();
+            destGP.updatePublishTime(destHistory.values(),
+                    (Date) nowTime.clone());
+            historyUpdateTimer.stop();
 
             // save data directly to the official database (bypassing
             // the checks in Parm intentionally)
+            storeTimer.start();
             ssr.addMessages(officialDBPtr.saveGridSlices(destParmId,
                     publishTime, sourceData, requestorId, historyOnlyList));
+            storeTimer.stop();
             // System.out.println("Published " + sourceData.size() + " slices");
             if (!ssr.isOkay()) {
                 ssr.addMessage("SaveGridData for official for commitGrid() failure: "
@@ -728,6 +730,17 @@ public class GridParmManager {
             changes.add(not);
             sr.getPayload().add(not);
         }
+
+        perfLog.logDuration("Publish Grids: Retrieving inventories",
+                inventoryTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Retrieving histories",
+                historyRetrieveTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Retrieving data",
+                retrieveTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Updating histories",
+                historyUpdateTimer.getElapsedTime());
+        perfLog.logDuration("Publish Grids: Storing data",
+                storeTimer.getElapsedTime());
 
         // if a problem occurred, log the information
         if (!failures.isEmpty()) {
@@ -960,20 +973,20 @@ public class GridParmManager {
         String type = null;
         int count = 0;
         int desiredVersions = 0;
-        for (int i = 0; i < databases.size(); i++) {
+        for (DatabaseID dbId : databases) {
             // new series?
-            if (!databases.get(i).getSiteId().equals(site)
-                    || !databases.get(i).getDbType().equals(type)
-                    || !databases.get(i).getModelName().equals(model)) {
-                site = databases.get(i).getSiteId();
-                type = databases.get(i).getDbType();
-                model = databases.get(i).getModelName();
+            if (!dbId.getSiteId().equals(site)
+                    || !dbId.getDbType().equals(type)
+                    || !dbId.getModelName().equals(model)) {
+                site = dbId.getSiteId();
+                type = dbId.getDbType();
+                model = dbId.getModelName();
                 count = 0;
 
                 // determine desired number of versions
                 try {
                     desiredVersions = IFPServerConfigManager.getServerConfig(
-                            siteID).desiredDbVersions(databases.get(i));
+                            siteID).desiredDbVersions(dbId);
                 } catch (GfeException e) {
                     logger.error("Error retreiving serverConfig", e);
                 }
@@ -982,9 +995,9 @@ public class GridParmManager {
             // process the id and determine whether it should be purged
             count++;
             if (count > desiredVersions
-                    && !databases.get(i).getModelTime()
-                            .equals(DatabaseID.NO_MODEL_TIME)) {
-                deallocateDb(databases.get(i), true);
+                    && !dbId.getModelTime().equals(DatabaseID.NO_MODEL_TIME)) {
+                deallocateDb(dbId, true);
+                PurgeLogger.logInfo("Purging " + dbId, "gfe");
             }
         }
         createDbNotification(siteID, databases);
@@ -1020,18 +1033,18 @@ public class GridParmManager {
 
         List<DatabaseID> databases = sr.getPayload();
 
-        for (int i = 0; i < databases.size(); i++) {
-            if (databases.get(i).getDbType().equals("D2D")) {
+        for (DatabaseID dbId : databases) {
+            if (dbId.getDbType().equals("D2D")) {
                 continue;
             }
 
-            Date t = purgeTime(databases.get(i));
-            if (t == null) {
+            Date purgeTime = purgeTime(dbId);
+            if (purgeTime == null) {
                 continue;
             }
 
             List<ParmID> parmIds = new ArrayList<ParmID>();
-            ServerResponse<List<ParmID>> ssr = getParmList(databases.get(i));
+            ServerResponse<List<ParmID>> ssr = getParmList(dbId);
             sr.addMessages(ssr);
             if (!ssr.isOkay()) {
                 continue;
@@ -1039,22 +1052,29 @@ public class GridParmManager {
 
             parmIds = ssr.getPayload();
 
-            for (int j = 0; j < parmIds.size(); j++) {
+            int purgedCount = 0;
+            for (ParmID parmId : parmIds) {
                 List<GridUpdateNotification> gridNotify = new ArrayList<GridUpdateNotification>();
                 List<LockNotification> lockNotify = new ArrayList<LockNotification>();
                 GridParm gp = null;
                 try {
-                    gp = gridParm(parmIds.get(j));
+                    gp = gridParm(parmId);
                 } catch (GfeException e) {
-                    sr.addMessage("Error getting parm for: " + parmIds.get(j));
-                    logger.error("Error getting parm for: " + parmIds.get(j), e);
+                    sr.addMessage("Error getting parm for: " + parmId);
+                    logger.error("Error getting parm for: " + parmId, e);
                     continue;
                 }
-                sr.addMessages(gp.timePurge(t, gridNotify, lockNotify, siteID));
+                ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
+                        gridNotify, lockNotify, siteID);
+                sr.addMessages(sr1);
+                purgedCount += sr1.getPayload();
 
                 gridNotifications.addAll(gridNotify);
                 lockNotifications.addAll(lockNotify);
             }
+
+            PurgeLogger.logInfo("Purge " + purgedCount + " items from " + dbId,
+                    "gfe");
         }
 
         return sr;
@@ -1071,7 +1091,7 @@ public class GridParmManager {
         }
 
         if (numHours < 1) {
-            return new Date(0);
+            return null; // don't perform time based purge
         }
 
         // calculate purge time based on present time
@@ -1137,7 +1157,12 @@ public class GridParmManager {
                     IFPServerConfig serverConfig = IFPServerConfigManager
                             .getServerConfig(siteId);
                     try {
-                        db = new D2DGridDatabase(serverConfig, dbId);
+                        // this is still necessary on other JVMs from where
+                        // ingested
+                        String d2dModelName = serverConfig
+                                .d2dModelNameMapping(modelName);
+                        db = new D2DGridDatabase(serverConfig, d2dModelName,
+                                dbId.getModelTimeAsDate());
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage());
@@ -1288,20 +1313,14 @@ public class GridParmManager {
         return sr;
     }
 
-    private static void createDbNotification(String siteID, List<DatabaseID> dbs) {
+    private static void createDbNotification(String siteID,
+            List<DatabaseID> prevInventory) {
         List<DatabaseID> newInventory = getDbInventory(siteID).getPayload();
-        List<DatabaseID> additions = new ArrayList<DatabaseID>();
-        List<DatabaseID> deletions = new ArrayList<DatabaseID>();
-        for (int i = 0; i < newInventory.size(); i++) {
-            if (!dbs.contains(newInventory.get(i))) {
-                additions.add(newInventory.get(i));
-            }
-        }
-        for (int i = 0; i < dbs.size(); i++) {
-            if (!newInventory.contains(dbs.get(i))) {
-                deletions.add(dbs.get(i));
-            }
-        }
+        List<DatabaseID> additions = new ArrayList<DatabaseID>(newInventory);
+        additions.removeAll(prevInventory);
+
+        List<DatabaseID> deletions = new ArrayList<DatabaseID>(prevInventory);
+        deletions.removeAll(newInventory);
 
         createDbNotification(siteID, newInventory, additions, deletions);
     }
@@ -1309,19 +1328,17 @@ public class GridParmManager {
     private static void createDbNotification(String siteID,
             List<DatabaseID> dbs, List<DatabaseID> additions,
             List<DatabaseID> deletions) {
-        DBInvChangeNotification notify = new DBInvChangeNotification(dbs,
-                additions, deletions, siteID);
-
         if (!additions.isEmpty() || !deletions.isEmpty()) {
+            DBInvChangeNotification notify = new DBInvChangeNotification(dbs,
+                    additions, deletions, siteID);
             SendNotifications.send(notify);
         }
     }
 
     private static void deallocateDb(DatabaseID id, boolean deleteFile) {
-        gfeDao.purgeGFEGrids(id);
         if (deleteFile) {
             try {
-                getDb(id).deleteModelHDF5();
+                getDb(id).deleteDb();
             } catch (GfeException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to purge model database: " + id, e);

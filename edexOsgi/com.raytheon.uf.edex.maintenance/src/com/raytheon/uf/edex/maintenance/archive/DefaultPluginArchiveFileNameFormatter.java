@@ -20,12 +20,12 @@
 package com.raytheon.uf.edex.maintenance.archive;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +39,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
- * TODO Add Description
+ * The default implementation of IPluginArchiveFileNameFormatter.
  * 
  * <pre>
  * 
@@ -48,6 +48,9 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2012            dgilling     Initial creation
+ * Mar 12, 2013 1783       rferrel      Replace ArrayList with LinkedList to
+ *                                       remove excess capacity and reduce
+ *                                       time to resize a growing list.
  * 
  * </pre>
  * 
@@ -67,6 +70,7 @@ public class DefaultPluginArchiveFileNameFormatter implements
      * com.raytheon.uf.edex.database.plugin.PluginDao, java.util.Map,
      * java.util.Calendar, java.util.Calendar)
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public Map<String, List<PersistableDataObject>> getPdosByFile(
             String pluginName, PluginDao dao,
@@ -91,7 +95,7 @@ public class DefaultPluginArchiveFileNameFormatter implements
                     newFileEntries.add(path);
                     List<PersistableDataObject> list = pdoMap.get(path);
                     if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
+                        list = new LinkedList<PersistableDataObject>();
                         pdoMap.put(path, list);
                     }
                     list.add(pdo);
@@ -117,7 +121,7 @@ public class DefaultPluginArchiveFileNameFormatter implements
                     newFileEntries.add(path);
                     List<PersistableDataObject> list = pdoMap.get(path);
                     if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
+                        list = new LinkedList<PersistableDataObject>();
                         pdoMap.put(path, list);
                     }
                     list.add(pdo);

@@ -24,7 +24,6 @@
 	<Source-Grid>NAMWX</Source-Grid>
 	<Source-Grid>NGM80</Source-Grid>
 	<Source-Grid>NICIE</Source-Grid>
-	<Source-Grid>RUC80</Source-Grid>
 	<Source-Grid>TPC-HurWind</Source-Grid>
 	<Source-Grid>TPCWindProb</Source-Grid>
 	<Source-Grid>WNAwave</Source-Grid>

@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 19, 2010 #4473      rjpeter     Initial creation
+ * Feb 25, 2013 1659       bsteffen    Cache station in StationUtils
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ public class StationUtils implements IPointChangedListener {
     public synchronized RadarStation getHomeRadarStation() {
         if (station == null) {
             Coordinate home = PointsDataManager.getInstance().getHome();
-            return getClosestRadarStation(home.x, home.y);
+            station = getClosestRadarStation(home.x, home.y);
         }
 
         return station;
