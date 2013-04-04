@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.handlers;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISharedSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IUserSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler;
@@ -43,23 +44,25 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * Sep 27, 2012 1187       djohnson     Initial creation
  * Nov 15, 2012 1286       djohnson     Use server-keyed routing.
  * Mar 29, 2013 1841       djohnson     Composes a userSubscriptionsHandler.
+ * Apr 05, 2013 1841       djohnson     Add shared subscription support.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
 public class VizSubscriptionHandler extends SubscriptionHandler {
 
     /**
      * Constructor.
      * 
      * @param userSubscriptionHandler
+     * @param sharedSubscriptionHandler
      */
     public VizSubscriptionHandler(
-            IUserSubscriptionHandler userSubscriptionHandler) {
-        super(userSubscriptionHandler);
+            IUserSubscriptionHandler userSubscriptionHandler,
+            ISharedSubscriptionHandler sharedSubscriptionHandler) {
+        super(userSubscriptionHandler, sharedSubscriptionHandler);
     }
 
     /**
