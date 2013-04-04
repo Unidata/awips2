@@ -430,6 +430,15 @@
                    name="xxx"
                    visible="true">
              </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.titleAction"
+                   id="AWC"
+                   label="------ AWC ------">
+             </command>
+             <separator
+                   name="xxx"
+                   visible="true">
+             </separator>
              <command id="HYDRO"
                    commandId="com.raytheon.viz.ui.actions.titleAction"
                    label="------ Hydro ------">

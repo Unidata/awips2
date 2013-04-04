@@ -9,18 +9,18 @@ package gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc;
  */
 public class StormLocation implements Comparable<StormLocation> {
 
-	private double latitude;
+	private float latitude;
 	
-	private double longitude;
+	private float longitude;
 	 
 	private int forecastHour;
 	
-	private double mslp;
+	private float mslp;
 	
-	private double windMax;
+	private float windMax;
 
-	public StormLocation(double latitude, double longitude, int forecastHour,
-			double mslp, double windMax) {
+	public StormLocation(float latitude, float longitude, int forecastHour,
+			float mslp, float windMax) {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.forecastHour = forecastHour;
@@ -31,28 +31,28 @@ public class StormLocation implements Comparable<StormLocation> {
 	/**
 	 * @return the latitude
 	 */
-	public double getLatitude() {
+	public float getLatitude() {
 		return latitude;
 	}
 
 	/**
 	 * @param latitude the latitude to set
 	 */
-	public void setLatitude(double latitude) {
+	public void setLatitude(float latitude) {
 		this.latitude = latitude;
 	}
 
 	/**
 	 * @return the longitude
 	 */
-	public double getLongitude() {
+	public float getLongitude() {
 		return longitude;
 	}
 
 	/**
 	 * @param longitude the longitude to set
 	 */
-	public void setLongitude(double longitude) {
+	public void setLongitude(float longitude) {
 		this.longitude = longitude;
 	}
 
@@ -73,28 +73,28 @@ public class StormLocation implements Comparable<StormLocation> {
 	/**
 	 * @return the mslp
 	 */
-	public double getMslp() {
+	public float getMslp() {
 		return mslp;
 	}
 
 	/**
 	 * @param mslp the mslp to set
 	 */
-	public void setMslp(double mslp) {
+	public void setMslp(float mslp) {
 		this.mslp = mslp;
 	}
 
 	/**
 	 * @return the windMax
 	 */
-	public double getWindMax() {
+	public float getWindMax() {
 		return windMax;
 	}
 
 	/**
 	 * @param windMax the windMax to set
 	 */
-	public void setWindMax(double windMax) {
+	public void setWindMax(float windMax) {
 		this.windMax = windMax;
 	}
 

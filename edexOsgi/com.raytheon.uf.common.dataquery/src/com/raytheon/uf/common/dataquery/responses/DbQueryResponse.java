@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataquery.responses;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,15 +49,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class DbQueryResponse implements ISerializableObject {
 
+    public static final String ENTITY_RESULT_KEY = null;
+
     @DynamicSerializeElement
     private List<Map<String, Object>> results;
 
     public List<Map<String, Object>> getResults() {
-        return results;
+        return results == null ? new ArrayList<Map<String, Object>>() : results;
     }
 
     public void setResults(List<Map<String, Object>> results) {
         this.results = results;
     }
 
+    public int getNumResults() {
+        return getResults().size();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T[] getEntityObjects(Class<T> entityType) {
+        List<Map<String, Object>> results = getResults();
+        T[] entities = (T[]) Array.newInstance(entityType, results.size());
+        int i = 0;
+        for (Map<String, Object> result : results) {
+            entities[i++] = entityType.cast(result.get(ENTITY_RESULT_KEY));
+        }
+        return entities;
+    }
 }

@@ -35,6 +35,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 09-Aug-2012  #839        Archana     Updated to toggle the
  *                                      colorbar when its corresponding resource
  *                                      is toggled on/off.  
+ * 12/19/12     #960        G. Hull     refresh when Showing data to update the buttons image
+ * 	                                    Also remove code to handle colorBar resources since this is now 
+ *                                      done in propertiesChanged()    
+ * 12/19/12     #960        G. Hull     don't hide the Pgen Resource.
+ * 
  * </pre>
  * 
  * @author	Q. Zhou
@@ -61,76 +66,25 @@ public class HideLoopAction extends AbstractHandler implements IElementUpdater  
 		 * based on NmapUiUtil's findResource().
     	 */
     	NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
+					
     	if( editor != null &&  editor instanceof NCMapEditor ) {		
-			if (editor.getHideShow() == false) //data visible
-				editor.setHideShow(true);      //reverse it
-			else
-				editor.setHideShow(false);
-			
-			NCMapDescriptor idtor = (NCMapDescriptor)editor.getDescriptor();
-				
-//			if( idtor != null) {	
-//				ResourceList rscList = idtor.getResourceList();
-//				
-//				for( ResourcePair rp : rscList ) {
-//					
-//					if( rp != null && isRemovable( rp.getResource() ) ){
-//						if (editor.getHideShow() == true) {
-//							
-//							rp.getProperties().setVisible(false); 							
-//						}
-//					    else {
-//					
-//							rp.getProperties().setVisible(true);							
-//						}
-//					}
-//				}						
-//			}
-				
-	        ResourceList theMainList = editor.getActiveDisplayPane().getDescriptor().getResourceList();
-					
-	        List<ResourcePair> subListOfResourcesToToggle = new ArrayList<ResourcePair>(0);
-	        List<ResourcePair> listOfCorrespondingColorBarResources = new ArrayList<ResourcePair>(0); 
 							
+    		editor.setHideShow( !editor.getHideShow() );      //reverse it
 					
-            /*
-             * Create 2 sublists.One for the colorbar resources and one for the 
-             * requestable resources (non-system and non-map layer resources)  	
-             * Set the visibility for all the resources in both lists to false.
-             */
+            for( ResourcePair resPair : editor.getActiveDisplayPane().getDescriptor().getResourceList() ) {
             
-            for ( ResourcePair resPair : theMainList){
+            	if( resPair != null && 
+            		!resPair.getProperties().isSystemResource() && 
+            		!resPair.getProperties().isMapLayer() &&
+            		 resPair.getResource().getClass().getSimpleName().compareTo("PgenResource") != 0 ) {
             	
-            	if ( resPair != null && ( ! resPair.getProperties().isSystemResource()) 
-            			&& !resPair.getProperties().isMapLayer()){
-            		if(editor.getHideShow()){
-            		    subListOfResourcesToToggle.add(resPair);
-            		    resPair.getProperties().setVisible(false);
-            		}else{
-            			resPair.getProperties().setVisible(true);
+            		resPair.getProperties().setVisible( !editor.getHideShow() );
             		}
 						}
-            	else if(resPair.getResource().getClass().getSimpleName().compareTo("ColorBarResource") == 0){
-            		if(editor.getHideShow()){
-            		     //listOfCorrespondingColorBarResources.add(resPair);
-            		     resPair.getProperties().setVisible(false);
-            		}else{
-            			 resPair.getProperties().setVisible(true);
-					}
-				}						
-			}
-		
-            if(subListOfResourcesToToggle.isEmpty())
-            	return null;
-            
             
 			editor.refresh();	
 					
-		
-			/*   	 
-			 * calls updateElement()
-			 */
-			editor.refreshGUIElements();
+			editor.refreshGUIElements(); // triggers updateElement()
 		}
         return null;
     }	
@@ -148,24 +102,5 @@ public class HideLoopAction extends AbstractHandler implements IElementUpdater  
     		}
 		}
 	}
-    
-    /*
-     * all but overlays and basic geo-political map remains
-     */
-    private boolean isRemovable(AbstractVizResource avr){
-    	
-    	if(avr == null)
-    		return false;
-    	
-    	AbstractResourceData ard = avr.getResourceData();
-    	if(ard == null)
-    		return false;
-    	
-    	if( ard instanceof AbstractNatlCntrsRequestableResourceData  ) 
-    		return true;
-    	else
-    		return false;    	
-    }
-
 }
 

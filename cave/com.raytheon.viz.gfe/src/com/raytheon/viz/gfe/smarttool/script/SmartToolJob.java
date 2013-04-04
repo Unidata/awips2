@@ -53,6 +53,7 @@ import com.raytheon.viz.gfe.smarttool.Tool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2010            njensen     Initial creation
+ * Jan 18, 2013    1509  njensen  Garbage collect after running tool
  * 
  * </pre>
  * 
@@ -164,6 +165,7 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
                                         "Error in smart tool", e);
                                 throw e;
                             } finally {
+                                python.garbageCollect();
                                 progressJob.done(pjResult);
                                 req = request;
                                 request = null;

@@ -1,8 +1,7 @@
 package gov.noaa.nws.ncep.edex.plugin.stormtrack.util;
 
-import static org.junit.Assert.*;
-import gov.noaa.nws.ncep.common.dataplugin.stormtrack.*;
-import gov.noaa.nws.ncep.edex.plugin.stormtrack.util.StormTrackParser;
+import static org.junit.Assert.assertEquals;
+import gov.noaa.nws.ncep.common.dataplugin.stormtrack.StormTrackRecord;
 
 import java.util.Calendar;
 
@@ -19,23 +18,23 @@ public class StormTrackParserTest {
 	public void testProcessLatLon() {
 		Float latLon;
 		latLon = StormTrackParser.processLatLon("975W");
-		assertEquals (-97.5, latLon);
+        assertEquals(-97.5, latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("1605E");
-		assertEquals (160.5, latLon);
+        assertEquals(160.5, latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("1605W");
-		assertEquals (-160.5, latLon);
+        assertEquals(-160.5, latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("623E");
-		assertEquals (62.3, latLon);
+        assertEquals(62.3, latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("62N");
-		assertEquals (6.2, latLon);
+        assertEquals(6.2, latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("847S");
-		assertEquals (-84.7, latLon);
+        assertEquals(-84.7, latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("847G");
-		assertEquals (999999., latLon);
+        assertEquals(999999., latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon("");
-		assertEquals (999999., latLon);
+        assertEquals(999999., latLon.doubleValue());
 		latLon = StormTrackParser.processLatLon(" ");
-		assertEquals (999999., latLon);
+        assertEquals(999999., latLon.doubleValue());
 	}
 
 	@Test

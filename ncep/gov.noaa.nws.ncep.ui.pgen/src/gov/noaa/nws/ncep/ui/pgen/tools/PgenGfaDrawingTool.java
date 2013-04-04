@@ -20,15 +20,19 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaClip;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaSnap;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 import java.util.ArrayList;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Implements a modal map tool for PGEN multiple points drawing.
@@ -48,6 +52,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 										Modified activateTool to handle non-delete situation.
  * 										Modified handleMouseMove to add moveText situation. 
  *										Create and modified handleGfaTextMouseMove and handleGfaMouseMove
+ * 11/12		#911		J. Wu   	TTR 652 - prevent invalid GFA polygon when the new point is
+ *                                                clustering with last point (30NM) and first point.
  * </pre>
  * 
  * @author	M.Laryukhin
@@ -57,6 +63,8 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 	
 	
     private boolean startGfaText;
+	private static String msg = "This Gfa is invalid and will be excluded in any future " +
+								"FROM actions. Please correct it before starting FROM.";
     
     public PgenGfaDrawingTool(){
     	
@@ -180,21 +188,30 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         		else if (startGfaText && drawableType == DrawableType.GFA){			//after a GFA polygon is created
         			startGfaText = false;
         			drawingLayer.addElement(elem);
+        			
+        			validateGfa( (Gfa)elem) ;
         			handleGfaMouseDown(loc, drawableType); 
         			((GfaAttrDlg)attrDlg).enableMoveTextBtn(true);
+        			
         		}
         		else {
         			if ( points.size() == 0 ) {
         				//When drawing GFA polygon, disable the moveText button in GFA dialog
             			((GfaAttrDlg)attrDlg).enableMoveTextBtn(false);
     			}
+        			
+        			if ( isValidPoint( points, loc ) ) {
                 points.add( loc );     
         		}
                 
+//        			points.add( loc ); 
+        		}
+        		
                 attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
                 return true;
             }
             else if ( button == 3 ) {
+
         		//exit drawing text mode
         		if ( startGfaText ) {
         			startGfaText = false;
@@ -203,6 +220,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         				//if right click before adding the text
         				((Gfa)elem).setGfaTextCoordinate(loc);
             			drawingLayer.addElement(elem);
+            			validateGfa( (Gfa)elem) ;
             			mapEditor.refresh();
         				points.clear();
         			}
@@ -260,6 +278,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 
 					return true;
             	}
+
             	return true;
             }
         	else if ( button == 2 ){
@@ -270,6 +289,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         		}
         		return true;
         	}
+
         	return false;
         }
 
@@ -388,6 +408,62 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         	points.clear();
         }
 
+        
+        /*
+         * Warning if a GFA is invalid (self-crossing).
+         */
+        private void validateGfa( Gfa gfa ) {
+			if ( !gfa.isValid() ) {
+				MessageDialog confirmDlg = new MessageDialog( 
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+						"Invalid GFA Polygon", null, msg,
+						MessageDialog.WARNING, new String[]{"OK"}, 0 );
+
+				confirmDlg.open();
+			}
+        }
+        
+        /*
+        * Checks if adding a new point to the end will make the polygon invalid.
+        * 
+        * Invalid if: (1) the point is in the clustering distance with the last point &&
+        *             (2) the point is in the clustering distance with the first point &&
+        *             (3) the point makes the polygon self-crossing - both in map/grid coordinate.
+        * 
+        */
+       private boolean isValidPoint( ArrayList<Coordinate> points, Coordinate loc ) {
+       	
+    	   boolean valid = true;
+
+    	   if ( loc == null ) {
+    		   valid = false;
+    	   }
+    	   else {
+    		   int ll = points.size();
+    		   if ( ll > 1 ) {
+
+    			   if ( GfaSnap.getInstance().isCluster( loc, points.get(ll -1) ) ||
+    					   GfaSnap.getInstance().isCluster( loc, points.get(0) ) ) {
+
+    				   Coordinate[] pts = new Coordinate[ points.size() + 1 ];
+    				   points.toArray( pts);
+    				   pts[ pts.length - 1 ] = loc;
+
+    				   Polygon poly1 = GfaClip.getInstance().pointsToPolygon( pts );
+
+    				   valid = poly1.isValid();
+
+    				   if ( valid ) {
+    					   Polygon poly2 = GfaClip.getInstance().pointsToPolygon( PgenUtil.latlonToGrid( pts ) );
+    					   valid = poly2.isValid();
+    				   }
+    			   }    	    	
+    		   }
+    	   }
+
+    	   return valid;
+       }
+       
     }
     
 }

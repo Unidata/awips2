@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.site,
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
- com.raytheon.uf.common.tafqueue;bundle-version="1.0.0"
+ com.raytheon.uf.common.tafqueue;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.3.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.viz.aviation,

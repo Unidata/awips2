@@ -49,9 +49,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.GroupNamingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
+import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.viz.core.rsc.BestResResource;
 import com.raytheon.viz.ui.actions.DummyAction;
-import com.raytheon.viz.ui.cmenu.SetTimeMatchBasisAction;
 
 /**
  * Legend decorator for d2d. Responsible for drawing and handling mouse input
@@ -361,8 +361,11 @@ public class D2DLegendResource extends
 
         AbstractDescriptor desc = (AbstractDescriptor) descriptor;
         if (!fromResourceGroup
-                && resource == desc.getTimeMatcher().getTimeMatchBasis()) {
-            name = "* " + name;
+                && desc.getTimeMatcher() instanceof D2DTimeMatcher) {
+            if (resource == ((D2DTimeMatcher) desc.getTimeMatcher())
+                    .getTimeMatchBasis()) {
+                name = "* " + name;
+            }
         }
 
         if (this.mode == LegendMode.SHORT_PRODUCT && !fromResourceGroup
@@ -387,8 +390,12 @@ public class D2DLegendResource extends
         ResourceList list = ((IResourceGroup) rscGroup.getResourceData())
                 .getResourceList();
         boolean tmb = false;
-        AbstractVizResource<?, ?> basis = ((AbstractDescriptor) descriptor)
-                .getTimeMatcher().getTimeMatchBasis();
+        AbstractVizResource<?, ?> basis = null;
+        AbstractDescriptor desc = (AbstractDescriptor) descriptor;
+        if (desc.getTimeMatcher() instanceof D2DTimeMatcher) {
+            basis = ((D2DTimeMatcher) desc.getTimeMatcher())
+                    .getTimeMatchBasis();
+        }
         DataTime timeToUse = null;
         if (rscGroup.hasCapability(GroupNamingCapability.class) == false
                 || groupName == null) {

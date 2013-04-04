@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProdType;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
@@ -336,27 +337,12 @@ public class PgenProd extends AbstractPgenTool {
         			code = confirmDlg.open();
         			
         		}
-        		else {
-        			try {
-        				File dir = new File(dirPath);
-        				if ( !dir.exists() ){
-        					dir.mkdirs();
-        				}
-        			}
-        			catch ( Exception e ){
-        				System.out.println("Problem writing file "+out.getAbsolutePath());
-        			}
-        		}
+        		
         		
         		if ( code == MessageDialog.OK ){
-        			try {
-        				FileWriter fw = new FileWriter(out);
-        				fw.write( message );
-        				fw.close();
-        			}
-        			catch (Exception e) {
-        				System.out.println("Problem writing file "+out.getAbsolutePath());
-        			}
+        			
+        			FileTools.writeFile(filePath, message);
+        			
         		}
         	}
        		
