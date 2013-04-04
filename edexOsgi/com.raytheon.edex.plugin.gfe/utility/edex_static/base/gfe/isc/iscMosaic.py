@@ -72,7 +72,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
-#    
+#    01/17/13	     15588	   jdynina	  Fixed Publish history removal 
 # 
 # 
 
@@ -82,9 +82,8 @@ BATCH_DELAY = 0.0
 
 ISC_USER="isc"
 
-
 class WECache(object): 
-    def __init__(self, we, tr=None): 
+    def __init__(self, we, tr=None):
         self._grids = []
         self._hist = []
         self._we = we
@@ -156,12 +155,17 @@ class WECache(object):
             index = bisect.bisect_left(map(lambda x : x[0], self._inv), tr[0])
             self._inv.insert(index, tr)   
             history = ArrayList()
+
             for h in hist:
-                #strip out grid history to allow for publishing correctly
-                #when merging Fcst/Official out of A1 
-                hh = GridDataHistory(h)
-                hh.setPublishTime(None)
-                history.add(hh)
+		dbName = self._we.getParmid().getDbId().toString()
+		if dbName.find('Fcst') != -1:
+                    #strip out publish time to allow for publishing correctly
+                    #when merging Fcst out of A1 
+                    hh = GridDataHistory(h)
+                    hh.setPublishTime(None)
+                    history.add(hh)
+		else:
+		    history.add(GridDataHistory(h)) 
             if gridType == 'SCALAR':
                 self._we.setItemScalar(timeRange, grid.astype(numpy.float32), history)
             elif gridType == 'VECTOR':
@@ -320,7 +324,6 @@ class IscMosaic:
             self.logProblem(\
               "-n and -a altMask switches not compatible")
             raise Exception, "Bad command line"
-
 
         self.__inFiles = JUtil.pyValToJavaObj(self.__inFiles)
         self.__processTimePeriod = (startTime, endTime)

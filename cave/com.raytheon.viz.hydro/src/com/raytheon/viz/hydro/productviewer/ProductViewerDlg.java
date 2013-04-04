@@ -25,11 +25,14 @@ import java.util.ArrayList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -61,6 +64,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12/16/2008   1782       grichard    Refreshed Product Viewer.
  * 12/11/2009   2488       mpduff      Refactored dialog to work as 
  *                                     in AWIPS 1
+ * 02/07/2013   1578       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -69,6 +73,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class ProductViewerDlg extends CaveSWTDialog {
+    /**
+     * Dialog's location and size.
+     */
+    private static Rectangle bounds;
 
     /**
      * Font used for the list and text controls.
@@ -113,19 +121,24 @@ public class ProductViewerDlg extends CaveSWTDialog {
     /**
      * ProductInfo data structure list.
      */
-    private ArrayList<ProductInfo> productInfoList = null;
+    private java.util.List<ProductInfo> productInfoList = null;
 
     /**
-     * Contructor.
+     * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public ProductViewerDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Product Viewer");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -135,11 +148,44 @@ public class ProductViewerDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent e) {
+                bounds = shell.getBounds();
+            }
+        });
+
+        if (bounds != null) {
+            shell.setBounds(bounds);
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
@@ -158,15 +204,20 @@ public class ProductViewerDlg extends CaveSWTDialog {
 
         String lid = HydroDisplayManager.getInstance().getCurrentLid();
         if ((lid != null) && (lid.length() > 0)) {
+            setReturnValue(lid);
             selectedLocTF.setText(lid);
         }
 
         loadProductList();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#shouldOpen()
+     */
     @Override
     protected boolean shouldOpen() {
-        setReturnValue(false);
         return HydroDisplayManager.getInstance().isCurrentLidSelected(shell);
     }
 
@@ -267,10 +318,11 @@ public class ProductViewerDlg extends CaveSWTDialog {
         gd = new GridData(110, SWT.DEFAULT);
         selectedLocTF = new Text(rightComp, SWT.BORDER);
         selectedLocTF.setLayoutData(gd);
-        selectedLocTF.addFocusListener(new FocusAdapter() {
+        selectedLocTF.addVerifyListener(new VerifyListener() {
+
             @Override
-            public void focusLost(FocusEvent event) {
-                selectedLocTF.setText(selectedLocTF.getText().toUpperCase());
+            public void verifyText(VerifyEvent e) {
+                e.text = e.text.toUpperCase();
             }
         });
 
@@ -288,10 +340,11 @@ public class ProductViewerDlg extends CaveSWTDialog {
         gd = new GridData(110, SWT.DEFAULT);
         prodIdFilterTF = new Text(rightComp, SWT.BORDER);
         prodIdFilterTF.setLayoutData(gd);
-        prodIdFilterTF.addFocusListener(new FocusAdapter() {
+        prodIdFilterTF.addVerifyListener(new VerifyListener() {
+
             @Override
-            public void focusLost(FocusEvent event) {
-                prodIdFilterTF.setText(prodIdFilterTF.getText().toUpperCase());
+            public void verifyText(VerifyEvent e) {
+                e.text = e.text.toUpperCase();
             }
         });
 
@@ -336,6 +389,18 @@ public class ProductViewerDlg extends CaveSWTDialog {
     }
 
     /**
+     * Set the location value and if needed clear the prod ID filter.
+     * 
+     * @param lid
+     */
+    public void setLid(String lid) {
+        if (!selectedLocTF.getText().equals(lid)) {
+            selectedLocTF.setText(lid);
+            prodIdFilterTF.setText("");
+        }
+    }
+
+    /**
      * Create the Close button.
      */
     private void createCloseButton() {
@@ -353,7 +418,8 @@ public class ProductViewerDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                bounds = shell.getBounds();
+                close();
             }
         });
     }
@@ -422,7 +488,7 @@ public class ProductViewerDlg extends CaveSWTDialog {
                             selectedLocTF.getText());
         }
 
-        /* Populate the list */
+        // Populate the list
         loadProductListInfo(productInfoList);
     }
 
@@ -432,7 +498,7 @@ public class ProductViewerDlg extends CaveSWTDialog {
      * @param productInfoList
      *            List of ProductInfo objects to load into the list widget
      */
-    private void loadProductListInfo(ArrayList<ProductInfo> productInfoList) {
+    private void loadProductListInfo(java.util.List<ProductInfo> productInfoList) {
         String[] listItems = new String[productInfoList.size()];
         for (int i = 0; i < productInfoList.size(); i++) {
             listItems[i] = productInfoList.get(i).toString();
@@ -445,11 +511,11 @@ public class ProductViewerDlg extends CaveSWTDialog {
      * Display the selected item.
      */
     private void displaySelectedItem() {
-        /* Get the data from the list. */
+        // Get the data from the list.
         ProductInfo prodInfo = productInfoList.get(prodInfoListWidget
                 .getSelectionIndex());
 
-        /* Get the text product */
+        // Get the text product
         ProductViewerDataManager dataManager = ProductViewerDataManager
                 .getInstance();
         String product = dataManager.getTextProduct(prodInfo);

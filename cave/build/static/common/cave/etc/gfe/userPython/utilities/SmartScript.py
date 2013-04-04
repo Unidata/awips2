@@ -23,17 +23,26 @@
 # any purpose.
 #
 #    SmartScript -- library of methods for Smart Tools and Procedures
-# History
-# Time        Ticket#      Developer    Comments
-# ----------------------------------------------------------------------
-# 01/09/2012  DR15626      J. Zeng      Add methods 
-#                                       enableISCsend
-#                                       clientISCSendStatus
-#                                       manualSendISC_autoMode
-#                                       manualSendISC_manualMode
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/09/13        DR15626       J. Zeng        Add methods 
+#                                                   enableISCsend
+#                                                   clientISCSendStatus
+#                                                   manualSendISC_autoMode
+#                                                   manualSendISC_manualMode
+#    01/30/13        1559          dgilling       Fix TypeError in 
+#                                                 getGridCellSwath().
+#    Mar 13, 2013    1791          bsteffen       Implement bulk getGrids to
+#                                                 improve performance.
+#    Mar 13, 2013    1793          bsteffen       Performance improvements for
+#                                                 TCMWindTool
+#    
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -52,6 +61,7 @@ from java.util import Date
 from java.nio import FloatBuffer
 
 from com.raytheon.uf.common.time import SimulatedTime
+from com.raytheon.uf.common.time import TimeRange as javaTimeRange
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DByte
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DFloat
 from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
@@ -350,7 +360,10 @@ class SmartScript(BaseTool.BaseTool):
         #       e.g. "SFC", "MB350", "BL030"
         # x, y: integer coordinates
         # timeRange: Must be a special time range object such as
-        #   that passed in the argument list as GridTimeRange
+        #   that passed in the argument list as GridTimeRange or a list of time
+        #   range objects. If it is a list than the return value will be a dict
+        #   where the time range objects are keys and the result of getGrids
+        #   for each time range is the value.
         # mode: specifies how to handle the situation if multiple grids
         #   are found within the given time range:
         #   "TimeWtAverage": return time-weighted Average value
@@ -393,10 +406,19 @@ class SmartScript(BaseTool.BaseTool):
 
         if isinstance(model, DatabaseID.DatabaseID):
             model = model.modelIdentifier()
-            
+        
+        timeRangeList = None
         if isinstance(timeRange, TimeRange.TimeRange):
             timeRange = timeRange.toJavaObj()
-
+        elif isinstance(timeRange, list):
+            timeRangeList = timeRange
+            timeRangeArray = jep.jarray(len(timeRangeList), javaTimeRange)
+            for i in xrange(len(timeRangeList)):
+                tr = timeRangeList[i]
+                if isinstance(tr, TimeRange.TimeRange):
+                    tr = tr.toJavaObj()
+                timeRangeArray[i] = tr
+            timeRange = timeRangeArray
 #        if cache:
 #            for cModel, cElement, cLevel, cMostRecent, cRange, cMode, cResult in \
 #                    self.__pythonGrids:
@@ -414,7 +436,17 @@ class SmartScript(BaseTool.BaseTool):
                     "NoData", "No Weather Element for " + exprName)
             else:
                 return None
-        result = self.__cycler.getCorrespondingResult(parm, timeRange, mode)        
+        result = self.__cycler.getCorrespondingResult(parm, timeRange, mode)
+        if timeRangeList is not None:
+            retVal = {}
+            for i in xrange(len(timeRangeList)):
+                iresult = self._getGridsResult(timeRangeList[i], noDataError, mode, exprName, result[i])
+                retVal[timeRangeList[i]] = iresult
+            return retVal
+        else:
+            return self._getGridsResult(timeRange, noDataError, mode, exprName, result)
+        
+    def _getGridsResult(self, timeRange, noDataError, mode, exprName, result): 
         retVal = None        
         if result is not None:
             if len(result) == 0:
@@ -762,8 +794,9 @@ class SmartScript(BaseTool.BaseTool):
         v = - v
         speed = numpy.sqrt(u * u + v * v)
         dir = numpy.arctan2(u, v) * RAD_TO_DEG
-        dir = numpy.where(numpy.greater_equal(dir, 360), dir - 360, dir)
-        dir = numpy.where(numpy.less(dir, 0), dir + 360, dir)
+        # adjust values so that 0<dir<360
+        dir[numpy.greater_equal(dir, 360)] -= 360
+        dir[numpy.less(dir, 0)] += 360
         return (speed, dir)
 
     def MagDirToUV(self, mag, dir):
@@ -1210,7 +1243,6 @@ class SmartScript(BaseTool.BaseTool):
         # color.  If "on" is 0, turn off the highlight.
         parm = self.getParm(model, element, level)
         from com.raytheon.viz.gfe.core.msgs import HighlightMsg
-        from com.raytheon.uf.common.time import TimeRange as javaTimeRange
         
         trs = jep.jarray(1, javaTimeRange)
         trs[0] = timeRange.toJavaObj()
@@ -1553,8 +1585,6 @@ class SmartScript(BaseTool.BaseTool):
         return self.__dataMgr.getSpatialDisplayManager().getActivatedParm()
 
     def getGridCellSwath(self, editArea, cells):
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
         from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
         # Returns an AFPS.ReferenceData swath of the given
         # number of cells around the given an edit area.
@@ -1569,10 +1599,10 @@ class SmartScript(BaseTool.BaseTool):
             grid2DBit = self.getGridLoc().gridCellSwath(
                 polygon.getCoordinates(), float(cells), False)
             if grid2DB is not None:
-                grid2DB = grid2DB | grid2DBit
+                grid2DB = grid2DB.orEquals(grid2DBit)
             else:
                 grid2DB = grid2DBit
-        return ReferenceData(self.getGridLoc(), ReferenceID("test"), grid2DB)
+        return self.getGridLoc().convertToReferenceData(grid2DB)
 
     def getLatLon(self, x, y):
         # Get the latitude/longitude values for the given grid point

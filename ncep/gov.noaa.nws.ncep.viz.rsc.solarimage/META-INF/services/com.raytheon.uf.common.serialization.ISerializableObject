@@ -1,0 +1,3 @@
+gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResourceData
+gov.noaa.nws.ncep.viz.rsc.solarimage.display.DefaultNonMapDisplay
+gov.noaa.nws.ncep.viz.rsc.solarimage.display.SolarImageMatchCriteria

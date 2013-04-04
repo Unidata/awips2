@@ -38,7 +38,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * 03/04/2013   DCS51      zwang       Handle GFM product
  * 
  * </pre>
  * 
@@ -103,6 +103,7 @@ public class PacketFactory {
                 GenericDataPacket.class.getName(),
                 LinkedContourVectorPacket.class.getName(),
                 UnlinkedContourVectorPacket.class.getName(),
+                GFMPacket.class.getName(),
                 DMDPacket.class.getName() };
 
         // Properties props =

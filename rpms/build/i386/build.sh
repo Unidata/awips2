@@ -148,26 +148,28 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "Installer.ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-python"
    buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-qpid"
 
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-database"
-   buildRPM "awips2-database-server-configuration"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-localapps-environment"
-   buildRPM "awips2-maps-database"
+#   buildRPM "awips2-database-server-configuration"
+#   buildRPM "awips2-database-standalone-configuration"
+#   buildRPM "awips2-data.hdf5-gfe.climo"
+#   buildRPM "awips2-hydroapps-shared"
+#   buildRPM "awips2-localapps-environment"
+#   buildRPM "awips2-maps-database"
    buildRPM "awips2-notification"
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-data.gfe"
+#   buildRPM "awips2-pypies"
+#   buildRPM "awips2-data.hdf5-topo"
+#   buildRPM "awips2-data.gfe"
    buildRPM "awips2-rcm"
    buildRPM "awips2-edex-environment"
-   buildLocalizationRPMs
+#   buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
    fi
@@ -316,13 +318,6 @@ if [ "${1}" = "-ade" ]; then
       exit 1
    fi
 
-   # Build the source jar file
-   ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB13.2.1-CM"
-   cd $ade_work_dir
-   ./build_source_jar.sh
-   cp -v /tmp/awips-component/tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
-
-
    # Tar the directory.
    pushd . > /dev/null 2>&1
    cd ${WORKSPACE}
@@ -339,6 +334,7 @@ fi
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildCAVE
+   buildRPM "awips2-rcm"
    if [ $? -ne 0 ]; then
       exit 1
    fi
@@ -349,6 +345,7 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
+   buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "Installer.ncep-database"

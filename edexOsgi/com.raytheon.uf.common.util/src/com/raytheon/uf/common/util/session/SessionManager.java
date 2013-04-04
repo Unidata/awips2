@@ -25,7 +25,6 @@ import java.util.Map;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.ReflectionUtil;
 
 /**
  * Provides the functionality to manage a 'session'. Each thread has its own
@@ -40,6 +39,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 26, 2012 1195       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Use SessionContextFactory to create the session context.
  * 
  * </pre>
  * 
@@ -57,6 +57,7 @@ public final class SessionManager {
      */
     private static class SessionContextTracker {
         private int openRequests;
+
         private final SessionContext sessionContext;
 
         /**
@@ -91,25 +92,26 @@ public final class SessionManager {
      *            the context class for the session type
      */
     public static <T extends SessionContext> T openSession(
-            Class<T> contextClass) {
+            SessionContextFactory<T> sessionContextFactory) {
         final Map<String, SessionContextTracker> map = context.get();
+        final Class<T> contextClass = sessionContextFactory
+                .getSessionContextClass();
         final String key = contextClass.getName();
 
         SessionContextTracker ctxTracker = map.get(key);
         if (ctxTracker == null) {
-            SessionContext ctx = ReflectionUtil.newInstanceOfAssignableType(
-                    SessionContext.class, contextClass);
+            SessionContext ctx = sessionContextFactory.getSessionContext();
             ctx.open();
 
             ctxTracker = new SessionContextTracker(ctx);
             map.put(key, ctxTracker);
         }
-        
+
         ctxTracker.openRequests++;
-        
+
         if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
             statusHandler.debug(String.format(
-                    " context [%s] openRequests [%s]", contextClass.getName(),
+                    " context [%s] openRequests [%s]", key,
                     ctxTracker.openRequests));
         }
 
@@ -126,16 +128,19 @@ public final class SessionManager {
      *             if the session is not open
      */
     public static <T extends SessionContext> void closeSession(
-            Class<T> contextClass) {
+            SessionContextFactory<T> sessionContextFactory) {
         final Map<String, SessionContextTracker> map = context.get();
+        final Class<T> contextClass = sessionContextFactory
+                .getSessionContextClass();
         final String key = contextClass.getName();
 
         SessionContextTracker ctxTracker = map.get(key);
 
         if (ctxTracker == null) {
-            throw new IllegalStateException(
-                    "Unable to close a session that is not opened!  "
+            statusHandler
+                    .warn("Unable to close a session that is not opened!  "
                             + "Please be sure to pair the closeSession() request with a prior openSession() request.");
+            return;
         }
 
         ctxTracker.openRequests--;
@@ -168,8 +173,10 @@ public final class SessionManager {
      *             if the session is not open
      */
     public static <T extends SessionContext> T getSessionContext(
-            Class<T> contextClass) {
+            SessionContextFactory<T> sessionContextFactory) {
         final Map<String, SessionContextTracker> map = context.get();
+        final Class<T> contextClass = sessionContextFactory
+                .getSessionContextClass();
         final String key = contextClass.getName();
 
         SessionContextTracker ctxTracker = map.get(key);
