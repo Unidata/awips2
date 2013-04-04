@@ -1,31 +1,33 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
+package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
-import java.util.Random;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.util.AbstractFixture;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSharedSubscription;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * {@link AbstractFixture} implementation for {@link PendingSubscription}
- * objects.
+ * Implementation of {@link SubscriptionFilterableQuery} to retrieve
+ * {@link InitialPendingSharedSubscription}s.
  * 
  * <pre>
  * 
@@ -33,42 +35,31 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 28, 2012 1187       djohnson     Initial creation
+ * Apr 04, 2013 1841       djohnson     Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
-
-public class PendingSubscriptionFixture extends
-        BaseUserSubscriptionFixture<PendingUserSubscription> {
-
-    public static final PendingSubscriptionFixture INSTANCE = new PendingSubscriptionFixture();
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+public class PendingSharedSubscriptionQuery extends
+        SubscriptionFilterableQuery<InitialPendingSharedSubscription> {
 
     /**
-     * Disabled constructor.
+     * {@inheritDoc}
      */
-    private PendingSubscriptionFixture() {
+    @Override
+    public Class<InitialPendingSharedSubscription> getResultType() {
+        return InitialPendingSharedSubscription.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PendingUserSubscription getInstance(long seedValue, Random random) {
-        PendingUserSubscription sub = super.getInstance(seedValue, random);
-        sub.setChangeReqId("change" + seedValue);
-
-        return sub;
+    public Class<InitialPendingSharedSubscription> getObjectType() {
+        return InitialPendingSharedSubscription.class;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected PendingUserSubscription getSubscription() {
-        return new PendingUserSubscription();
-    }
-
 }

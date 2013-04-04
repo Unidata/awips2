@@ -38,7 +38,6 @@ import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.service.ApprovedPendingSubscriptionNotificationResponse;
-import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.service.DeniedPendingSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.service.PendingSubscriptionNotificationResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -46,8 +45,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.core.notification.NotificationMessageContainsType;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
@@ -74,6 +73,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Nov 28, 2012 1286       djohnson     Remove sysout.
  * Dec 19, 2012 1413       bgonzale     In the notificationArrived method, check for approved or
  *                                      denied pending messages.
+ * Apr 05, 2013 1841       djohnson     Refresh entire table on receiving a notification of the correct type.
  * </pre>
  * 
  * @author lvenable
@@ -98,10 +98,15 @@ public class SubApprovalTableComp extends TableComp {
         private Action(String action) {
             this.action = action;
         }
+
+        @Override
+        public String toString() {
+            return this.action;
+        }
     }
 
     /** Status Handler */
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubApprovalTableComp.class);
 
     /** Pending Subscription Manager Data object */
@@ -112,6 +117,13 @@ public class SubApprovalTableComp extends TableComp {
 
     /** Callback to the main dialog */
     private final ISubscriptionApprovalAction callback;
+
+    /** Checks notification message for types we care about. **/
+    private final NotificationMessageContainsType notificationMessageChecker = new NotificationMessageContainsType(
+            PendingSubscription.class,
+            PendingSubscriptionNotificationResponse.class,
+            ApprovedPendingSubscriptionNotificationResponse.class,
+            DeniedPendingSubscriptionNotificationResponse.class);
 
     /**
      * Constructor.
@@ -219,7 +231,7 @@ public class SubApprovalTableComp extends TableComp {
      *            Updated subscriptions.
      */
     public synchronized void updateTable(
-            ArrayList<InitialPendingSubscription> updatedSubscriptions) {
+            List<InitialPendingSubscription> updatedSubscriptions) {
         for (Subscription s : updatedSubscriptions) {
             if (s != null) {
                 if (s.isDeleted()) {
@@ -515,42 +527,12 @@ public class SubApprovalTableComp extends TableComp {
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
-        final ArrayList<InitialPendingSubscription> updatedSubscriptions = new ArrayList<InitialPendingSubscription>();
-        try {
-            for (NotificationMessage msg : messages) {
-                Object obj = msg.getMessagePayload();
-                if (obj instanceof PendingSubscription) {
-                    updatedSubscriptions.add((PendingSubscription) obj);
-                } else if (obj instanceof PendingSubscriptionNotificationResponse) {
-                    PendingSubscriptionNotificationResponse response = (PendingSubscriptionNotificationResponse) obj;
-                    InitialPendingSubscription sub = response.getSubscription();
-                    updatedSubscriptions.add(sub);
-                } else if (obj instanceof ApprovedPendingSubscriptionNotificationResponse) {
-                    BaseSubscriptionNotificationResponse<InitialPendingSubscription> response = (BaseSubscriptionNotificationResponse<InitialPendingSubscription>) obj;
-                    InitialPendingSubscription dummySubForApproved = response
-                            .getSubscription();
-                    dummySubForApproved.setDeleted(true);
-                    updatedSubscriptions.add(dummySubForApproved);
-                } else if (obj instanceof DeniedPendingSubscriptionNotificationResponse) {
-                    DeniedPendingSubscriptionNotificationResponse response = (DeniedPendingSubscriptionNotificationResponse) obj;
-                    InitialPendingSubscription dummySubForDenied = new InitialPendingSubscription();
-                    dummySubForDenied.setId(response.getId());
-                    dummySubForDenied.setDeleted(true);
-                    updatedSubscriptions.add(dummySubForDenied);
-                }
-            }
-        } catch (NotificationException e) {
-            statusHandler.error("Error when receiving notification", e);
-        } catch (RuntimeException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-
-        if (updatedSubscriptions.isEmpty() == false) {
+        if (notificationMessageChecker.matchesCondition(messages)) {
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    if (isDisposed() == false) {
-                        updateTable(updatedSubscriptions);
+                    if (!isDisposed()) {
+                        repopulate();
                     }
                 }
             });

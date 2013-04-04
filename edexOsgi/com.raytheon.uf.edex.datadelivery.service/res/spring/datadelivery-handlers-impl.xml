@@ -6,16 +6,29 @@
 
     <!-- Moved in to an EDEX specific file so that the registration of handlers 
         Spring file can be reused for automated testing -->
-    <bean name="UserSubscriptionHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.UserSubscriptionHandler" />
-
     <bean name="SubscriptionHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler">
-        <constructor-arg ref="UserSubscriptionHandler" />
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.UserSubscriptionHandler" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.SharedSubscriptionHandler" />
+        </constructor-arg>
     </bean>
 
     <bean name="PendingSubscriptionHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingUserSubscriptionHandler" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSharedSubscriptionHandler" />
+        </constructor-arg>
+    </bean>
 
     <bean name="GroupDefinitionHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.GroupDefinitionHandler" />

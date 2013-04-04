@@ -86,5 +86,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.harvester"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
