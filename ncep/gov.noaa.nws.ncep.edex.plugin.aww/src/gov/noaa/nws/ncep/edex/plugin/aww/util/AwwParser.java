@@ -235,11 +235,11 @@ public class AwwParser {
 //		"WW\\s\\d{3}\\sTORNADO\\s([A-Z]{2}\\s)+CW\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)"
 		// Pattern used to extract Thunderstorm watch number for WATCH  
 //		String THUNDERSTORM_WATCH_NUMBER_EXP = "WW\\s(\\d{3})\\sTHUNDERSTORM";		
-		String THUNDERSTORM_WATCH_NUMBER_EXP = "WW\\s(\\d{3})\\sSEVERE\\sTHUNDERSTORM";		
+		String THUNDERSTORM_WATCH_NUMBER_EXP = "WW\\s(\\d{1,4})\\sSEVERE\\sTHUNDERSTORM";		//T976 - replaced (\\d{3}) with (\\d{1,4}
 		Pattern thunderstormWatchNumberPattern = Pattern.compile(THUNDERSTORM_WATCH_NUMBER_EXP);
 		Matcher thunderstormWatchNumberMatcher = thunderstormWatchNumberPattern.matcher(segment);		
 
-		String THUNDERSTORM_WATCH_NUMBER_EXP2 = "WW\\s(\\d{3})\\sSEVERE\\sTSTM";		
+		String THUNDERSTORM_WATCH_NUMBER_EXP2 = "WW\\s(\\d{1,4})\\sSEVERE\\sTSTM";		//T976 - replaced (\\d{3}) with (\\d{1,4}
 		Pattern thunderstormWatchNumberPattern2 = Pattern.compile(THUNDERSTORM_WATCH_NUMBER_EXP2);
 		Matcher thunderstormWatchNumberMatcher2 = thunderstormWatchNumberPattern2.matcher(segment);		
 		
@@ -250,7 +250,7 @@ public class AwwParser {
 			watchNumber = thunderstormWatchNumberMatcher2.group(1).trim(); 
 //			System.out.println("in processUgcToRetrieveWatchNumber - find THUNDERSTORM_WATCH_NUMBER using 'SEVERE TSTM' key word=" + watchNumber);
 		} else {
-			String TORNADO_WATCH_NUMBER_EXP = "WW\\s(\\d{3})\\sTORNADO";		
+			String TORNADO_WATCH_NUMBER_EXP = "WW\\s(\\d{1,4})\\sTORNADO";		//T976 - replaced (\\d{3}) with (\\d{1,4}
 			Pattern tornadoWatchNumberPattern = Pattern.compile(TORNADO_WATCH_NUMBER_EXP);
 			Matcher tornadoWatchNumberMatcher = tornadoWatchNumberPattern.matcher(segment);		
 			if(tornadoWatchNumberMatcher.find()) {
@@ -264,7 +264,7 @@ public class AwwParser {
 
 	public static String processUgcToRetrieveWatchNumberForStatusReport(String segment) {
 		String watchNumber = ""; 
-		String STATUS_REPORT_WATCH_NUMBER_EXP = "STATUS REPORT ON WW\\s(\\d{3})";		
+		String STATUS_REPORT_WATCH_NUMBER_EXP = "STATUS REPORT ON WW\\s(\\d{1,4})";		//T976 - replaced (\\d{3}) with (\\d{1,4}
 		Pattern statusReportWatchNumberPattern = Pattern.compile(STATUS_REPORT_WATCH_NUMBER_EXP);
 		Matcher statusReportWatchNumberMatcher = statusReportWatchNumberPattern.matcher(segment);		
 		if(statusReportWatchNumberMatcher.find()) {
@@ -276,7 +276,7 @@ public class AwwParser {
 
 	public static boolean isSegmentTextValid(String segment) {
 		boolean isSegmentValid = false; 
-		String STATUS_REPORT_WATCH_NUMBER_EXP = "STATUS REPORT ON WW\\s(\\d{3})";		
+		String STATUS_REPORT_WATCH_NUMBER_EXP = "STATUS REPORT ON WW\\s(\\d{1,4})";		//T976 - replaced (\\d{3}) with (\\d{1,4}
 		Pattern statusReportWatchNumberPattern = Pattern.compile(STATUS_REPORT_WATCH_NUMBER_EXP);
 		Matcher statusReportWatchNumberMatcher = statusReportWatchNumberPattern.matcher(segment);		
 		if(statusReportWatchNumberMatcher.find()) {
@@ -355,6 +355,8 @@ public class AwwParser {
 					// Add current P-VTEC message to set.
 		           currentUgc.addAwwVtecLine(currentVtec);			         
 		     }
+	    }else{
+	    	return null; //T976
 	    }
 	    
 		AwwParser.processFips(ugcline, currentUgc, mndTime);
@@ -517,7 +519,7 @@ public class AwwParser {
 		// Regular expression for VTEC line
 		final String VTEC_EXP = "(/([A-Z]{1}).([A-Z]{3}).([A-Z]{4}).([A-Z]{2}).([A-Z]{1}).([0-9]{4}).([0-9]{6}T[0-9]{4})Z-([0-9]{6}T[0-9]{4})Z/\\x0d\\x0d\\x0a)+";
 //final String WTCH_VTEC_EXP = "WW\\s\\d{3}\\sTORNADO\\s([A-Z]{2}\\s)+CW\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)";		
-final String WTCH_VTEC_EXP = "WW\\s(\\d{3})\\s(TORNADO|SEVERE TSTM)\\s((\\w|\\s)*)\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)";		
+final String WTCH_VTEC_EXP = "WW\\s(\\d{1,4})\\s(TORNADO|SEVERE TSTM)\\s((\\w+|\\s+)*)\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)";		
 		// Pattern used to extract VTEC line
 //		final Pattern vtecPattern = Pattern.compile(VTEC_EXP);
 //final Pattern wtchVtecPattern = Pattern.compile(WTCH_VTEC_EXP);		
@@ -574,6 +576,9 @@ if(wtchVtecMatcher.find()) {
 		           currentUgc.addAwwVtecLine(currentVtec);			         
 		     }
 	    }
+	    
+	    if (currentUgc.getAwwVtecLine() == null || currentUgc.getAwwVtecLine().size() == 0 ) //T976 - If the UGC has no VTEC/HVTEC info, return null.
+	    	 return null;
 	    
 		AwwParser.processFips(ugcline, currentUgc, mndTime);
 		

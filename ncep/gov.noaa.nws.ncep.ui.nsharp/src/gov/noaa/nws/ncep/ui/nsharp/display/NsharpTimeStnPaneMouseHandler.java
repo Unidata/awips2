@@ -22,7 +22,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResource;
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpShowTextDialog;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.vividsolutions.jts.geom.Coordinate;

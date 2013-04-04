@@ -125,6 +125,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * 
  * May 16, 2011 9356        djingtao    When timeseries is disposed, launch a new timesereis after double click
  *                                      or right click to select TimeSeries
+ * Jan 30, 2013 15646       wkwock      Fix middle button drag map incorrect
+ * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -348,15 +350,15 @@ public class MultiPointResource extends
             double shiftWidthValue = getShiftWidth(gage);
 
             if (existing != null) {
-            	PixelExtent pe = getPixelExtent(existing, getShiftWidth(existing),
-            		getShiftHeight(existing));
+                PixelExtent pe = getPixelExtent(existing,
+                        getShiftWidth(existing), getShiftHeight(existing));
                 Envelope oldEnv = descriptor.pixelToWorld(pe);
                 strTree.remove(oldEnv, existing);
             }
 
             /* Create a small envelope around the point */
             PixelExtent pe = getPixelExtent(gage, getShiftWidth(gage),
-            	getShiftHeight(gage));
+                    getShiftHeight(gage));
             Envelope newEnv = descriptor.pixelToWorld(pe);
 
             strTree.insert(newEnv, gage);
@@ -862,13 +864,13 @@ public class MultiPointResource extends
             Envelope env = new Envelope(coord.asLatLon());
             List<?> elements = strTree.query(env);
             if (elements.size() > 0) {
-            	StringBuffer sb = new StringBuffer();
-            	boolean first = true;
+                StringBuffer sb = new StringBuffer();
+                boolean first = true;
                 Iterator<?> iter = elements.iterator();
                 while (iter.hasNext()) {
                     GageData gage = (GageData) iter.next();
                     if (!first) {
-                    	sb.append("\n");
+                        sb.append("\n");
                     }
                     sb.append("GAGE: " + gage.getName() + " VALUE: "
                             + gage.getGageValue());
@@ -1271,15 +1273,9 @@ public class MultiPointResource extends
                 List<?> elements = strTree.query(env);
                 GageData closestGage = getNearestPoint(coord, elements);
                 if (closestGage != null) {
-                    if ((ts == null) || !ts.isOpen()) {
-                        Shell shell = PlatformUI.getWorkbench()
-                                .getActiveWorkbenchWindow().getShell();
-                        ts = new TimeSeriesDlg(shell, closestGage, true);
-                        ts.open();
-                    } else {
-                        ts.updateSelection(closestGage, true);
-                    }
-
+                    getTs();
+                    ts.open();
+                    ts.updateSelection(closestGage, true);
                 } else {
                     showMessage();
                 }
@@ -1486,6 +1482,7 @@ public class MultiPointResource extends
      * @return the ts
      */
     public TimeSeriesDlg getTs() {
+        ts = TimeSeriesDlg.getInstance();
         return ts;
     }
 
@@ -1549,15 +1546,9 @@ public class MultiPointResource extends
                             /* element 0 = Coordinate, 1 = inspectString */
                             GageData gage = (GageData) iter.next();
 
-                            Shell shell = PlatformUI.getWorkbench()
-                                    .getActiveWorkbenchWindow().getShell();
-
-                            if ((ts == null) || !ts.isOpen()) {
-                                ts = new TimeSeriesDlg(shell, gage, false);
-                                ts.open();
-                            } else {
-                                ts.updateSelection(gage, false);
-                            }
+                            getTs();
+                            ts.open();
+                            ts.updateSelection(gage, false);
                             try {
                                 interrogate(latLon);
                             } catch (VizException e) {
@@ -1583,9 +1574,6 @@ public class MultiPointResource extends
          */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
-            if (mouseButton == 2) {
-                return true;
-            }
             return false;
         }
 

@@ -16,7 +16,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
-import com.raytheon.uf.viz.core.status.StatusConstants;
+import com.raytheon.uf.viz.xy.VizXyEditor;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
@@ -32,6 +32,7 @@ import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Mar 18, 2011             ghull        copied from PanHander and implement geosync
+ *    02/14/2013    #958       qzhou        Made it  work on VizXyEditor temporarily
  *    
  * </pre>
  * 
@@ -139,7 +140,7 @@ public class NcPanHandler extends InputAdapter {
 //                job.schedule(500);
 //            }
 //        }
-    	if(!( container instanceof NCMapEditor) )
+    	if(!(container instanceof NCMapEditor) && !(container instanceof VizXyEditor) )
     		return false;
     	
         if (!prefManager.handleDrag(PAN_PREF, button)
@@ -165,20 +166,24 @@ public class NcPanHandler extends InputAdapter {
 //            theLastMouseX = aX;
 //            theLastMouseY = aY;
 //        }
-        if ((!prefManager.handleDrag(PAN_PREF, button)) || container == null || !( container instanceof NCMapEditor) )
+        if ((!prefManager.handleDrag(PAN_PREF, button)) || container == null || (!( container instanceof NCMapEditor) && !( container instanceof VizXyEditor)))
             return false;
         
         // NatlCntrs addition to implement the geoSync flag.
 
-        NCMapEditor ncEditor = (NCMapEditor)container;
-        boolean geoSyncPanes = ncEditor.arePanesGeoSynced();
+//        NCMapEditor ncEditor = (NCMapEditor)container;
+//        boolean geoSyncPanes = ncEditor.arePanesGeoSynced();
         IDisplayPane[] panes = container.getDisplayPanes();
+        boolean geoSyncPanes = false;
+        if (container instanceof NCMapEditor)
+        	geoSyncPanes = ((NCMapEditor)container).arePanesGeoSynced();
         
         for (IDisplayPane p : panes) {
-        	
+        	if (container instanceof NCMapEditor) {
         	if( !(geoSyncPanes ||
-        		 ncEditor.isSelectedPane( p ) ) ) {
+        			((NCMapEditor)container).isSelectedPane( p ) ) ) {
         		continue;
+        	}
         	}
         	
             IView tmpView = (IView) p.getRenderableDisplay().getView().clone();
@@ -230,7 +235,7 @@ public class NcPanHandler extends InputAdapter {
      * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
      */
     public boolean handleMouseUp(int x, int y, int button) {
-    	if(!( container instanceof NCMapEditor) )
+    	if(!(container instanceof NCMapEditor) && !(container instanceof VizXyEditor) )
     		return false;
         zoomDir = 0;
 
@@ -305,7 +310,7 @@ public class NcPanHandler extends InputAdapter {
     //
     @Override
     public boolean handleMouseWheel(Event event, int x, int y) {
-    	if(!( container instanceof NCMapEditor) )
+    	if(!(container instanceof NCMapEditor) && !(container instanceof VizXyEditor) )
     		return false;
     	
         com.raytheon.viz.ui.input.preferences.MouseEvent SCROLL_FORWARD = com.raytheon.viz.ui.input.preferences.MouseEvent.SCROLL_FORWARD;
@@ -313,10 +318,20 @@ public class NcPanHandler extends InputAdapter {
         
         // NatlCntrs addition to implement the geoSync flag.
 
-        NCMapEditor ncEditor = (NCMapEditor)container;
-        boolean geoSyncPanes = ncEditor.arePanesGeoSynced();
-        IDisplayPane[] panes = ( geoSyncPanes ? container.getDisplayPanes() :
-        	                     ncEditor.getSelectedPanes() );
+//        NCMapEditor ncEditor = (NCMapEditor)container;
+//        boolean geoSyncPanes = ncEditor.arePanesGeoSynced();
+//        IDisplayPane[] panes = ( geoSyncPanes ? container.getDisplayPanes() :
+//        	                     ncEditor.getSelectedPanes() );
+        IDisplayPane[] panes = null;
+        boolean geoSyncPanes = false;
+        if (container instanceof NCMapEditor) {
+        	geoSyncPanes = ((NCMapEditor)container).arePanesGeoSynced();
+        	panes = ( geoSyncPanes ? container.getDisplayPanes() :
+        		((NCMapEditor)container).getSelectedPanes() );
+        }
+        else {
+        	panes = container.getDisplayPanes();
+        }
                 
         if ((event.stateMask & SWT.SHIFT) == 0
                 && container.translateClick(x, y) != null) {

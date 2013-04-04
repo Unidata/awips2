@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<broker>
+    <prefix>${QPID_HOME}</prefix>
+    <work>${QPID_WORK}</work>
+    <conf>${prefix}/etc</conf>
+
+    <plugin-directory>${QPID_HOME}/lib/plugins</plugin-directory>
+    <cache-directory>${QPID_WORK}/cache</cache-directory>
+    
+    <connector>
+        <!-- To enable SSL edit the keystorePath and keystorePassword
+	     and set enabled to true. 
+             To disable Non-SSL port set sslOnly to true -->
+        <ssl>
+            <enabled>false</enabled>
+            <port>5671</port>
+            <sslOnly>false</sslOnly>
+            <keyStorePath>/path/to/keystore.ks</keyStorePath>
+            <keyStorePassword>keystorepass</keyStorePassword>
+        </ssl>
+        <port>5672</port>
+        <socketReceiveBuffer>262144</socketReceiveBuffer>
+        <socketSendBuffer>262144</socketSendBuffer>
+    </connector>
+    <management>
+        <enabled>true</enabled>
+        <jmxport>
+            <registryServer>8999</registryServer>
+            <!--
+             If unspecified, connectorServer defaults to 100 + registryServer port.
+            <connectorServer>9099</connectionServer>
+            -->
+        </jmxport>
+        <ssl>
+            <enabled>false</enabled>
+            <!-- Update below path to your keystore location. -->
+            <keyStorePath>${conf}/qpid.keystore</keyStorePath>
+            <keyStorePassword>password</keyStorePassword>
+        </ssl>
+        <https>
+            <enabled>false</enabled>
+        </https>
+    </management>
+    <advanced>
+        <framesize>65535</framesize>
+        <locale>en_US</locale>	
+    </advanced>
+
+    <security>
+        <pd-auth-manager>
+            <principal-database>
+                <class>org.apache.qpid.server.security.auth.database.PlainPasswordFilePrincipalDatabase</class>
+                <attributes>
+                    <attribute>
+                        <name>passwordFile</name>
+                        <value>${conf}/passwd</value>
+                    </attribute>
+                </attributes>
+            </principal-database>
+        </pd-auth-manager>
+
+        <!-- By default, all authenticated users have permissions to perform all actions -->
+
+        <!-- ACL Example
+             This example illustrates securing the both Management (JMX) and Messaging.
+        <acl>${conf}/broker_example.acl</acl>
+        -->
+        
+        <msg-auth>false</msg-auth>
+    </security>
+
+    <virtualhosts>${conf}/virtualhosts.xml</virtualhosts>
+    
+    <heartbeat>
+        <delay>0</delay>
+        <timeoutFactor>2.0</timeoutFactor>
+    </heartbeat>
+    <queue>
+        <auto_register>true</auto_register>
+    </queue>
+
+    <status-updates>ON</status-updates>
+
+</broker>
+
+

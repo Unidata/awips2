@@ -122,7 +122,7 @@ if [ $? -ne 0 ]; then
    echo "ERROR: Unable to create directory - ${BUILD_ROOT}/workspace_/notification/bin."
    exit 1
 fi
-mkdir ${BUILD_ROOT}/awips2/notification/lib
+mkdir ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
 if [ $? -ne 0 ]; then
    echo "ERROR: Unable to create directory - ${BUILD_ROOT}/workspace_/notification/lib."
    exit 1
@@ -141,14 +141,14 @@ fi
 # libedex_com.so -> notification/lib
 if [ -f "${BUILD_ROOT}/workspace_/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" ]; then
    cp -v "${BUILD_ROOT}/workspace_/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" \
-      ${BUILD_ROOT}/awips2/notification/lib
+      ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to copy libedex_com.so to its destination."
       exit 1
    fi
 else
    cp -v "${WORKSPACE}/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" \
-      ${BUILD_ROOT}/awips2/notification/lib
+      ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to copy libedex_com.so to its destination."
       exit 1
@@ -192,14 +192,14 @@ if [ $? -ne 0 ]; then
 fi
 # org.apache.thrift lib -> notification/lib
 cp -vPf ${BUILD_ROOT}/workspace_/org.apache.thrift/${FOSS_LIB_DIR}/* \
-   ${BUILD_ROOT}/awips2/notification/lib
+   ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the org.apache.thrift lib to its destination."
    exit 1
 fi
 # org.apache.qpid lib -> notification/lib
 cp -vPf ${BUILD_ROOT}/workspace_/org.apache.qpid/${FOSS_LIB_DIR}/* \
-   ${BUILD_ROOT}/awips2/notification/lib
+   ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the org.apache.qpid lib to its destination."
    exit 1

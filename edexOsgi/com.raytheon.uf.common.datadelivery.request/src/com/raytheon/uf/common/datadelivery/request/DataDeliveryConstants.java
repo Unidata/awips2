@@ -30,16 +30,18 @@ package com.raytheon.uf.common.datadelivery.request;
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012 1286       djohnson     Initial creation
  * Dec 03, 2012 1379       djohnson     Separate registry service keys.
+ * Feb 26, 2013 1643       djohnson     Add NCF_BANDWIDTH_MANAGER_SERVICE.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
 public final class DataDeliveryConstants {
 
     public static final String DATA_DELIVERY_SERVER = "datadelivery.server";
+
+    public static final String NCF_BANDWIDTH_MANAGER_SERVICE = "ncf.bandwidth.manager.service";
 
     /**
      * Private constructor.

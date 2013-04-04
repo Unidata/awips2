@@ -7,7 +7,6 @@ Bundle-Vendor: RAYTHEON
 Eclipse-BuddyPolicy: registered, ext, global
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.datastorage;bundle-version="1.11.17",
- com.raytheon.uf.common.datastorage.hdf5;bundle-version="1.11.17",
  com.raytheon.uf.common.serialization;bundle-version="1.11.17",
  com.raytheon.uf.common.geospatial;bundle-version="1.11.17",
  org.geotools;bundle-version="2.5.8"

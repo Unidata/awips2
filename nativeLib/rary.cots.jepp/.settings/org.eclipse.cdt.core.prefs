@@ -1,3 +1,25 @@
-#Sun Mar 07 15:38:21 CST 2010
+#Thu Mar 28 10:20:39 CDT 2013
 eclipse.preferences.version=1
-environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="TARGET" operation\="append" value\="${ConfigName}"/>\n</environment>\n
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208=
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/CFLAGS/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/CFLAGS/operation=replace
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/CFLAGS/value=-m64 -O3
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/CPPFLAGS/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/CPPFLAGS/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/CPPFLAGS/value=-I/awips2/python/lib/python2.7/site-packages/numpy/core/include
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/TARGET/delimiter=;
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/TARGET/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/TARGET/value=${ConfigName}
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/append=true
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208.1182369870/appendContributed=true
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/CFLAGS/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/CFLAGS/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/CFLAGS/value=-m32 -O3
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/CPPFLAGS/delimiter=\:
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/CPPFLAGS/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/CPPFLAGS/value=-I/awips2/python/lib/python2.7/site-packages/numpy/core/include
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/TARGET/delimiter=;
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/TARGET/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/TARGET/value=${ConfigName}
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/append=true
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208/appendContributed=true
