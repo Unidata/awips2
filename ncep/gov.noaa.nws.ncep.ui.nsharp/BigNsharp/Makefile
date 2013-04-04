@@ -25,11 +25,12 @@ LFLAGS	=$(LFLAGS_G) $(LFLAGS_R)
 
 XLIBS	= -L/usr/X11R6/lib -lXm -lXt -lX11
 
+#CHIN change "-lnetcdf" to "$(OS_LIB)/libnetcdf.a"
 LIBS	= -L./Sndglib -lsndg \
 	$(OS_LIB)/ginitp_alt.o $(OS_LIB)/gendp_alt.o \
 	-L$(OS_LIB) -lsnlist -lsnlib -lsflist -lsflib -lnxmlib -ldiaglib \
 	-lgemlib -lprmcnvlib -lgridlib -lgplt -lgridlib -lcgemlib \
-	-ldevice -lxwp -lxw -lps -lgn -lgemlib -lnetcdf \
+	-ldevice -lxwp -lxw -lps -lgn -lgemlib $(OS_LIB)/libnetcdf.a \
 	-ltextlib -lxml2 -lxslt -liconv -lbz2 \
 	$(XLIBS) -lz -lm
 

@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
+ * Mar 5, 2013     1753     njensen    Added shutdown printout
  * 
  * </pre>
  * 
@@ -69,11 +70,14 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
 
     protected IJobChangeListener jobChangeListener;
 
+    protected CloseNonRestorableDetachedViewsListener detachedViewsListener;
+
     protected boolean singlePerspective;
 
     public VizWorkbenchAdvisor() {
         performanceListener = CaveCommandExecutionListener.getInstance();
         jobChangeListener = CaveJobChangeListener.getInstance();
+        detachedViewsListener = new CloseNonRestorableDetachedViewsListener();
 
         Activator.getDefault().getPreferenceStore()
                 .addPropertyChangeListener(new IPropertyChangeListener() {
@@ -305,6 +309,15 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
                     .getActiveWorkbenchWindow().getShell(), "Confirm Exit",
                     "Are you sure you want to exit?");
         }
+
+        if (bResult) {
+            System.out
+                    .println("VizWorkbenchAdvisor: User exiting CAVE, shutdown initiated");
+
+            // close all non-restorable detached views
+            detachedViewsListener.handleEvent(null);
+        }
+
         return bResult;
     }
 

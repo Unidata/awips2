@@ -27,17 +27,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
@@ -48,44 +44,27 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
-import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
-import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
-import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
@@ -109,6 +88,10 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     adding it to the inventory
  * 12/06/12     #1394      rjpeter     Optimized D2D grid access.
  * 01/21/12     #1504      randerso    Back ported change to use ParameterMapper into 13.1.2
+ * 02/10/13     #1603      randerso    Eliminated unnecessary conversion from lists to arrays
+ * 02/12/13     #1608      randerso    Changed to use explicit deletes for groups and datasets
+ * 03/15/13     #1795      njensen     Added updatePublishTime()
+ * 03/21/13     #1774      randerso    Moved D2D routines into {@link com.raytheon.edex.plugin.gfe.db.dao.GFED2DDao}
  * 
  * </pre>
  * 
@@ -116,25 +99,6 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * @version 1.0
  */
 public class GFEDao extends DefaultPluginDao {
-    // hibernate query to find grid info record for the given datasetId and
-    // parameter
-    private String SQL_D2D_GRID_PARM_QUERY = "select parameter_abbreviation, id "
-            + "FROM grid_info WHERE "
-            + GridInfoConstants.DATASET_ID
-            + " = :"
-            + GridInfoConstants.DATASET_ID
-            + " AND "
-            + "level_id = :level_id  AND "
-            + "(lower(parameter_abbreviation) = :abbrev OR lower(parameter_abbreviation) like :hourAbbrev)";
-
-    // hibernate query to find the times for the GridRecord for the given
-    // info.id, id returned to allow easy lookup of the record associated with
-    // the time
-    private static final String HQL_D2D_GRID_TIME_QUERY = "select dataTime, id from GridRecord "
-            + "where "
-            + GridConstants.INFO_ID
-            + " = :info_id AND dataTime.refTime = :refTime order by dataTime.fcstTime";
-
     private static final Pattern WIND_PATTERN = Pattern.compile("wind");
 
     public GFEDao() throws PluginException {
@@ -222,7 +186,7 @@ public class GFEDao extends DefaultPluginDao {
         return (GFERecord) this.queryById(record);
     }
 
-    public GFERecord[] saveOrUpdate(final GFERecord[] records) {
+    public List<GFERecord> saveOrUpdate(final List<GFERecord> records) {
         List<GFERecord> failedToSave = new ArrayList<GFERecord>();
         for (GFERecord rec : records) {
             if (rec.getIdentifier() == null) {
@@ -247,7 +211,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
         int commitPoint = 0;
         int index = 0;
-        boolean notDone = index < records.length;
+        boolean notDone = index < records.size();
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
             tx = sess.beginTransaction();
@@ -257,8 +221,8 @@ public class GFEDao extends DefaultPluginDao {
             Query q = sess.createSQLQuery(sql);
 
             while (notDone) {
-                GFERecord rec = records[index++];
-                notDone = index < records.length;
+                GFERecord rec = records.get(index++);
+                notDone = index < records.size();
                 try {
                     q.setString("dataURI", rec.getDataURI());
                     List<?> list = q.list();
@@ -323,15 +287,15 @@ public class GFEDao extends DefaultPluginDao {
             }
             if (sess != null) {
                 try {
-                sess.close();
+                    sess.close();
                 } catch (Exception e) {
                     statusHandler.error(
                             "Error occurred closing database session", e);
+                }
             }
         }
-        }
 
-        return failedToSave.toArray(new GFERecord[failedToSave.size()]);
+        return failedToSave;
 
     }
 
@@ -459,12 +423,12 @@ public class GFEDao extends DefaultPluginDao {
             String[] groupsToDelete = entry.getValue().getSecond();
 
             try {
-                dataStore.delete(groupsToDelete);
+                dataStore.deleteGroups(groupsToDelete);
 
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler.handle(Priority.DEBUG,
-                        "Deleted: " + Arrays.toString(groupsToDelete)
-                                + " from " + hdf5File.getName());
+                    statusHandler.handle(Priority.DEBUG,
+                            "Deleted: " + Arrays.toString(groupsToDelete)
+                                    + " from " + hdf5File.getName());
                 }
             } catch (Exception e) {
                 statusHandler.handle(
@@ -476,6 +440,7 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     public void updateGridHistories(ParmID parmId,
             Map<TimeRange, List<GridDataHistory>> history)
             throws DataAccessLayerException {
@@ -591,348 +556,6 @@ public class GFEDao extends DefaultPluginDao {
         return history;
     }
 
-    /**
-     * Retrieves a list of valid times for a specified ParmID from the grib
-     * metadata database. The valid time is constructed by adding the forecast
-     * time to the reference time.
-     * 
-     * @param id
-     *            The parmID to get the times for
-     * @return The list of times associated with the specified ParmID
-     * @throws DataAccessLayerException
-     *             If errors occur while querying the metadata database
-     */
-    public List<TimeRange> getD2DTimes(ParmID id)
-            throws DataAccessLayerException {
-        return queryTimeByD2DParmId(id);
-    }
-
-    /**
-     * Retrieves a list of available forecast times
-     * 
-     * @param dbId
-     *            The database ID to get the times for
-     * @return The list of forecast times associated with the specified
-     *         DatabaseID
-     * @throws DataAccessLayerException
-     *             If errors occur while querying the metadata database
-     */
-    @SuppressWarnings("unchecked")
-    public List<Integer> getD2DForecastTimes(DatabaseID dbId)
-            throws DataAccessLayerException {
-        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
-        query.addDistinctParameter("dataTime.fcstTime");
-        try {
-            IFPServerConfig config = IFPServerConfigManager
-                    .getServerConfig(dbId.getSiteId());
-            query.addQueryParam(GridConstants.DATASET_ID,
-                    config.d2dModelNameMapping(dbId.getModelName()));
-        } catch (GfeConfigurationException e) {
-            throw new DataAccessLayerException(
-                    "Error occurred looking up model name mapping", e);
-        }
-        query.addQueryParam("dataTime.refTime", dbId.getModelTimeAsDate());
-        query.addOrder("dataTime.fcstTime", true);
-        List<?> vals = this.queryByCriteria(query);
-        return (List<Integer>) vals;
-    }
-
-    /**
-     * Retrieves a GridRecord from the grib metadata database based on a ParmID,
-     * TimeRange, and GridParmInfo.
-     * 
-     * @param id
-     *            The parmID of the desired GridRecord
-     * @param timeRange
-     *            The timeRange of the desired GridRecord
-     * @param info
-     *            The GridParmInfo for the requested d2d grid.
-     * @return The GridRecord from the grib metadata database
-     * @throws DataAccessLayerException
-     *             If errors occur while querying the metadata database
-     */
-    public GridRecord getD2DGrid(ParmID id, TimeRange timeRange,
-            GridParmInfo info) throws DataAccessLayerException {
-        Session s = null;
-
-        try {
-            s = getHibernateTemplate().getSessionFactory().openSession();
-            // TODO: clean up so we only make one db query
-            SortedMap<DataTime, Integer> rawTimes = queryByD2DParmId(id, s);
-        List<TimeRange> gribTimes = new ArrayList<TimeRange>();
-            for (DataTime dt : rawTimes.keySet()) {
-                gribTimes.add(dt.getValidPeriod());
-        }
-
-            try {
-                if (isMos(id)) {
-                    for (Map.Entry<DataTime, Integer> timeEntry : rawTimes
-                            .entrySet()) {
-                        TimeRange gribTime = timeEntry.getKey()
-                                .getValidPeriod();
-                        TimeRange time = info.getTimeConstraints()
-                                .constraintTime(gribTime.getEnd());
-                    if (timeRange.getEnd().equals(time.getEnd())
-                            || !info.getTimeConstraints().anyConstraints()) {
-                            GridRecord retVal = (GridRecord) s.get(
-                                    GridRecord.class, timeEntry.getValue());
-                        retVal.setPluginName(GridConstants.GRID);
-                        return retVal;
-                    }
-                    }
-                } else if (D2DGridDatabase.isNonAccumDuration(id, gribTimes)) {
-                    for (Map.Entry<DataTime, Integer> timeEntry : rawTimes
-                            .entrySet()) {
-                        TimeRange gribTime = timeEntry.getKey()
-                                .getValidPeriod();
-                    if (timeRange.getStart().equals(gribTime.getEnd())
-                            || timeRange.equals(gribTime)) {
-                            GridRecord retVal = (GridRecord) s.get(
-                                    GridRecord.class, timeEntry.getValue());
-                        retVal.setPluginName(GridConstants.GRID);
-                        return retVal;
-                    }
-                    }
-                } else {
-                    for (Map.Entry<DataTime, Integer> timeEntry : rawTimes
-                            .entrySet()) {
-                        TimeRange gribTime = timeEntry.getKey()
-                                .getValidPeriod();
-                        TimeRange time = info.getTimeConstraints()
-                                .constraintTime(gribTime.getStart());
-                    if ((timeRange.getStart().equals(time.getStart()) || !info
-                            .getTimeConstraints().anyConstraints())) {
-                            GridRecord retVal = (GridRecord) s.get(
-                                    GridRecord.class, timeEntry.getValue());
-                        retVal.setPluginName(GridConstants.GRID);
-                        return retVal;
-                    }
-                }
-                }
-            } catch (GfeConfigurationException e) {
-                throw new DataAccessLayerException(
-                        "Error getting configuration for "
-                                + id.getDbId().getSiteId(), e);
-            }
-        } finally {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (Exception e) {
-                    statusHandler.error(
-                            "Error occurred closing database session", e);
-                }
-        }
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets a SortedMap of DataTime and GridRecord ids from the grib metadata
-     * database which match the given ParmID. Session passed to allow reuse
-     * across multiple calls.
-     * 
-     * @param id
-     *            The ParmID to search with
-     * @param s
-     *            The database session to use
-     * @return The list of GridRecords from the grib metadata database which
-     *         match the given ParmID
-     * @throws DataAccessLayerException
-     *             If errors occur while querying the metadata database
-     */
-    @SuppressWarnings("unchecked")
-    public SortedMap<DataTime, Integer> queryByD2DParmId(ParmID id, Session s)
-            throws DataAccessLayerException {
-            String levelName = GridTranslator.getLevelName(id.getParmLevel());
-
-        double[] levelValues = GridTranslator.getLevelValue(id.getParmLevel());
-            boolean levelOnePresent = (levelValues[0] != Level
-                    .getInvalidLevelValue());
-            boolean levelTwoPresent = (levelValues[1] != Level
-                    .getInvalidLevelValue());
-            Level level = null;
-
-            // to have a level 2, must have a level one
-            try {
-                if (levelOnePresent && levelTwoPresent) {
-                    level = LevelFactory.getInstance().getLevel(levelName,
-                            levelValues[0], levelValues[1]);
-                } else if (levelOnePresent) {
-                    level = LevelFactory.getInstance().getLevel(levelName,
-                            levelValues[0]);
-                } else {
-                    level = LevelFactory.getInstance().getLevel(levelName, 0.0);
-                }
-            } catch (CommunicationException e) {
-                logger.error(e.getLocalizedMessage(), e);
-            }
-            if (level == null) {
-                logger.warn("Unable to query D2D parms, ParmID " + id
-                        + " does not map to a level");
-            return new TreeMap<DataTime, Integer>();
-            }
-
-        SQLQuery modelQuery = s.createSQLQuery(SQL_D2D_GRID_PARM_QUERY);
-        modelQuery.setLong("level_id", level.getId());
-        DatabaseID dbId = id.getDbId();
-
-            try {
-                IFPServerConfig config = IFPServerConfigManager
-                        .getServerConfig(dbId.getSiteId());
-            modelQuery.setString(GridInfoConstants.DATASET_ID,
-                    config.d2dModelNameMapping(dbId.getModelName()));
-            } catch (GfeConfigurationException e) {
-                throw new DataAccessLayerException(
-                        "Error occurred looking up model name mapping", e);
-            }
-
-        String abbreviation = null;
-        try {
-            abbreviation = ParameterMapper.getInstance().lookupBaseName(
-                    id.getParmName(), "gfeParamName");
-        } catch (MultipleMappingException e) {
-            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
-            abbreviation = e.getArbitraryMapping();
-            }
-
-            abbreviation = abbreviation.toLowerCase();
-        modelQuery.setString("abbrev", abbreviation);
-        modelQuery.setString("hourAbbrev", abbreviation + "%hr");
-        List<?> results = modelQuery.list();
-        Integer modelId = null;
-            if (results.size() == 0) {
-            return new TreeMap<DataTime, Integer>();
-            } else if (results.size() > 1) {
-                // hours matched, take hour with least number that matches exact
-                // param
-                Pattern p = Pattern.compile("^" + abbreviation + "(\\d+)hr$");
-                int lowestHr = -1;
-            for (Object[] rows : (List<Object[]>) results) {
-                String param = ((String) rows[0]).toLowerCase();
-                    if (param.equals(abbreviation) && (lowestHr < 0)) {
-                    modelId = (Integer) rows[1];
-                    } else {
-                        Matcher matcher = p.matcher(param);
-                        if (matcher.matches()) {
-                            int hr = Integer.parseInt(matcher.group(1));
-                            if ((lowestHr < 0) || (hr < lowestHr)) {
-                            modelId = (Integer) rows[1];
-                                lowestHr = hr;
-                            }
-                        }
-                    }
-                }
-            } else {
-            modelId = (Integer) ((Object[]) results.get(0))[1];
-            }
-
-        Query timeQuery = s.createQuery(HQL_D2D_GRID_TIME_QUERY);
-        timeQuery.setInteger("info_id", modelId);
-        timeQuery.setParameter("refTime", dbId.getModelTimeAsDate());
-        List<Object[]> timeResults = timeQuery.list();
-        if (timeResults.isEmpty()) {
-            return new TreeMap<DataTime, Integer>();
-            }
-
-        SortedMap<DataTime, Integer> dataTimes = new TreeMap<DataTime, Integer>();
-        for (Object[] rows : timeResults) {
-            dataTimes.put((DataTime) rows[0], (Integer) rows[1]);
-        }
-        return dataTimes;
-    }
-
-    public List<TimeRange> queryTimeByD2DParmId(ParmID id)
-            throws DataAccessLayerException {
-        List<TimeRange> timeList = new ArrayList<TimeRange>();
-        Session s = null;
-        try {
-            s = getHibernateTemplate().getSessionFactory().openSession();
-
-        if (id.getParmName().equalsIgnoreCase("wind")) {
-                String idString = id.toString();
-                Matcher idWindMatcher = WIND_PATTERN.matcher(idString);
-
-                ParmID uWindId = new ParmID(idWindMatcher.replaceAll("uW"));
-                SortedMap<DataTime, Integer> results = queryByD2DParmId(
-                        uWindId, s);
-                List<TimeRange> uTimeList = new ArrayList<TimeRange>(
-                        results.size());
-                for (DataTime o : results.keySet()) {
-                uTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
-
-                ParmID vWindId = new ParmID(idWindMatcher.replaceAll("vW"));
-                results = queryByD2DParmId(vWindId, s);
-                Set<TimeRange> vTimeList = new HashSet<TimeRange>(
-                        results.size(), 1);
-                for (DataTime o : results.keySet()) {
-                vTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
-
-            for (TimeRange tr : uTimeList) {
-                if (vTimeList.contains(tr)) {
-                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                }
-            }
-
-            if (!timeList.isEmpty()) {
-                return timeList;
-            }
-
-                ParmID sWindId = new ParmID(idWindMatcher.replaceAll("ws"));
-                results = queryByD2DParmId(sWindId, s);
-                List<TimeRange> sTimeList = new ArrayList<TimeRange>(
-                        results.size());
-                for (DataTime o : results.keySet()) {
-                sTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
-
-                ParmID dWindId = new ParmID(idWindMatcher.replaceAll("wd"));
-                results = queryByD2DParmId(dWindId, s);
-                Set<TimeRange> dTimeList = new HashSet<TimeRange>(
-                        results.size(), 1);
-                for (DataTime o : results.keySet()) {
-                dTimeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                        3600 * 1000));
-            }
-
-            for (TimeRange tr : sTimeList) {
-                if (dTimeList.contains(tr)) {
-                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                }
-            }
-        } else {
-                SortedMap<DataTime, Integer> results = queryByD2DParmId(id, s);
-                if (isMos(id)) {
-                    for (DataTime o : results.keySet()) {
-                        timeList.add(new TimeRange(o.getValidPeriod().getEnd(),
-                                o.getValidPeriod().getDuration()));
-                    }
-                } else {
-                    for (DataTime o : results.keySet()) {
-                    timeList.add(o.getValidPeriod());
-                }
-            }
-        }
-        } finally {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (Exception e) {
-                    statusHandler.error(
-                            "Error occurred closing database session", e);
-                }
-            }
-        }
-
-        return timeList;
-    }
-
     public void purgeGFEGrids(final DatabaseID dbId) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -954,107 +577,6 @@ public class GFEDao extends DefaultPluginDao {
         });
     }
 
-    public List<DatabaseID> getD2DDatabaseIdsFromDb(String d2dModelName,
-            String gfeModel, String siteID) throws DataAccessLayerException {
-        return getD2DDatabaseIdsFromDb(d2dModelName, gfeModel, siteID, -1);
-    }
-
-    public List<DatabaseID> getD2DDatabaseIdsFromDb(String d2dModelName,
-            String gfeModel, String siteID, int maxRecords)
-            throws DataAccessLayerException {
-        List<DatabaseID> dbInventory = new ArrayList<DatabaseID>();
-
-        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
-        query.addDistinctParameter("dataTime.refTime");
-        query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
-        query.addOrder("dataTime.refTime", false);
-        if (maxRecords > 0) {
-            query.setMaxResults(maxRecords);
-        }
-        List<?> result = this.queryByCriteria(query);
-
-        for (Object obj : result) {
-            DatabaseID dbId = null;
-            dbId = new DatabaseID(siteID, DataType.GRID, "D2D", gfeModel,
-                    (Date) obj);
-            try {
-                GridDatabase db = GridParmManager.getDb(dbId);
-                if ((db != null) && !dbInventory.contains(dbId)) {
-                    dbInventory.add(dbId);
-                }
-            } catch (GfeException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-        }
-        return dbInventory;
-    }
-
-    /**
-     * Retrieves the latest (or newest) model run for the given site and model
-     * name.
-     * 
-     * @param d2dModel
-     *            A GridModel object that contains the D2D model name.
-     * @param gfeModel
-     *            The GFE model name that corresponds to d2dModel.
-     * @param siteID
-     *            The site to retrieve the data for.
-     * @return The DatabaseID of the newest D2D model, or null if no models can
-     *         be found.
-     * @throws DataAccessLayerException
-     */
-    public DatabaseID getLatestD2DDatabaseIdsFromDb(String d2dModelName,
-            String gfeModel, String siteID) throws DataAccessLayerException {
-        List<DatabaseID> dbIds = getD2DDatabaseIdsFromDb(d2dModelName,
-                gfeModel, siteID, 1);
-        if (!dbIds.isEmpty()) {
-            return dbIds.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    public Set<ParmID> getD2DParmIdsFromDb(String d2dModelName, DatabaseID dbId)
-            throws DataAccessLayerException {
-
-        Set<ParmID> parmIds = new HashSet<ParmID>();
-
-        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
-        query.addDistinctParameter(GridConstants.PARAMETER_ABBREVIATION);
-        query.addDistinctParameter(GridConstants.MASTER_LEVEL_NAME);
-        query.addDistinctParameter(GridConstants.LEVEL_ONE);
-        query.addDistinctParameter(GridConstants.LEVEL_TWO);
-        query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
-        query.addQueryParam(
-                "dataTime.refTime",
-                TimeUtil.formatDate(dbId.getModelTimeAsDate()).replaceAll("_",
-                        " "));
-
-        List<?> result = this.queryByCriteria(query);
-
-        for (Object obj : result) {
-            Object[] objArr = (Object[]) obj;
-            String levelName = GridTranslator.getShortLevelName(
-                    (String) objArr[1], (Double) objArr[2], (Double) objArr[3]);
-            if (!levelName.equals(LevelFactory.UNKNOWN_LEVEL)) {
-                String abbrev = (String) objArr[0];
-                try {
-                    abbrev = ParameterMapper.getInstance().lookupAlias(abbrev,
-                            "gfeParamName");
-                } catch (MultipleMappingException e) {
-                    statusHandler.handle(Priority.WARN,
-                            e.getLocalizedMessage(), e);
-                    abbrev = e.getArbitraryMapping();
-                }
-                ParmID newParmId = new ParmID(abbrev, dbId, levelName);
-                parmIds.add(newParmId);
-            }
-
-        }
-        return parmIds;
-    }
-
     /**
      * Removes GridParmInfo from the HDF5 file and any data associated with that
      * info
@@ -1074,7 +596,8 @@ public class GFEDao extends DefaultPluginDao {
         try {
             IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
                     .getGridParmHdf5File(GridDatabase.gfeBaseDataDir, dbId));
-            ds.delete("/GridParmInfo/" + parmAndLevel);
+            ds.deleteDatasets("/GridParmInfo/" + parmAndLevel,
+                    "/GridParmStorageInfo/" + parmAndLevel);
         } catch (Exception e1) {
             throw new DataAccessLayerException("Error deleting data from HDF5",
                     e1);
@@ -1130,9 +653,58 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    public static boolean isMos(ParmID id) {
-        return id.getDbId().getModelName().equals("MOSGuide")
-                && (id.getParmName().startsWith("mxt") || id.getParmName()
-                        .startsWith("mnt"));
+    /**
+     * Updates the publish times in the database of all provided
+     * GridDataHistories. Does not alter the publish times in memory.
+     * 
+     * @param history
+     *            the histories to alter in the database
+     * @param publishTime
+     *            the publish time to update to
+     * @throws DataAccessLayerException
+     */
+    public void updatePublishTime(List<GridDataHistory> history,
+            Date publishTime) throws DataAccessLayerException {
+        StringBuilder query = new StringBuilder();
+        query.append("update gfe_gridhistory set publishtime=:publishtime where key in (");
+        Iterator<GridDataHistory> itr = history.iterator();
+        while (itr.hasNext()) {
+            query.append(itr.next().getKey());
+            if (itr.hasNext()) {
+                query.append(",");
+            }
+        }
+        query.append(");");
+
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+            Query q = sess.createSQLQuery(query.toString());
+            q.setTimestamp("publishtime", publishTime);
+            q.executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                    tx = null;
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+            throw new DataAccessLayerException("Error updating history", e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
     }
 }

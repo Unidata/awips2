@@ -40,11 +40,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.GfeClientConfig;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.ui.HazardUIUtils;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -60,6 +65,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2011            randerso     Initial creation
  * Oct 30, 2012 1298       rferrel     Code clean for non-blocking dialog.
+ * 02/13/2013   #1597      randerso    Made number of concurrent save threads a configurable value.
+ *                                     Added logging to support GFE Performance metrics
  * 
  * </pre>
  * 
@@ -72,7 +79,8 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractSaveParameterDialog.class);
 
-    private final int MAX_CONCURRENT_SAVES = 5;
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     protected DataManager dataManager;
 
@@ -88,6 +96,8 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
 
     protected Font font;
 
+    private ITimer saveTimer;
+
     protected AbstractSaveParameterDialog(Shell parentShell,
             DataManager dataManager) {
         super(parentShell);
@@ -101,7 +111,7 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
         // see if Hazards WE is modified and if so save it
         this.hazParm = HazardUIUtils.hazardsWEModified(this.dataManager);
         this.hazardsModified = this.hazParm != null;
-
+        this.saveTimer = TimeUtil.getTimer();
     }
 
     /*
@@ -145,6 +155,8 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
      * Callback for saving the parameters
      */
     protected void saveParms(List<Parm> parmsToSave) {
+        saveTimer.reset();
+        saveTimer.start();
         this.getShell().setEnabled(false);
         final Cursor origCursor = this.getShell().getCursor();
         this.getShell().setCursor(
@@ -158,14 +170,14 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                long t0 = System.currentTimeMillis();
                 final AtomicBoolean allSuccessful = new AtomicBoolean(true);
                 try {
-                    final CountDownLatch latch = new CountDownLatch(
-                            MAX_CONCURRENT_SAVES);
+                    GfeClientConfig cfg = GfeClientConfig.getInstance();
+                    int saveThreads = cfg.getMaxSaveThreads();
+                    final CountDownLatch latch = new CountDownLatch(saveThreads);
 
                     // spawn separate jobs top save parms
-                    for (int i = 0; i < MAX_CONCURRENT_SAVES; i++) {
+                    for (int i = 0; i < saveThreads; i++) {
                         new Job("Saving Parms") {
                             @Override
                             protected IStatus run(IProgressMonitor monitor) {
@@ -176,12 +188,6 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
                                                 .toString();
                                         try {
                                             // save data
-                                            if (statusHandler
-                                                    .isPriorityEnabled(Priority.DEBUG)) {
-                                                statusHandler.handle(
-                                                        Priority.DEBUG,
-                                                        "Save: " + parmString);
-                                            }
                                             if (!parm.saveParameter(true)) {
                                                 allSuccessful.set(false);
                                             }
@@ -216,8 +222,6 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
                         statusHandler
                                 .handle(Priority.PROBLEM,
                                         "Some grids were not saved. See log for details.");
-                    } else {
-                        statusHandler.handle(Priority.DEBUG, "Save Complete");
                     }
 
                     VizApp.runAsync(new Runnable() {
@@ -230,10 +234,6 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
                                     .saveFinished(allSuccessful.get());
                         }
                     });
-
-                    long t1 = System.currentTimeMillis();
-                    System.out.println("GFE Save Forecast took: " + (t1 - t0)
-                            + " ms");
                 }
                 return Status.OK_STATUS;
             }
@@ -249,6 +249,9 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
         } else {
             super.cancelPressed();
         }
+
+        saveTimer.stop();
+        perfLog.logDuration("Save Forecast", saveTimer.getElapsedTime());
     }
 
 }

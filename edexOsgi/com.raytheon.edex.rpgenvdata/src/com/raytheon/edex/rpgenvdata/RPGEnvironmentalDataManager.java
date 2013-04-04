@@ -42,10 +42,10 @@ import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.tools.bzip2.CBZip2OutputStream;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.itadaki.bzip2.BZip2OutputStream;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -94,8 +94,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 * 	??	               			??	    	Initial Creation
 * 1-3-2013		DR 15667 	M.Porricelli 	Made EnvironParamsLevelTable.xml
 *                                        	accessible from SITE level
-* 04/02/2013    DR 15872    D. Friedman     Correct clipped grid coordinates. (From DR 14770.)
-*                                           Correct grid orientation.  Ensure square grid.
+* 03/04/2013    DR 14770    D. Friedman     Correct clipped grid coordinates.
+* 04/02/2013    DR 15872    D. Friedman     Correct grid orientation.  Ensure square grid.
 **/
 public class RPGEnvironmentalDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -1069,8 +1069,6 @@ public class RPGEnvironmentalDataManager {
                 try {
                     ByteArrayOutputStream baOut = new ByteArrayOutputStream(
                             data.length / 2);
-                    baOut.write(66); // 'B' -- BZip2 magic value
-                    baOut.write(90); // 'Z'
                     int blockSize100k = Math.max(1/*
                                                    * CBZip2OutputStream.
                                                    * MIN_BLOCKSIZE
@@ -1078,7 +1076,7 @@ public class RPGEnvironmentalDataManager {
                             Math.min(9/*
                                        * CBZip2OutputStream . MAX_BLOCKSIZE
                                        */, (data.length + 99999) / 100000));
-                    CBZip2OutputStream out = new CBZip2OutputStream(baOut,
+                    BZip2OutputStream out = new BZip2OutputStream(baOut,
                             blockSize100k);
                     // CBZip2OutputStream.chooseBlockSize(data.length) // why is
                     // this missing?
