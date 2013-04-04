@@ -22,48 +22,47 @@ package com.raytheon.uf.common.datadelivery.registry.ebxml;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
-import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingUserSubscription;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
  * Implementation of {@link SubscriptionFilterableQuery} to retrieve
- * {@link PendingSubscription}s.
- *
+ * {@link InitialPendingSubscription}s.
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012             mpduff      Initial creation
  * Jun 21, 2012 736        djohnson    Add thrift serialization annotations.
  * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
- * Sep 24, 2012 1157       mpduff      Extends InitialPendingSubscriptionQuery.
- *
+ * Sep 24, 2012 1157       mpduff      Extends InitialPendingUserSubscriptionQuery.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PendingSubscriptionQuery extends
-        SubscriptionFilterableQuery<InitialPendingSubscription> {
+public class PendingUserSubscriptionQuery extends
+        SubscriptionFilterableQuery<InitialPendingUserSubscription> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Class<InitialPendingSubscription> getResultType() {
-        return InitialPendingSubscription.class;
+    public Class<InitialPendingUserSubscription> getResultType() {
+        return InitialPendingUserSubscription.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Class<InitialPendingSubscription> getObjectType() {
-        return InitialPendingSubscription.class;
+    public Class<InitialPendingUserSubscription> getObjectType() {
+        return InitialPendingUserSubscription.class;
     }
 }
