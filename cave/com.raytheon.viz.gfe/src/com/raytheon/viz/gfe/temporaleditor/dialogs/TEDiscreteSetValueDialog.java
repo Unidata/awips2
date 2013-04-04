@@ -37,9 +37,7 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
@@ -55,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 24, 2009 #1318      randerso     Initial creation
+ * Nov 14, 2012 #1298      rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -63,7 +62,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class TEDiscreteSetValueDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(TEDiscreteSetValueDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TEDiscreteSetValueDialog.class);
 
     private Parm parm;
 
@@ -144,9 +144,6 @@ public class TEDiscreteSetValueDialog extends CaveJFACEDialog {
         layout.marginWidth = 0;
 
         GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // pnLabel = new Label(topFrame, SWT.CENTER);
-        // pnLabel.setText("No active weather element");
-        // pnLabel.setLayoutData(layoutData);
 
         Composite valueFrame = new Composite(topFrame, SWT.NONE);
         layout = new GridLayout(1, false);
@@ -200,8 +197,7 @@ public class TEDiscreteSetValueDialog extends CaveJFACEDialog {
             }
             parm.endParmEdit();
         } catch (GFEOperationFailedException exc) {
-            statusHandler.handle(Priority.PROBLEM,
-                            "Grid edit failed", exc);
+            statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
         }
 
         super.okPressed();

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <Parameter AWIPS="tmp2m" GrADs="tmp2m"/>
+    <Parameter AWIPS="P" GrADs="pressfc"/>
+    <Parameter AWIPS="GH" GrADs="hgtprs"/>
+    <Parameter AWIPS="tmax2m" GrADs="tmax2m"/>
+    <Parameter AWIPS="tmin2m" GrADs="tmin2m"/>
+    <Parameter AWIPS="vgrd10m" GrADs="vgrd10m"/>
+    <Parameter AWIPS="PMSL" GrADs="prmslmsl"/>
+    <Parameter AWIPS="ugrd10m" GrADs="ugrd10m"/>
+    <Parameter AWIPS="T" GrADs="tmpprs"/>
+    <Parameter AWIPS="vW" GrADs="vgrdprs"/>
+    <Parameter AWIPS="uW" GrADs="ugrdprs"/>
+</ParameterLookup>

@@ -47,10 +47,37 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * Display FFMP Basin Table's Load/Save dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Dec 6, 2012  1353       rferrel     Make dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class LoadSaveConfigDlg extends CaveSWTDialog {
 
     public static enum DialogType {
-        OPEN, SAVE_AS
+        OPEN("Load Configuration"), SAVE_AS("Save Configuration");
+
+        private final String title;
+
+        public String getTitle() {
+            return title;
+        }
+
+        DialogType(String title) {
+            this.title = title;
+        }
     };
 
     private final DialogType dialogType;
@@ -58,8 +85,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
     private Font controlFont;
 
     private List cfgFileList;
-
-    private LocalizationFile selectedFile;
 
     private LocalizationFile[] locFiles;
 
@@ -73,16 +98,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
 
     private Button userBtn;
 
-    // private String selectedFileName = null;
-
     public LoadSaveConfigDlg(Shell parent, DialogType type) {
-        super(parent, SWT.TITLE);
-        if (type == DialogType.OPEN) {
-            setText("Load Configuration");
-        } else {
-            setText("Save Configuration");
-        }
-
+        super(parent, SWT.TITLE, CAVE.DO_NOT_BLOCK);
+        setText(type.getTitle());
         dialogType = type;
     }
 
@@ -99,7 +117,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
     @Override
     protected void disposed() {
         controlFont.dispose();
-        setReturnValue(selectedFile);
     }
 
     @Override
@@ -237,8 +254,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                selectedFile = null;
-                shell.dispose();
+                close();
             }
         });
     }
@@ -246,8 +262,8 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
     private void openAction() {
         int selectedIndex = cfgFileList.getSelectionIndex();
         String str = cfgFileList.getItem(selectedIndex);
-        selectedFile = locFileMap.get(str);
-        shell.dispose();
+        setReturnValue(locFileMap.get(str));
+        close();
     }
 
     private void saveAction() {
@@ -261,10 +277,12 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, level);
         String newFileName = "ffmp/guiConfig/" + fileName;
-        selectedFile = pm.getLocalizationFile(context, newFileName);
+        LocalizationFile selectedFile = pm.getLocalizationFile(context,
+                newFileName);
 
         FFMPConfig.getInstance().saveFFMPBasinConfig(selectedFile);
-        shell.dispose();
+        setReturnValue(selectedFile);
+        close();
     }
 
     private boolean validateFileName() {
@@ -286,27 +304,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
             mb.open();
             return false;
         }
-
-        // String[] listItems = cfgFileList.getItems();
-        //
-        // for (String listItem : listItems) {
-        // int idx = listItem.lastIndexOf("/");
-        // String fn = listItem.substring(idx + 1);
-        //
-        // if (fn.compareTo(strBuf.toString()) == 0) {
-        // if (listItem.compareTo(strBuf.toString()) == 0) {
-        // MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.YES
-        // | SWT.NO);
-        // mb.setText("Warning");
-        // mb.setMessage("File name already exists.  Do you wish to overwrite\n"
-        // + "the existing file?.");
-        // int result = mb.open();
-        //
-        // if (result == SWT.NO) {
-        // return false;
-        // }
-        // }
-        // }
 
         if (strBuf.toString().endsWith(".xml") == false) {
             strBuf.append(".xml");
@@ -330,8 +327,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         locFiles = pm.listFiles(contextList
                 .toArray(new LocalizationContext[contextList.size()]),
                 "ffmp/guiConfig", extensions, false, true);
-        // locFiles = PathManagerFactory.getPathManager().listStaticFiles(
-        // "ffmp/guiConfig", extensions, true, true);
 
         if (locFiles == null) {
             return;
@@ -349,9 +344,5 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         if (cfgFileList.getSelectionCount() > 0) {
             cfgFileList.setSelection(0);
         }
-    }
-
-    public LocalizationFile getSelectedFile() {
-        return selectedFile;
     }
 }

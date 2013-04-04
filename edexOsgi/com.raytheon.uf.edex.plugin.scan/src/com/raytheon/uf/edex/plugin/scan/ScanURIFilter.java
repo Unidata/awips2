@@ -36,7 +36,7 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.scan.data.CellTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.DMDTableData;
@@ -506,7 +506,7 @@ public class ScanURIFilter extends URIFilter {
         if ((message != null) && (message.getDataURIs().length > 0)) {
             for (String dataUri : message.getDataURIs()) {
                 // check for the needed data types
-                if (dataUri.startsWith("/grib") || dataUri.startsWith("/radar")
+                if (dataUri.startsWith("/grid") || dataUri.startsWith("/radar")
                         || dataUri.startsWith("/binlightning")
                         || dataUri.startsWith("/bufrua")) {
                     // add your pattern checks to the key
@@ -763,13 +763,13 @@ public class ScanURIFilter extends URIFilter {
      * @return
      * @throws Exception
      */
-    private GribRecord getRecordGrib(String guri) throws Exception {
+    private GridRecord getRecordGrib(String guri) throws Exception {
 
-        GribRecord grib = null;
+        GridRecord grib = null;
 
         try {
             if (!guri.isEmpty()) {
-                grib = DATUtils.getGribRecord(guri);
+                grib = DATUtils.getGridRecord(guri);
             }
 
         } catch (Exception e) {
@@ -827,13 +827,13 @@ public class ScanURIFilter extends URIFilter {
     /**
      * Set Grib Record in Model Data
      */
-    public void setGribRecord(String prodType, String guri) {
+    public void setGridRecord(String prodType, String guri) {
 
         String modelName = site.getModelParameter(prodType).getModelName();
 
         try {
             scan.getCache().getModelData()
-                    .setGribRecord(modelName, prodType, getRecordGrib(guri));
+                    .setGridRecord(modelName, prodType, getRecordGrib(guri));
         } catch (Exception e) {
             logger.debug("Grib record setter failed.....");
         }
@@ -842,13 +842,13 @@ public class ScanURIFilter extends URIFilter {
     /**
      * Set Grib Record in Model Data
      */
-    public void setGribRecord(String prodType, GribRecord rec) {
+    public void setGridRecord(String prodType, GridRecord rec) {
 
         String modelName = site.getModelParameter(prodType).getModelName();
 
         try {
             scan.getCache().getModelData()
-                    .setGribRecord(modelName, prodType, rec);
+                    .setGridRecord(modelName, prodType, rec);
         } catch (Exception e) {
             logger.debug("Grib record setter failed.....");
         }
@@ -866,50 +866,50 @@ public class ScanURIFilter extends URIFilter {
     /**
      * Set Grib Record in Model Data
      */
-    public void setGribRecords() {
+    public void setGridRecords() {
         try {
-            GribRecord[] records = { null, null, null, null, null, null, null,
+            GridRecord[] records = { null, null, null, null, null, null, null,
                     null };
-            records = getGribRecords();
+            records = getGridRecords();
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(CAPEProduct.cape)
                                     .getModelName(), CAPEProduct.cape,
                             records[0]);
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(HELIProduct.heli)
                                     .getModelName(), HELIProduct.heli,
                             records[1]);
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(U500Product.U500)
                                     .getModelName(), U500Product.U500,
                             records[2]);
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(U700Product.U700)
                                     .getModelName(), U700Product.U700,
                             records[3]);
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(V700Product.V700)
                                     .getModelName(), V700Product.V700,
                             records[4]);
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(GH500Product.GH500)
                                     .getModelName(), GH500Product.GH500,
                             records[5]);
             scan.getCache()
                     .getModelData()
-                    .setGribRecord(
+                    .setGridRecord(
                             site.getModelParameter(GH1000Product.GH1000)
                                     .getModelName(), GH1000Product.GH1000,
                             records[6]);
@@ -921,12 +921,12 @@ public class ScanURIFilter extends URIFilter {
     /**
      * Get Grib Record from Model Data
      */
-    public GribRecord getGribRecord(String prodType) {
-        GribRecord rec = null;
+    public GridRecord getGridRecord(String prodType) {
+        GridRecord rec = null;
         String modelName = site.getModelParameter(prodType).getModelName();
         try {
             rec = scan.getCache().getModelData()
-                    .getGribRecord(modelName, prodType);
+                    .getGridRecord(modelName, prodType);
         } catch (Exception e) {
             logger.debug("No Grib Data available.....");
         }
@@ -1022,7 +1022,7 @@ public class ScanURIFilter extends URIFilter {
      * to retrieve the data from a database.
      */
     public void init() {
-        setGribRecords();
+        setGridRecords();
         setSoundingRecord(ScanProduct.UA, "");
     }
 
@@ -1101,25 +1101,25 @@ public class ScanURIFilter extends URIFilter {
      * 
      * @return
      */
-    public GribRecord[] getGribRecords() throws PluginException {
+    public GridRecord[] getGridRecords() throws PluginException {
 
-        GribRecord[] records = { null, null, null, null, null, null, null, null };
+        GridRecord[] records = { null, null, null, null, null, null, null, null };
         try {
             String[] modelUris = getModelSQL();
             // CAPE
-            records[0] = DATUtils.getGribRecord(modelUris[0]);
+            records[0] = DATUtils.getGridRecord(modelUris[0]);
             // HELI
-            records[1] = DATUtils.getGribRecord(modelUris[1]);
+            records[1] = DATUtils.getGridRecord(modelUris[1]);
             // U500
-            records[2] = DATUtils.getGribRecord(modelUris[2]);
+            records[2] = DATUtils.getGridRecord(modelUris[2]);
             // U700
-            records[3] = DATUtils.getGribRecord(modelUris[3]);
+            records[3] = DATUtils.getGridRecord(modelUris[3]);
             // V700
-            records[4] = DATUtils.getGribRecord(modelUris[4]);
+            records[4] = DATUtils.getGridRecord(modelUris[4]);
             // GH500
-            records[5] = DATUtils.getGribRecord(modelUris[5]);
+            records[5] = DATUtils.getGridRecord(modelUris[5]);
             // GH1000
-            records[6] = DATUtils.getGribRecord(modelUris[6]);
+            records[6] = DATUtils.getGridRecord(modelUris[6]);
         } catch (Exception e) {
             logger.error("No Grib record(s) found.....");
         }

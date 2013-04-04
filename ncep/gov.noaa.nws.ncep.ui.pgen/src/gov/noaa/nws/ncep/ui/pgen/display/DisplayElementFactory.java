@@ -10,7 +10,6 @@ package gov.noaa.nws.ncep.ui.pgen.display;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -128,6 +127,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 07/12        #834        J. Wu       Fixed fuzzy text display. 
  * 08/12		#760		B. Yin		Modify line factory to apply world wrap.
  * 09/12					B. Hebbard  Merge out RTS changes from OB12.9.1 - adds reset()
+ * 11/12		#901/917  	J. Wu		Set the symbol in GFA text box in proper location/size
  * </pre>
  * 
  * @author sgilbert
@@ -583,7 +583,7 @@ public class DisplayElementFactory {
 
 	    				Line cntyBorder = new Line(null, colors,.5f,.5,true,
 	    						false, pts, 0,
-	    						FillPattern.FILL_PATTERN_1,"Lines","LINE_SOLID");
+	    						FillPattern.FILL_PATTERN_6,"Lines","LINE_SOLID");
 	    				ArrayList<IDisplayable> cntyLine = createDisplayElements(cntyBorder,paintProps);
 	    				dlist.addAll(cntyLine);
 	    			}
@@ -4200,8 +4200,12 @@ public class DisplayElementFactory {
 				double relativePosition = 0.0; // relative vertical center
 				for(int i = 0; i < txtToDisplay.length; i++){
 					if(txtToDisplay[i].isEmpty()) {
-						// first empty line, that is where we will put the symbol
-						relativePosition = i + 1 - txtToDisplay.length / 2.0;
+						/*
+						 *  Put the symbol in the center of first empty line.
+						 *  The relative position is measured by the number of 
+						 *  "character"s away from center of the text box.
+						 */
+						relativePosition = i + 0.5 - txtToDisplay.length / 2.0;
 						break;
 					}
 				}
@@ -4223,9 +4227,10 @@ public class DisplayElementFactory {
 				//  convert pixel back to map coordinates
 				double[] locSym = mapDescriptor.pixelToWorld(new double[] { pixel[0], 
 						pixel[1] + vertRatio * relativePosition * bounds.getHeight() - 1, 0.0} );
+				
 				loc1 = new Coordinate( locSym[0], locSym[1] );
 				
-				Symbol sym = new Symbol(null, getDisplayColors( elem.getColors()), 1.0f, 0.75, false, loc1, 
+				Symbol sym = new Symbol(null, getDisplayColors( elem.getColors()), 1.5f, 1.0f, false, loc1, 
 						"Symbol", gfa.getSymbolType() );
 				list.addAll(createDisplayElements((ISymbol)sym, paintProps) );
 			}

@@ -14,7 +14,9 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.0.0",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
  javax.measure,
  org.geotools,
- javax.persistence
+ javax.persistence,
+ com.raytheon.uf.edex.menus;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.edex.plugin.bufrua.dao
 Import-Package: com.raytheon.uf.common.status

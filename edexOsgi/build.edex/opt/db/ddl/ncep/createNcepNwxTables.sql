@@ -8,7 +8,15 @@
 -- create nwx product tables
 -- ---------------------------------------------
 
--- createnwx.radartext88d table
+-- create nwx.observeddataproducts table
+DROP TABLE IF EXISTS nwx.observeddataproducts CASCADE;
+CREATE TABLE nwx.observeddataproducts(
+id SERIAL PRIMARY KEY,
+productname varchar(60) NOT  NULL,
+producttablename varchar(30) NOT NULL,
+producttype varchar(20) NOT NULL
+);
+-- create nwx.radartext88d table
 DROP TABLE IF EXISTS nwx.radartext88d CASCADE;
 CREATE TABLE nwx.radartext88d(
 id SERIAL PRIMARY KEY,

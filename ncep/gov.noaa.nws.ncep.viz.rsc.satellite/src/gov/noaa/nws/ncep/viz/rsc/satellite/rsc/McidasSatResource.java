@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 
@@ -14,11 +15,13 @@ import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRPixelToTempConverter;
+import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
@@ -37,6 +40,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *  06/07/2012    #717       archana    Added the methods getImageTypeNumber(),
  *                                      getParameterList(), getLocFilePathForImageryStyleRule()
  *                                      Updated getDataUnitsFromRecord() to get the units from the database 
+ *  11/29/2012    #630       ghull      IGridGeometryProvider   
+ *                                 
  * </pre>
  * 
  * @author ghull
@@ -44,7 +49,11 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  */
 public class McidasSatResource extends AbstractSatelliteResource 
 		   implements ICloudHeightCapable, INatlCntrsResource {
+	
     protected NcIRPixelToTempConverter pixelToTemperatureConverter = null;
+	
+//    McidasMapCoverage coverage = null;
+    
 	public McidasSatResource(SatelliteResourceData data, LoadProperties props) {
         super(data, props);
         satRscData = data;
@@ -57,12 +66,8 @@ public class McidasSatResource extends AbstractSatelliteResource
         	legendStr = satRscData.getMetadataMap().get("satelliteName").getConstraintValue() + " " +
         	            satRscData.getMetadataMap().get("imageType").getConstraintValue();
         }
-        
-        
-
 	}
     
-
 	public boolean isCloudHeightCompatible() {
     	RequestConstraint imgTypeConstraint = satRscData.getMetadataMap().get("imageType");
     	if( imgTypeConstraint != null ) {
@@ -128,27 +133,27 @@ int getImageTypeNumber(PluginDataObject pdo ) {
 	public
 	GridGeometry2D createNativeGeometry(PluginDataObject pdo) {
 		
-		if ( ! (pdo instanceof McidasRecord) ) return null;
+		if( !(pdo instanceof McidasRecord) ) 
+			return null;
 		
 		McidasRecord satRec = (McidasRecord)pdo;
-		McidasMapCoverage cov = satRec.getCoverage();
+		McidasMapCoverage coverage = satRec.getCoverage();
 		
 	    GeneralEnvelope env = new GeneralEnvelope(2);
 	    env.setCoordinateReferenceSystem( satRec.getCoverage().getCrs() );
 	    
-	    int minX = cov.getUpperLeftElement();
-	    int maxX = cov.getUpperLeftElement() + ( cov.getNx() * cov.getElementRes() );
-	    int minY = cov.getUpperLeftLine() + ( cov.getNy() * cov.getLineRes() );
+	    int minX = coverage.getUpperLeftElement();
+	    int maxX = coverage.getUpperLeftElement() + ( coverage.getNx() * coverage.getElementRes() );
+	    int minY = coverage.getUpperLeftLine() + ( coverage.getNy() * coverage.getLineRes() );
 	    minY = -minY;
-	    int maxY = -1 * cov.getUpperLeftLine();
+	    int maxY = -1 * coverage.getUpperLeftLine();
 	    env.setRange(0, minX, maxX);
 	    env.setRange(1, minY, maxY);
 	    
 	    GridGeometry2D mapGeom = new GridGeometry2D(new GeneralGridEnvelope(new int[] {
-                 0, 0 }, new int[] { cov.getNx(), cov.getNy() }, false),
+                 0, 0 }, new int[] { coverage.getNx(), coverage.getNy() }, false),
                  env);
 		
 	       return mapGeom;
 	}
-
 }

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="8A1F2DCB-5527-4D32-BC7A-E4295EA72940" Name="AWIPS II Runtime Environment" 
-  Language="1033" Version="1.0.0.0" Manufacturer="Raytheon" 
+  Language="1033" Version="1.0.1.0" Manufacturer="Raytheon" 
   UpgradeCode="8924277C-5B6A-4EEB-AE9F-5471481F92A6">
     <Package Manufacturer="Raytheon" InstallerVersion="200" 
       Compressed="yes" InstallScope="perMachine" />
@@ -104,6 +104,11 @@
           Value="tpg" />
           <RegistryValue Type="string" Name="PythonPackage10-Version"
           Value="3.1.2" />
+
+          <RegistryValue Type="string" Name="PythonPackage11-Name"
+          Value="shapely" />
+          <RegistryValue Type="string" Name="PythonPackage11-Version"
+          Value="1.2.16" />
         </RegistryKey>
       </Component>      
     </Directory>

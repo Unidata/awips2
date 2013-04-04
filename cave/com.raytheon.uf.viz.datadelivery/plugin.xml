@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            description="Command Category for Data Delivery"
+            id="com.raytheon.uf.viz.dataDelivery"
+            name="Data Delivery">
+      </category>
+      <command
+            id="com.raytheon.uf.viz.datadelivery.dataDelivery"
+            name="Subscription Manager">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.datadelivery.notificationCmd"
+            name="Notification Dlg">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.datadelivery.databrowser"
+            name="Data Browser Dlg">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.datadelivery.subset"
+            name="Load Subset">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.datadelivery.system"
+            name="System Management">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.datadelivery.bandwidth.schedule.graph"
+            name="Bandwidth Scheduling Graph">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.datadelivery.actions.SubscriptionManagerAction"
+            commandId="com.raytheon.uf.viz.datadelivery.dataDelivery">
+      </handler>
+      <handler
+            class="com.raytheon.uf.viz.datadelivery.actions.NotificationAction"
+            commandId="com.raytheon.uf.viz.datadelivery.notificationCmd">
+      </handler>
+      <handler
+            class="com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction"
+            commandId="com.raytheon.uf.viz.datadelivery.databrowser">
+      </handler>
+      <handler
+            class="com.raytheon.uf.viz.datadelivery.actions.SubsetAction"
+            commandId="com.raytheon.uf.viz.datadelivery.subset">
+      </handler>
+      <handler
+            class="com.raytheon.uf.viz.datadelivery.actions.SystemManagementAction"
+            commandId="com.raytheon.uf.viz.datadelivery.system">
+      </handler>
+      <handler
+            class="com.raytheon.uf.viz.datadelivery.actions.BandwidthScheduleGraphAction"
+            commandId="com.raytheon.uf.viz.datadelivery.bandwidth.schedule.graph">
+      </handler>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.localization.localizationpath">
+      <path
+            application="Data Delivery"
+            localizationType="cave_static"
+            name="Data Delivery Filter Config"
+            value="DataDelivery">
+      </path>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution locationURI="menu:CAVE?after=browsers">
+			<menu id="dataDelivery" label="Data Delivery">
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.dataDelivery"
+					label="Subscription Manager..."
+					style="push"/>
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.notificationCmd"
+					label="Notification Center..."
+					style="push"/>
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.databrowser"
+					label="Dataset Discovery Browser..."
+					style="push"/>
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.subset"
+					label="Load Saved Subset..."
+					style="push"/>
+			    <command
+					commandId="com.raytheon.uf.viz.datadelivery.system"
+					label="System Management..."
+					style="push"/>
+                <command
+                     commandId="com.raytheon.uf.viz.datadelivery.bandwidth.schedule.graph"
+                     label="Bandwidth Utilization Graph..."
+                     style="push">
+		       </command>  
+			</menu>
+		</menuContribution>
+	</extension>
+</plugin>

@@ -45,21 +45,24 @@ void db_scandb ( const char *modelName, const char *dbTag, const char *ensTag,
    /*
     * Get the query text
     */
-    db_getQueryText ( queryType, queryText, &ier );
+/*    db_getQueryText ( queryType, queryText, &ier );
      if ( ier !=0 ) {
        ier = -3;
        er_wmsg ( "DB", &ier, NULL, &ier1, 2, 0 );
        *iret = ier;
        return;
     }
-
+*/
    /*
     * Execute the callback to get the filenames
     */
-    sprintf (diagMessage, "%s %s", "calling callback with ", queryText);
+//    sprintf (diagMessage, "%s %s", "calling callback with ", queryText);
+    /*JAVA callback function will create request constrain*/
+    sprintf (diagMessage, "%s %s", "calling callback with ", eParameters);
     db_msgcave ("db_scandb", "debug", diagMessage, &ierm);
     ftime(&t_callback);
-    flnmClbkPtr(queryText);
+//    flnmClbkPtr(queryText);
+    flnmClbkPtr(eParameters);
     ftime(&t_current);
     sprintf (diagMessage, "%s %d", "time spent in callback ", (int) (1000.0 * (t_current.time - t_callback.time) + (t_current.millitm - t_callback.millitm)));
     db_msgcave ("db_scandb", "info", diagMessage, &ierm);

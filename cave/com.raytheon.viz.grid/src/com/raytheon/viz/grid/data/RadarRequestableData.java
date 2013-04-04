@@ -26,9 +26,8 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
@@ -38,6 +37,8 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -49,7 +50,8 @@ import com.raytheon.viz.grid.util.SliceUtil;
 import com.raytheon.viz.radar.util.DataUtilities;
 
 /**
- * TODO Add Description
+ * A requestable data record which wraps a RadarRecord and can convert radar
+ * radial data into the expected radar projection and units.
  * 
  * <pre>
  * 
@@ -64,7 +66,7 @@ import com.raytheon.viz.radar.util.DataUtilities;
  * @version 1.0
  */
 
-public class RadarRequestableData extends GribRequestableData {
+public class RadarRequestableData extends GridRequestableData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarRequestableData.class);
 
@@ -86,6 +88,7 @@ public class RadarRequestableData extends GribRequestableData {
                 RadarAdapter.getGridSpacing());
         this.source = "radar";
         this.dataTime = source.getDataTime();
+        this.space = RadarAdapter.getInstance().getCoverage();
         try {
             this.level = LevelFactory.getInstance().getLevel("TILT",
                     source.getPrimaryElevationAngle());
@@ -98,19 +101,17 @@ public class RadarRequestableData extends GribRequestableData {
         this.unit = unit;
 
         try {
-            GribRecord record = new GribRecord();
-            GribModel modelInfo = new GribModel();
-            modelInfo.setModelName(this.source);
-            modelInfo.setLocation(RadarAdapter.getInstance().getCoverage());
-            modelInfo.setLevel(this.level);
-            modelInfo.setParameterAbbreviation(parameterAbbrev);
-            modelInfo.setParameterUnit(unit.toString());
-            modelInfo.setParameterName(this.parameterName);
-            record.setModelInfo(modelInfo);
-            record.setPluginName("grib");
+            GridRecord record = new GridRecord();
+            record.setDatasetId(this.source);
+            record.setLocation(RadarAdapter.getInstance().getCoverage());
+            record.setLevel(this.level);
+            Parameter parameter = new Parameter(parameterAbbrev,
+                    this.parameterName, unit);
+            record.setParameter(parameter);
+            record.setPluginName(GridConstants.GRID);
             record.setDataTime(source.getDataTime());
             record.constructDataURI();
-            setGribSource(record);
+            setGridSource(record);
         } catch (Exception e) {
             throw new VizException(e);
         }
@@ -142,7 +143,7 @@ public class RadarRequestableData extends GribRequestableData {
              * tiler.setDataToImageConverter(dataToImage);
              */
             Unit<?> unit = cMapParams.getDisplayUnit();
-            getGribSource().getModelInfo().setParameterUnit(unit.toString());
+            getGridSource().getParameter().setUnit(unit);
             setUnit(unit);
             UnitConverter converter = cMapParams.getDataToDisplayConverter();
             tiler.setDataConverter(converter);
@@ -152,7 +153,7 @@ public class RadarRequestableData extends GribRequestableData {
             float[] data = tiler.createImage();
             fdr = new FloatDataRecord();
             fdr.setFloatData(data);
-            GridCoverage coverage = gribSource.getModelInfo().getLocation();
+            GridCoverage coverage = gridSource.getLocation();
             fdr.setSizes(new long[] { coverage.getNx(), coverage.getNy() });
             fdr.setDimension(2);
             cache = new WeakReference<FloatDataRecord>(fdr);

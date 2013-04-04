@@ -1,0 +1,85 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- bean id="jms-solarimage" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestSolarImageConfig" />
+		<property name="taskExecutor" ref="solarimageThreadPool" />		
+	</bean>
+	<bean id="jmsIngestSolarImageConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+	<bean id="solarimageThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean-->
+
+	<bean id="solarimageDecoder" class="gov.noaa.nws.ncep.edex.plugin.solarimage.SolarImageDecoder" depends-on="solarimagePluginName" >
+		<constructor-arg ref="solarimagePluginName" />
+		<!--  property name="dao" ref="SolarImageDao" /-->
+	</bean>
+	
+	<!--bean id="solarimageDao" class="gov.noaa.nws.ncep.edex.plugin.solarimage.dao.SolarImageDao">
+		<constructor-arg ref="solarimagePluginName" />
+	</bean-->
+	
+	<bean id="solarimageDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="solarimagePluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.SolarImage?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="solarimageCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="solarimage-camel"/>
+  	</bean>
+  	
+  	<!-- bean id="solarimageNotifyTransform"
+		class="com.raytheon.edex.plugin.satellite.notify.SatelliteNotifyTransform" /-->
+
+	<camelContext id="solarimage-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<endpoint id="solarimageFileEndpoint" uri="file:${edex.home}/data/sbn/solarimage?noop=true&amp;idempotent=false" />
+
+		<route id="solarimageFileConsumerRoute">
+			<from ref="solarimageFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>solarimage</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.SolarImage" />
+		</route>
+		
+
+		<!-- Begin SolarImage routes -->
+		<route id="solarimageIngestRoute">
+			<from uri="jms-generic:queue:Ingest.SolarImage?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>solarimage</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="solarimageDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:solarimage?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+		<!--route id="satNotification">
+			<from uri="vm:satNotify" />
+			<bean ref="satNotifyTransform" method="transformToMessages" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:queue:satNotification" />
+		</route-->
+	</camelContext>
+</beans>

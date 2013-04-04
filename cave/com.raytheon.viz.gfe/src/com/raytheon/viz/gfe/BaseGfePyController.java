@@ -51,6 +51,8 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2008            njensen     Initial creation
+ * Jan 18, 2013           njensen     Added garbageCollect()
+ * 
  * </pre>
  * 
  * @author njensen
@@ -352,6 +354,22 @@ public abstract class BaseGfePyController extends PythonScript implements
         HashMap<String, Object> argMap = new HashMap<String, Object>(1);
         argMap.put(PyConstants.MODULE_NAME, name);
         execute("addModule", INTERFACE, argMap);
+    }
+
+    /**
+     * Runs the python garbage collector. This should be run at the end of a
+     * procedure or tool in case the custom python used tk. If the python used
+     * tk and it is not garbage collected, errors about invalid threads may
+     * occur when the garbage collector runs in another python interpreter.
+     */
+    public void garbageCollect() {
+        try {
+            jep.eval("import gc");
+            jep.eval("gc.collect()");
+        } catch (JepException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error garbage collecting GFE python interpreter", e);
+        }
     }
 
 }

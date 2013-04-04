@@ -47,9 +47,26 @@ import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.dat.utils.DatMenuUtil;
 import com.raytheon.uf.edex.dat.utils.ScanDataCache;
 
+/**
+ * Generator implementation for SCAN
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 02/25/13     1660        D. Hladky   Fixed SCAN configuration bug.
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1
+ */
+
 public class ScanGenerator extends CompositeProductGenerator implements
         MonitorConfigListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScanGenerator.class);
 
     private static final String genName = "SCAN";
@@ -79,21 +96,22 @@ public class ScanGenerator extends CompositeProductGenerator implements
     @Override
     protected void configureFilters() {
 
-        statusHandler.handle(Priority.DEBUG, getGeneratorName()
+        statusHandler.handle(Priority.INFO, getGeneratorName()
                 + " process Filter Config...");
 
         try {
             getRunConfig().readConfigXml();
         } catch (SerializationException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't read scan configuration!!!", e);
         }
         boolean configValid = getRunConfig().isPopulated();
 
         if (!configValid) {
+            statusHandler.handle(Priority.WARN,
+            "Configuration for SCAN is invalid!!!");
             return;
         }
 
-        logger.debug(getGeneratorName() + " process Filter Config...");
         icaos = new HashSet<String>(getRunConfig().getSiteNames());
     }
 
@@ -110,7 +128,7 @@ public class ScanGenerator extends CompositeProductGenerator implements
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Couldn't create SCAN URIFilter.." + icao
-                                + " is not a known RADAR site.");
+                                + " is not a known RADAR site.", e);
                 iter.remove();
             }
         }
