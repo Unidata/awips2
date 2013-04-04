@@ -157,6 +157,7 @@ public class ProductConfigureDialog extends ProductDialog {
    
     private Button[] dlgCntlBtn = null;
     
+    private Button clipChkBox;
     private Text shapeFileTxt = null;
     
     /*
@@ -188,6 +189,9 @@ public class ProductConfigureDialog extends ProductDialog {
     private Text   autoSaveFreqTxt = null;
     
     private Composite pdComp;
+    
+    private Combo boundsNameCbo; 
+    private Combo boundsListCbo;
     
     /**
      * Default colors for the default and active product of layer name button.
@@ -1054,6 +1058,9 @@ public class ProductConfigureDialog extends ProductDialog {
 			}
 			else if ( getCurrentTabName().equalsIgnoreCase("Settings") ){
 				updateSettings( pTyp );
+			}
+			else if ( getCurrentTabName().equalsIgnoreCase("Clip") ){
+				updateClip( pTyp );
 			}
 			else if ( getCurrentTabName().equalsIgnoreCase("Products") ){
 				pTyp.getProdType().clear();
@@ -2115,15 +2122,74 @@ public class ProductConfigureDialog extends ProductDialog {
         gl0.marginWidth = 3;
         titleComp.setLayout( gl0 );
 
-        Label filters = new Label( titleComp, SWT.NONE );
-        filters.setText( "Clip the Product:");
+        Label flagLbl = new Label( titleComp, SWT.NONE );
+        flagLbl.setText( "Clip the Product:");
         
-        Button pBtn = new Button( titleComp, SWT.CHECK );
+        clipChkBox = new Button( titleComp, SWT.CHECK );
+        clipChkBox.addSelectionListener( new SelectionListener(){
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+		        if ( ((Button)e.widget).getSelection()){
+		        	boundsListCbo.setEnabled(true);
+		        	boundsNameCbo.setEnabled(true);
+		        }
+		        else {
+		        	boundsListCbo.setEnabled(false);
+		        	boundsNameCbo.setEnabled(false);
+		        }
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+        	
+        });
+        
+        
+        Label boundsListLbl = new Label( titleComp, SWT.NONE );
+        boundsListLbl.setText( "Bounds Table: ");
+        
+        boundsListCbo= new Combo( titleComp, SWT.DROP_DOWN | SWT.READ_ONLY );
+		
+		int init = 0;
+		int ii = 0;
+        for ( String str : PgenStaticDataProvider.getProvider().getBoundsTableList() ) {
+        	boundsListCbo.add(str);
+        	if ( str.equals("bwus_bnd")) init = ii;
+        	ii++;
+        }
+        boundsListCbo.select( init );
+        
+        boundsListCbo.addSelectionListener( new SelectionListener(){
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+		        populateBoundsNames( ((Combo)e.widget).getText());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+        	
+        });
+        
+        Label boundsNameLbl = new Label( titleComp, SWT.NONE );
+        boundsNameLbl.setText( "Bounds Name: ");
+        
+        boundsNameCbo = new Combo( titleComp, SWT.DROP_DOWN | SWT.READ_ONLY );
+		
+        populateBoundsNames( boundsListCbo.getText());
+        
            	        
         /*
          * Input boundary file name
          */
-        GridLayout mainLayout = new GridLayout( 3, false);
+  /*      GridLayout mainLayout = new GridLayout( 3, false);
         mainLayout.marginHeight = 3;
         mainLayout.marginWidth = 3;
 		               
@@ -2132,7 +2198,8 @@ public class ProductConfigureDialog extends ProductDialog {
         nameComp.setLayout(mainLayout);
         
         Label nameLbl = new Label( nameComp, SWT.NONE );
-        nameLbl.setText( "Shape File: ");
+        nameLbl.setText( "Clip Bounds: ");
+ 
  
         shapeFileTxt = new Text( nameComp,  SWT.SINGLE | SWT.BORDER );
         shapeFileTxt.setLayoutData( new GridData( 180, 10 ) );
@@ -2154,6 +2221,11 @@ public class ProductConfigureDialog extends ProductDialog {
             	}           	
             }
         });      
+    */    
+        if (!clipChkBox.getSelection()){
+        	boundsListCbo.setEnabled(false);
+        	boundsNameCbo.setEnabled(false);
+        }
               
 	}
 	
@@ -2791,6 +2863,9 @@ public class ProductConfigureDialog extends ProductDialog {
 		//update Pgen settings
 	    editSettingsTab();
 	    
+		//update Pgen clip tab
+	    editClipTab();
+	    
 	    //update Product tab
 	    editProductsTab();
 	    
@@ -2948,6 +3023,37 @@ public class ProductConfigureDialog extends ProductDialog {
     }
     
    /**
+     *  Edit/Update the Pgen clipping
+     */    
+    private void editClipTab() {
+        
+        ProductType curPrdType = getCurrentPrdTyp();
+        
+        if ( curPrdType != null && curPrdType.getClipFlag() != null && curPrdType.getClipFlag() ) {
+        	
+        	clipChkBox.setSelection(true);
+        	boundsListCbo.setEnabled(true);
+        	boundsNameCbo.setEnabled(true);
+        	
+        	if ( curPrdType.getClipBoundsTable() != null ){
+        		boundsListCbo.setText( curPrdType.getClipBoundsTable() );
+        		if ( curPrdType.getClipBoundsName() != null ){
+        	        populateBoundsNames( boundsListCbo.getText());
+            		boundsNameCbo.setText( curPrdType.getClipBoundsName() );
+        		}
+        	}
+    		
+        }
+        else {
+        	
+        	clipChkBox.setSelection(false);
+        	boundsListCbo.setEnabled(false);
+        	boundsNameCbo.setEnabled(false);
+        }
+        	         
+    }
+        
+   /**
     * Update the product tab 
     */
    private void editProductsTab() {
@@ -3015,6 +3121,26 @@ public class ProductConfigureDialog extends ProductDialog {
 		
 	    ptyp.setPgenSave( pSave );
 	       		
+	}
+	
+	/**
+	 * Update clip information for a given type
+	 * 
+	 * @param ptyp
+	 */
+	private void updateClip( ProductType ptyp ) {
+	
+		String pdName = typeText.getText(); 
+		if ( pdName == null || pdName.isEmpty() ){
+			return;
+		}
+		
+		ptyp.setClipFlag( clipChkBox.getSelection() );
+		if (clipChkBox.getSelection() ){
+			ptyp.setClipBoundsTable( boundsListCbo.getText());
+			ptyp.setClipBoundsName(boundsNameCbo.getText());
+		}
+		
 	}
 	
 	/**
@@ -3304,6 +3430,9 @@ public class ProductConfigureDialog extends ProductDialog {
 		//update Pgen settings
 	    editSettingsTab();
 	    
+		//update Pgen clipping tab
+	    editClipTab();
+	    
 	    //update Product tab
 	    editProductsTab();
     }
@@ -3419,6 +3548,8 @@ public class ProductConfigureDialog extends ProductDialog {
 		
 		outType.setPgenSettingsFile( nvl( typeIn.getPgenSettingsFile() ) );
 		
+		outType.setClipFlag( typeIn.getClipFlag() );
+		
 	    //Copy PgenActions
 		PgenActions pact = new PgenActions();
 		for ( String name : typeIn.getPgenActions().getName() ) {
@@ -3517,6 +3648,17 @@ public class ProductConfigureDialog extends ProductDialog {
     	return newShell;
     }
 
+	/**
+	 * Sets the bounds name combo from the database table.
+	 * @param table
+	 */
+	private void populateBoundsNames( String table ){
 
+		boundsNameCbo.removeAll();
+        for ( String str : PgenStaticDataProvider.getProvider().getBoundsNames( table )) {
+        	boundsNameCbo.add(str);
+        }
+        boundsNameCbo.select(0);
+	}
 	
 }

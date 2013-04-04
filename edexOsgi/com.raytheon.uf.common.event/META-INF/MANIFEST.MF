@@ -8,5 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.google.guava;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.event
+Eclipse-BuddyPolicy: ext, registered, global

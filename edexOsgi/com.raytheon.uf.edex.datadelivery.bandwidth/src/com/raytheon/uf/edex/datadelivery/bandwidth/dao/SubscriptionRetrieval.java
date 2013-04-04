@@ -30,7 +30,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 02, 2012 726        jspinks     Initial creation
  * Oct 16, 2012 0726       djohnson    Added explicit length to subSubscription, 
  *                                     made it nullable for single table strategy.
- * Nov 09, 2012 1286       djohnson    Add reference back to owning SubscriptionDao.
+ * Nov 09, 2012 1286       djohnson    Add reference back to owning BandwidthSubscription.
  * 
  * </pre>
  * 
@@ -56,13 +56,13 @@ public class SubscriptionRetrieval extends BandwidthAllocation {
     private byte[] subSubscription;
 
     /**
-     * A link to the owning SubscriptionDao entity.
+     * A link to the owning BandwidthSubscription entity.
      */
     @DynamicSerializeElement
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     // Must be nullable because we use a single table strategy
     @IndexColumn(name = "subscriptionid_fk", nullable = true)
-    private SubscriptionDao subscriptionDao;
+    private BandwidthSubscription bandwidthSubscription;
 
     @Column
     @DynamicSerializeElement
@@ -118,18 +118,19 @@ public class SubscriptionRetrieval extends BandwidthAllocation {
     }
 
     /**
-     * @return the subscriptionDao
+     * @return the bandwidthSubscription
      */
-    public SubscriptionDao getSubscriptionDao() {
-        return subscriptionDao;
+    public BandwidthSubscription getBandwidthSubscription() {
+        return bandwidthSubscription;
     }
 
     /**
-     * @param subscriptionDao
-     *            the subscriptionDao to set
+     * @param bandwidthSubscription
+     *            the bandwidthSubscription to set
      */
-    public void setSubscriptionDao(SubscriptionDao subscriptionDao) {
-        this.subscriptionDao = subscriptionDao;
+    public void setBandwidthSubscription(
+            BandwidthSubscription bandwidthSubscription) {
+        this.bandwidthSubscription = bandwidthSubscription;
     }
 
     /**

@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.service.verify;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVer
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 07, 2012 1104       djohnson     Initial creation
+ * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * 
  * </pre>
  * 
@@ -85,7 +87,7 @@ class BaseSubscriptionVerifier implements IVerificationStrategy {
             dataSetParams = new ArrayList<Parameter>(0);
         }
 
-        ArrayList<Parameter> subParams = subscription.getParameter();
+        List<Parameter> subParams = subscription.getParameter();
         if (subParams == null) {
             subParams = new ArrayList<Parameter>(0);
         }

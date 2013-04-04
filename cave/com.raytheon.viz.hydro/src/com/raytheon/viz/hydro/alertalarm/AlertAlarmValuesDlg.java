@@ -83,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      first, is not existing, check for datalimits table as defaults.
  *                                      Both not existing, set as MISSING
  * Dec 07, 2012 1353       rferrel      Make dialog non-blocking.
+ * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -1045,8 +1046,10 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         tabularBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                TimeSeriesDlg tsd = new TimeSeriesDlg(shell, selectedLid);
-                tsd.open();
+                shell.setCursor(shell.getDisplay().getSystemCursor(
+                        SWT.CURSOR_WAIT));
+                TimeSeriesDlg.getInstance().updateAndOpen(selectedLid, false);
+                shell.setCursor(null);
             }
         });
 
@@ -1057,8 +1060,10 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         graphBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                TimeSeriesDlg tsd = new TimeSeriesDlg(shell, selectedLid);
-                tsd.open();
+                shell.setCursor(shell.getDisplay().getSystemCursor(
+                        SWT.CURSOR_WAIT));
+                TimeSeriesDlg.getInstance().updateAndOpen(selectedLid, true);
+                shell.setCursor(null);
             }
         });
 

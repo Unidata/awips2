@@ -24,6 +24,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.awt.image.BufferedImage;
+
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -36,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.CorrelatedShearPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
+import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.ETVSPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.HailPositivePacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.HailProbablePacket;
@@ -76,14 +83,19 @@ import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
+import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
+import com.raytheon.viz.pointdata.PointWindDisplay;
+import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
 import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
 import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.radar.RadarHelper;
@@ -107,6 +119,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2009            chammack     Initial creation
+ * 03/05/2013   DCS51     zwang        Handle GFM product 
  * 
  * </pre>
  * 
@@ -129,6 +142,8 @@ public class RadarGraphicsPage implements IRenderable {
     private JTSCompiler compiler;
 
     private IWireframeShape wireframeShape;
+    
+    private IWireframeShape gfmFcstWireframeShape;
 
     /** Map of ascii strings in local coordinate system */
     private Map<Coordinate, String> localStringMap;
@@ -174,7 +189,14 @@ public class RadarGraphicsPage implements IRenderable {
     private boolean drawBorder = false;
 
     private int recordsPerPage = 5;
-
+    
+    // for GFM product, add gfmFcstWireframeShape
+    public RadarGraphicsPage(IDescriptor descriptor, GeneralGridGeometry gg,
+            IWireframeShape shape, IWireframeShape gfmShape, IGraphicsTarget target, RGB color) {
+        this(descriptor, gg, shape, target, color);
+        this.gfmFcstWireframeShape = gfmShape;
+    }
+    
     public RadarGraphicsPage(IDescriptor descriptor, GeneralGridGeometry gg,
             IWireframeShape shape, IGraphicsTarget target, RGB color,
             DmdModifier tableModifier) {
@@ -439,6 +461,25 @@ public class RadarGraphicsPage implements IRenderable {
                             stormData.setVisible(false);
                         } else {
                             images.add(pObject);
+                            stormData.setVisible(true);
+                        }
+                    }
+                }
+                // GFM
+                else if (type == 140) { 
+                	List<PlotObject> gfmImages = new ArrayList<PlotObject>();
+
+                	// Handle each Feature in the GFM Packet
+                    for (GenericDataComponent currComponent : stormData
+                            .getDisplayGenericPointData().get(type).values()) {
+                        // Handle Graphic portion
+                        gfmImages = getGfmImage(currComponent);
+
+                        if (gfmImages.isEmpty()) {
+                            displayStormID = false;
+                            stormData.setVisible(false);
+                        } else {
+                            images.addAll(gfmImages);
                             stormData.setVisible(true);
                         }
                     }
@@ -848,6 +889,135 @@ public class RadarGraphicsPage implements IRenderable {
         return image;
     }
 
+    // Handle GFM product
+    private List<PlotObject> getGfmImage(GenericDataComponent currPt)
+                throws VizException {
+        List<PlotObject> images = new ArrayList<PlotObject>();
+    
+        UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND.getConverterTo(NonSI.KNOT);
+    
+        boolean isFcst = false;
+        double x,y;            
+        Coordinate pos1, pos2;
+    
+        int imgSize = 64;
+    
+        AreaComponent currFeature = (AreaComponent) currPt;
+    
+        int numPoints = currFeature.getPoints().size();
+        int numParam = currFeature.getParameters().size();
+    
+        String propU, propV, windU, windV, windX, windY;
+        double pU = 0.0;
+        double pV = 0.0; 
+        double wU = 0.0; 
+        double wV = 0.0;
+        double wX = 0.0;
+        double wY = 0.0;
+    
+        // if the component only has dectect ID and DeltaT
+        if (numParam == 2) {
+           isFcst = true;
+        }
+        // 11 parameters
+        else {
+           propU = currFeature.getValue(GFMPacket.GFMAttributeIDs.PROPU.getName());
+           if ((propU != null) && (propU.length() > 0)) {
+              pU = metersPerSecondToKnots.convert(new Double(propU));
+           }
+           propV = currFeature.getValue(GFMPacket.GFMAttributeIDs.PROPV.getName());
+           if ((propV != null) && (propV.length() > 0)) {
+              pV = metersPerSecondToKnots.convert(new Double(propV));
+           }
+           windU = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDU.getName());
+           if ((windU != null) && (windU.length() > 0)) {
+              wU = metersPerSecondToKnots.convert(new Double(windU));
+           }
+           windV = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDV.getName());
+           if ((windV != null) && (windV.length() > 0)) {
+              wV = metersPerSecondToKnots.convert(new Double(windV));
+           }
+           windX = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDX.getName());
+           if ((windX != null) && (windX.length() > 0)) {
+              wX = Float.parseFloat(windX);
+           }
+           windY = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDY.getName());
+           if ((windY != null) && (windY.length() > 0)) {
+              wY = Float.parseFloat(windY);
+           }
+     
+           // Prop wind arrow
+           PlotObject poWind = new PlotObject();
+           PointWindDisplay barb = new PointWindDisplay(imgSize * 0.4, 0.5, 2, 0);
+           barb.setImageParameters(imgSize, imgSize, 255, 255, 255, 1);
+           barb.setColor(this.color);
+           
+           // plot the wind arrow in the same length as 50 kts
+           double spd = Math.sqrt(pU * pU + pV * pV);
+           if (spd > 0) {
+        	  pU *= 50.0 / spd;
+        	  pV *= 50.0 / spd;
+           }
+           
+           barb.setWind(pU, pV, false);
+           BufferedImage imgBuf = barb.getWindImage(false, DisplayType.ARROW, 0.2);
+           IImage img = this.target.initializeRaster(new IODataPreparer(imgBuf, UUID.randomUUID().toString(), 0), null);
+           poWind.image = img;
+           
+           // Wind barb behind front
+           PlotObject wWind = new PlotObject();
+           PointWindDisplay barb1 = new PointWindDisplay(imgSize * 0.4, 0.5, 2, 0);
+           barb1.setImageParameters(imgSize, imgSize, 255, 255, 255, 1);
+           barb1.setColor(this.color);
+           barb1.setWind(wU, wV, false);
+           BufferedImage imgBuf1 = barb1.getWindImage(false, DisplayType.BARB, 1);
+           IImage img1 = this.target.initializeRaster(new IODataPreparer(imgBuf1, UUID.randomUUID().toString(), 0), null);
+           wWind.image = img1;
+           
+           ReferencedCoordinate rc = referencedGfmCoord(wX, wY); 
+           try {
+               poWind.coord = rc.asPixel(this.descriptor.getGridGeometry());
+               poWind.pixelOffset = new int[] { 0, 0 };
+               images.add(poWind);
+
+               wWind.coord = rc.asPixel(this.descriptor.getGridGeometry());
+               wWind.pixelOffset = new int[] { 0, 0 };
+               images.add(wWind);
+               
+           } catch (Exception e) {
+               throw new VizException("Unable to transform coordinates", e);
+           } 
+        }
+    
+        // Draw GFM fronts
+        x = currFeature.getPoints().get(0).getCoordinate1();
+        y = currFeature.getPoints().get(0).getCoordinate2();
+        try {
+            pos1 = referencedGfmCoord(x, y).asLatLon();
+            
+            for (int k = 1; k < numPoints; k++) {
+                x = currFeature.getPoints().get(k).getCoordinate1();
+                y = currFeature.getPoints().get(k).getCoordinate2();
+                //convert xy to latlon
+                pos2 = referencedGfmCoord(x, y).asLatLon(); 
+            
+                // Connect the dots
+                if (isFcst) {
+                   gfmFcstWireframeShape.addLineSegment(new Coordinate[] {pos1, pos2 });
+                }
+                else {
+                   wireframeShape.addLineSegment(new Coordinate[] {pos1, pos2 });
+                }
+                pos1 = pos2;
+            }
+        } catch (TransformException e) {
+            throw new VizException(e);
+        } catch (FactoryException e) {
+            throw new VizException(e);
+        }
+        return images;
+    }
+    
     private PlotObject getImage(HdaHailPoint currPt) throws VizException {
         PlotObject image = null;
 
@@ -1045,7 +1215,12 @@ public class RadarGraphicsPage implements IRenderable {
         }
 
         // Paint map-relative vectors
-        if (this.wireframeShape != null) {
+        // GFM forecast positions should be dashed thick lines
+        if (this.gfmFcstWireframeShape != null) {
+            target.drawWireframeShape(this.wireframeShape, this.color, 3.0f);
+            target.drawWireframeShape(this.gfmFcstWireframeShape, this.color, 3.0f, LineStyle.DASHED);
+        }
+        else if (this.wireframeShape != null) {
             target.drawWireframeShape(this.wireframeShape, this.color, 1.0f);
         }
 
@@ -1320,4 +1495,13 @@ public class RadarGraphicsPage implements IRenderable {
         this.tableX = this.startTableX;
         this.tableY = this.startTableY;
     }
+    
+    /**
+     * Need to convert x/y to lon/lat for GFM product
+     */
+    public ReferencedCoordinate referencedGfmCoord(double i, double j) {
+        return new ReferencedCoordinate(rectifyCoordinate(new Coordinate(i * 4, j * 4)), 
+                this.gridGeometry, Type.GRID_CENTER);
+    }
+
 }

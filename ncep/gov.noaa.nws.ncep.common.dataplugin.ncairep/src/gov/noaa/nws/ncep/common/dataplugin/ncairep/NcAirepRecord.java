@@ -268,7 +268,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 
 	@Embedded
 	@DynamicSerializeElement
-	private PointDataView pdv;
+	private PointDataView pointDataView;
 
 	/**
      * 
@@ -866,7 +866,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	 */
 	@Override
 	public PointDataView getPointDataView() {
-		return this.pdv;
+		return this.pointDataView;
 	}
 
 	/*
@@ -878,7 +878,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	 */
 	@Override
 	public void setPointDataView(PointDataView pdv) {
-		this.pdv = pdv;
+		this.pointDataView = pdv;
 	}
 
 }

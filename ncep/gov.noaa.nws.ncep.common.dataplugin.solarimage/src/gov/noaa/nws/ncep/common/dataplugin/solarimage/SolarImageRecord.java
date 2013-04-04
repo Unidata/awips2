@@ -26,6 +26,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
  * 12/05/2012   865        sgurung, qzhou     Initial creation.
+ * 01/07/2013   865        qzhou              Added "Site" for Halpha.
+ * 01/28/2013   865        qzhou              Changed float to double for intTime.
  * </pre>
  * 
  * @author sgurung, qzhou
@@ -77,7 +79,16 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     @Column
     @DynamicSerializeElement
     @XmlAttribute
-    private float intTime;
+    private Double intTime;
+    
+    /**
+     * Site
+     */
+    @DataURI(position = 5)
+    @Column
+    @DynamicSerializeElement
+    @XmlAttribute
+    private String site;
     
     /**
      * hdu containing image data
@@ -90,6 +101,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     /**
      * report type
      */
+    @DataURI(position = 6)
     @Column 
     @DynamicSerializeElement
     @XmlAttribute
@@ -167,7 +179,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     /**
      * @return the intTime
      */
-    public float getIntTime() {
+    public Double getIntTime() {
         return intTime;
     }
 
@@ -175,8 +187,23 @@ public class SolarImageRecord extends PersistablePluginDataObject {
      * @param intTime
      *            the intTime to set
      */
-    public void setIntTime(float intTime) {
+    public void setIntTime(Double intTime) {
         this.intTime = intTime;
+    }
+    
+    /**
+     * @return the site
+     */
+    public String getSite() {
+        return site;
+    }
+
+    /**
+     * @param site
+     *            the site to set
+     */
+    public void setSite(String site) {
+        this.site = site;
     }
     
     /**

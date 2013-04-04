@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.datadelivery.browser;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Feb 21, 2012            mpduff      Initial creation
  * Aug 08, 2012    863     jpiatt      Added new interface method.
  * Jan 07, 2013   1432     mpduff      Fix case sensitive and exclude checkboxes.
+ * Feb 25, 2013   1588     mpduff      Fix match any/all.
  * 
  * </pre>
  * 
@@ -280,80 +281,19 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
      * Handle the search action.
      */
     private void handleSearch() {
-        boolean excludeSearch = !exclusionBtn.getSelection();
+        boolean excludeSearch = exclusionBtn.getSelection();
 
         String search = regExTxt.getText();
-        ArrayList<String> tmpFilterList = new ArrayList<String>();
         if (search != null && search.length() > 0) {
 
             dualConfig.setSearchField(search);
 
-            String[] parts;
-
-            /* Iterate over the filtered list of items */
             String[] filteredList = dualConfig.getFullList().toArray(
                     new String[dualConfig.getFullList().size()]);
 
-            // Search contains 1 or more *
-            if (search.contains("*")) {
-                parts = search.split("\\*");
-                if (parts.length > 0) {
-                    ITEM: for (String item : filteredList) {
-                        for (String part : parts) {
-                            if (part.length() > 0) {
-                                if (caseBtn.getSelection()) {
-                                    if (item.contains(part) == excludeSearch) {
-                                        continue ITEM;
-                                    }
-                                } else {
-                                    if (!item.toLowerCase().contains(
-                                            part.toLowerCase()) == excludeSearch) {
-                                        continue ITEM;
-                                    }
-                                }
-                            }
-                        }
-
-                        // all parts are contained in the item, now figure
-                        // out if they are in the right order
-                        int idx = item.indexOf(parts[0]);
-                        for (int i = 1; i < parts.length; i++) {
-                            int curIdx = 0;
-                            if (caseBtn.getSelection()) {
-                                curIdx = item.indexOf(parts[i]);
-                            } else {
-                                curIdx = item.toLowerCase().indexOf(
-                                        parts[i].toLowerCase());
-                            }
-
-                            if (curIdx > idx) {
-                                idx = curIdx;
-                            } else {
-                                break ITEM;
-                            }
-                        }
-
-                        // Made it this far so item is in list
-                        tmpFilterList.add(item);
-                    }
-                    dualList.clearAvailableList(false);
-                    dualList.setAvailableItems(tmpFilterList);
-                }
-                return;
-            } else {
-                // No * in search
-                for (String item : filteredList) {
-                    if (caseBtn.getSelection()) {
-                        if (item.contains(search) == excludeSearch) {
-                            tmpFilterList.add(item);
-                        }
-                    } else {
-                        if (item.toLowerCase().contains(search.toLowerCase()) == excludeSearch) {
-                            tmpFilterList.add(item);
-                        }
-                    }
-                }
-            }
+            List<String> tmpFilterList = DataBrowserUtils.search(search,
+                    filteredList, matchAnyFlag, caseBtn.getSelection(),
+                    excludeSearch);
 
             // Clear the list and add the newly filtered items
             dualList.clearAvailableList(false);

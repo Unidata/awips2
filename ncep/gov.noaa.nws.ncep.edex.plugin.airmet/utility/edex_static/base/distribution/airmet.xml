@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
-    <regex>^WAUS4[1-6].*</regex>
+    <regex>^WAUS4[1-6] KKCI</regex>
+    <regex>^WAHW[03]1 PHFO</regex>
+    <regex>^WAAK4[7-9] PAWU</regex>
 </requestPatterns>

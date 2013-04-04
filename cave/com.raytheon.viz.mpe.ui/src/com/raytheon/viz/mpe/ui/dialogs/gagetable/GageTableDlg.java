@@ -21,7 +21,6 @@ package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -88,6 +87,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
+import com.raytheon.viz.mpe.ui.IEditTimeChangedListener;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableColumnData;
 import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSettings;
@@ -102,6 +102,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 28, 2009 2476       mpduff     Initial creation.
+ * Mar 08, 2013 15725      snaples    Updated to fix resort issues when editing value.
  * 
  * </pre>
  * 
@@ -109,7 +110,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * @version 1.0
  */
 
-public class GageTableDlg extends JFrame {
+public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     private static final long serialVersionUID = -4230332238083384449L;
 
     /**
@@ -200,6 +201,8 @@ public class GageTableDlg extends JFrame {
      */
     private final Map<String, GageTableRowData> editMap = new HashMap<String, GageTableRowData>();
 
+    private MPEDisplayManager displayManager;
+
     /**
      * Constructor.
      */
@@ -230,8 +233,8 @@ public class GageTableDlg extends JFrame {
 
         readSettingsFile();
 
-        MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        currentDate = displayManager.getCurrentDate();
+        displayManager = MPEDisplayManager.getCurrent();
+        currentDate = displayManager.getCurrentEditDate();
 
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
@@ -271,9 +274,9 @@ public class GageTableDlg extends JFrame {
         setLocation(xCoord - (bounds.width / 2), yCoord - (bounds.height / 2));
 
         setVisible(true);
-//        tableModel.refreshTable();
+        // tableModel.refreshTable();
 
-        displayManager.setGageTableDlgReference(this);
+        displayManager.registerEditTimeChangedListener(this);
     }
 
     /**
@@ -551,7 +554,6 @@ public class GageTableDlg extends JFrame {
             tableModel = null;
             setVisible(false);
             GageTableDataManager.setNull();
-            MPEDisplayManager.getCurrent().setGageTableDlgReference(null);
             dispose();
         }
     }
@@ -1212,33 +1214,7 @@ public class GageTableDlg extends JFrame {
         public void tableChanged(TableModelEvent e) {
             GageTableDataManager dataManager = GageTableDataManager
                     .getInstance();
-            getContentPane().setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            int width = GageTableConstants.DEFAULT_WIDTH;
-
             if ((e != null) && (e.getType() == TableModelEvent.UPDATE)) {
-                table = null;
-                table = new JTable(tableModel);
-
-                JTableHeader header = table.getTableHeader();
-                header.addMouseListener(new ColumnHeaderListener());
-                // Disable autoCreateColumnsFromModel otherwise all the column
-                // customizations and adjustments will be lost when the model
-                // data is sorted
-                table.setAutoCreateColumnsFromModel(false);
-                table.setColumnSelectionAllowed(false);
-                table.setRowSelectionAllowed(true);
-                table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                // make the user's edits stored without need for type "return"
-                // key or click
-                // on JTable
-                table.putClientProperty("terminateEditOnFocusLost",
-                        Boolean.TRUE);
-
-                /* Center all table data */
-                JLabel renderer = ((JLabel) table
-                        .getDefaultRenderer(Object.class));
-                renderer.setHorizontalAlignment(SwingConstants.CENTER);
-
                 // Get the changed info
                 int cellRow = table.convertRowIndexToModel(e.getFirstRow());
                 int cellColumn = e.getColumn();
@@ -1271,7 +1247,6 @@ public class GageTableDlg extends JFrame {
                     // or 'm' or 'M' or "".
                     if (newValue.equals("")) {
                         rowData.setValueEdited(false);
-                        // rowData.setEditValue(-999.0);
                     } else {
                         if (newValue.equalsIgnoreCase("m")) {
                             rowData.setEditValue(-999.0);
@@ -1281,7 +1256,6 @@ public class GageTableDlg extends JFrame {
                         }
                         rowData.setValueEdited(true);
                     }
-                    // rowData.setValueEdited(true);
                     int indexOf = rowDataList.indexOf(rowData);
                     rowDataList.set(indexOf, rowData);
                     editMap.put(
@@ -1289,36 +1263,8 @@ public class GageTableDlg extends JFrame {
                             rowData);
                     dataChanged = true;
                 }
-                dataManager.setGageTableRowList(rowDataList);
-                gageTablePanel.remove(scrollPane);
-                scrollPane = new JScrollPane(table);
-                gageTablePanel.add(scrollPane);
-
-                List<GageTableColumn> columnList = dataManager
-                        .getColumnDataList();
-                ColumnHeaderToolTips tips = new ColumnHeaderToolTips();
-
-                for (int i = 0; i < columnList.size(); i++) {
-                    TableColumn col = table.getColumnModel().getColumn(i);
-                    col.setHeaderRenderer(new GageTableHeaderCellRenderer());
-                    col.setMinWidth(25);
-                    GageTableColumn c = columnList.get(i);
-
-                    if (dataManager.getColumnWidthMap().get(c.getName()) == null) {
-                        width = GageTableConstants.DEFAULT_WIDTH;
-                    } else {
-                        width = dataManager.getColumnWidthMap()
-                                .get(c.getName());
-                    }
-                    col.setPreferredWidth(width);
-                    tips.setToolTip(col, c.getToolTipText());
-                }
-
-                header.addMouseMotionListener(tips);
-
                 // Update the grid combobox
                 gridCombo.removeAllItems();
-                columnData = columnList;
                 populateGridCombo();
 
             } else {
@@ -1330,8 +1276,6 @@ public class GageTableDlg extends JFrame {
                             .setHeaderRenderer(new GageTableHeaderCellRenderer());
                 }
             }
-            // sortTable();
-            getContentPane().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -1366,11 +1310,15 @@ public class GageTableDlg extends JFrame {
         setVisible(false);
         tableModel = null;
         GageTableDataManager.setNull();
-        MPEDisplayManager.getCurrent().setGageTableDlgReference(null);
         dispose();
     }
 
-    /**
+    public void setDataChanged(boolean dataChanged)
+    {
+    	this.dataChanged = dataChanged;
+    }
+
+	/**
      * Set the sort order of the columns.
      * 
      * @param settings
@@ -1427,4 +1375,30 @@ public class GageTableDlg extends JFrame {
         GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
         GageTableProductManager.getInstance().fireUpdateEvent(event);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.mpe.ui.IEditTimeChangedListener#editTimeChanged(java
+     * .util.Date, java.util.Date)
+     */
+    @Override
+    public void editTimeChanged(Date oldTime, Date newTime) {
+        updateDate(newTime);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.Window#dispose()
+     */
+    @Override
+    public void dispose() {
+        if (displayManager != null) {
+            displayManager.unregisterEditTimeChangedListener(this);
+        }
+        super.dispose();
+    }
+
 }
