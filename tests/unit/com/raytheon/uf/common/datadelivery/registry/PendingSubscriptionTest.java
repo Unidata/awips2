@@ -47,7 +47,7 @@ public class PendingSubscriptionTest {
     public void testCopyConstructorSetsOriginalSubNameAsName() {
         UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        PendingSubscription pendingSubscription = new PendingSubscription(
+        PendingUserSubscription pendingSubscription = new PendingUserSubscription(
                 subscription, "djohnson");
         assertEquals(
                 "The original subscription name should have been used for the pending subscription!",
@@ -58,7 +58,7 @@ public class PendingSubscriptionTest {
     public void testCopyConstructorSetsSubscriptionValuesOnPendingSubscription() {
         UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        PendingSubscription copied = new PendingSubscription(
+        PendingUserSubscription copied = new PendingUserSubscription(
                 subscription, "djohnson");
 
         assertEquals(subscription.getActivePeriodEnd(),
