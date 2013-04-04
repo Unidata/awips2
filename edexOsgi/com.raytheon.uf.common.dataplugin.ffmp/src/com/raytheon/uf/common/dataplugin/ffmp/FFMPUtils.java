@@ -31,11 +31,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
@@ -44,6 +51,7 @@ import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -71,7 +79,6 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
- * 09/05/12		 DR 15164   G. Zhang	Fix FFMP Table county/state name null issue
  * </pre>
  * 
  * @author dhladky
@@ -468,11 +475,12 @@ public class FFMPUtils {
      * @return
      */
     public static FFMPCounty getCounty(Long pfaf, String mode) {
-    	
-    	String ftxt = (pfaf>=10000 ? ""+pfaf : "0"+pfaf);// DR 15164
-    	
+
+        String ftxt = (pfaf >= 10000 ? "" + pfaf : "0" + pfaf);// DR 15164
+
         String sql = "SELECT county.countyname, county.state FROM "
-                + " mapdata.county WHERE county.fips = '" + ftxt/*pfaf*/ + "'";// DR 15164
+                + " mapdata.county WHERE county.fips = '" + ftxt/* pfaf */+ "'";// DR
+                                                                                // 15164
 
         ISpatialQuery sq = null;
         FFMPCounty county = new FFMPCounty();
@@ -620,10 +628,23 @@ public class FFMPUtils {
      */
     @SuppressWarnings("unchecked")
     public static ArrayList<?> getCountyInfo(Long fips, String mode) {
-    	String ftxt = (fips>=10000 ? ""+fips : "0"+fips);// DR 15108: add a leading 0 to 4-digit FIPS. 
+        String ftxt = (fips >= 10000 ? "" + fips : "0" + fips);// DR 15108: add
+                                                               // a leading 0 to
+                                                               // 4-digit FIPS.
         String sql1 = "SELECT county.gid from " + FFMPUtils.COUNTY_TABLE
-                + " WHERE county.fips = '" + ftxt/*fips*/ + "'";// DR 15108: use the 5-digit FIPS string.
-        System.out.println("___FFMPUtils.getCountyInfo(): county FIPS: "+ftxt);//Not a debug statement but for Template generation.
+                + " WHERE county.fips = '" + ftxt/* fips */+ "'";// DR 15108:
+                                                                 // use the
+                                                                 // 5-digit FIPS
+                                                                 // string.
+        System.out
+                .println("___FFMPUtils.getCountyInfo(): county FIPS: " + ftxt);// Not
+                                                                               // a
+                                                                               // debug
+                                                                               // statement
+                                                                               // but
+                                                                               // for
+                                                                               // Template
+                                                                               // generation.
         ISpatialQuery sq1 = null;
         ArrayList<Long> gids = new ArrayList<Long>();
 
@@ -873,31 +894,28 @@ public class FFMPUtils {
      * @param rfc
      * @return
      */
-    public static HashMap<String, Integer> getFFGModelInfo(String rfc) {
+    public static Set<String> getFFGParameters(String rfc) {
+        Set<String> ffgHash = new HashSet<String>();
 
         /**
          * Had to add this bit of code for ncgrib models
          */
-        String sql = "select id, parameterabbreviation from awips.grib_models where modelname = 'FFG-"
-                + rfc.substring(1) + "\'";
-
-        ISpatialQuery sq = null;
-        HashMap<String, Integer> ffgHash = new HashMap<String, Integer>();
-
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(GridRecord.class.getName());
+        request.setDistinct(true);
+        request.addRequestField(GridConstants.PARAMETER_ABBREVIATION);
+        request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                "FFG-" + rfc.substring(1)));
         try {
-            sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, META_DB);
-            if (results.length > 0) {
-                for (int i = 0; i < results.length; i++) {
-                    Object[] results2 = (Object[]) results[i];
-                    if (results2.length > 0) {
-                        Integer id = (Integer) results2[0];
-                        String key = (String) results2[1];
-                        ffgHash.put(key, id);
-                    }
-                }
+            DbQueryResponse response = (DbQueryResponse) RequestRouter
+                    .route(request);
+
+            for (Map<String, Object> map : response.getResults()) {
+                String key = (String) map
+                        .get(GridConstants.PARAMETER_ABBREVIATION);
+                ffgHash.add(key);
             }
-        } catch (SpatialException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -910,24 +928,29 @@ public class FFMPUtils {
      * @param id
      * @return
      */
-    public static String getFFGDataURI(int id, String plugin) {
-        String sql = "select datauri from awips." + plugin
-                + " where modelinfo_id = " + id + " order by reftime desc";
+    public static String getFFGDataURI(String rfc, String parameter,
+            String plugin) {
 
-        ISpatialQuery sq = null;
-        String uri = null;
-
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(GridRecord.class.getName());
+        request.addRequestField("dataURI");
+        request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
+                new RequestConstraint(parameter));
+        request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                "FFG-" + rfc.substring(1)));
+        request.setOrderByField("dataTime.refTime", OrderMode.DESC);
         try {
-            sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, META_DB);
-            if (results.length > 0) {
-                uri = (String) results[0];
+            DbQueryResponse response = (DbQueryResponse) RequestRouter
+                    .route(request);
+
+            for (Map<String, Object> map : response.getResults()) {
+                return (String) map.get("dataURI");
             }
-        } catch (SpatialException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return uri;
+        return null;
     }
 
     /**

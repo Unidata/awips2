@@ -22,24 +22,25 @@ package com.raytheon.viz.grid.data;
 import javax.measure.unit.SI;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridData;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridDataType;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.viz.grid.util.CoverageUtils;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
- * TODO Add Description
+ * Requestable data object that returns static data for a GridCoverage dx,dy, or
+ * coriolis.
  * 
  * <pre>
  * 
@@ -60,11 +61,14 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
     private StaticGridDataType dataType;
 
-    public StaticGridRequestableData(StaticGridDataType dataType, String source) {
+    public StaticGridRequestableData(StaticGridDataType dataType,
+            String source, GridCoverage coverage) {
         this.dataType = dataType;
         this.source = source;
         this.parameter = dataType.toString();
         this.parameterName = dataType.toString();
+        this.space = coverage;
+        this.dataTime = TimeAndSpace.TIME_AGNOSTIC;
         if (StaticGridDataType._dt.equals(dataType)) {
             this.unit = SI.SECOND;
         } else {
@@ -88,11 +92,10 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
         if (StaticGridDataType._dt.equals(dataType)) {
             int dTinSeconds = 0;
-            GridModel model = GribModelLookup.getInstance().getModelByName(
-                    source);
+            DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(source);
 
-            if (model != null) {
-                dTinSeconds = model.getDt();
+            if (info != null) {
+                dTinSeconds = info.getDt();
 
                 // dT <= 24 is in hours, need to convert to seconds
                 if (Math.abs(dTinSeconds) <= 24) {
@@ -102,21 +105,25 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
             return new Float(dTinSeconds);
         } else {
-            GridCoverage coverage = CoverageUtils.getInstance().getCoverage(
-                    source);
-            StaticGridData data = StaticGridData.getInstance(coverage);
-
-            switch (dataType) {
-            case coriolis:
-                rval = data.getCoriolis();
-                break;
-            case dx:
-                rval = data.getDx();
-                break;
-            case dy:
-                rval = data.getDy();
-                break;
+            if (this.space instanceof GridCoverage) {
+                StaticGridData data = StaticGridData
+                        .getInstance((GridCoverage) this.space);
+                switch (dataType) {
+                case coriolis:
+                    rval = data.getCoriolis();
+                    break;
+                case dx:
+                    rval = data.getDx();
+                    break;
+                case dy:
+                    rval = data.getDy();
+                    break;
+                }
+            } else {
+                throw new IllegalStateException("Cannot get static topo for: "
+                        + this.space);
             }
+
         }
         if (arg instanceof Request) {
             return SliceUtil.slice(rval, (Request) arg);

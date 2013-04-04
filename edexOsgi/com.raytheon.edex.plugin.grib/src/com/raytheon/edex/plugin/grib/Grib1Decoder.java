@@ -45,40 +45,43 @@ import ucar.grid.GridParameter;
 import ucar.unidata.io.RandomAccessFile;
 
 import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.GribLevel;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.edex.plugin.grib.util.GribModelLookup;
 import com.raytheon.edex.plugin.grib.util.GribParameter;
+import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.grib.Grib1TableMap;
 import com.raytheon.edex.util.grib.GribParamTranslator;
 import com.raytheon.edex.util.grib.GribTableLookup;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.MercatorGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.PolarStereoGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
+import com.raytheon.uf.common.dataplugin.level.mapping.MultipleLevelMappingException;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
+import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
+import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 /**
  * Grib decoder implementation for decoding grib version 1 files.
@@ -97,7 +100,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * @version 1
  */
 public class Grib1Decoder extends AbstractDecoder {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Grib1Decoder.class);
 
     /** Missing value string */
@@ -105,15 +108,6 @@ public class Grib1Decoder extends AbstractDecoder {
 
     /** Set of Time range types for accumulations and averages */
     private static final Set<Integer> AVG_ACCUM_LIST = new HashSet<Integer>();
-
-    private static final int[] fourtyOne = new int[] { 1, 1, 2, 3, 2, 3, 2, 3,
-            2, 3, 2, 3 };
-
-    private static final int[] fourtyTwo = new int[] { 1, 2, 1, 1, 2, 2, 3, 3,
-            4, 4, 5, 5 };
-
-    private static final int[] perturbation = new int[] { 1, 2, 3, 4, 5, 6, 7,
-            8, 9, 10, 11, 12 };
 
     static {
         AVG_ACCUM_LIST.add(3);
@@ -148,11 +142,11 @@ public class Grib1Decoder extends AbstractDecoder {
      * 
      * @param gribFileName
      *            The name of the file to be decoded
-     * @return The decoded GribRecords
+     * @return The decoded GridRecords
      * @throws GribException
      *             If decoding the file fails or encounters problems
      */
-    public GribRecord[] decode(String gribFileName) throws GribException {
+    public GridRecord[] decode(String gribFileName) throws GribException {
         File gribFile = new File(gribFileName);
         RandomAccessFile raf = null;
         try {
@@ -172,14 +166,14 @@ public class Grib1Decoder extends AbstractDecoder {
                         + gribFile + "]");
             }
             ArrayList<Grib1Record> records = g1i.getRecords();
-            List<GribRecord> gribRecords = new ArrayList<GribRecord>();
+            List<GridRecord> gribRecords = new ArrayList<GridRecord>();
             for (int i = 0; i < records.size(); i++) {
-                GribRecord rec = decodeRecord((Grib1Record) records.get(i), raf);
+                GridRecord rec = decodeRecord(records.get(i), raf);
                 if (rec != null) {
                     gribRecords.add(rec);
                 }
             }
-            return gribRecords.toArray(new GribRecord[] {});
+            return gribRecords.toArray(new GridRecord[] {});
         } finally {
             if (raf != null) {
                 try {
@@ -200,14 +194,14 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The record to decode
      * @param raf
      *            The file object
-     * @return The decoded GribRecord
+     * @return The decoded GridRecord
      * @throws GribException
      *             If the record cannot be decoded properly
      */
-    private GribRecord decodeRecord(Grib1Record rec, RandomAccessFile raf)
+    private GridRecord decodeRecord(Grib1Record rec, RandomAccessFile raf)
             throws GribException {
 
-        GribRecord retVal = new GribRecord();
+        GridRecord retVal = new GridRecord();
 
         // Extract the sections from the grib record
         Grib1ProductDefinitionSection pds = rec.getPDS();
@@ -259,6 +253,7 @@ public class Grib1Decoder extends AbstractDecoder {
                 parameterName = param.getDescription();
                 parameterAbbreviation = param.getName();
                 parameterUnit = param.getUnit();
+
             } catch (NotSupportedException e) {
                 throw new GribException("Error getting grib 1 parameter", e);
             }
@@ -287,51 +282,53 @@ public class Grib1Decoder extends AbstractDecoder {
         int nx = new Integer(gridCoverage.getNx());
         int ny = new Integer(gridCoverage.getNy());
 
-        // Create the GribModel object with the appropriate values from the grib
-        // record
-        GribModel model = new GribModel();
-        model.setLocation(gridCoverage);
-        model.setCenterid(centerid);
-        model.setSubcenterid(subcenterid);
-        model.setBackGenprocess(0);
-        model.setGenprocess(pdsVars.getGenProcessId());
-        model.setParameterName(parameterName);
-        model.setParameterAbbreviation(parameterAbbreviation);
-        model.setParameterUnit(parameterUnit);
+        retVal.setLocation(gridCoverage);
+        int genProcess = pdsVars.getGenProcessId();
+
+        retVal.addExtraAttribute("centerid", centerid);
+        retVal.addExtraAttribute("subcenterid", subcenterid);
+        retVal.addExtraAttribute("genprocess", pdsVars.getGenProcessId());
+        retVal.addExtraAttribute("backGenprocess", 0);
 
         // unidata does not handle isEnsemble call when
         // octet size is less than 40.
 
         if (pdsVars.getLength() > 40 && pdsVars.isEnsemble()) {
-            model.setNumForecasts(10);
-            model.setTypeEnsemble(pdsVars.getType());
             // rcg: added code to get perturbation
-            int pos41 = pdsVars.getOctet(42);
-            int pos42 = pdsVars.getOctet(43);
-            int pert = pdsVars.getID();
-            for (int i = 0; i < perturbation.length; i++) {
-                if (pos41 == fourtyOne[i] && pos42 == fourtyTwo[i]) {
-                    pert = perturbation[i];
-                    break;
-                }
+            int pos42 = pdsVars.getOctet(42);
+            int pos43 = pdsVars.getOctet(43);
+            switch (pos42) {
+            case 1:
+                retVal.setEnsembleId("ctl" + pos43);
+                break;
+            case 2:
+                retVal.setEnsembleId("n" + pos43);
+                break;
+            case 3:
+                retVal.setEnsembleId("p" + pos43);
+                break;
+            case 4:
+                retVal.setEnsembleId("cls" + pos43);
+                break;
+            default:
+                retVal.setEnsembleId(pos42 + "." + pos43);
             }
-            model.setPerturbationNumber(pert);
         } else {
-            model.setNumForecasts(null);
-            model.setTypeEnsemble(null);
-            model.setPerturbationNumber(null);
+            retVal.setEnsembleId(null);
         }
 
-        model.setGridid(gridCoverage.getName());
-        createModelName(model);
+        retVal.addExtraAttribute("gridid", gridCoverage.getName());
+
+        retVal.setDatasetId(createModelName(centerid, subcenterid, genProcess,
+                gridCoverage));
 
         // Get the level information
         float[] levelMetadata = this.convertGrib1LevelInfo(
                 pdsVars.getLevelType1(), (float) pdsVars.getLevelValue1(),
                 pdsVars.getLevelType2(), (float) pdsVars.getLevelValue2());
-        getLevelInfo(model, centerid, subcenterid, levelMetadata[0],
+        retVal.setLevel(getLevelInfo(centerid, subcenterid, levelMetadata[0],
                 levelMetadata[1], levelMetadata[2], levelMetadata[3],
-                levelMetadata[4], levelMetadata[5]);
+                levelMetadata[4], levelMetadata[5]));
 
         // Construct the DataTime
         GregorianCalendar refTime = new GregorianCalendar();
@@ -344,7 +341,7 @@ public class Grib1Decoder extends AbstractDecoder {
                 refTime,
                 forecastTime,
                 getTimeInformation(refTime, pdsVars.getTimeRangeIndicator(),
-                        p1, p2), model);
+                        p1, p2));
 
         /*
          * Extract the data values from the file. The AVG_ACCUM_LIST is checked
@@ -446,13 +443,13 @@ public class Grib1Decoder extends AbstractDecoder {
         }
 
         // Check for subgridding
-        String modelName = model.getModelName();
+        String modelName = retVal.getDatasetId();
         GridCoverage subCoverage = GribSpatialCache.getInstance()
-                .getSubGridCoverage(modelName);
+                .getSubGridCoverage(modelName, gridCoverage);
 
         if (subCoverage != null) {
             SubGrid subGrid = GribSpatialCache.getInstance().getSubGrid(
-                    modelName);
+                    modelName, gridCoverage);
             // resize the data array
             float[][] dataArray = this.resizeDataTo2D(data,
                     gridCoverage.getNx(), gridCoverage.getNy());
@@ -461,46 +458,46 @@ public class Grib1Decoder extends AbstractDecoder {
             data = this.resizeDataTo1D(dataArray, subGrid.getNY(),
                     subGrid.getNX());
             retVal.setMessageData(data);
-            model.setLocation(subCoverage);
+            retVal.setLocation(subCoverage);
         }
 
         String newAbbr = GribParamTranslator.getInstance().translateParameter(
-                1, model, dataTime);
+                1, parameterAbbreviation, centerid, subcenterid, genProcess,
+                dataTime, gridCoverage);
 
         if (newAbbr == null) {
-            if (!model.getParameterName().equals(MISSING)
+            if (!parameterName.equals(MISSING)
                     && dataTime.getValidPeriod().getDuration() > 0) {
-                model.setParameterAbbreviation(model.getParameterAbbreviation()
+                parameterAbbreviation = parameterAbbreviation
                         + String.valueOf(dataTime.getValidPeriod()
-                                .getDuration() / 3600000) + "hr");
+                                .getDuration() / 3600000) + "hr";
             }
         } else {
-            model.setParameterAbbreviation(newAbbr);
+            parameterAbbreviation = newAbbr;
         }
-        model.setParameterAbbreviation(model.getParameterAbbreviation()
-                .replaceAll("_", "-"));
-
-        model.setParameterName(GribParamTranslator.getInstance()
-                .getParameterNameAlias(model));
-
-        if (!model.getParameterName().equals(MISSING)) {
-            try {
-                model = GribModelCache.getInstance().getModel(model);
-            } catch (DataAccessLayerException e) {
-                throw new GribException(
-                        "Unable to get model info from the cache!", e);
-            }
+        parameterAbbreviation = parameterAbbreviation.replaceAll("_", "-");
+        try {
+            parameterAbbreviation = ParameterMapper.getInstance()
+                    .lookupBaseName(parameterAbbreviation, "grib");
+        } catch (MultipleMappingException e) {
+            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            parameterAbbreviation = e.getArbitraryMapping();
         }
 
-        retVal.setModelInfo(model);
-        retVal.setPluginName("grib");
+        retVal.setPluginName("grid");
+        Parameter param = new Parameter(parameterAbbreviation, parameterName,
+                parameterUnit);
+        GribParamTranslator.getInstance().getParameterNameAlias(modelName,
+                param);
+        retVal.setParameter(param);
+
         retVal.setPersistenceTime(new Date());
         retVal.setDataTime(dataTime);
-        if (gdsVars != null) {
-            retVal.setResCompFlags(gdsVars.getResolution());
-        } else {
-            retVal.setResCompFlags(gridCoverage.getResolution());
-        }
+        // if (gdsVars != null) {
+        // retVal.setResCompFlags(gdsVars.getResolution());
+        // } else {
+        // retVal.setResCompFlags(gridCoverage.getResolution());
+        // }
 
         try {
             retVal.constructDataURI();
@@ -509,7 +506,8 @@ public class Grib1Decoder extends AbstractDecoder {
         }
 
         // check if FLAG.FCST_USED needs to be removed
-        checkForecastFlag(model, retVal.getDataTime());
+        checkForecastFlag(retVal.getDataTime(), centerid, subcenterid,
+                genProcess, gridCoverage);
 
         return retVal;
     }
@@ -767,8 +765,8 @@ public class Grib1Decoder extends AbstractDecoder {
             if (latLonCoverage.getDy() == -9999) {
                 latLonCoverage.setDy(latLonCoverage.getDx());
             }
-            latLonCoverage.determineFirstGridPointCorner(gdsVars.getScanMode());
-            latLonCoverage.setId(latLonCoverage.hashCode());
+            latLonCoverage.setFirstGridPointCorner(GribSpatialCache
+                    .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(latLonCoverage, gridNumber);
             break;
         }
@@ -796,8 +794,8 @@ public class Grib1Decoder extends AbstractDecoder {
                 mercator.setDx(gdsVars.getDx() / 1000);
                 mercator.setDy(gdsVars.getDy() / 1000);
             }
-            mercator.determineFirstGridPointCorner(gdsVars.getScanMode());
-            mercator.setId(mercator.hashCode());
+            mercator.setFirstGridPointCorner(GribSpatialCache
+                    .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(mercator, gridNumber);
             break;
         }
@@ -824,8 +822,8 @@ public class Grib1Decoder extends AbstractDecoder {
                 lambert.setDx(gdsVars.getDx() / 1000);
                 lambert.setDy(gdsVars.getDy() / 1000);
             }
-            lambert.determineFirstGridPointCorner(gdsVars.getScanMode());
-            lambert.setId(lambert.hashCode());
+            lambert.setFirstGridPointCorner(GribSpatialCache
+                    .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(lambert, gridNumber);
 
             break;
@@ -857,8 +855,8 @@ public class Grib1Decoder extends AbstractDecoder {
                 polar.setDx(gdsVars.getDx() / 1000);
                 polar.setDy(gdsVars.getDy() / 1000);
             }
-            polar.determineFirstGridPointCorner(gdsVars.getScanMode());
-            polar.setId(polar.hashCode());
+            polar.setFirstGridPointCorner(GribSpatialCache
+                    .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(polar, gridNumber);
             break;
         }
@@ -896,62 +894,43 @@ public class Grib1Decoder extends AbstractDecoder {
                     String.valueOf(gridNumber));
         }
         if (grid == null) {
-            GribSpatialCache.getInstance().putGrid(coverage, true, true);
-            grid = GribSpatialCache.getInstance().getGrid(coverage.getId());
+            grid = GridCoverageLookup.getInstance().getCoverage(coverage, true);
         }
         return grid;
     }
 
     /**
-     * Creates a model name from a GribModel object
+     * Look up a model name based off the grib numbers
      * 
-     * @param model
-     *            The GribModel object to determine the name for
+     * @param centerId
+     * @param subcenterId
+     * @param process
+     * @param gridId
+     * @return
      */
-    private void createModelName(GribModel model) {
-        GridModel gridModel = getGridModel(model);
-        String name = null;
-        if (gridModel == null || gridModel.getName() == null) {
-            name = "UnknownModel:" + String.valueOf(model.getCenterid()) + ":"
-                    + String.valueOf(model.getSubcenterid()) + ":"
-                    + String.valueOf(model.getGenprocess()) + ":"
-                    + model.getGridid();
-        } else {
-            name = gridModel.getName();
-        }
-        model.setModelName(name);
+    private String createModelName(int centerId, int subcenterId, int process,
+            GridCoverage grid) {
+        return GribModelLookup.getInstance().getModelName(centerId,
+                subcenterId, grid, process);
     }
 
     /**
      * Check if the forecast flag should be removed
      * 
-     * @param model
-     *            The GribModel object to check
      * @param time
-     *            the datatime to remove forecast flag if needed
+     *            he datatime to remove forecast flag if needed
+     * @param centerId
+     * @param subcenterId
+     * @param process
+     * @param gridId
      */
-    private void checkForecastFlag(GribModel model, DataTime time) {
-        GridModel gridModel = getGridModel(model);
+    private void checkForecastFlag(DataTime time, int centerId,
+            int subcenterId, int process, GridCoverage grid) {
+        GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
+                subcenterId, grid, process);
         if (gridModel != null && gridModel.getAnalysisOnly()) {
             time.getUtilityFlags().remove(FLAG.FCST_USED);
         }
-    }
-
-    /**
-     * Return the GridModel object
-     * 
-     * @param model
-     *            The GribModel object to find the GridModel
-     */
-    private GridModel getGridModel(GribModel model) {
-        int center = model.getCenterid();
-        int subcenter = model.getSubcenterid();
-
-        String gridid = model.getGridid();
-        int process = model.getGenprocess();
-        GridModel gridModel = GribModelLookup.getInstance().getModel(center,
-                subcenter, gridid, process);
-        return gridModel;
     }
 
     /**
@@ -962,14 +941,12 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The reference time
      * @param forecastTime
      *            The forecast time
-     * @param times
-     *            The start and end time of the data if applicable
      * @param model
      *            The GribModel object
      * @return The resulting DataTime object
      */
     private DataTime constructDataTime(Calendar refTime, int forecastTime,
-            Calendar[] times, GribModel model) {
+            Calendar[] times) {
         DataTime dataTime = null;
         // Construct the DataTime object
         Calendar startTime = times[0];
@@ -1211,8 +1188,6 @@ public class Grib1Decoder extends AbstractDecoder {
     /**
      * Gets the level information
      * 
-     * @param model
-     *            The GribModel object
      * @param centerID
      *            The center
      * @param subcenterID
@@ -1231,7 +1206,7 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The level two value
      * @throws GribException
      */
-    private void getLevelInfo(GribModel model, int centerID, int subcenterID,
+    private Level getLevelInfo(int centerID, int subcenterID,
             float levelOneNumber, float scaleFactor1, float value1,
             float levelTwoNumber, float scaleFactor2, float value2)
             throws GribException {
@@ -1276,8 +1251,7 @@ public class Grib1Decoder extends AbstractDecoder {
             if (scaleFactor2 == 0 || value2 == 0) {
                 levelTwoValue = value2;
             } else {
-                levelTwoValue = (double) (value2 * Math.pow(10, scaleFactor2
-                        * -1));
+                levelTwoValue = (value2 * Math.pow(10, scaleFactor2 * -1));
             }
         }
         if (levelName.equals("SFC") && levelOneValue != 0) {
@@ -1288,11 +1262,13 @@ public class Grib1Decoder extends AbstractDecoder {
             levelTwoValue = Level.getInvalidLevelValue();
         }
         try {
-            Level level = LevelFactory.getInstance().getLevel(levelName,
+            return LevelMapper.getInstance().lookupLevel(levelName, "grib",
                     levelOneValue, levelTwoValue, levelUnit);
-            model.setLevel(level);
         } catch (CommunicationException e) {
             throw new GribException("Error requesting levels", e);
+        } catch (MultipleLevelMappingException e) {
+            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            return e.getArbitraryLevelMapping();
         }
     }
 

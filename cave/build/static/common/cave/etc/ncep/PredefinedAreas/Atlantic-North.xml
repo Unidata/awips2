@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<predefinedArea predefinedAreaName="Atlantic-North">
-       <predefinedArea xsi:type="NC-MapRenderableDisplay" zoomLevel="0.17" mapCenter="-32.80 50.0 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <predefinedAreaName>Atlantic-North</predefinedAreaName>
-            
-            <descriptor xsi:type="NCMapDescriptor">
-                <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="2.0E7" envelopeMinX="-2.0E7" rangeY="0 10000" rangeX="0 15384">
+<predefinedArea areaName="Atlantic-North"  mapCenter="-32.80 50.0 0.0" >
+	<zoomLevel>0.17</zoomLevel>
+   <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="2.0E7" envelopeMinX="-2.0E7" rangeY="0 9999" rangeX="0 15384">
                     <CRS>PROJCS["Mercator_1SP",
   GEOGCS["WGS84",
     DATUM["WGS84",
@@ -25,6 +22,4 @@
   AXIS["Easting", EAST],
   AXIS["Northing", NORTH]]</CRS>
                 </gridGeometry>
-            </descriptor>
-        </predefinedArea>
 </predefinedArea>

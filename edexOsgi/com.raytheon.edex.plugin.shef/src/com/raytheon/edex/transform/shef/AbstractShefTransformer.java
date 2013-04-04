@@ -483,7 +483,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     /**
      * Create, or recreate and validate the shef archive directory.
      */
-    private void configureArchiveDir() {
+    protected void configureArchiveDir() {
         archiveEnabled = AppsDefaults.getInstance().getBoolean(OPT_ARC_ENABLE,
                 false);
         String arcDir = AppsDefaults.getInstance().getToken(OPT_SHEF_ARC_DIR);

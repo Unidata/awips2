@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -75,6 +76,21 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
         super(desc);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay#setDescriptor
+     * (com.raytheon.uf.viz.core.drawables.IDescriptor)
+     */
+    @Override
+    public void setDescriptor(IDescriptor desc) {
+        super.setDescriptor(desc);
+        if (desc.getTimeMatcher() == null) {
+            desc.setTimeMatcher(new GFETimeMatcher());
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public void setDataManager(DataManager dataManager) {
         if (this.dataMgr != null) {
@@ -102,9 +118,9 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
     protected PaintProperties calcPaintDataTime(PaintProperties paintProps,
             AbstractVizResource<?, ?> rsc) {
         if (dataMgr != null) {
-            Date date = dataMgr.getSpatialDisplayManager()
-                    .getSpatialEditorTime();
-            paintProps.setDataTime(new DataTime(date));
+            // Get time for resource from FramesInfo
+            paintProps.setDataTime(paintProps.getFramesInfo()
+                    .getTimeForResource(rsc));
         }
 
         GFEPaintProperties gfeProps = new GFEPaintProperties(paintProps);

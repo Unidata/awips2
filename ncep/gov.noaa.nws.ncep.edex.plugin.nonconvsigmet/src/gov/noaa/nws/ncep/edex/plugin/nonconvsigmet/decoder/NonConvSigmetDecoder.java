@@ -43,16 +43,15 @@ public class NonConvSigmetDecoder extends AbstractDecoder {
     public PluginDataObject[] decode(byte[] data, Headers headers)
             throws DecoderException {
 
-        PluginDataObject [] recs = null;
-        NonConvSigmetRecord currentRecord = null;
         String traceId = "";
         if (headers != null) {
             traceId = (String) headers.get("traceId");
         }
-        if((data != null) && (data.length > 0)) {
+
             String etx = IDecoderConstants.ETX;
             String theBulletin = null;
             byte[] messageData = null;
+        NonConvSigmetRecord currentRecord = null;
             NonConvSigmetSeparator sep = NonConvSigmetSeparator.separate(data,
                     headers);
             messageData = sep.next();
@@ -95,17 +94,15 @@ public class NonConvSigmetDecoder extends AbstractDecoder {
                     currentRecord = null;
                 }
             }
-        }
-        
         /*
          * Return the NonConvsigmetRecord record object.
          */
         if (currentRecord == null) {
-            recs = new PluginDataObject[0];
+            return new PluginDataObject[0];
         } else {
-            recs = new PluginDataObject[] { currentRecord };
+            return new PluginDataObject[] { currentRecord };
         }
-        return recs;
+
     }
 
 }

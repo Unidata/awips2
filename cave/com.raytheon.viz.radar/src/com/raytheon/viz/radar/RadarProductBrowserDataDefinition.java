@@ -86,8 +86,7 @@ public class RadarProductBrowserDataDefinition extends
         }
         productName = "radar";
         displayName = "Radar";
-        order = new String[] { "pluginName", "icao", "productCode",
-                "primaryElevationAngle" };
+        order = new String[] { "icao", "productCode", "primaryElevationAngle" };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.getCapabilities().addCapability(ImagingCapability.class);
@@ -131,7 +130,8 @@ public class RadarProductBrowserDataDefinition extends
                                         .getResolution() / 1000) + " km ";
                     }
                     labels.add(new ProductBrowserLabel(infoDict.getInfo(tmp)
-                            .getName() + "::" + parm, parameters[i]));
+                            .getName() + " (" + tmp + ")" + "::" + parm,
+                            parameters[i]));
                 }
                 Collections.sort(labels);
                 for (int i = 0; i < parameters.length; i++) {

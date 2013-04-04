@@ -72,11 +72,9 @@ public class NewDisplayAction extends AbstractHandler {
 	}
 
 	public static void createNewDefaultDisplay( String newDisplayName ) {
-		File rbdFile = NcPathManager.getInstance().getStaticFile( 
-		         NcPathConstants.DFLT_RBD );
-		
     	try {
-    		RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+    		RbdBundle rbd = RbdBundle.getDefaultRBD();
+    		
     		rbd.resolveLatestCycleTimes(); // shouldn't be needed  but just in case
     		
     		if( newDisplayName == null || newDisplayName.isEmpty() ) {
