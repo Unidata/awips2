@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingUserSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -340,6 +340,6 @@ public class SubscriptionServiceMassUpdateTest extends
         when(
                 DataDeliveryHandlers.getPendingSubscriptionHandler()
                         .getBySubscription(subscription)).thenReturn(
-                new InitialPendingSubscription());
+                new InitialPendingUserSubscription());
     }
 }
