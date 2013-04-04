@@ -4,13 +4,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -19,10 +18,37 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 
+/**
+ * 
+ * {@link BandwidthInitializer} that uses Hibernate.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 20, 2013 1543       djohnson     Add SW history, separate how to find subscriptions.
+ * 
+ * </pre>
+ * 
+ * @author djohnson
+ * @version 1.0
+ */
 public class HibernateBandwidthInitializer implements BandwidthInitializer {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(HibernateBandwidthInitializer.class);
+
+    private final IFindSubscriptionsForScheduling findSubscriptionsStrategy;
+
+    /**
+     * @param strategy
+     */
+    public HibernateBandwidthInitializer(
+            IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
+        this.findSubscriptionsStrategy = findSubscriptionsStrategy;
+    }
 
     @Override
     public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit) {
@@ -31,10 +57,10 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
         // fulfilled. In the case were DD has been down for a while
         // BEFORE removing the tables...
 
-        // Empty the bandwidth tables (other than DataSetMetaDataDao) on each
-        // start and reload..
+        // Empty the bandwidth tables (other than BandwidthDataSetUpdate) on
+        // each start and reload..
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao.class);
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class);
 
@@ -46,14 +72,14 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
             return false;
         }
 
-        List<Subscription> activeSubscriptions = Collections.emptyList();
+        Set<Subscription> activeSubscriptions = Collections.emptySet();
         try {
             // Load active subscriptions
-            activeSubscriptions = DataDeliveryHandlers.getSubscriptionHandler()
-                    .getActive();
-        } catch (RegistryHandlerException e) {
-            statusHandler
-                    .error("Failed to query for available active subscriptions");
+            activeSubscriptions = findSubscriptionsStrategy
+                    .findSubscriptionsToSchedule();
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Failed to query for subscriptions to schedule", e);
             return false;
         }
 

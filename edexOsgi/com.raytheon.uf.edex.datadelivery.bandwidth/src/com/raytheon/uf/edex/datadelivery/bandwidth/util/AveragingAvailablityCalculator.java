@@ -6,7 +6,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 
 /**
@@ -60,14 +60,14 @@ public class AveragingAvailablityCalculator implements
     public int getDataSetAvailablityDelay(Subscription subscription) {
         // Use a default of 60 minutes..
         int delay = DATASET_AVAILABLE_DEFAULT;
-        List<DataSetMetaDataDao> recs = bandwidthDao
-                .getDataSetMetaDataDao(subscription.getProvider(),
+        List<BandwidthDataSetUpdate> recs = bandwidthDao
+                .getBandwidthDataSetUpdate(subscription.getProvider(),
                         subscription.getDataSetName());
 
         long totalLatency = 0;
         int recordcount = 0;
         // Average out a maximum of twenty records
-        for (DataSetMetaDataDao rec : recs) {
+        for (BandwidthDataSetUpdate rec : recs) {
             long diff = (rec.getUpdateTime().getTimeInMillis() - rec
                     .getDataSetBaseTime().getTimeInMillis()) / 60000;
             // Make sure some funky dates don't mess with the average..

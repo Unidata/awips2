@@ -31,6 +31,7 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOUR
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * FFMP Data Container
@@ -59,8 +60,8 @@ public class FFMPDataContainer {
     private final ConcurrentHashMap<String, FFMPBasinData> basinDataMap = new ConcurrentHashMap<String, FFMPBasinData>();// DR
 
     private String sourceName = null;
-
-    private String filePath = null;
+    
+    private boolean isPurged = false;
 
     public FFMPDataContainer() {
 
@@ -338,10 +339,6 @@ public class FFMPDataContainer {
         }
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
-
     public Set<String> getKeys() {
         return basinDataMap.keySet();
     }
@@ -490,9 +487,11 @@ public class FFMPDataContainer {
      * @param backDate
      */
     public void purge(Date backDate) {
+        statusHandler.handle(Priority.INFO, "Purging "+getSourceName()+" Container back to: "+backDate);
         for (String huc : basinDataMap.keySet()) {
             getBasinData(huc).purgeData(backDate);
         }
+        setPurged(true);
     }
 
     /**
@@ -500,7 +499,7 @@ public class FFMPDataContainer {
      * 
      * @param cacheRecord
      */
-    public void setCacheData(FFMPAggregateRecord cacheRecord) {
+    public void setAggregateData(FFMPAggregateRecord cacheRecord) {
 
         // create a record from the cache record
         FFMPRecord record = new FFMPRecord(cacheRecord);
@@ -534,10 +533,6 @@ public class FFMPDataContainer {
      */
     public void setBasinData(String huc, FFMPBasinData fftiData) {
         basinDataMap.put(huc, fftiData);
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
     }
 
     public void setSourceName(String sourceName) {
@@ -590,6 +585,22 @@ public class FFMPDataContainer {
      */
     public ConcurrentHashMap<String, FFMPBasinData> getBasinMap() {
         return basinDataMap;
+    }
+
+    /**
+     * Sets whether this container has been purged or not
+     * @param isPurged
+     */
+    public void setPurged(boolean isPurged) {
+        this.isPurged = isPurged;
+    }
+
+    /**
+     * Has this container been purged?
+     * @return
+     */
+    public boolean isPurged() {
+        return isPurged;
     }
 
 }

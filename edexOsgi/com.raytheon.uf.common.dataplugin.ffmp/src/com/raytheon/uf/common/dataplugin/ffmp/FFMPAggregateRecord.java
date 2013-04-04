@@ -29,11 +29,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Cache Record implementation for FFMP plugin
- * Eventually this will become a full record implementation
- * 
  * <pre>
- * 
+ * Aggregate record implementation for FFMP data
+ *  
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#     Engineer    Description
@@ -49,11 +47,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class FFMPAggregateRecord implements ISerializableObject {
 
-    
-    private static final long serialVersionUID = 76774564363471L;
+    @DynamicSerializeElement
+    private String wfo;
+
+    @DynamicSerializeElement
+    private String sourceSiteDataKey;
+
+    private static final long serialVersionUID = 767745643535471L;
     
     /**
-     * 
+     * Aggregate Record implementation for FFMP
      */
     public FFMPAggregateRecord() {
         
@@ -65,10 +68,18 @@ public class FFMPAggregateRecord implements ISerializableObject {
     @DynamicSerializeElement
     private List<Long> times = new ArrayList<Long>();
 
+    /**
+     * Sets the times array
+     * @param times
+     */
     public void setTimes(List<Long> times) {
         this.times = times;
     }
 
+    /**
+     * Gets the times array
+     * @return
+     */
     public List<Long> getTimes() {
         return times;
     }
@@ -82,11 +93,11 @@ public class FFMPAggregateRecord implements ISerializableObject {
     }
     
     /**
-     * Add a basin Data Cache object
+     * Add a basin Data aggregate object
      * @param cacheData
      */
-    public void setBasinData(FFMPBasinData cacheData) {
-        basinsMap.put(cacheData.getHucLevel(), cacheData);
+    public void addBasinData(FFMPBasinData basinData) {
+        basinsMap.put(basinData.getHucLevel(), basinData);
     }
     
     /**
@@ -100,5 +111,38 @@ public class FFMPAggregateRecord implements ISerializableObject {
         }
         return null;
     }
+    
+    /**
+     * WFO designator
+     * @return
+     */
+    public String getWfo() {
+        return wfo;
+    }
+
+    /**
+     * Sets the WFO designator
+     * @param wfo
+     */
+    public void setWfo(String wfo) {
+        this.wfo = wfo;
+    }
+
+    /**
+     * Sets the source / site / data key 
+     * @param sourceSiteDataKey
+     */
+    public void setSourceSiteDataKey(String sourceSiteDataKey) {
+        this.sourceSiteDataKey = sourceSiteDataKey;
+    }
+
+    /**
+     * Gets the source / site / data key
+     * @return
+     */
+    public String getSourceSiteDataKey() {
+        return sourceSiteDataKey;
+    }
+
   
 }

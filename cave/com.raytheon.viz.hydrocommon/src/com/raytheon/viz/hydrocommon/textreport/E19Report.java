@@ -47,6 +47,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * Sep 18, 2009 2260       mpduff     Initial creation
  * Apr 25, 2012 14499      wkwock     Refine format, query, etc
  * Oct 14, 2012 15454      wkwock     Fix can not generate e19 if damage filed is empty
+ * Jan 23, 2013 15443      lbousaidi  added NP form feed foe all the pages.
  *
  * </pre>
  *
@@ -268,7 +269,7 @@ public class E19Report extends TextReport {
         StringBuilder buffer = new StringBuilder();
         
         TextReportData data = TextReportDataManager.getInstance().getDataForReports(lid, 0); 
-        
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_MAPPAGE);
         buffer.append("\n\n");
         
@@ -296,6 +297,7 @@ public class E19Report extends TextReport {
         int numCols = 74;
         int leftMargin = 24;
         
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_BENCHMARKS);
         buffer.append("\n\n");
         
@@ -428,7 +430,7 @@ public class E19Report extends TextReport {
         String[] crit2 = null;
         
         TextReportData data = TextReportDataManager.getInstance().getDataForReports(lid, 2);
-        
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_GAGES + "\n\n");
         buffer.append("                 DCP                                        TELEM\n\n");
         
@@ -589,6 +591,7 @@ public class E19Report extends TextReport {
      */
     private String E19History() {
         StringBuilder buffer = new StringBuilder();
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_HISTORY + "\n\n");
         
         int count1 = countNewlines(buffer.toString());
@@ -767,7 +770,7 @@ public class E19Report extends TextReport {
         for (int i = 0; i < leftMargin; i++) {
             indent = indent.concat(" ");
         }
-        
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_CRESTS + "\n\n");
         
         if (data.getRiverstat() != null) {
@@ -917,7 +920,7 @@ public class E19Report extends TextReport {
         String tmp2 = "      ";
         String tmp3 = "      ";
         String tmp4 = "      ";
-
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_LOWWATER + "\n\n");
         
         int count1 = countNewlines(buffer.toString());
@@ -1034,7 +1037,7 @@ public class E19Report extends TextReport {
         for (int i = 0; i < leftMargin; i++) {
             indent = indent.concat(" ");
         }
-
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_CONDITIONS + "\n\n");
         
         TextReportData data = TextReportDataManager.getInstance().getDataForReports(lid, 0);  
@@ -1178,7 +1181,7 @@ public class E19Report extends TextReport {
         for (int i = 0; i < leftMargin; i++) {
             indent = indent.concat(" ");
         }
-
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_DAMAGE + "\n\n");
         
         TextReportData data = TextReportDataManager.getInstance().getCrestData(lid);
@@ -1291,7 +1294,7 @@ public class E19Report extends TextReport {
         for (int i = 0; i < leftMargin; i++) {
             indent = indent.concat(" ");
         }
-
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_STAFFGAGE + "\n\n");
         
         TextReportData data = TextReportDataManager.getInstance().getStaffGageData(lid);
@@ -1518,7 +1521,7 @@ public class E19Report extends TextReport {
         String tmp1 = "      ";
         String tmp2 = "      ";
         String tmp3 = "      ";
-        
+        buffer.append("\f");
         buffer.append(TextReportConstants.E19_HDR_CONTACTS + "\n\n");
         
         TextReportData data = TextReportDataManager.getInstance().getDataForReports(lid, 6);

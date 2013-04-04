@@ -1,6 +1,12 @@
 %define _component_name           awips2-notification
 %define _component_project_dir    awips2.core/Installer.notification
 %define _component_default_prefix /awips2/notification
+%define _build_arch %(uname -i)
+%if %_build_arch == "x86_64"
+   %define   _lib_dir lib64
+%else
+   %define _lib_dir lib
+%endif
 #
 # AWIPS II Notification Spec File
 #
@@ -12,6 +18,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: %{_build_arch}
 Prefix: %{_component_default_prefix}
 URL: N/A
 License: N/A
@@ -141,8 +148,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/notification
 %dir /awips2/notification/include
 /awips2/notification/include/*
-%dir /awips2/notification/lib
-/awips2/notification/lib/*
+%dir /awips2/notification/%{_lib_dir}
+/awips2/notification/%{_lib_dir}/*
 %docdir /awips2/notification/licenses
 %dir /awips2/notification/licenses
 /awips2/notification/licenses/*

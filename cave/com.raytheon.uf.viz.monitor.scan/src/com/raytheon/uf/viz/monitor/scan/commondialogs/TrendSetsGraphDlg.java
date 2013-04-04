@@ -40,11 +40,25 @@ import com.raytheon.uf.common.monitor.scan.config.TrendSetConfigMgr;
 import com.raytheon.uf.viz.monitor.scan.TrendGraphData;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class TrendSetsGraphDlg extends CaveSWTDialog // implements
-                                                     // ICommonDialogAction
-{
+/**
+ * Scan/DMD Trend Sets Graph Dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 21, 2013   1812        mpduff   Redraw now updates with new data.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
+public class TrendSetsGraphDlg extends CaveSWTDialog {
 
-    private ScanTables scanTable;
+    private final ScanTables scanTable;
 
     private Combo identCbo;
 
@@ -56,15 +70,15 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
 
     private TrendSetConfigMgr trendCfgMgr;
 
-    private ITrendSetsGraphUpdate updateCallback;
+    private final ITrendSetsGraphUpdate updateCallback;
 
-    private IRequestTrendGraphData requestDataCallback;
+    private final IRequestTrendGraphData requestDataCallback;
 
     // private LinkedHashMap<Date, Double> dataMap;
 
     private LinkedHashMap<String, TrendGraphData> trendSetData;
 
-    private String[] identArray;
+    private final String[] identArray;
 
     private String[] attrArray;
 
@@ -72,14 +86,27 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
 
     private HashMap<String, TrendGraphCanvas> canvasMap;
 
-    private Integer vcp;
+    private final Integer vcp;
 
+    /**
+     * Constructor.
+     * 
+     * @param parentShell
+     * @param scanTable
+     * @param ident
+     * @param trendSetName
+     * @param updateCallback
+     * @param requestDataCallback
+     * @param identArray
+     * @param vcp
+     */
     public TrendSetsGraphDlg(Shell parentShell, ScanTables scanTable,
             String ident, String trendSetName,
             ITrendSetsGraphUpdate updateCallback,
             IRequestTrendGraphData requestDataCallback, String[] identArray,
             Integer vcp) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
         setText(scanTable.name() + " Trend Graph");
 
         this.scanTable = scanTable;
@@ -153,7 +180,6 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 shell.dispose();
-                // closeDialog();
             }
         });
     }
@@ -223,11 +249,10 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
         trendSetData.clear();
 
         // Loop through all of the attributes and call update and store the data
-        // map for
-        // each attribute
+        // map for each attribute
         for (String attr : attrArray) {
-            TrendGraphData tgd = requestDataCallback
-                    .requestTrendGraphData(scanTable, attr, ident);
+            TrendGraphData tgd = requestDataCallback.requestTrendGraphData(
+                    scanTable, attr, ident);
             trendSetData.put(attr, tgd);
 
             // Call the update call back so the table can manage this dialog.
@@ -252,8 +277,8 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
         for (String attr : attrArray) {
             System.out.println("Change trend set - attr = " + attr);
 
-            TrendGraphData tgd = requestDataCallback
-                    .requestTrendGraphData(scanTable, attr, ident);
+            TrendGraphData tgd = requestDataCallback.requestTrendGraphData(
+                    scanTable, attr, ident);
             trendSetData.put(attr, tgd);
         }
 
@@ -272,36 +297,35 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
      * @return true if item is to be disposed
      */
     public boolean updateTrendSetsGraph() {
-            trendSetData.clear();
-            // Loop through all of the attributes and call update and store the data
-            // map for
-            // each attribute
-            for (String attr : attrArray) {
-                TrendGraphData tgd = requestDataCallback
-                        .requestTrendGraphData(scanTable, attr, ident);
-                trendSetData.put(attr, tgd);
-    
-                // Call the update call back so the table can manage this dialog.
-                this.updateCallback.trendSetGraphChanged(ident, trendSetName, this);
-    
-                // Update the canvas with the new data
-                canvasMap.get(attr).updateAttribute(attr, tgd,
-                        requestDataCallback.getCurrentDate());
-            }
-            
-            if (requestDataCallback.cellValid(this.ident) == false) {
-                return true;
-            }
-            
-            return false;
+        trendSetData.clear();
+        // Loop through all of the attributes and call update and store the data
+        // map for
+        // each attribute
+        for (String attr : attrArray) {
+            TrendGraphData tgd = requestDataCallback.requestTrendGraphData(
+                    scanTable, attr, ident);
+            trendSetData.put(attr, tgd);
+
+            // Call the update call back so the table can manage this dialog.
+            this.updateCallback.trendSetGraphChanged(ident, trendSetName, this);
+
+            // Update the canvas with the new data
+            canvasMap.get(attr).updateAttribute(attr, tgd,
+                    requestDataCallback.getCurrentDate());
+        }
+
+        if (requestDataCallback.cellValid(this.ident) == false) {
+            return true;
+        }
+
+        return false;
     }
 
+    /**
+     * Redraw the graphs with updated data.
+     */
     public void redrawTrendGraph() {
-        for (String key : canvasMap.keySet()) {
-            if (canvasMap.get(key) != null) {
-                canvasMap.get(key).redrawCanvas();
-            }
-        }
+        updateTrendSetsGraph();
     }
 
     public void displayDialog() {
@@ -319,15 +343,4 @@ public class TrendSetsGraphDlg extends CaveSWTDialog // implements
     protected void disposed() {
         this.updateCallback.trendSetGraphClosing(this);
     }
-
-    // @Override
-    // public void closeDialog() {
-    // this.updateCallback.trendSetGraphClosing(this);
-    // shell.dispose();
-    // }
-    //
-    // @Override
-    // public boolean isDisposed() {
-    // return shell.isDisposed();
-    // }
 }

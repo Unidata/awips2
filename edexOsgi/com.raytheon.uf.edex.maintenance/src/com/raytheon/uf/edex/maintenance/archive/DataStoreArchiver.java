@@ -28,8 +28,6 @@ import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
 
 /**
@@ -44,6 +42,7 @@ import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 8, 2011            njensen     Initial creation
+ * Jan 14, 2013 1469      bkowal      Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -56,14 +55,9 @@ public class DataStoreArchiver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataStoreArchiver.class);
 
-    private String hdf5Dir;
-
     private Compression compression = Compression.NONE;
 
     public DataStoreArchiver(String compression) {
-        EnvProperties properties = PropertiesFactory.getInstance()
-                .getEnvProperties();
-        hdf5Dir = properties.getEnvValue("HDF5DIR");
         this.compression = Compression.valueOf(compression);
     }
 

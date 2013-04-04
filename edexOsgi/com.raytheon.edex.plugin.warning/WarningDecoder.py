@@ -21,11 +21,28 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+##
+# This program decodes a product's UGC and VTEC strings
+#
+# <pre>
+# 
+# SOFTWARE HISTORY
+#  
+#  Date         Ticket#    Engineer    Description
+#  ------------ ---------- ----------- --------------------------
+#                                      Initial creation
+#  Feb 19, 2013 1636       rferrel     Use TimeTools to get file timestamp.
+# </pre>
+#
+# @author rferrel
+# @version 1.0
+##
 
 import sys, os, time, re, string, getopt
 import copy
 import LogStream
 from ufpy import TimeUtil
+from com.raytheon.uf.edex.decodertools.time import TimeTools
 
 ACCURATE_CITIES_PILS = ['CFW', 'FFA', 'NPW', 'RFW', 'WSW']
 
@@ -83,12 +100,17 @@ class StdWarningDecoder():
         
         #base time for decoder
         self._time = time.time() + self._timeOffset   #present time
-        allowArchive = os.getenv("ALLOW_ARCHIVE_DATA")
-        if allowArchive.lower() == "true" and re.match(".*\\.\\d{8}$", self._incomingFilename):
-            m = re.search('(.*\\.)(\\d{8}$)', self._incomingFilename)
-            yyyymmdd = m.group(2)
-            timeTuple = time.strptime(yyyymmdd, "%Y%m%d")
-            self._time = time.mktime(timeTuple)
+        
+        if TimeTools.allowArchive() :
+            try:
+                yyyymmddhh = TimeTools.getTimestamp(self._incomingFilename)
+                if len(yyyymmddhh) < 10:
+                    timeTuple = time.strptime(yyyymmddhh, "%Y%m%d")
+                else :
+                    timeTuple = time.strptime(yyyymmddhh, "%Y%m%d%H")
+                self._time = time.mktime(timeTuple)
+            except :
+                LogStream.logProblem('Unable to get timestamp from filename: "%s"' % (self._incomingFilename))
 
         os.umask(0)   #ensure proper permissions
         

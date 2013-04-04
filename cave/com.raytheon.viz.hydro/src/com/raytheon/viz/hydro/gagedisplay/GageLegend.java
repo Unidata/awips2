@@ -58,10 +58,17 @@ public class GageLegend extends CaveSWTDialog {
      *            Shell of the opener
      */
     protected GageLegend(Shell parentShell) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Gage Legend");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
@@ -72,8 +79,10 @@ public class GageLegend extends CaveSWTDialog {
         try {
             browser = new Browser(shell, SWT.NONE);
         } catch (SWTError e) {
-            CorePlugin.getDefault().getLog().log(
-                    new Status(Status.ERROR, CorePlugin.PLUGIN_NAME,
+            CorePlugin
+                    .getDefault()
+                    .getLog()
+                    .log(new Status(Status.ERROR, CorePlugin.PLUGIN_NAME,
                             "Could not instantiate Browser", e));
             return;
         }
@@ -94,7 +103,7 @@ public class GageLegend extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -108,26 +117,19 @@ public class GageLegend extends CaveSWTDialog {
         StringBuilder sb = new StringBuilder("<html><head>");
         sb.append("<title>Gage Color Legend</title>");
         sb.append("</head><body>");
-        sb
-                .append("<table align=\"center\" width=\"90\" cellpadding=\"2\" cellspacing=\"0\" border=\"2\">");
+        sb.append("<table align=\"center\" width=\"90\" cellpadding=\"2\" cellspacing=\"0\" border=\"2\">");
         sb.append("<tr>");
-        sb
-                .append(" <th align=\"center\" bgcolor=\"#E2E3FE\">Gage Color Legend</td>");
+        sb.append(" <th align=\"center\" bgcolor=\"#E2E3FE\">Gage Color Legend</td>");
         sb.append("</tr><tr>");
-        sb
-                .append(" <td align=\"center\" bgcolor=\"#FF0000\">Above Flood Stage</td>");
+        sb.append(" <td align=\"center\" bgcolor=\"#FF0000\">Above Flood Stage</td>");
         sb.append("</tr><tr>");
-        sb
-                .append(" <td align=\"center\" bgcolor=\"#FFFF00\">Above Action Stage</td>");
+        sb.append(" <td align=\"center\" bgcolor=\"#FFFF00\">Above Action Stage</td>");
         sb.append("</tr><tr>");
-        sb
-                .append(" <td align=\"center\" bgcolor=\"#00FF00\">Below Action Stage</td>");
+        sb.append(" <td align=\"center\" bgcolor=\"#00FF00\">Below Action Stage</td>");
         sb.append("</tr><tr>");
-        sb
-                .append(" <td align=\"center\" bgcolor=\"#C0C0C0\">Missing Data</td>");
+        sb.append(" <td align=\"center\" bgcolor=\"#C0C0C0\">Missing Data</td>");
         sb.append("</tr><tr>");
-        sb
-                .append(" <td align=\"center\" bgcolor=\"#228B22\">Missing Stage Data</td>");
+        sb.append(" <td align=\"center\" bgcolor=\"#228B22\">Missing Stage Data</td>");
         sb.append("</tr></table></html>");
 
         return sb.toString();

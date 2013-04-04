@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Featureexplorer
+Bundle-SymbolicName: com.raytheon.uf.featureexplorer
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.featureexplorer,
+ com.raytheon.uf.featureexplorer.jaxb,
+ com.raytheon.uf.featureexplorer.search

@@ -456,7 +456,7 @@ F  | 1.8 |0| 4 |    |   |..|8000F0FF| | 0 | 1
      <parameter>DpTerranl</parameter>
   </paramLevelMatches>
   <contourStyle>
-     <displayUnits>F</displayUnits>  
+     <displayUnits label="F">°R</displayUnits>  
      <contourLabeling labelSpacing="4">
         <increment>1</increment>
      </contourLabeling>
@@ -984,7 +984,7 @@ PVU |1e5| 0.0 | 4 | | |..|8000F0FF| |16| \
      <parameter>MpV</parameter>
   </paramLevelMatches>
   <contourStyle>
-  	 <displayUnits label="PVU">K/hPa/s</displayUnits>
+  	 <displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
      <contourLabeling labelSpacing="4">
      <values>-1 -.5 -.1 0 1 1.5 2 3 4 5 6 8 10 12 15 20</values>
      </contourLabeling>
@@ -1163,9 +1163,9 @@ mb  | 1 | 0.0 | 4 |2:i4|1:i4|LH|8000F0FF| | 0 | 2
   <contourStyle>
      <displayUnits>mb</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
-     <contourLabeling labelSpacing="4" labelFormat="#"
-        labelTrimLeft="1" maxMinTrimLeft="1"
-		minMaxLabelFormat="#" minLabel="L" maxLabel="H">
+     <contourLabeling labelSpacing="4" labelFormat="0000"
+        labelTrimLeft="2" maxMinTrimLeft="1"
+		minMaxLabelFormat="0000" minLabel="L" maxLabel="H">
         <increment>4</increment>
      </contourLabeling>
   </contourStyle>
@@ -1639,6 +1639,7 @@ in | 39.37 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
 <styleRule>
   <paramLevelMatches>
      <parameter>TOTSN</parameter>
+     <parameter>TOTSN6hr</parameter>
 	<singleLevel units="SURFACE"></singleLevel>    
   </paramLevelMatches>
   <contourStyle>
@@ -4081,6 +4082,78 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
   </paramLevelMatches>
   <contourStyle>
     <displayUnits>K/hPa/s*1.0E-5</displayUnits>
+  </contourStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>PVV</parameter>
+            <creatingEntity>HiResW-NMM-East</creatingEntity>
+            <creatingEntity>HiResW-NMM-West</creatingEntity>
+            <creatingEntity>HiResW-ARW-East</creatingEntity>
+            <creatingEntity>HiResW-ARW-West</creatingEntity>
+            <creatingEntity>HiResW-NMM-AK</creatingEntity>
+            <creatingEntity>HiResW-NMM-PR</creatingEntity>
+            <creatingEntity>HiResW-NMM-SJU</creatingEntity>
+            <creatingEntity>HiResW-ARW-AK</creatingEntity>
+            <creatingEntity>HiResW-ARW-PR</creatingEntity>
+            <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+  </paramLevelMatches>
+  <contourStyle>
+     <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+     <contourLabeling labelFormat="#" labelSpacing="4">
+    <values>-400 -300 -200 -100 -50 -10 10 50 100 200 300 400</values>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+    <creatingEntity>HiResW-NMM-East</creatingEntity>
+    <creatingEntity>HiResW-NMM-West</creatingEntity>
+    <creatingEntity>HiResW-ARW-East</creatingEntity>
+    <creatingEntity>HiResW-ARW-West</creatingEntity>
+    <creatingEntity>HiResW-NMM-AK</creatingEntity>
+    <creatingEntity>HiResW-NMM-PR</creatingEntity>
+    <creatingEntity>HiResW-NMM-SJU</creatingEntity>
+    <creatingEntity>HiResW-ARW-AK</creatingEntity>
+    <creatingEntity>HiResW-ARW-PR</creatingEntity>
+    <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+     <parameter>AV</parameter>
+     <parameter>RV</parameter>
+     <parameter>geoVort</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+     <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+     <smoothingDistance>100</smoothingDistance>
+     <contourLabeling labelSpacing="4">
+        <increment>8</increment>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
+<!--  * VAdv, dVAdv, PIVA
+/1e9s   | 1e9 | 0.0 | 4 | | |..|8000F0FF|m| 5 | 1 5 10 20 50
+-->
+<styleRule>
+  <paramLevelMatches>
+    <creatingEntity>HiResW-NMM-East</creatingEntity>
+    <creatingEntity>HiResW-NMM-West</creatingEntity>
+    <creatingEntity>HiResW-ARW-East</creatingEntity>
+    <creatingEntity>HiResW-ARW-West</creatingEntity>
+    <creatingEntity>HiResW-NMM-AK</creatingEntity>
+    <creatingEntity>HiResW-NMM-PR</creatingEntity>
+    <creatingEntity>HiResW-NMM-SJU</creatingEntity>
+    <creatingEntity>HiResW-ARW-AK</creatingEntity>
+    <creatingEntity>HiResW-ARW-PR</creatingEntity>
+    <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+    <parameter>VAdv</parameter>
+    <parameter>dVAdv</parameter>
+    <parameter>PIVA</parameter>
+    </paramLevelMatches>
+  <contourStyle>
+     <displayUnits label="/1e9s">/s*1.0E9</displayUnits>
+     <contourLabeling labelSpacing="4">
+        <values>-500 -200 -100 -50 -10 10 50 100 200 500</values>
+     </contourLabeling>
   </contourStyle>
 </styleRule>
 
