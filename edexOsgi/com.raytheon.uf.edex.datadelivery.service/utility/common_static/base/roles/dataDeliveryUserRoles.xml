@@ -1,0 +1,120 @@
+<nwsRoleData xmlns:ns2="group">
+   <application>Data Delivery</application>
+   <permission id="subscription.view">
+      <description>
+        Control Access to View Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.dataset.browser">
+      <description>Control access to the Dataset Discovery Browser</description>
+   </permission>
+   
+   <permission id="subscription.create">
+      <description>
+        Control Access to Create Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.edit">
+      <description>
+        Control Access to Edit Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.delete">
+      <description>
+        Control Access to Delete Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.activate">
+      <description>
+        Control Access to Delete Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.approve.user">
+      <description>
+        Authorization to Approve Data Delivery Subscriptions belonging to the user
+      </description>   
+   </permission>
+   
+   <permission id="subscription.approve.site">
+      <description>
+        Authorization to Approve any Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.approve.view">
+      <description>
+        Authorization to View Pending Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="notification.view">
+      <description>
+        Control Access to Notification dialog
+      </description>   
+   </permission>
+   
+   <permission id="notification.delete">
+      <description>
+        Control Access to Delete Notifications 
+      </description>   
+   </permission>
+   
+   <permission id="group.edit">
+      <description>
+        Control Access to Edit Data Delivery Subscription Groups
+      </description>   
+   </permission>
+   
+   <permission id="systemmanagement.view">
+      <description>
+        Control Access to View Data Delivery System Management
+      </description>   
+   </permission>
+   
+   <permission id="systemmanagement.create">
+      <description>
+        Control Access to Create Data Delivery System Management
+      </description>   
+   </permission>
+   
+   <role roleId="subscription.user">
+      <roleDescription>
+         This role is a grouping of permissions for users of Subscriptions
+      </roleDescription>
+      <rolePermission>subscription.view</rolePermission>
+      <rolePermission>subscription.create</rolePermission>
+      <rolePermission>subscription.edit</rolePermission>
+      <rolePermission>subscription.delete</rolePermission>
+   </role>
+   <role roleId="subscription.admin">
+      <roleDescription>
+         This role is a grouping of permissions, default subscription admin role
+      </roleDescription>
+      <rolePermission>subscription.approve.all</rolePermission>
+      <rolePermission>subscription.user</rolePermission>
+      <rolePermission>group.edit</rolePermission>
+   </role>
+
+   <!-- ALL user is selected for permissions permitted to all users -->
+   <user userId="ALL">
+      <userPermission>subscription.view</userPermission>
+      <userPermission>subscription.dataset.browser</userPermission>
+      <userPermission>subscription.create</userPermission>
+      <userPermission>subscription.edit</userPermission>
+      <userPermission>subscription.delete</userPermission>
+      <userPermission>subscription.activate</userPermission>
+      <userPermission>subscription.approve.view</userPermission>
+      <userPermission>subscription.approve.user</userPermission>
+      <userPermission>subscription.approve.site</userPermission>
+      <userPermission>notification.view</userPermission>
+      <userPermission>notification.delete</userPermission>
+      <userPermission>group.edit</userPermission>
+      <userPermission>systemmanagement.create</userPermission>
+      <userPermission>systemmanagement.view</userPermission>
+   </user>
+</nwsRoleData>

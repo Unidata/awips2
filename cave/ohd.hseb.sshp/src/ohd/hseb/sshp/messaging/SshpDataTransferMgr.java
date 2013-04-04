@@ -20,6 +20,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -37,7 +38,7 @@ public class SshpDataTransferMgr
  
     private Document _controlDoc = null;
     private SAXBuilder _builder = new SAXBuilder();
-    private XMLOutputter _xmlOutputter = new XMLOutputter("   ", true);
+    private XMLOutputter _xmlOutputter = null;
     
     private FileLogger _logger = null;
     private String _logFilePath = null;
@@ -58,6 +59,10 @@ public class SshpDataTransferMgr
         _logFilePath = _logDirName + "/SshpDataTransferMgr.log"; 
         
         _logger = new FileLogger(_logFilePath);
+        
+    	Format format = Format.getRawFormat();
+    	format.setIndent("   ");
+    	this._xmlOutputter = new XMLOutputter(format);
         
         loadControlFile();
     

@@ -22,13 +22,9 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.grib.dao.GribModelDao;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.parameter.Parameter;
 
 /**
  * TODO Add Description
@@ -85,57 +81,47 @@ public class TPCSurgeProbPostProcessor implements IDecoderPostProcessor {
      * 
      * @see
      * com.raytheon.edex.plugin.grib.decoderpostprocessors.IDecoderPostProcessor
-     * #process(com.raytheon.uf.common.dataplugin.grib.GribRecord)
+     * #process(com.raytheon.uf.common.dataplugin.grib.GridRecord)
      */
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
-        GribModel gribModel = record.getModelInfo();
+    public GridRecord[] process(GridRecord record) throws GribException {
         boolean modified = false;
-        if (gribModel.getParameterAbbreviation().startsWith("PSurge")) {
-            String surge = gribModel.getParameterAbbreviation().toLowerCase()
+        Parameter param = record.getParameter();
+        if (param.getAbbreviation().startsWith("PSurge")) {
+            String surge = param.getAbbreviation().toLowerCase()
                     .replace("psurge", "").replace("ft", "");
-            gribModel.setParameterName(TPCSG_MAP.get(surge));
+            param = new Parameter(param.getAbbreviation(),
+                    TPCSG_MAP.get(surge), param.getUnitString());
             modified = true;
-        }else if(gribModel.getParameterAbbreviation().equals("TPCSG_SLOSH")){
-            gribModel.setParameterName("Real Time Slosh MEOW");
+        } else if (param.getAbbreviation().equals("TPCSG_SLOSH")) {
+            param = new Parameter(param.getAbbreviation(),
+                    "Real Time Slosh MEOW", param.getUnitString());
             modified = true;
-        }else if(gribModel.getParameterAbbreviation().startsWith("TPCSG-")){
-            gribModel.setParameterAbbreviation(gribModel.getParameterAbbreviation().substring(0,8).replace("-", "_"));
+        } else if (param.getAbbreviation().startsWith("TPCSG-")) {
+            String abbr = param.getAbbreviation().substring(0, 8)
+                    .replace("-", "_");
+            param = new Parameter(abbr, param.getName(), param.getUnitString());
             modified = true;
-        }else if (gribModel.getParameterAbbreviation().endsWith("10Pct")){
-            gribModel.setParameterAbbreviation(gribModel.getParameterAbbreviation().replace("10Pct", ""));
+        } else if (param.getAbbreviation().endsWith("10Pct")) {
+            String abbr = param.getAbbreviation().replace("10Pct", "");
+            param = new Parameter(abbr, param.getName(), param.getUnitString());
             modified = true;
         }
-        if(!modified){
-            return new GribRecord[] { record };
+        if (!modified) {
+            return new GridRecord[] { record };
         }
-        GribModelDao dao = new GribModelDao();
-        PersistableDataObject obj = dao.queryById(gribModel.getId());
-        if (obj != null) {
-            try {
-                dao.delete(obj);
-            } catch (Throwable e) {
 
-            }
-        }
+        record.setParameter(param);
+        record.getInfo().setId(null);
+        record.setDataURI(null);
         try {
-            gribModel.generateId();
-            GribModel cachedModel = GribModelCache.getInstance().getModel(
-                    gribModel);
-            record.setModelInfo(cachedModel);
-            record.setDataURI(null);
-            try {
-                record.constructDataURI();
-            } catch (Exception e) {
-                throw new GribException(
-                        "Error creating new dataURI for TPCSurgeProb data!", e);
-            }
-        } catch (DataAccessLayerException e) {
+            record.constructDataURI();
+        } catch (Exception e) {
             throw new GribException(
-                    "Error getting cached data for TPCSurgeProb!", e);
+                    "Error creating new dataURI for TPCSurgeProb data!", e);
         }
 
         record.setOverwriteAllowed(true);
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

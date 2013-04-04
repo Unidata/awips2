@@ -21,9 +21,9 @@ package com.raytheon.uf.common.geospatial.util;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
+import org.opengis.geometry.Envelope;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -57,8 +57,8 @@ public class WorldWrapChecker {
 
     private boolean checkForWrapping = false;
 
-    public WorldWrapChecker(GeneralGridGeometry worldGeometry) {
-        MapProjection worldProjection = CRS.getMapProjection(worldGeometry
+    public WorldWrapChecker(Envelope worldEnvelope) {
+        MapProjection worldProjection = CRS.getMapProjection(worldEnvelope
                 .getCoordinateReferenceSystem());
         double centralMeridian = 0.0;
         if (worldProjection != null) {
@@ -77,15 +77,13 @@ public class WorldWrapChecker {
         double r2 = highInverseCentralMeridian - 359.8;
 
         try {
-            MathTransform latLonToGrid = new DefaultMathTransformFactory()
-                    .createConcatenatedTransform(MapUtil
-                            .getTransformFromLatLon(worldGeometry
-                                    .getCoordinateReferenceSystem()),
-                            worldGeometry.getGridToCRS().inverse());
+            MathTransform latLonToCRS = MapUtil
+                    .getTransformFromLatLon(worldEnvelope
+                            .getCoordinateReferenceSystem());
 
             double[] in = new double[] { l1, 0.0, l2, 0.0, r1, 0.0, r2, 0.0 };
             double[] out = new double[in.length];
-            latLonToGrid.transform(in, 0, out, 0, 4);
+            latLonToCRS.transform(in, 0, out, 0, 4);
 
             double xl1 = out[0];
             double xl2 = out[2];
@@ -97,6 +95,10 @@ public class WorldWrapChecker {
             UFStatus.getHandler().handle(Priority.PROBLEM,
                     "Error determing world wrap checking", t);
         }
+    }
+
+    public WorldWrapChecker(GeneralGridGeometry worldGeometry) {
+        this(worldGeometry.getEnvelope());
     }
 
     /**

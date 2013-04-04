@@ -83,7 +83,7 @@ public class CrimssDataDefinition
     public CrimssDataDefinition() {
         productName = "crimss";
         displayName = "CrIMSS";
-        order = new String[] { "pluginName", POINT };
+        order = new String[] { POINT };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());

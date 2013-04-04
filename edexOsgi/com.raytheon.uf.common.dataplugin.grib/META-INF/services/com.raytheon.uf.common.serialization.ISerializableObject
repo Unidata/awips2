@@ -1,9 +1,2 @@
 com.raytheon.uf.common.dataplugin.grib.GribModel
 com.raytheon.uf.common.dataplugin.grib.GribRecord
-com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage
-com.raytheon.uf.common.dataplugin.grib.spatial.projections.MercatorGridCoverage
-com.raytheon.uf.common.dataplugin.grib.spatial.projections.PolarStereoGridCoverage
-com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage
-com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef
-com.raytheon.uf.common.dataplugin.grib.util.GridModel
-com.raytheon.uf.common.dataplugin.grib.util.GridModelSet

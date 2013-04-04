@@ -116,6 +116,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         	
         	if ( button == 1 ) {
         		dontMove = false;
+        		firstDown = loc;
         		return false;
         	}
         	// clean up
@@ -162,7 +163,14 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
 
         	DrawableElement tmpEl = drawingLayer.getSelectedDE();
         	//make sure the click is close enough to the element
-        	if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ) return false;
+        	if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ){
+        		if ( firstDown != null && drawingLayer.getDistance(tmpEl, firstDown) < 30){
+        			firstDown = null;
+        		}
+        		else {
+        			return false;
+        		}
+        	}
 
         	if ( tmpEl != null && (tmpEl instanceof WatchBox) ) {
 
@@ -210,6 +218,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
+        	firstDown = null;
         	if ( !isResourceEditable() ) return false;
         	
         	// Finish the editing

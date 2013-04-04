@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
 import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.application.component.IStandaloneComponent;
+import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserver;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
@@ -383,9 +384,15 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     protected void initializeObservers() {
         // Setup cave notification observer
         CAVELocalizationNotificationObserver.register();
-        // Register product observers
-        ProductAlertObserver.addObserver(null, new MenuUpdater());
-        ProductAlertObserver.addObserver(null, new AutoUpdater());
+        registerProductAlerts();
     }
 
+    protected void registerProductAlerts() {
+        // Register product observers
+        ProductAlertObserver.addObserver(null, new MenuUpdater());
+        for (String plugin : RecordFactory.getInstance().getSupportedPlugins()) {
+            // Create separate AutoUpdater per plugin
+            ProductAlertObserver.addObserver(plugin, new AutoUpdater());
+        }
+    }
 }

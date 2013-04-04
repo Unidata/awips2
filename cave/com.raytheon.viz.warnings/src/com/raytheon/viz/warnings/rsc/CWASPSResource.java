@@ -28,7 +28,7 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 
 
-public class CWASPSResource extends WarningsResource {
+public class CWASPSResource extends WatchesResource {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CWASPSResource.class);
