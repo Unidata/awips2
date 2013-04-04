@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackDisplay;
@@ -96,6 +97,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *  Oct 19 2010 #6753      bkowal      Added logic to change the text alignment from
  *                                     left-to-right if there is not enough room
  *                                     for the text to the left of the point.
+ * 15Mar2013	15693	mgamazaychikov Added magnification capability.
  * </pre>
  * 
  * @author mschenke
@@ -248,6 +250,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             AwipsToolsResourceData<TimeOfArrivalLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties, descriptor);
+        // add magnification capability
+        getCapabilities().addCapability(new MagnificationCapability());
         this.pdProps = new ProgressiveDisclosureProperties();
         this.pdProps.setMaxDisplayWidth(TimeOfArrivalLayer.PD_MAX_WIDTH);
 
@@ -399,6 +403,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = alignment;
         ds.font = null;
+        ds.magnification = getCapability(MagnificationCapability.class)
+        .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 

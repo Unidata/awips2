@@ -20,6 +20,9 @@
 package com.raytheon.uf.common.dataaccess;
 
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
+import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
+import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -49,6 +52,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -57,7 +62,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * @param <D>
  */
 
-public interface IDataFactory<R extends IDataRequest<D>, D extends IData> {
+public interface IDataFactory {
 
     /**
      * Gets the available times that match the request. Implementations should
@@ -68,7 +73,7 @@ public interface IDataFactory<R extends IDataRequest<D>, D extends IData> {
      * @return the times that have data available for this request
      * @throws TimeAgnosticDataException
      */
-    public DataTime[] getAvailableTimes(R request)
+    public DataTime[] getAvailableTimes(IDataRequest request)
             throws TimeAgnosticDataException;
 
     /**
@@ -84,7 +89,8 @@ public interface IDataFactory<R extends IDataRequest<D>, D extends IData> {
      *         for this request
      * @throws TimeAgnosticDataException
      */
-    public DataTime[] getAvailableTimes(R request, BinOffset binOffset)
+    public DataTime[] getAvailableTimes(IDataRequest request,
+            BinOffset binOffset)
             throws TimeAgnosticDataException;
 
     /**
@@ -97,8 +103,10 @@ public interface IDataFactory<R extends IDataRequest<D>, D extends IData> {
      *            the times to get data for. If data is time agnostic, use
      *            getData(R)
      * @return the data that matches the request at the specified times
+     * @throws UnsupportedOutputTypeException
+     *             if this factory cannot produce IGridData
      */
-    public D[] getData(R request, DataTime... times);
+    public IGridData[] getGridData(IDataRequest request, DataTime... times);
 
     /**
      * Gets the available data that matches the request and is within the time
@@ -110,7 +118,52 @@ public interface IDataFactory<R extends IDataRequest<D>, D extends IData> {
      *            the time range to return data for. If data is time agnostic,
      *            use getData(R).
      * @return the data that matches the request within the time range
+     * @throws UnsupportedOutputTypeException
+     *             if this factory cannot produce IGridData
      */
-    public D[] getData(R request, TimeRange timeRange);
+    public IGridData[] getGridData(IDataRequest request, TimeRange timeRange);
+
+    /**
+     * Gets the available data that matches the request at the specified times.
+     * If data is time agnostic, use getData(R).
+     * 
+     * @param request
+     *            the request to get matching data for
+     * @param times
+     *            the times to get data for. If data is time agnostic, use
+     *            getData(R)
+     * @return the data that matches the request at the specified times
+     * @throws UnsupportedOutputTypeException
+     *             if this factory cannot produce IGeometryData
+     */
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            DataTime... times);
+
+    /**
+     * Gets the available data that matches the request and is within the time
+     * range. If data is time agnostic, use getData(R).
+     * 
+     * @param request
+     *            the request to get matching data for
+     * @param timeRange
+     *            the time range to return data for. If data is time agnostic,
+     *            use getData(R).
+     * @return the data that matches the request within the time range
+     * @throws UnsupportedOutputTypeException
+     *             if this factory cannot produce IGeometryData
+     */
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            TimeRange timeRange);
+
+    /**
+     * Gets the available location names that match the request. Implementations
+     * should throw IncompatibleRequestException if location names do not apply
+     * to their datatype.
+     * 
+     * @param request
+     *            the request to find matching location names for
+     * @return the available location names that match the request
+     */
+    public String[] getAvailableLocationNames(IDataRequest request);
 
 }

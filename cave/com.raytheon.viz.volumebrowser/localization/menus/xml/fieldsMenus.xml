@@ -386,8 +386,24 @@
 		<contribute xsi:type="menuItem" menuText="Lifted Idx" key="SLI"
 			 indentText="false" />
 		<contribute xsi:type="toolbarSubMenu" menuText="Convective">
-			<contribute xsi:type="menuItem" menuText="SPC Tornado Prob"
-				key="PTOR"  indentText="false" />
+            <contribute xsi:type="toolbarSubMenu" menuText="SPC">
+                <contribute xsi:type="menuItem" menuText="Tornado Prob"
+                    key="PTOR"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Hail Prob"
+                            key="HAILPROB"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Wind Prob"
+                            key="WINDPROB"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Sig Tornado Prob"
+                            key="SIGTRNDPROB"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Sig Hail Prob"
+                            key="SIGHAILPROB"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Sig Wind Prob"
+                            key="SIGWINDPROB"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Total Svr Prob"
+                            key="PRSVR"  indentText="false" />
+                        <contribute xsi:type="menuItem" menuText="Total Sig Svr Prob"
+                            key="PRSIGSV"  indentText="false" />
+            </contribute>
 			<contribute xsi:type="menuItem" menuText="Lifted Idx" key="SLI"
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Best LI" key="BLI"
@@ -500,7 +516,7 @@
 				key="visCat"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Obstruction to Vision"
 				key="obVis"  indentText="false" />
-			<contribute xsi:type="menuItem" menuText="Sky Cover" key="CCP"
+			<contribute xsi:type="menuItem" menuText="Sky Cover" key="TCC"
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Ceiling Height"
 				key="Cig"  indentText="false" />
@@ -512,9 +528,9 @@
 
 		<contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Gridded">
 			<contribute xsi:type="menuItem" menuText="Tstorm Prob"
-				key="ThP2hr"  indentText="false" />
+				key="ThP"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Tstorm Occr"
-				key="CTSTM2hr"  indentText="false" />
+				key="CTSTM"  indentText="false" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="HPC Guidance">
@@ -525,7 +541,19 @@
 			<contribute xsi:type="menuItem" menuText="POP" key="POP"
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Total Cloud Cover"
-				key="CCP"  indentText="false" />
+				 key="TCC"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Snow-to-H2O HPC Mean"
+				 key="s2H2O_MEAN"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Snow-to-H2O GFS"
+				 key="s2H2O_GFS"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Snow-to-H2O NAM"
+				 key="s2H2O_NAM"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Snow-to-H2O Climo"
+				 key="s2H2O_CLIMO"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="6-hr snow accum"
+				 key="TOTSN6hr"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="6-hr ice accum"
+				 key="FRZR6hr"  indentText="false" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="MDL MOS">

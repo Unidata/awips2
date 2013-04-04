@@ -8,6 +8,8 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements;
 
+import gov.noaa.nws.ncep.viz.rsc.plotdata.advanced.ConditionalColorBar;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -27,6 +29,8 @@ import org.eclipse.swt.graphics.RGB;
  * 05/02/12     778         Q. Zhou     Changed symbol size form int to double    
  * 06/11/12     654         S. Gurung   Changed default textSize to 14          
  * 08/23/12     844         S. Gurung   Changed default textFont to Standard   
+ * 10/18/2012   431         S. Gurung   Added support for ConditionalParameter and ConditionalColorBar     
+ * 02/26/2013   936       A.Subramanian Changed the font defaults to match legacy 
  * </pre>
  * 
  */
@@ -34,7 +38,9 @@ import org.eclipse.swt.graphics.RGB;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "position",
-    "color"
+    "color",
+    "conditionalParameter",
+    "conditionalColorBar"
 })
 @XmlRootElement(name = "PlotModelElement")
 public class PlotModelElement {
@@ -55,13 +61,19 @@ public class PlotModelElement {
     protected String textSize = "14"; // defaults
     
     @XmlAttribute
-    protected String textFont = "Standard";
+    protected String textFont = "Courier";
 	
     @XmlAttribute
-    protected String textStyle = "Normal";
+    protected String textStyle = "Bold";
     
     @XmlAttribute
     protected double symbolSize = 1.0;
+    
+    @XmlElement(name = "conditionalColorBar")
+    protected ConditionalColorBar conditionalColorBar; 
+    
+    @XmlElement(name = "conditionalParameter")
+    protected String conditionalParameter;
     
 //    @XmlAttribute
 //    protected Boolean enable=true;
@@ -135,4 +147,49 @@ public class PlotModelElement {
 //	public void setEnable(Boolean enable) {
 //		this.enable = enable;
 //	}
+    
+    public ConditionalColorBar getConditionalColorBar() {
+        return conditionalColorBar;
+    }
+
+    public void setConditionalColorBar(ConditionalColorBar value) {
+    	
+    	if (value.getNumIntervals() == 0 ) {
+    		value.addColorBarInterval(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, new RGB(getColor().red, getColor().green, getColor().blue));
+        }
+    	this.conditionalColorBar = value;
+    }
+   
+    public String getConditionalParameter() {
+        return conditionalParameter;
+    }
+
+    public void setConditionalParameter(String value) {
+        this.conditionalParameter = value;
+    } 
+    
+    public boolean hasAdvancedSettings() {    	
+    	
+    	if (this.conditionalParameter ==null || "".equals(this.conditionalParameter) || this.conditionalColorBar == null) {
+    		return false;
+    	}
+    	
+    	if (this.conditionalParameter.equals(this.paramName) && this.conditionalColorBar.getNumIntervals() == 1
+    			&& this.conditionalColorBar.getIntervalMin(0) == Float.NEGATIVE_INFINITY
+					&& this.conditionalColorBar.getIntervalMax(0) == Float.POSITIVE_INFINITY) {
+    		
+    		if (this.conditionalColorBar.getColor(0) == null) {
+    			return false;
+    		}
+    	
+    		if (this.color.getRed() == this.conditionalColorBar.getColor(0).getRed()
+				&& this.color.getGreen() == this.conditionalColorBar.getColor(0).getGreen()
+					&& this.color.getBlue() == this.conditionalColorBar.getColor(0).getBlue()
+						) {
+				return false;  
+			}
+    	}
+    	
+		return true;    	
+    }
 }

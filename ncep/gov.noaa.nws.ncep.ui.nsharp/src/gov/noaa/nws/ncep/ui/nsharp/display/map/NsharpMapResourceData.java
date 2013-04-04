@@ -64,7 +64,7 @@ public class NsharpMapResourceData extends AbstractResourceData {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this;
+		return false;
 	}
 	
 	public MarkerState getMarkerState() {

@@ -42,6 +42,10 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.BasinTrendCommon.PlotItems;
@@ -65,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Dec 6, 2012  1353       rferrel     Code clean up for non-blocking dialog.
+ * Feb 10, 2013  1584      mpduff      Add performance logging.
  * 
  * </pre>
  * 
@@ -72,6 +77,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class BasinTrendDlg extends CaveSWTDialog {
+    /** Performance log message prefix */
+    private final String prefix = "FFMP Basin Trend:";
+
+    /** Performance logger */
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler(prefix);
+
     /**
      * Main composite.
      */
@@ -141,12 +153,12 @@ public class BasinTrendDlg extends CaveSWTDialog {
     /**
      * QPFSCAN radio button.
      */
-    private List<Button> qpfRdos = new ArrayList<Button>();
+    private final List<Button> qpfRdos = new ArrayList<Button>();
 
     /**
      * RFCFFG radio button.
      */
-    private List<Button> ffgRdos = new ArrayList<Button>();
+    private final List<Button> ffgRdos = new ArrayList<Button>();
 
     /**
      * Background color for controls and graph.
@@ -221,7 +233,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
     /**
      * Date/Time format.
      */
-    private SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yy HH:mm z");
+    private final SimpleDateFormat sdf = new SimpleDateFormat(
+            "MMM dd yy HH:mm z");
 
     private boolean vgb = false;
 
@@ -229,7 +242,8 @@ public class BasinTrendDlg extends CaveSWTDialog {
 
     private Date currentDate;
 
-    private FFMPResource resource;
+    /** The FFMP Resource */
+    private final FFMPResource resource;
 
     private final List<ISourceUpdate> sourceListeners = new ArrayList<ISourceUpdate>();
 
@@ -238,6 +252,14 @@ public class BasinTrendDlg extends CaveSWTDialog {
      * 
      * @param parent
      *            Parent shell.
+     * @param resource
+     *            The Resource
+     * @param date
+     *            The Date
+     * @param pfaf
+     *            The pfaf
+     * @param vgb
+     *            The VGB
      * @param graphData
      *            Graph data.
      */
@@ -1000,6 +1022,9 @@ public class BasinTrendDlg extends CaveSWTDialog {
      */
     private void updatePlotSelection(Button plotBtn,
             boolean updateLegendAndGraph) {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         PlotItems plotItem = (PlotItems) plotBtn.getData();
 
         if (plotItem == PlotItems.RATE) {
@@ -1056,6 +1081,9 @@ public class BasinTrendDlg extends CaveSWTDialog {
             updateColorLegend();
             updateGraph();
         }
+
+        timer.stop();
+        perfLog.logDuration("Graph update", timer.getElapsedTime());
     }
 
     /**

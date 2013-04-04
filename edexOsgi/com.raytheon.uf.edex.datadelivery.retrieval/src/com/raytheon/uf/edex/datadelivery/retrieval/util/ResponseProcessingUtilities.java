@@ -48,6 +48,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Jan 07, 2011            dhladky     Initial creation
  * Aug 20, 2012 0743       djohnson    Fix cache lookup to use the model name and not hashcode.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 30, 2013 1543       djohnson     Log exception stacktrace.
  * 
  * </pre>
  * 
@@ -169,8 +170,9 @@ public class ResponseProcessingUtilities {
                 levels.add(level);
             }
         } catch (Exception e) {
-            statusHandler.error("Couldn't retrieve the levels : "
-                    + plevels.getLevelType() + " ERROR: " + e);
+            statusHandler.error(
+                    "Couldn't retrieve the levels : " + plevels.getLevelType(),
+                    e);
         }
 
         return levels;

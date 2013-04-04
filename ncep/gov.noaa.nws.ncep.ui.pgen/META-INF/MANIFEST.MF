@@ -26,6 +26,7 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Export-Package: gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.ui.pgen.attrdialog,
+ gov.noaa.nws.ncep.ui.pgen.clipper,
  gov.noaa.nws.ncep.ui.pgen.contours,
  gov.noaa.nws.ncep.ui.pgen.controls,
  gov.noaa.nws.ncep.ui.pgen.display,

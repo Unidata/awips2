@@ -60,6 +60,8 @@ import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.DataLevelThreshold;
+import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket.GFMAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
 import com.raytheon.uf.common.dataplugin.radar.level3.GenericDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
@@ -90,11 +92,13 @@ import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket.WindBarbPoi
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataParameter;
+import com.raytheon.uf.common.dataplugin.radar.units.DigitalVilUnit;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.image.units.PiecewisePixel;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -114,6 +118,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      getPersistenceTime() from new IPersistable
  * 10/09/2007   465         randerso    Updated to better represent level 3 data                                   
  * 20071129            472  jkorman     Added IDecoderGettable interface.
+ * 03/04/2013   DCS51       zwang       Handle MIGFA product
+ * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
+ *                                      HDF5.
  * </pre>
  * 
  * @author bphillip
@@ -749,6 +756,153 @@ public class RadarRecord extends PersistablePluginDataObject implements
     }
 
     /**
+     * Get the actual unit of the raw bytes with any scale/offset or other
+     * information from the thresholds.
+     * 
+     * @return a unit object that describes the actual byte values.
+     */
+    public Unit<?> getDataUnit() {
+        Unit<?> rval = null;
+        int numLevels = getNumLevels();
+        Object[] thresholds = getDecodedThresholds();
+        if (numLevels <= 16) {
+            ArrayList<Integer> pixel = new ArrayList<Integer>();
+            ArrayList<Float> real = new ArrayList<Float>();
+            if ("V".equals(getDisplayModes())) {
+                // V does this weird thing at zero, they have a data value of -1
+                // at index 7 which just symbolizes that the data goes from -10
+                // - 0, which seems pointless, and A1 also throws it out
+                int p = 1;
+                for (int i = 0; i < numLevels; i++) {
+                    if (i == 7) {
+                        continue;
+                    }
+                    if (thresholds[i] instanceof Float) {
+                        pixel.add(p);
+                        real.add((Float) thresholds[i]);
+                    }
+                    p++;
+                }
+            } else {
+                for (int i = 0; i < numLevels; i++) {
+                    if (thresholds[i] instanceof Float) {
+                        if (real.contains(thresholds[i])) {
+                            // Try to determine if we can treat one of these
+                            // different
+                            Float fVal = (Float) thresholds[i];
+                            Integer prevI = pixel.get(real
+                                    .indexOf(thresholds[i]));
+                            DataLevelThreshold prevThresh = new DataLevelThreshold(
+                                    getThreshold(prevI));
+                            DataLevelThreshold currThresh = new DataLevelThreshold(
+                                    getThreshold(i));
+                            if (prevThresh.isLessThan()
+                                    || prevThresh.isGtrThan()) {
+                                if (prevThresh.isLessThan()) {
+                                    getDecodedThresholds()[prevI] = "<"
+                                            + fVal.intValue();
+                                } else {
+                                    getDecodedThresholds()[prevI] = ">"
+                                            + fVal.intValue();
+                                }
+                                real.remove(fVal);
+                                real.add(fVal);
+                                pixel.remove(prevI);
+                                pixel.add(i);
+                                continue;
+                            } else if (currThresh.isLessThan()) {
+                                getDecodedThresholds()[i] = "<"
+                                        + fVal.intValue();
+                                continue;
+                            } else if (currThresh.isGtrThan()) {
+                                getDecodedThresholds()[i] = ">"
+                                        + fVal.intValue();
+                                continue;
+                            }
+                        }
+                        pixel.add(i);
+                        real.add((Float) thresholds[i]);
+
+                    }
+                }
+            }
+
+            if (pixel.size() == 0) {
+                return getUnitObject();
+            }
+
+            double[] pix = new double[pixel.size()];
+            int i = 0;
+            for (Integer p : pixel) {
+                pix[i++] = p;
+            }
+
+            double[] std = new double[real.size()];
+
+            boolean allZeroes = true;
+
+            i = 0;
+            for (Float r : real) {
+                allZeroes = allZeroes && (r == 0);
+                std[i++] = r;
+            }
+            if (allZeroes) {
+                // allZeroes is not a valid unit and is basically disgarded,
+                // this check is done for CFC
+                rval = getUnitObject();
+            } else {
+                rval = new PiecewisePixel(getUnitObject(), pix, std);
+            }
+        } else if (getProductCode() == 134) {
+            // Digital Vil is all messy in the spec.
+            rval = new DigitalVilUnit(getThresholds());
+        } else if (getThreshold(5) == 0) {
+            // The offset and scale are set as ints
+            double offset = getThreshold(0);
+            double scale = getThreshold(1);
+            int nLevels = getThreshold(2);
+            // I believe all products have at least one flag value and DHR is
+            // reporting 256 levels
+            if (nLevels > 255) {
+                nLevels = 255;
+            }
+            double[] pix = { 256 - nLevels, 255 };
+            if (getProductCode() == 155) {
+                pix = new double[] { 129, 149 };
+            }
+
+            double[] data = { offset, offset + (nLevels - 1) * scale };
+            rval = new PiecewisePixel(getUnitObject(), pix, data);
+
+        } else {
+            // The offset and scale are set as floats
+            double scale = Float.intBitsToFloat((getThreshold(0) << 16)
+                    + getThreshold(1));
+            if (scale == 0.0) {
+                // 0.0 is sometimes used by HC and leads to a massively invalid
+                // data range.
+                scale = 1.0;
+            }
+            double offset = Float.intBitsToFloat((getThreshold(2) << 16)
+                    + getThreshold(3));
+            int nLevels = getThreshold(5);
+            if (nLevels < 0) {
+                // Only for DPR, the 65536 can't be encoded in a short
+                nLevels = getNumLevels();
+            }
+            int nFlags = getThreshold(6);
+
+            double[] pix = { nFlags, nLevels };
+            double[] data = { (nFlags - offset) / scale,
+                    (nLevels - offset) / scale };
+
+            rval = new PiecewisePixel(getUnitObject(), pix, data);
+
+        }
+        return rval;
+    }
+
+    /**
      * @param unit
      *            the unit to set
      */
@@ -880,14 +1034,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
      */
     public GSMMessage getGsmMessage() {
         return getStoredData().getGsmMessage();
-    }
-
-    public String getAlphanumericValues() {
-        return getStoredData().getAlphanumericValues();
-    }
-
-    public void setAlphanumericValues(String alphanumericValues) {
-        getStoredData().setAlphanumericValues(alphanumericValues);
     }
 
     public short getProductDependentValue(int value) {
@@ -1034,9 +1180,19 @@ public class RadarRecord extends PersistablePluginDataObject implements
     private <T> void addPacketData(double i, double j, String stormID,
             int type, RadarProductType productType, T currData,
             boolean needToConvert) {
-        if (needToConvert) {
-            // switch to lat/lon
-            Coordinate coor = convertStormLatLon(i, j);
+        
+    	// Convert x/y to lon/lat
+    	if (needToConvert) {
+    		Coordinate coor;
+    
+            // for MIGFA, i/j unit is 1km, for other radar products, unit is 1/4km
+        	if (type == 140) {
+        		coor = convertStormLatLon(i * 4.0, j * 4.0);
+        	}
+        	else {
+                coor = convertStormLatLon(i, j);
+        	}
+            
             i = coor.x;
             j = coor.y;
         }
@@ -1310,7 +1466,45 @@ public class RadarRecord extends PersistablePluginDataObject implements
                                 currFeature, convertLatLon);
                     }
                     continue PACKET;
-                } else if (currPacket instanceof GenericDataPacket) {
+                } else if (currPacket instanceof GFMPacket) {
+                    // Need to get each component/feature out and located the
+                    // thing
+                    GFMPacket packet = (GFMPacket) currPacket;
+
+                    // need to convert x/y to lon/lat
+                    convertLatLon = true;
+
+                    Map<MapValues, String> map = new HashMap<MapValues, String>();
+                    
+                    for (GenericDataParameter param : packet.getParams()
+                            .values()) {
+                    	
+                    	GFMAttributeIDs id = null;
+                        id = GFMAttributeIDs.getAttribute(param.getId());
+
+                        if (id != null) {
+                            for (MapValues vals : MapValues.values()) {
+                                if (id.getName().equals(vals.getName())) {
+                                    map.put(vals, param.getValue());
+                                }
+                            }
+                        }
+                    }
+                    getMapRecordVals().put(MapValues.GFM_TYPE, map);
+
+                    AreaComponent currFeature;
+                    for (GenericDataComponent currComponent : packet
+                            .getFeatures().values()) {
+                        currFeature = (AreaComponent) currComponent;
+                        //first point of GFM
+                        i = currFeature.getPoints().get(0).getCoordinate1();
+                        j = currFeature.getPoints().get(0).getCoordinate2();
+
+                        addPacketData(i, j, type, RadarProductType.GENERIC,
+                                currFeature, convertLatLon);
+                    }
+                    continue PACKET;
+                }else if (currPacket instanceof GenericDataPacket) {
                     // Generic Packet will contain most of the data for the
                     // product, so, in general, nothing probably needs to be
                     // done here

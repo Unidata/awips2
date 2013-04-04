@@ -20,13 +20,7 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
  * further licensing information.
  **/
 
-import java.util.ArrayList;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -40,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2011            dhladky     Initial creation
+ * 02/01/13    1569        D. Hladky   Added constants, serialization changes
  * 
  * </pre>
  * 
@@ -47,43 +42,39 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFTIRatioDiff extends FFTIData {
 
     @DynamicSerializeElement
-    @XmlElements({ @XmlElement(name = "qpe", type = Float.class) })
-    private ArrayList<Float> qpes;
+    private List<Float> qpes;
 
     @DynamicSerializeElement
-    @XmlElements({ @XmlElement(name = "guid", type = Float.class) })
-    private ArrayList<Float> guids;
+    private List<Float> guids;
 
     public FFTIRatioDiff() {
 
     }
 
-    public FFTIRatioDiff(ArrayList<Float> qpes, ArrayList<Float> guids,
+    public FFTIRatioDiff(List<Float> qpes, List<Float> guids,
             Double gap) {
         setQpes(qpes);
         setGuids(guids);
         setGap(gap);
     }
 
-    public ArrayList<Float> getQpes() {
+    public List<Float> getQpes() {
         return qpes;
     }
 
-    public void setQpes(ArrayList<Float> qpes) {
+    public void setQpes(List<Float> qpes) {
         this.qpes = qpes;
     }
 
-    public ArrayList<Float> getGuids() {
+    public List<Float> getGuids() {
         return guids;
     }
 
-    public void setGuids(ArrayList<Float> guids) {
+    public void setGuids(List<Float> guids) {
         this.guids = guids;
     }
 

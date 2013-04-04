@@ -54,6 +54,8 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            bsteffen     Initial creation
+ * Feb 25, 2013 1659       bsteffen    Stop derived parameters from sending
+ *                                     empty requests for cached times
  * 
  * </pre>
  * 
@@ -171,15 +173,18 @@ public class AvailabilityContainer {
      */
     protected void processRequests() throws VizException {
         List<DbQueryRequest> requests = getAvailabilityRequests();
-        DbQueryRequestSet requestSet = new DbQueryRequestSet();
-        requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
-        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                .sendRequest(requestSet);
-        DbQueryResponse[] responses = responseSet.getResults();
         Map<DbQueryRequest, DbQueryResponse> responseMap = new HashMap<DbQueryRequest, DbQueryResponse>(
-                (int) (responses.length / 0.75) + 1, 0.75f);
-        for (int i = 0; i < responses.length; i++) {
-            responseMap.put(requests.get(i), responses[i]);
+                (int) (requests.size() / 0.75) + 1, 0.75f);
+        if (!requests.isEmpty()) {
+            DbQueryRequestSet requestSet = new DbQueryRequestSet();
+            requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
+            DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
+                    .sendRequest(requestSet);
+            DbQueryResponse[] responses = responseSet.getResults();
+
+            for (int i = 0; i < responses.length; i++) {
+                responseMap.put(requests.get(i), responses[i]);
+            }
         }
         setAvailabilityResponses(responseMap);
     }

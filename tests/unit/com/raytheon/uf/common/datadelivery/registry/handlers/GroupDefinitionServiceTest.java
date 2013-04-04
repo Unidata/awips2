@@ -29,6 +29,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.rmi.RemoteException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,6 +55,7 @@ import com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionService
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
+ * Feb 26, 2013 1643       djohnson     Change exception type thrown.
  * 
  * </pre>
  * 
@@ -72,14 +75,10 @@ public class GroupDefinitionServiceTest {
 
     private final GroupDefinitionService service = new GroupDefinitionService() {
         @Override
-        protected Object sendRequest(GroupDefinitionServiceRequest request)
-                throws RegistryHandlerException {
-            try {
-                return new GroupDefinitionServiceHandler(
-                        subscriptionNotificationService).handleRequest(request);
-            } catch (Exception e) {
-                throw new RegistryHandlerException(e);
-            }
+        protected Object getResponseFromServer(
+                GroupDefinitionServiceRequest request) throws Exception {
+            return new GroupDefinitionServiceHandler(
+                    subscriptionNotificationService).handleRequest(request);
         }
     };
 
@@ -106,7 +105,7 @@ public class GroupDefinitionServiceTest {
 
     @Test
     public void deletingAGroupUpdatesSubscriptionsToNotHaveAGroupName()
-            throws RegistryHandlerException {
+            throws RemoteException, RegistryHandlerException {
 
         service.deleteGroupDefinition(group);
 
@@ -116,7 +115,7 @@ public class GroupDefinitionServiceTest {
 
     @Test
     public void deletingAGroupNotifiesOfSubscriptionUpdates()
-            throws RegistryHandlerException {
+            throws RemoteException, RegistryHandlerException {
         service.deleteGroupDefinition(group);
 
         verify(subscriptionNotificationService, times(2))
@@ -125,7 +124,8 @@ public class GroupDefinitionServiceTest {
     }
 
     @Test
-    public void deletingAGroupDeletesTheGroup() throws RegistryHandlerException {
+    public void deletingAGroupDeletesTheGroup() throws RemoteException,
+            RegistryHandlerException {
 
         service.deleteGroupDefinition(group);
 

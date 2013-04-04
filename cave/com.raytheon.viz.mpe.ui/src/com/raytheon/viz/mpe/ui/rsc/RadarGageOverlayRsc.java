@@ -73,7 +73,7 @@ public class RadarGageOverlayRsc extends
     public RadarGageOverlayRsc(RadarGageOverlayRscData radarGageOverlayRscData,
             LoadProperties loadProperties) {
         super(radarGageOverlayRscData, loadProperties);
-        currentdate = MPEDisplayManager.getCurrent().getCurrentDate();
+        currentdate = MPEDisplayManager.getCurrent().getCurrentEditDate();
         addPoints(getGages(currentdate));
         getCapability(ColorableCapability.class).setColor(
                 getResourceData().getColor());

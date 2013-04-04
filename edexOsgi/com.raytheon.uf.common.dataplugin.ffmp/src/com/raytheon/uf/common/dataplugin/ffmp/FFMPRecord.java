@@ -68,6 +68,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 06/03/09     2521     D. Hladky   Initial release
  * 01/27/13     1478        D. Hladky   OUN memory help
+ * Feb 28, 2013  1729      dhladky    Supressed un-necessary debug loggers
  * 
  * </pre>
  * 
@@ -119,6 +120,13 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPRecord.class);
+    
+    /** ALL HUC LEVEL **/
+    public static final String ALL = "ALL";
+    /** COUNTY HUC LEVEL **/
+    public static final String COUNTY = "COUNTY";
+    /** VIRTUAL HUC LEVEL **/
+    public static final String VIRTUAL = "VIRTUAL";
 
     /**
      * Default Constructor
@@ -357,7 +365,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
         FFMPBasinData fbd = null;
         boolean aggregate = true;
 
-        if (huc.equals("ALL")) {
+        if (huc.equals(ALL)) {
             aggregate = false;
         }
 
@@ -530,7 +538,6 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                             statusHandler.handle(Priority.PROBLEM,
                                     "ERROR Retrieving Map for URI: " + uri
                                             + "..." + huc);
-                            e.printStackTrace();
                         }
                     }
                 }
@@ -552,7 +559,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
             throws StorageException, FileNotFoundException {
         FFMPBasinData fbd = null;
         boolean aggregate = false;
-        fbd = getBasinData("ALL");
+        fbd = getBasinData(ALL);
         String key = getDataKey();
 
         synchronized (template) {
@@ -571,12 +578,16 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
 
                         try {
                             rec = dataStore.retrieve(
-                                    uri + "/" + domain.getCwa(), "ALL",
+                                    uri + "/" + domain.getCwa(), ALL,
                                     Request.ALL);
                         } catch (Exception e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "FFMPRecord: no data for: " + uri + "/"
-                                            + domain.getCwa());
+                            // This is a routine error.  Sometimes you can not have data for a configured source
+                            // This suppresses spurrious messages that would inflate the loags needlessly.
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.handle(Priority.DEBUG,
+                                        "FFMPRecord: no data for: " + uri + "/"
+                                                + domain.getCwa());
+                            }
                         }
 
                         if (rec != null) {
@@ -619,7 +630,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
         FFMPBasinData fbd = null;
         try {
             boolean aggregate = false;
-            fbd = getBasinData("ALL");
+            fbd = getBasinData(ALL);
             String key = getDataKey();
 
             for (DomainXML domain : template.getDomains()) {
@@ -631,7 +642,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                 if (size > 0) {
                     try {
                         IDataRecord rec = dataStore
-                                .retrieve(uri + "/" + domain.getCwa(), "ALL",
+                                .retrieve(uri + "/" + domain.getCwa(), ALL,
                                         Request.ALL);
 
                         if (rec != null) {
@@ -663,13 +674,13 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                         statusHandler.handle(
                                 Priority.PROBLEM,
                                 "ERROR Retrieving Virtual ..."
-                                        + domain.getCwa() + " : " + "ALL");
+                                        + domain.getCwa() + " : " + ALL);
                     }
                 }
             }
         } catch (Throwable e) {
             statusHandler.handle(Priority.ERROR, "ERROR Retrieving Virtual..."
-                    + "ALL");
+                    + ALL);
         }
     }
 
@@ -747,8 +758,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
      */
     public void purgeData(Date date) {
 
-        for (String ihuc : getBasinsMap().keySet()) {
-            FFMPBasinData basinData = getBasinsMap().get(ihuc);
+        for (FFMPBasinData basinData : getBasinsMap().values()) {
             basinData.purgeData(date);
         }
     }
@@ -762,22 +772,21 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     }
     
     /**
-     * Get the fully cache ready object
-     * @param fileName
+     * Get the fully populated aggregate record
      * @return
      */
-    public FFMPAggregateRecord getCacheRecord() {
+    public FFMPAggregateRecord getAggregateRecord() {
         FFMPAggregateRecord fdcr = new FFMPAggregateRecord();
         
-        for (Entry<String,FFMPBasinData> entry: basinsMap.entrySet()) {
-            fdcr.setBasinData(entry.getValue());
+        for (FFMPBasinData basinData: basinsMap.values()) {
+            fdcr.addBasinData(basinData);
         }
         
         return fdcr;
     }
     
     /**
-     * Creates and populates a version of this record from a cache record
+     * Creates and populates a version of this record from an aggregate record
      * 
      * @param fdcr
      */
@@ -785,13 +794,10 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
 
         List<Long> times = fdcr.getTimes();
 
-        for (Entry<String, FFMPBasinData> entry : fdcr.getBasinsMap()
-                .entrySet()) {
-
-            FFMPBasinData fbd = entry.getValue();
+        for (FFMPBasinData basinData: fdcr.getBasinsMap().values()) {
             // Keep in mind times can be null, Guidance basins are like that
-            fbd.populate(times);
-            setBasinData(fbd, fbd.getHucLevel());
+            basinData.populate(times);
+            setBasinData(basinData, basinData.getHucLevel());
         }
     }
 

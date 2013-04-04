@@ -61,7 +61,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 7, 2010            mschenke     Initial creation
  * Jan 29, 2013  15723    Qinglu Lin   Called warngenLayer.initRemovedGids() in move() and in run() of 
  *                                     AddVertexAction, DeleteVertextAction and MoveElementAction inner classes.
- * Mar 25, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
+ * Jan 30, 2013  15439    Qinglu Lin   Code were added to prevent nullPointException from occurring
+ *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
+ * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * 
  * </pre>
  * 
@@ -258,7 +260,7 @@ public class WarngenUIManager extends InputAdapter {
                     LinearRing lr = gf.createLinearRing(coordinates);
                     state.setWarningPolygon(gf.createPolygon(lr, null));
                 }
-                warngenLayer.updateWarnedAreas(true, true);
+                warngenLayer.updateWarnedAreas(true);
             } catch (VizException e) {
                 e.printStackTrace();
             }
@@ -374,17 +376,19 @@ public class WarngenUIManager extends InputAdapter {
             break;
         }
         case SINGLE_POINT: {
-            PolygonUtil.truncate(c2, 2);
-            if (warngenLayer.isModifiedVertexNeedsToBeUpdated()) {
-                int i = StormTrackUIManager.getCoordinateIndex(warngenLayer,
-                        state.getWarningPolygon().getCoordinates(), c2);
-                if (i != -1) {
-                    this.movePointIndex = i;
+            if (c2 != null) {
+                PolygonUtil.truncate(c2, 2);
+                if (warngenLayer.isModifiedVertexNeedsToBeUpdated()) {
+                    int i = StormTrackUIManager.getCoordinateIndex(warngenLayer,
+                            state.getWarningPolygon().getCoordinates(), c2);
+                    if (i != -1) {
+                        this.movePointIndex = i;
+                    }
+                    warngenLayer.setModifiedVertexNeedsToBeUpdated(false);
                 }
-                warngenLayer.setModifiedVertexNeedsToBeUpdated(false);
+                movePointIndex = warngenLayer.translatePolygonVertex(
+                        this.movePointIndex, c2, false);
             }
-            movePointIndex = warngenLayer.translatePolygonVertex(
-                    this.movePointIndex, c2, false);
             break;
         }
         }
@@ -449,7 +453,7 @@ public class WarngenUIManager extends InputAdapter {
 
                 warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                 try {
-                    warngenLayer.updateWarnedAreas(true, true);
+                    warngenLayer.updateWarnedAreas(true);
                 } catch (VizException e) {
                     Status s = new Status(Status.ERROR, Activator.PLUGIN_ID,
                             "Error updating warned area", e);
@@ -589,7 +593,7 @@ public class WarngenUIManager extends InputAdapter {
                     Polygon newPoly = gf.createPolygon(newLs, null);
                     warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                     try {
-                        warngenLayer.updateWarnedAreas(true, true);
+                        warngenLayer.updateWarnedAreas(true);
                     } catch (VizException e) {
                         Status s = new Status(Status.ERROR,
                                 Activator.PLUGIN_ID,

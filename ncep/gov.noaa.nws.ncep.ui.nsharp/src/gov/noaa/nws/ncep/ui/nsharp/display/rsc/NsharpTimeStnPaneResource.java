@@ -193,7 +193,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			numTimeLineToShowPerPage=1;
     	}
     	int startIndex = (curTimeLinePage-1) * numTimeLineToShowPerPage;
-    	
+    	if(startIndex<0)
+    		startIndex =0;
     	if(timeLineStateList!= null){
     		int compIndex= 1;
     		int colorIndex;
@@ -248,7 +249,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			if(compareTmIsOn && elm.timeState == NsharpConstants.State.ACTIVE && avail){
     				colorIndex = (compIndex-1)%(NsharpConstants.LINE_COMP10-NsharpConstants.LINE_COMP1+1)+ NsharpConstants.LINE_COMP1;
     				strBD = target.getStringBounds(font10, s);
-    				s ="Cp "+ compIndex;
+    				s =""+ compIndex;
     				x=x+ strBD.getWidth()*hRatio+5;
     				target.drawString(font10,s, x,
     						ly, 0.0,
@@ -325,6 +326,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			numStnToShow=1;
     	}
     	int startIndex = (rscHandler.getCurStnIdPage()-1) * numStnToShow;
+    	if(startIndex<0)
+    		startIndex =0;
         int compIndex= 1;
     	int colorIndex;
     	boolean compareStnIsOn = rscHandler.isCompareStnIsOn();
@@ -379,7 +382,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
          	if(compareStnIsOn && elm.stnState == NsharpConstants.State.ACTIVE && avail){
          		strBD = target.getStringBounds(font10, stnId);
          		colorIndex = (compIndex-1)%(NsharpConstants.LINE_COMP10-NsharpConstants.LINE_COMP1+1)+ NsharpConstants.LINE_COMP1;
-    			s ="Cp "+ compIndex;
+    			s =""+ compIndex;
     			x=x+ strBD.getWidth()*hRatio+5;
     			target.drawString(font10,s, x,
 						ly, 0.0,
@@ -472,8 +475,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 		getDescriptor().setNewPe(pe);
 	    defineCharHeight(font10);
 	    //rscHandler.setCharHeight(charHeight);
-		float prevHeight = paneHeight;
-		float prevWidth = paneWidth;
+		//float prevHeight = paneHeight;
+		//float prevWidth = paneWidth;
 		paneHeight = (int) ext.getHeight();
 		paneWidth = (int) (ext.getWidth());
 		//xRatio = xRatio* paneWidth/prevWidth;

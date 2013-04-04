@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<bundle editor="com.raytheon.viz.ui.glmap.GLMapEditor">
+	<displayList>
+		<displays xsi:type="mpeMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="false">
+						<capabilities>
+							<capability xsi:type="outlineCapability" lineStyle="SOLID"
+								outlineOn="true" outlineWidth="1" />
+							<capability xsi:type="colorableCapability"
+								colorAsString="#9b9b9b" />
+						</capabilities>
+						<resourceType>PLAN_VIEW</resourceType>
+					</loadProperties>
+					<properties renderingOrderId="MAP_OUTLINE"
+						isSystemResource="false" isBlinking="false" isMapLayer="true"
+						isHoverOn="false" opacity="1.0" isVisible="true">
+						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+					</properties>
+					<resourceData xsi:type="mapResourceGroupData">
+						<resource>
+							<loadProperties loadWithoutData="false">
+								<capabilities>
+									<capability xsi:type="outlineCapability" lineStyle="SOLID"
+										outlineOn="true" outlineWidth="1" />
+									<capability xsi:type="colorableCapability"
+										colorAsString="#9b9b9b" />
+								</capabilities>
+								<resourceType>PLAN_VIEW</resourceType>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+								<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+							</properties>
+							<resourceData xsi:type="dbMapResourceData">
+								<mapName>World</mapName>
+								<table>mapdata.world</table>
+								<geomField>the_geom</geomField>
+								<constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')
+								</constraint>
+							</resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="false">
+								<capabilities>
+									<capability xsi:type="outlineCapability" lineStyle="SOLID"
+										outlineOn="true" outlineWidth="1" />
+									<capability xsi:type="colorableCapability"
+										colorAsString="#9b9b9b" />
+								</capabilities>
+								<resourceType>PLAN_VIEW</resourceType>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+								<pdProps maxDisplayWidth="100000000" minDisplayWidth="750000" />
+							</properties>
+							<resourceData xsi:type="dbMapResourceData">
+								<mapName>State Boundaries</mapName>
+								<table>mapdata.states</table>
+								<geomField>the_geom</geomField>
+							</resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="false">
+								<capabilities>
+									<capability xsi:type="outlineCapability" lineStyle="SOLID"
+										outlineOn="true" outlineWidth="1" />
+									<capability xsi:type="colorableCapability"
+										colorAsString="#9b9b9b" />
+								</capabilities>
+								<resourceType>PLAN_VIEW</resourceType>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+								<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+							</properties>
+							<resourceData xsi:type="dbMapResourceData">
+								<mapName>Canada</mapName>
+								<table>mapdata.canada</table>
+								<geomField>the_geom</geomField>
+							</resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="false">
+								<capabilities>
+									<capability xsi:type="outlineCapability" lineStyle="SOLID"
+										outlineOn="true" outlineWidth="1" />
+									<capability xsi:type="colorableCapability"
+										colorAsString="#9b9b9b" />
+								</capabilities>
+								<resourceType>PLAN_VIEW</resourceType>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+								<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+							</properties>
+							<resourceData xsi:type="dbMapResourceData">
+								<mapName>Mexico</mapName>
+								<table>mapdata.mexico</table>
+								<geomField>the_geom</geomField>
+							</resourceData>
+						</resource>
+						<resource>
+							<loadProperties loadWithoutData="false">
+								<capabilities>
+									<capability xsi:type="outlineCapability" lineStyle="SOLID"
+										outlineOn="true" outlineWidth="1" />
+									<capability xsi:type="colorableCapability"
+										colorAsString="#9b9b9b" />
+								</capabilities>
+								<resourceType>PLAN_VIEW</resourceType>
+							</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+								<pdProps maxDisplayWidth="750000" minDisplayWidth="0" />
+							</properties>
+							<resourceData xsi:type="dbMapResourceData">
+								<mapName>County Boundaries</mapName>
+								<table>mapdata.county</table>
+							</resourceData>
+						</resource>
+						<mapName>State/County Boundaries</mapName>
+					</resourceData>
+				</resource>
+				<gridGeometry envelopeMaxY="4023747.8031403385"
+					envelopeMinY="-535763.0304681085" envelopeMaxX="2889016.9103023135"
+					envelopeMinX="-3217360.2108624117" rangeY="0 9999" rangeX="0 13391">
+					<CRS>PROJCS["Lambert_Conformal_Conic_1SP",
+						GEOGCS["WGS84(DD)",
+						DATUM["WGS84",
+						SPHEROID["WGS84", 6378137.0, 298.257223563]],
+						PRIMEM["Greenwich", 0.0],
+						UNIT["degree", 0.017453292519943295],
+						AXIS["Geodetic longitude", EAST],
+						AXIS["Geodetic latitude", NORTH]],
+						PROJECTION["Lambert_Conformal_Conic_1SP"],
+						PARAMETER["semi_major", 6371200.0],
+						PARAMETER["semi_minor", 6371200.0],
+						PARAMETER["central_meridian", -95.0],
+						PARAMETER["latitude_of_origin", 25.0],
+						PARAMETER["false_easting", 0.0],
+						PARAMETER["false_northing", 0.0],
+						UNIT["m", 1.0],
+						AXIS["Easting", EAST],
+						AXIS["Northing", NORTH]]</CRS>
+				</gridGeometry>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>
