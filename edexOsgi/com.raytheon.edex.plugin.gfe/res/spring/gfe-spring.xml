@@ -72,10 +72,15 @@
             <from uri="timer://smartInitTimer?fixedRate=true&amp;period=30000" />           
             <bean ref="smartInitQueue" method="fireSmartInit" />                                
         </route>
+	</camelContext>
+		
+  	<camelContext id="clusteredGfeIngestRoutes"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
 
-        <!--  gfeIngestNotification not clustered and has two threads to read due to throughput of messages during model run times -->
+        <!--  gfeIngestNotification must be a singleton and has 4 threads to read due to throughput of messages during model run times -->
         <route id="gfeIngestNotification">
-            <from uri="jms-generic:queue:gfeDataURINotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=2" />
+            <from uri="jms-generic:queue:gfeDataURINotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=4" />
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift" />
                 <bean ref="gfeIngestFilter" method="filterDataURINotifications" />
@@ -86,11 +91,6 @@
                 </doCatch>
             </doTry>
         </route>
-	</camelContext>
-		
-  	<camelContext id="clusteredGfeIngestRoutes"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
 
 		<!-- Smart Init Routes -->
 		<!--  main route now handled through the gfeIngestNotification -->
