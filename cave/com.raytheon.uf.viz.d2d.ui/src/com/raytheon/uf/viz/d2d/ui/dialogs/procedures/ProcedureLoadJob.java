@@ -28,12 +28,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
+import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -54,8 +50,6 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 
 public class ProcedureLoadJob {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ProcedureLoadJob.class);
 
     private static final ProcedureLoadJob instance = new ProcedureLoadJob();
 
@@ -79,12 +73,7 @@ public class ProcedureLoadJob {
                     AbstractEditor editor = entry.getKey();
                     Bundle b = entry.getValue();
 
-                    try {
-                        LoadSerializedXml.loadTo(editor, b);
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error loading bundle", e);
-                    }
+                    new BundleLoader(editor, b).run();
                 }
             }
 

@@ -7,8 +7,9 @@
 GLEVEL =  0!0!0!500:1000!500:1000!850:700
 GVCORD =  none!none!none!PRES!PRES!PRES
 SKIP   =    0!0!0!0!0!0/1;-1
+FILTER=y
 SCALE  =   0!0!0!-1!-1!0
-GDPFUN =  quo(pwtr;25.4)//pw!pw!mul(1e-2,pmsl)!ldf(hght)//tk!tk! vsub(squo(2,vadd(vlav(wnd,vlav(wnd@500:300)),wnd@850))
+GDPFUN =  quo(pwtr;25.4)//pw!pw!pmsl!ldf(hght)//tk!tk! vsub(squo(2,vadd(vlav(wnd,vlav(wnd@500:300)),wnd@850))
 TYPE   =    c!c/f!c!c ! c ! b
 CINT   =    0.25/0.25/0.5!0.25/0.75/6.0!4!3/0/540!3/543/1000
 LINE   =    22///2!32//2/2!6//3!4/5/2!5/5/2
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ PW, MSL PRESSURE, THICKNESS, C-VEC!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

@@ -124,6 +124,8 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
  * 03/12        #610        J. Wu		Restore issue/until times for GFA smears.
  * 05/12        #808        J. Wu		Remove SnapUtil from converting GFA.
  * 06/12	    #734        J. Zeng     Add converter for spenes
+ * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
+ * 
  * </pre>
  * 
  * @author	J. Wu
@@ -657,11 +659,17 @@ public class ProductConverter {
 
 				Coordinate gfaTextCoordinate = new Coordinate(fgfa.getLonText(), fgfa.getLatText());
 
+				String haz = nvl(fgfa.getHazard());
+				if ( haz.equalsIgnoreCase("IFR") ) {
+					haz = new String("C&V");
+				}
+				
 				Gfa gfa = new Gfa(null, clr, fgfa.getLineWidth(), fgfa.getSizeScale(), fgfa
 						.isClosed(), fgfa.isFilled(), linePoints, gfaTextCoordinate, fgfa
 						.getSmoothFactor(), FillPattern.valueOf(fgfa.getFillPattern()), fgfa
-						.getPgenCategory(), fgfa.getPgenType(), fgfa.getHazard(), fgfa.getFcstHr(),
-						fgfa.getTag(), fgfa.getDesk(), fgfa.getIssueType(), fgfa.getCycleDay(), fgfa.getCycleHour(), fgfa.getType(),
+						.getPgenCategory(), fgfa.getPgenType(), haz, fgfa.getFcstHr(),
+						fgfa.getTag(), fgfa.getDesk(), fgfa.getIssueType(), fgfa.getCycleDay(), 
+						fgfa.getCycleHour(), fgfa.getType(),
 						fgfa.getArea(), fgfa.getBeginning(), fgfa.getEnding(), fgfa.getStates());
 
 				gfa.setGfaValue(Gfa.GR, fgfa.getGr());
@@ -686,13 +694,38 @@ public class ProductConverter {
 					gfa.setGfaValue("Type", fgfa.getType());
 				}
 				
-				String vorText = fgfa.getTextVor();
-				if ( vorText != null ) {
-					gfa.setGfaVorText( vorText );
+				String cig = fgfa.getCig();
+				if ( cig != null ) {
+				    gfa.setGfaValue(Gfa.CIG, fgfa.getCig());
+			    }
+			    else {
+			    	gfa.setGfaValue(Gfa.CIG, "");
+			    }
+
+				String vis = fgfa.getVis();
+				if ( vis != null ) {
+				    gfa.setGfaValue(Gfa.VIS, fgfa.getVis());
 				}
 				else {
-					gfa.setGfaVorText( "" );
+			    	gfa.setGfaValue(Gfa.VIS, "");
 				}
+				
+				String airmetTag = fgfa.getAirmetTag();
+				if ( airmetTag != null ) {
+					gfa.setGfaValue(Gfa.AIRMET_TAG, airmetTag );
+				}
+				else {
+					String prefix = "";
+					if ( gfa.getGfaHazard().equals( "TURB-HI") ) {
+						prefix = "H";
+					}
+					else if ( gfa.getGfaHazard().equals( "TURB-LO") ) {
+						prefix = "L";
+					}
+
+					gfa.setGfaValue(Gfa.AIRMET_TAG, new String( prefix+gfa.getGfaTag()+gfa.getGfaDesk() ) );					
+				}
+				
 				
 				String timeStr = fgfa.getIssueTime();
 				if ( timeStr != null && timeStr.trim().length() >= 6 ) {
@@ -718,6 +751,19 @@ public class ProductConverter {
 					untilTimeCal.set(Calendar.MINUTE, min);
 					untilTimeCal.set(Calendar.SECOND, 0);
 					gfa.addAttribute(Gfa.UNTIL_TIME, untilTimeCal );
+				}
+
+				String timeStr3 = fgfa.getOutlookEndTime();
+				if ( timeStr3 != null && timeStr3.trim().length() >= 6 ) {
+					Calendar otlkEndTimeCal = Calendar.getInstance();
+					int day = Integer.parseInt(timeStr.substring(0, 2) );
+					int hour = Integer.parseInt(timeStr.substring(2, 4) );
+					int min = Integer.parseInt(timeStr.substring(4) );
+					otlkEndTimeCal.set(Calendar.DAY_OF_MONTH, day);
+					otlkEndTimeCal.set(Calendar.HOUR_OF_DAY, hour);
+					otlkEndTimeCal.set(Calendar.MINUTE, min);
+					otlkEndTimeCal.set(Calendar.SECOND, 0);
+					gfa.addAttribute(Gfa.OUTLOOK_END_TIME, otlkEndTimeCal );
 				}
 
 				des.add(gfa);
@@ -927,7 +973,13 @@ public class ProductConverter {
 							fgfa.setLatText(e.getGfaTextCoordinate().y);
 							fgfa.setLonText(e.getGfaTextCoordinate().x);
 						}
-						fgfa.setHazard(nvl(e.getGfaHazard()));
+						
+						String haz = nvl(e.getGfaHazard());
+						if ( haz.equalsIgnoreCase("C&V") ) {
+							haz = new String("IFR");
+						}
+						fgfa.setHazard( haz );						
+						
 						fgfa.setFcstHr(nvl(e.getGfaFcstHr()));
 						fgfa.setTag(nvl(e.getGfaTag()));
 						fgfa.setDesk(nvl(e.getGfaDesk()));
@@ -957,15 +1009,41 @@ public class ProductConverter {
 						if("ICE".equals(e.getGfaHazard())){
 							fgfa.setType(nvl(e.getGfaValue("Type")));
 						}
+                        
+						fgfa.setCig(nvl(e.getGfaValue(Gfa.CIG)));
+						fgfa.setVis(nvl(e.getGfaValue(Gfa.VIS)));
+										
+						if ( e.getGfaValue(Gfa.AIRMET_TAG)!= null ) {
+						    fgfa.setAirmetTag( e.getGfaValue(Gfa.AIRMET_TAG));
+						}
+						else {
+							String prefix = "";
+							if ( e.getGfaHazard().equals( "TURB-HI") ) {
+								prefix = "H";
+							}
+							else if ( e.getGfaHazard().equals( "TURB-LO") ) {
+								prefix = "L";
+							}
+
+							fgfa.setAirmetTag( new String( prefix+e.getGfaTag()+e.getGfaDesk() ) );					
+						}
+
 						Calendar cal = e.getAttribute(Gfa.ISSUE_TIME, Calendar.class);
 						SimpleDateFormat sdf = new SimpleDateFormat("ddHHmm");
 						if(cal != null) {
 							fgfa.setIssueTime(sdf.format(cal.getTime()));
 						}
+
 						cal = e.getAttribute(Gfa.UNTIL_TIME, Calendar.class);
 						if(cal != null) {
 							fgfa.setUntilTime(sdf.format(cal.getTime()));
 						}
+
+						cal = e.getAttribute(Gfa.OUTLOOK_END_TIME, Calendar.class);
+						if(cal != null) {
+							fgfa.setOutlookEndTime(sdf.format(cal.getTime()));
+						}
+						
 						if (e.getAttribute(GfaRules.WORDING) != null) {
 							GfaWording w = e.getAttribute(GfaRules.WORDING, GfaWording.class);
 							fgfa.setFromCondsDvlpg(GfaRules.replacePlusWithCycle(w

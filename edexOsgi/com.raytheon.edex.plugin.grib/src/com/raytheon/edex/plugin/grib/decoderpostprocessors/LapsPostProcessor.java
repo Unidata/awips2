@@ -20,14 +20,12 @@
 
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.common.parameter.Parameter;
 
 /**
  * Adjusts the LAPS Grib data to have to correct level information
@@ -56,46 +54,39 @@ public class LapsPostProcessor implements IDecoderPostProcessor {
     private static final String MSLP = "MSLP";
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
-        String levelName = record.getModelInfo().getLevel().getMasterLevel()
-                .getName();
-        GribModel gribModel = record.getModelInfo();
+        String levelName = record.getLevel().getMasterLevel().getName();
         boolean modelInfoModified = false;
         if (levelName.equals(FHAG)) {
             try {
                 Level sfcLevel = LevelFactory.getInstance().getLevel(SFC, 0);
-                gribModel.setLevel(sfcLevel);
+                record.setLevel(sfcLevel);
                 modelInfoModified = true;
             } catch (CommunicationException e) {
                 throw new GribException("Error modifying LAPS records.", e);
             }
         }
 
-        if (gribModel.getParameterAbbreviation().equals(PMSL)) {
-            gribModel.setParameterAbbreviation(MSLP);
+        if (record.getParameter().getAbbreviation().equals(PMSL)) {
+            Parameter param = new Parameter(MSLP, "Mean Sea Level Pressure",
+                    record.getParameter().getUnit());
+            record.setParameter(param);
             modelInfoModified = true;
         }
 
         if (modelInfoModified) {
+            record.getInfo().setId(null);
+            record.setDataURI(null);
             try {
-                gribModel.generateId();
-                GribModel cachedModel = GribModelCache.getInstance().getModel(
-                        gribModel);
-                record.setModelInfo(cachedModel);
-                record.setDataURI(null);
-                try {
-                    record.constructDataURI();
-                } catch (Exception e) {
-                    throw new GribException(
-                            "Error creating new dataURI for LAPS data!", e);
-                }
-            } catch (DataAccessLayerException e) {
-                throw new GribException("Error modifying LAPS levels!", e);
+                record.constructDataURI();
+            } catch (Exception e) {
+                throw new GribException(
+                        "Error creating new dataURI for LAPS data!", e);
             }
         }
 
         record.setOverwriteAllowed(true);
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

@@ -5,6 +5,9 @@
  */
 package gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData;
@@ -22,6 +25,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.time.DataTime;
+
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.RGBColorAdapter;
@@ -29,6 +34,13 @@ import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData;
 import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.EditElement;
 import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscResourceAttr;
 import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscRscAttrs;
+import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
+
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
 /**
  * <pre>
  * StormTrackResourceData - Creates and updates the elements of the Storm Track edit dialog. 
@@ -36,8 +48,9 @@ import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscRscAttrs;
   * SOFTWARE HISTORY
  *    Date                Ticket#     Engineer         Description
  * ------------          ------------   ------------- --------------------------
- * 11-Oct-2011        ---        sgilbert          Initial creation.
+ * 11-Oct-2011                           sgilbert          Initial creation.
  * 25 Oct 2011                   bhebbard          Add TD/Gale/TS/Hurricane attributes
+ * 01 Oct 2012             #860	         ghull             replace hardcoded modelNames
  * 
  * </pre>
  * @author sgilbert
@@ -49,1591 +62,1478 @@ import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscRscAttrs;
 public class StormTrackResourceData  extends	AbstractNatlCntrsRequestableResourceData implements IMiscResourceData,
 INatlCntrsResourceData{
 
-	@XmlElement
-	protected String legendName;
+	ColorBar windSpeedColorBar = new ColorBar(); {
+		windSpeedColorBar.setAnchorLoc( ColorBarAnchorLocation.LowerLeft );
+		windSpeedColorBar.setOrientation( ColorBarOrientation.Vertical );
+		windSpeedColorBar.setLengthAsRatio( .3f );
+		windSpeedColorBar.setWidthInPixels( 10 );
+		windSpeedColorBar.setDrawToScale( false );
+		windSpeedColorBar.addColorBarInterval( 0.0f, 34.0f,  new RGB( 0,0,0 ) );
+		windSpeedColorBar.addColorBarInterval( 34.0f, 48.0f, new RGB( 0,0,0 ) );
+		windSpeedColorBar.addColorBarInterval( 48.0f, 64.0f, new RGB( 0,0,0 ) );
+		windSpeedColorBar.addColorBarInterval( 64.0f, 200.0f, new RGB( 0,0,0 ) );
+		// units currently not supported by the ColorBar but set this anyway 
+		windSpeedColorBar.setDataUnits( NonSI.KNOT );
+		windSpeedColorBar.setNumDecimals(1);
+	}	
 	
-//	--------Trop Depression attributes-----------------------------------
-	@XmlElement
-	protected boolean tropDepressionEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB tropDepressionColor;
-
-	@XmlElement
-	protected float tropDepressionUpperLimit;
+	protected Boolean[] windSpeedCatEnable = new Boolean[] { true, true, true, true };
 	
-//	--------Gale attributes-----------------------------------
-	@XmlElement
-	protected boolean galeEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB galeColor;
-
-	@XmlElement
-	protected float galeUpperLimit;
+//	@XmlElement
+//	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+//	protected RGB color;
 	
-//	--------Trop Storm attributes-----------------------------------
-	@XmlElement
-	protected boolean tropStormEnable;
+	@Override
+	public RGB getLegendColor() {		
+		return getModel01Color();
+	}
 
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB tropStormColor;
+	public static class ModelDisplayAttrs {
+		String  modelName="";
+		String  cycloneID="";
+		Boolean enabled=false;
+		RGB     color;
+		Integer lineWidth;
+		Float   symbolSize;
+//		double   symbolScale;
+	}
 
-	@XmlElement
-	protected float tropStormUpperLimit;
+	final static int MAX_NUM_MODELS = 20;
+	private ModelDisplayAttrs[] modelDisplayAttrs = new ModelDisplayAttrs[MAX_NUM_MODELS];
 	
-//	--------Hurricane attributes-----------------------------------
-	@XmlElement
-	protected boolean hurricaneEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB hurricaneColor;
-
-	@XmlElement
-	protected float hurricaneUpperLimit;
-	
-//	--------GFSO attributes-----------------------------------
-	@XmlElement
-	protected boolean gfsoEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB gfsoColor;
-
-	@XmlElement
-	protected int gfsoLineWidth;
-
-	@XmlElement
-	protected int gfsoSymbolWidth;
-
-	@XmlElement
-	protected float gfsoSymbolSize;
-	
-	
-//---------------NAM Attributes-------------------
-	
-	@XmlElement
-	protected boolean namEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB namColor;
-
-	@XmlElement
-	protected int namLineWidth;
-
-	@XmlElement
-	protected int namSymbolWidth;
-
-	@XmlElement
-	protected float namSymbolSize;
-	
-//------------------UKX---------------------
-	@XmlElement
-	protected boolean ukxEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ukxColor;
-
-	@XmlElement
-	protected int ukxLineWidth;
-
-	@XmlElement
-	protected int ukxSymbolWidth;
-
-	@XmlElement
-	protected float ukxSymbolSize;
-	
-//-------------NGX-----------------------
-	@XmlElement
-	protected boolean ngxEnable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ngxColor;
-
-	@XmlElement
-	protected int ngxLineWidth;
-
-	@XmlElement
-	protected int ngxSymbolWidth;
-
-	@XmlElement
-	protected float ngxSymbolSize;
-	
-//----------------EC00-------------------
-	@XmlElement
-	protected boolean ec00Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ec00Color;
-
-	@XmlElement
-	protected int ec00LineWidth;
-
-	@XmlElement
-	protected int ec00SymbolWidth;
-
-	@XmlElement
-	protected float ec00SymbolSize;
-	//----------------EP01----------------------
-	@XmlElement
-	protected boolean ep01Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep01Color;
-
-	@XmlElement
-	protected int ep01LineWidth;
-
-	@XmlElement
-	protected int ep01SymbolWidth;
-
-	@XmlElement
-	protected float ep01SymbolSize;
-	//----------------EP02------------------
-	@XmlElement
-	protected boolean ep02Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep02Color;
-
-	@XmlElement
-	protected int ep02LineWidth;
-
-	@XmlElement
-	protected int ep02SymbolWidth;
-
-	@XmlElement
-	protected float ep02SymbolSize;	
-	
-	//-----------EP03----------------
-	@XmlElement
-	protected boolean ep03Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep03Color;
-
-	@XmlElement
-	protected int ep03LineWidth;
-
-	@XmlElement
-	protected int ep03SymbolWidth;
-
-	@XmlElement
-	protected float ep03SymbolSize;
-	
-	//------------EP04----------------
-	@XmlElement
-	protected boolean ep04Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep04Color;
-
-	@XmlElement
-	protected int ep04LineWidth;
-
-	@XmlElement
-	protected int ep04SymbolWidth;
-
-	@XmlElement
-	protected float ep04SymbolSize;
-	
-	//-------------EP05---------------
-	@XmlElement
-	protected boolean ep05Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep05Color;
-
-	@XmlElement
-	protected int ep05LineWidth;
-
-	@XmlElement
-	protected int ep05SymbolWidth;
-
-	@XmlElement
-	protected float ep05SymbolSize;
-	
-	//-------------EP06--------------
-	@XmlElement
-	protected boolean ep06Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep06Color;
-
-	@XmlElement
-	protected int ep06LineWidth;
-
-	@XmlElement
-	protected int ep06SymbolWidth;
-
-	@XmlElement
-	protected float ep06SymbolSize;
-	
-	//------------------EP07------------------
-	@XmlElement
-	protected boolean ep07Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep07Color;
-
-	@XmlElement
-	protected int ep07LineWidth;
-
-	@XmlElement
-	protected int ep07SymbolWidth;
-
-	@XmlElement
-	protected float ep07SymbolSize;
-	
-	//-----------------EP08-------------------
-	@XmlElement
-	protected boolean ep08Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep08Color;
-
-	@XmlElement
-	protected int ep08LineWidth;
-
-	@XmlElement
-	protected int ep08SymbolWidth;
-
-	@XmlElement
-	protected float ep08SymbolSize;
-	
-	//-----------------EP09-------------------
-	@XmlElement
-	protected boolean ep09Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep09Color;
-
-	@XmlElement
-	protected int ep09LineWidth;
-
-	@XmlElement
-	protected int ep09SymbolWidth;
-
-	@XmlElement
-	protected float ep09SymbolSize;
-	
-	//-----------------EP10-------------------
-	@XmlElement
-	protected boolean ep10Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep10Color;
-
-	@XmlElement
-	protected int ep10LineWidth;
-
-	@XmlElement
-	protected int ep10SymbolWidth;
-
-	@XmlElement
-	protected float ep10SymbolSize;
-	
-	//----------------EP11-------------------
-	@XmlElement
-	protected boolean ep11Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep11Color;
-
-	@XmlElement
-	protected int ep11LineWidth;
-
-	@XmlElement
-	protected int ep11SymbolWidth;
-
-	@XmlElement
-	protected float ep11SymbolSize;
-	
-	//-----------------EP12-----------------
-	@XmlElement
-	protected boolean ep12Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep12Color;
-
-	@XmlElement
-	protected int ep12LineWidth;
-
-	@XmlElement
-	protected int ep12SymbolWidth;
-
-	@XmlElement
-	protected float ep12SymbolSize;
-	
-	//-----------------EP13------------------
-	@XmlElement
-	protected boolean ep13Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep13Color;
-
-	@XmlElement
-	protected int ep13LineWidth;
-
-	@XmlElement
-	protected int ep13SymbolWidth;
-
-	@XmlElement
-	protected float ep13SymbolSize;
-	
-	//-----------------EP14-------------------
-	@XmlElement
-	protected boolean ep14Enable;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(RGBColorAdapter.class)
-	protected RGB ep14Color;
-
-	@XmlElement
-	protected int ep14LineWidth;
-
-	@XmlElement
-	protected int ep14SymbolWidth;
-
-	@XmlElement
-	protected float ep14SymbolSize;
+	public ModelDisplayAttrs[] getModelDisplayAttributes() {
+		return modelDisplayAttrs;
+	}
+
+	// the times in the db have the forecast hours set. This works and is needed for the forecast version of the storm track 
+	// resource but this is a problem for the regular (ie legacy version) that generates the timeline from the cycle times.
+	// In this case we will return the available times list with only the cycle times.
+	//
+	@Override
+	public List<DataTime> getAvailableDataTimes( ) {
+
+		List<DataTime> times = super.getAvailableDataTimes(); 
+		if( isForecastResource() ) {
+			return times;
+		}
+		else {
+			List<DataTime> refTimes = new ArrayList<DataTime>();
+			for( DataTime dt : times ) {
+				dt = new DataTime( dt.getRefTime() );
+				if( !refTimes.contains( dt ) ) {
+					refTimes.add( dt );
+				}
+			}
+			return refTimes;
+		}
+	}
 	
 	//------------------------------------------------------
+
+	@XmlElement
+	protected boolean colorCodeByWindSpeed; 
+
+	@XmlElement
+	protected boolean drawBeginDateTime;
 	
 	@XmlElement
-	protected boolean dateTimeEnable;
+	protected boolean drawForecastHour;
 
 	@XmlElement
-	protected boolean pressureEnable;
+	protected boolean drawPressure;
+
+	@XmlElement
+	protected boolean drawWindSpeed;
 	
 	@XmlElement
-	protected boolean colorCodeEnable; 
+	protected boolean drawModelName;
 
 	@XmlElement
-	protected boolean markerEnable;
+	protected boolean drawCycloneID;
 
-    /**
-	 * Default Constructor
-	 * 
-	 * @throws VizException
-	 */
+	@XmlElement
+	protected boolean drawMarker;
+
+	// only draw the given forecast hour
+	@XmlElement
+	protected boolean forecastHourEnable;
+
+	@XmlElement
+	protected Integer forecastHour;
+	
+	public boolean getForecastHourEnable() {
+		return forecastHourEnable;
+	}
+	
+	public void setForecastHourEnable(boolean forecastHourEnable) {
+		this.forecastHourEnable = forecastHourEnable;
+	}
+	
+	public Integer getForecastHour() {
+		return forecastHour;
+	}
+
+	public void setForecastHour(Integer forecastHour) {
+		this.forecastHour = forecastHour;
+	}
+
+	@XmlElement
+	protected String legend="StormTrack";
+
+	public String getLegend() {
+		return legend;
+	}
+
+	public void setLegend(String legend) {
+		this.legend = legend;
+	}
+	
 	public StormTrackResourceData() throws VizException {
 		super();
-//		System.out.println("Default StormTrackResource constructor - after invoking base class constructor");
 		this.nameGenerator = new AbstractNameGenerator() {
 			@Override
 			public String getName(AbstractVizResource<?, ?> resource) {
-				if (legendName != null) {
-					return legendName;
-				}
-				return "Storm Track";
+				return legend;
 			}
 		};
 	}	
-	
+
 //	@Override
 	protected AbstractVizResource<?, ?> constructResource(
 			LoadProperties loadProperties,
 			PluginDataObject[] objects){
 		StormTrackResource thisResource = new StormTrackResource(this,loadProperties);
-//		System.out.println("StormTrackResourceData constructor - after creating StormTrackResource Object");
 		return thisResource;
 	}
 
 	@Override
 	public MiscRscAttrs getMiscResourceAttrs() {
-		MiscRscAttrs attrs = new MiscRscAttrs(11);
+		MiscRscAttrs attrs = new MiscRscAttrs(9);
 
-		/*
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Model Name", EditElement.LABEL, 1));			
+
+		attrs.addAttr(new MiscResourceAttr(null,
+				"  Line Width", EditElement.LABEL, 3));			
+	
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Marker Size", EditElement.LABEL, 4));			
+
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Model Name", EditElement.LABEL, 6));			
+
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Line Width     ", EditElement.LABEL, 8));			
+
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Marker Size", EditElement.LABEL, 9));			
+
+		if( !getModel01Name().isEmpty() ) {
+			attrs.addAttr(new MiscResourceAttr("model01Enable",
+					getModel01Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model01Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr( new MiscResourceAttr("model01LineWidth",
+					"", EditElement.SPINNER, 3) );
+			attrs.addAttr(new MiscResourceAttr("model01SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+	
+		if( !getModel11Name().isEmpty() ) {
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model11Enable",
+					getModel11Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model11Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model11LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model11SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel02Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model02Enable",
+					getModel02Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model02Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model02LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model02SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel12Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model12Enable",
+					getModel12Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model12Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model12LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model12SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel03Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model03Enable",
+					getModel03Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model03Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model03LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model03SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel13Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model13Enable",
+					getModel13Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model13Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model13LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model13SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel04Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model04Enable",
+					getModel04Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model04Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model04LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model04SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel14Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model14Enable",
+					getModel14Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model14Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model14LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model14SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+
+		if( !getModel05Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model05Enable",
+					getModel05Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model05Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model05LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model05SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel15Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model15Enable",
+					getModel15Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model15Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model15LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model15SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel06Name().isEmpty() ) {
+			attrs.addAttr(new MiscResourceAttr("model06Enable",
+					getModel06Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model06Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model06LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model06SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel16Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model16Enable",
+					getModel16Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model16Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model16LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model16SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel07Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model07Enable",
+					getModel07Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model07Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model07LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model07SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+	
+		if( !getModel17Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model17Enable",
+					getModel17Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model17Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model17LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model17SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel08Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model08Enable",
+					getModel08Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model08Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model08LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model08SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel18Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model18Enable",
+					getModel18Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model18Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model18LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model18SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		if( !getModel09Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model09Enable",
+					getModel09Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model09Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model09LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model09SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel19Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model19Enable",
+					getModel19Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model19Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model19LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model19SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+	
+		if( !getModel10Name().isEmpty() ) {		
+			attrs.addAttr(new MiscResourceAttr("model10Enable",
+					getModel10Name(), EditElement.CHECK_BOX, 1));
+			attrs.addAttr(new MiscResourceAttr("model10Color", "",
+					EditElement.COLOR_SELECTOR, 2));
+			attrs.addAttr(new MiscResourceAttr("model10LineWidth",
+					"", EditElement.SPINNER, 3));
+			attrs.addAttr(new MiscResourceAttr("model10SymbolSize",
+					"", EditElement.SPINNER, 4));
+		}
+
+		if( !getModel20Name().isEmpty() ) {
+			attrs.addAttr(new MiscResourceAttr(null,
+					null, EditElement.VERTICAL_SEPARATOR, 5));			
+			attrs.addAttr(new MiscResourceAttr("model20Enable",
+					getModel20Name(), EditElement.CHECK_BOX, 6));
+			attrs.addAttr(new MiscResourceAttr("model20Color", "",
+					EditElement.COLOR_SELECTOR, 7));
+			attrs.addAttr(new MiscResourceAttr("model20LineWidth",
+					"", EditElement.SPINNER, 8));
+			attrs.addAttr(new MiscResourceAttr("model20SymbolSize",
+					"", EditElement.SPINNER, 9));
+		}
+
+		attrs.addAttr(new MiscResourceAttr(null, null,
+				EditElement.SEPARATOR, 1 ));	
+
+		attrs.addAttr(new MiscResourceAttr("colorCodeByWindSpeed", "Color Code by",
+				EditElement.CHECK_BOX, 1));
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Wind Speed", EditElement.LABEL, 2));			
+
+		attrs.addAttr(new MiscResourceAttr("forecastHourEnable",
+				"Only Draw\nForecast Hour", EditElement.CHECK_BOX, 6));
+		MiscResourceAttr fcstHrSpnr = new MiscResourceAttr("forecastHour",
+				"", EditElement.SPINNER, 7);
+		fcstHrSpnr.setSpinnerControls(0, 0, 384, 3, 12 );
+		attrs.addAttr( fcstHrSpnr ); 
+	
+		attrs.addAttr(new MiscResourceAttr(null, null,
+				EditElement.SEPARATOR, 1));	
+
+		// 2 LABELS to avoid forcing column 1 to be too wide
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Wind Speed", EditElement.LABEL, 1));			
+
+//		attrs.addAttr(new MiscResourceAttr("colorCodeByWindSpeed", "Color Code",
+//				EditElement.CHECK_BOX, 6));
+//		attrs.addAttr(new MiscResourceAttr(null,
+//				"by Wind Speed", EditElement.LABEL, 7));			
+
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Category", EditElement.LABEL, 1));			
+
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Upper Limit (kt)", EditElement.LABEL, 3));			
+	
+		attrs.addAttr(new MiscResourceAttr(null,
+				"Enable Display of:", EditElement.LABEL, 6));			
+
+
 		attrs.addAttr(new MiscResourceAttr("tropDepressionEnable",
-				"Trop Depression", EditElement.CHECK_BOX, 1));
+				"Tropical     \nDepression", EditElement.CHECK_BOX, 1));
 		attrs.addAttr(new MiscResourceAttr("tropDepressionColor", "",
 				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("tropDepressionUpperLimit",
-				"Upper Limit (kt)", EditElement.SPINNER, 3));
+		MiscResourceAttr maxWindSpeedSpnr = new MiscResourceAttr("tropDepressionUpperLimit",
+				"", EditElement.SPINNER, 3);
+		maxWindSpeedSpnr.setSpinnerControls(1, 0, 2500, 10, 100 );
+		attrs.addAttr( maxWindSpeedSpnr ); 
+
+
+		attrs.addAttr(new MiscResourceAttr("drawBeginDateTime", "Begin Date/Time",
+				EditElement.CHECK_BOX, 6));
+	
+
+		attrs.addAttr(new MiscResourceAttr("drawForecastHour", "Forecast Hr",
+				EditElement.CHECK_BOX, 8));	
+
 
 		attrs.addAttr(new MiscResourceAttr("galeEnable",
 				"Gale", EditElement.CHECK_BOX, 1));
 		attrs.addAttr(new MiscResourceAttr("galeColor", "",
 				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("galeUpperLimit",
-				"Upper Limit (kt)", EditElement.SPINNER, 3));
+		maxWindSpeedSpnr = new MiscResourceAttr("galeUpperLimit",
+				"", EditElement.SPINNER, 3);
+		maxWindSpeedSpnr.setSpinnerControls(1, 0, 2500, 10, 100 );
+
+		attrs.addAttr( maxWindSpeedSpnr ); 
+	
+		attrs.addAttr(new MiscResourceAttr("drawPressure", "Pressure",
+				EditElement.CHECK_BOX, 6));	
+
+		attrs.addAttr(new MiscResourceAttr("drawWindSpeed", "Wind Speed",
+				EditElement.CHECK_BOX, 8));	
 
 		attrs.addAttr(new MiscResourceAttr("tropStormEnable",
-				"Trop Storm", EditElement.CHECK_BOX, 1));
+				"Tropical\nStorm  ", EditElement.CHECK_BOX, 1));
 		attrs.addAttr(new MiscResourceAttr("tropStormColor", "",
 				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("tropStormUpperLimit",
-				"Upper Limit (kt)", EditElement.SPINNER, 3));
+		maxWindSpeedSpnr = new MiscResourceAttr("tropStormUpperLimit",
+				"", EditElement.SPINNER, 3);
+		maxWindSpeedSpnr.setSpinnerControls(1, 0, 2500, 10, 100 );
+		attrs.addAttr(maxWindSpeedSpnr );
 
+		attrs.addAttr(new MiscResourceAttr("drawModelName", "Model Name",
+				EditElement.CHECK_BOX, 6));	
+
+		attrs.addAttr(new MiscResourceAttr("drawCycloneID", "Cyclone ID",
+				EditElement.CHECK_BOX, 8));	
+	
 		attrs.addAttr(new MiscResourceAttr("hurricaneEnable",
 				"Hurricane", EditElement.CHECK_BOX, 1));
 		attrs.addAttr(new MiscResourceAttr("hurricaneColor", "",
 				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("hurricaneUpperLimit",
-				"Upper Limit (kt)", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr(null, null,
-				EditElement.SEPARATOR, 1));	
-*/		
+		maxWindSpeedSpnr = new MiscResourceAttr("hurricaneUpperLimit",
+				"", EditElement.SPINNER, 3);
+		maxWindSpeedSpnr.setSpinnerControls(1, 0, 2500, 10, 100 );;
+		attrs.addAttr(maxWindSpeedSpnr );
 
-		attrs.addAttr(new MiscResourceAttr("gfsoEnable",
-				"GFSO", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("gfsoColor", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("gfsoLineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("gfsoSymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("gfsoSymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep08Enable",
-				"EP08", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep08Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep08LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep08SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep08SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-		
-		attrs.addAttr(new MiscResourceAttr("namEnable",
-				"NAM", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("namColor", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("namLineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("namSymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("namSymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep09Enable",
-				"EP09", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep09Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep09LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep09SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep09SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-		
-		attrs.addAttr(new MiscResourceAttr("ukxEnable",
-				"UKX", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ukxColor", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ukxLineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ukxSymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ukxSymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep10Enable",
-				"EP10", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep10Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep10LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep10SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep10SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-
-		
-		attrs.addAttr(new MiscResourceAttr("ngxEnable",
-				"NGX", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ngxColor", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ngxLineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ngxSymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ngxSymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep11Enable",
-				"EP11", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep11Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep11LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep11SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep11SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-		
-		attrs.addAttr(new MiscResourceAttr("ec00Enable",
-				"EC00", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ec00Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ec00LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ec00SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ec00SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep12Enable",
-				"EP12", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep12Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep12LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep12SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep12SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-	
-		
-		attrs.addAttr(new MiscResourceAttr("ep01Enable",
-				"EP01", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep01Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep01LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep01SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep01SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep13Enable",
-				"EP13", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep13Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep13LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep13SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep13SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-		
-		attrs.addAttr(new MiscResourceAttr("ep02Enable",
-				"EP02", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep02Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep02LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep02SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep02SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null,
-				null, EditElement.VERTICAL_SEPARATOR, 6));
-		attrs.addAttr(new MiscResourceAttr("ep14Enable",
-				"EP14", EditElement.CHECK_BOX, 7));
-		attrs.addAttr(new MiscResourceAttr("ep14Color", "",
-				EditElement.COLOR_SELECTOR, 8));
-		attrs.addAttr(new MiscResourceAttr("ep14LineWidth",
-				"Line Width", EditElement.SPINNER, 9));
-		attrs.addAttr(new MiscResourceAttr("ep14SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 10));
-		attrs.addAttr(new MiscResourceAttr("ep14SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 11));
-		
-		attrs.addAttr(new MiscResourceAttr("ep03Enable",
-				"EP03", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep03Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep03LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep03SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep03SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr("ep04Enable",
-				"EP04", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep04Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep04LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep04SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep04SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr("ep05Enable",
-				"EP05", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep05Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep05LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep05SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep05SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr("ep06Enable",
-				"EP06", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep06Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep06LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep06SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep06SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr("ep07Enable",
-				"EP07", EditElement.CHECK_BOX, 1));
-		attrs.addAttr(new MiscResourceAttr("ep07Color", "",
-				EditElement.COLOR_SELECTOR, 2));
-		attrs.addAttr(new MiscResourceAttr("ep07LineWidth",
-				"Line Width", EditElement.SPINNER, 3));
-		attrs.addAttr(new MiscResourceAttr("ep07SymbolWidth",
-				"Symbol Width", EditElement.SPINNER, 4));
-		attrs.addAttr(new MiscResourceAttr("ep07SymbolSize",
-				"Symbol Size", EditElement.SPINNER, 5));
-		
-		attrs.addAttr(new MiscResourceAttr(null, null,
-				EditElement.SEPARATOR, 1));	
-		
-		attrs.addAttr(new MiscResourceAttr("dateTimeEnable", "Date/Time",
-				EditElement.CHECK_BOX, 1));
-
-		attrs.addAttr(new MiscResourceAttr("pressureEnable", "Pressure",
-				EditElement.CHECK_BOX, 1));	
-		
-		attrs.addAttr(new MiscResourceAttr("markerEnable", "Marker",
-				EditElement.CHECK_BOX, 1));			
-
-		attrs.addAttr(new MiscResourceAttr("colorCodeEnable", "ColorCode",
-				EditElement.CHECK_BOX, 1));
+		attrs.addAttr(new MiscResourceAttr("drawMarker", "Marker",
+				EditElement.CHECK_BOX, 6));			
 
 		return attrs;
 	}
 
-   public String getLegendName() {
-		return legendName;
+	public boolean getColorCodeByWindSpeed() {
+		return colorCodeByWindSpeed;
 	}
 
-	public void setLegendName(String legendName) {
-		this.legendName = legendName;
+	public void setColorCodeByWindSpeed(boolean colorCodeByWindSpeed) {
+		this.colorCodeByWindSpeed = colorCodeByWindSpeed;
+	}
+	
+	public Boolean[] getWindSpeedCatEnable() {
+		return windSpeedCatEnable;		
 	}
 
-	public boolean isTropDepressionEnable() {
-		return tropDepressionEnable;
+	@XmlElement
+	public boolean getTropDepressionEnable() {
+		return windSpeedCatEnable[0];
 	}
 
 	public void setTropDepressionEnable(boolean tropDepressionEnable) {
-		this.tropDepressionEnable = tropDepressionEnable;
+		windSpeedCatEnable[0] = tropDepressionEnable;
 	}
 
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
 	public RGB getTropDepressionColor() {
-		return tropDepressionColor;
+		return windSpeedColorBar.getRGB(0);
 	}
 
 	public void setTropDepressionColor(RGB tropDepressionColor) {
-		this.tropDepressionColor = tropDepressionColor;
+		windSpeedColorBar.setRGB(0, tropDepressionColor );
 	}
-
+	
+	@XmlElement
 	public float getTropDepressionUpperLimit() {
-		return tropDepressionUpperLimit;
+		return windSpeedColorBar.getIntervalMax(0);
 	}
 
 	public void setTropDepressionUpperLimit(float tropDepressionUpperLimit) {
-		this.tropDepressionUpperLimit = tropDepressionUpperLimit;
+		windSpeedColorBar.setIntervalMax(0, tropDepressionUpperLimit);
 	}
 
-	public boolean isGaleEnable() {
-		return galeEnable;
+	@XmlElement
+	public boolean getGaleEnable() {
+		return windSpeedCatEnable[1];
 	}
 
 	public void setGaleEnable(boolean galeEnable) {
-		this.galeEnable = galeEnable;
+		windSpeedCatEnable[1] = galeEnable;
 	}
 
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
 	public RGB getGaleColor() {
-		return galeColor;
+		return windSpeedColorBar.getRGB(1);
 	}
-
+	
 	public void setGaleColor(RGB galeColor) {
-		this.galeColor = galeColor;
+		windSpeedColorBar.setRGB(1,galeColor);
 	}
 
+	@XmlElement
 	public float getGaleUpperLimit() {
-		return galeUpperLimit;
+		return windSpeedColorBar.getIntervalMax(1);
 	}
 
 	public void setGaleUpperLimit(float galeUpperLimit) {
-		this.galeUpperLimit = galeUpperLimit;
+		windSpeedColorBar.setIntervalMax(1, galeUpperLimit);
 	}
 
-	public boolean isTropStormEnable() {
-		return tropStormEnable;
+	@XmlElement
+	public boolean getTropStormEnable() {
+		return windSpeedCatEnable[2];
 	}
 
 	public void setTropStormEnable(boolean tropStormEnable) {
-		this.tropStormEnable = tropStormEnable;
+		windSpeedCatEnable[2] = tropStormEnable;
 	}
-
+	
 	public RGB getTropStormColor() {
-		return tropStormColor;
+		return windSpeedColorBar.getRGB(2);
 	}
 
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
 	public void setTropStormColor(RGB tropStormColor) {
-		this.tropStormColor = tropStormColor;
+		windSpeedColorBar.setRGB(2, tropStormColor);
 	}
 
+	@XmlElement
 	public float getTropStormUpperLimit() {
-		return tropStormUpperLimit;
+		return windSpeedColorBar.getIntervalMax(2);
 	}
 
 	public void setTropStormUpperLimit(float tropStormUpperLimit) {
-		this.tropStormUpperLimit = tropStormUpperLimit;
-	}
+		windSpeedColorBar.setIntervalMax(2, tropStormUpperLimit);	}
 
-	public boolean isHurricaneEnable() {
-		return hurricaneEnable;
+	@XmlElement
+	public boolean getHurricaneEnable() {
+		return windSpeedCatEnable[3];
 	}
-
+	
 	public void setHurricaneEnable(boolean hurricaneEnable) {
-		this.hurricaneEnable = hurricaneEnable;
+		windSpeedCatEnable[3] = hurricaneEnable;
 	}
 
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
 	public RGB getHurricaneColor() {
-		return hurricaneColor;
+		return windSpeedColorBar.getRGB(3);
 	}
 
 	public void setHurricaneColor(RGB hurricaneColor) {
-		this.hurricaneColor = hurricaneColor;
+		windSpeedColorBar.setRGB(3, hurricaneColor);
 	}
 
+	@XmlElement
 	public float getHurricaneUpperLimit() {
-		return hurricaneUpperLimit;
-	}
-
+		return windSpeedColorBar.getIntervalMax(3);
+	}	
+	
 	public void setHurricaneUpperLimit(float hurricaneUpperLimit) {
-		this.hurricaneUpperLimit = hurricaneUpperLimit;
+		windSpeedColorBar.setIntervalMax(3, hurricaneUpperLimit);
 	}
 
-	public boolean getGfsoEnable() {
-		return gfsoEnable;
+	public ColorBar getWindSpeedColorBar( ) {
+		return windSpeedColorBar;
 	}
 
-	public void setGfsoEnable(boolean gfsoEnable) {
-		this.gfsoEnable = gfsoEnable;
+	public boolean getDrawBeginDateTime() {
+		return drawBeginDateTime;
 	}
 
-	public RGB getGfsoColor() {
-		return gfsoColor;
+	public void setDrawBeginDateTime(boolean drawBeginDateTime) {
+		this.drawBeginDateTime = drawBeginDateTime;
 	}
 
-	public void setGfsoColor(RGB gfsoColor) {
-		this.gfsoColor = gfsoColor;
+	public boolean getDrawForecastHour() {
+		return drawForecastHour;
 	}
 
-	public int getGfsoLineWidth() {
-		return gfsoLineWidth;
+	public void setDrawForecastHour(boolean drawForecaseHour) {
+		this.drawForecastHour = drawForecaseHour;
 	}
 
-	public void setGfsoLineWidth(int gfsoLineWidth) {
-		this.gfsoLineWidth = gfsoLineWidth;
+	public boolean getDrawPressure() {
+		return drawPressure;
 	}
 
-	public int getGfsoSymbolWidth() {
-		return gfsoSymbolWidth;
+	public void setDrawPressure(boolean drawPressure) {
+		this.drawPressure = drawPressure;
 	}
 
-	public void setGfsoSymbolWidth(int gfsoSymbolWidth) {
-		this.gfsoSymbolWidth = gfsoSymbolWidth;
+	public boolean getDrawWindSpeed() {
+		return drawWindSpeed;
 	}
 
-	public float getGfsoSymbolSize() {
-		return gfsoSymbolSize;
+	public void setDrawWindSpeed(boolean drawWindSpeed) {
+		this.drawWindSpeed = drawWindSpeed;
 	}
 
-	public void setGfsoSymbolSize(float gfsoSymbolSize) {
-		this.gfsoSymbolSize = gfsoSymbolSize;
+	public boolean getDrawModelName() {
+		return drawModelName;
 	}
 
-	public boolean getNamEnable() {
-		return namEnable;
+	public void setDrawModelName(boolean drawModelName) {
+		this.drawModelName = drawModelName;
 	}
 
-	public void setNamEnable(boolean namEnable) {
-		this.namEnable = namEnable;
+	public boolean getDrawCycloneID() {
+		return drawCycloneID;
 	}
 
-	public RGB getNamColor() {
-		return namColor;
+	public void setDrawCycloneID(boolean drawCycloneID) {
+		this.drawCycloneID = drawCycloneID;
 	}
 
-	public void setNamColor(RGB namColor) {
-		this.namColor = namColor;
+	public boolean getDrawMarker() {
+		return drawMarker;
 	}
 
-	public int getNamLineWidth() {
-		return namLineWidth;
+	public void setDrawMarker(boolean drawMarker) {
+		this.drawMarker = drawMarker;
 	}
 
-	public void setNamLineWidth(int namLineWidth) {
-		this.namLineWidth = namLineWidth;
-	}
 
-	public int getNamSymbolWidth() {
-		return namSymbolWidth;
+	// 
+	public Object getModelDisplayAttribute( int m, String attrName ) {
+		if( modelDisplayAttrs[m-1] == null ) {
+			modelDisplayAttrs[m-1] = new ModelDisplayAttrs();
 	}
-
-	public void setNamSymbolWidth(int namSymbolWidth) {
-		this.namSymbolWidth = namSymbolWidth;
+		if( attrName.equalsIgnoreCase("modelName") ) {
+			return modelDisplayAttrs[m-1].modelName;			
 	}
-
-	public float getNamSymbolSize() {
-		return namSymbolSize;
+		else if( attrName.equalsIgnoreCase("enabled") ) {
+			return modelDisplayAttrs[m-1].enabled;			
 	}
-
-	public void setNamSymbolSize(float namSymbolSize) {
-		this.namSymbolSize = namSymbolSize;
+		else if( attrName.equalsIgnoreCase("color") ) {
+			return modelDisplayAttrs[m-1].color;			
 	}
-
-	public boolean getUkxEnable() {
-		return ukxEnable;
+		else if( attrName.equalsIgnoreCase("lineWidth") ) {
+			return modelDisplayAttrs[m-1].lineWidth;			
 	}
-
-	public void setUkxEnable(boolean ukxEnable) {
-		this.ukxEnable = ukxEnable;
+		else if( attrName.equalsIgnoreCase("symbolSize") ) {
+			return modelDisplayAttrs[m-1].symbolSize;			
 	}
-
-	public RGB getUkxColor() {
-		return ukxColor;
+		else {
+			System.out.println("Sanity Check: Unrecognized attribut name for StormTrackResource");
+			return null;
 	}
-
-	public void setUkxColor(RGB ukxColor) {
-		this.ukxColor = ukxColor;
 	}
 
-	public int getUkxLineWidth() {
-		return ukxLineWidth;
+	// I'm going to cheat a little and key off of the attr class instead of passing in a string
+	public void setModelDisplayAttribute( int m, Object attrVal ) {
+		if( modelDisplayAttrs[m-1] == null ) {
+			modelDisplayAttrs[m-1] = new ModelDisplayAttrs();
 	}
-
-	public void setUkxLineWidth(int ukxLineWidth) {
-		this.ukxLineWidth = ukxLineWidth;
+		if( attrVal instanceof String ) {
+			modelDisplayAttrs[m-1].modelName = (String)attrVal;	
 	}
-
-	public int getUkxSymbolWidth() {
-		return ukxSymbolWidth;
+		else if( attrVal instanceof Boolean ) {
+			modelDisplayAttrs[m-1].enabled = (Boolean)attrVal;	
 	}
-
-	public void setUkxSymbolWidth(int ukxSymbolWidth) {
-		this.ukxSymbolWidth = ukxSymbolWidth;
+		else if( attrVal instanceof RGB ) {
+			modelDisplayAttrs[m-1].color = (RGB)attrVal;	
 	}
-
-	public float getUkxSymbolSize() {
-		return ukxSymbolSize;
+		else if( attrVal instanceof Integer ) {
+			modelDisplayAttrs[m-1].lineWidth = (Integer)attrVal;	
 	}
-
-	public void setUkxSymbolSize(float ukxSymbolSize) {
-		this.ukxSymbolSize = ukxSymbolSize;
+		else if( attrVal instanceof Float ) {
+			modelDisplayAttrs[m-1].symbolSize = (Float)attrVal;	
 	}
-
-	public boolean getNgxEnable() {
-		return ngxEnable;
 	}
 
-	public void setNgxEnable(boolean ngxEnable) {
-		this.ngxEnable = ngxEnable;
+	@XmlElement
+	public String getModel01Name() {
+		return (String) getModelDisplayAttribute(1,"modelName");
 	}
-
-	public RGB getNgxColor() {
-		return ngxColor;
+	@XmlElement
+	public String getModel02Name() {
+		return (String) getModelDisplayAttribute(2,"modelName");
 	}
-
-	public void setNgxColor(RGB ngxColor) {
-		this.ngxColor = ngxColor;
+	@XmlElement
+	public String getModel03Name() {
+		return (String) getModelDisplayAttribute(3,"modelName");
 	}
-
-	public int getNgxLineWidth() {
-		return ngxLineWidth;
+	@XmlElement
+	public String getModel04Name() {
+		return (String) getModelDisplayAttribute(4,"modelName");
 	}
-
-	public void setNgxLineWidth(int ngxLineWidth) {
-		this.ngxLineWidth = ngxLineWidth;
+	@XmlElement
+	public String getModel05Name() {
+		return (String) getModelDisplayAttribute(5,"modelName");
 	}
-
-	public int getNgxSymbolWidth() {
-		return ngxSymbolWidth;
+	@XmlElement
+	public String getModel06Name() {
+		return (String) getModelDisplayAttribute(6,"modelName");
 	}
-
-	public void setNgxSymbolWidth(int ngxSymbolWidth) {
-		this.ngxSymbolWidth = ngxSymbolWidth;
+	@XmlElement
+	public String getModel07Name() {
+		return (String) getModelDisplayAttribute(7,"modelName");
 	}
-
-	public float getNgxSymbolSize() {
-		return ngxSymbolSize;
+	@XmlElement
+	public String getModel08Name() {
+		return (String) getModelDisplayAttribute(8,"modelName");
 	}
-
-	public void setNgxSymbolSize(float ngxSymbolSize) {
-		this.ngxSymbolSize = ngxSymbolSize;
+	@XmlElement
+	public String getModel09Name() {
+		return (String) getModelDisplayAttribute(9,"modelName");
 	}
-
-	public boolean getEc00Enable() {
-		return ec00Enable;
+	@XmlElement
+	public String getModel10Name() {
+		return (String) getModelDisplayAttribute(10,"modelName");
 	}
-
-	public void setEc00Enable(boolean ec00Enable) {
-		this.ec00Enable = ec00Enable;
+	@XmlElement
+	public String getModel11Name() {
+		return (String) getModelDisplayAttribute(11,"modelName");
 	}
-
-	public RGB getEc00Color() {
-		return ec00Color;
+	@XmlElement
+	public String getModel12Name() {
+		return (String) getModelDisplayAttribute(12,"modelName");
 	}
-
-	public void setEc00Color(RGB ec00Color) {
-		this.ec00Color = ec00Color;
+	@XmlElement
+	public String getModel13Name() {
+		return (String) getModelDisplayAttribute(13,"modelName");
 	}
-
-	public int getEc00LineWidth() {
-		return ec00LineWidth;
+	@XmlElement
+	public String getModel14Name() {
+		return (String) getModelDisplayAttribute(14,"modelName");
 	}
-
-	public void setEc00LineWidth(int ec00LineWidth) {
-		this.ec00LineWidth = ec00LineWidth;
+	@XmlElement
+	public String getModel15Name() {
+		return (String) getModelDisplayAttribute(15,"modelName");
 	}
-
-	public int getEc00SymbolWidth() {
-		return ec00SymbolWidth;
+	@XmlElement
+	public String getModel16Name() {
+		return (String) getModelDisplayAttribute(16,"modelName");
 	}
-
-	public void setEc00SymbolWidth(int ec00SymbolWidth) {
-		this.ec00SymbolWidth = ec00SymbolWidth;
+	@XmlElement
+	public String getModel17Name() {
+		return (String) getModelDisplayAttribute(17,"modelName");
 	}
-
-	public float getEc00SymbolSize() {
-		return ec00SymbolSize;
+	@XmlElement
+	public String getModel18Name() {
+		return (String) getModelDisplayAttribute(18,"modelName");
 	}
-
-	public void setEc00SymbolSize(float ec00SymbolSize) {
-		this.ec00SymbolSize = ec00SymbolSize;
+	@XmlElement
+	public String getModel19Name() {
+		return (String) getModelDisplayAttribute(19,"modelName");
 	}
-
-	public boolean getEp01Enable() {
-		return ep01Enable;
+	@XmlElement
+	public String getModel20Name() {
+		return (String) getModelDisplayAttribute(20,"modelName");
 	}
 
-	public void setEp01Enable(boolean ep01Enable) {
-		this.ep01Enable = ep01Enable;
+	public void setModel01Name( String m ) {
+		setModelDisplayAttribute(1,m);
 	}
-
-	public RGB getEp01Color() {
-		return ep01Color;
+	public void setModel02Name( String m ) {
+		setModelDisplayAttribute(2,m);
 	}
-
-	public void setEp01Color(RGB ep01Color) {
-		this.ep01Color = ep01Color;
+	public void setModel03Name( String m ) {
+		setModelDisplayAttribute(3,m);
 	}
-
-	public int getEp01LineWidth() {
-		return ep01LineWidth;
+	public void setModel04Name( String m ) {
+		setModelDisplayAttribute(4,m);
 	}
-
-	public void setEp01LineWidth(int ep01LineWidth) {
-		this.ep01LineWidth = ep01LineWidth;
+	public void setModel05Name( String m ) {
+		setModelDisplayAttribute(5,m);
 	}
-
-	public int getEp01SymbolWidth() {
-		return ep01SymbolWidth;
+	public void setModel06Name( String m ) {
+		setModelDisplayAttribute(6,m);
 	}
-
-	public void setEp01SymbolWidth(int ep01SymbolWidth) {
-		this.ep01SymbolWidth = ep01SymbolWidth;
+	public void setModel07Name( String m ) {
+		setModelDisplayAttribute(7,m);
 	}
-
-	public float getEp01SymbolSize() {
-		return ep01SymbolSize;
+	public void setModel08Name( String m ) {
+		setModelDisplayAttribute(8,m);
 	}
-
-	public void setEp01SymbolSize(float ep01SymbolSize) {
-		this.ep01SymbolSize = ep01SymbolSize;
+	public void setModel09Name( String m ) {
+		setModelDisplayAttribute(9,m);
 	}
-
-	public boolean getEp02Enable() {
-		return ep02Enable;
+	public void setModel10Name( String m ) {
+		setModelDisplayAttribute(10,m);
 	}
-
-	public void setEp02Enable(boolean ep02Enable) {
-		this.ep02Enable = ep02Enable;
+	public void setModel11Name( String m ) {
+		setModelDisplayAttribute(11,m);
 	}
-
-	public RGB getEp02Color() {
-		return ep02Color;
+	public void setModel12Name( String m ) {
+		setModelDisplayAttribute(12,m);
 	}
-
-	public void setEp02Color(RGB ep02Color) {
-		this.ep02Color = ep02Color;
+	public void setModel13Name( String m ) {
+		setModelDisplayAttribute(13,m);
 	}
-
-	public int getEp02LineWidth() {
-		return ep02LineWidth;
+	public void setModel14Name( String m ) {
+		setModelDisplayAttribute(14,m);
 	}
-
-	public void setEp02LineWidth(int ep02LineWidth) {
-		this.ep02LineWidth = ep02LineWidth;
+	public void setModel15Name( String m ) {
+		setModelDisplayAttribute(15,m);
 	}
-
-	public int getEp02SymbolWidth() {
-		return ep02SymbolWidth;
+	public void setModel16Name( String m ) {
+		setModelDisplayAttribute(16,m);
 	}
-
-	public void setEp02SymbolWidth(int ep02SymbolWidth) {
-		this.ep02SymbolWidth = ep02SymbolWidth;
+	public void setModel17Name( String m ) {
+		setModelDisplayAttribute(17,m);
 	}
-
-	public float getEp02SymbolSize() {
-		return ep02SymbolSize;
+	public void setModel18Name( String m ) {
+		setModelDisplayAttribute(18,m);
 	}
-
-	public void setEp02SymbolSize(float ep02SymbolSize) {
-		this.ep02SymbolSize = ep02SymbolSize;
+	public void setModel19Name( String m ) {
+		setModelDisplayAttribute(19,m);
 	}
-
-	public boolean getEp03Enable() {
-		return ep03Enable;
+	public void setModel20Name( String m ) {
+		setModelDisplayAttribute(20,m);
 	}
 
-	public void setEp03Enable(boolean ep03Enable) {
-		this.ep03Enable = ep03Enable;
-	}
 
-	public RGB getEp03Color() {
-		return ep03Color;
+	@XmlElement
+	public Boolean getModel01Enable() {
+		return (Boolean) getModelDisplayAttribute(1,"enabled");
 	}
-
-	public void setEp03Color(RGB ep03Color) {
-		this.ep03Color = ep03Color;
+	@XmlElement
+	public Boolean getModel02Enable() {
+		return (Boolean) getModelDisplayAttribute(2,"enabled");
 	}
-
-	public int getEp03LineWidth() {
-		return ep03LineWidth;
+	@XmlElement
+	public Boolean getModel03Enable() {
+		return (Boolean) getModelDisplayAttribute(3,"enabled");
 	}
-
-	public void setEp03LineWidth(int ep03LineWidth) {
-		this.ep03LineWidth = ep03LineWidth;
+	@XmlElement
+	public Boolean getModel04Enable() {
+		return (Boolean) getModelDisplayAttribute(4,"enabled");
 	}
-
-	public int getEp03SymbolWidth() {
-		return ep03SymbolWidth;
+	@XmlElement
+	public Boolean getModel05Enable() {
+		return (Boolean) getModelDisplayAttribute(5,"enabled");
 	}
-
-	public void setEp03SymbolWidth(int ep03SymbolWidth) {
-		this.ep03SymbolWidth = ep03SymbolWidth;
+	@XmlElement
+	public Boolean getModel06Enable() {
+		return (Boolean) getModelDisplayAttribute(6,"enabled");
 	}
-
-	public float getEp03SymbolSize() {
-		return ep03SymbolSize;
+	@XmlElement
+	public Boolean getModel07Enable() {
+		return (Boolean) getModelDisplayAttribute(7,"enabled");
 	}
-
-	public void setEp03SymbolSize(float ep03SymbolSize) {
-		this.ep03SymbolSize = ep03SymbolSize;
+	@XmlElement
+	public Boolean getModel08Enable() {
+		return (Boolean) getModelDisplayAttribute(8,"enabled");
 	}
-
-	public boolean getEp04Enable() {
-		return ep04Enable;
+	@XmlElement
+	public Boolean getModel09Enable() {
+		return (Boolean) getModelDisplayAttribute(9,"enabled");
 	}
-
-	public void setEp04Enable(boolean ep04Enable) {
-		this.ep04Enable = ep04Enable;
+	@XmlElement
+	public Boolean getModel10Enable() {
+		return (Boolean) getModelDisplayAttribute(10,"enabled");
 	}
-
-	public RGB getEp04Color() {
-		return ep04Color;
+	@XmlElement
+	public Boolean getModel11Enable() {
+		return (Boolean) getModelDisplayAttribute(11,"enabled");
 	}
-
-	public void setEp04Color(RGB ep04Color) {
-		this.ep04Color = ep04Color;
+	@XmlElement
+	public Boolean getModel12Enable() {
+		return (Boolean) getModelDisplayAttribute(12,"enabled");
 	}
-
-	public int getEp04LineWidth() {
-		return ep04LineWidth;
+	@XmlElement
+	public Boolean getModel13Enable() {
+		return (Boolean) getModelDisplayAttribute(13,"enabled");
 	}
-
-	public void setEp04LineWidth(int ep04LineWidth) {
-		this.ep04LineWidth = ep04LineWidth;
+	@XmlElement
+	public Boolean getModel14Enable() {
+		return (Boolean) getModelDisplayAttribute(14,"enabled");
 	}
-
-	public int getEp04SymbolWidth() {
-		return ep04SymbolWidth;
+	@XmlElement
+	public Boolean getModel15Enable() {
+		return (Boolean) getModelDisplayAttribute(15,"enabled");
 	}
-
-	public void setEp04SymbolWidth(int ep04SymbolWidth) {
-		this.ep04SymbolWidth = ep04SymbolWidth;
+	@XmlElement
+	public Boolean getModel16Enable() {
+		return (Boolean) getModelDisplayAttribute(16,"enabled");
 	}
-
-	public float getEp04SymbolSize() {
-		return ep04SymbolSize;
+	@XmlElement
+	public Boolean getModel17Enable() {
+		return (Boolean) getModelDisplayAttribute(17,"enabled");
 	}
-
-	public void setEp04SymbolSize(float ep04SymbolSize) {
-		this.ep04SymbolSize = ep04SymbolSize;
+	@XmlElement
+	public Boolean getModel18Enable() {
+		return (Boolean) getModelDisplayAttribute(18,"enabled");
 	}
-
-	public boolean getEp05Enable() {
-		return ep05Enable;
+	@XmlElement
+	public Boolean getModel19Enable() {
+		return (Boolean) getModelDisplayAttribute(19,"enabled");
 	}
-
-	public void setEp05Enable(boolean ep05Enable) {
-		this.ep05Enable = ep05Enable;
+	@XmlElement
+	public Boolean getModel20Enable() {
+		return (Boolean) getModelDisplayAttribute(20,"enabled");
 	}
 
-	public RGB getEp05Color() {
-		return ep05Color;
+	public void setModel01Enable( Boolean e ) {
+		setModelDisplayAttribute(1,e);
 	}
-
-	public void setEp05Color(RGB ep05Color) {
-		this.ep05Color = ep05Color;
+	public void setModel02Enable( Boolean e ) {
+		setModelDisplayAttribute(2,e);
 	}
-
-	public int getEp05LineWidth() {
-		return ep05LineWidth;
+	public void setModel03Enable( Boolean e ) {
+		setModelDisplayAttribute(3,e);
 	}
-
-	public void setEp05LineWidth(int ep05LineWidth) {
-		this.ep05LineWidth = ep05LineWidth;
+	public void setModel04Enable( Boolean e ) {
+		setModelDisplayAttribute(4,e);
 	}
-
-	public int getEp05SymbolWidth() {
-		return ep05SymbolWidth;
+	public void setModel05Enable( Boolean e ) {
+		setModelDisplayAttribute(5,e);
 	}
-
-	public void setEp05SymbolWidth(int ep05SymbolWidth) {
-		this.ep05SymbolWidth = ep05SymbolWidth;
+	public void setModel06Enable( Boolean e ) {
+		setModelDisplayAttribute(6,e);
 	}
-
-	public float getEp05SymbolSize() {
-		return ep05SymbolSize;
+	public void setModel07Enable( Boolean e ) {
+		setModelDisplayAttribute(7,e);
 	}
-
-	public void setEp05SymbolSize(float ep05SymbolSize) {
-		this.ep05SymbolSize = ep05SymbolSize;
+	public void setModel08Enable( Boolean e ) {
+		setModelDisplayAttribute(8,e);
 	}
-
-	public boolean getEp06Enable() {
-		return ep06Enable;
+	public void setModel09Enable( Boolean e ) {
+		setModelDisplayAttribute(9,e);
 	}
-
-	public void setEp06Enable(boolean ep06Enable) {
-		this.ep06Enable = ep06Enable;
+	public void setModel10Enable( Boolean e ) {
+		setModelDisplayAttribute(10,e);
 	}
-
-	public RGB getEp06Color() {
-		return ep06Color;
+	public void setModel11Enable( Boolean e ) {
+		setModelDisplayAttribute(11,e);
 	}
-
-	public void setEp06Color(RGB ep06Color) {
-		this.ep06Color = ep06Color;
+	public void setModel12Enable( Boolean e ) {
+		setModelDisplayAttribute(12,e);
 	}
-
-	public int getEp06LineWidth() {
-		return ep06LineWidth;
+	public void setModel13Enable( Boolean e ) {
+		setModelDisplayAttribute(13,e);
 	}
-
-	public void setEp06LineWidth(int ep06LineWidth) {
-		this.ep06LineWidth = ep06LineWidth;
+	public void setModel14Enable( Boolean e ) {
+		setModelDisplayAttribute(14,e);
 	}
-
-	public int getEp06SymbolWidth() {
-		return ep06SymbolWidth;
+	public void setModel15Enable( Boolean e ) {
+		setModelDisplayAttribute(15,e);
 	}
-
-	public void setEp06SymbolWidth(int ep06SymbolWidth) {
-		this.ep06SymbolWidth = ep06SymbolWidth;
+	public void setModel16Enable( Boolean e ) {
+		setModelDisplayAttribute(16,e);
 	}
-
-	public float getEp06SymbolSize() {
-		return ep06SymbolSize;
+	public void setModel17Enable( Boolean e ) {
+		setModelDisplayAttribute(17,e);
 	}
-
-	public void setEp06SymbolSize(float ep06SymbolSize) {
-		this.ep06SymbolSize = ep06SymbolSize;
+	public void setModel18Enable( Boolean e ) {
+		setModelDisplayAttribute(18,e);
 	}
-
-	public boolean getEp07Enable() {
-		return ep07Enable;
+	public void setModel19Enable( Boolean e ) {
+		setModelDisplayAttribute(19,e);
 	}
-
-	public void setEp07Enable(boolean ep07Enable) {
-		this.ep07Enable = ep07Enable;
+	public void setModel20Enable( Boolean e ) {
+		setModelDisplayAttribute(20,e);
 	}
 
-	public RGB getEp07Color() {
-		return ep07Color;
-	}
 
-	public void setEp07Color(RGB ep07Color) {
-		this.ep07Color = ep07Color;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel01Color() {
+		return (RGB) getModelDisplayAttribute(1,"color");
 	}
-
-	public int getEp07LineWidth() {
-		return ep07LineWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel02Color() {
+		return (RGB) getModelDisplayAttribute(2,"color");
 	}
-
-	public void setEp07LineWidth(int ep07LineWidth) {
-		this.ep07LineWidth = ep07LineWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel03Color() {
+		return (RGB) getModelDisplayAttribute(3,"color");
 	}
-
-	public int getEp07SymbolWidth() {
-		return ep07SymbolWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel04Color() {
+		return (RGB) getModelDisplayAttribute(4,"color");
 	}
-
-	public void setEp07SymbolWidth(int ep07SymbolWidth) {
-		this.ep07SymbolWidth = ep07SymbolWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel05Color() {
+		return (RGB) getModelDisplayAttribute(5,"color");
 	}
-
-	public float getEp07SymbolSize() {
-		return ep07SymbolSize;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel06Color() {
+		return (RGB) getModelDisplayAttribute(6,"color");
 	}
-
-	public void setEp07SymbolSize(float ep07SymbolSize) {
-		this.ep07SymbolSize = ep07SymbolSize;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel07Color() {
+		return (RGB) getModelDisplayAttribute(7,"color");
 	}
-
-	public boolean getEp08Enable() {
-		return ep08Enable;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel08Color() {
+		return (RGB) getModelDisplayAttribute(8,"color");
 	}
-
-	public void setEp08Enable(boolean ep08Enable) {
-		this.ep08Enable = ep08Enable;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel09Color() {
+		return (RGB) getModelDisplayAttribute(9,"color");
 	}
-
-	public RGB getEp08Color() {
-		return ep08Color;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel10Color() {
+		return (RGB) getModelDisplayAttribute(10,"color");
 	}
-
-	public void setEp08Color(RGB ep08Color) {
-		this.ep08Color = ep08Color;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel11Color() {
+		return (RGB) getModelDisplayAttribute(11,"color");
 	}
-
-	public int getEp08LineWidth() {
-		return ep08LineWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel12Color() {
+		return (RGB) getModelDisplayAttribute(12,"color");
 	}
-
-	public void setEp08LineWidth(int ep08LineWidth) {
-		this.ep08LineWidth = ep08LineWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel13Color() {
+		return (RGB) getModelDisplayAttribute(13,"color");
 	}
-
-	public int getEp08SymbolWidth() {
-		return ep08SymbolWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel14Color() {
+		return (RGB) getModelDisplayAttribute(14,"color");
 	}
-
-	public void setEp08SymbolWidth(int ep08SymbolWidth) {
-		this.ep08SymbolWidth = ep08SymbolWidth;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel15Color() {
+		return (RGB) getModelDisplayAttribute(15,"color");
 	}
-
-	public float getEp08SymbolSize() {
-		return ep08SymbolSize;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel16Color() {
+		return (RGB) getModelDisplayAttribute(16,"color");
 	}
-
-	public void setEp08SymbolSize(float ep08SymbolSize) {
-		this.ep08SymbolSize = ep08SymbolSize;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel17Color() {
+		return (RGB) getModelDisplayAttribute(17,"color");
 	}
-
-	public boolean getEp09Enable() {
-		return ep09Enable;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel18Color() {
+		return (RGB) getModelDisplayAttribute(18,"color");
 	}
-
-	public void setEp09Enable(boolean ep09Enable) {
-		this.ep09Enable = ep09Enable;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel19Color() {
+		return (RGB) getModelDisplayAttribute(19,"color");
 	}
-
-	public RGB getEp09Color() {
-		return ep09Color;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	public RGB getModel20Color() {
+		return (RGB) getModelDisplayAttribute(20,"color");
 	}
 
-	public void setEp09Color(RGB ep09Color) {
-		this.ep09Color = ep09Color;
-	}
 
-	public int getEp09LineWidth() {
-		return ep09LineWidth;
+	public void setModel01Color( RGB rgb ) {
+		setModelDisplayAttribute(1,rgb);
 	}
-
-	public void setEp09LineWidth(int ep09LineWidth) {
-		this.ep09LineWidth = ep09LineWidth;
+	public void setModel02Color( RGB rgb ) {
+		setModelDisplayAttribute(2,rgb);
 	}
-
-	public int getEp09SymbolWidth() {
-		return ep09SymbolWidth;
+	public void setModel03Color( RGB rgb ) {
+		setModelDisplayAttribute(3,rgb);
 	}
-
-	public void setEp09SymbolWidth(int ep09SymbolWidth) {
-		this.ep09SymbolWidth = ep09SymbolWidth;
+	public void setModel04Color( RGB rgb ) {
+		setModelDisplayAttribute(4,rgb);
 	}
-
-	public float getEp09SymbolSize() {
-		return ep09SymbolSize;
+	public void setModel05Color( RGB rgb ) {
+		setModelDisplayAttribute(5,rgb);
 	}
-
-	public void setEp09SymbolSize(float ep09SymbolSize) {
-		this.ep09SymbolSize = ep09SymbolSize;
+	public void setModel06Color( RGB rgb ) {
+		setModelDisplayAttribute(6,rgb);
 	}
-
-	public boolean getEp10Enable() {
-		return ep10Enable;
+	public void setModel07Color( RGB rgb ) {
+		setModelDisplayAttribute(7,rgb);
 	}
-
-	public void setEp10Enable(boolean ep10Enable) {
-		this.ep10Enable = ep10Enable;
+	public void setModel08Color( RGB rgb ) {
+		setModelDisplayAttribute(8,rgb);
 	}
-
-	public RGB getEp10Color() {
-		return ep10Color;
+	public void setModel09Color( RGB rgb ) {
+		setModelDisplayAttribute(9,rgb);
 	}
-
-	public void setEp10Color(RGB ep10Color) {
-		this.ep10Color = ep10Color;
+	public void setModel10Color( RGB rgb ) {
+		setModelDisplayAttribute(10,rgb);
 	}
-
-	public int getEp10LineWidth() {
-		return ep10LineWidth;
+	public void setModel11Color( RGB rgb ) {
+		setModelDisplayAttribute(11,rgb);
 	}
-
-	public void setEp10LineWidth(int ep10LineWidth) {
-		this.ep10LineWidth = ep10LineWidth;
+	public void setModel12Color( RGB rgb ) {
+		setModelDisplayAttribute(12,rgb);
 	}
-
-	public int getEp10SymbolWidth() {
-		return ep10SymbolWidth;
+	public void setModel13Color( RGB rgb ) {
+		setModelDisplayAttribute(13,rgb);
 	}
-
-	public void setEp10SymbolWidth(int ep10SymbolWidth) {
-		this.ep10SymbolWidth = ep10SymbolWidth;
+	public void setModel14Color( RGB rgb ) {
+		setModelDisplayAttribute(14,rgb);
 	}
-
-	public float getEp10SymbolSize() {
-		return ep10SymbolSize;
+	public void setModel15Color( RGB rgb ) {
+		setModelDisplayAttribute(15,rgb);
 	}
-
-	public void setEp10SymbolSize(float ep10SymbolSize) {
-		this.ep10SymbolSize = ep10SymbolSize;
+	public void setModel16Color( RGB rgb ) {
+		setModelDisplayAttribute(16,rgb);
 	}
-
-	public boolean getEp11Enable() {
-		return ep11Enable;
+	public void setModel17Color( RGB rgb ) {
+		setModelDisplayAttribute(17,rgb);
 	}
-
-	public void setEp11Enable(boolean ep11Enable) {
-		this.ep11Enable = ep11Enable;
+	public void setModel18Color( RGB rgb ) {
+		setModelDisplayAttribute(18,rgb);
 	}
-
-	public RGB getEp11Color() {
-		return ep11Color;
+	public void setModel19Color( RGB rgb ) {
+		setModelDisplayAttribute(19,rgb);
 	}
-
-	public void setEp11Color(RGB ep11Color) {
-		this.ep11Color = ep11Color;
+	public void setModel20Color( RGB rgb ) {
+		setModelDisplayAttribute(20,rgb);
 	}
 
-	public int getEp11LineWidth() {
-		return ep11LineWidth;
-	}
 
-	public void setEp11LineWidth(int ep11LineWidth) {
-		this.ep11LineWidth = ep11LineWidth;
+	@XmlElement
+	public Integer getModel01LineWidth() {
+		return (Integer) getModelDisplayAttribute(1,"lineWidth");
 	}
-
-	public int getEp11SymbolWidth() {
-		return ep11SymbolWidth;
+	@XmlElement
+	public Integer getModel02LineWidth() {
+		return (Integer) getModelDisplayAttribute(2,"lineWidth");
 	}
-
-	public void setEp11SymbolWidth(int ep11SymbolWidth) {
-		this.ep11SymbolWidth = ep11SymbolWidth;
+	@XmlElement
+	public Integer getModel03LineWidth() {
+		return (Integer) getModelDisplayAttribute(3,"lineWidth");
 	}
-
-	public float getEp11SymbolSize() {
-		return ep11SymbolSize;
+	@XmlElement
+	public Integer getModel04LineWidth() {
+		return (Integer) getModelDisplayAttribute(4,"lineWidth");
 	}
-
-	public void setEp11SymbolSize(float ep11SymbolSize) {
-		this.ep11SymbolSize = ep11SymbolSize;
+	@XmlElement
+	public Integer getModel05LineWidth() {
+		return (Integer) getModelDisplayAttribute(5,"lineWidth");
 	}
-
-	public boolean getEp12Enable() {
-		return ep12Enable;
+	@XmlElement
+	public Integer getModel06LineWidth() {
+		return (Integer) getModelDisplayAttribute(6,"lineWidth");
 	}
-
-	public void setEp12Enable(boolean ep12Enable) {
-		this.ep12Enable = ep12Enable;
+	@XmlElement
+	public Integer getModel07LineWidth() {
+		return (Integer) getModelDisplayAttribute(7,"lineWidth");
 	}
-
-	public RGB getEp12Color() {
-		return ep12Color;
+	@XmlElement
+	public Integer getModel08LineWidth() {
+		return (Integer) getModelDisplayAttribute(8,"lineWidth");
 	}
-
-	public void setEp12Color(RGB ep12Color) {
-		this.ep12Color = ep12Color;
+	@XmlElement
+	public Integer getModel09LineWidth() {
+		return (Integer) getModelDisplayAttribute(9,"lineWidth");
 	}
-
-	public int getEp12LineWidth() {
-		return ep12LineWidth;
+	@XmlElement
+	public Integer getModel10LineWidth() {
+		return (Integer) getModelDisplayAttribute(10,"lineWidth");
 	}
-
-	public void setEp12LineWidth(int ep12LineWidth) {
-		this.ep12LineWidth = ep12LineWidth;
+	@XmlElement
+	public Integer getModel11LineWidth() {
+		return (Integer) getModelDisplayAttribute(11,"lineWidth");
 	}
-
-	public int getEp12SymbolWidth() {
-		return ep12SymbolWidth;
+	@XmlElement
+	public Integer getModel12LineWidth() {
+		return (Integer) getModelDisplayAttribute(12,"lineWidth");
 	}
-
-	public void setEp12SymbolWidth(int ep12SymbolWidth) {
-		this.ep12SymbolWidth = ep12SymbolWidth;
+	@XmlElement
+	public Integer getModel13LineWidth() {
+		return (Integer) getModelDisplayAttribute(13,"lineWidth");
 	}
-
-	public float getEp12SymbolSize() {
-		return ep12SymbolSize;
+	@XmlElement
+	public Integer getModel14LineWidth() {
+		return (Integer) getModelDisplayAttribute(14,"lineWidth");
 	}
-
-	public void setEp12SymbolSize(float ep12SymbolSize) {
-		this.ep12SymbolSize = ep12SymbolSize;
+	@XmlElement
+	public Integer getModel15LineWidth() {
+		return (Integer) getModelDisplayAttribute(15,"lineWidth");
 	}
-
-	public boolean getEp13Enable() {
-		return ep13Enable;
+	@XmlElement
+	public Integer getModel16LineWidth() {
+		return (Integer) getModelDisplayAttribute(16,"lineWidth");
 	}
-
-	public void setEp13Enable(boolean ep13Enable) {
-		this.ep13Enable = ep13Enable;
+	@XmlElement
+	public Integer getModel17LineWidth() {
+		return (Integer) getModelDisplayAttribute(17,"lineWidth");
 	}
-
-	public RGB getEp13Color() {
-		return ep13Color;
+	@XmlElement
+	public Integer getModel18LineWidth() {
+		return (Integer) getModelDisplayAttribute(18,"lineWidth");
 	}
-
-	public void setEp13Color(RGB ep13Color) {
-		this.ep13Color = ep13Color;
+	@XmlElement
+	public Integer getModel19LineWidth() {
+		return (Integer) getModelDisplayAttribute(19,"lineWidth");
 	}
-
-	public int getEp13LineWidth() {
-		return ep13LineWidth;
+	@XmlElement
+	public Integer getModel20LineWidth() {
+		return (Integer) getModelDisplayAttribute(20,"lineWidth");
 	}
 
-	public void setEp13LineWidth(int ep13LineWidth) {
-		this.ep13LineWidth = ep13LineWidth;
+	public void setModel01LineWidth( Integer lw ) {
+		setModelDisplayAttribute(1,lw);
 	}
-
-	public int getEp13SymbolWidth() {
-		return ep13SymbolWidth;
+	public void setModel02LineWidth( Integer lw ) {
+		setModelDisplayAttribute(2,lw);
 	}
-
-	public void setEp13SymbolWidth(int ep13SymbolWidth) {
-		this.ep13SymbolWidth = ep13SymbolWidth;
+	public void setModel03LineWidth( Integer lw ) {
+		setModelDisplayAttribute(3,lw);
 	}
-
-	public float getEp13SymbolSize() {
-		return ep13SymbolSize;
+	public void setModel04LineWidth( Integer lw ) {
+		setModelDisplayAttribute(4,lw);
 	}
-
-	public void setEp13SymbolSize(float ep13SymbolSize) {
-		this.ep13SymbolSize = ep13SymbolSize;
+	public void setModel05LineWidth( Integer lw ) {
+		setModelDisplayAttribute(5,lw);
 	}
-
-	public boolean getEp14Enable() {
-		return ep14Enable;
+	public void setModel06LineWidth( Integer lw ) {
+		setModelDisplayAttribute(6,lw);
 	}
-
-	public void setEp14Enable(boolean ep14Enable) {
-		this.ep14Enable = ep14Enable;
+	public void setModel07LineWidth( Integer lw ) {
+		setModelDisplayAttribute(7,lw);
 	}
-
-	public RGB getEp14Color() {
-		return ep14Color;
+	public void setModel08LineWidth( Integer lw ) {
+		setModelDisplayAttribute(8,lw);
 	}
-
-	public void setEp14Color(RGB ep14Color) {
-		this.ep14Color = ep14Color;
+	public void setModel09LineWidth( Integer lw ) {
+		setModelDisplayAttribute(9,lw);
 	}
-
-	public int getEp14LineWidth() {
-		return ep14LineWidth;
+	public void setModel10LineWidth( Integer lw ) {
+		setModelDisplayAttribute(10,lw);
 	}
-
-	public void setEp14LineWidth(int ep14LineWidth) {
-		this.ep14LineWidth = ep14LineWidth;
+	public void setModel11LineWidth( Integer lw ) {
+		setModelDisplayAttribute(11,lw);
 	}
-
-	public int getEp14SymbolWidth() {
-		return ep14SymbolWidth;
+	public void setModel12LineWidth( Integer lw ) {
+		setModelDisplayAttribute(12,lw);
 	}
-
-	public void setEp14SymbolWidth(int ep14SymbolWidth) {
-		this.ep14SymbolWidth = ep14SymbolWidth;
+	public void setModel13LineWidth( Integer lw ) {
+		setModelDisplayAttribute(13,lw);
 	}
-
-	public float getEp14SymbolSize() {
-		return ep14SymbolSize;
+	public void setModel14LineWidth( Integer lw ) {
+		setModelDisplayAttribute(14,lw);
 	}
-
-	public void setEp14SymbolSize(float ep14SymbolSize) {
-		this.ep14SymbolSize = ep14SymbolSize;
+	public void setModel15LineWidth( Integer lw ) {
+		setModelDisplayAttribute(15,lw);
 	}
-
-	public boolean getDateTimeEnable() {
-		return dateTimeEnable;
+	public void setModel16LineWidth( Integer lw ) {
+		setModelDisplayAttribute(16,lw);
 	}
-
-	public void setDateTimeEnable(boolean dateTimeEnable) {
-		this.dateTimeEnable = dateTimeEnable;
+	public void setModel17LineWidth( Integer lw ) {
+		setModelDisplayAttribute(17,lw);
 	}
-
-	public boolean getPressureEnable() {
-		return pressureEnable;
+	public void setModel18LineWidth( Integer lw ) {
+		setModelDisplayAttribute(18,lw);
 	}
-
-	public void setPressureEnable(boolean pressureEnable) {
-		this.pressureEnable = pressureEnable;
+	public void setModel19LineWidth( Integer lw ) {
+		setModelDisplayAttribute(19,lw);
 	}
-
-	public boolean getColorCodeEnable() {
-		return colorCodeEnable;
+	public void setModel20LineWidth( Integer lw ) {
+		setModelDisplayAttribute(20,lw);
 	}
 
-	public void setColorCodeEnable(boolean colorCodeEnable) {
-		this.colorCodeEnable = colorCodeEnable;
-	}
 
-	public boolean getMarkerEnable() {
-		return markerEnable;
+	@XmlElement
+	public Float getModel01SymbolSize() {
+		return (Float) getModelDisplayAttribute(1,"symbolSize");
 	}
-
-	public void setMarkerEnable(boolean markerEnable) {
-		this.markerEnable = markerEnable;
+	@XmlElement
+	public Float getModel02SymbolSize() {
+		return (Float) getModelDisplayAttribute(2,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel03SymbolSize() {
+		return (Float) getModelDisplayAttribute(3,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel04SymbolSize() {
+		return (Float) getModelDisplayAttribute(4,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel05SymbolSize() {
+		return (Float) getModelDisplayAttribute(5,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel06SymbolSize() {
+		return (Float) getModelDisplayAttribute(6,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel07SymbolSize() {
+		return (Float) getModelDisplayAttribute(7,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel08SymbolSize() {
+		return (Float) getModelDisplayAttribute(8,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel09SymbolSize() {
+		return (Float) getModelDisplayAttribute(9,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel10SymbolSize() {
+		return (Float) getModelDisplayAttribute(10,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel11SymbolSize() {
+		return (Float) getModelDisplayAttribute(11,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel12SymbolSize() {
+		return (Float) getModelDisplayAttribute(12,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel13SymbolSize() {
+		return (Float) getModelDisplayAttribute(13,"symbolSize");
 	}
+	@XmlElement
+	public Float getModel14SymbolSize() {
+		return (Float) getModelDisplayAttribute(14,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel15SymbolSize() {
+		return (Float) getModelDisplayAttribute(15,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel16SymbolSize() {
+		return (Float) getModelDisplayAttribute(16,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel17SymbolSize() {
+		return (Float) getModelDisplayAttribute(17,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel18SymbolSize() {
+		return (Float) getModelDisplayAttribute(18,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel19SymbolSize() {
+		return (Float) getModelDisplayAttribute(19,"symbolSize");
+	}
+	@XmlElement
+	public Float getModel20SymbolSize() {
+		return (Float) getModelDisplayAttribute(20,"symbolSize");
+	}
 
+	public void setModel01SymbolSize( Float ss ) {
+		setModelDisplayAttribute(1,ss);
+	}
+	public void setModel02SymbolSize( Float ss ) {
+		setModelDisplayAttribute(2,ss);
+	}
+	public void setModel03SymbolSize( Float ss ) {
+		setModelDisplayAttribute(3,ss);
+	}
+	public void setModel04SymbolSize( Float ss ) {
+		setModelDisplayAttribute(4,ss);
+	}
+	public void setModel05SymbolSize( Float ss ) {
+		setModelDisplayAttribute(5,ss);
+	}
+	public void setModel06SymbolSize( Float ss ) {
+		setModelDisplayAttribute(6,ss);
+	}
+	public void setModel07SymbolSize( Float ss ) {
+		setModelDisplayAttribute(7,ss);
+	}
+	public void setModel08SymbolSize( Float ss ) {
+		setModelDisplayAttribute(8,ss);
+	}
+	public void setModel09SymbolSize( Float ss ) {
+		setModelDisplayAttribute(9,ss);
+	}
+	public void setModel10SymbolSize( Float ss ) {
+		setModelDisplayAttribute(10,ss);
+	}
+	public void setModel11SymbolSize( Float ss ) {
+		setModelDisplayAttribute(11,ss);
+	}
+	public void setModel12SymbolSize( Float ss ) {
+		setModelDisplayAttribute(12,ss);
+	}
+	public void setModel13SymbolSize( Float ss ) {
+		setModelDisplayAttribute(13,ss);
+	}
+	public void setModel14SymbolSize( Float ss ) {
+		setModelDisplayAttribute(14,ss);
+	}
+	public void setModel15SymbolSize( Float ss ) {
+		setModelDisplayAttribute(15,ss);
+	}
+	public void setModel16SymbolSize( Float ss ) {
+		setModelDisplayAttribute(16,ss);
+	}
+	public void setModel17SymbolSize( Float ss ) {
+		setModelDisplayAttribute(17,ss);
+	}
+	public void setModel18SymbolSize( Float ss ) {
+		setModelDisplayAttribute(18,ss);
+	}
+	public void setModel19SymbolSize( Float ss ) {
+		setModelDisplayAttribute(19,ss);
+	}
+	public void setModel20SymbolSize( Float ss ) {
+		setModelDisplayAttribute(20,ss);
+	}
 }

@@ -37,9 +37,7 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
@@ -55,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 24, 2009 #1318      randerso     Initial creation
+ * Nov 13, 2012 #1298      rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -63,7 +62,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class TEWxSetValueDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(TEWxSetValueDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TEWxSetValueDialog.class);
 
     private Parm parm;
 
@@ -197,8 +197,7 @@ public class TEWxSetValueDialog extends CaveJFACEDialog {
             }
             parm.endParmEdit();
         } catch (GFEOperationFailedException exc) {
-            statusHandler.handle(Priority.PROBLEM,
-                            "Grid edit failed", exc);
+            statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
         }
 
         super.okPressed();

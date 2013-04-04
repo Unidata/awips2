@@ -3,9 +3,9 @@ package com.raytheon.edex.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.msgs.AbstractPrivilegedUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityCommand;
@@ -66,15 +66,15 @@ public class PrivilegedUtilityHandler
 
     @Override
     public AuthorizationResponse authorized(IUser user,
-            PrivilegedUtilityRequestMessage request) {
+            PrivilegedUtilityRequestMessage request)
+            throws AuthorizationException {
 
         AbstractPrivilegedUtilityCommand[] commands = request.getCommands();
         for (AbstractPrivilegedUtilityCommand abstractUtilityCommand : commands) {
             LocalizationContext context = abstractUtilityCommand.getContext();
-            LocalizationLevel level = context.getLocalizationLevel();
             String filename = abstractUtilityCommand.getFilename();
             AuthorizationResponse resp = getAuthorizationResponse(user,
-                    context, level, filename,
+                    context, filename,
                     abstractUtilityCommand.getMyContextName());
             if (resp.isAuthorized() == false) {
                 // If we are not authorized for any of the commands, break early

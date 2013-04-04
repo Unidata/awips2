@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" kind="lib" path="org.springframework.osgi.core-1.2.0.jar" sourcepath="org.springframework.osgi.core-sources-1.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="org.springframework.osgi.extender-1.2.0.jar" sourcepath="org.springframework.osgi.extender-sources-1.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="org.springframework.osgi.io-1.2.0.jar" sourcepath="org.springframework.osgi.io-sources-1.2.0.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

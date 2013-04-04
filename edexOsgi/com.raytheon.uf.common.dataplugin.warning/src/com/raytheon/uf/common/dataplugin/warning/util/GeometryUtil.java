@@ -1,24 +1,38 @@
 package com.raytheon.uf.common.dataplugin.warning.util;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
-import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
+/**
+ * 
+ * Performs common geometry operations taking geometry collections into
+ * account for counties. Makes certain assumptions about these geometries that
+ * only apply to warngen
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 15, 2010            mschenke     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author mschenke
+ * @version 1.0
+ */
 public class GeometryUtil {
 
     private static final String SEPARATOR = "_";
@@ -41,7 +55,7 @@ public class GeometryUtil {
         }
 
         for (int i = 0; i < list1.size(); ++i) {
-            if (list1.get(i).buffer(0).equals(list2.get(i).buffer(0)) == false) {
+            if (list1.get(i).equals(list2.get(i)) == false) {
                 return false;
             }
         }
@@ -190,12 +204,15 @@ public class GeometryUtil {
                 }
                 if ((g1Name == null || g2Name == null || g2Name
                         .startsWith(prefix))) {
-                    Geometry section = g1.intersection(g2);
-                    if (section.isEmpty() == false) {
-                        section = section.buffer(0);
-                        setUserData(section, (CountyUserData) g2.getUserData());
-                        section.setUserData(g2.getUserData());
-                        intersections.add(section);
+                    if (g1.isValid() && g2.isValid()) {
+                        Geometry section = g1.intersection(g2);
+                        if (section.isEmpty() == false) {
+                            section = section.buffer(0);
+                            setUserData(section,
+                                    (CountyUserData) g2.getUserData());
+                            section.setUserData(g2.getUserData());
+                            intersections.add(section);
+                        }
                     }
                 }
             }
@@ -209,62 +226,29 @@ public class GeometryUtil {
                 intersection(g1.getGeometryN(i), pg, intersections);
             }
         } else {
-            Geometry g2 = pg.getGeometry();
-            String g1Name = toString(g1.getUserData());
-            String g2Name = toString(g2.getUserData());
-            String prefix = null;
-            if (g1Name != null && g2Name != null) {
-                prefix = getPrefix(g1Name);
-            }
-            if (g1Name == null || g2Name == null || g2Name.startsWith(prefix)) {
-                if (pg.intersects(g1)) {
-                    Geometry section = null;
-                    try {
-                        section = g1.intersection(g2);
-                    } catch (TopologyException e) {
-                        // This exception is due to g2 having interior
-                        // intersections
-                        section = clean(g1).intersection(g2.buffer(0));
+            if (pg.intersects(g1)) {
+                Geometry g2 = pg.getGeometry();
+                List<Geometry> sections = new ArrayList<Geometry>();
+                for (int n = 0; n < g2.getNumGeometries(); n++) {
+                    Geometry section = g1.intersection(g2.getGeometryN(n));
+                    if (section.isEmpty() == false) {
+                        sections.add(section);
                     }
-
-                    if (section != null) {
-                        setUserData(section, (CountyUserData) g2.getUserData());
-                        section.setUserData(g2.getUserData());
-                        intersections.add(section);
-                    }
+                }
+                Geometry section = null;
+                if (sections.size() == 1) {
+                    section = sections.get(0);
+                } else if (sections.size() > 0) {
+                    section = new GeometryFactory()
+                            .createGeometryCollection(sections
+                                    .toArray(new Geometry[0]));
+                }
+                if (section != null && section.isEmpty() == false) {
+                    setUserData(section, (CountyUserData) g2.getUserData());
+                    intersections.add(section);
                 }
             }
         }
-    }
-
-    /**
-     * Returns a geometry from the noded line strings of g.
-     * 
-     * @param g
-     *            geometry to be cleaned up
-     * @return
-     */
-    private static Geometry clean(Geometry g) {
-        Coordinate[] coords = g.getCoordinates();
-
-        // create a line string
-        GeometryFactory gf = new GeometryFactory();
-        LineString ls = gf.createLineString(coords);
-
-        // node the line string (insert vertices where lines cross)
-        com.vividsolutions.jts.geom.Point pt = gf.createPoint(ls
-                .getCoordinate());
-        Geometry nodedLines = ls.union(pt);
-
-        // create the polygon(s) from the noded line
-        Polygonizer polygonizer = new Polygonizer();
-        polygonizer.add(nodedLines);
-        Collection<Polygon> polygons = polygonizer.getPolygons();
-
-        g = gf.createMultiPolygon(
-                polygons.toArray(new Polygon[polygons.size()])).buffer(0);
-
-        return g;
     }
 
     /**

@@ -1,0 +1,8 @@
+# Product Discipline 2: Land surface products, Parameter Category 4: Fire Weather
+0:0:Fire Outlook:index (see GRIB 2 code table 4.224):FIREOLK
+1:1:Fire Outlook Due to Dry Thunderstorm:index(see GRIB 2 code table 4.224):FIREODT
+2:2:Haines Index:Numeric:HINDEX
+3:3:Haines Index:Numeric:HINDEX
+#192-254 Reserved for local use
+255:255:Missing
+

@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 
@@ -171,20 +172,7 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 			if ( !fileName.isEmpty() && PgenUtil.checkFileStatus(fileName) ) {
 				ofd.issueOutlook( otlk );
 				
-				File out = new File(fileName);
-			    	
-				try {
-					//create directories if needed
-					File dir = new File(dirPath);
-					if ( !dir.exists()) dir.mkdirs();
-					
-					FileWriter fw = new FileWriter(out);
-					fw.write(message);
-					fw.close();
-				}
-				catch (Exception e) {
-					System.out.println("Problem writing Outlook to file "+out.getAbsolutePath());
-				}
+				FileTools.writeFile( fileName, message);
 				
 				otlk.saveToFile( dirPath + getFileName(otlk)+".xml");
 				

@@ -8,9 +8,9 @@ Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Eclipse-BuddyPolicy: registered, ext, global
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.common.serialization.comm.response,
- com.raytheon.uf.common.serialization.comm.util
+ com.raytheon.uf.common.serialization.comm.response
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
  net.sf.cglib;bundle-version="2.1.3",
- com.raytheon.uf.common.status
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.message
