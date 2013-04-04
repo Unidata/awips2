@@ -23,8 +23,8 @@
          </fileType>
       </resource>
       <resource
-            class="gov.noaa.nws.ncep.viz.overlays.resources.PgenXmlOverlayResource"
-            name="PgenXmlOverlay"
+            class="gov.noaa.nws.ncep.viz.overlays.resources.PgenStaticOverlayResource"
+            name="PgenStaticOverlay"
             renderingOrderId="MAP_OUTLINE">
          <fileType
                fileExtension="xml"
@@ -84,9 +84,9 @@
             name="DbOverlay">
       </nc-resource>
       <nc-resource
-            class="gov.noaa.nws.ncep.viz.overlays.resources.PgenXmlOverlayResourceData"
-            editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.ChangeLineAttributesDialog"
-            name="PgenXmlOverlay">
+            class="gov.noaa.nws.ncep.viz.overlays.resources.PgenStaticOverlayResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.resources.misc.EditMiscResourceAttrsDialog"
+            name="PgenStaticOverlay">
       </nc-resource>
       <nc-resource
             class="gov.noaa.nws.ncep.viz.overlays.resources.LPIResourceData"
@@ -147,33 +147,44 @@
             ncResourceName="DbOverlay">
       </nc-resourceParameter>
 
+<!-- The Resource for displaying static PGEN Products -->
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="monoColorEnable"
+            defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="PgenStaticOverlay">
+      </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="RGB"
             paramName="color"
-            defaultValue="RGB {255, 165, 79}"
+            defaultValue="RGB {200, 200, 200}"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="PgenXmlOverlay">
+            ncResourceName="PgenStaticOverlay">
       </nc-resourceParameter>
+   <!--   </nc-resourceParameter>
       <nc-resourceParameter
-            paramClass="LineStyle"
-            paramName="lineStyle"
-            defaultValue="SOLID"
+            paramClass="Boolean"
+            paramName="fillModeEnable"
             paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="PgenXmlOverlay">
+            defaultValue="true"
+            ncResourceName="PgenStaticOverlay">
       </nc-resourceParameter>
+-->
       <nc-resourceParameter
-            paramClass="Integer"
-            paramName="lineWidth"
-            defaultValue="1"
-            paramType="EDITABLE_ATTRIBUTE"
-            ncResourceName="PgenXmlOverlay">
+            ncResourceName="PgenStaticOverlay"
+            paramClass="String"
+            paramName="pgenStaticProductName"
+            defaultValue="none"
+            paramType="IMPLEMENTATION_PARAM">
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="String"
-            paramName="pgenProductName"
+            paramName="pgenStaticProductLocation"
             paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="PgenXmlOverlay">
+            ncResourceName="PgenStaticOverlay">
       </nc-resourceParameter>
+      
       
       <nc-resourceParameter
             paramClass="RGB"
@@ -448,9 +459,9 @@
        <path
              application="NCEP"
              localizationType="CAVE_STATIC"
-             name="PgenXmlOverlayProducts"
+             name="StaticPgenOverlays"
              recursive="false"
-             value="ncep/PgenXmlOverlayProducts"
+             value="ncep/StaticPgenOverlays"
 	         extensionFilter=".xml">
        </path>
     </extension>

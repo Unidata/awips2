@@ -8,6 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
+
 import java.io.File;
 import java.io.FileWriter;
 
@@ -120,16 +122,7 @@ public class WatchWCLDlg extends CaveJFACEDialog {
 		 * Save WCL button pressed.  Save WCL Message to a file
 		 */
 
-		File out = new File(outputPath + fileName);
-
-		try {
-			FileWriter fw = new FileWriter(out);
-			fw.write(wclText);
-			fw.close();
-		}
-		catch (Exception e) {
-			System.out.println("Problem writing WCL to file "+out.getAbsolutePath());
-		}
+		FileTools.writeFile(outputPath + fileName, wclText);
 
 		super.okPressed();
 	}

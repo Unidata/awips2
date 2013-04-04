@@ -12,6 +12,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
 
 import java.io.BufferedWriter;
@@ -177,25 +178,12 @@ public class CcfpMsgDlg extends AttrDlg {
     @Override
     public void okPressed() {
 
-        try {
-            File f = new File(/* dirLocal */PgenUtil.getWorkingDirectory()
-                    + File.separator + txtSave.getText());
-            Writer output = new BufferedWriter(new FileWriter(f));
-            try {
-                output.write(txtInfo.getText());// wrap( txtInfo.getText(), 51,
-                                                // null, false) );
-                output.flush();
-            } catch (Exception ee) {
-                System.out.println(ee.getMessage());
-            } finally {
-                output.close();
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } finally {
+		FileTools.writeFile(PgenUtil.getPgenActivityTextProdPath()
+				+ File.separator + txtSave.getText(), 
+				txtInfo.getText());
+
             setReturnCode(OK);
             close();
-        }
 
     }
 

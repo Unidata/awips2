@@ -10,6 +10,7 @@
 GLEVEL =  500
 GVCORD =  pres
 SKIP   =    0                  !0             !0
+FILTER=y
 SCALE  =   5                  !5             !-1
 GDPFUN =  abs(avor(wnd))//v  !v             !sm5s(hght)
 TYPE   =    c/f                !c             !c
@@ -25,4 +26,3 @@ TITLE  =   5/-1/~ @ HEIGHT AND ABS VORTICITY!0
 COLORS =  2         
 MARKER =  2        
 GRDLBL =  5                                                                       
-FILTER =  1

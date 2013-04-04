@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.alerts.observers;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -306,58 +307,49 @@ public class ProductAlertObserver implements INotificationObserver {
                     PracticeDataURINotificationMessage uriMsg = (PracticeDataURINotificationMessage) payLoad;
                     dataURIs = uriMsg.getDataURIs();
                 }
-                for (int i = 0; i < dataURIs.length; ++i) {
-                    String str = dataURIs[i];
-                    processDataURI(str);
-                }
-
-                startWrappers();
-
-                if (dataURIs != null && dataURIs.length > 0) {
-                    alertsProcessed += dataURIs.length;
-                }
-
-                long curTime = System.currentTimeMillis();
-                if (curTime - ALERT_LOG_INTERVAL > lastLogTime) {
-                    if (alertsProcessed > 0) {
-                        statusHandler.handle(Priority.VERBOSE, "Processed "
-                                + alertsProcessed + " alerts in the last "
-                                + ((curTime - lastLogTime) / 60000)
-                                + " minutes");
-                        alertsProcessed = 0;
-                    }
-                    lastLogTime = curTime;
-                }
+                processDataURIs(Arrays.asList(dataURIs));
             }
         }
     }
 
-    public static void processDerivedAlerts(Collection<String> datauris) {
-        for (String datauri : datauris) {
-            getInstance().processDataURI(datauri);
+    /**
+     * Processes the DataURIs as alert messages
+     * 
+     * @param datauris
+     */
+    public static void processDataURIAlerts(Collection<String> datauris) {
+        getInstance().processDataURIs(datauris);
+    }
+
+    private synchronized void processDataURIs(Collection<String> dataURIs) {
+        for (String str : dataURIs) {
+            processDataURI(str);
         }
-        getInstance().startWrappers();
+
+        startWrappers();
+
+        if (dataURIs != null && dataURIs.size() > 0) {
+            alertsProcessed += dataURIs.size();
+        }
+
+        long curTime = System.currentTimeMillis();
+        if (curTime - ALERT_LOG_INTERVAL > lastLogTime) {
+            if (alertsProcessed > 0) {
+                statusHandler.handle(Priority.VERBOSE, "Processed "
+                        + alertsProcessed + " alerts in the last "
+                        + ((curTime - lastLogTime) / 60000) + " minutes");
+                alertsProcessed = 0;
+            }
+            lastLogTime = curTime;
+        }
     }
 
     private void processDataURI(String datauri) {
         if (datauri == null)
             return;
         try {
-            Map<String, Object> attribs;
-            try {
-                attribs = RecordFactory.getInstance().loadMapFromUri(datauri);
-
-            } catch (NoPluginException e) {
-                // ignore, if we hit this it means we received an alert from
-                // edex about ingested data, but viz doesn't have the necessary
-                // plugins to do anything with it
-                return;
-            } catch (Exception e1) {
-                statusHandler.handle(Priority.WARN, e1.getLocalizedMessage(),
-                        e1);
-                return;
-            }
-
+            Map<String, Object> attribs = RecordFactory.getInstance()
+                    .loadMapFromUri(datauri);
             AlertMessage am = new AlertMessage();
             am.dataURI = datauri;
             am.decodedAlert = Collections.unmodifiableMap(attribs);
@@ -379,11 +371,12 @@ public class ProductAlertObserver implements INotificationObserver {
                         sendToObserver(obs, am);
                 }
             }
-
-        } catch (RuntimeException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM, "Error preparing updates", e);
-
+        } catch (NoPluginException e) {
+            // ignore, if we hit this it means we received an alert from
+            // edex about ingested data, but viz doesn't have the necessary
+            // plugins to do anything with it
+        } catch (Exception e1) {
+            statusHandler.handle(Priority.WARN, e1.getLocalizedMessage(), e1);
         }
     }
 

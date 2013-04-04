@@ -214,7 +214,10 @@
 #       	Relationship Type: In Response to
 #       	Status:           NEXTRELEASE
 #       	Title:             OB9.2 AvnFPS - TPO/FuelAlternate Rule Doesn't work
-#       
+#
+#################################
+# Date           DR. #   Engineer   Description
+# Dec. 27, 2012  15583   zhao       Fixed a bug with Wind Dir. when wind is calm     
 #
 import copy, logging, math, sets
 import Avn, MonitorP
@@ -311,6 +314,8 @@ Arguments: dd ff1"""
             tddo = tw['dd'].get('ocnl', None)
             # variable wind: always matches
             if 'VRB' in (mdd, tddp, tddo):
+                return False
+            if mw['ff']['lo'] == 0:
                 return False 
             if tddp is None:
                 delta1= 999

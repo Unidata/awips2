@@ -66,7 +66,7 @@ public class DisplayAttributesDialog extends CaveJFACEDialog {
     public DisplayAttributesDialog(Shell parent, AbstractTemporalEditorBar bar,
             Parm parm) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.CLOSE);
         this.bar = bar;
         this.parm = parm;
         origParmDispAtt = bar.getParmDisplayAttributes(parm);
@@ -243,8 +243,7 @@ public class DisplayAttributesDialog extends CaveJFACEDialog {
                         MessageBox mb = new MessageBox(getShell(),
                                 SWT.ICON_WARNING | SWT.OK);
                         mb.setText("Graphic Attributes Error");
-                        mb
-                                .setMessage("You must select at least one graphic type");
+                        mb.setMessage("You must select at least one graphic type");
                         mb.open();
                     }
                 }

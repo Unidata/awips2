@@ -11,6 +11,7 @@
 GLEVEL =  850:1000                     !0
 GVCORD =  pres                         !none
 SKIP   =    0/2;-2
+FILTER=y
 SCALE  =   -1                           !0
 GDPFUN =  sm5s(sub(hght@850,hght@1000))!sm9s(mul(1e-2,pmsl)) !kntv(wnd@10%hght)
 TYPE   =    c                            !c          !b
@@ -26,4 +27,3 @@ TITLE  =   1/-1/~ PMSL, 1000-850mb THKN & BL (~10m) WIND    (KTS)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  no
