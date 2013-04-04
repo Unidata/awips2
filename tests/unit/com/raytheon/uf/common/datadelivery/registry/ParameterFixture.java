@@ -32,7 +32,8 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 07, 2012 1104      djohnson     Initial creation
+ * Dec 07, 2012 1104       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Missing value must be a numeric value.
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class ParameterFixture extends AbstractFixture<Parameter> {
         obj.setLevels(LevelsFixture.INSTANCE.get(seedValue));
         obj.setLevelType(Arrays.asList(DataLevelTypeFixture.INSTANCE
                 .get(seedValue)));
-        obj.setMissingValue("missingValue" + seedValue);
+        obj.setMissingValue("" + seedValue);
         obj.setName("name" + seedValue);
 
         return obj;

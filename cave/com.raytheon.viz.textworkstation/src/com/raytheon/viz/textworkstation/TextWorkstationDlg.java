@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 26Sep2012    1196        lvenable    Dialog refactor to not block.
  * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
  * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
+ * 30Jan2013    DR 14736    D. Friedman Display local time.
  * 
  * </pre>
  * 
@@ -217,7 +218,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private void initializeComponents() {
         sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        sdfLocal.setTimeZone(Calendar.getInstance().getTimeZone());
+        String localTZName = System.getenv("FXA_LOCAL_TZ");
+        sdfLocal.setTimeZone(localTZName != null ?
+                TimeZone.getTimeZone(localTZName) : TimeZone.getDefault());
 
         createMenus();
         new Label(shell, SWT.NONE).setText("host: "

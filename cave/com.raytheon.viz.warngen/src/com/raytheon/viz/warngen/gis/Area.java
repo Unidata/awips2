@@ -286,27 +286,13 @@ public class Area {
 
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
             if (asc.getType() == AreaType.INTERSECT) {
-                String areaSource = asc.getAreaSource();
-                String key = areaSource + "." + localizedSite;
-
                 List<Geometry> geoms = new ArrayList<Geometry>();
-
-                for (GeospatialData f : warngenLayer.getGeodataFeatures(key)) {
-                    for (int i = 0; i < warnArea.getNumGeometries(); i++) {
-                        Geometry geom = warnArea.getGeometryN(i);
-                        if (GeometryUtil.intersects(f.geometry, geom)) {
-                            Geometry intersect = f.geometry.intersection(geom);
-                            if (intersect != null && !intersect.isEmpty()) {
-                                for (int j = 0; j < intersect
-                                        .getNumGeometries(); j++) {
-                                    intersect.getGeometryN(j).setUserData(
-                                            f.geometry.getUserData());
-                                }
-                                GeometryUtil
-                                        .buildGeometryList(geoms, intersect);
-                            }
-                            break;
-                        }
+                for (GeospatialData f : warngenLayer.getGeodataFeatures(
+                        asc.getAreaSource(), localizedSite)) {
+                    Geometry intersect = GeometryUtil.intersection(warnArea,
+                            f.prepGeom);
+                    if (intersect.isEmpty() == false) {
+                        geoms.add(intersect);
                     }
                 }
 

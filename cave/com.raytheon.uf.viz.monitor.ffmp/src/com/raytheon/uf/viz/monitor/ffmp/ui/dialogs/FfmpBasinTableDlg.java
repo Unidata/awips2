@@ -57,9 +57,15 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
+import com.raytheon.uf.common.stats.LoadEvent;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -85,6 +91,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResource;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTableDataLoader;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTableDataUpdate;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
+import com.raytheon.uf.viz.stats.collector.StatsCollector;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
@@ -105,7 +112,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking AttributesDlg.
  *                                       Changes for non-blocking AttributeThresholdDlg.
  *                                       Changes for non-blocking LoadSaveConfigDlg.
- * 
+ * Jan 23, 2013 14907      gzhang		GUID not in Thresholds menu even ColorCell true  
+ * Feb 10, 2013  1584      mpduff       Add performance logging.
+ * Feb 28, 2013  1729      dhladky      Adjusted the way in which the dialog load thread rejoins the main GUI thread.
+ * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
+ * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
  * </pre>
  * 
  * @author lvenable
@@ -118,11 +129,21 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FfmpBasinTableDlg.class);
 
+    /** Performance message prefix */
+    private final String prefix = "FFMP Basin Table:";
+
+    /** Performance logger */
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler(prefix);
+
+    private final String initialLoadKey = "FFMP Basin Table Initial Load";
+
     private LoadSaveConfigDlg loadDlg;
 
     private LoadSaveConfigDlg saveDlg;
 
-    private List<FFMPTableDataLoader> retrievalQueue = new ArrayList<FFMPTableDataLoader>();
+    /** Retrieval queue */
+    private final List<FFMPTableDataLoader> retrievalQueue = new ArrayList<FFMPTableDataLoader>();
 
     private MenuItem linkToFrameMI;
 
@@ -199,7 +220,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private final List<String> cwas = new ArrayList<String>();
 
-    private List<MenuItem> sourceMenuItems = new ArrayList<MenuItem>();
+    /** Source menu item list */
+    private final List<MenuItem> sourceMenuItems = new ArrayList<MenuItem>();
 
     private Date date = null;
 
@@ -235,6 +257,20 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private FFMPTableDataLoader dataRetrieveThread = null;
 
     private boolean groupLabelFlag = true;
+
+    private String rowName = "";// DR 13228
+
+    /**
+     * Statistics load event.
+     */
+    private LoadEvent loadEvent;
+
+    /**
+     * Previously selected HUC level
+     */
+    private String previousHuc;
+
+    private FFMPLoaderStatus loadStatus;
 
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
@@ -298,6 +334,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     @Override
     protected void initializeComponents(Shell shell) {
+        // Load time stat
+        loadEvent = new LoadEvent();
+        loadEvent.setType("FFMP Initial Load");
+        loadEvent.setMessage("FFMP Basin Table Initial Load");
+        StatsCollector.start(initialLoadKey, loadEvent);
+        perfLog.log("Launched");
+
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent e) {
@@ -337,7 +380,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         refreshDisplay(true);
     }
 
-    public void createMenus() {
+    /**
+     * Create the menus.
+     */
+    private void createMenus() {
         Menu menuBar = new Menu(shell, SWT.BAR);
 
         createFileMenu(menuBar);
@@ -750,6 +796,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             cwaMI.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
+                    MenuItem mi = (MenuItem) event.getSource();
+                    perfLog.log("CWA " + mi.getText()
+                            + (mi.getSelection() ? " selected" : " unselected"));
                     updateD2DRefresh();
                     updateCWA(event);
                 }
@@ -1038,7 +1087,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         // Loop over enum from config singleton to create menu items
         for (ThreshColNames colName : ThreshColNames.values()) {
-            if (ffmpConfig.isColorCell(colName)) {
+            if (ffmpConfig.isColorCell(colName)
+                    && (colName != ThreshColNames.GUID)) {// DR 14907
                 // only add a menu item if colorCell is true
                 MenuItem mi = new MenuItem(popupMenu, SWT.NONE);
                 mi.setText(colName.name());
@@ -1081,19 +1131,21 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private void updateGapValueLabel(double gapVal) {
 
-        if (gapVal > 0.75) {
-            gapValueLbl.setBackground(getDisplay()
-                    .getSystemColor(SWT.COLOR_RED));
-        } else if (gapVal > 0.30) {
-            gapValueLbl.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_YELLOW));
-        } else {
-            gapValueLbl.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_GREEN));
-        }
+        if (gapValueLbl != null) {
+            if (gapVal > 0.75) {
+                gapValueLbl.setBackground(getDisplay().getSystemColor(
+                        SWT.COLOR_RED));
+            } else if (gapVal > 0.30) {
+                gapValueLbl.setBackground(getDisplay().getSystemColor(
+                        SWT.COLOR_YELLOW));
+            } else {
+                gapValueLbl.setBackground(getDisplay().getSystemColor(
+                        SWT.COLOR_GREEN));
+            }
 
-        String str = String.format("%2.2f ", gapVal);
-        gapValueLbl.setText(str);
+            String str = String.format("%2.2f ", gapVal);
+            gapValueLbl.setText(str);
+        }
     }
 
     private void initTimeDuration() {
@@ -1256,7 +1308,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void displayAttributesDlg() {
-        if (attributeDlg == null) {
+        if (attributeDlg == null || attributeDlg.isDisposed()) {
             attrData = ffmpTable.getVisibleColumns();
             attributeDlg = new AttributesDlg(shell, resource, attrData, this);
         }
@@ -1278,6 +1330,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     public void attributeDisplayAction(boolean updateData,
             AttributesDlgData attrData) {
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         this.attrData = attrData;
 
         // Update the data in the FFMPConfig with the selections
@@ -1311,6 +1366,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         shell.pack();
         shell.redraw();
         resetCursor();
+        timer.stop();
+        perfLog.logDuration("Column Add/Remove time", timer.getElapsedTime());
     }
 
     @Override
@@ -1566,15 +1623,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         fireCWAChangedEvent(mi.getText(), mi.getSelection());
     }
 
+    /**
+     * Update the layer.
+     */
     private void updateLayer(SelectionEvent event) {
-
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-
         updateD2DRefresh();
 
         MenuItem mi = (MenuItem) event.getSource();
-        String huc = (String) mi.getData();
+        String msg = previousHuc + " to " + mi.getText();
+        perfLog.log("Update Layer Called, " + msg);
 
+        String huc = (String) mi.getData();
+        previousHuc = mi.getText();
         ffmpConfig.getFFMPConfigData().setLayer(huc);
         fireHucChangedEvent(huc);
     }
@@ -1611,6 +1672,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      * Fire Table reload event
      */
     private void fireTableRestoreEvent() {
+        perfLog.log("Table Restore Called");
 
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         groupLbl.setText("");
@@ -1635,6 +1697,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 this);
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 FFMPMonitor.getInstance().configUpdate(me);
             }
@@ -1661,6 +1724,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 try {
                     setGraphData(resource.getGraphData(pfaf), pfaf,
                             differentPfaf, ffmpDate);
+                    perfLog.log("Graph Display Complete");
                 } catch (VizException e) {
                     shell.setCursor(null);
                     statusHandler.handle(Priority.PROBLEM,
@@ -1680,42 +1744,49 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     public void resetData(FFMPTableData tData) {
         if (!ffmpTable.isDisposed()) {
             this.mainTableData = tData;
-            // System.out.println("---" + tData.getTableRows().size());
             ffmpTable.clearTableSelection();
-            // long time = System.currentTimeMillis();
             ffmpTable
                     .setCenteredAggregationKey(resource.centeredAggregationKey);
             ffmpTable.setTableData(mainTableData);
-            // long time1 = System.currentTimeMillis();
-
             resetCursor();
             shell.pack();
             shell.redraw();
-
-            // System.out
-            // .println("Time to load Data into table " + (time1 - time));
+            if (loadEvent != null) {
+                StatsCollector.stop(initialLoadKey);
+                loadEvent = null;
+            }
+            perfLog.log("Table update complete");
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void tableSelection(String pfaf, String name) {
         if (groupLbl.getText().length() > 0) {
             groupLabelFlag = false;
+        } else {
+            perfLog.log("Table Selection");
         }
 
         if ((groupLbl.getText().length() == 0)
                 || allOnlySmallBasinsMI.getSelection()) {
             groupLbl.setText(name);
         }
-
+        rowName = name;// DR 13228
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         fireScreenRecenterEvent(pfaf, 1);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void displayBasinTrend(String pfaf) {
         if (pfaf != null) {
             shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            perfLog.log("Basin Trend Graph Launch");
             fireGraphDataEvent(pfaf, true, this.date);
         }
     }
@@ -1822,6 +1893,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
                 if (menuDataType.compareTo(layer) == 0) {
                     mi.setSelection(true);
+                    this.previousHuc = mi.getText();
                     break;
                 }
             }
@@ -2020,13 +2092,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     public void updateLoadingLabel(FFMPLoaderStatus status) {
+        this.loadStatus = status;
         if (dataLoadComp == null) {
             return;
         }
 
         GridData gd = (GridData) dataLoadComp.getLayoutData();
-
-        // System.out.println("Status message...");
 
         if (gd.exclude == true) {
             ((GridData) dataLoadComp.getLayoutData()).exclude = false;
@@ -2055,13 +2126,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             dataLoadComp.setVisible(false);
             shell.pack();
         }
-
-        resource.manageLoaders(status);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void notify(IMonitorEvent me) {
-
         if (!this.isDisposed()) {
             shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
             FFMPTableDataLoader tableLoader = new FFMPTableDataLoader(me,
@@ -2124,7 +2195,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (!this.isDisposed()) {
 
-            Display.getDefault().asyncExec(new Runnable() {
+            VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
                     processUpdate(fupdateData);
@@ -2161,14 +2232,23 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         resetCursor();
 
+        // start tertiary loader if not run yet
+        if (loadStatus != null) {
+            resource.manageLoaders(loadStatus);
+        }
     }
 
     /**
-     * used to blank the group label when channging HUC while in an aggregate.
+     * used to blank the group label when changing HUC while in an aggregate.
      */
     public void blankGroupLabel() {
         if (groupLbl != null) {
             groupLbl.setText("");
         }
+    }
+
+    // DR 13228
+    public String getRowName() {
+        return this.rowName;
     }
 }

@@ -50,13 +50,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Fcstheight;
@@ -133,7 +132,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  *                                    stage and discharge. 
  * 13 Nov   2012 15416   lbousaidi    added a check when the colorname is null and a call to 
  *                                    getGroupModeColor   
- * 09 Jan   2012 15493   lbousaidi    added code to delete data while zooming when you draw a box                         
+ * 09 Jan   2012 15493   lbousaidi    added code to delete data while zooming when you draw a box
+ * 16 Jan   2013 15695   wkwock       Fix popup menu                         
  * @author lvenable
  * @version 1.0
  * 
@@ -360,6 +360,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
     private TimeSeriesDataJobManager tsDataJobManager = null;
     
     private boolean zoomed = false;
+    
+    ToggleTimeSeriesDlg ttsd =null;
 
 	/**
      * Constructor.
@@ -1506,7 +1508,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 .size()]));
     }
 
-    private String getFcstPEDTSE(TraceData td) {
+    protected String getFcstPEDTSE(TraceData td) {
         String fcst = getPEDTSE(td);
         if (td.getBasistime() != null) {
             fcst = fcst.concat(" " + dateFormat.format(td.getBasistime()));
@@ -1521,7 +1523,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
      *            The Trace Data
      * @return The PEDTSE String
      */
-    private String getPEDTSE(TraceData td) {
+    protected String getPEDTSE(TraceData td) {
         StringBuilder sb = new StringBuilder();
         if (td.getPe() != null) {
             sb.append(td.getPe() + " ");
@@ -1545,41 +1547,12 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
      * Display the right click popup menu.
      */
     private void popupMenu() {
-        List<TraceData> traceList = getTraceList();
-        Menu m = new Menu(parentComp.getShell(), SWT.POP_UP);
-
-        for (int i = 0; i < traceList.size(); i++) {
-            TraceData td = traceList.get(i);
-            String s = null;
-            if (td.isForecast()) {
-                s = getFcstPEDTSE(td);
-            } else {
-                s = getPEDTSE(td);
-            }
-            MenuItem mi = new MenuItem(m, SWT.CHECK);
-            if (td.getLineData()!=null && td.getLineData().length>0) {
-                if (td.isTraceOn())
-                    mi.setSelection(true);
-                else
-                    mi.setSelection(false);
-            } else {
-                mi.setSelection(false);
-                s = s.concat("" + "NO DATA");
-            }
-            mi.setText(s);
-            mi.setData(td);
-            mi.addListener(SWT.Selection, new Listener() {
-                public void handleEvent(Event event) {
-                    handleSelection(event);
-                }
-            });
-        }
-        // We need to make the menu visible
-        m.setVisible(true);
+        ttsd = ToggleTimeSeriesDlg.getInstance(getShell(),getTraceList(),this);
+        ttsd.open();
     }
 
-    private void handleSelection(Event event) {
-        MenuItem item = (MenuItem) event.widget;
+    protected void handleSelection(Event event) {
+        Button item = (Button) event.widget;
         TraceData trace = (TraceData) item.getData();
         trace.setTraceOn(!trace.isTraceOn());
         if (trace.isTraceOn()) {

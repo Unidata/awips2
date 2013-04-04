@@ -1,0 +1,101 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.edex.datadelivery.bandwidth.util;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.Set;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
+
+/**
+ * Test {@link FindActiveSubscriptionsForRoute}.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 19, 2013 1543       djohnson     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author djohnson
+ * @version 1.0
+ */
+
+public class FindActiveSubscriptionsForRouteTest {
+
+    @BeforeClass
+    public static void classSetUp() throws RegistryHandlerException {
+        RegistryObjectHandlersUtil.initMemory();
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+
+        // Two OPSNET subscriptions
+        final Subscription opsnetSub1 = new SubscriptionBuilder()
+                .withName("opsnetSub1").withRoute(Network.OPSNET).build();
+        final Subscription opsnetSub2 = new Subscription(opsnetSub1,
+                "opsnetSub2");
+
+        // Two SBN subscriptions
+        final Subscription sbnSub1 = new SubscriptionBuilder()
+                .withName("sbnSub1").withRoute(Network.SBN).build();
+        final Subscription sbnSub2 = new Subscription(sbnSub1, "sbnSub2");
+
+        // Store all subscriptions
+        for (Subscription sub : new Subscription[] { opsnetSub1, opsnetSub2,
+                sbnSub1, sbnSub2 }) {
+            subscriptionHandler.store(sub);
+        }
+    }
+
+    @Test
+    public void findsSubscriptionForSingleRoute()
+            throws RegistryHandlerException {
+        final Set<Subscription> subscriptions = new FindActiveSubscriptionsForRoute(
+                Network.SBN).findSubscriptionsToSchedule();
+        assertThat(subscriptions, hasSize(2));
+        for (Subscription subscription : subscriptions) {
+            assertThat(subscription.getRoute(), is(Network.SBN));
+        }
+    }
+
+    @Test
+    public void findsSubscriptionsForMultipleRoutes()
+            throws RegistryHandlerException {
+        final Set<Subscription> subscriptions = new FindActiveSubscriptionsForRoute(
+                Network.OPSNET, Network.SBN).findSubscriptionsToSchedule();
+        assertThat(subscriptions, hasSize(4));
+    }
+
+}

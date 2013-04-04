@@ -43,7 +43,7 @@
         </item>
         <item>
             <key>EWW</key>
-            <value>Extreme Weather Warning</value>
+            <value>Extreme Wind Warning</value>
         </item>
         <item>
             <key>NOW</key>
@@ -136,6 +136,10 @@
         <item>
             <key>FA.W</key>
             <value>FLW</value>
+        </item>
+        <item>
+            <key>EW.W</key>
+            <value>EWW</value>
         </item>
     </nnnOfIdent>
     <SegmentedNNN>WCN</SegmentedNNN>

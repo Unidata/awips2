@@ -68,6 +68,8 @@ import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
  * 03/19/2012              D. Friedman Fix alarming.  Disable runloop in open().
  * May 18, 2012            jkorman     Added flashing alarm image.
  * Jul 25, 2012 15122      rferrel     Add sound delay interval.
+ * Mar 06  2013 15827  mgamazaychikov  Prevent Alarm Bell window from stealing focus 
+ * 									   from Text Editor.
  * </pre>
  * 
  * @author mnash
@@ -219,7 +221,6 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         }
         alarmShell.setVisible(true);
         alarmShell.pack();
-        alarmShell.setActive();
         active = true;
         // Start a new flash job only if one isn't currently running!
         if (flasher == null) {

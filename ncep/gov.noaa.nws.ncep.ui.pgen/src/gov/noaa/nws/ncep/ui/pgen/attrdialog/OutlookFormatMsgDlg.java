@@ -37,8 +37,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
-
 /**
  * Implementation of a dialog to display information of an outlook product.
  * 
@@ -55,7 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * @author	B. Yin
  */
 
-public class OutlookFormatMsgDlg extends CaveJFACEDialog {
+public class OutlookFormatMsgDlg extends Dialog {
 
 	//top level container for all widgets
 	private Composite top;
@@ -178,12 +176,6 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 				
 				//clean up
 				this.close();
-				ofd.close();
-				ofd.getOtlkDlg().drawingLayer.removeSelected();
-				ofd.getOtlkDlg().mapEditor.refresh();
-				ofd.getOtlkDlg().close();
-				PgenUtil.setSelectingMode();
-				
 			}
 		}
 		

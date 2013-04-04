@@ -4,10 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -45,44 +41,38 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/11/2009   2307      dhladky    Initial Creation.
+ * 02/01/13     1569      D. Hladky   removed XML where not needed
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public class SoundingData implements ISerializableObject {
 
     @DynamicSerializeElement
-    @XmlElement
     public DataTime time = null;
 
     /** sounding freeze level **/
     @DynamicSerializeElement
-    @XmlElement
     public float frzLevel = 0.0f;
 
     /** sounding 100 - 500 mb thickness **/
     @DynamicSerializeElement
-    @XmlElement
     public float thick1000500 = 0.0f;
 
     /** wind speed at 700 mb **/
     @DynamicSerializeElement
-    @XmlElement
     public float spd700 = 0.0f;
 
     /** U wind at 500 mb **/
     @DynamicSerializeElement
-    @XmlElement
     public float u500 = 0.0f;
 
     /** Sounding total totals **/
     @DynamicSerializeElement
-    @XmlElement
     public float totalTotals = 0.0f;
 
     @Transient
