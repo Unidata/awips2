@@ -16,6 +16,10 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
+   </requires>
+
    <plugin
          id="de.micromata.opengis.kml"
          download-size="0"
