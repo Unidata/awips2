@@ -15,8 +15,6 @@ Export-Package: com.raytheon.uf.common.sounding,
  com.raytheon.uf.common.sounding.adapter,
  com.raytheon.uf.common.sounding.util
 Import-Package: com.raytheon.uf.common.localization,
- com.raytheon.uf.common.menus,
- com.raytheon.uf.common.menus.xml,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
  org.apache.commons.logging

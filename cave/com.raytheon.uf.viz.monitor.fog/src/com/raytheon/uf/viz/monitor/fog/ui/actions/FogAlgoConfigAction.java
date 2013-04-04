@@ -28,7 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonThreshSetupDlg;
 
 /**
- * The Fog Monitor Action
+ * The Fog Algorithm Configuration Action.
  * 
  * <pre>
  * 
@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonThreshSetupDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19 2009  3963       dhladky    Initial creation.
+ * Nov 29 2012  1351       skorolev   Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -43,23 +44,17 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonThreshSetupDlg;
  * @version 1.0
  */
 
-public class FogAlgoConfigAction extends AbstractHandler
-{
-    private FogMonThreshSetupDlg fogThreshSetup;
+public class FogAlgoConfigAction extends AbstractHandler {
+    private FogMonThreshSetupDlg fogAlgoSetupDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        
-        if (fogThreshSetup == null)
-        {
-            fogThreshSetup = new FogMonThreshSetupDlg(shell);
-            fogThreshSetup.open();
-            fogThreshSetup = null;
+        if (fogAlgoSetupDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            fogAlgoSetupDlg = new FogMonThreshSetupDlg(shell);
         }
-   
+        fogAlgoSetupDlg.open();
         return null;
     }
-
 }

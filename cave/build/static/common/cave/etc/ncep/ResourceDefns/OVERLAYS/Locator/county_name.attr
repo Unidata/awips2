@@ -1,6 +1,5 @@
-color= RGB {0, 255, 0}
 ! Position 1
-pos1LocatorSource=COUNTYS
+pos1LocatorSource=COUNTIES
 pos1RoundToNearest=omit
 pos1DisplayUnit=omit
 pos1DirectionUnit=omit

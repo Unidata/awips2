@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -56,11 +57,13 @@ public class DataFieldTableLookup {
 
     private static DataFieldTableLookup instance;
 
-    private Map<String, String> data2cdl = new HashMap<String, String>();
+    private final Pattern DASH = Pattern.compile("-");
 
-    private Map<String, String> cdl2data = new HashMap<String, String>();
+    private final Pattern NEWLINE = Pattern.compile("\n");
 
-    private Map<String, String> data2name = new HashMap<String, String>();
+    private final Pattern PIPE = Pattern.compile("\\|");
+
+    private final Map<String, String> data2name = new HashMap<String, String>();
 
     public static synchronized DataFieldTableLookup getInstance() {
         if (instance == null) {
@@ -87,28 +90,19 @@ public class DataFieldTableLookup {
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        for (String line : contents.split("\n")) {
+        for (String line : NEWLINE.split(contents)) {
             line = line.trim();
             if (line.startsWith("//") || line.startsWith("#")) {
                 // ignore comments
                 continue;
             }
-            String[] parts = line.split("\\|");
-            if (parts.length < 2) {
+            String[] parts = PIPE.split(line);
+            if (parts.length < 5) {
                 // invalid line
                 continue;
             }
             String data = parts[0].trim();
             if (data.isEmpty()) {
-                continue;
-            }
-            String cdl = parts[1].trim();
-            if (!cdl.isEmpty()) {
-                data2cdl.put(data, cdl);
-                cdl2data.put(cdl, data);
-            }
-            if (parts.length < 5) {
-                // invalid line
                 continue;
             }
             String name = parts[4].trim();
@@ -118,29 +112,10 @@ public class DataFieldTableLookup {
         }
     }
 
-    public String lookupCdlName(String dataField) {
-        String retVal = data2cdl.get(dataField);
-        if (retVal == null) {
-            retVal = data2cdl.get(dataField.replace("-", "_"));
-            if (retVal == null) {
-                retVal = dataField;
-            }
-        }
-        return retVal;
-    }
-
-    public String lookupDataName(String cdlField) {
-        String retVal = cdl2data.get(cdlField);
-        if (retVal != null) {
-            retVal = retVal.replace("_", "-");
-        }
-        return retVal;
-    }
-
     public String lookupName(String dataField) {
         String retVal = data2name.get(dataField);
         if (retVal == null) {
-            retVal = data2name.get(dataField.replace("-", "_"));
+            retVal = data2name.get(DASH.matcher(dataField).replaceAll("_"));
         }
         return retVal;
     }

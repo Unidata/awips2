@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.rsc.URICatalog;
@@ -46,11 +45,6 @@ import com.raytheon.viz.alerts.IAlertObserver;
  * @version 1.0
  */
 public class MenuUpdater implements IAlertObserver {
-
-    public MenuUpdater() {
-        // TODO remove following line once Util removes static block
-        Util.getCurrentMemory();
-    }
 
     /*
      * (non-Javadoc)

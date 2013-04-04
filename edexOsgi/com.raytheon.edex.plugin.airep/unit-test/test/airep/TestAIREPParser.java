@@ -267,20 +267,20 @@ public class TestAIREPParser {
         // Winds with "KT"
         p = new AirepParser("ARP DAL278 3336N 165E 1543 F320 MS40 110/010KT TB LGT=", c);
         assertNotNull(p);
-        assertEquals(110, p.getWindDirection());
-        assertEquals(10, p.getWindSpeed());
+        assertEquals(110, p.getWindDirection().intValue());
+        assertEquals(10, p.getWindSpeed().intValue());
 
         // Winds with "KTS"
         p = new AirepParser("ARP DAL278 3336N 165E 1543 F320 MS40 265/010KTS TB LGT=", c);
         assertNotNull(p);
-        assertEquals(265, p.getWindDirection());
-        assertEquals(10, p.getWindSpeed());
+        assertEquals(265, p.getWindDirection().intValue());
+        assertEquals(10, p.getWindSpeed().intValue());
 
         // Winds with no units - assume knots
         p = new AirepParser("ARP DAL278 3336N 165E 1543 F320 MS40 265/010 TB LGT=", c);
         assertNotNull(p);
-        assertEquals(265, p.getWindDirection());
-        assertEquals(10, p.getWindSpeed());
+        assertEquals(265, p.getWindDirection().intValue());
+        assertEquals(10, p.getWindSpeed().intValue());
         
     }
     

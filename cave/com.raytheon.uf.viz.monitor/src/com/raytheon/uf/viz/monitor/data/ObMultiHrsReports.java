@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -49,6 +50,7 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Dec. 1, 2009  3424       zhao       Initial creation.
  * Dec 24, 2009  3424       zhao       added getTrendDataSet() that returns ObTrendDataSet object
  * Jan 25, 2010  4281, 3888, 3877 wkwock/zhao added getHistTableData method
+ * Oct.31, 2012  1297       skorolev    Clean code.
  * 
  * </pre>
  * 
@@ -66,7 +68,7 @@ public class ObMultiHrsReports {
     /**
      * Fog ALG CellType [key is zone, value is cell type]
      */
-    private HashMap<String, CellType> fogAlgCellType;
+    private Map<String, CellType> fogAlgCellType;
 
     /**
      * application name (snow, fog, safeseas, etc)
@@ -86,6 +88,11 @@ public class ObMultiHrsReports {
 
     private int maxFrames = MAX_FRAMES;
 
+    /**
+     * Constructor
+     * 
+     * @param appName
+     */
     public ObMultiHrsReports(CommonConfig.AppName appName) {
         this.appName = appName;
         multiHrsReports = new TreeMap<Date, ObHourReports>();
@@ -114,9 +121,10 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Add an ObReport object to the ObMultiHrsReports object
+     * Adds an ObReport object to the ObMultiHrsReports object
      * 
      * @param report
+     * @return returns multiHrsReports
      */
     public void addReport(ObReport report) {
         // Date nominalTime = TableUtil
@@ -129,14 +137,14 @@ public class ObMultiHrsReports {
             report.setWindDir(ObConst.MISSING);
         }
         /**
-         * DR#11462: 
-         * set DewpointDepr now, avoid using 
-         * DewpointDepr = worstTemp - worstDewpoint 
-         * for Zone/County Table, which 
-         * causes mismatch between Zone/County table and Station table   
+         * DR#11462: set DewpointDepr now, avoid using DewpointDepr = worstTemp
+         * - worstDewpoint for Zone/County Table, which causes mismatch between
+         * Zone/County table and Station table
          */
-        if ( report.getTemperature() != ObConst.MISSING && report.getDewpoint() != ObConst.MISSING ) {
-        	report.setDewpointDepr(report.getTemperature() - report.getDewpoint() );
+        if (report.getTemperature() != ObConst.MISSING
+                && report.getDewpoint() != ObConst.MISSING) {
+            report.setDewpointDepr(report.getTemperature()
+                    - report.getDewpoint());
         }
         if (multiHrsReports.containsKey(nominalTime)) {
             multiHrsReports.get(nominalTime).addReport(report);
@@ -183,10 +191,10 @@ public class ObMultiHrsReports {
             return this.getObHourReports(nominalTime).getFogZoneTableData(
                     fogAlgCellType);
         }
-		if (appName == AppName.SAFESEAS) {
-			return this.getObHourReports(nominalTime).getSSZoneTableData(
-					fogAlgCellType);
-		}
+        if (appName == AppName.SAFESEAS) {
+            return this.getObHourReports(nominalTime).getSSZoneTableData(
+                    fogAlgCellType);
+        }
 
         return this.getObHourReports(nominalTime).getZoneTableData();
         // return multiHrsReports.get(nominalTime).getZoneTableData();
@@ -232,6 +240,12 @@ public class ObMultiHrsReports {
                 .getStationTableData();
     }
 
+    /**
+     * Gets data for station table
+     * 
+     * @param zone
+     * @return station table data
+     */
     public TableData getEmptyStationTableData(String zone) {
         Date nominalTime = TableUtil.getNominalTime(SimulatedTime
                 .getSystemTime().getTime());
@@ -241,6 +255,7 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets data for trend plots
      * 
      * @param zone
      * @param Station
@@ -294,10 +309,6 @@ public class ObMultiHrsReports {
             }
         }
 
-        // System.out.println("startNominalTime = " + startNominalTime
-        // + "; latestNominalTime = " + latestNominalTime
-        // + "; number of nominal times = " + multiHrsReports.size());
-
         // get data
         ObTrendDataSet trendData = new ObTrendDataSet(zone, varName,
                 productName, appName, thresholdMgr);
@@ -312,9 +323,6 @@ public class ObMultiHrsReports {
                         .getObStnHourReports(station).getObsTimes();
                 if (obsTimes != null) {
                     for (Date obsTime : obsTimes) {
-
-                        // System.out.println("obs time = " + obsTime);
-
                         trendData.addDataPoint(obsTime,
                                 new Float(this.getObHourReports(nominalTime)
                                         .getObZoneHourReports(zone)
@@ -423,9 +431,9 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Returns a SortedMap object of <nominal time, ObHourReports object>
+     * Returns a SortedMap object <nominal time, ObHourReports object>
      * 
-     * @return
+     * @return multiHrsReports
      */
     public SortedMap<Date, ObHourReports> getMultiHrsReports() {
         return multiHrsReports;
@@ -512,6 +520,7 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets application name
      * 
      * @return application name
      */
@@ -539,27 +548,30 @@ public class ObMultiHrsReports {
     /**
      * Set the Fog ALG CellType map
      * 
-     * @param fogAlgCellType
+     * @param fogAlgCellType2
      */
-    public void setFogAlgCellType(HashMap<String, CellType> fogAlgCellType) {
-        this.fogAlgCellType = fogAlgCellType;
+    public void setFogAlgCellType(Map<String, CellType> fogAlgCellType2) {
+        this.fogAlgCellType = fogAlgCellType2;
     }
 
     /**
      * 
      * @return fogAlgCellType
      */
-    public HashMap<String, CellType> getFogAlgCellType() {
+    public Map<String, CellType> getFogAlgCellType() {
         return fogAlgCellType;
     }
 
-	private void initFogAlgCellType() {
-		fogAlgCellType = new HashMap<String, CellType>();
-		Set<String> zones = MonitoringArea.getPlatformMap().keySet();
-		Iterator<String> itr = zones.iterator();
-		while (itr.hasNext()) {
-			fogAlgCellType.put(itr.next(), CellType.NotAvailable);
-		}
-		setFogAlgCellType(fogAlgCellType);
-	}
+    /**
+     * Initiates ALG cells for Fog table. Sets all as NotAvailable.
+     */
+    private void initFogAlgCellType() {
+        fogAlgCellType = new HashMap<String, CellType>();
+        Set<String> zones = MonitoringArea.getPlatformMap().keySet();
+        Iterator<String> itr = zones.iterator();
+        while (itr.hasNext()) {
+            fogAlgCellType.put(itr.next(), CellType.NotAvailable);
+        }
+        setFogAlgCellType(fogAlgCellType);
+    }
 }

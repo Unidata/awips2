@@ -1,0 +1,135 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+    <bean id="propertyPlaceholderConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/com.raytheon.uf.edex.datadelivery.bandwidth.properties
+                </value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="bandwidthDao"
+        factory-bean="bandwidthContextFactory" 
+        factory-method="getBandwidthDao"/>
+
+    <bean id="bandwidthDbInit"
+        factory-bean="bandwidthContextFactory" 
+        factory-method="getBandwidthDbInit"
+        init-method="init" />
+        
+    <bean id="bandwidthManagerInitializer"
+        factory-bean="bandwidthContextFactory"
+        factory-method="getBandwidthInitializer"
+        depends-on="registryManagerInstanceInitializer">
+    </bean>
+    
+    <bean id="bandwidthMapConfigFile"
+        factory-bean="bandwidthContextFactory"
+        factory-method="getBandwidthMapConfigFile" />
+
+    <bean id="bandwidthManager" factory-bean="bandwidthContextFactory"
+        factory-method="getBandwidthManager" depends-on="BandwidthEventBusConfig,bandwidthUtil,registerDataDeliveryHandlers"
+        init-method="init">
+        <constructor-arg ref="bandwidthDbInit" />
+        <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="retrievalManager" />
+        <constructor-arg ref="bandwidthDaoUtil" />
+        <property name="aggregator" ref="aggregator" />
+        <property name="initializer" ref="bandwidthManagerInitializer" />
+    </bean>
+    
+    <bean id="dataSetAvailabilityCalculator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SimpleAvailablityCalculator">
+        <property name="delay"
+            value="${bandwidth.dataSetAvailabilityCalculator.delay}" />
+    </bean>
+
+    <bean id="bandwidthUtil"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil"
+        factory-method="getInstance">
+        <property name="dataSetAvailabilityCalculator" ref="dataSetAvailabilityCalculator" />
+        <property name="subscriptionLatencyCalculator">
+            <bean class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SubscriptionValueLatencyCalculator" />
+        </property>
+    </bean>
+    
+    <bean id="bandwidthDaoUtil" class="com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil">
+        <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="retrievalManager" />
+    </bean>
+
+    <bean id="BandwidthMap"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap"
+        factory-method="load">
+        <constructor-arg ref="bandwidthMapConfigFile" />
+    </bean>
+    
+    <bean id="aggregator" class="com.raytheon.uf.edex.datadelivery.bandwidth.processing.SimpleSubscriptionAggregator">
+        <constructor-arg ref="bandwidthDao" />
+    </bean>
+    
+    <bean id="BandwidthEventBusConfig"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBusConfig">
+        <property name="dataSetMetaDataPoolSize" value="${bandwidth.dataSetMetaDataPoolSize}" />
+        <property name="retrievalPoolSize" value="${bandwidth.retrievalPoolSize}" />
+        <property name="subscriptionPoolSize" value="${bandwidth.subscriptionPoolSize}" />
+    </bean>
+
+   <bean id="OPSNETRetrievalPlan"
+      class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan">
+      <constructor-arg value="OPSNET" />
+      <constructor-arg ref="BandwidthMap" />
+      <constructor-arg ref="bandwidthDao" />
+      <property name="scheduler">
+         <bean class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.PriorityRetrievalScheduler" />
+      </property>
+   </bean>
+    
+    <!-- The shared monitor object between the RetrievalAgentManager and its Agents -->
+    <bean id="retrievalAgentNotifier" class="java.lang.Object" />
+    
+    <bean id="subscriptionRetrievalAgentPrototype"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent"
+        scope="prototype">
+        <constructor-arg value="OPSNET" />
+        <constructor-arg value="notifyRetrieval" />
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <constructor-arg value="${bandwidth.default.retrieval.priority}" />
+        <constructor-arg ref="retrievalManager" />
+        <constructor-arg ref="bandwidthDao" />
+    </bean>
+
+    <bean id="retrievalAgentManager"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalAgentManager"
+        init-method="start">
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <constructor-arg ref="retrievalAgents" />
+    </bean>
+
+    <bean id="retrievalManager"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager"
+        depends-on="bandwidthDbInit">
+        <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <property name="retrievalPlans">
+            <map>
+                <entry key="OPSNET">
+                    <ref local="OPSNETRetrievalPlan" />
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+   <bean id="BandwidthManagerProcessor"
+      class="com.raytheon.uf.edex.datadelivery.bandwidth.processing.Processor" />
+   <bean id="BandwidthManagerRetrieval"
+      class="com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerationHandler" />
+   <bean id="SubscriptionBundleSeparator"
+      class="com.raytheon.uf.edex.datadelivery.bandwidth.separator.SubscriptionBundleSeparator" />
+</beans>

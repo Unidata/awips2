@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Geosolutions
+Bundle-SymbolicName: it.geosolutions
+Bundle-Version: 1.0.8
+Bundle-ClassPath: imageio-ext-tiff-1.0.8.jar,
+ imageio-ext-utilities-1.0.8.jar
+Export-Package: it.geosolutions.imageio.plugins.tiff,
+ it.geosolutions.imageio.utilities,
+ it.geosolutions.imageioimpl.plugins.tiff
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BuddyPolicy: registered, ext, global

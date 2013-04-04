@@ -9,6 +9,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  vecn(mul(sin(mul(dirpw,DTR)),-10),mul(cos(mul(dirpw,DTR)),-10))
 TYPE   =    a
@@ -24,4 +25,3 @@ TITLE  =   5/-1/~ GRIDPOINT PEAK SWELL DIR!0
 COLORS =  1
 MARKER =  0
 GRDLBL =                                                                         
-FILTER =  1

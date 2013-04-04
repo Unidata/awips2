@@ -50,6 +50,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2008            njensen     Initial creation
  * Dec 1,  2009  1426      ryu         Add time range warning
+ * Nov 15, 2012 1298       rferrel     Changes for non-blocking prcedures.
  * 
  * </pre>
  * 
@@ -91,16 +92,21 @@ public class SmartUtil {
         try {
             varList = dm.getSmartToolInterface().getVarDictWidgets(toolName);
         } catch (JepException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error getting VariableList for procedure: " + toolName, e);
         }
         if (varList == null || varList.size() == 0) {
             runToolNoVarDict(dm, toolName);
         } else {
+            // The SmartToolSelectionDlg changes based on the procedure.
+            // Since it is non-modal several dialogs may be displayed. This
+            // mimics the AWIPS 1 behavior.
+
             // make the gui, let it handle running the tool
             SelectionDlg sd = new SmartToolSelectionDlg(PlatformUI
                     .getWorkbench().getActiveWorkbenchWindow().getShell(),
                     toolName, dm, varList);
+            sd.setBlockOnOpen(false);
             sd.open();
         }
     }
@@ -150,11 +156,20 @@ public class SmartUtil {
                                 .getSmartToolInterface().getVarDictWidgets(
                                         toolName);
                         if (varList != null && varList.size() > 0) {
+                            // The SmartToolBlockingSelectionDlg changes based
+                            // on the procedure. Since it is non-modal several
+                            // dialogs may be displayed. This mimics the AWIPS 1
+                            // behavior.
+
                             // make the gui, let it handle running the procedure
                             SmartToolBlockingSelectionDlg sd = new SmartToolBlockingSelectionDlg(
                                     PlatformUI.getWorkbench()
                                             .getActiveWorkbenchWindow()
                                             .getShell(), toolName, dm, varList);
+
+                            // must block because this method needs the results
+                            // to determine what to return.
+                            sd.setBlockOnOpen(true);
                             sd.open();
                             Map<String, Object> resultMap = sd
                                     .getVarDictResult();
@@ -170,7 +185,8 @@ public class SmartUtil {
                         }
                     } catch (JepException e) {
                         statusHandler.handle(Priority.PROBLEM,
-                                "Error getting VariableList", e);
+                                "Error getting VariableList for procedure: "
+                                        + toolName, e);
                     }
                 }
             });

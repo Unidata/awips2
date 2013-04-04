@@ -27,7 +27,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
  * 
- * TODO Add Description
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * @version 1.0
  */
 @DynamicSerialize
+@Deprecated
 public class GetCoveragesRequest implements IServerRequest {
     @DynamicSerializeElement
     private List<String> modelNames;

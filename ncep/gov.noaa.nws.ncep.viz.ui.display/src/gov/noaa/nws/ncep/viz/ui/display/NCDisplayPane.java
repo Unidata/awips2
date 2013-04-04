@@ -58,6 +58,41 @@ public class NCDisplayPane extends VizDisplayPane {
         super(container, c, display);
     }
 
+    @Override
+    public void setRenderableDisplay( IRenderableDisplay renderableRsc ) {
+    	super.setRenderableDisplay(renderableRsc);
+    	
+    }
+
+    // if the user has locked the zoom due to a size-of-image reprojection, we
+    // don't want to change the zoomLevel which is a done in VizPaneDisplay
+    //   TODO : this seems to work except that resize() is called just after an rbd is
+    // loaded which, when size of image is selected, causes the image not to display.
+    // 
+    public void resize() {
+//    	if( !((NCMapDescriptor)getDescriptor()).getSuspendZoom() ) {
+    		super.resize();
+//    	}
+    }
+    
+    // if we need to get rid of NCDisplayPane we can either go back 
+    // to having a separate 'no-op' SuspendZoomHandler or add a check
+    // for the descriptor's suspend zoom flag in our NcPanHandler class
+    //
+    @Override
+    public void zoom(final int value, int mouseX, int mouseY) {
+    	if( !((NCMapDescriptor)getDescriptor()).getSuspendZoom() ) {
+    		super.zoom(value, mouseX, mouseY);
+    	}
+    }
+    
+    // resolve the zoomLevel if defined by a resource and set the predefined area in the Renderable display
+    // if SizeOfImage is set then we need the current Bounds (canvas) in order to compute the zoomLevel
+//    public void setPredefinedArea( PredefinedArea pArea ) throws VizException {
+//
+//    	//if( )
+//    }
+    
     //
     // this will cause the resources to be removed from the ResourceCatalog
     // This would be a convenience for ResourceBndlLoader but since this is

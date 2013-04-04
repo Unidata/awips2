@@ -4,7 +4,7 @@
     <resourceDefnName>Scale</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters></resourceParameters>
-    <filterLabels></filterLabels>
+    <filterLabels>Misc</filterLabels>
     <rscImplementation>ScaleOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

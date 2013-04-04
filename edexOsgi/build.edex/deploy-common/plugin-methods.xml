@@ -115,31 +115,24 @@
 	 					</then>
 	 				</if>
 	 			</then>
-	 			<else>
-	 				<var name="plugin.utility"
-	 					value="${plugin.base}/utility" />
-					
+	 			<else>	 				 			
+	 				 			
 	 				<jarPlugin
 	 					plugin.directory323="${plugin.base}"
 	 					jar.file323="${jar.destfile}" />
-	 			
-	 				<!-- copy the utility (localization) files. -->
-	 				<if>
-	 					<available file="${plugin.utility}"
-	 						type="dir" />
-	 					<then>
-	 						<copy todir="${edex.root.directory}/data/utility"
-	 						overwrite="true">
-	 							<fileset dir="${plugin.utility}"
-	 								includes="*/**" />
-	 						</copy>
-	 					</then>
-	 				</if>
 	 			</else>
 	 		</if>
+			
+			<ant antfile="${basedir}/deploy-common/external-rules.xml" 
+			inheritAll="false">
+				<property name="plugin._directory"
+					value="${plugin.base}" />
+				<property name="deployment._root"
+					value="${edex.root.directory}" />
+			</ant>
 		</sequential>
 	</macrodef>
-	
+
 	<macrodef name="jarPlugin">
 		<!-- 
 			random character suffixes added to 
