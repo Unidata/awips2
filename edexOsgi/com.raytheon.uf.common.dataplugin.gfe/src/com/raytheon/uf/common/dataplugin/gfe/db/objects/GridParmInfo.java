@@ -51,6 +51,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 02/27/2008   879        rbell       Added constructors and equals(Object)
  * 03/20/2013     #1774    randerso    Removed unnecessary XML annotations,
  *                                     added isValid method to match A1
+ * 04/02/2013     #1774    randerso    Improved error message in validCheck
  * 
  * </pre>
  * 
@@ -273,6 +274,11 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
             sb.append(" Precision is: ");
             sb.append(precision);
             sb.append(". Must be betwwen -2 and 5\n");
+        }
+
+        if (sb.length() > 0) {
+            sb.append("For parmID: ");
+            sb.append(parmID);
         }
 
         this.errorMessage = sb.toString();
