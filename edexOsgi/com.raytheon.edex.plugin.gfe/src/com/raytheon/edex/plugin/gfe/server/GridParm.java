@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.gfe.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
+ * 02/10/13    #1603       randerso    Returned number of records purged from timePurge
+ * 03/15/13    #1795      njensen    Added updatePublishTime()
  * 
  * </pre>
  * 
@@ -130,10 +133,34 @@ public class GridParm {
         return db.getGridHistory(id, trs);
     }
 
+    @Deprecated
     public ServerResponse<?> updateGridHistory(
             Map<TimeRange, List<GridDataHistory>> history) {
-        ServerResponse<?> sr = new ServerResponse<String>();
-        db.updateGridHistory(id, history);
+        return db.updateGridHistory(id, history);
+    }
+
+    /**
+     * Updates the publish times in the database of all provided
+     * GridDataHistories. Does not alter the publish times in memory.
+     * 
+     * @param history
+     *            the histories to alter in the database
+     * @param publishTime
+     *            the publish time to update to
+     * @return
+     */
+    public ServerResponse<?> updatePublishTime(
+            Collection<List<GridDataHistory>> history, Date publishTime) {
+        ServerResponse<?> sr = null;
+        List<GridDataHistory> oneList = new ArrayList<GridDataHistory>();
+        for (List<GridDataHistory> innerList : history) {
+            oneList.addAll(innerList);
+        }
+        if (!oneList.isEmpty()) {
+            sr = db.updatePublishTime(oneList, publishTime);
+        } else {
+            sr = new ServerResponse<String>();
+        }
         return sr;
     }
 
@@ -325,13 +352,13 @@ public class GridParm {
      *            The grid update notifications
      * @param lockNotifications
      *            The lock notifications
-     * @return The server response
+     * @return The server response containing number of records purged
      */
-    public ServerResponse<?> timePurge(Date purgeTime,
+    public ServerResponse<Integer> timePurge(Date purgeTime,
             List<GridUpdateNotification> gridNotifications,
             List<LockNotification> lockNotifications, String siteID) {
 
-        ServerResponse<?> sr = new ServerResponse<String>();
+        ServerResponse<Integer> sr = new ServerResponse<Integer>();
         lockNotifications.clear();
         gridNotifications.clear();
 
@@ -425,6 +452,7 @@ public class GridParm {
             gridNotifications.add(new GridUpdateNotification(id, purge.get(i),
                     histories, wsId, siteID));
         }
+        sr.setPayload(new Integer(purge.size()));
         return sr;
 
     }

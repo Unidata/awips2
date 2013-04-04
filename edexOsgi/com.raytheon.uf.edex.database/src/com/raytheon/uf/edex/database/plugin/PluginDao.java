@@ -75,7 +75,6 @@ import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -103,6 +102,12 @@ import com.vividsolutions.jts.geom.Polygon;
  * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
  *                                     to search only COMMON_STATIC.
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
+ * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
+ *                                     from the environment.
+ * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
+ * Mar 27, 2013 1821       bsteffen    Remove extra store in persistToHDF5 for
+ *                                     replace only operations.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -118,10 +123,6 @@ public abstract class PluginDao extends CoreDao {
 
     /** The hdf5 file system suffix */
     public static final String HDF5_SUFFIX = ".h5";
-
-    /** The base path of the hdf5 data store */
-    public static final String HDF5_DIR = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("HDF5DIR");
 
     /** The base path of the folder containing HDF5 data for the owning plugin */
     public final String PLUGIN_HDF5_DIR;
@@ -156,8 +157,7 @@ public abstract class PluginDao extends CoreDao {
         }
 
         this.pluginName = pluginName;
-        PLUGIN_HDF5_DIR = HDF5_DIR + File.separator + pluginName
-                + File.separator;
+        PLUGIN_HDF5_DIR = pluginName + File.separator;
         dupCheckSql = dupCheckSql.replace(":tableName", PluginFactory
                 .getInstance().getPrimaryTable(pluginName));
         pathProvider = PluginFactory.getInstance().getPathProvider(pluginName);
@@ -227,9 +227,7 @@ public abstract class PluginDao extends CoreDao {
                 IPersistable persistable = (IPersistable) pdo;
 
                 // get the directory
-                String directory = HDF5_DIR
-                        + File.separator
-                        + pdo.getPluginName()
+                String directory = pdo.getPluginName()
                         + File.separator
                         + pathProvider.getHDFPath(pdo.getPluginName(),
                                 persistable);
@@ -264,7 +262,7 @@ public abstract class PluginDao extends CoreDao {
             // directory.mkdirs();
             // }
 
-            IDataStore dataStore = DataStoreFactory.getDataStore(file);
+            IDataStore dataStore = null;
             IDataStore replaceDataStore = null;
 
             for (IPersistable persistable : persistables) {
@@ -278,6 +276,9 @@ public abstract class PluginDao extends CoreDao {
 
                         populateDataStore(replaceDataStore, persistable);
                     } else {
+                        if (dataStore == null) {
+                            dataStore = DataStoreFactory.getDataStore(file);
+                        }
                         populateDataStore(dataStore, persistable);
                     }
                 } catch (Exception e) {
@@ -285,14 +286,15 @@ public abstract class PluginDao extends CoreDao {
                 }
             }
 
-            try {
-                StorageStatus s = dataStore.store();
-                // add exceptions to a list for aggregation
-                exceptions.addAll(Arrays.asList(s.getExceptions()));
-            } catch (StorageException e) {
-                logger.error("Error persisting to HDF5", e);
+            if (dataStore != null) {
+                try {
+                    StorageStatus s = dataStore.store();
+                    // add exceptions to a list for aggregation
+                    exceptions.addAll(Arrays.asList(s.getExceptions()));
+                } catch (StorageException e) {
+                    logger.error("Error persisting to HDF5", e);
+                }
             }
-
             if (replaceDataStore != null) {
                 try {
                     StorageStatus s = replaceDataStore.store(StoreOp.REPLACE);
@@ -889,7 +891,8 @@ public abstract class PluginDao extends CoreDao {
                         if (uris == null) {
                             ds.deleteFiles(null);
                         } else {
-                            ds.delete(uris.toArray(new String[uris.size()]));
+                            ds.deleteDatasets(uris.toArray(new String[uris
+                                    .size()]));
                         }
                     } catch (Exception e) {
                         PurgeLogger.logError("Error occurred purging file: "
@@ -911,7 +914,7 @@ public abstract class PluginDao extends CoreDao {
                     if (uris == null) {
                         ds.deleteFiles(null);
                     } else {
-                        ds.delete(uris.toArray(new String[uris.size()]));
+                        ds.deleteDatasets(uris.toArray(new String[uris.size()]));
                     }
                 } catch (Exception e) {
                     PurgeLogger.logError("Error occurred purging file: "

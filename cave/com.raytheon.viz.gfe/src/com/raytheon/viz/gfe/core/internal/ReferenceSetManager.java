@@ -1337,7 +1337,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 public void jobFinished(ReferenceData result) {
                     result.setQuery(query);
                     setRefSet(result, mode);
-            }
+                }
             };
             evaluateQuery(query, listener);
         } else {

@@ -7,3 +7,4 @@ Bundle-Vendor: RAYTHEON
 Eclipse-BuddyPolicy: ext, registered, global
 Export-Package: com.raytheon.uf.common.status
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.apache.log4j;bundle-version="1.0.0"

@@ -42,7 +42,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 06/07/2012     #717      Archana      Added the constants STYLE_RULES_DIR,
  *                                       MCIDAS_IMG_STYLE_RULES and GINI_IMG_STYLE_RULES                                 
  * 06/21/2012     #825      Greg Hull    rm mosaicInfo.txt
+ * 10/18/2012     #431      S. Gurung    Added constant ADVANCED_ICON_IMG
  * 12/17/2012     #861      Greg Hull    rm PGEN_XML_OVERLAYS
+ * 02/26/2013     #936      Archana      Added FONT_FILES_DIR      
  * 
  * </pre>
  * 
@@ -77,6 +79,7 @@ public class NcPathManager {
 		public static final String CURSORS_DIR         = NCEP_ROOT + "Cursors";
 		public static final String PLOT_MODELS_DIR     = NCEP_ROOT + "PlotModels";
 		public static final String PLOT_PARAMETERS_DIR = PLOT_MODELS_DIR + File.separator+"PlotParameters";
+		public static final String FONT_FILES_DIR      = NCEP_ROOT + "fontFiles" + File.separator ;
 		public static final String LOCATOR_SOURCE_DIR  = NCEP_ROOT+"LocatorDataSources";
 // No longer used. location is now a parameter for the StaticPgenOverlayResource.
 //		public static final String PGEN_XML_OVERLAYS   = NCEP_ROOT + "StaticPgenOverlays";
@@ -104,6 +107,7 @@ public class NcPathManager {
 		public static final String CONDITIONAL_FILTER_HELP_FILE = NCEP_ROOT + File.separator + "conditionalFilter" + File.separator + "ConditionalFilterHelp.txt";
 		public static final String CONDITIONAL_FILTER_MINUS_IMG = NCEP_ROOT + File.separator + "conditionalFilter" + File.separator + "minus_red.gif";
 		public static final String CONDITIONAL_FILTER_PLUS_IMG  = NCEP_ROOT + File.separator + "conditionalFilter" + File.separator + "plus_green.gif";
+		public static final String ADVANCED_ICON_IMG  = NCEP_ROOT + File.separator + "advanced" + File.separator + "adv_icon.jpg";
 		
 		// migrating code which looked for these filenames
 		public static final String VORS_STN_TBL  = STATIONS_DIR + File.separator+"vors.xml";

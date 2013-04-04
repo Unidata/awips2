@@ -130,12 +130,12 @@ EXEC    "readnoaaport -m 224.0.1.5 -n -u 7 -t mhs -r 1"
 # The LDM will NOT start if the entry is commented-out.
 ALLOW	ANY	^((localhost|loopback)|(127\.0\.0\.1\.?$))	.*
 ALLOW	NEXRAD3	^.*	SDUS...PGUM|SDUS...PHFO|NXUS6..PGUM|NXUS6..PHFO|SDUS4..KWBC
-ALLOW	NGRID	^.*	.*	[LM].[GHRT]....KWBC|[LM].C....KWBE|[LM].V....KWBL|[LM].D....KWBG|E.[BH]....KWBJ|[LM].[BEFS]....KWB.|Y.W....KWBG|[YZ].Q....KWBG|[YZ].[JKLNOPT]|[YZ].[BS]....KWBE|[LM].R.*KWBE|[LMYZ].D.*|E.P....KWBJ
-ALLOW	NIMAGE	^.*	.*	TIT[EQ].*
-ALLOW	HDS	^.*	.*	[IJ]UTX0[0-689].*|JUSX4[0-689].*
+ALLOW	NGRID	^.*	.*	[LMYZ].[GHIJQRT]....KWBC|[LMYZ].[IJL]....KWBH|[LMYZ].[ABCJKMNRQSUVYZ]....KWBE|[LM].[VR]....KWBL|[LM].D....KWBG|E.[BEFHI]....KWBJ|O.[MN]....KWBJ|[LM].[ABCE]....KWBS|Y.W....KWBG|[LM].[ABCDIJKMNP]....KWBR|O.N....KWBM|[LM].[EF]....KWBD|L......KWBQ|L.U....KMDL|[YZ]......KKCI|[LM].U....KWNO
+ALLOW	NIMAGE	^.*	.*	TIT[EQ].*|TIG[ABENPQ].*|TIC[EQ].*
+ALLOW	HDS	^.*	.*	[IJ]UTX0[0-689].*|JUSX4[0-689].*|[YZ]......K(WBD|WNO|WBG|KCI|ALR|FWR|KRF|MSR|ORN|PTR|RHA|RSA|STR|TAR|TIR|TUA|WNH)|[LMYZ].[ABCJKMNRQSUVYZ]....KWBE|[YZ].[HIJQ]....KWBC|[YZ].[IJL]....KWBH|O.[MN]....KWBJ
 ALLOW	EXP	^.*	.*
 ALLOW	IDS|DDPLUS	^.*	.*	SXUS2[03-9].KWOH|SXUS[3-9].KWOH|SXUS8[0-3].KWOH|SRUS[2-8].KWOH
-ALLOW	NOTHER	^.*	.*
+ALLOW	NOTHER	^.*	.*	TIPB.*
 #
 # Give permission to the Unidata Program Center
 ALLOW	ANY	^[a-z].*\.unidata\.ucar\.edu\.?$	.*
