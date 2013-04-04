@@ -82,7 +82,7 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
         EQUALS("="), NOT_EQUALS("!="), GREATER_THAN(">"), GREATER_THAN_EQUALS(
                 ">="), LESS_THAN("<"), LESS_THAN_EQUALS("<="), BETWEEN(
                 "between"), IN("in"), LIKE("like"), ILIKE("ilike"), ISNULL(
-                "isnull");
+                "isnull"), ISNOTNULL("isnotnull");
 
         private String operand;
 
@@ -263,6 +263,8 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
 
         if (constraintType == ConstraintType.ISNULL) {
             return value == null || "null".equals(value);
+        } else if (constraintType == ConstraintType.ISNOTNULL) {
+            return value != null && "null".equals(value) == false;
         }
 
         if (value == null) {

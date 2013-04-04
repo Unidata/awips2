@@ -9,7 +9,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggregator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -50,7 +50,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
 
     @Override
     public List<SubscriptionRetrieval> aggregate(
-            List<SubscriptionDao> subscriptions) {
+            List<BandwidthSubscription> subscriptions) {
 
         List<SubscriptionRetrieval> subscriptionRetrievals = new ArrayList<SubscriptionRetrieval>();
 
@@ -58,7 +58,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
         // necessary retrievals without regards to 'sharing' retrievals across
         // subscriptions.
 
-        for (SubscriptionDao subDao : subscriptions) {
+        for (BandwidthSubscription subDao : subscriptions) {
 
             List<SubscriptionRetrieval> t = bandwidthDao
                     .querySubscriptionRetrievals(subDao.getIdentifier());
@@ -70,7 +70,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
                 try {
                     SubscriptionRetrieval subscriptionRetrieval = new SubscriptionRetrieval();
                     // Link this SubscriptionRetrieval with the subscription.
-                    subscriptionRetrieval.setSubscriptionDao(subDao);
+                    subscriptionRetrieval.setBandwidthSubscription(subDao);
                     subscriptionRetrieval.setNetwork(subDao.getRoute());
                     subscriptionRetrieval
                             .setAgentType(SubscriptionRetrievalAgent.SUBSCRIPTION_AGENT);
@@ -103,7 +103,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
                 statusHandler
                         .debug("Created ["
                                 + subscriptionRetrievals.size()
-                                + "] SubscriptionRetrieval Objects for SubscriptionDao ["
+                                + "] SubscriptionRetrieval Objects for BandwidthSubscription ["
                                 + subDao.getIdentifier() + "]");
             }
         }
@@ -112,20 +112,20 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
     }
 
     @Override
-    public List<SubscriptionDao> completeRetrieval(
+    public List<BandwidthSubscription> completeRetrieval(
             List<SubscriptionRetrieval> retrievals) {
 
-        List<SubscriptionDao> daos = new ArrayList<SubscriptionDao>();
+        List<BandwidthSubscription> daos = new ArrayList<BandwidthSubscription>();
         // We know that only one SubscriptionRetrieval was created for each
         // Subscription so there will not be any duplication of subscription
         // ids.
         for (SubscriptionRetrieval retrieval : retrievals) {
-            daos.add(bandwidthDao.getSubscriptionDao(retrieval
-                    .getSubscriptionDao().getId()));
+            daos.add(bandwidthDao.getBandwidthSubscription(retrieval
+                    .getBandwidthSubscription().getId()));
         }
 
         StringBuilder sb = new StringBuilder();
-        for (SubscriptionDao dao : daos) {
+        for (BandwidthSubscription dao : daos) {
             sb.append("Fulfilled subscription [").append(dao.getIdentifier());
             sb.append("][").append(dao.getRegistryId()).append("]\n");
         }

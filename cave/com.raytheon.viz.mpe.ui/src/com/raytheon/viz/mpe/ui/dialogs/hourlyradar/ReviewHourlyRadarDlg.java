@@ -65,7 +65,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
-import com.raytheon.viz.mpe.MPEConstants;
+import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
@@ -184,7 +184,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog implements
 
         biasValue = getBiasValue(radId);
         // try {
-        dpaDate = MPEDisplayManager.getCurrent().getCurrentDate();
+        dpaDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
         // Changed to comply with DR 11395
 
@@ -490,11 +490,10 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog implements
         radarLbl.setBackground(Display.getDefault().getSystemColor(
                 SWT.COLOR_WIDGET_BACKGROUND));
 
-        Date currentDate = MPEDisplayManager.getCurrent().getCurrentDate();
+        Date currentDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
         Label dateLbl = new Label(labelComp, SWT.LEAD | SWT.BORDER);
         dateLbl.setText("  "
-                + MPEConstants.DATE_FORMAT_MMDDYYYYHH.format(currentDate)
-                + "z  ");
+                + MPEDateFormatter.format_MMM_dd_yyyy_HH(currentDate) + "z  ");
         dateLbl.setBackground(Display.getDefault().getSystemColor(
                 SWT.COLOR_WIDGET_BACKGROUND));
 
@@ -526,6 +525,7 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog implements
             List<NamedColorUseSet> pColorSetGroup = MPEDisplayManager
                     .getCurrent().getColorSetGroup();
 
+            // TODO: Replace with resources looking up color maps themselves!!!
             List<Colorvalue> colorSet = GetColorValues.get_colorvalues(user_id,
                     app_name, "RMOSAIC", 3600, "E", pColorSetGroup);
 
@@ -829,8 +829,10 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog implements
      *            The Radar Id
      */
     private String getBiasValue(String radId) {
-        MPERadarData radarData = MPEDataManager.getInstance()
-                .readRadarData(MPEDisplayManager.getCurrent().getCurrentDate())
+        MPERadarData radarData = MPEDataManager
+                .getInstance()
+                .readRadarData(
+                        MPEDisplayManager.getCurrent().getCurrentEditDate())
                 .get(radId);
         return String.format("%-1.2f", radarData.getRwBiasValUsed());
     }

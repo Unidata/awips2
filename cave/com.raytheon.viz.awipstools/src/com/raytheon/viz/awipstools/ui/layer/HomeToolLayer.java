@@ -39,10 +39,13 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.uf.viz.points.IPointChangedListener;
@@ -66,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  20Dec2007    #645        ebabin     Updated to fix sampling.           
  *  15Jan2007                ebabin     Update for lat/lon put home cursor bug.
  *  10-21-09     #1049       bsteffen    Refactor to common MovableTool model
+ *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
  * </pre>
  * 
  * @author ebabin
@@ -75,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
         implements IContextMenuContributor, IPointChangedListener {
+	
+	private IFont labelFont;
 
     public static final String DEFAULT_NAME = "Home Location";
 
@@ -86,26 +92,28 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     private GeodeticCalculator gc;
 
-    public HomeToolLayer(AwipsToolsResourceData<HomeToolLayer> resourceData,
-            LoadProperties loadProperties) {
-        super(resourceData, loadProperties, false);
-        selectLocationAction = new AbstractRightClickAction() {
-            @Override
-            public void run() {
-                save(null, lastMouseLoc);
-                resetHome();
-            }
-        };
-        selectLocationAction.setText("Select Location");
-        moveElementAction = new AbstractRightClickAction() {
-            @Override
-            public void run() {
-                makeSelectedLive();
-            }
-        };
-        moveElementAction.setText("Move Entire Element");
-        this.rightClickMovesToCoord = true;
-    }
+	public HomeToolLayer(AwipsToolsResourceData<HomeToolLayer> resourceData,
+			LoadProperties loadProperties) {
+		super(resourceData, loadProperties, false);
+		// add magnification capability
+		getCapabilities().addCapability(new MagnificationCapability());
+		selectLocationAction = new AbstractRightClickAction() {
+			@Override
+			public void run() {
+				save(null, lastMouseLoc);
+				resetHome();
+			}
+		};
+		selectLocationAction.setText("Select Location");
+		moveElementAction = new AbstractRightClickAction() {
+			@Override
+			public void run() {
+				makeSelectedLive();
+			}
+		};
+		moveElementAction.setText("Move Entire Element");
+		this.rightClickMovesToCoord = true;
+	}
 
     @Override
     protected void disposeInternal() {
@@ -115,6 +123,10 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+    	// initialize font for  magnification capability
+    	labelFont = target.initializeFont(
+                target.getDefaultFont().getFontName(), 12.0f,
+                new Style[] { Style.BOLD });
         super.initInternal(target);
         resetHome();
         gc = new GeodeticCalculator(descriptor.getCRS());
@@ -132,6 +144,9 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
             Coordinate home, SelectionStatus status) throws VizException {
         RGB color = getCapability(ColorableCapability.class).getColor();
+    	// set font for  magnification capability
+        labelFont.setMagnification(getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue());
         if (status == SelectionStatus.SELECTED) {
             color = GRAY;
         }
@@ -154,6 +169,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
         dString.basics.z = 0.0;
         dString.textStyle = TextStyle.NORMAL;
         dString.horizontalAlignment = HorizontalAlignment.LEFT;
+        dString.font = labelFont;
         target.drawStrings(dString);
 
     }

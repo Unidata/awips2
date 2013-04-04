@@ -34,6 +34,9 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.pointdatacontrol.data.PointControlPeTs;
 import com.raytheon.viz.hydro.pointdatacontrol.db.PDCDataManager;
@@ -53,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 25 JAN 2011  7625       bkowal      The dialog will now be a modal dialog
  *                                     and it will include a title bar and
  *                                     close button.
+ * 07 FEB 2013  1578       rferrel     Change for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -61,6 +65,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class FilteringDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FilteringDlg.class);
+
+    /** Type sources to always include. */
     private static final String[] HARD_CODED_TYPE_SOURCES = { "RG", "RP", "RM",
             "RR", "RZ" };
 
@@ -122,7 +130,7 @@ public class FilteringDlg extends CaveSWTDialog {
      */
     public FilteringDlg(Shell parent, String title, DialogType dialogType,
             String peSelection) {
-        super(parent, SWT.DIALOG_TRIM | SWT.SYSTEM_MODAL);
+        super(parent, SWT.DIALOG_TRIM | SWT.SYSTEM_MODAL, CAVE.DO_NOT_BLOCK);
         setText(title);
 
         this.dialogType = dialogType;
@@ -130,6 +138,11 @@ public class FilteringDlg extends CaveSWTDialog {
         this.peSelection = peSelection;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, true);
@@ -138,6 +151,13 @@ public class FilteringDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -181,7 +201,7 @@ public class FilteringDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 handleApply();
                 setReturnValue(true);
-                shell.dispose();
+                close();
             }
         });
 
@@ -194,7 +214,7 @@ public class FilteringDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(false);
-                shell.dispose();
+                close();
             }
         });
 
@@ -367,9 +387,8 @@ public class FilteringDlg extends CaveSWTDialog {
                     ArrayList<String> tsList = new ArrayList<String>();
 
                     // add all of the hard_coded_type_sources
-                    int i = 0;
-                    for (i = 0; i < HARD_CODED_TYPE_SOURCES.length; i++) {
-                        tsList.add(HARD_CODED_TYPE_SOURCES[i]);
+                    for (String ts : HARD_CODED_TYPE_SOURCES) {
+                        tsList.add(ts);
                     }
 
                     if ((rs != null) && (rs.size() > 0)) {
@@ -429,7 +448,8 @@ public class FilteringDlg extends CaveSWTDialog {
                 }
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Error populating list: "
+                    + e);
         }
     }
 

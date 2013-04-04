@@ -37,6 +37,9 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.pointdatacontrol.data.PointDataPreset;
 import com.raytheon.viz.hydro.pointdatacontrol.db.PDCDataManager;
@@ -50,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
+ * 07 FEB 2013  1578       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -58,17 +62,26 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class PDC_SaveDlg extends CaveSWTDialog {
-    private static final String PRESET_ERROR_TITLE = "Invalid Value";
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PDC_SaveDlg.class);
 
-    private static final String PRESET_ID_ERROR = "Invalid Preset Identifier.";
+    /** Title for Warning message dialog. */
+    private final String PRESET_ERROR_TITLE = "Invalid Value";
 
-    private static final String PRESET_DESC_ERROR = "Invalid Preset Description.";
+    /** Message when invalid new ID. */
+    private final String PRESET_ID_ERROR = "Invalid Preset Identifier.";
 
-    private static final String PRESET_RANK_ERROR = "Invalid Preset Rank.";
+    /** Message when invalid new description. */
+    private final String PRESET_DESC_ERROR = "Invalid Preset Description.";
 
-    private static final String ERROR_TITLE = "Error Occurred";
+    /** Message when invalid new rank. */
+    private final String PRESET_RANK_ERROR = "Invalid Preset Rank.";
 
-    private static final String SAVE_ERROR_MESSAGE = "An error occurred during the save function.";
+    /** Title for Error dialog when save fails. */
+    private final String ERROR_TITLE = "Error Occurred";
+
+    /** Error message when save fails. */
+    private final String SAVE_ERROR_MESSAGE = "An error occurred during the save function.";
 
     /**
      * Current information unique ID.
@@ -123,13 +136,18 @@ public class PDC_SaveDlg extends CaveSWTDialog {
      */
     public PDC_SaveDlg(Shell parent, int selection,
             PointDataControlDlg parentDialog) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Save Preset Options");
 
         this.selection = selection;
         this.parentDialog = parentDialog;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -139,6 +157,13 @@ public class PDC_SaveDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -230,7 +255,7 @@ public class PDC_SaveDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 boolean status = saveData();
                 if (status) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -243,7 +268,7 @@ public class PDC_SaveDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(false);
-                shell.dispose();
+                close();
             }
         });
     }
@@ -277,8 +302,8 @@ public class PDC_SaveDlg extends CaveSWTDialog {
                 newRankTF.setText("");
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem populating text fields: ", e);
         }
     }
 
@@ -291,30 +316,33 @@ public class PDC_SaveDlg extends CaveSWTDialog {
         PointDataPreset presetNode = new PointDataPreset();
         boolean matchFound = false;
 
+        StringBuilder sb = new StringBuilder();
+        String prefix = "";
+
         /* Check for valid values */
         String editedPresetId = newUniqueIdTF.getText().trim();
         if ((editedPresetId == null) || (editedPresetId.length() == 0)) {
-            MessageDialog.openWarning(shell, PRESET_ERROR_TITLE,
-                    PRESET_ID_ERROR);
-            return false;
-        }
-        String editedDesc = newDescTF.getText().trim();
-        if ((editedDesc == null) || (editedDesc.length() == 0)) {
-            MessageDialog.openWarning(shell, PRESET_ERROR_TITLE,
-                    PRESET_DESC_ERROR);
-            return false;
+            sb.append(PRESET_ID_ERROR);
+            prefix = "\n";
         }
 
-        int rank;
+        String editedDesc = newDescTF.getText().trim();
+        if ((editedDesc == null) || (editedDesc.length() == 0)) {
+            sb.append(prefix).append(PRESET_DESC_ERROR);
+            prefix = "\n";
+        }
+
+        int rank = -1;
         try {
             rank = Integer.parseInt(newRankTF.getText().trim());
         } catch (NumberFormatException nfe) {
-            MessageDialog.openWarning(shell, PRESET_ERROR_TITLE,
-                    PRESET_RANK_ERROR);
-            return false;
+            sb.append(prefix).append(PRESET_RANK_ERROR);
         } catch (Exception e) {
-            MessageDialog.openWarning(shell, PRESET_ERROR_TITLE,
-                    PRESET_RANK_ERROR);
+            sb.append(prefix).append(PRESET_RANK_ERROR);
+        }
+
+        if (sb.length() > 0) {
+            MessageDialog.openWarning(shell, PRESET_ERROR_TITLE, sb.toString());
             return false;
         }
 
@@ -356,11 +384,11 @@ public class PDC_SaveDlg extends CaveSWTDialog {
                 dataManager.insertPreset(presetNode);
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Save Error: ", e);
             success = false;
             MessageDialog.openError(shell, ERROR_TITLE, SAVE_ERROR_MESSAGE);
         } catch (ParseException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Save Error: ", e);
             success = false;
             MessageDialog.openError(shell, ERROR_TITLE, SAVE_ERROR_MESSAGE);
         }

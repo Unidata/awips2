@@ -32,7 +32,14 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Jms Pooled Consumer. Tracks references to the consumers to know when consumer
+ * can be released to pool. Any exception will close pooled consumer instead of
+ * returning to pool.
+ * 
+ * Synchronization Principle To prevent deadlocks: Chained sync blocks can only
+ * happen in a downward direction. A manager has a synchronized lock can make a
+ * call down to a wrapper, but not nice versa. Also a session inside a sync
+ * block can make a call down to a producer but not vice versa.
  * 
  * <pre>
  * 
@@ -41,8 +48,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2011            rjpeter     Initial creation
- * Mar 08, 2012   194   njensen   Improved logging
- * 
+ * Mar 08, 2012 194        njensen     Improved logging
+ * Feb 26, 2013 1642       rjpeter     Removed lazy initialization
  * </pre>
  * 
  * @author rjpeter
@@ -55,34 +62,31 @@ public class JmsPooledConsumer {
 
     private final JmsPooledSession sess;
 
-    private final Destination destination;
-
-    private final String messageSelector;
-
-    private MessageConsumer consumer;
+    private final MessageConsumer consumer;
 
     private final String destKey;
 
-    private boolean exceptionOccurred = false;
+    private volatile boolean exceptionOccurred = false;
 
-    private Object stateLock = new Object();
+    private final Object stateLock = new Object();
 
-    private State state = State.InUse;
+    private volatile State state = State.InUse;
 
     /**
      * Technically a pooled consumer should only have 1 reference at a time.
      * Bullet proofing in case 3rd party ever tries to get multiple consumers to
      * the same destination.
      */
-    private List<JmsConsumerWrapper> references = new ArrayList<JmsConsumerWrapper>(
+    private final List<JmsConsumerWrapper> references = new ArrayList<JmsConsumerWrapper>(
             1);
 
     public JmsPooledConsumer(JmsPooledSession sess, String destKey,
-            Destination destination, String messageSelector) {
+            Destination destination, String messageSelector)
+            throws JMSException {
         this.sess = sess;
         this.destKey = destKey;
-        this.destination = destination;
-        this.messageSelector = messageSelector;
+        consumer = sess.getSession().createConsumer(destination,
+                messageSelector);
     }
 
     public String getDestKey() {
@@ -151,7 +155,7 @@ public class JmsPooledConsumer {
                 close = true;
 
                 for (JmsConsumerWrapper wrapper : references) {
-                    wrapper.closeInternal();
+                    wrapper.closeWrapper();
                 }
 
                 references.clear();
@@ -159,15 +163,12 @@ public class JmsPooledConsumer {
         }
 
         if (close) {
-            if (consumer != null) {
-                try {
-                    statusHandler.info("Closing consumer " + consumer); // njensen
-                    consumer.close();
-                } catch (Throwable e) {
-                    statusHandler.handle(Priority.INFO,
-                            "Failed to close consumer " + consumer, e);
-                }
-                consumer = null;
+            try {
+                statusHandler.info("Closing consumer " + consumer); // njensen
+                consumer.close();
+            } catch (Throwable e) {
+                statusHandler.handle(Priority.WARN, "Failed to close consumer "
+                        + consumer, e);
             }
 
             sess.removeConsumerFromPool(this);
@@ -206,18 +207,6 @@ public class JmsPooledConsumer {
     }
 
     public MessageConsumer getConsumer() throws JMSException {
-        // TODO: allow this to automatically grab a new consumer if the current
-        // one fails, try up to 3 times so that we don't always drop messages on
-        // a single failure
-        if (consumer == null) {
-            synchronized (this) {
-                if (consumer == null) {
-                    consumer = sess.getSession().createConsumer(destination,
-                            messageSelector);
-                }
-            }
-        }
-
         return consumer;
     }
 
