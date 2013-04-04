@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,8 +81,10 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
+ * 01/02/13      DR 1569    D. Hladky   constants, arraylist to list and moved common menthods here
+ * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
+ * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * </pre>
- * 
  * @author dhladky
  * @version 1
  */
@@ -195,7 +199,7 @@ public class FFMPUtils {
             double extent, String cwa, String mode) {
 
         LinkedHashMap<String, FFMPVirtualGageBasinMetaData> virtualBasins = new LinkedHashMap<String, FFMPVirtualGageBasinMetaData>();
-        String sql = "SELECT lid, county, name, lat, lon FROM location "
+        String sql = "SELECT lid, county, name, lat, lon, state FROM location "// DR 13228 state added
                 + "where lid in " + "(select distinct(lid) from IngestFilter "
                 + "where pe in ('PC', 'PP') " + "and ingest = 'T' "
                 + "and dur < 2000)";
@@ -301,18 +305,20 @@ public class FFMPUtils {
         int startDepth = prelimstartDepth;
 
         for (int i = 0; i < pfafs.length; i++) {
-            int depth = pfafs[i].indexOf("0");
+            int depth = pfafs[i].substring(prelimstartDepth).indexOf("0");
+            depth = prelimstartDepth + depth;
             if (depth > maxDepth) {
                 maxDepth = depth;
             }
         }
-
+        
         // do an 80% analysis to find min (startDepth)
         if (pfafs.length > 0) {
             for (int myMinDepth = maxDepth; myMinDepth > 0; myMinDepth--) {
                 int ilevelcount = 0;
                 for (int i = 0; i < pfafs.length; i++) {
-                    int idepth = pfafs[i].indexOf("0");
+                    int idepth = pfafs[i].substring(prelimstartDepth).indexOf("0");
+                    idepth = prelimstartDepth + idepth;
                     if (idepth >= myMinDepth) {
                         ilevelcount++;
                     }
@@ -443,7 +449,7 @@ public class FFMPUtils {
             long divisor = (long) Math.pow(10,
                     Integer.parseInt(huc.substring(3)));
             rval = new Long(pfaf / divisor);
-        } else if ("ALL".equals(huc) || "VIRTUAL".equals(huc)) {
+        } else if (FFMPRecord.ALL.equals(huc) || FFMPRecord.VIRTUAL.equals(huc)) {
             pfaf.toString().substring(0, templates.getHucDepthStart());
         }
 
@@ -459,7 +465,7 @@ public class FFMPUtils {
             long divisor = (long) Math.pow(10,
                     Integer.parseInt(huc.substring(3)));
             rval = new Long(pfaf / divisor);
-        } else if ("ALL".equals(huc) || "VIRTUAL".equals(huc)) {
+        } else if (FFMPRecord.ALL.equals(huc) || FFMPRecord.VIRTUAL.equals(huc)) {
             rval = Long.parseLong(pfaf.toString().substring(0,
                     templates.getHucDepthStart()));
         }
@@ -800,7 +806,7 @@ public class FFMPUtils {
     public static Geometry getCwaGeometry(String cwa, String mode) {
         // convert buffer to km, then degrees
         String sql = "Select asBinary("
-                + ScanUtils.getStandardResolutionLevel("cwa")
+                + ScanUtils.getHighResolutionLevel("cwa") // DR 13228.getStandardResolutionLevel("cwa")
                 + ") from mapdata.cwa where cwa = '" + cwa + "'";
 
         ISpatialQuery sq = null;
@@ -1214,7 +1220,11 @@ public class FFMPUtils {
         if ((lat != Double.NaN) && (lon != Double.NaN)) {
             basin.setCoordinate(new Coordinate(lon, lat));
         }
-
+        
+        if (dbResult[5] != null) {
+            basin.setState((String) dbResult[5]);// DR 13228
+        }
+        
         return basin;
     }
 
@@ -1272,8 +1282,8 @@ public class FFMPUtils {
      * @param guids
      * @return
      */
-    public static float getMaxRatioValue(ArrayList<Float> qpes,
-            ArrayList<Float> guids) {
+    public static float getMaxRatioValue(List<Float> qpes,
+            List<Float> guids) {
         float ratio = Float.NaN;
 
         if ((qpes.size() == guids.size()) && (qpes.size() > 0)
@@ -1319,8 +1329,8 @@ public class FFMPUtils {
      * @param guids
      * @return
      */
-    public static float getMaxDiffValue(ArrayList<Float> qpes,
-            ArrayList<Float> guids) {
+    public static float getMaxDiffValue(List<Float> qpes,
+            List<Float> guids) {
         float diff = Float.NaN;
         if ((qpes.size() == guids.size()) && (qpes.size() > 0)
                 && (guids.size() > 0)) {
@@ -1338,4 +1348,15 @@ public class FFMPUtils {
 
         return diff;
     }
+    
+    /**
+     * Get the file used to store aggregate records
+     * @param cwa
+     * @param sourceSiteDataKey
+     * @return
+     */
+    public static File getHdf5File(String cwa, String sourceSiteDataKey) {
+        return new File("ffmp" + File.separatorChar + cwa + File.separatorChar + sourceSiteDataKey + ".h5");
+    }
+    
 }

@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 10, 2012 14715      rferrel     Initial creation
+ * Mar 21, 2013 15375      zhao        Modified to also handle AvnFPS VFT product
  * 
  * </pre>
  * 
@@ -240,15 +241,32 @@ public class TafQueueManager implements Runnable {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         Date nextPurgeTime = cal.getTime();
+        
+        /**
+         * (for DR15375)
+         */
+        TafQueueVFTMgr vftMgr = TafQueueVFTMgr.getInstance(); 
+        Date nextVftTime = null;
 
         while (true) {
             try {
+            	
                 processList = dao.getRecordsToSend();
 
                 if (processList.size() > 0) {
                     prossessSendJobs(processList, dao);
                     // more PENDING may have been added while sending
                     continue;
+                }
+                
+                /**
+                 * (for DR15375)
+                 */
+            	nextVftTime = vftMgr.getNextVftTime();
+                if ( nextVftTime.compareTo(Calendar.getInstance().getTime()) <= 0 ) {
+                	vftMgr.makeVftProduct();
+                	// transmit immediately
+                	continue;
                 }
 
                 if (nextPurgeTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
@@ -266,10 +284,17 @@ public class TafQueueManager implements Runnable {
                     nextProccessTime = nextPurgeTime;
                 } else if (nextProccessTime.compareTo(nextPurgeTime) > 0) {
                     nextProccessTime = nextPurgeTime;
-                } else if (nextProccessTime.compareTo(Calendar.getInstance()
-                        .getTime()) <= 0) {
+                } else if (nextProccessTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
                     // immediate transmit placed on queue while processing.
                     continue;
+                }
+                
+                /**
+                 * (DR15375)
+                 */
+                nextVftTime = vftMgr.getNextVftTime();
+                if ( nextVftTime.compareTo(nextProccessTime) < 0 ) {
+                	nextProccessTime = nextVftTime;
                 }
 
                 synchronized (this) {

@@ -27,6 +27,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
  * 
  * 08/21/11     450         G. Hull     add LocalizationFile                 
  * 05/02/12     778         Q. Zhou     Changed symbol size form int to double               
+ * 10/18/2012   431         S. Gurung   Added support for ConditionalParameter and ConditionalColorBar       
+ *  
  * </pre>
  * 
  * @author mli
@@ -229,10 +231,26 @@ public class PlotModel {
         		newColor.setBlue(pme.getColor().getBlue());
         		newPlotModelElement.setColor( newColor );
         	}
+        	if( pme.getConditionalParameter() != null ) {
+        		newPlotModelElement.setConditionalParameter( pme.getConditionalParameter() );
+        	}
+        	if( pme.getConditionalColorBar() != null ) {
+        		newPlotModelElement.setConditionalColorBar( pme.getConditionalColorBar() );
+        	}
         	
         	plotModelElement.add( newPlotModelElement );
     	}    	
         
         lFile = pm.lFile;
     }    
+    
+    public boolean hasAdvancedSettings() {    	
+    	
+    	 for( PlotModelElement pme : plotModelElement ) {
+    		if (pme.hasAdvancedSettings()) 
+    			return true;
+    	 }
+    	
+    	return false;
+    }
 }

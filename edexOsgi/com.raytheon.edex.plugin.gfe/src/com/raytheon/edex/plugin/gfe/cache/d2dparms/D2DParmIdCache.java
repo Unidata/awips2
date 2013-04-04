@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
@@ -47,6 +46,7 @@ import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -70,6 +70,8 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  *                                     D2DParmIdCache toGfeIngestNotificationFilter. 
  *                                     Added code to match wind components and send 
  *                                     GridUpdateNotifications.
+ * Mar 20, 2013  #1774    randerso     Changde to use GFDD2DDao
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -308,7 +310,6 @@ public class D2DParmIdCache {
                     "Building D2DParmIdCache for " + siteID + "...");
             IFPServerConfig config = IFPServerConfigManager
                     .getServerConfig(siteID);
-            GFEDao dao = new GFEDao();
             Set<ParmID> parmIds = new HashSet<ParmID>();
             long start = System.currentTimeMillis();
             List<String> d2dModels = config.getD2dModels();
@@ -318,8 +319,8 @@ public class D2DParmIdCache {
                 if ((d2dModelName != null) && (gfeModel != null)) {
                     List<DatabaseID> dbIds = null;
                     try {
-                        dbIds = dao.getD2DDatabaseIdsFromDb(d2dModelName,
-                                gfeModel, siteID);
+                        dbIds = D2DGridDatabase.getD2DDatabaseIdsFromDb(config,
+                                d2dModelName);
                     } catch (DataAccessLayerException e) {
                         throw new PluginException(
                                 "Unable to get D2D Database Ids from database!",
@@ -333,9 +334,14 @@ public class D2DParmIdCache {
 
                         for (int i = 0; i < versions; i++) {
                             try {
-                                parmIds.addAll(dao.getD2DParmIdsFromDb(
-                                        d2dModelName, dbIds.get(i)));
-                            } catch (DataAccessLayerException e) {
+                                D2DGridDatabase db = (D2DGridDatabase) GridParmManager
+                                        .getDb(dbIds.get(i));
+                                ServerResponse<List<ParmID>> sr = db
+                                        .getParmList();
+                                if (sr.isOkay()) {
+                                    parmIds.addAll(sr.getPayload());
+                                }
+                            } catch (GfeException e) {
                                 throw new PluginException(
                                         "Error adding parmIds to D2DParmIdCache!!",
                                         e);

@@ -127,6 +127,20 @@ public class EDEXUtil implements ApplicationContextAware {
 
     }
 
+    /**
+     * Retrieve an object from the ESB context This object could be a Spring
+     * Bean, a context or a property container
+     * 
+     * @param clazz
+     *            the return class type
+     * @param name
+     *            the name of the component
+     * @return The casted instance
+     */
+    public static <T> T getESBComponent(Class<T> clazz, String name) {
+        return clazz.cast(getESBComponent(name));
+    }
+
     public static boolean isRunning() {
         return "Operational".equals(System.getProperty("System.status"));
     }
@@ -263,4 +277,5 @@ public class EDEXUtil implements ApplicationContextAware {
     public static String getAlertendpoint() {
         return alertEndpoint;
     }
+
 }

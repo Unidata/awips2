@@ -45,6 +45,7 @@ import org.eclipse.ui.progress.UIJob;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ui.actions.ShowTimeDialog;
@@ -62,6 +63,7 @@ import com.raytheon.viz.ui.actions.ShowTimeDialog;
  * ------------ ---------- ----------- --------------------------
  * Nov 30,2007  461        bphillip    Initial Creation
  * 09JUL2008    1234        ebabin      Updates for color, and display issues.
+ * Jan 09, 2013 1442       rferrel     Added Simulated Time Change listener.
  * 
  * </pre>
  * 
@@ -140,6 +142,8 @@ public class TimeDisplay extends ContributionItem {
     // workaround for the random tooltip following the cursor
     private boolean displayTooltip = true;
 
+    private ISimulatedTimeChangeListener timeChangeListener;
+
     /**
      * Constructor
      */
@@ -150,6 +154,15 @@ public class TimeDisplay extends ContributionItem {
         gmtFormatter.setTimeZone(GMT);
 
         localFormatter = new SimpleDateFormat(localPattern);
+        timeChangeListener = new ISimulatedTimeChangeListener() {
+
+            @Override
+            public void timechanged() {
+                update();
+            }
+        };
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(
+                timeChangeListener);
     }
 
     /*
@@ -160,6 +173,8 @@ public class TimeDisplay extends ContributionItem {
     @Override
     public void dispose() {
         activeList.remove(this);
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(
+                timeChangeListener);
         super.dispose();
     }
 

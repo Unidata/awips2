@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.gfe.point.GFEPointDataContainer;
+import com.raytheon.uf.common.dataplugin.gfe.point.GFEPointDataContainers;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetPointDataRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
@@ -36,7 +36,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
- * TODO Add Description
+ * Static utility methods for use with python code.
  * 
  * <pre>
  * 
@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 29, 2009            njensen     Initial creation
+ * Mar 11, 2013 1735       rferrel     Get a list of GFE Point Data Containers
  * 
  * </pre>
  * 
@@ -85,17 +86,17 @@ public class GuidanceUtil {
     }
 
     /**
-     * Get the GFE Point Data information for the task request.
+     * Get a list of GFE Point Data information for the task request.
      * 
      * @param task
-     * @return gfePointDataContainer
+     * @return gfePointDataContainers
      * @throws VizException
      */
     @SuppressWarnings("unchecked")
-    public static GFEPointDataContainer getGFEPointData(GetPointDataRequest task)
-            throws VizException {
+    public static GFEPointDataContainers getGFEPointsData(
+            GetPointDataRequest task) throws VizException {
         task.setWorkstationID(VizApp.getWsId());
-        ServerResponse<GFEPointDataContainer> sr = (ServerResponse<GFEPointDataContainer>) ThriftClient
+        ServerResponse<GFEPointDataContainers> sr = (ServerResponse<GFEPointDataContainers>) ThriftClient
                 .sendRequest(task);
         return sr.getPayload();
     }

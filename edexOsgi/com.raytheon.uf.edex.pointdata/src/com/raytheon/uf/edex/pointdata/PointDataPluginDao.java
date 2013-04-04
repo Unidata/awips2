@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2009            chammack     Initial creation
+ * Jan 14, 2013 1469       bkowal       Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -446,8 +447,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
 
     public File getFullFilePath(PluginDataObject p) {
         File file;
-        String directory = HDF5_DIR + File.separator + p.getPluginName()
-                + File.separator
+        String directory = p.getPluginName() + File.separator
                 + pathProvider.getHDFPath(p.getPluginName(), (IPersistable) p);
         file = new File(directory
                 + File.separator
@@ -708,9 +708,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             }
             bm.putAll(obj);
             T bean = (T) bm.getBean();
-            return HDF5_DIR
-                    + File.separator
-                    + this.pluginName
+            return this.pluginName
                     + File.separator
                     + this.pathProvider.getHDFPath(this.pluginName,
                             (IPersistable) bean)

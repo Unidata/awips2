@@ -62,13 +62,13 @@ public class RotatePanelLayoutMenuAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        RotatePanelsHandler handler = new RotatePanelsHandler();
-        if (!(container instanceof IMultiPaneEditor)) {
-            return;
-        }
-        IMultiPaneEditor editor = (IMultiPaneEditor) container;
-        editor.setSelectedPane(IMultiPaneEditor.IMAGE_ACTION, null);
-        handler.rotate(getContainer(), paneWithFocus, 1);
+        RotatePanelsHandler.rotateToNextPane((IMultiPaneEditor) getContainer(),
+                paneWithFocus);
+    }
+
+    @Override
+    public boolean isHidden() {
+        return container instanceof IMultiPaneEditor == false;
     }
 
 }

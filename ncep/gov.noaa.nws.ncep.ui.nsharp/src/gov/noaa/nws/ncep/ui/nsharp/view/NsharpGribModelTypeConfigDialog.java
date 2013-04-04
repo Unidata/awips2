@@ -114,8 +114,8 @@ public class NsharpGribModelTypeConfigDialog extends Dialog {
 					availableModelTypeList.add(modelName);
 			}
 		}
-    	else
-    		modelTypeList = null;
+    	//else
+    	//	modelTypeList = null;
     	return modelTypeList;
 	}
 	private void createDialogContents(Composite parent){

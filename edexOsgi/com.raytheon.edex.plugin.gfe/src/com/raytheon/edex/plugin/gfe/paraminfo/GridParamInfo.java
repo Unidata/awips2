@@ -20,8 +20,11 @@
 package com.raytheon.edex.plugin.gfe.paraminfo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,6 +34,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * 
@@ -41,7 +45,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 24, 2010 #6372      bphillip     Initial creation
+ * Jun 24, 2010 #6372      bphillip    Initial creation
+ * Mar 20, 2013 #1774      randerso    Added getParmNames, 
+ *                                     changed getAvailableTimes to match A1
  * 
  * </pre>
  * 
@@ -108,12 +114,21 @@ public class GridParamInfo {
     }
 
     public List<TimeRange> getAvailableTimes(Date refTime) {
-        List<TimeRange> availTimes = new ArrayList<TimeRange>();
-        for (int i = 1; i < times.size(); i++) {
-            availTimes.add(new TimeRange(refTime.getTime() + times.get(i - 1)
-                    * 1000, refTime.getTime() + times.get(i) * 1000));
+        List<TimeRange> availTimes = new ArrayList<TimeRange>(times.size());
+        for (Integer fcstHour : times) {
+            availTimes.add(new TimeRange(new Date(refTime.getTime() + fcstHour
+                    * TimeUtil.MILLIS_PER_SECOND), TimeUtil.MILLIS_PER_HOUR));
         }
         return availTimes;
     }
 
+    public Collection<String> getParmNames() {
+        List<ParameterInfo> paramInfoList = this.getGridParamInfo();
+        Set<String> parmNames = new HashSet<String>();
+        for (ParameterInfo info : paramInfoList) {
+            parmNames.add(info.getShort_name());
+        }
+
+        return parmNames;
+    }
 }

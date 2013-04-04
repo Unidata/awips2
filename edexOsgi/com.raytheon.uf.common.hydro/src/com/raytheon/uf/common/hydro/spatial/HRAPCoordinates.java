@@ -68,7 +68,9 @@ public class HRAPCoordinates {
                     + " in coordinate file: " + coordFile.getAbsolutePath(), e);
         } finally {
             try {
-                in.close();
+                if (in != null) {
+                    in.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
