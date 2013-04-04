@@ -9,6 +9,7 @@
 GLEVEL =  0                                                                     
 GVCORD =  none                                                                    
 SKIP   =    0                                                                       
+FILTER=y
 SCALE  =   0                                                                     
 GDPFUN =  p72i
 TYPE   =    f                                                                   
@@ -24,6 +25,5 @@ TITLE  =   5/-1/3-day (F72-F144) PCPN ! 0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
 GDATTIM=  f72-last-06
 

@@ -63,7 +63,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizConstants;
@@ -324,8 +323,8 @@ public class SkewtDisplay extends AbstractRenderableDisplay implements
     }
 
     @Override
-    public void clear(IDisplayPane parentPane) {
-        super.clear(parentPane);
+    public void clear() {
+        super.clear();
         IWorkbenchPage page = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
         page.closeEditor(getEditor(), false);

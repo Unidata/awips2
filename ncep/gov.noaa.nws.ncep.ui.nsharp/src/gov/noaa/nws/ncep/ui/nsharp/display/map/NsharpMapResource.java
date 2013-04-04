@@ -158,8 +158,6 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	@SuppressWarnings("unused")
 	private static void createMapEditor(){
 		// create an editor MapEditor
-		File rbdFile = NcPathManager.getInstance().getStaticFile( 
-		         NcPathConstants.DFLT_RBD );
 		try {
 			
 			IEditorPart ep = EditorUtil.getActiveEditor();
@@ -172,7 +170,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	       
 	        for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
 	        	System.out.println( "A resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
-			RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+			RbdBundle rbd = RbdBundle.getDefaultRBD();
 			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
 			rbdLoader.addRBD( rbd, mapEditor );
 			VizApp.runSync( rbdLoader );
@@ -188,8 +186,6 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	}
 	private static void createMapEditorTest(){
 		// create an editor MapEditor
-		File rbdFile = NcPathManager.getInstance().getStaticFile( 
-		         NcPathConstants.DFLT_RBD );
 		try {
 
 			IEditorPart ep = EditorUtil.getActiveEditor();
@@ -199,8 +195,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 			}else {
 				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
 
-
-				RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+				RbdBundle rbd = RbdBundle.getDefaultRBD();
 				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
 				rbdLoader.addRBD( rbd, mapEditor );
 				VizApp.runSync( rbdLoader );

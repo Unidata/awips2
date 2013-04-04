@@ -1,0 +1,8 @@
+<parameterNameAliasList>
+	<parameterNameAlias name="uW">
+		<alias>ugrdprs</alias>
+	</parameterNameAlias>
+	<parameterNameAlias name="vW">
+		<alias>vgrdprs</alias>
+	</parameterNameAlias>
+</parameterNameAliasList>

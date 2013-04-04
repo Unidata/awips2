@@ -35,7 +35,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 19Nov 2011      dhladky     Initial creation
+ * 29 Jan 2013  15729      wkwock      fix the algorithm
  * 
  * </pre>
  * 
@@ -115,18 +116,16 @@ public class FreezingLevel {
     public DirectPosition2D findXYloc(Coordinate coor, String type){
         ScanDataCache cache = ScanDataCache.getInstance();
 
-        ISpatialObject iso = cache.getModelData().getGribRecord(modelName, type).getSpatialObject();
+        ISpatialObject iso = cache.getModelData().getGridRecord(modelName, type).getSpatialObject();
         CoordinateReferenceSystem crs=iso.getCrs();
         GridGeometry2D mapGeometry = MapUtil.getGridGeometry(iso);
         DirectPosition2D resultPoint;
         try {
         	resultPoint = PointUtil.determineExactIndex(
 		        coor, crs, mapGeometry);
-        	System.out.println("Freezing level -- lat,lon:"+coor+" = "+resultPoint);
         	return resultPoint;
        	} catch (Exception e) {
-        	System.out.println("Error: Freezing level -- unable to find x,y coordinate for lat,lon:"+coor);
-        	e.printStackTrace();
+        	logger.error("Error: Freezing level -- unable to find x,y coordinate for lat,lon:"+coor);
         }
        	return null;
     }
@@ -138,22 +137,24 @@ public class FreezingLevel {
      * @return bi-linear interpolation amount the nearest 4 points
      * @throws VizException
      */
-    public double getValue(String modelName, String prodType, Coordinate coor) {
+    public Double getValue(String modelName, String prodType, Coordinate coor) {
         double value = -99999.0;
         try {
         	//xyLoc is the location in x,y
         	DirectPosition2D xyLoc = findXYloc(coor, prodType);
-        	
+
         	//data from hdf5
         	ScanDataCache cache = ScanDataCache.getInstance();
-            GribRecord gribRec = cache.getModelData().getGribRecord(modelName, prodType);
+            GridRecord gribRec = cache.getModelData().getGridRecord(modelName, prodType);
             FloatDataRecord rec = (FloatDataRecord) gribRec.getMessageData();
             
             //dimension of the record from hdf5, recNx =151 and recNy=113 during development
             int recNx = gribRec.getSpatialObject().getNx();
-            int recNy = gribRec.getSpatialObject().getNy();
             
             //get four nearest points/values form the record around xyLoc
+            xyLoc.y=xyLoc.y * 0.9941; //A special adjustment due to PointUtil.determineExactIndex
+            xyLoc.x=xyLoc.x * 0.9983; // is not as accurate as A1
+
             int x0=(int)(xyLoc.x);
             int x1=x0+1;
             int y0=(int)(xyLoc.y);
@@ -164,19 +165,19 @@ public class FreezingLevel {
             double p3=xyLoc.y-y0;
             double p4=1-p3;
             
-            double value2 = rec.getFloatData()[(recNx * y0) + x0];
-            double value3 = rec.getFloatData()[(recNx * y0) + x1];
-            double value0 = rec.getFloatData()[(recNx * y1) + x0];
-            double value1 = rec.getFloatData()[(recNx * y1) + x1];
+            double value0 = rec.getFloatData()[(recNx * y0) + x0];
+            double value1 = rec.getFloatData()[(recNx * y0) + x1];
+            double value2 = rec.getFloatData()[(recNx * y1) + x0];
+            double value3 = rec.getFloatData()[(recNx * y1) + x1];
 
             //do a bi-linear interpolation amount the nearest 4 points
             value = (p1*p4*value1)+(p2*p4*value0)+(p1*p3*value3)+(p2*p3*value2);
-            logger.info("bi-linear interpolation value: "+value+" "+value0+" "+value1+
-            		" "+value2+" "+value3+" for coor:"+coor+" "+recNx+","+recNy);
+            logger.info("bi-linear interpolation: "+value+"-->("+value0+","+value1+
+            		","+value2+","+value3+") at "+xyLoc);
         } catch (Exception e) {
             logger.error("No Grib value available....." + modelName + " "
                     + prodType+" lat,lon:"+coor);
-            e.printStackTrace();
+            return null;
         }
         return value;
     }
@@ -219,9 +220,6 @@ public class FreezingLevel {
             int foundValFlag=-1;//-1=all ghValue and tValue are null,
            //0=all ghValue<=-9000 and  tValue<=273.16, 1=found a fLevel
 
-            System.out
-                    .println("********** Starting Freezing Level Calculations *****************");
-
             TreeSet<Integer> ts= new TreeSet<Integer>(ghValues.keySet());//want an asc sorted list
             Iterator<Integer> it = ts.iterator();
 
@@ -231,8 +229,6 @@ public class FreezingLevel {
 
                 Double tValue = tValues.get(level);
                 Double ghValue = ghValues.get(level);
-                System.out.println("GH Value: " + ghValue + " TValue: "
-                        + tValue);
 
                 if (ghValue != null && tValue != null && foundValFlag ==-1){
                 	foundValFlag=0;
@@ -245,14 +241,13 @@ public class FreezingLevel {
                                 .get(ktopLevel) - ghValue) * ((273.16 - tValues
                                 .get(jtopLevel)) / (tValue - tValues
                                 .get(jtopLevel))))) * .00328;
-                        System.out.println("Formula:");
-                        System.out.println("(" + ghValues.get(ktopLevel)
+                        logger.error("***Freezing level: "+fLevel+"="
+                                + "(" + ghValues.get(ktopLevel)
                                 + " - ((" + ghValues.get(ktopLevel) + " - "
                                 + ghValue + ") * ((273.16 - "
                                 + tValues.get(jtopLevel) + ") / (" + tValue
                                 + " - " + tValues.get(jtopLevel)
                                 + ")))) * .00328");
-                        System.out.println("*** FreezingLevel = " + fLevel);
                         foundValFlag=1;
                         freezingMap.put(coor, fLevel.floatValue());
                         break;
@@ -265,11 +260,8 @@ public class FreezingLevel {
             
             if (foundValFlag==0) {//this means all tValue are <= 273.16
             	freezingMap.put(coor, 0.0f);
-            	System.out.println("*** FreezingLevel = 0.0");
+            	logger.error("*** FreezingLevel = 0.0");
             }
-            
-            System.out
-                    .println("********** Finished Freezing Level Calculations *****************");
         }
 
         return freezingMap;
@@ -350,15 +342,15 @@ public class FreezingLevel {
      * @param param
      * @return
      */
-    private GribRecord populateRecord(String model, String param, Date refTime) {
+    private GridRecord populateRecord(String model, String param, Date refTime) {
         int interval = 1440;
 
         SCANModelParameterXML paramXML = new SCANModelParameterXML();
         paramXML.setModelName(model);
         paramXML.setParameterName(param);
         String sql = getSQL(interval, model, param, refTime);
-        System.out.println("Freezing level sql="+sql);
-        GribRecord modelRec = DATUtils.getMostRecentGribRecord(interval, sql,
+        logger.info("Freezing level sql="+sql);
+        GridRecord modelRec = DATUtils.getMostRecentGridRecord(interval, sql,
                 paramXML);
 
         if (modelRec != null) {
@@ -459,16 +451,12 @@ public class FreezingLevel {
         }
 
         // Gets the most recent record of it's type
-        String sql = "select datauri from grib where modelinfo_id = (select id from grib_models where parameterabbreviation = \'"
+        String sql = "select grid.datauri from grid, grid_info, level where grid.info_id = grid_info.id and grid_info.level_id = level.id and grid_info.parameter_abbreviation = \'"
                 + paramName
-                + "\' and modelname = \'"
+                + "\' and grid_info.datasetId = \'"
                 + model
-                + "\' and level_id = (select id from level where masterlevel_name = 'MB' and levelonevalue = '"
-                + level
-                + "\'"
-                + " limit 1)) and reftime='"
-                + refTimeStr + "' and forecasttime=0"
-                + " order by reftime desc, forecasttime desc limit 1";
+                + "\' and level.masterlevel_name = 'MB' and level.levelonevalue = '"
+                + level + "\' and grid.reftime=\'" + refTimeStr + "\' and grid.forecasttime=0 order by grid.reftime desc limit 1";
         return sql;
     }
 }

@@ -74,6 +74,7 @@ import com.raytheon.viz.warngen.WarngenException;
 import com.raytheon.viz.warngen.config.AbstractDbSourceDataAdaptor;
 import com.raytheon.viz.warngen.config.DataAdaptorFactory;
 import com.raytheon.viz.warngen.util.Abbreviation;
+import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -100,7 +101,10 @@ import com.vividsolutions.jts.geom.Point;
  *                                        in pathcast.
  *    Oct 05, 2012 DR15429    Qinglu Lin  Updated code to keep duplicate names of cities
  *                                        which are at different locations in pathcast.
- *    Oct 17, 2012            jsanchez    Moved the path cast data collecting to a seperate class.
+ *    Oct 17, 2012            jsanchez    Moved the path cast data collecting to a separate class.
+ *    Jan 31, 2013 1557       jsanchez    Used allowDuplicates flag to collect points with duplicate names.
+ *    Feb 12, 2013 1600       jsanchez    Used adjustAngle method from AbstractStormTrackResource.
+ *    Mar  5, 2013 1600       jsanchez    Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
  * 
  * </pre>
  * 
@@ -618,6 +622,7 @@ public class Wx {
 
         // All configs should have the same "isWithinPolygon" flag
         boolean isWithinPolygon = pointConfigs[0].isWithinPolygon();
+        boolean allowDuplicates = pointConfigs[0].isAllowDuplicates();
 
         // Sort by fields should have been validated to be same as well
         List<String> fields = pointConfigs[0].getSortBy() != null ? Arrays
@@ -702,12 +707,14 @@ public class Wx {
         GeodeticCalculator gc = new GeodeticCalculator();
         Map<String, ClosestPoint> nameMap = new HashMap<String, ClosestPoint>(
                 (int) (availablePoints.size() * 1.3));
+        List<ClosestPoint> pointsWithinDistance = new ArrayList<ClosestPoint>();
         for (int i = 0; i < coords.length; ++i) {
             Coordinate coord = localCoords[i];
             Geometry localDistanceGeom = dimensions == 1 ? localSearchArea : gf
                     .createPoint(coord);
             Geometry distanceGeom = dimensions == 1 ? searchArea : gf
                     .createPoint(coords[i]);
+            pointsWithinDistance.clear();
             nameMap.clear();
 
             for (ClosestPoint cp : availablePoints) {
@@ -716,33 +723,31 @@ public class Wx {
 
                 double distance = localDistanceGeom.distance(localPt);
                 if (distance <= thresholdInMeters) {
-                    // check map of currently added points for closer point with
-                    // the same name
-                    ClosestPoint existingPt = nameMap.get(cp.name);
-                    if (existingPt == null || distance < existingPt.distance) {
-                        // Set the distances
-                        ClosestPoint cp2 = new ClosestPoint(cp);
-                        cp2.distance = distance;
-                        cp2.roundedDistance = (int) metersToDistance
-                                .convert(distance);
-                        gc.setStartingGeographicPoint(cp2.point.x, cp2.point.y);
-                        Coordinate cen = distanceGeom.getCentroid()
-                                .getCoordinate();
-                        cen = GisUtil.restoreAlaskaLon(cen);
-                        gc.setDestinationGeographicPoint(cen.x, cen.y);
-                        cp2.azimuth = gc.getAzimuth();
-                        cp2.oppositeAzimuth = ClosestPoint
-                                .adjustAngle(cp2.azimuth + 180);
-                        cp2.roundedAzimuth = GeoUtil.roundAzimuth(cp2.azimuth);
-                        cp2.oppositeRoundedAzimuth = ClosestPoint
-                                .adjustAngle(cp2.roundedAzimuth + 180);
-                        nameMap.put(cp2.name, cp2);
+                    if (allowDuplicates) {
+                        // collect all points that are within the threshold
+                        ClosestPoint cp2 = createClosestPoint(cp, distance,
+                                metersToDistance, distanceGeom, gc);
+                        pointsWithinDistance.add(cp2);
+                    } else {
+                        // check map of currently added points for closer point
+                        // with the same name
+                        ClosestPoint existingPt = nameMap.get(cp.name);
+                        if (existingPt == null
+                                || distance < existingPt.distance) {
+                            ClosestPoint cp2 = createClosestPoint(cp, distance,
+                                    metersToDistance, distanceGeom, gc);
+                            nameMap.put(cp2.name, cp2);
+                        }
                     }
                 }
             }
 
-            List<ClosestPoint> pts = new ArrayList<ClosestPoint>(
-                    nameMap.values());
+            List<ClosestPoint> pts = null;
+            if (allowDuplicates) {
+                pts = new ArrayList<ClosestPoint>(pointsWithinDistance);
+            } else {
+                pts = new ArrayList<ClosestPoint>(nameMap.values());
+            }
             if (fields.isEmpty() == false) {
                 // Sort the points based on sortBy fields
                 Collections.sort(pts, new ClosestPointComparator(fields));
@@ -815,6 +820,40 @@ public class Wx {
         }
 
         return null;
+    }
+
+    /**
+     * Helper method to create a ClosestPoint object.
+     * 
+     * @param cp
+     * @param distance
+     *            between the cp to the
+     * @param metersToDistance
+     *            Unit converter to calculate the rounded distance.
+     * @param distanceGeom
+     *            Geometry search area.
+     * @param gc
+     *            Geodetic Calculator to determine the azimuth
+     * @return ClosestPoint object set with roundedDistance, azimuth, etc.
+     */
+    private ClosestPoint createClosestPoint(ClosestPoint cp, double distance,
+            UnitConverter metersToDistance, Geometry distanceGeom,
+            GeodeticCalculator gc) {
+        // Set the distances
+        ClosestPoint cp2 = new ClosestPoint(cp);
+        cp2.distance = distance;
+        cp2.roundedDistance = (int) metersToDistance.convert(distance);
+        gc.setStartingGeographicPoint(cp2.point.x, cp2.point.y);
+        Coordinate cen = GisUtil.restoreAlaskaLon(distanceGeom.getCentroid()
+                .getCoordinate());
+        gc.setDestinationGeographicPoint(cen.x, cen.y);
+        cp2.azimuth = gc.getAzimuth();
+        cp2.oppositeAzimuth = AdjustAngle.to360Degrees(cp2.azimuth + 180);
+        cp2.roundedAzimuth = GeoUtil.roundAzimuth(cp2.azimuth);
+        cp2.oppositeRoundedAzimuth = AdjustAngle
+                .to360Degrees(cp2.roundedAzimuth + 180);
+
+        return cp2;
     }
 
     public double getMovementSpeed() {

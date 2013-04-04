@@ -21,6 +21,9 @@
 package com.raytheon.edex.plugin.satellite;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -69,6 +72,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 04/17/2012  14724        kshresth    This is a temporary workaround - Projection off CONUS                                    
  * - AWIPS2 Baseline Repository --------
  * 06/27/2012    798        jkorman     Using SatelliteMessageData to "carry" the decoded image.
+ * 01/03/2013  15294        D. Friedman Start with File instead of byte[] to
+ *                                      reduce memory usage.
  * </pre>
  * 
  * @author bphillip
@@ -82,60 +87,64 @@ public class SatelliteDecoder extends AbstractDecoder {
 
     private static final String SAT_HDR_TT = "TI";
 
+    private static final int GINI_HEADER_SIZE = 512;
+
+    private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
+
     private SatelliteDao dao;
 
-    public PluginDataObject[] decode(byte[] data) throws Exception {
+    public PluginDataObject[] decode(File file) throws Exception {
 
         PluginDataObject[] retData = null;
 
         SatelliteRecord record = null;
 
-        if ((data != null) && (data.length > 0)) {
+        if (file == null || (file.length() < 1))
+            return new PluginDataObject[0];
+        RandomAccessFile f = new RandomAccessFile(file, "r");
+        try {
+            // Read in enough data to cover the WMO heading and GINI header.
+            ByteBuffer byteBuffer = ByteBuffer.allocate(INITIAL_READ);
+            f.getChannel().read(byteBuffer);
+            byteBuffer.flip();
+
             try {
-                data = removeWmoHeader(data);
+                removeWmoHeader(byteBuffer);
             } catch (DecoderException e) {
                 logger.error(e);
-                data = null;
+                byteBuffer = null;
             }
-            if (data != null) {
+            if (byteBuffer != null) {
+                int offsetOfDataInFile = byteBuffer.position() + GINI_HEADER_SIZE;
                 Calendar calendar = Calendar.getInstance(TimeZone
                         .getTimeZone("GMT"));
-                ByteBuffer byteBuffer = null;
                 int intValue = 0;
                 byte byteValue = 0;
                 byte[] tempBytes = null;
-                byte[] header = null;
                 byte threeBytesArray[] = new byte[3];
 
                 record = new SatelliteRecord();
 
-                if (isCompressed(data)) {
+                if (isCompressed(byteBuffer)) {
+                    /* If the data is compressed, we assume it came from the SBN
+                     * and will have a reasonable size such that we can have two
+                     * copies of the data in memory at the same time.  Ideally,
+                     * SBN decompression should be performed upstream from EDEX
+                     * and this code would be removed.
+                     */
+                    byte[] data = new byte[(int) file.length() - byteBuffer.position()];
+                    f.seek(byteBuffer.position());
+                    f.readFully(data);
                     byte[][] retVal = decompressSatellite(data);
-                    header = retVal[0];
-                    data = retVal[1];
-                }
-
-                if (header == null) {
-                    header = new byte[512];
-                    System.arraycopy(data, 0, header, 0, 512);
-                    // drop the header from the data in the header
-                    byte[] fullTempBytes = new byte[data.length - 512];
-                    System.arraycopy(data, 512, fullTempBytes, 0,
-                            fullTempBytes.length);
-                    int endOfGoodData = getIndex(fullTempBytes, 0);
-                    tempBytes = new byte[endOfGoodData];
-                    System.arraycopy(fullTempBytes, 0, tempBytes, 0,
-                            endOfGoodData);
-
+                    byteBuffer = ByteBuffer.wrap(retVal[0]);
+                    tempBytes = retVal[1];
                 } else {
-                    tempBytes = data;
+                    /* The code bellow performs absolute gets on the buffer, so
+                     * it needs to be compacted.
+                     */
+                    byteBuffer.compact();
+                    byteBuffer.flip();
                 }
-
-                // create a byte buffer
-                byteBuffer = ByteBuffer.allocate(512);
-
-                // add the header
-                byteBuffer.put(header, 0, 512);
 
                 // get the scanning mode
                 int scanMode = byteBuffer.get(37);
@@ -263,6 +272,15 @@ public class SatelliteDecoder extends AbstractDecoder {
                 int nx = byteBuffer.getShort(16);
                 // get number of points along y-axis
                 int ny = byteBuffer.getShort(18);
+
+                /* If input was SBN-compressed, we already have the data
+                 * loaded.  If not, load it now.
+                 */
+                if (tempBytes == null) {
+                    tempBytes = new byte[nx * ny];
+                    f.seek(offsetOfDataInFile);
+                    f.readFully(tempBytes, 0, tempBytes.length);
+                }
 
                 /*
                  * Rotate image if necessary
@@ -409,6 +427,12 @@ public class SatelliteDecoder extends AbstractDecoder {
                     record.setMessageData(dataRec);
                 }
             }
+        } finally {
+            try {
+                f.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
         if (record == null) {
             retData = new PluginDataObject[0];
@@ -425,20 +449,17 @@ public class SatelliteDecoder extends AbstractDecoder {
      * 
      * @throws DecoderException
      *             If WMO header is not found, or is incorrect.
-     * @return The byte array data with all leading information to the end of
-     *         the wmo header removed.
+     * @param messageData
+     *             Contains the start of the satellite data file.  On return,
+     *             the position is set the beginning of the GINI header.
      */
-    private byte[] removeWmoHeader(byte[] messageData) throws DecoderException {
-
-        int readSize = (messageData.length > 1024) ? 1024 : messageData.length;
-
-        byte[] retMessage = null;
+    private void removeWmoHeader(ByteBuffer messageData) throws DecoderException {
 
         // Copy to a char [], carefully, as creating a string from
         // a byte [] with binary data can create erroneous data
-        char[] message = new char[readSize];
+        char[] message = new char[messageData.remaining()];
         for (int i = 0; i < message.length; i++) {
-            message[i] = (char) (messageData[i] & 0xFF);
+            message[i] = (char) (messageData.get() & 0xFF);
         }
         String msgStr = new String(message);
         Matcher matcher = null;
@@ -448,9 +469,8 @@ public class SatelliteDecoder extends AbstractDecoder {
             if (SAT_HDR_TT.equals(msgStr
                     .substring(headerStart, headerStart + 2))) {
                 int startOfSatellite = matcher.end();
-                retMessage = new byte[messageData.length - startOfSatellite];
-                System.arraycopy(messageData, startOfSatellite, retMessage, 0,
-                        retMessage.length);
+                messageData.position(startOfSatellite);
+                messageData.limit(messageData.capacity());
             } else {
                 throw new DecoderException(
                         "First character of the WMO header must be 'T'");
@@ -458,21 +478,22 @@ public class SatelliteDecoder extends AbstractDecoder {
         } else {
             throw new DecoderException("Cannot decode an empty WMO header");
         }
-
-        return retMessage;
     }
 
     /**
      * Checks to see if the current satellite product is compressed.
      * 
+     * Assumes messageData is a byte[]-backed ByteBuffer.
+     *
      * @return A boolean indicating if the file is compressed or not
      */
-    private boolean isCompressed(byte[] messageData) {
+    private boolean isCompressed(ByteBuffer messageData) {
         boolean compressed = true;
         byte[] placeholder = new byte[10];
         Inflater decompressor = new Inflater();
         try {
-            decompressor.setInput(messageData);
+            decompressor.setInput(messageData.array(),
+                    messageData.position(), messageData.remaining());
             decompressor.inflate(placeholder);
         } catch (DataFormatException e) {
             compressed = false;

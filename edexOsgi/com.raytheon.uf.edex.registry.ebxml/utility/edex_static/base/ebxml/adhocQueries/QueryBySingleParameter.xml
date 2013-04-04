@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<adhocQueryExpression>
+	<queryName>QueryBySingleParameter</queryName>
+	<queryExpression>from oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType as obj inner join fetch obj.slot as slot where slot.name=:parameterName AND slot.slotValue.stringValue=:parameterValue</queryExpression>
+	<queryLanguage>HQL</queryLanguage>
+</adhocQueryExpression>

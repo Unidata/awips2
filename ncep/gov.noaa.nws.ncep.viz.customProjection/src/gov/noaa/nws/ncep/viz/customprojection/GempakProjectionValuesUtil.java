@@ -365,7 +365,7 @@ public class GempakProjectionValuesUtil {
     /**
      * a static helper method to initialize the projectionNamemap
      */
-    private static Map<String, String> initializeProjectionNameMap() {
+    public static Map<String, String> initializeProjectionNameMap() {
     	Map<String, String> projectNameMap = new HashMap<String, String>(10); 
     	//======Default Projection=======//
     	projectNameMap.put("DEF", "Mercator_2SP"); 
