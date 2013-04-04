@@ -17,10 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
+package com.raytheon.uf.common.datadelivery.registry.handlers;
+
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingUserSubscription;
+import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 
 /**
- * Pending Subscription definition.
+ * The {@link IRegistryObjectHandler} interface for
+ * {@link InitialPendingUserSubscription}.
  * 
  * <pre>
  * 
@@ -28,12 +32,15 @@ package com.raytheon.uf.common.datadelivery.registry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 04, 2013 1841      djohnson      Initial creation
+ * Sep 18, 2012 1169       djohnson     Initial creation
+ * Sep 24, 2012 1157       mpduff       Change to use InitialPendingUserSubscription.
+ * Sep 28, 2012 1187       djohnson     Extend {@link IBaseSubscriptionHandler}.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public interface PendingSubscription extends InitialPendingSubscription {
+public interface IPendingUserSubscriptionHandler extends
+        IBasePendingSubscriptionHandler<InitialPendingUserSubscription> {
 }

@@ -149,7 +149,7 @@ public class UserSubscription extends RecurringSubscription {
      */
     @Override
     public InitialPendingSubscription initialPending(String currentUser) {
-        return new InitialPendingSubscription(this, currentUser);
+        return new InitialPendingUserSubscription(this, currentUser);
     }
 
     /**
@@ -157,6 +157,6 @@ public class UserSubscription extends RecurringSubscription {
      */
     @Override
     public PendingSubscription pending(String currentUser) {
-        return new PendingSubscription(this, currentUser);
+        return new PendingUserSubscription(this, currentUser);
     }
 }
