@@ -31,6 +31,7 @@
 #                                     combining similar patterns.
 #20121009            1252 jkorman     Corrections and additions from Dale Morris.
 #20121211            1411 rferrel     More corrections and additions from Dale Morris.
+#20130326            1828 rferrel     Fix patterns for intlsigmets and text pattern not placing files in proper directory.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -153,8 +154,8 @@ HDS	^(O.[JMNQ].{1,3}) KWBJ (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)
 # OTLA88 KWBI 010000 /mSST !grib/ncep/SST/#235/201102010000/F000/TMP/sfc/
 #HDS	^(O.L.{1,3}) KWBI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 #	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KWBI_\2\3\4_(seq).\5.%Y%m%d%H
-#!MAINT! Combined the above two patterns into one. The only difference was KWBM vs KWBI
-HDS	^(O.N.{1,3}) (KWBM|KWBI) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+#!MAINT! Combined the above two patterns into one. The only difference was KWBM vs KWBI and the O.L or O.N in \1
+HDS	^(O.[LN].{1,3}) (KWBM|KWBI) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^OEBA88.*KNWC                   /Grid/SBN/Raw
@@ -300,7 +301,7 @@ NGRID	^(E.[ABCDEFGHI].{1,3}) (KWBJ) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)
 # AWIPS1 OCONUS:	GRID    ^[LM].[ABCDE].*KWBS*              /Grid/SBN/rawGrib2
 # LMDA98 KWBS 160000 !grib2/ncep/WRF_EM/#130/201012160000F000/WXTZ/0 - NONE 
 
-ANY	^([LM].[ABCDE].{1,3}) (KWBS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+ANY	^([LM].[ABCDEF].{1,3}) (KWBS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^LGXT[0-2][0-9].*KNHC           /Grid/SBN/rawGrib2
@@ -320,8 +321,10 @@ ANY	^(LGXP[0-9][0-9]) KNHC (..)(..)(..)
 
 #ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
 #	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\4\5Z-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
-ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+#ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+#	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[01789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/GRID\7/SPC/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^ZETA98.(KTUA|PACR|KSTR|KRSA|KORN|KRHA|KKRF|KMSR|KTAR|KPTR|KTIR|KALR|KFWR) /Grid/SBN/HydroRaw
 # ZETA98 KTAR 012300 /mNWS_160 !grib/nws/NWS_160/#255/201102012200/F001/APCP/sfc/
@@ -334,6 +337,14 @@ HDS	^(ZETA98) (KTUA|PACR|KSTR|KRSA|KORN|KRHA|KKRF|KMSR|KTAR|KPTR|KTIR|KALR|KFWR)
 
 ANY	^(ZDIA98) (....) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# Restore from build 12.12 with new grib storage convention. 
+HRS	^(YA)([WX])(A..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
+	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_5\6\7_(seq).\8.%Y%m%d%H
+
+HRS	^(ZV)(W)([ADGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
+	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_5\6\7_(seq).\8.%Y%m%d%H
+
 
 # AWIPS1:	POINT   .*IUPT(0[1-4]).*|.*IUPT40.*     /ispan/bufr/profiler
 # IUPT01 KBOU 020300
@@ -366,7 +377,7 @@ IDS|DDPLUS	^(M[A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # summaries
 #IDS|DDPLUS	^(A.{5}) (.{4}) (..)(..)(..)
@@ -554,9 +565,9 @@ IDS|DDPLUS	^(WAUS4[1-6]) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/airmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 # intlsigmets
 IDS|DDPLUS	^(W[CSV]PA((0[1-9])|(1[1-3]))) (PHFO) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4_\1_\5_\6\7\8_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\1_\5_\6\7\8_(seq).%Y%m%d%H
 IDS|DDPLUS	^(W[CSV]NT((0[1-9])|(1[1-3]))) (KKCI) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4_\1_\5_\6\7\8_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\1_\5_\6\7\8_(seq).%Y%m%d%H
 IDS|DDPLUS	^(WAAK4[789]) (PAWU) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 IDS|DDPLUS	^(W[CSV]PN0[1-6]) (KKCI) (..)(..)(..)

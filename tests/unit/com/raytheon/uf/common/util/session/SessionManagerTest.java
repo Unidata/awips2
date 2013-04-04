@@ -34,6 +34,7 @@ import org.junit.Test;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 27, 2012 1187       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Accepts SessionContextFactory implementation now.
  * 
  * </pre>
  * 
@@ -43,29 +44,41 @@ import org.junit.Test;
 
 public class SessionManagerTest {
 
+    private static final SessionContextFactory<StubSessionContext> CTX_FACTORY = new SessionContextFactory<StubSessionContext>() {
+
+        @Override
+        public Class<StubSessionContext> getSessionContextClass() {
+            return StubSessionContext.class;
+        }
+
+        @Override
+        public StubSessionContext getSessionContext() {
+            return new StubSessionContext();
+        }
+    };
+
     @Test
     public void testSessionIsOpenedOnFirstRequest() {
         try {
-            SessionManager.openSession(StubSessionContext.class);
+            SessionManager.openSession(CTX_FACTORY);
 
             StubSessionContext ctx = SessionManager
-                    .getSessionContext(StubSessionContext.class);
+                    .getSessionContext(CTX_FACTORY);
             assertTrue(
                     "The context should have been opened on first open request!",
                     ctx.opened);
         } finally {
-            SessionManager.closeSession(StubSessionContext.class);
+            SessionManager.closeSession(CTX_FACTORY);
         }
     }
 
     @Test
     public void testSessionIsClosedWhenRequesterCloses() {
-        SessionManager.openSession(StubSessionContext.class);
+        SessionManager.openSession(CTX_FACTORY);
 
-        StubSessionContext ctx = SessionManager
-                .getSessionContext(StubSessionContext.class);
+        StubSessionContext ctx = SessionManager.getSessionContext(CTX_FACTORY);
 
-        SessionManager.closeSession(StubSessionContext.class);
+        SessionManager.closeSession(CTX_FACTORY);
 
         assertTrue("The context should have been closed when requested!",
                 ctx.closed);
@@ -74,23 +87,22 @@ public class SessionManagerTest {
     @Test
     public void testSessionIsNotClosedUntilOriginalRequesterCloses() {
         // Two opens requested (e.g. second would come from a called class)
-        SessionManager.openSession(StubSessionContext.class);
-        SessionManager.openSession(StubSessionContext.class);
+        SessionManager.openSession(CTX_FACTORY);
+        SessionManager.openSession(CTX_FACTORY);
 
-        StubSessionContext ctx = SessionManager
-                .getSessionContext(StubSessionContext.class);
+        StubSessionContext ctx = SessionManager.getSessionContext(CTX_FACTORY);
         assertFalse(
                 "Session should not be closed before anyone called close!.",
                 ctx.closed);
 
         // First close
-        SessionManager.closeSession(StubSessionContext.class);
+        SessionManager.closeSession(CTX_FACTORY);
         assertFalse(
                 "Session should not be closed until everyone requesting open requested close!.",
                 ctx.closed);
 
         // Second close
-        SessionManager.closeSession(StubSessionContext.class);
+        SessionManager.closeSession(CTX_FACTORY);
         assertTrue(
                 "Session should be closed after everyone requesting open requested close!.",
                 ctx.closed);

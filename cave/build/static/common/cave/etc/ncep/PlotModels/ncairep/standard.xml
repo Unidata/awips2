@@ -10,46 +10,46 @@
 		 have not been implemented yet for airep 
 		 
 		  -->
-<!--        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="TMPC">
+<!--        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="TMPC">
             <Position>UL</Position>
             <Color red="255" green="0" blue="0"/>
         </PlotModelElement> -->
         <!-- 
-        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="BRBK">
+        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="BRBK">
             <Position>MC</Position>
             <Color red="0" green="255" blue="255"/>
         </PlotModelElement>
          -->                
-        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="TPOI">
+        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="TPOI">
             <Position>UC</Position>
             <Color red="255" green="255" blue="0"/>
         </PlotModelElement>  
         
-        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="ICSY">
+        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="ICSY">
             <Position>UR</Position>
             <Color red="255" green="0" blue="255"/>
         </PlotModelElement>  
-        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="STID">
+        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="STID">
             <Position>MC</Position>
             <Color red="205" green="133" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="FELV">
+        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="FELV">
             <Position>LC</Position>
             <Color red="0" green="255" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="TBSY">
+        <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="TBSY">
             <Position>UL</Position>
             <Color red="0" green="178" blue="238"/>
         </PlotModelElement>   
-        <!-- <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Standard" textSize="14" paramName="CLC1">
+        <!-- <PlotModelElement symbolSize="1" textStyle="Bold" 
+textFont="Courier" textSize="14" paramName="CLC1">
             <Position>TC</Position>
             <Color red="0" green="178" blue="238"/>
         </PlotModelElement>     -->  

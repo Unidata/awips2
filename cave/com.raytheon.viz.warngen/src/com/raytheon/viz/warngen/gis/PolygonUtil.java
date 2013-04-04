@@ -30,7 +30,6 @@ import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.warning.gis.PreparedGeometryCollection;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -45,6 +44,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * Utility for polygon operations
@@ -850,7 +850,7 @@ public class PolygonUtil {
         List<PreparedGeometry> prepped = new ArrayList<PreparedGeometry>(
                 geomList.size());
         for (Geometry g : geomList) {
-            prepped.add(new PreparedGeometryCollection(g));
+            prepped.add(PreparedGeometryFactory.prepare(g));
         }
 
         GeometryFactory gf = warningArea.getFactory();

@@ -26,17 +26,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.cache.ifpparms.IFPParmIdCache;
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
@@ -65,9 +69,9 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
 
 /**
  * Activates the GFE server capabilities for a site
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -78,9 +82,12 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * Jul 12, 2012  15162    ryu         added check for invalid db at activation
  * Dec 11, 2012  14360    ryu         log a clean message in case of
  *                                    missing configuration (no stack trace).
- *
+ * Feb 28, 2013  #1447    dgilling    Enable active table fetching on site
+ *                                    activation.
+ * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -104,6 +111,10 @@ public class GFESiteActivation implements ISiteActivationListener {
     private static GFESiteActivation instance;
 
     private boolean intialized = false;
+
+    private ExecutorService postActivationTaskExecutor = MoreExecutors
+            .getExitingExecutorService((ThreadPoolExecutor) Executors
+                    .newCachedThreadPool());
 
     public static synchronized GFESiteActivation getInstance() {
         if (instance == null) {
@@ -217,7 +228,7 @@ public class GFESiteActivation implements ISiteActivationListener {
     /**
      * Activates a site by reading its server config and generating maps, topo,
      * and text products for the site
-     *
+     * 
      * @param siteID
      */
     @Override
@@ -244,8 +255,7 @@ public class GFESiteActivation implements ISiteActivationListener {
             sendActivationFailedNotification(siteID);
             // Stack trace is not printed per requirement for DR14360
             statusHandler.handle(Priority.PROBLEM, siteID
-                    + " will not be activated: "
-                    + e.getLocalizedMessage());
+                    + " will not be activated: " + e.getLocalizedMessage());
             throw e;
         } catch (Exception e) {
             sendActivationFailedNotification(siteID);
@@ -263,10 +273,10 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /**
      * Activate site routine for internal use.
-     *
+     * 
      * Doesn't update the site list so it is preserved when loading sites at
      * start up
-     *
+     * 
      * @param siteID
      * @throws PluginException
      * @throws GfeException
@@ -344,8 +354,9 @@ public class GFESiteActivation implements ISiteActivationListener {
                             site).get(i));
                     // cluster locked since IFPGridDatabase can modify the grids
                     // based on changes to grid size, etc
-                    if (db.databaseIsValid())
+                    if (db.databaseIsValid()) {
                         db.updateDbs();
+                    }
                 }
             }
         } finally {
@@ -391,7 +402,7 @@ public class GFESiteActivation implements ISiteActivationListener {
         // just need to be done, doesn't matter that site isn't fully
         // activated, in fact would be best to only be done once site is
         // fully activated.
-        Thread smartInit = new Thread("SmartInitLauncher") {
+        Runnable smartInit = new Runnable() {
             @Override
             public void run() {
                 long startTime = System.currentTimeMillis();
@@ -415,7 +426,6 @@ public class GFESiteActivation implements ISiteActivationListener {
                     if (LockState.SUCCESSFUL.equals(ct.getLockState())) {
                         boolean clearTime = false;
                         try {
-                            GFEDao dao = new GFEDao();
                             List<String> d2dModels = configRef.getD2dModels();
                             List<List<String>> idsByVersion = new ArrayList<List<String>>(
                                     5);
@@ -430,10 +440,9 @@ public class GFESiteActivation implements ISiteActivationListener {
                                             .desiredDbVersions(new DatabaseID(
                                                     siteID, DataType.GRID, "",
                                                     gfeModel));
-                                    List<DatabaseID> dbIds = dao
-                                            .getD2DDatabaseIdsFromDb(
-                                                    d2dModelName, gfeModel,
-                                                    siteID, versions);
+                                    List<DatabaseID> dbIds = D2DGridDatabase
+                                            .getD2DDatabaseIdsFromDb(configRef,
+                                                    d2dModelName, versions);
 
                                     while (versions > idsByVersion.size()) {
                                         idsByVersion.add(new ArrayList<String>(
@@ -478,7 +487,53 @@ public class GFESiteActivation implements ISiteActivationListener {
                 }
             }
         };
-        smartInit.start();
+        postActivationTaskExecutor.submit(smartInit);
+
+        if (config.tableFetchTime() > 0) {
+            Runnable activateFetchAT = new Runnable() {
+
+                @Override
+                public void run() {
+                    long startTime = System.currentTimeMillis();
+                    // wait for system startup or at least 3 minutes
+                    while (!EDEXUtil.isRunning()
+                            || System.currentTimeMillis() > startTime + 180000) {
+                        try {
+                            Thread.sleep(15000);
+                        } catch (InterruptedException e) {
+
+                        }
+                    }
+
+                    Map<String, Object> fetchATConfig = new HashMap<String, Object>();
+                    fetchATConfig.put("siteId", configRef.getSiteID().get(0));
+                    fetchATConfig.put("interval", configRef.tableFetchTime());
+                    fetchATConfig.put("ancf", configRef
+                            .iscRoutingTableAddress().get("ANCF"));
+                    fetchATConfig.put("bncf", configRef
+                            .iscRoutingTableAddress().get("BNCF"));
+                    fetchATConfig.put("serverHost", configRef.getServerHost());
+                    fetchATConfig.put("port", configRef.getRpcPort());
+                    fetchATConfig.put("protocolV",
+                            configRef.getProtocolVersion());
+                    fetchATConfig.put("mhsid", configRef.getMhsid());
+                    fetchATConfig.put("transmitScript",
+                            configRef.transmitScript());
+
+                    try {
+                        EDEXUtil.getMessageProducer().sendAsyncUri(
+                                "jms-generic:queue:gfeSiteActivated",
+                                fetchATConfig);
+                    } catch (EdexException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Could not activate active table sharing for site: "
+                                        + siteID, e);
+                    }
+                }
+            };
+            postActivationTaskExecutor.submit(activateFetchAT);
+        }
+
         statusHandler.handle(Priority.EVENTA, "Adding " + siteID
                 + " to active sites list.");
         IFPServerConfigManager.addActiveSite(siteID);
@@ -488,7 +543,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /**
      * Deactivates a site's GFE services
-     *
+     * 
      * @param siteID
      */
     @Override
@@ -562,7 +617,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /**
      * Returns the currently active GFE sites the server is running
-     *
+     * 
      * @return the active sites
      */
     @Override
@@ -572,7 +627,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.edex.site.ISiteActivationListener#validateConfig()
      */
     @Override
