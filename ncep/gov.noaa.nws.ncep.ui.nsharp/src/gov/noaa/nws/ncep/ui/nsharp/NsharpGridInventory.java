@@ -38,7 +38,7 @@ public class NsharpGridInventory {
 	// with the NcGridInventory which stores the parm/vcord/levels but not 
 	// the dataTimes.
 	// 
-	public static final String nsharpGridInventoryName = "NSharpGridInventory";
+	public static final String nsharpGridInventoryName = "NsharpGridInventory";
 	
 	private static final ArrayList<String> inventoryParamNames = new ArrayList<String>(); {
 		/*
@@ -47,8 +47,9 @@ public class NsharpGridInventory {
 		 * will have to change as well.
 		 */
 		inventoryParamNames.add( "pluginName" );
-		inventoryParamNames.add( "info.datasetId" );
-		inventoryParamNames.add( "dataTime.refTime" );
+		inventoryParamNames.add( "info.datasetId" ); //model type
+		inventoryParamNames.add( "dataTime" );//available grid files 
+		//inventoryParamNames.add( "dataTime.refTime" );//available grid files 
 		//inventoryParamNames.add( "dataTime.fcstTime");
 	}
 	

@@ -122,6 +122,10 @@ public class DbQueryHandler implements IRequestHandler<DbQueryRequest> {
                 op = QueryOperand.ISNULL;
                 break;
             }
+            case ISNOTNULL: {
+                op = QueryOperand.ISNOTNULL;
+                break;
+            }
             case LESS_THAN: {
                 op = QueryOperand.LESSTHAN;
                 break;

@@ -33,7 +33,7 @@ public class TransmitRFCBias extends AbstractHandler {
 		}
 
 		MPEDisplayManager dm = MPEDisplayManager.getInstance(pane);
-		Date currentDate = dm.getCurrentDate();
+		Date currentDate = dm.getCurrentEditDate();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
 		String transmitDate = formatter.format(currentDate);
 

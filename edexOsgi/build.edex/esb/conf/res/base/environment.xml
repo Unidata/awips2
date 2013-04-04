@@ -38,6 +38,12 @@
 	<adapterServiceQueue>edex.AdapterSrv</adapterServiceQueue>
 	<resFolder>../conf/res</resFolder>
 	<pluginScriptFolder>${env:edex.home}/conf/db/commonScripts/</pluginScriptFolder>
+	<!-- 
+		hdf5Dir now refers only to the local hdf5 directory; pypies keeps track
+		of its own hdf5 directory. The local hdf5 directory will only be used
+		by plugins that do not store / retrieve their data through pypies
+		(ex: QC).
+	 -->
 	<hdf5Dir>${env:edex.home}/data/hdf5</hdf5Dir>
 	<shareDir>${env:edex.home}/data/share</shareDir>
 	<utilityDir>${env:edex.home}/data/utility</utilityDir>

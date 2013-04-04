@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mar 20, 2013    #1774    randerso    Fixed wx definition
+ -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>302400</fcst>
@@ -124,13 +127,13 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>wxType</short_name>
+    <short_name>wx</short_name>
     <long_name>Weather</long_name>
     <units/>
     <udunits/>
     <uiname>Weather</uiname>
     <valid_range>0.0</valid_range>
-    <valid_range>12.0</valid_range>
+    <valid_range>10.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>

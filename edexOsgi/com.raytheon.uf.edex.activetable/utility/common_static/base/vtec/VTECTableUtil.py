@@ -19,9 +19,21 @@
 ##
 # Utility classes for the VTEC active table
 
-import time, copy, types
+import copy
+import cPickle
+import errno
+import glob
+import gzip
+import os
+import stat
+import time
+import types
+
 import LogStream
 import JUtil
+
+from java.util import ArrayList
+from com.raytheon.uf.common.activetable import ActiveTableUtil
 
 
 class VTECTableUtil:
@@ -290,4 +302,85 @@ class VTECTableUtil:
             return "K" + id
 
 
+#------------------------------------------------------------------
+# Table lock/unlock read/write utility
+#------------------------------------------------------------------
 
+    def saveOldActiveTable(self, oldActiveTable):
+        #saves off the specified table and time stamps it
+
+        if self._activeTableFilename is None:
+            raise Exception, "saveOldActiveTable without filename"
+
+        #determine filename
+        directory = os.path.join(os.path.dirname(self._activeTableFilename), "backup")
+        try:
+            os.makedirs(directory)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                LogStream.logProblem("Could not create active table backup directory:", 
+                  directory, LogStream.exc())
+                raise e
+        
+        gmtime = time.gmtime(time.time())
+        format = "%Y%m%d_%H%M%S"
+        baseN = os.path.basename(self._activeTableFilename)
+        fn = time.strftime(format, gmtime) + "_" + baseN
+        filename = os.path.join(directory, fn + ".gz")
+        
+        t = time.time()
+        try:
+            os.chmod(filename, 0666)
+            os.remove(filename)
+        except:
+            pass
+
+        #output file
+        #gzip it to save space
+        with gzip.GzipFile(filename, 'wb', 9) as fd:
+            buf = cPickle.dumps(oldActiveTable)
+            fd.write(buf)
+        os.chmod(filename, 0664)
+        
+        t1 = time.time()
+        tstr = "%.3f" % (t1-t)
+        LogStream.logVerbose("Saved Previous Active Table: ", fn, "t=",
+          tstr, "sec.")
+
+    def purgeOldSavedTables(self, purgeTime):
+        #purges old saved tables
+
+        if self._activeTableFilename is None:
+            raise Exception, "purgeOldSavedTables without filename"
+
+        #calculate purge time
+        purgeTime = time.time() - (purgeTime * 3600)
+
+        #directory and files
+        directory = os.path.join(os.path.dirname(self._activeTableFilename), "backup")
+        baseN = os.path.basename(self._activeTableFilename)
+        idx = baseN.find(".")
+        if idx != -1:
+            baseN = baseN[0:idx]
+        files = glob.glob(directory + "/*" + baseN + "*.gz")
+
+        #delete files older than purgeTime
+        for f in files:
+            try:
+                modTime = os.stat(f)[stat.ST_MTIME] 
+                if modTime < purgeTime:
+                    os.remove(f)
+                    LogStream.logDebug("Removing old file: ", f)
+            except:
+                LogStream.logProblem("Problem Removing old backup file: ", f,
+                  LogStream.exc())
+
+    def _convertTableToPurePython(self, table, siteId):
+        javaRecList = ArrayList()
+        for rec in table:
+            javaRecList.add(rec.javaRecord())
+            
+        javaDictFormat = ActiveTableUtil.convertToDict(javaRecList, siteId)
+        
+        return JUtil.javaObjToPyVal(javaDictFormat)
+        

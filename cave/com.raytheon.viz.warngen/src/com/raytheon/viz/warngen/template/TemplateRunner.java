@@ -20,6 +20,10 @@
 package com.raytheon.viz.warngen.template;
 
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -52,17 +56,26 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.generic.ListTool;
 
-import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
-import com.raytheon.uf.common.activetable.GetActiveTableRequest;
-import com.raytheon.uf.common.activetable.GetActiveTableResponse;
+import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
+import com.raytheon.uf.common.activetable.PracticeActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -70,7 +83,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -133,10 +145,12 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     in oldWarn.
  * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc) 
  *                                     while loc is null.
- * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.                                  
+ * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.
  * Feb 12, 2013   1600     jsanchez    Correctly set the StormTrackData's motion direction for a CAN and EXP.
  * Feb 15, 2013   1607     jsanchez    Added two variables corEventTime and corCreateTime.
- *                                   
+ * Feb 15, 2013   15820    Qinglu Lin  Added createOfficeTimezoneMap() and added logic so that localtimezone 
+ *                                     and secondtimezone can get correct values when warning area covers two time zones.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -168,6 +182,38 @@ public class TemplateRunner {
         dateFormat.put("ymdthmz", new SimpleDateFormat("yyMMdd'T'HHmm'Z'"));
         dateFormat.put("ddhhmm", new SimpleDateFormat("ddHHmm"));
         dateFormat.put("time", new SimpleDateFormat("HHmm"));
+    }
+
+    /**
+     * Read cwa and timezone info from officeCityTimezone.txt, and put them into
+     * map officeCityTimezone.
+     */
+    public static Map<String, String> createOfficeTimezoneMap() {
+        Map<String, String> officeCityTimezone = new HashMap<String, String>();
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        String octz = "officeCityTimezone.txt";
+        String fileToRetrieve = IPathManager.SEPARATOR
+                + WarningConstants.WARNGEN_DIR + IPathManager.SEPARATOR + octz;
+        File timezoneFile = pathMgr.getFile(lc, fileToRetrieve);
+        String line;
+        String[] splitLine;
+        BufferedReader timezoneReader;
+        try {
+            timezoneReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(timezoneFile)));
+            for (line = timezoneReader.readLine(); line != null; line = timezoneReader
+                    .readLine()) {
+                splitLine = line.trim().split("\\\\");
+                officeCityTimezone
+                        .put(splitLine[0].trim(), splitLine[1].trim());
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "WarnGen Error while processing data in : " + octz, e);
+        }
+        return officeCityTimezone;
     }
 
     /**
@@ -366,12 +412,30 @@ public class TemplateRunner {
                     }
                 }
 
+                Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
+                String cityTimezone = null;
+                if (officeCityTimezone != null)
+                    cityTimezone = officeCityTimezone.get(warngenLayer
+                            .getLocalizedSite());
                 Iterator<String> iterator = timeZones.iterator();
-                while (iterator.hasNext()) {
-                    if (context.get("localtimezone") == null) {
-                        context.put("localtimezone", iterator.next());
-                    } else if (context.get("secondtimezone") == null) {
-                        context.put("secondtimezone", iterator.next());
+                if (timeZones.size() > 1 && cityTimezone != null) {
+                    String timezone;
+                    while (iterator.hasNext()) {
+                        timezone = iterator.next();
+                        if (timezone.equals(cityTimezone)
+                                && context.get("localtimezone") == null) {
+                            context.put("localtimezone", timezone);
+                        } else if (context.get("secondtimezone") == null) {
+                            context.put("secondtimezone", timezone);
+                        }
+                    }
+                } else {
+                    while (iterator.hasNext()) {
+                        if (context.get("localtimezone") == null) {
+                            context.put("localtimezone", iterator.next());
+                        } else if (context.get("secondtimezone") == null) {
+                            context.put("secondtimezone", iterator.next());
+                        }
                     }
                 }
             }
@@ -400,9 +464,9 @@ public class TemplateRunner {
 
                 context.put("event", eventTime);
                 if (selectedAction == WarningAction.COR)
-                	context.put("TMLtime", eventTime);
+                    context.put("TMLtime", eventTime);
                 else
-                	context.put("TMLtime", simulatedTime);
+                    context.put("TMLtime", simulatedTime);
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
                 context.put("areaPoly", GisUtil.convertCoords(warngenLayer
@@ -449,15 +513,16 @@ public class TemplateRunner {
                 // Convert to Point2D representation as Velocity requires
                 // getX() and getY() methods which Coordinate does not have
                 if (selectedAction == WarningAction.COR) {
-                    AbstractWarningRecord oldWarn = CurrentWarnings.getInstance(
-                            threeLetterSiteId).getNewestByTracking(etn, phenSig);
+                    AbstractWarningRecord oldWarn = CurrentWarnings
+                            .getInstance(threeLetterSiteId)
+                            .getNewestByTracking(etn, phenSig);
                     String loc = oldWarn.getLoc();
                     if (loc != null) {
-                    	Geometry locGeom = wkt.read(loc);
-                    	stormLocs = locGeom.getCoordinates();
+                        Geometry locGeom = wkt.read(loc);
+                        stormLocs = locGeom.getCoordinates();
                     }
                 } else {
-                	stormLocs = GisUtil.d2dCoordinates(stormLocs);
+                    stormLocs = GisUtil.d2dCoordinates(stormLocs);
                 }
                 Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
                 for (int i = 0; i < stormLocs.length; i++) {
@@ -497,16 +562,16 @@ public class TemplateRunner {
                     Point2D.Double[] coords;
                     Coordinate[] locs;
                     if (selectedAction == WarningAction.CAN) {
-                    	locs = warngenLayer.getStormLocations(stormTrackState);
-                    	locs = GisUtil.d2dCoordinates(locs);
-                    	coords = new Point2D.Double[locs.length];
+                        locs = warngenLayer.getStormLocations(stormTrackState);
+                        locs = GisUtil.d2dCoordinates(locs);
+                        coords = new Point2D.Double[locs.length];
                     } else {
                         Geometry locGeom = wkt.read(oldWarn.getLoc());
                         locs = locGeom.getCoordinates();
-                    	coords = new Point2D.Double[locs.length];
+                        coords = new Point2D.Double[locs.length];
                     }
                     for (int i = 0; i < locs.length; i++) {
-                    	coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
+                        coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
                     }
                     context.put("eventLocation", coords);
                     context.put("movementDirection", oldWarn.getMotdir());
@@ -778,13 +843,14 @@ public class TemplateRunner {
         try {
             t0 = System.currentTimeMillis();
             WatchUtil watches = getWatches(warngenLayer, config, warnPolygon,
-                    fourLetterSiteId, simulatedTime);
+                    areas, fourLetterSiteId, simulatedTime);
             System.out.println("getWatches time: "
                     + (System.currentTimeMillis() - t0));
             if (watches != null) {
                 context.put("watches", watches);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             statusHandler
                     .handle(Priority.VERBOSE,
                             "WarnGen cannot populate Active Watches. Check your local config.xml",
@@ -793,44 +859,60 @@ public class TemplateRunner {
 
         long tz0 = System.currentTimeMillis();
         String script = createScript(warngenLayer.getTemplateName() + ".vm",
-                context, warngenLayer.getLocalizedSite(),
-                FileUtil.join(LocalizationManager.getUserDir(), "logs"));
+                context, warngenLayer.getLocalizedSite());
         System.out.println("velocity time: "
                 + (System.currentTimeMillis() - tz0));
 
         String text = script.toString();
         WarningTextHandler handler = WarningTextHandlerFactory.getHandler(
                 selectedAction, text, config.getAutoLockText());
-        String handledText = handler.handle(text, areas, cancelareas, selectedAction);
+        String handledText = handler.handle(text, areas, cancelareas,
+                selectedAction);
 
         return handledText;
     }
 
-    private static VelocityEngine ENGINE = new VelocityEngine();
+    private static VelocityEngine ENGINE;
 
-    private static synchronized String createScript(String vmFile,
-            VelocityContext context, String site, String logDir)
-            throws EdexException {
-        StringWriter sw = new StringWriter();
-        try {
-            Properties p = new Properties();
-            p.setProperty(LocalizationResourceLoader.SITE_KEY, site);
-            p.setProperty("file.resource.loader.class",
-                    LocalizationResourceLoader.class.getName());
-            p.setProperty("velocimacro.permissions.allowInline", "true");
-            p.setProperty(
-                    "velocimacro.permissions.allow.inline.to.replace.global",
-                    "true");
-            p.setProperty("runtime.log", FileUtil.join(logDir, "velocity.log"));
-            ENGINE.init(p);
-            context.put("scriptLibrary", "VM_global_library.vm");
-            Template template = ENGINE.getTemplate(vmFile,
-                    Velocity.ENCODING_DEFAULT);
-            template.merge(context, sw);
-        } catch (Exception e) {
-            throw new EdexException("Error generating from template", e);
+    public static void initialize() {
+        synchronized (TemplateRunner.class) {
+            if (ENGINE == null) {
+                ENGINE = new VelocityEngine();
+                Properties p = new Properties();
+                p.setProperty("file.resource.loader.class",
+                        LocalizationResourceLoader.class.getName());
+                p.setProperty("runtime.log",
+                        FileUtil.join(FileUtil.join(
+                                LocalizationManager.getUserDir(), "logs"),
+                                "velocity.log"));
+                p.setProperty("velocimacro.permissions.allowInline", "true");
+                p.setProperty(
+                        "velocimacro.permissions.allow.inline.to.replace.global",
+                        "true");
+                ENGINE.init(p);
+            }
         }
-        return sw.toString();
+    }
+
+    private static String createScript(String vmFile, VelocityContext context,
+            String site) throws VizException {
+        synchronized (TemplateRunner.class) {
+            if (ENGINE == null) {
+                initialize();
+            }
+            StringWriter sw = new StringWriter();
+            try {
+                // Update site for ENGINE
+                ENGINE.setProperty(LocalizationResourceLoader.SITE_KEY, site);
+                context.put("scriptLibrary", "VM_global_library.vm");
+                Template template = ENGINE.getTemplate(vmFile,
+                        Velocity.ENCODING_DEFAULT);
+                template.merge(context, sw);
+            } catch (Exception e) {
+                throw new VizException("Error generating from template", e);
+            }
+            return sw.toString();
+        }
     }
 
     /**
@@ -879,12 +961,13 @@ public class TemplateRunner {
      */
     private static WatchUtil getWatches(WarngenLayer warngenLayer,
             WarngenConfiguration config, Geometry polygon,
-            String fourLetterSiteId, Date simulatedTime) throws Exception {
+            AffectedAreas[] affectedAreas, String fourLetterSiteId,
+            Date simulatedTime) throws Exception {
         Validate.isTrue(config.getHatchedAreaSource()
                 .getIncludedWatchAreaBuffer() >= 0,
                 "IncludedWatchAreaBuffer can not be negative");
+
         WatchUtil rval = null;
-        GetActiveTableRequest req = new GetActiveTableRequest();
         String[] includedWatches = config.getIncludedWatches();
 
         if (includedWatches != null && includedWatches.length > 0) {
@@ -899,67 +982,86 @@ public class TemplateRunner {
                 }
             }
 
-            req.setPhensigList(phensigList);
+            if (phensigList != null) {
+                // Create start/endtime constraints
+                Date endConstraintTime = simulatedTime;
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(simulatedTime);
+                cal.add(Calendar.MINUTE, 3);
+                Date startConstraintTime = cal.getTime();
 
-            if (CAVEMode.getMode().equals(CAVEMode.PRACTICE)) {
-                req.setMode(ActiveTableMode.PRACTICE);
-            } else {
-                req.setMode(ActiveTableMode.OPERATIONAL);
-            }
+                // Get record type
+                Class<? extends ActiveTableRecord> recordType = CAVEMode
+                        .getMode() == CAVEMode.OPERATIONAL ? OperationalActiveTableRecord.class
+                        : PracticeActiveTableRecord.class;
 
-            req.setSiteID(fourLetterSiteId);
-            req.setRequestValidTimes(true);
+                DbQueryRequest request = new DbQueryRequest();
+                request.setEntityClass(recordType);
+                request.addConstraint("startTime", new RequestConstraint(
+                        startConstraintTime.toString(),
+                        ConstraintType.LESS_THAN_EQUALS));
+                request.addConstraint("endTime", new RequestConstraint(
+                        endConstraintTime.toString(),
+                        ConstraintType.GREATER_THAN_EQUALS));
+                request.addConstraint("act", new RequestConstraint("CAN",
+                        ConstraintType.NOT_EQUALS));
+                request.addConstraint("act", new RequestConstraint("EXP",
+                        ConstraintType.NOT_EQUALS));
+                request.addConstraint("phensig", new RequestConstraint(
+                        phensigList, ConstraintType.IN));
 
-            long t0 = System.currentTimeMillis();
-            GetActiveTableResponse resp = (GetActiveTableResponse) ThriftClient
-                    .sendRequest(req);
-            long t1 = System.currentTimeMillis();
-            java.util.List<ActiveTableRecord> respList = resp.getActiveTable();
-            ArrayList<ActiveTableRecord> activeTable = new ArrayList<ActiveTableRecord>(
-                    respList.size());
-            // Filter out entries representing non-active events.
-            for (ActiveTableRecord ar : respList) {
-                if ("CAN".equals(ar.getAct()) || "EXP".equals(ar.getAct()))
-                    continue;
-                if (ar.getEndTime() == null) {
-                    statusHandler.handle(Priority.ERROR, String.format(
-                            "Watch %s has null end time; not included.",
-                            ar.getVtecstr()));
-                    continue;
+                // TODO: Talk to Jonathan about this... Do I even need officeid
+                // IN or is ugc zone good enough?
+                Set<String> ugcZones = new HashSet<String>();
+                for (AffectedAreas area : affectedAreas) {
+                    ugcZones.add(FipsUtil.getUgc(area));
                 }
-                // From A1 SELSparagraphs.C processWOU
-                if (simulatedTime.before(new Date(ar.getStartTime().getTime()
-                        .getTime() - 180 * 1000))
-                        || simulatedTime.after(ar.getEndTime().getTime()))
-                    continue;
 
-                activeTable.add(ar);
-            }
+                RequestConstraint ugcConstraint = new RequestConstraint("",
+                        ConstraintType.IN);
+                ugcConstraint.setConstraintValueList(ugcZones);
+                request.addConstraint("ugcZone", ugcConstraint);
 
-            System.out.println("getWatches.getActiveTable time: " + (t1 - t0)
-                    + ", found "
-                    + (activeTable != null ? activeTable.size() : "0")
-                    + " watches");
-            boolean val = activeTable != null && !activeTable.isEmpty();
-            if (val) {
-                // Look for ones with valid geometry
+                // These are the only fields we need for processing watches
+                request.addFields(new String[] { "issueTime", "startTime",
+                        "endTime", "ugcZone", "phensig", "vtecstr" });
 
-                t0 = System.currentTimeMillis();
-                Polygon watchArea = (Polygon) polygon.buffer(milesToKilometer
-                        .convert(config.getHatchedAreaSource()
-                                .getIncludedWatchAreaBuffer())
-                        / KmToDegrees);
-                t1 = System.currentTimeMillis();
-                System.out.println("getWatches.polygonBuffer time: "
-                        + (t1 - t0));
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
 
-                t0 = System.currentTimeMillis();
-                warngenLayer.createGeometryForWatches(watchArea, activeTable);
-                t1 = System.currentTimeMillis();
-                System.out.println("getWatches.createWatchGeometry time: "
-                        + (t1 - t0));
+                List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
+                        response.getNumResults());
+                for (Map<String, Object> result : response.getResults()) {
+                    ActiveTableRecord record = recordType.newInstance();
+                    record.setIssueTime((Calendar) result.get("issuetime"));
+                    record.setStartTime((Calendar) result.get("starttime"));
+                    record.setEndTime((Calendar) result.get("endtime"));
+                    record.setUgcZone((String) result.get("ugczone"));
+                    record.setPhensig((String) result.get("phensig"));
+                    record.setVtecstr((String) result.get("vtecstr"));
+                    records.add(record);
+                }
 
-                rval = processATEntries(activeTable, warngenLayer);
+                if (records.size() > 0) {
+                    long t0, t1;
+                    t0 = System.currentTimeMillis();
+                    Polygon watchArea = (Polygon) polygon
+                            .buffer(milesToKilometer.convert(config
+                                    .getHatchedAreaSource()
+                                    .getIncludedWatchAreaBuffer())
+                                    / KmToDegrees);
+                    t1 = System.currentTimeMillis();
+                    System.out.println("getWatches.polygonBuffer time: "
+                            + (t1 - t0));
+
+                    t0 = System.currentTimeMillis();
+                    warngenLayer.createGeometryForWatches(watchArea, records);
+                    t1 = System.currentTimeMillis();
+                    System.out.println("getWatches.createWatchGeometry time: "
+                            + (t1 - t0));
+
+                    rval = processATEntries(records, warngenLayer);
+                }
             }
         }
 
@@ -968,7 +1070,9 @@ public class TemplateRunner {
 
     private static class WatchWork {
         public WeatherAdvisoryWatch waw;
+
         public boolean valid;
+
         public ArrayList<String> ugcZone = new ArrayList<String>();
 
         public WatchWork(WeatherAdvisoryWatch waw) {
@@ -1004,8 +1108,8 @@ public class TemplateRunner {
                             "Cannot process watches: missing HATCHING area source configuration");
             return rval;
         }
-        GeospatialData[] geoData = warngenLayer.getGeodataFeatures(asc
-                .getAreaSource() + "." + warngenLayer.getLocalizedSite());
+        GeospatialData[] geoData = warngenLayer.getGeodataFeatures(
+                asc.getAreaSource(), warngenLayer.getLocalizedSite());
         if (geoData == null || geoData.length == 0) {
             statusHandler.handle(Priority.ERROR,
                     "Cannot process watches: cannot get geospatial data");
@@ -1042,11 +1146,12 @@ public class TemplateRunner {
             if (!ar.getGeometry().isEmpty())
                 work.valid = true;
 
-            /* TODO: Currently adding all zones to the list even if they
-             * are not in the CWA.  Validation is currently done in
+            /*
+             * TODO: Currently adding all zones to the list even if they are not
+             * in the CWA. Validation is currently done in
              * determineAffectedPortions to avoid redundant work.
              */
-            work.ugcZone.add(ar.getUgcZone()); 
+            work.ugcZone.add(ar.getUgcZone());
         }
 
         for (WatchWork work : map.values()) {
@@ -1065,7 +1170,7 @@ public class TemplateRunner {
 
     /**
      * Given the list of counties in a watch, fill out the "portions" part of
-     * the given WeatherAdvisoryWatch.  Also checks if the given counties are
+     * the given WeatherAdvisoryWatch. Also checks if the given counties are
      * actually in the CWA.
      * 
      * @param ugcs
@@ -1077,7 +1182,7 @@ public class TemplateRunner {
             AreaSourceConfiguration asc, GeospatialData[] geoData,
             WeatherAdvisoryWatch waw) {
 
-        // Maps state abbreviation to unique fe_area values 
+        // Maps state abbreviation to unique fe_area values
         HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
         for (String ugc : ugcs) {
@@ -1095,15 +1200,15 @@ public class TemplateRunner {
             String stateAbbrev = e.getKey();
             String feArea = null;
             try {
-                feArea = getFeArea(stateAbbrev, e.getValue()[0], asc,
-                        geoData);
+                feArea = getFeArea(stateAbbrev, e.getValue()[0], asc, geoData);
             } catch (RuntimeException exc) {
-                statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
+                statusHandler.handle(Priority.ERROR,
+                        "Error generating included watches.", exc);
                 return false;
             }
             if (feArea == NOT_IN_CWA)
                 continue;
-            
+
             Set<String> feAreas = map.get(stateAbbrev);
             if (feAreas == null) {
                 feAreas = new HashSet<String>();
@@ -1120,7 +1225,8 @@ public class TemplateRunner {
                 portion.parentRegion = getStateName(e.getKey(), asc, geoData)
                         .toUpperCase();
             } catch (RuntimeException exc) {
-                statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
+                statusHandler.handle(Priority.ERROR,
+                        "Error generating included watches.", exc);
                 return false;
             }
             portion.partOfParentRegion = Area
@@ -1133,7 +1239,7 @@ public class TemplateRunner {
             waw.setParentRegion(portions.get(0).parentRegion);
             waw.setPartOfParentRegion(portions.get(0).partOfParentRegion);
         }
-        
+
         return true;
     }
 
@@ -1245,11 +1351,13 @@ public class TemplateRunner {
         }
         return null;
     }
-    
+
     private static String NOT_IN_CWA = new String("NOT_IN_CWA");
 
-    /** Determines if the given UGC is in the CWA and if it is, returns
-     * the portion of the CWA.
+    /**
+     * Determines if the given UGC is in the CWA and if it is, returns the
+     * portion of the CWA.
+     * 
      * @param stateAbbrev
      * @param ugc
      * @param asc
@@ -1265,7 +1373,8 @@ public class TemplateRunner {
                 return (String) g.attributes.get(asc.getFeAreaField());
         }
 
-        // TODO: Is this the correct way to determine if the county is in the CWA?
+        // TODO: Is this the correct way to determine if the county is in the
+        // CWA?
         return NOT_IN_CWA;
     }
 

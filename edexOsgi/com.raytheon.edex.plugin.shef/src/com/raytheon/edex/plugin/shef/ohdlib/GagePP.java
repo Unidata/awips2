@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 26 Nov 2012    #15554     lbousaidi	 used obstime instead of system time in isNear12Z
  * 										 routine.
  * 4 Dec  2012    #15569     lbousaidi   fixed daily pp value when token is set to USE_REVCODE
+ * 02 Feb 2012    #15845     lbousaidi   added check for data that comes in as -999
  * </pre>
  * 
  * @author mnash
@@ -308,6 +309,13 @@ public class GagePP {
                             + "of short integer. Setting value " + "to "
                             + MISSING_PRECIP);
                     value = MISSING_PRECIP;
+                }
+                /* This was added for KRF site that was getting missing values -999
+                 * 
+                 */
+                
+                if (value ==-99900.0) {
+                     value = MISSING_PRECIP;
                 }
 
                 /*

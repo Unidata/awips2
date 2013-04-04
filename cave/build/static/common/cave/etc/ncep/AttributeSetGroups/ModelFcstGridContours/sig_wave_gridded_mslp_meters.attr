@@ -7,7 +7,7 @@
 ! J.L.Partain/MPC	 5/01	Set filter=n and added SKIP   =
 ! T. Lee/SAIC		 2/04	Changed AVN to GFS
 !
-GDFILE  nww3 ! gfs ! gfs
+GDFILE = nww3 ! gfs ! gfs
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0/-1;1

@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Scan Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor.scan;singleton:=true
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.uf.viz.monitor.scan.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor;bundle-version="1.0.0",
  com.raytheon.viz.core;bundle-version="1.10.13",
  com.raytheon.viz.alerts;bundle-version="1.10.13",

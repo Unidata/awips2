@@ -35,7 +35,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IServiceLocator;
 
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.ContextManager;
+import com.raytheon.uf.viz.ui.menus.widgets.BundleContributionItem;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -49,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2011            mnash     Initial creation
+ * Jan 09, 2013 1442       rferrel     Add Simulated Time Change Listener.
  * 
  * </pre>
  * 
@@ -63,6 +67,12 @@ public class TearOffMenuDialog extends CaveSWTDialog {
     private ScrolledComposite scrolledComp;
 
     private Composite fullComp;
+
+    /**
+     * Listener to force the dialog's items' display to be updated when user
+     * changes Simulated time.
+     */
+    ISimulatedTimeChangeListener stcl;
 
     /**
      * @param parentShell
@@ -170,14 +180,36 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         addListener(SWT.Close, deactivate);
 
         activate.handleEvent(new Event());
+
+        stcl = new ISimulatedTimeChangeListener() {
+
+            @Override
+            public void timechanged() {
+                updateItems();
+            }
+        };
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(stcl);
     }
 
     @Override
     protected void disposed() {
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(stcl);
         for (Control control : fullComp.getChildren()) {
             control.dispose();
         }
         super.disposed();
     }
 
+    /**
+     * Force update of item's display.
+     */
+    private void updateItems() {
+        // items[0] is the tear off object and is not in the dialog's display.
+        for (int index = 1; index < items.length; ++index) {
+            MenuItem item = items[index];
+            if (item.getData() instanceof BundleContributionItem) {
+                ((BundleContributionItem) item.getData()).refreshText();
+            }
+        }
+    }
 }
