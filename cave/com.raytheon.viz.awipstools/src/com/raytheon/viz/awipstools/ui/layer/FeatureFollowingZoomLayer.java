@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
@@ -48,6 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 19, 2010 #5952      bkowal      This tool will no longer update the extents by itself,
  *                                     instead it will let the target know about the updated
  *                                     extents.
+ * 15Mar2013	15693	mgamazaychikov Added magnification capability.
  * 
  * </pre>
  * 
@@ -65,7 +67,8 @@ public class FeatureFollowingZoomLayer extends
             AwipsToolsResourceData<DistanceSpeedLayer> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties);
-
+        // add magnification capability
+		getCapabilities().addCapability(new MagnificationCapability());
     }
 
     @Override

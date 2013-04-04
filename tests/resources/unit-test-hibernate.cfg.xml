@@ -5,6 +5,10 @@
 
 <hibernate-configuration>
     <session-factory>
+        <property name="connection.release_mode">
+            after_transaction
+        </property>
+        <property name="hibernate.id.new_generator_mappings">true</property>
         <property name="hibernate.show_sql">false</property>
         <property name="hibenate.format_sql">false</property>
         <property name="hibernate.use_sql_comments">false</property>

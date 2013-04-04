@@ -56,6 +56,10 @@ public class XmlGenericMapAdapter<K, V> extends
 
     @Override
     public MapType<K, V> marshal(Map<K, V> unserialized) throws Exception {
+        if (unserialized == null) {
+            return null;
+        }
+
         MapType<K, V> mapType = new MapType<K, V>();
 
         for (Map.Entry<K, V> entry : unserialized.entrySet()) {

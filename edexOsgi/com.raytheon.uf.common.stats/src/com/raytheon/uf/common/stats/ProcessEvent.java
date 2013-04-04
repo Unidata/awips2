@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2012  #1292     bgonzale     Initial creation
+ * Feb 12, 2013  #1615     bgonzale     Changed pluginName to dataType.
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ public class ProcessEvent extends StatisticsEvent {
     private String message;
 
     @DynamicSerializeElement
-    private String pluginName;
+    private String dataType;
 
     @DynamicSerializeElement
     private String fileName;
@@ -99,10 +100,10 @@ public class ProcessEvent extends StatisticsEvent {
     }
 
     /**
-     * @return the pluginName
+     * @return the dataType
      */
-    public String getPluginName() {
-        return pluginName;
+    public String getDataType() {
+        return dataType;
     }
 
     /**
@@ -136,11 +137,11 @@ public class ProcessEvent extends StatisticsEvent {
     }
 
     /**
-     * @param pluginName
-     *            the pluginName to set
+     * @param dataType
+     *            the dataType to set
      */
-    public void setPluginName(String pluginName) {
-        this.pluginName = pluginName;
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 
     /**
@@ -162,6 +163,11 @@ public class ProcessEvent extends StatisticsEvent {
     @Override
     public String toString() {
         return super.toString() + " : " + getMessage();
+    }
+
+    @Override
+    public void finalizeEvent() {
+        // not implemented
     }
 
 }

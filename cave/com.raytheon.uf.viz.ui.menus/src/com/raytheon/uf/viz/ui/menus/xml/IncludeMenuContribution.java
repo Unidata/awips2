@@ -72,7 +72,7 @@ public class IncludeMenuContribution extends
             newItem.substitutions = item.substitutions;
             newItem.suppressErrors = item.suppressErrors;
             return new IContributionItem[] { new SubmenuContributionItem(subs,
-                    item.subMenuName,
+                    item.id, item.subMenuName,
                     new CommonAbstractMenuContribution[] { newItem }, removals) };
         }
         return getContributionItemsInternal(items, subs, removals);

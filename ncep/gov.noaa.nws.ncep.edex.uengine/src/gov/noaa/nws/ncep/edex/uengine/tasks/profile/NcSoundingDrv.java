@@ -154,7 +154,7 @@ public class NcSoundingDrv  {
 
 	public void setUseNcSoundingLayer2(boolean useNcSoundingLayer2) {
 		this.useNcSoundingLayer2 = useNcSoundingLayer2;
-		System.out.println("useNcSoundingLayer2 set to "+useNcSoundingLayer2);
+		//System.out.println("useNcSoundingLayer2 set to "+useNcSoundingLayer2);
 	}
 
 	public long[] getRangeTimeArr() {
@@ -173,7 +173,7 @@ public class NcSoundingDrv  {
 			String tStr= String.format("%1$tY-%1$tm-%1$td %1$tH:00:00",  timeCal);
 			this.rangeTimeStringLst.add(tStr);
 			this.rangeTimeCalLst.add(timeCal);
-			System.out.println("setRangeTimeArr: time in long="+rangeTimeArr[i]+ " in str="+tStr);
+			//System.out.println("setRangeTimeArr: time in long="+rangeTimeArr[i]+ " in str="+tStr);
 		}
 	}
 	public String[] getStnIdArr() {

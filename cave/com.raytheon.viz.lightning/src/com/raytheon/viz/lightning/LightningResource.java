@@ -91,7 +91,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *                                         text will be updated when the user changes
  *                                         the magnification level now.
  *    Sep 4, 2012  15335       kshresth    Will now display lightning/wind 
- *                                         fields when magnification set to 0                                         
+ *                                         fields when magnification set to 0
+ *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  * 
  * </pre>
  * 
@@ -121,14 +122,17 @@ public class LightningResource extends
         private BinOffset offset;
 
         private DataTime frameTime;
-
+        
+        private String lightSource;
+        
         private List<BinLightningRecord> newRecords = new ArrayList<BinLightningRecord>();
 
         private List<BinLightningRecord> processed = new ArrayList<BinLightningRecord>();
 
-        public LightningFrameMetadata(DataTime frameTime, BinOffset offset) {
+        public LightningFrameMetadata(DataTime frameTime, BinOffset offset, String ls) {
             this.frameTime = frameTime;
             this.offset = offset;
+            this.lightSource = ls;
         }
 
         @Override
@@ -160,6 +164,11 @@ public class LightningResource extends
                 if (other.offset != null)
                     return false;
             } else if (!offset.equals(other.offset))
+                return false;
+            if (lightSource == null) {
+                if (other.lightSource != null)
+                    return false;
+            } else if (!lightSource.equals(other.lightSource))
                 return false;
             return true;
         }
@@ -223,6 +232,10 @@ public class LightningResource extends
     private boolean needsUpdate;
 
     private String resourceName;
+    
+    private String lightSource;
+    
+    private int posAdj;
 
     private IFont font;
 
@@ -231,12 +244,14 @@ public class LightningResource extends
     private List<double[]> currNegList = null;
 
     public LightningResource(LightningResourceData resourceData,
-            LoadProperties loadProperties) {
+            LoadProperties loadProperties, String ls, int pa) {
         super(resourceData, loadProperties);
         resourceData.addChangeListener(this);
 
         this.dataTimes = new ArrayList<DataTime>();
         this.cacheObjectMap = new ConcurrentHashMap<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>>();
+        this.lightSource = ls;
+        this.posAdj = pa;
     }
 
     /*
@@ -308,7 +323,11 @@ public class LightningResource extends
             this.resourceName = timeString;
         }
 
-        this.resourceName += " Lightning Plot ";
+        String lightType = " ";
+        if (!this.lightSource.isEmpty()) {
+        	lightType += this.lightSource + " ";
+        }
+        this.resourceName += lightType + "Lightning Plot ";
     }
 
     private String convertTimeIntervalToString(int time) {
@@ -427,7 +446,8 @@ public class LightningResource extends
         if (this.resourceData.isHandlingPositiveStrikes()) {
             DrawableString pos = new DrawableString(posCount + " + Strikes",
                     color);
-            pos.setCoordinates(225, height * 2);
+            pos.setCoordinates(225, height * (2 + 2*this.posAdj));
+            // jjg above
             pos.font = font;
             pos.verticallAlignment = VerticalAlignment.TOP;
             pos.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -437,7 +457,8 @@ public class LightningResource extends
         if (this.resourceData.isHandlingNegativeStrikes()) {
             DrawableString neg = new DrawableString(negCount + " - Strikes",
                     color);
-            neg.setCoordinates(225, height * 3);
+            neg.setCoordinates(225, height * (3 + 2*this.posAdj));
+            // jjg above
             neg.font = font;
             neg.verticallAlignment = VerticalAlignment.TOP;
             neg.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -466,28 +487,30 @@ public class LightningResource extends
         Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
-            DataTime time = new DataTime(obj.getStartTime());
-            DataTime end = new DataTime(obj.getStopTime());
-            time = this.getResourceData().getBinOffset()
-                    .getNormalizedTime(time);
-            end = this.getResourceData().getBinOffset().getNormalizedTime(end);
+        	if (obj.getLightSource().equals(this.lightSource) || this.lightSource.isEmpty()) {
+        		DataTime time = new DataTime(obj.getStartTime());
+        		DataTime end = new DataTime(obj.getStopTime());
+        		time = this.getResourceData().getBinOffset()
+        		.getNormalizedTime(time);
+        		end = this.getResourceData().getBinOffset().getNormalizedTime(end);
 
-            // check for frames in the middle
-            // get interval ( in seconds ) between frames
-            int interval = this.getResourceData().getBinOffset().getInterval();
-            while (end.greaterThan(time) || end.equals(time)) {
-                List<BinLightningRecord> records = recordMap.get(time);
-                if (records == null) {
-                    records = new ArrayList<BinLightningRecord>();
-                    recordMap.put(time, records);
-                }
-                records.add(obj);
+        		// check for frames in the middle
+        		// get interval ( in seconds ) between frames
+        		int interval = this.getResourceData().getBinOffset().getInterval();
+        		while (end.greaterThan(time) || end.equals(time)) {
+        			List<BinLightningRecord> records = recordMap.get(time);
+        			if (records == null) {
+        				records = new ArrayList<BinLightningRecord>();
+        				recordMap.put(time, records);
+        			}
+        			records.add(obj);
 
-                // increment to the next time
-                long newTime = time.getRefTime().getTime() + (interval * 1000);
-                TimeRange range = new TimeRange(newTime, newTime);
-                time = new DataTime(newTime, range);
-            }
+        			// increment to the next time
+        			long newTime = time.getRefTime().getTime() + (interval * 1000);
+        			TimeRange range = new TimeRange(newTime, newTime);
+        			time = new DataTime(newTime, range);
+        		}
+        	}
         }
 
         for (Map.Entry<DataTime, List<BinLightningRecord>> entry : recordMap
@@ -505,7 +528,7 @@ public class LightningResource extends
             if (co == null) {
                 // New frame
                 frame = new LightningFrameMetadata(dt,
-                        resourceData.getBinOffset());
+                        resourceData.getBinOffset(), this.lightSource);
                 co = CacheObject.newCacheObject(frame, resourceBuilder);
                 cacheObjectMap.put(dt, co);
                 dataTimes.add(dt);

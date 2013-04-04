@@ -56,6 +56,9 @@ import org.eclipse.swt.widgets.TabFolder;
  * Apr 2, 2009             lvenable    TTR fixes.
  * Dec 1, 2010  5632       cjeanbap    Added sort based on category.
  * Mar 2, 2011  5632       cjeanbap    Added sort based on category.
+ * 06 Feb 2013	14501	   Xiaochuan   Using getCategoriesFromConfig() to
+ * 									   set categoryList[] in clearOptionCbo. 
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -267,8 +270,7 @@ public class TabControlDlg extends Dialog {
                     String category = clearOptionCbo.getItem(position);
                     logs.get(index).displayCategoryMessages(category);
                     if (index == 0) {
-                        logs.get(index).populateClearOptionsCombo();
-                        clearOptionCbo.select(position);
+						clearOptionCbo.select(position);
                     }
                     logs.get(index).setClearOptionCboSelectedIndex(position);
                 }
@@ -357,8 +359,9 @@ public class TabControlDlg extends Dialog {
 
         Set<String> keySet = log.getCatKeySet();
 
-        for (String key : keySet) {
-            clearOptionCbo.add(key);
+        String[] categoryList = log.getCategoriesFromConfig();
+        for (int i = 0; i < categoryList.length; i++) {
+			clearOptionCbo.add(categoryList[i]);
         }
 
         clearOptionCbo.select(0);

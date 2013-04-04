@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -42,6 +45,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
@@ -61,9 +69,11 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
@@ -88,12 +98,23 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 28, 2013 1530       djohnson     Test that all allocations are unscheduled for subscription that doesn't fully schedule.
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
+ * Feb 14, 2013 1595       djohnson     Fix expired subscription updates that weren't scheduling retrievals.
+ * Feb 14, 2013 1596       djohnson     Add test duplicating errors deleting multiple subscriptions for the same provider/dataset.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
     @Test
@@ -379,6 +400,71 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
             assertThat(subscriptionRetrieval.getStatus(),
                     is(equalTo(RetrievalStatus.UNSCHEDULED)));
         }
+    }
+
+    /**
+     * Redmine #1595: A subscription was created...and then expired. The
+     * subscription was updated by extending the Expiration Date only. The
+     * subscription, however, was never scheduled (e.g., in the Bandwidth
+     * Utilization graph). Data displayed in D2D failed to update. However, the
+     * subscription (and data) did begin updating after editing the subscription
+     * and adding another parameter.
+     */
+    @Test
+    public void expiredSubscriptionUpdatedToNonExpiredIsScheduled()
+            throws Exception {
+
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis() - TimeUtil.MILLIS_PER_DAY);
+        final Date oneHourAgo = new Date(TimeUtil.currentTimeMillis() - TimeUtil.MILLIS_PER_HOUR);
+
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        subscription.setSubscriptionStart(yesterday);
+        subscription.setSubscriptionEnd(oneHourAgo);
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        // Make sure nothing is scheduled when the subscription is expired
+        assertThat(bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(empty()));
+
+        // No longer expired
+        subscription.setSubscriptionEnd(new Date(TimeUtil.currentTimeMillis()
+                + TimeUtil.MILLIS_PER_WEEK));
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(not(empty())));
+    }
+
+    @Test
+    public void subscriptionUpdatedToExpiredHasAllocationsRemoved()
+            throws Exception {
+
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(not(empty())));
+
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_DAY);
+        final Date oneHourAgo = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_HOUR);
+
+        // Updated to expired
+        subscription.setSubscriptionStart(yesterday);
+        subscription.setSubscriptionEnd(oneHourAgo);
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        // Make sure nothing is scheduled when the subscription is expired
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+                is(empty()));
     }
 
     @Test
@@ -679,8 +765,8 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         bandwidthManager.schedule(subscription);
 
-        final List<SubscriptionDao> subscriptionDaos = bandwidthDao
-                .getSubscriptionDao(subscription);
+        final List<BandwidthSubscription> subscriptionDaos = bandwidthDao
+                .getBandwidthSubscription(subscription);
 
         assertEquals("Incorrect number of subscription daos found.", 4,
                 subscriptionDaos.size());
@@ -695,6 +781,85 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     }
 
     /**
+     * Test case derived from Redmine #1596: There were 5 or 6 subscriptions
+     * that were deleted simultaneously. All subscriptions were removed from the
+     * Subscription Manager dialog...however, 2 subscriptions remained
+     * 'scheduled' or listed on the Bandwidth Utilization graph. After selecting
+     * the deleted subscription in the Bandwidth Utilization graph, the view
+     * selected subscriptions option was selected. No subscriptions were
+     * displayed, as expected...even though the subscription was listed in the
+     * Bandwidth Utilization graph.
+     */
+    @Test
+    public void testDeletedSubscriptionsToSameProviderDataSetHaveSubscriptionDaosDeletedFromDatabase()
+            throws Exception {
+
+        final int numberOfSubscriptionsWithSameProviderDataSet = 4;
+
+        final Subscription templateSubscription = createSubscriptionThatFillsUpABucket();
+        final Network route = templateSubscription.getRoute();
+        templateSubscription.setDataSetSize(templateSubscription
+                .getDataSetSize()
+                / numberOfSubscriptionsWithSameProviderDataSet);
+
+        templateSubscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+
+        int lastKnownNumberOfBandwidthAllocations = 0;
+        final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
+        for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
+
+            final Subscription currentSubscription = new Subscription(
+                    templateSubscription, "ILookLikeTheOtherGuys-" + i);
+            subscriptions[i] = currentSubscription;
+
+            bandwidthManager.schedule(currentSubscription);
+
+            // Make sure some data is scheduled for retrieval
+            final int currentNumberOfBandwidthAllocations = bandwidthDao
+                    .getBandwidthAllocations(route).size();
+            assertThat(currentNumberOfBandwidthAllocations,
+                    is(greaterThan(lastKnownNumberOfBandwidthAllocations)));
+
+            // Update last known number of bandwidth allocations, so we can
+            // continue verifying more is scheduled
+            lastKnownNumberOfBandwidthAllocations = currentNumberOfBandwidthAllocations;
+        }
+
+        // Schedule two subscription deletions to occur at the same time
+        final CountDownLatch waitForAllThreadsToStartLatch = new CountDownLatch(
+                numberOfSubscriptionsWithSameProviderDataSet);
+        final CountDownLatch deletesFinishedLatch = new CountDownLatch(
+                numberOfSubscriptionsWithSameProviderDataSet);
+
+        for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
+            final int iteration = i;
+            final Thread deleteSubscriptionThread = new Thread() {
+                @Override
+                public void run() {
+                    waitForAllThreadsToStartLatch.countDown();
+                    try {
+                        sendDeletedSubscriptionEvent(subscriptions[iteration]);
+                    } finally {
+                        deletesFinishedLatch.countDown();
+                    }
+                }
+            };
+
+            // Delete the subscription! Each thread will wait to perform the
+            // deletion until all threads are started.
+            deleteSubscriptionThread.start();
+        }
+
+        // Wait for the deletion threads to finish
+        deletesFinishedLatch.await();
+
+        // Better not be any bandwidth subscriptions left, or bandwidth
+        // allocations
+        assertThat(bandwidthDao.getBandwidthSubscriptions(), is(empty()));
+        assertThat(bandwidthDao.getBandwidthAllocations(route), is(empty()));
+    }
+
+    /**
      * Subscriptions that are deleted should have all of their bandwidth
      * allocations removed deleted.
      */
@@ -705,21 +870,21 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         Subscription subscription = createSubscriptionThatFillsUpABucket();
         subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
 
+        final Network network = subscription.getRoute();
+        final List<BandwidthAllocation> bandwidthAllocationsOrig = getRetrievalManagerAllocationsForNetwork(network);
+        assertEquals("Incorrect number of allocations found.", 0,
+                bandwidthAllocationsOrig.size());
+
         bandwidthManager.schedule(subscription);
 
-        final Network network = subscription.getRoute();
         final List<BandwidthAllocation> bandwidthAllocations = getRetrievalManagerAllocationsForNetwork(network);
 
         assertEquals("Incorrect number of allocations found.", 4,
                 bandwidthAllocations.size());
 
-        System.out.println("allocs: " + bandwidthAllocations);
-
         sendDeletedSubscriptionEvent(subscription);
 
         final List<BandwidthAllocation> allocationsAfterDelete = getRetrievalManagerAllocationsForNetwork(network);
-
-        System.out.println("allocs: " + allocationsAfterDelete);
 
         assertEquals(
                 "Expected all bandwidth allocations to have been deleted.", 0,
@@ -776,8 +941,8 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         assertFalse("Shouldn't have been able to fully schedule.",
                 unableToSchedule.isEmpty());
 
-        final List<SubscriptionDao> subscriptionDaos = bandwidthDao
-                .getSubscriptionDao(subscription);
+        final List<BandwidthSubscription> subscriptionDaos = bandwidthDao
+                .getBandwidthSubscription(subscription);
 
         assertEquals("Incorrect number of subscription daos found.", 0,
                 subscriptionDaos.size());
@@ -812,7 +977,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
                 subscription.getOwner(), subscription.getId());
         event.setObjectType(DataDeliveryRegistryObjectTypes.SUBSCRIPTION);
-        BandwidthEventBus.publish(event);
+        bandwidthManager.subscriptionRemoved(event);
     }
 
     /**
@@ -828,6 +993,14 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
             allocations.addAll(bucket.getRequests());
         }
         return allocations;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Network getRouteToUseForSubscription() {
+        return Network.OPSNET;
     }
 
 }

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.npp.crimss;
 
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -211,7 +211,7 @@ public class CrimssDataDefinition
      */
     @Override
     protected IDisplayPaneContainer openNewEditor(String editorId) {
-        if (NsharpSkewTEditor.EDITOR_ID.equals(editorId)) {
+        if (NsharpEditor.EDITOR_ID.equals(editorId)) {
             return UiUtil.createEditor(editorId, new D2DNSharpDisplay());
         } else {
             return super.openNewEditor(editorId);

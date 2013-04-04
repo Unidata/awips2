@@ -200,6 +200,7 @@ public class LocalizationNotificationObserver {
             if (file.getContext().equals(fum.getContext())) {
                 // exact match found, skip old updates (in case we have changed
                 // the file since this update)
+                boolean notify = false;
                 try {
                     FileLocker.lock(this, file.file, Type.WRITE);
                     Date fileTS = file.getTimeStamp();
@@ -209,11 +210,15 @@ public class LocalizationNotificationObserver {
                         return;
                     } else {
                         // Proceed with update process
-                        processUpdate(fum, file);
+                        notify = processUpdate(fum, file);
                         break;
                     }
                 } finally {
                     FileLocker.unlock(this, file.file);
+                    if (notify) {
+                        // Notify after unlocking file to avoid dead locks
+                        file.notifyObservers(fum);
+                    }
                 }
             }
         }
@@ -234,7 +239,9 @@ public class LocalizationNotificationObserver {
         // Process other file, skipping context match that was processed above
         for (LocalizationFile file : potentialFiles) {
             if (file.getContext().equals(fum.getContext()) == false) {
-                processUpdate(fum, file);
+                if (processUpdate(fum, file)) {
+                    file.notifyObservers(fum);
+                }
             }
         }
 
@@ -253,7 +260,9 @@ public class LocalizationNotificationObserver {
             Collection<LocalizationFile> files = getLocalizationFiles(type,
                     subpath);
             for (LocalizationFile file : files) {
-                processUpdate(fum, file);
+                if (processUpdate(fum, file)) {
+                    file.notifyObservers(fum);
+                }
             }
         }
 
@@ -265,15 +274,15 @@ public class LocalizationNotificationObserver {
         }
     }
 
-    private void processUpdate(FileUpdatedMessage fum, LocalizationFile file) {
+    private boolean processUpdate(FileUpdatedMessage fum, LocalizationFile file) {
         LocalizationContext context = fum.getContext();
         LocalizationLevel level = context.getLocalizationLevel();
         LocalizationType type = context.getLocalizationType();
         String contextName = context.getContextName();
 
+        boolean notify = false;
         int compVal = file.getContext().getLocalizationLevel().compareTo(level);
         if (compVal <= 0) {
-            boolean notify = false;
             if (compVal < 0) {
                 // Different level, check our context name to
                 // make sure it matches update message
@@ -309,12 +318,8 @@ public class LocalizationNotificationObserver {
                     }
                 }
             }
-
-            if (notify) {
-                // Notify file of change
-                file.notifyObservers(fum);
-            }
         }
+        return notify;
     }
 
     private Collection<LocalizationFile> getLocalizationFiles(

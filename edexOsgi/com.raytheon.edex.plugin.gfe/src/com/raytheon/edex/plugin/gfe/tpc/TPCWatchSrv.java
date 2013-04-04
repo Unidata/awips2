@@ -36,11 +36,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
+import com.raytheon.uf.common.activetable.VTECPartners;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.activetable.VTECPartners;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;

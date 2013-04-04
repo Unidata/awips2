@@ -21,7 +21,8 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.natives;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
-
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -53,7 +54,30 @@ public class NsharpNative {
 		nsharpLib.initStaticGlobalsMem();
 	}
     
-	
+    public void setSarsSupcellFileName(){
+    	NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+		String sarsFilePath = configMgr.getBigNsharpFlPath(NcPathConstants.NSHARP_NLIST_FILE);
+		ByteBuffer sarsBuf=null;
+		if(sarsFilePath!=null){
+			sarsBuf = ByteBuffer.allocate(sarsFilePath.length());
+			sarsBuf.put(sarsFilePath.getBytes());
+		}
+		String supercellFilePath = configMgr.getBigNsharpFlPath(NcPathConstants.NSHARP_SUP_FILE);
+		
+		ByteBuffer supBuf=null;
+		if(supercellFilePath!=null){
+			supBuf = ByteBuffer.allocate(supercellFilePath.length());
+			supBuf.put(supercellFilePath.getBytes());
+		}
+		int sarslm=sarsBuf.limit();
+		int suplm=supBuf.limit();
+		//System.out.println("Nsharp setSarsSupcellFileName: sarFilepath="+sarsFilePath+ " supFilepath="+ supercellFilePath);
+		//Chin: for unknown reason calling setSarsSupcellFileName() without passing ByteBuffer limit will cause one extra bytes
+		// set at end of file name. Therefore, passing buffer size limit specifically to fix this issue.
+		if(sarsBuf!=null&& supBuf!=null){
+			nsharpLib.setSarsSupcellFileName(sarsBuf,sarslm,supBuf,suplm);//(sarsFilePathAry,supercellFilePathAry);
+		}
+    }
  
     public void populateSndgData(List<NcSoundingLayer> soundingLys) {
     	if((soundingLys != null) && (soundingLys.size() > 0)){
@@ -233,9 +257,225 @@ public class NsharpNative {
     		}
     		
     	}
+    	public static class SarsInfoStr extends Structure {
+    		public static int SARS_STRING_LEN=40;
+    		public static int SARS_STRING_LINES = 12;
+    		/// max=10
+    		public int numHailstr;
+    		/// C type : char[10][60]
+    		public byte[] hailStr = new byte[SARS_STRING_LINES * SARS_STRING_LEN];
+    		/// C type : int[10]
+    		public int[] hailStrColor = new int[(SARS_STRING_LINES)];
+    		/// C type : char[2][60]
+    		//public byte[] sighailStr = new byte[2 * 60];
+    		//public int sighailStrColor;
+    		/// max=10
+    		public int numsupcellstr;
+    		/// C type : char[10][60]
+    		public byte[] supcellStr = new byte[SARS_STRING_LINES * SARS_STRING_LEN];
+    		/// C type : int[10]
+    		public int[] supcellStrColor = new int[(SARS_STRING_LINES)];
+    		/// C type : char[2][60]
+    		//public byte[] torStr = new byte[2 * 60];
+    		//public int torStrColor;
+    		public  SarsInfoStr() {
+    			super();
+    		}
+    		protected ByReference newByReference() { return new ByReference(); }
+    		protected ByValue newByValue() { return new ByValue(); }
+    		protected SarsInfoStr newInstance() { return new SarsInfoStr(); }
+    		public static class ByReference extends SarsInfoStr implements Structure.ByReference {
+    			
+    		}
+    		public static class ByValue extends SarsInfoStr implements Structure.ByValue {
+    			
+    		}
+			public int getNumHailstr() {
+				return numHailstr;
+			}
+			public byte[] getHailStr() {
+				return hailStr;
+			}
+			public int[] getHailStrColor() {
+				return hailStrColor;
+			}
+			/*public byte[] getSighailStr() {
+				return sighailStr;
+			}
+			public int getSighailStrColor() {
+				return sighailStrColor;
+			}*/
+			public int getNumsupcellstr() {
+				return numsupcellstr;
+			}
+			public byte[] getSupcellStr() {
+				return supcellStr;
+			}
+			public int[] getSupcellStrColor() {
+				return supcellStrColor;
+			}
+			/*public byte[] getTorStr() {
+				return torStr;
+			}
+			public int getTorStrColor() {
+				return torStrColor;
+			}*/
+    		
+    	}
+    	public static class FireInfoStr extends Structure {
+    		public int sfcRhColor=31;
+    		public int pwColor=31;
+    		public int blMaxColor=31;
+    		public int fosbergColor=31;
+    		public byte[] sfcRh = new byte[(60)];
+    		public byte[] sfc = new byte[(60)];
+    		public byte[] zeroOneKmRh = new byte[(60)];
+    		public byte[] zeroOneKmMean = new byte[(60)];
+    		public byte[] blMeanRh = new byte[(60)];
+    		public byte[] blMean = new byte[(60)];
+    		public byte[] pw = new byte[(60)];
+    		public byte[] blMax = new byte[(60)];
+    		public byte[] fosberg = new byte[(60)];
+			public FireInfoStr() {
+				super();
+				// TODO Auto-generated constructor stub
+			}
+			public static class ByReference extends FireInfoStr implements Structure.ByReference {
+
+    		}
+    		public static class ByValue extends FireInfoStr implements Structure.ByValue {
+
+    		}
+			protected ByReference newByReference() { return new ByReference(); }
+    		protected ByValue newByValue() { return new ByValue(); }
+			public int getSfcRhColor() {
+				return sfcRhColor;
+			}
+			public int getPwColor() {
+				return pwColor;
+			}
+			public int getBlMaxColor() {
+				return blMaxColor;
+			}
+			public int getFosbergColor() {
+				return fosbergColor;
+			}
+			public byte[] getSfcRh() {
+				return sfcRh;
+			}
+			public byte[] getSfc() {
+				return sfc;
+			}
+			public byte[] getZeroOneKmRh() {
+				return zeroOneKmRh;
+			}
+			public byte[] getZeroOneKmMean() {
+				return zeroOneKmMean;
+			}
+			public byte[] getBlMeanRh() {
+				return blMeanRh;
+			}
+			public byte[] getBlMean() {
+				return blMean;
+			}
+			public byte[] getPw() {
+				return pw;
+			}
+			public byte[] getBlMax() {
+				return blMax;
+			}
+			public byte[] getFosberg() {
+				return fosberg;
+			}
+    		
+    	}
+    	public static class WinterInfoStr extends Structure {
+    		public float mopw;
+    		/*public float htop;
+    		public float hbot;
+    		public float mrh;
+    		public float mq;
+    		public float mo;
+    		public float pw;
+    		public float pLevel;*/
+    		public byte[] oprh = new byte[(60)];
+    		public byte[] layerDepth = new byte[(60)];
+    		public byte[] meanLayerRh = new byte[(60)];
+    		public byte[] meanLayerMixRat = new byte[(60)];
+    		public byte[] meanLayerPw = new byte[(60)];
+    		public byte[] meanLayerOmega = new byte[(60)];
+    		public byte[] initPhase = new byte[(100)];
+    		public byte[] tempProfile1 = new byte[(60)];
+    		public byte[] tempProfile2 = new byte[(60)];
+    		public byte[] tempProfile3 = new byte[(60)];
+    		public byte[] wetbulbProfile1 = new byte[(60)];
+    		public byte[] wetbulbProfile2 = new byte[(60)];
+    		public byte[] wetbulbProfile3 = new byte[(60)];
+    		public byte[] bestGuess1 = new byte[(60)];
+    		public byte[] bestGuess2 = new byte[(60)];
+			public WinterInfoStr() {
+				super();
+				// TODO Auto-generated constructor stub
+			}
+			public static class ByReference extends WinterInfoStr implements Structure.ByReference {
     	
+    		}
+    		public static class ByValue extends WinterInfoStr implements Structure.ByValue {
     	
+    		}
+			protected ByReference newByReference() { return new ByReference(); }
+    		protected ByValue newByValue() { return new ByValue(); }
+			public float getMopw() {
+				return mopw;
+			}
+			
+			public byte[] getOprh() {
+				return oprh;
+			}
+			public byte[] getLayerDepth() {
+				return layerDepth;
+			}
+			public byte[] getMeanLayerRh() {
+				return meanLayerRh;
+			}
+			public byte[] getMeanLayerMixRat() {
+				return meanLayerMixRat;
+			}
+			public byte[] getMeanLayerPw() {
+				return meanLayerPw;
+			}
+			public byte[] getMeanLayerOmega() {
+				return meanLayerOmega;
+			}
+			public byte[] getInitPhase() {
+				return initPhase;
+			}
+			public byte[] getTempProfile1() {
+				return tempProfile1;
+			}
+			public byte[] getTempProfile2() {
+				return tempProfile2;
+			}
+			public byte[] getTempProfile3() {
+				return tempProfile3;
+			}
+			public byte[] getWetbulbProfile1() {
+				return wetbulbProfile1;
+			}
+			public byte[] getWetbulbProfile2() {
+				return wetbulbProfile2;
+			}
+			public byte[] getWetbulbProfile3() {
+				return wetbulbProfile3;
+			}
+			public byte[] getBestGuess1() {
+				return bestGuess1;
+			}
+			public byte[] getBestGuess2() {
+				return bestGuess2;
+			}
     	
+    	}
     	public static int MAX_CLOUD_LAYER=20;
     	//cloudTypeFM value defined in caveNsharp.c OVC=1, BKN=2, SCT=3*/
     	public static String[] CLOUD_TYPE = {"dummy","OVC", "BKN", "SCT"}; 
@@ -353,6 +593,10 @@ public class NsharpNative {
     	//From our own caveNsharp.c
     	float aglT(int l1high, int l2high);
     	void initStaticGlobalsMem();
+    	//void setSarsSupcellFileName(char sarsFlName[], char supercellFlName[]);
+    	//@java.lang.Deprecated 
+    	//void setSarsSupcellFileName(Pointer sarsFlName, Pointer supercellFlName);
+    	void setSarsSupcellFileName(ByteBuffer sarsFlName, int sarsLen,ByteBuffer supercellFlName, int supLen);
      	void populateSndgData(NsharpLibrary.CaveSndgParms snDataArray[], int arraySize,  int datatype);  
      	int  populateSndgDataStatic(CaveSndgParms snDataArray[], int arraySize, int datatype);
      	void get_lpvaluesData(NsharpLibrary._lplvalues pParcel);
@@ -364,6 +608,9 @@ public class NsharpNative {
      	void set_storm(float speed, float  direction);
      	void cave_visual1 ( float lower, float upper, float pres, float temp, float dwpt , NsharpLibrary.StormSlinkyStr stmSlinky);
      	void draw_Clouds( NsharpLibrary.CloudInfoStr cloudInfo );
+     	void getWinterInfo(NsharpLibrary.WinterInfoStr winterInfo );
+     	void getFireInfo(NsharpLibrary.FireInfoStr  fireInfo);
+     	void getSarsInfo(NsharpLibrary.SarsInfoStr  sarsInfo);
      	//float cave_bulk_rich ( float lplpres, float bplus,FloatByReference brnshear );
      	float cave_bulk_rich2 ( FloatByReference brnshear );
      	float cave_ship();
@@ -765,6 +1012,7 @@ public class NsharpNative {
     	float coniglio1();
     	float scp(float stdir, float stspd);
     	float sigtorn_cin(float stdir, float stspd);
+    	float sigtorn(float stdir, float stspd);
     	float sigtorn_fixed(float stdir, float stspd);
     	float sigtorn_test(float stdir, float stspd);
     	

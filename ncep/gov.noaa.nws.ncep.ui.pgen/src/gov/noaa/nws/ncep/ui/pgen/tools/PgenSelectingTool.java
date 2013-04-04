@@ -1388,7 +1388,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     			newContours.update( oldContours );
     			drawingLayer.replaceElement( oldContours, newContours );
     			drawingLayer.setSelected( selElem );
-    			((ContoursAttrDlg)attrDlg).setCurrentContours( newContours );
+                if ( attrDlg != null ) ((ContoursAttrDlg)attrDlg).setCurrentContours( newContours );
     		}
     	}
     	

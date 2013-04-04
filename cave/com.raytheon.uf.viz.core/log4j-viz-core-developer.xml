@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd"> 
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+   <appender name="console" class="org.apache.log4j.ConsoleAppender"> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+      <filter class="org.apache.log4j.varia.LevelRangeFilter">
+         <param name="levelMin" value="DEBUG" />
+         <param name="levelMax" value="INFO" />
+      </filter>
+   </appender>
+
+   <appender name="errConsole" class="org.apache.log4j.ConsoleAppender">
+      <param name="Target" value="System.err"/> 
+      <param name="Threshold" value="WARN" /> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+   
+   <logger name="CaveLogger">
+      <level value="ALL"/>
+   </logger>
+   
+   <logger name="PerformanceLogger">
+   	  <level value="ALL"/>
+   </logger>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.commons.beanutils">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="uk.ltd.getahead">
+      <level value="WARN"/>
+   </logger>
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="console"/> 
+      <appender-ref ref="errConsole"/>
+    </root> 
+</log4j:configuration> 

@@ -100,4 +100,14 @@
           	  </contextId>
       	  </classContext>
    </extension>
+   <extension
+         point="com.raytheon.uf.viz.localization.localizationpath">
+      <path
+            application="CAVE"
+            localizationType="CAVE_STATIC"
+            name="Map Styles"
+            recursive="false"
+            value="mapStyles">
+      </path>
+   </extension>
 </plugin>
