@@ -46,6 +46,7 @@ import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
@@ -105,6 +106,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  *                                      only send notification of subscription creation on OK status.
  * Jan 25, 2013 1528       djohnson     Use priority enum instead of raw integers, default to existing priority on edit.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
  * </pre>
  * 
  * @author mpduff
@@ -526,8 +528,9 @@ public class CreateSubscriptionDlgPresenter {
         subscription.setLatencyInMinutes(view.getLatencyValue());
 
         IUser user = UserController.getUserObject();
-        ISubscriptionHandler handler = RegistryObjectHandlers
-                .get(ISubscriptionHandler.class);
+
+        IPendingSubscriptionHandler handler = DataDeliveryHandlers
+                .getPendingSubscriptionHandler();
 
         String currentUser = LocalizationManager.getInstance().getCurrentUser();
         final String username = user.uniqueId().toString();
@@ -689,7 +692,7 @@ public class CreateSubscriptionDlgPresenter {
                 } else {
                     setSubscriptionId(subscription);
                     try {
-                        handler.update(pendingSub);
+                        pendingSubHandler.update(pendingSub);
 
                         subscriptionNotificationService
                                 .sendCreatedPendingSubscriptionForSubscriptionNotification(
