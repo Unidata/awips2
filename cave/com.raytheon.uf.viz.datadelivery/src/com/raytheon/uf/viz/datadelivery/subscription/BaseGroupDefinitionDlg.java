@@ -42,7 +42,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.AreaControlComp;
-import com.raytheon.uf.viz.datadelivery.common.ui.DeliveryOptionsComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.UserSelectComp;
@@ -71,6 +70,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
  * Jan 08, 2013 1453       djohnson     Split creation and edit dialogs.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -94,9 +94,6 @@ public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
 
     /** The Main Composite */
     protected Composite mainComp;
-
-    /** The Subscription Delivery Options Composite */
-    private DeliveryOptionsComp deliverComp;
 
     /** The Subscription Duration Composite */
     private DurationComp durComp;
@@ -148,24 +145,12 @@ public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
             createGroupInfo();
 
 
-        deliverComp = new DeliveryOptionsComp(mainComp);
         durComp = new DurationComp(mainComp);
         activePeriodComp = new ActivePeriodComp(mainComp);
         areaControlComp = new AreaControlComp(mainComp);
         userSelectComp = new UserSelectComp(mainComp);
 
         createButtons();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
-    @Override
-    protected void preOpened() {
-        deliverComp.setDeliveryOptions(DELIVERY_OPTIONS);
-        deliverComp.setDeliveryConfig(DELIVERY_COMBO_CONF);
     }
 
     /*
@@ -259,7 +244,6 @@ public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
             groupDefinition.setOwner(LocalizationManager.getInstance()
                     .getCurrentUser());
             groupDefinition.setGroupName(groupName);
-            groupDefinition.setOption(deliverComp.getDeliverSetting());
 
             // Set Duration
             if (!durComp.isIndefiniteChk()) {
@@ -344,10 +328,6 @@ public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
         // access the registry object for the group name
         GroupDefinition groupDefinition = GroupDefinitionManager
                 .getGroup(groupName);
-
-        // Set deliverCombo
-        int delOption = groupDefinition.getOption();
-        deliverComp.setDeliverSetting(delOption);
 
         // Set duration info
         Date sDate = groupDefinition.getSubscriptionStart();
