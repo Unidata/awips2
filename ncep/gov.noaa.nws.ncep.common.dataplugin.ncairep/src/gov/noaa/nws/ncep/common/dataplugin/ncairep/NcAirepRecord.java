@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 9/20/2011     286        qzhou      Change reportType to String
  * 04/05/2012    420        dgilling   Prevent NullPointerExceptions in
  *                                     buildMessageData().
+ * 04/08/13      1293       bkowal     Removed references to hdffileid.
  * </pre>
  * 
  * @author jkorman
@@ -848,15 +849,6 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 	}
 
 	/*
