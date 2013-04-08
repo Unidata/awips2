@@ -17,6 +17,7 @@
  * 										of suspectTimeFlag from Boolean to String
  * 										since undefined in PointDataDescription.
  * 09/2011      457         S. Gurung   Renamed H5 to Nc and h5 to nc
+ * 04/2013      1293        bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author T.Lee
@@ -486,15 +487,6 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 	}
 
 	/*
