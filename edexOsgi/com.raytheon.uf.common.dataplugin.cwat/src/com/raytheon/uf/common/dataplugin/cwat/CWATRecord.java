@@ -42,7 +42,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -69,6 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/03/09      2037       D. Hladky   Initial release
+ * 04/08/13      1293       bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -80,7 +81,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class CWATRecord extends ServerSpecificPersistablePluginDataObject
+public class CWATRecord extends PersistablePluginDataObject
         implements IPersistable, ISpatialEnabled {
 
     private static final long serialVersionUID = 76774564365671L;
