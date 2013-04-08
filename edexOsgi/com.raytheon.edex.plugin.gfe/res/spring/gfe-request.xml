@@ -260,13 +260,6 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest" />
 		<constructor-arg ref="siteTimeZoneHandler" />
 	</bean>
-	<bean id="sendGridsToNDFDHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.SendGridsToNDFDHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.SendGridsToNDFDRequest" />
-		<constructor-arg ref="sendGridsToNDFDHandler" />
-	</bean>
 	<bean id="statusUpdateHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.ServiceBackupStatusUpdateRequestHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
