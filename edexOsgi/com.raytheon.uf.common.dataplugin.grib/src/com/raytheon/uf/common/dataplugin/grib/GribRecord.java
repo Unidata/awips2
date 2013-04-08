@@ -60,6 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * 04/08/13     1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -210,7 +211,6 @@ public class GribRecord extends PersistablePluginDataObject implements
             this.dataTime = recordToCopy.dataTime.clone();
         }
         this.dataURI = recordToCopy.dataURI;
-        this.setHdfFileId(recordToCopy.getHdfFileId());
         this.id = recordToCopy.id;
         this.identifier = recordToCopy.identifier;
         if (recordToCopy.insertTime != null) {
