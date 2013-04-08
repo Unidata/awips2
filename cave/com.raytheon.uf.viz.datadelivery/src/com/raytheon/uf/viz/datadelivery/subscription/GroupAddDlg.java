@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Nov 28, 2012  1286      djohnson    Use the subscription service.
  * Jan 02, 2013  1441      djohnson    Access GroupDefinitionManager in a static fashion.
  * Mar 29, 2013  1841      djohnson    Subscription is now UserSubscription.
+ * Apr 08, 2013  1826      djohnson    Remove delivery options.
  * 
  * </pre>
  * 
@@ -226,7 +227,6 @@ public class GroupAddDlg extends CaveSWTDialog {
 
         //Apply group properties to subscription definition
         if (groupDefinition != null) {
-            subscription.setNotify(groupDefinition.getOption() == 1);
             subscription.setGroupName(groupName);
 
             //Set duration

@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2013 1841       djohnson     Extracted from UserSubscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -267,21 +268,6 @@ public interface Subscription {
      *            date for subscription end
      */
     void setActivePeriodEnd(Date activePeriodEnd);
-
-    /**
-     * isNotify flag for subscription.
-     * 
-     * @return boolean true if notify subscriber false if deliver to subscriber
-     */
-    boolean isNotify();
-
-    /**
-     * Set isNotify flag.
-     * 
-     * @param notify
-     *            date for subscription end
-     */
-    void setNotify(boolean notify);
 
     /**
      * isNotify flag for subscription.

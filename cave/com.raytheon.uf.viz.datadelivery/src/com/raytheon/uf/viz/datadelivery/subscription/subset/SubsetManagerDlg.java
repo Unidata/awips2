@@ -135,6 +135,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * Mar 21, 2013 1794       djohnson     Add option to create a shared subscription, if phase3 code is available.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * </pre>
  * 
  * @author mpduff
@@ -717,8 +718,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         sub.setDataSetName(dataSet.getDataSetName());
         sub.setSubscriptionId("AdHocID");
         if (this.subscription != null) {
-            sub.setNotify(this.subscription.isNotify());
-
             if (this.subscription.getDescription() != null) {
                 sub.setDescription(subscription.getDescription());
             }
