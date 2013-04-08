@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 19, 2012 1166       djohnson   Clean up JAXB representation of registry objects.
  * Dec 10, 2012   1259     bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013 1441       djohnson   Add constants.
+ * Apr 08, 2013 1826       djohnson   Remove delivery options.
  * 
  * </pre>
  * 
@@ -214,24 +215,6 @@ public class GroupDefinition {
      */
     public void setEnvelope(ReferencedEnvelope envelope) {
         this.envelope = envelope;
-    }
-
-    /**
-     * Get the group delivery option
-     *
-     * @return option
-     */
-    public Integer getOption() {
-        return option;
-    }
-
-    /**
-     * Set the group delivery option.
-     *
-     * @param option
-     */
-    public void setOption(Integer option) {
-        this.option = option;
     }
 
     /**
