@@ -37,6 +37,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jan 07, 2013 1453       djohnson     Initial creation
  * Jan 30, 2013 1543       djohnson     Add ability to specify route.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -109,7 +110,6 @@ public class SubscriptionBuilder {
         subscription.setGroupName(groupName);
         subscription.setLatencyInMinutes(latencyInMinutes);
         subscription.setName(name);
-        subscription.setNotify(notify);
         subscription.setOfficeID(officeId);
         subscription.setOwner(owner);
         subscription.setPriority(priority);
