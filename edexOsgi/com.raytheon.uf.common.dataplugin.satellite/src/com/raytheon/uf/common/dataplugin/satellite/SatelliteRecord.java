@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -60,6 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 07/30/2012    798        jkorman     Support for common satellite data.
  * 03/25/2013   1823        dgilling    Replace underscores with spaces in URI
  *                                      constructor.
+ * 04/08/2013   1293        bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author bphillip
@@ -70,7 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
+public class SatelliteRecord extends PersistablePluginDataObject
         implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
