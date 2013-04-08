@@ -26,7 +26,6 @@ import com.raytheon.uf.viz.datadelivery.common.ui.ISortTable;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableData;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg.FullDataset;
-import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg.SubscriptionNotification;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 
@@ -47,6 +46,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Aug 21, 2012   712      mpduff     Make priorities display as 1, 2, 3.
  * Oct  2, 2012  1103      jpiatt     Remove unused methods, update enum, code clean up.
  * Jan 25, 2012  1528      djohnson   Priorities no longer need incrementing for display.
+ * Apr 08, 2013  1826      djohnson   Remove delivery options.
  * </pre>
  * 
  * @author mpduff
@@ -84,9 +84,6 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
 
     /** Subscription active period end date. */
     private Date activeEnd = null;
-
-    /** Subscription Notification enum ref. */
-    private SubscriptionNotification deliveryNotify = null;
 
     /** Subscription column titles. */
     private final String[] columns = DataDeliveryUtils.getColumnTitles(TABLE_TYPE.SUBSCRIPTION);
@@ -299,25 +296,6 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     }
 
     /**
-     * Get the delivery action.
-     * 
-     * @return the deliveryNotify
-     */
-    public SubscriptionNotification getDeliveryNotify() {
-        return deliveryNotify;
-    }
-
-    /**
-     * Set the delivery action.
-     * 
-     * @param deliveryNotify
-     *            the deliveryNotify to set
-     */
-    public void setDeliveryNotify(SubscriptionNotification deliveryNotify) {
-        this.deliveryNotify = deliveryNotify;
-    }
-
-    /**
      * Get the subscription details.
      * 
      * @return the details
@@ -478,13 +456,6 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
         this.setDataSetSize(subscription.getDataSetSize());
         this.setGroupName(subscription.getGroupName());
 
-        if (subscription.isNotify()) {
-            this.setDeliveryNotify(SubscriptionNotification.NOTIFY);
-        }
-        else {
-            this.setDeliveryNotify(SubscriptionNotification.DELIVERY);
-        }
-
         if (subscription.isFullDataSet()) {
             this.setFullDataSet(FullDataset.FULL);
         }
@@ -510,14 +481,6 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
      * @return sort value
      */
     public String getSortValue(String columnName) {
-        // NAME("Name"), OWNER("Owner"), STATUS("Status"), PRIORITY("Priority"),
-        // DESCRIPTION(
-        // "Description"), SUBSCRIPTION_START("Subscription Start"),
-        // SUBSCRIPTION_EXPIRATION(
-        // "Subscription Expiration"), ACTIVE_START("Active Period Start"),
-        // ACTIVE_END(
-        // "Active Period End"), DELIVERY("Delivery/Notify");
-
         int cIndex = -1;
         if (columnName.equals(columns[++cIndex])) {
             return this.name;
@@ -537,8 +500,6 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
             return columnName;
         } else if (columnName.equals(columns[++cIndex])) {
             return columnName;
-        } else if (columnName.equals(columns[++cIndex])) {
-            return deliveryNotify.toString();
         } else if (columnName.equals(columns[++cIndex])) {
             return officeId;
         } else if (columnName.equals(columns[++cIndex])) {
