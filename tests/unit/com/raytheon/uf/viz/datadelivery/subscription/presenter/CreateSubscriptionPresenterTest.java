@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlg
  * Jan 04, 2013 1453       djohnson     Add tests for setting the active period.
  * Jan 11, 2013 1453       djohnson     Add test from failed test scenario.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -112,16 +113,6 @@ public class CreateSubscriptionPresenterTest {
     public void testOpenCallsViewOpen() throws Exception {
         presenter.open();
         verify(view).openDlg();
-    }
-
-    @Test
-    public void testInitDeliverComboIsSet() {
-        verify(view).setDeliveryOptionsComboConf(presenter.DELIVERY_COMBO_CONF);
-    }
-
-    @Test
-    public void verifyDeliveryComboBoxConfiguration() {
-        verify(view).setDeliveryOptions(presenter.DELIVERY_OPTIONS);
     }
 
     @Test
