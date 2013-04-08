@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -119,10 +120,6 @@ public class SubscriptionDiff {
 
         if (sub.getPriority() != pendingSub.getPriority()) {
             diffMap.put("priority", true);
-        }
-
-        if (sub.isNotify() != pendingSub.isNotify()) {
-            diffMap.put("notify", true);
         }
 
         if (sub.isFullDataSet() != pendingSub.isFullDataSet()) {
@@ -481,15 +478,6 @@ public class SubscriptionDiff {
             if (s != null) {
                 buffer.append(s).append(nl);
             }
-        }
-
-        if (diffMap.get("notify")) {
-            if (pendingSub.isNotify()) {
-                buffer.append("Subscription now set to notify when data are available");
-            } else {
-                buffer.append("Subscription now set to deliver data when available");
-            }
-            buffer.append(nl).append(nl);
         }
 
         if (diffMap.get("fullDataSet")) {
