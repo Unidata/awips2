@@ -62,6 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 4/7/09       1994        bphillip    Initial Creation
  * 10/13/10      276        llin        Modified for NC GRIB.
  * 03/07/12      606        ghull       Added eventName to URI for NcInventory updating.
+ * 04/08/13     1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -365,7 +366,6 @@ public class NcgribRecord extends PersistablePluginDataObject implements
             this.dataTime = recordToCopy.dataTime.clone();
         }
         this.dataURI = recordToCopy.dataURI;
-        this.setHdfFileId(recordToCopy.getHdfFileId());
         this.id = recordToCopy.id;
         this.identifier = recordToCopy.identifier;
         if (recordToCopy.insertTime != null) {
