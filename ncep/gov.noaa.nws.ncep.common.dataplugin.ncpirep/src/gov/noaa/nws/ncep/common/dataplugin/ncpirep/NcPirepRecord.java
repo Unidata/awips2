@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 08/30/2011    286        qzhou      Use IDecoderConstantsN.INTEGER_MISSING instead -9999 in visibility. 
  * 08/31/2011    286        qzhou      Created project and moved this from ~edex.plugin.pirep
  * 09/19/2011    286        Q.Zhou      Changed reportType to string,
+ * 04/08/2013    1293       bkowal     Removed references to hdffileid.
  * </pre>
  * 
  * @author jkorman
@@ -797,15 +798,6 @@ public class NcPirepRecord extends PluginDataObject implements ISpatialEnabled,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 	}
 
 	/*
