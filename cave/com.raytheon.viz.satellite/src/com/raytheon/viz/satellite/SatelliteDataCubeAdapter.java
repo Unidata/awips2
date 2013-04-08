@@ -87,7 +87,8 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
  * - AWIPS2 Baseline Repository --------
  * 08/03/2012          798 jkorman     Explicitly set interpolationLevels
- *                                     from "source" record.    
+ *                                     from "source" record.
+ * 04/08/2013   #1293      bkowal      Removed references to hdffileid.    
  * </pre>
  * 
  * @author jsanchez
@@ -178,7 +179,6 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
                         derivedRecord.setCoverage(record.getCoverage());
                         // This should not be necessary but file based tile set
                         // expects it.
-                        derivedRecord.setHdfFileId(record.getHdfFileId());
                         try {
                             derivedRecord.setDataURI(null);
                             derivedRecord.constructDataURI();
