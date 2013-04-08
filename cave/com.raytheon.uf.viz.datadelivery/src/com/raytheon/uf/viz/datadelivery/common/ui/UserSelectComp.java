@@ -44,7 +44,6 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
-import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
@@ -58,7 +57,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
@@ -93,6 +91,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Nov 20, 2012  1286      djohnson     Fix formatting, implement IDisplay to display yes/no prompt.
  * Dec 10, 2012  1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013  1441      djohnson     Access GroupDefinitionManager in a static fashion.
+ * Apr 08, 2013  1826      djohnson     Remove unused code, delivery options.
  * </pre>
  * 
  * @author jpiatt
@@ -104,9 +103,6 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(UserSelectComp.class);
-
-    private final String ALREADY_PENDING_SUBSCRIPTION = "There is already an edited version of this subscription.\n\nPlease "
-            + "reconcile the pending subscription before making further edits.";
 
     /** User information composite. */
     private Composite userComp;
@@ -139,19 +135,10 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
     private final Set<String> initiallySelectedSubscriptions = new HashSet<String>();
 
     /**
-     * Registry handler for pending subscriptions.
-     */
-    private final IPendingSubscriptionHandler pendingSubHandler = DataDeliveryHandlers
-            .getPendingSubscriptionHandler();
-
-    /**
      * Registry handler for subscriptions.
      */
     private final ISubscriptionHandler subHandler = DataDeliveryHandlers
             .getSubscriptionHandler();
-
-    private final ISubscriptionService subscriptionService = DataDeliveryServices
-            .getSubscriptionService();
 
     /**
      * Constructor.
@@ -377,8 +364,6 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         for (Subscription subscription : groupSubscriptions) {
 
             // Apply group properties to subscription definition
-            subscription.setNotify(groupDefinition.getOption() == 1);
-
             subscription.setGroupName(groupName);
 
             // Set duration

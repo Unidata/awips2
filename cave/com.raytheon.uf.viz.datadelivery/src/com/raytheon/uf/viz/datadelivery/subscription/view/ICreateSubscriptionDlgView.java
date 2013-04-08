@@ -30,7 +30,6 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
 import com.raytheon.viz.ui.presenter.IPresenterView;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
-import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
 
 /**
  * Create Subscription Dialog View Interface.
@@ -45,7 +44,8 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Dec 13, 2012  1391      bgonzale    Added status methods.
  * Jan 02, 2013  1441      djohnson    Add isGroupSelected.
  * Jan 04, 2013  1420      mpduff      Added getters for latency and priority.
- * Jan 25, 2013   1528     djohnson     Subscription priority is now an enum.
+ * Jan 25, 2013  1528      djohnson    Subscription priority is now an enum.
+ * Apr 08, 2013  1826      djohnson    Remove delivery options.
  * 
  * </pre>
  * 
@@ -95,20 +95,6 @@ public interface ICreateSubscriptionDlgView extends IPresenterView {
      * @param groupName
      */
     void setGroupName(String groupName);
-
-    /**
-     * Get the delivery selection
-     * 
-     * @return
-     */
-    int getDeliverySelection();
-
-    /**
-     * Set the delivery selection.
-     * 
-     * @param idx
-     */
-    void setDeliverySelection(int idx);
 
     /**
      * Is the no expiration date checkbox checked?
@@ -279,20 +265,6 @@ public interface ICreateSubscriptionDlgView extends IPresenterView {
      * @param b
      */
     void setActiveStartDateBtnEnabled(boolean b);
-
-    /**
-     * Set the delivery options combo config object
-     * 
-     * @param deliveryComboConf
-     */
-    void setDeliveryOptionsComboConf(ComboBoxConf deliveryComboConf);
-
-    /**
-     * Set the delivery options Strings
-     * 
-     * @param deliveryOptions
-     */
-    void setDeliveryOptions(String[] deliveryOptions);
 
     /**
      * Set the OK button config object.
