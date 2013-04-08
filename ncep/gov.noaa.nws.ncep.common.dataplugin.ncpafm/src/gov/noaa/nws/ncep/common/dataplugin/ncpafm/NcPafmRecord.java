@@ -65,6 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      object suitable for HDF5 persistence.
  * 10 Oct 2011  126         G. Hull     replace stnid,lat&lon with the SurfaceObsLocation.
  * 03 Feb 2012  606         G. Hull     added reportType to the URI for inventory updating
+ * 08 Apr 2013  1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -372,11 +373,6 @@ public class NcPafmRecord extends PersistablePluginDataObject implements
 	@Override
 	public void setPointDataView(PointDataView pointDataView) {
 		this.pointDataView = pointDataView;
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		return null;
 	}
 
 	@Override
