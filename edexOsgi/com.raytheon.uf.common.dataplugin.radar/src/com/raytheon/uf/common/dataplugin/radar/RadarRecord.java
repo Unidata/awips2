@@ -121,6 +121,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/04/2013   DCS51       zwang       Handle MIGFA product
  * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
  *                                      HDF5.
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author bphillip
@@ -366,7 +367,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
         this.dataTime = that.dataTime;
         this.insertTime = that.insertTime;
         this.messageData = that.messageData;
-        this.setHdfFileId(that.getHdfFileId());
         this.productCode = that.productCode;
         this.gateResolution = that.gateResolution;
         this.icao = that.icao;
