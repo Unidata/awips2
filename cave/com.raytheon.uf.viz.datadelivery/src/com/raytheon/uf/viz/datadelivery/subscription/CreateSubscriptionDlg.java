@@ -42,7 +42,6 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
-import com.raytheon.uf.viz.datadelivery.common.ui.DeliveryOptionsComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
@@ -52,7 +51,6 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
-import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
 
 /**
  * The Data Delivery Create Subscription Dialog.
@@ -81,6 +79,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Jan 02, 2013 1441       djohnson     Add isGroupSelected().
  * Jan 04, 2013 1420       mpduff       Add latency.
  * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
+ * Apr 08, 2013 1826       djohnson    Remove delivery options.
  * 
  * </pre>
  * 
@@ -95,9 +94,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
     /** The Subscription Group Information Composite */
     private GroupSelectComp groupSelectComp;
-
-    /** The Subscription Delivery Options Composite */
-    private DeliveryOptionsComp deliverComp;
 
     /** The Subscription Duration Composite */
     private DurationComp durComp;
@@ -189,7 +185,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         createSubscriptionInfoGroup();
 
         groupSelectComp = new GroupSelectComp(mainComp, true);
-        deliverComp = new DeliveryOptionsComp(mainComp);
 
         durComp = new DurationComp(mainComp);
         activePeriodComp = new ActivePeriodComp(mainComp);
@@ -358,14 +353,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
      * {@inheritDoc}
      */
     @Override
-    public int getDeliverySelection() {
-        return this.deliverComp.getDeliverSetting();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getSubscriptionName() {
         if (create) {
             return this.subNameTxt.getText().trim();
@@ -410,14 +397,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     @Override
     public String getGroupName() {
         return this.groupSelectComp.getGroupName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setDeliverySelection(int idx) {
-        deliverComp.setDeliverSetting(idx);
     }
 
     /**
@@ -586,22 +565,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     @Override
     public void setActiveStartDateBtnEnabled(boolean enabled) {
         this.activePeriodComp.setStartBtnEnabled(enabled);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setDeliveryOptionsComboConf(ComboBoxConf deliveryCombo) {
-        this.deliverComp.setDeliveryConfig(deliveryCombo);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setDeliveryOptions(String[] deliveryOptions) {
-        this.deliverComp.setDeliveryOptions(deliveryOptions);
     }
 
     /**
