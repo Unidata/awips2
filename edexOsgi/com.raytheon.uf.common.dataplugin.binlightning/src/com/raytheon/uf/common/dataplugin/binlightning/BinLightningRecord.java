@@ -35,7 +35,7 @@ import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20080708           1174  jkorman     Added persistenceTime handling.
  * 20090206           1990  bphillip    Removed populateDataStore method
  * 20130227        DCS 152  jgerth/elau Support for WWLLN and multiple sources
+ * 20130408           1293  bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author jkorman
@@ -80,7 +81,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 public class BinLightningRecord extends
-        ServerSpecificPersistablePluginDataObject implements IPersistable {
+        PersistablePluginDataObject implements IPersistable {
 
     /** Serializable id * */
     private static final long serialVersionUID = 1L;
