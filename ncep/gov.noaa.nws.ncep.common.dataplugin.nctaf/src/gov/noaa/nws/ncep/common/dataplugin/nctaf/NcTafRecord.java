@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 11/03/2011               sgurung     Added probable weather and method to calculate ceiling. 
  * 11/04/2011               sgurung     Sort sky_cover before calculating ceiling. 
  * 									    Change startRefTime to nearest hour to get hourly refTimes
+ * 04/08/2013   1293        bkowal      Removed references to hdffileid.
  * 
  * </pre
  * 
@@ -698,11 +699,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
 		this.pointDataView = pointDataView;
 	}
 
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
-
 	/**
 	 * Get the time to use for persisting this data.
 	 * 
@@ -714,11 +710,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
 			return null;
 		else
 			return getInsertTime().getTime();
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
-		// this.hdfFileId = hdfFileId;
 	}
 
 	/**
