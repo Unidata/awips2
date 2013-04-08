@@ -10,6 +10,7 @@
  * ------------ -----------	----------- --------------------------
  * Aug23 2011	   		    Chin Chen	Initial Coding (Following BufrsgwhvRecord to refactor for 
  * 										saving data to HDF5)
+ * Apr 8, 2013   1293       bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author chin chen
@@ -502,18 +503,6 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 		// TODO Auto-generated method stub
 
 	}

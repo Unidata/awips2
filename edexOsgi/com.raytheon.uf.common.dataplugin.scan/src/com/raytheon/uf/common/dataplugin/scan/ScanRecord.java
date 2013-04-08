@@ -37,7 +37,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.data.ModelData;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.SoundingData;
@@ -66,6 +66,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 03/17/10     2521     D. Hladky   Initial release
  * 02/01/13     1649      D. Hladky  better logging,
  * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
+ * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -78,7 +79,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
+public class ScanRecord extends PersistablePluginDataObject {
 
     /**
      * 
