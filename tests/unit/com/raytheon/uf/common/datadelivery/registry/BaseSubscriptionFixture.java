@@ -40,6 +40,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Oct 16, 2012 0726       djohnson     Use other fixtures to get appropriate values.
  * Jan 30, 2013 1543       djohnson     Add coverage/parameter data.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -73,7 +74,6 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
         subscription.setFullDataSet(random.nextBoolean());
         subscription.setGroupName("group" + random.nextInt());
         subscription.setName("name" + seedValue);
-        subscription.setNotify(random.nextBoolean());
         subscription.setOfficeID("officeID" + random.nextInt());
         subscription.addParameter(ParameterFixture.INSTANCE.get());
         // Same priority for all, individual tests needing to test specific

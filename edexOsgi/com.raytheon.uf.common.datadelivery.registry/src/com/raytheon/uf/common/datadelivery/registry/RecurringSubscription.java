@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2013 1841       djohnson     Extracted from Subscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * 
  * </pre>
  * 
@@ -95,7 +96,6 @@ public abstract class RecurringSubscription implements ISerializableObject,
         this.setGroupName(sub.getGroupName());
         this.setId(sub.getId());
         this.setName(name);
-        this.setNotify(sub.isNotify());
         this.setOfficeID(sub.getOfficeID());
         this.setParameter(sub.getParameter());
         this.setPriority(sub.getPriority());
@@ -167,10 +167,6 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @XmlAttribute
     @DynamicSerializeElement
     private Date activePeriodEnd;
-
-    @XmlAttribute
-    @DynamicSerializeElement
-    private boolean notify;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -435,27 +431,6 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @Override
     public void setActivePeriodEnd(Date activePeriodEnd) {
         this.activePeriodEnd = activePeriodEnd;
-    }
-
-    /**
-     * isNotify flag for subscription.
-     * 
-     * @return boolean true if notify subscriber false if deliver to subscriber
-     */
-    @Override
-    public boolean isNotify() {
-        return notify;
-    }
-
-    /**
-     * Set isNotify flag.
-     * 
-     * @param notify
-     *            date for subscription end
-     */
-    @Override
-    public void setNotify(boolean notify) {
-        this.notify = notify;
     }
 
     /**
