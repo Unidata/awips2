@@ -36,7 +36,7 @@ import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -56,6 +56,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ---------- ----------- --------------------------
  * 20080512           1131 jkorman     Initial implementation.
  * 20080529           1131 jkorman     getPersistenceTime now returns system time.
+ * 20130408           1293 bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author jkorman
@@ -66,7 +67,7 @@ import com.raytheon.uf.common.time.DataTime;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RedbookRecord extends ServerSpecificPersistablePluginDataObject
+public class RedbookRecord extends PersistablePluginDataObject
         implements IPersistable, Cloneable {
 
     private static final long serialVersionUID = 1L;
