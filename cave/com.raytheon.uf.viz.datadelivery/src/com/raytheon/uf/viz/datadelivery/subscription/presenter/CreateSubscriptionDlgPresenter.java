@@ -73,7 +73,6 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
-import com.raytheon.viz.ui.presenter.components.WidgetConf;
 
 /**
  * Create Subscription Dialog Presenter Object.
@@ -107,6 +106,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 25, 2013 1528       djohnson     Use priority enum instead of raw integers, default to existing priority on edit.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * </pre>
  * 
  * @author mpduff
@@ -132,14 +132,6 @@ public class CreateSubscriptionDlgPresenter {
 
     /** OK Button config object */
     protected final ButtonConf OK_CONF;
-
-    /** Delivery combo config object */
-    protected final ComboBoxConf DELIVERY_COMBO_CONF = new ComboBoxConf(true,
-            "Select delivery method", WidgetConf.DO_NOTHING);
-
-    /** Delivery options strings */
-    protected final String[] DELIVERY_OPTIONS = new String[] {
-            "Deliver data when available", "Notify when data are available" };
 
     /** Group combo config object */
     protected final ComboBoxConf GROUP_COMBO_CONF;
@@ -284,9 +276,6 @@ public class CreateSubscriptionDlgPresenter {
      * Initialize the view
      */
     public void init() {
-        view.setDeliveryOptionsComboConf(DELIVERY_COMBO_CONF);
-        view.setDeliveryOptions(DELIVERY_OPTIONS);
-        view.setDeliverySelection(0);
         view.setOkConf(OK_CONF);
 
         final boolean hasCycleTimes = !cycleTimes.isEmpty();
@@ -330,8 +319,6 @@ public class CreateSubscriptionDlgPresenter {
                 && !subscription.getGroupName().equals("None")) {
             view.setGroupName(subscription.getGroupName());
         }
-
-        view.setDeliverySelection(subscription.isNotify() ? 0 : 1);
 
         if (subscription.getSubscriptionEnd() != null) {
             view.setStartDate(subscription.getSubscriptionStart());
@@ -445,13 +432,6 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         // Data are valid, now add info to the subscription object and store
-        // to the registry
-        if (view.getDeliverySelection() == 1) {
-            subscription.setNotify(true);
-        } else {
-            subscription.setNotify(false);
-        }
-
         subscription.setProvider(dataSet.getProviderName());
 
         if (groupValid && view.isGroupSelected()) {
@@ -762,7 +742,6 @@ public class CreateSubscriptionDlgPresenter {
         boolean valid = false;
         boolean datesValid = false;
         boolean activeDatesValid = false;
-        boolean groupDeliverValid = false;
         boolean groupDurValid = false;
         boolean groupActiveValid = false;
         boolean latencyValid = false;
@@ -828,13 +807,6 @@ public class CreateSubscriptionDlgPresenter {
             groupDefinition = GroupDefinitionManager.getGroup(view
                     .getGroupName());
 
-            int deliverOption = groupDefinition.getOption();
-            int formDeliver = view.getDeliverySelection();
-
-            if (deliverOption == formDeliver) {
-                groupDeliverValid = true;
-            }
-
             // Compare the durations from the form to the group definition
             Date durStart = groupDefinition.getSubscriptionStart();
             Date durEnd = groupDefinition.getSubscriptionEnd();
@@ -889,12 +861,11 @@ public class CreateSubscriptionDlgPresenter {
             }
 
         } else {
-            groupDeliverValid = true;
             groupDurValid = true;
             groupActiveValid = true;
         }
 
-        if (!groupDeliverValid || !groupDurValid || !groupActiveValid) {
+        if (!groupDurValid || !groupActiveValid) {
             view.displayErrorPopup(
                     "Invalid Group Values",
                     "Values do not match selected group values.\n\n"
@@ -925,10 +896,6 @@ public class CreateSubscriptionDlgPresenter {
         if (groupDefinition == null) {
             return;
         }
-
-        // Set deliverCombo
-        int delOption = groupDefinition.getOption();
-        view.setDeliverySelection(delOption);
 
         // Set duration info
         Date durStart = groupDefinition.getSubscriptionStart();

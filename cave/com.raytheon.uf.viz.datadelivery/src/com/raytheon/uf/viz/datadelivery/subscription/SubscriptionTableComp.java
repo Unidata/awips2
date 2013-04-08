@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -101,6 +98,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Dec 12, 2012  1391      bgonzale     Added a job for subscription retrieves.
  * Jan 07, 2013  1437      bgonzale     Added sort column direction updates.
  * Jan 28, 2013  1529      djohnson     Disable menu items if no subscriptions are selected.
+ * Apr 08, 2013  1826      djohnson     Remove delivery options, move column value parsing to the columns themselves.
  * 
  * </pre>
  * 
@@ -513,62 +511,8 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      * @return The text for the table cell
      */
     private String getCellText(String name, SubscriptionManagerRowData rd) {
-        String returnValue = null;
-        if (name.equals(SubColumnNames.NAME.toString())) {
-            returnValue = rd.getName();
-        } else if (name.equals(SubColumnNames.OWNER.toString())) {
-            returnValue = rd.getOwner();
-        } else if (name.equals(SubColumnNames.STATUS.toString())) {
-            returnValue = rd.getStatus();
-        } else if (name.equals(SubColumnNames.PRIORITY.toString())) {
-            returnValue = String.valueOf(rd.getPriority());
-        } else if (name.equals(SubColumnNames.DESCRIPTION.toString())) {
-            returnValue = rd.getDescription();
-        } else if (name.equals(SubColumnNames.SUBSCRIPTION_START.toString())) {
-            Date date = rd.getSubscriptionStart();
-            if (date != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-                returnValue = sdf.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.SUBSCRIPTION_EXPIRATION
-                .toString())) {
-            Date date = rd.getSubscriptionEnd();
-            if (date == null) {
-                returnValue = "No Expiration";
-            } else {
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-                returnValue = sdf.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.ACTIVE_START.toString())) {
-            Date date = rd.getActiveStart();
-            if (date != null) {
-                SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd HH");
-                sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                returnValue = sdf2.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.ACTIVE_END.toString())) {
-            Date date = rd.getActiveEnd();
-            if (date != null) {
-                SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd HH");
-                sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
-                returnValue = sdf2.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.DELIVERY.toString())) {
-            returnValue = rd.getDeliveryNotify().toString();
-        } else if (name.equals(SubColumnNames.OFFICE_ID.toString())) {
-            returnValue = rd.getOfficeId();
-        } else if (name.equals(SubColumnNames.FULL_DATA_SET.toString())) {
-            returnValue = rd.getFullDataSet().toString();
-        } else if (name.equals(SubColumnNames.DATA_SIZE.toString())) {
-            returnValue = String.valueOf(rd.getDataSetSize());
-        } else if (name.equals(SubColumnNames.GROUP_NAME.toString())) {
-            returnValue = rd.getGroupName();
-        }
-
-        return returnValue;
+        SubColumnNames subColumn = SubColumnNames.fromDisplayString(name);
+        return subColumn.getRowData(rd);
     }
 
     /**
@@ -656,9 +600,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     public void createColumns() {
-        SubscriptionConfigurationManager configMan;
-        configMan = SubscriptionConfigurationManager.getInstance();
-        HashMap<String, Integer> alignmentMap = configMan.getAlignmentMap();
+        SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                .getInstance();
+        Map<String, Integer> alignmentMap = configMan.getAlignmentMap();
 
         // Get list of columns from config
         SubscriptionManagerConfigXML xml = configMan.getXml();
