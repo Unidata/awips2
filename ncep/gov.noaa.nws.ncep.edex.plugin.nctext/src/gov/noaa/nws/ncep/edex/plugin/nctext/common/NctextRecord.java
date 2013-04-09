@@ -18,7 +18,8 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 10/22/2009	191		Chin Chen	Initial coding
- * 07/23/2010   191      Archana      Added DataUri annotation to productType  
+ * 07/23/2010   191      Archana      Added DataUri annotation to productType
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime  
  * </pre>
  * 
  * @author Chin Chen
@@ -36,7 +37,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -47,6 +48,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "nctext", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "nctext",
+		indexes = {
+				@Index(name = "nctext_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

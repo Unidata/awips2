@@ -181,6 +181,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/13/13     #1597      randerso    Removed debug logging to improve performance
  * Mar 13, 2013 1792       bsteffen    Improve performance of gfe parm average
  *                                     ant time weighted average.
+ * Apr 02, 2013 #1774      randerso    Fixed a possible deadlock issue.
  * </pre>
  * 
  * @author chammack
@@ -3028,9 +3029,9 @@ public abstract class Parm implements Comparable<Parm> {
             }
         } finally {
             // always release locks in reverse order of acquiring to prevent
-            // deadlock
-            otherParm.grids.releaseWriteLock();
+            // deadlock (note that the grids were swapped inside this try block)
             this.grids.releaseWriteLock();
+            otherParm.grids.releaseWriteLock();
         }
 
         // the swap is now complete, send out the parm id changed notifications

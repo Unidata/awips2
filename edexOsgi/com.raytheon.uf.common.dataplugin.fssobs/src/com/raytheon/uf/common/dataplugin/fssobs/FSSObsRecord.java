@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -38,6 +39,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "fssobs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "fssobs",
+		indexes = {
+				@Index(name = "fssobs_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
