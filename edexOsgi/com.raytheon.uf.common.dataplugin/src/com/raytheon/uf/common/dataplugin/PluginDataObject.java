@@ -95,7 +95,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     @Column
     @XmlAttribute
     @DynamicSerializeElement
-    @Index(name = "dataURI_idx")
     protected String dataURI;
 
     /** The name of the plugin this object is associated with */
