@@ -54,7 +54,7 @@ def Usage ():
     print
     print "     -b   Show Brokers"
     print "     -c   Show Connections"
-    print "     -s   Show Subscriptions"
+    print "     -s   Show Sessions"
     print "     -e   Show Exchanges"
     print "     -q   Show Queues"
     print
