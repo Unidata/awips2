@@ -7,7 +7,8 @@
  *
  * Date     	Author		Description
  * ------------	----------	-----------	--------------------------
- * 02/2013		B. Hebbard	Initial creation	
+ * 02/2013		B. Hebbard	Initial creation
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime	
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -28,6 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -37,6 +39,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "ntrans", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ntrans",
+		indexes = {
+				@Index(name = "ntrans_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
