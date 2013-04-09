@@ -47,6 +47,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -70,6 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20090408            952 jsanchez    Updated getValue and getStrings methods.
  *                                      Added getMessageData method.
  * 20090521          2338  jsanchez    Changed the unit of the alititude.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * ======================================
  * AWIPS2 DR Work
  * 08/09/2012         1011 jkorman     Added separate max icing level as well
@@ -83,6 +85,16 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @Table(name = "pirep", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "pirep",
+		indexes = {
+				@Index(name = "pirep_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
