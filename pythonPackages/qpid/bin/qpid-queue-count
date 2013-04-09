@@ -159,7 +159,14 @@ try:
     # evaluate the JSON
     jsonStr = response.read()
     jsonObjArray = json.loads(jsonStr)
-    
+   
+    # table header
+    heads = []
+    heads.append(Header("queue"))
+    heads.append(Header("msg", Header.KMG))
+    heads.append(Header("bytes", Header.KMG))
+    heads.append(Header("cons", Header.KMG))
+ 
     # create rows of queues to display
     rows = []
     for staticDict in jsonObjArray:
@@ -180,12 +187,6 @@ try:
     
     # prepare to build & display the table
     disp = Display(prefix="  ")
-    # table header
-    heads = []
-    heads.append(Header("queue"))
-    heads.append(Header("msg", Header.KMG))
-    heads.append(Header("bytes", Header.KMG))
-    heads.append(Header("cons", Header.KMG))     
     disp.formattedTable("Queues", heads, dispRows)
 except KeyboardInterrupt:
     print
