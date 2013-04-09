@@ -46,10 +46,10 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.BoundingBox;
 
+import com.raytheon.edex.plugin.gfe.exception.MissingLocalMapsException;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
 import com.vividsolutions.jts.geom.Geometry;
@@ -68,6 +68,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 18, 2012		 #1091  randerso	Initial creation
+ * Mar 28, 2013      #1837  dgilling    Change error handling in 
+ *                                      getLastUpdated().
  * 
  * </pre>
  * 
@@ -172,11 +174,16 @@ public class DbShapeSource {
 
     /**
      * @throws IOException
+     * @throws MissingLocalMapsException
      * 
      */
-    public void open() throws IOException {
+    public void open() throws IOException, MissingLocalMapsException {
         DataStore dataStore = getDataStore();
-        schema = dataStore.getSchema(this.tableName);
+        try {
+            schema = dataStore.getSchema(this.tableName);
+        } catch (IOException e) {
+            throw new MissingLocalMapsException(e);
+        }
 
         shapeField = schema.getGeometryDescriptor().getLocalName();
         featureCollection = null;
@@ -247,7 +254,8 @@ public class DbShapeSource {
         return featureIterator.next();
     }
 
-    public synchronized ShapeType getShapeType() throws IOException {
+    public synchronized ShapeType getShapeType() throws IOException,
+            MissingLocalMapsException {
         if (this.type == null) {
             boolean closeIt = false;
             if (schema == null) {
@@ -418,6 +426,9 @@ public class DbShapeSource {
         } catch (IOException e) {
             statusHandler.error(
                     "IOException reading " + dbShape.getTableName(), e);
+        } catch (MissingLocalMapsException e) {
+            statusHandler.error("Could not locate " + dbShape.getTableName()
+                    + " in the maps database.", e);
         } finally {
             try {
                 if (dbShape != null) {
@@ -431,18 +442,17 @@ public class DbShapeSource {
         System.out.println("Took " + (System.currentTimeMillis() - t0) + " ms");
     }
 
-    public Date getLastUpdated() {
-        Date retVal = new Date();
+    public Date getLastUpdated() throws MissingLocalMapsException {
         String sqlQuery = "SELECT import_time FROM " + SCHEMA_NAME
                 + ".map_version WHERE table_name = '" + this.tableName + "';";
         try {
             SqlQueryTask task = new SqlQueryTask(sqlQuery, DB_NAME);
             QueryResult result = task.execute();
-            retVal = (Date) result.getRowColumnValue(0, 0);
+            return (Date) result.getRowColumnValue(0, 0);
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+            // e);
+            throw new MissingLocalMapsException(e);
         }
-
-        return retVal;
     }
 }
