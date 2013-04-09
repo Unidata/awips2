@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -66,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 03/17/10     2521     D. Hladky   Initial release
  * 02/01/13     1649      D. Hladky  better logging,
  * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -75,6 +77,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 @Entity
 @Table(name = "scan", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "scan",
+		indexes = {
+				@Index(name = "scan_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
