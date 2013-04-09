@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -69,6 +70,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20090413           2251 jsanchez    Implemented IDecoderGettable methods
  *                                      and plotted Profiler plots.
  * 20090610           2489 jsanchez    Updated the windSpeeed & windDirection.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -77,6 +79,16 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @Table(name = "profiler", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "profiler",
+		indexes = {
+				@Index(name = "profiler_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

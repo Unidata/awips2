@@ -1,0 +1,18 @@
+projectHome = '../../..'
+
+sourceSets.main.java.srcDirs = ["$projectHome/src/ahessian"]
+
+// this project uses the ahessian sub-project
+dependencies {
+	  compile project(':hessian4')
+    compile group: 'netty', 							name: 'netty', 										version: "$netty_version"
+}
+
+println '---------------------------'
+println 'dependency jars:'
+println '---------------------------'
+configurations.compile.each { File file -> println file.absolutePath }
+println '---------------------------'
+
+jar.baseName = 'ahessian'
+
