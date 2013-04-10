@@ -1282,7 +1282,7 @@ public class FFMPTemplates {
      * @param huc
      * @return
      */
-    public LinkedHashMap<Long, ?> getMap(String dataKey, String cwa, String huc) {
+    public synchronized LinkedHashMap<Long, ?> getMap(String dataKey, String cwa, String huc) {
 
         LinkedHashMap<Long, ?> map = null;
         HashMap<String, LinkedHashMap<Long, ?>> hucMap = null;
@@ -1398,7 +1398,7 @@ public class FFMPTemplates {
      * 
      * @return
      */
-    public LinkedHashMap<String, FFMPVirtualGageBasinMetaData> getVirtualGageBasins(
+    public synchronized LinkedHashMap<String, FFMPVirtualGageBasinMetaData> getVirtualGageBasins(
             String dataKey, String cwa) {
 
         LinkedHashMap<String, FFMPVirtualGageBasinMetaData> map = null;
