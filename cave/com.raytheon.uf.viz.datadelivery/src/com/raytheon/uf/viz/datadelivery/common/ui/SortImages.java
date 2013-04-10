@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Display;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 14, 2012            lvenable     Initial creation
+ * Apr 10, 2013   1891     djohnson     Add reverse().
  * 
  * </pre>
  * 
@@ -51,12 +52,12 @@ public class SortImages {
     /**
      * Parent composite.
      */
-    private Composite parent;
+    private final Composite parent;
 
     /**
      * Parent display.
      */
-    private Display parentDisplay;
+    private final Display parentDisplay;
 
     /**
      * Array of sort images.
@@ -67,7 +68,25 @@ public class SortImages {
      * Sort direction enumeration that identifies which image to use.
      */
     public enum SortDirection {
-        ASCENDING, DESCENDING
+        ASCENDING {
+            @Override
+            public SortDirection reverse() {
+                return SortDirection.DESCENDING;
+            }
+        },
+        DESCENDING {
+            @Override
+            public SortDirection reverse() {
+                return SortDirection.ASCENDING;
+            }
+        };
+
+        /**
+         * Reverse the sorting direction.
+         * 
+         * @return the reverse direction
+         */
+        public abstract SortDirection reverse();
     };
 
     /**
