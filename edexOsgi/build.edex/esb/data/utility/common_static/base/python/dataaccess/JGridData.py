@@ -1,4 +1,4 @@
-##
+# #
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -16,7 +16,7 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
-##
+# #
 
 
 #
@@ -37,6 +37,7 @@ import JData
 
 from com.raytheon.uf.common.geospatial.interpolation.data import FloatArrayWrapper, UnitConvertingDataDestination
 from com.raytheon.uf.common.python import PythonNumpyFloatArray
+from com.raytheon.uf.common.geospatial import LatLonReprojection
 from javax.measure.unit import UnitFormat
 
 class JGridData(IGridData, JData.JData):
@@ -79,4 +80,22 @@ class JGridData(IGridData, JData.JData):
             ny = self.jobj.getGridGeometry().getGridRange().getSpan(1);
             pnfa = PythonNumpyFloatArray(dest.getArray(), nx, ny)
         return pnfa.__numpy__[0]
+    
+    def getLatLonCoords(self):
+        """
+        Gets the lat/lon coordinates of the grid data.
+        
+        Returns:
+            a tuple where the first element is a numpy array of lons, and the 
+            second element is a numpy array of lats
+        """
+        gridGeometry = self.jobj.getGridGeometry()
+        if gridGeometry is None :
+            return None
+        latlons = LatLonReprojection.getLatLons(gridGeometry)
+        nx = gridGeometry.getGridRange().getSpan(0)
+        ny = gridGeometry.getGridRange().getSpan(1)
+        latndarray = PythonNumpyFloatArray(latlons.getLats(), nx, ny).__numpy__[0]
+        lonndarray = PythonNumpyFloatArray(latlons.getLons(), nx, ny).__numpy__[0]
+        return (lonndarray, latndarray)
         
