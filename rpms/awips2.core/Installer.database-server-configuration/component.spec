@@ -55,6 +55,8 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755) 
+/awips2/data/postgresql.conf
+
+%defattr(644,awips,fxalpha,700)
 %dir /awips2
 %dir /awips2/data
-/awips2/data/postgresql.conf
