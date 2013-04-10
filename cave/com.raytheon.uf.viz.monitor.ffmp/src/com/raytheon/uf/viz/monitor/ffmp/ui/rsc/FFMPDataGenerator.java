@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
  * Feb 28, 2013    1729   dhladky     General enhancements for speed.
  * Apr 12, 2013    1902   mpduff      Code Cleanup.
+ * Apr 15, 2013   1890    dhladky     Added another constant fix
  * </pre>
  * 
  * @author dhladky
@@ -818,7 +819,7 @@ public class FFMPDataGenerator {
                 ArrayList<Long> pfafs = ft.getAggregatePfafs(basin.getPfaf(),
                         siteKey, huc);
                 if (!pfafs.isEmpty()) {
-                    if (huc.equals("COUNTY")) {
+                    if (huc.equals(FFMPRecord.COUNTY)) {
                         name = ft.getCountyStateName(siteKey, basin.getPfaf());
                     } else {
                         for (int i = 0; i < pfafs.size(); i++) {
