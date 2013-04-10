@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -58,6 +56,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Feb 07, 2013 1543       djohnson     Initial creation
  * 3/18/2013    1802       bphillip    Added additional database functions. Enforcing mandatory transaction propogation
  * 3/27/2013    1802       bphillip    Changed transaction propagation of query methods
+ * 4/9/2013     1802       bphillip    Modified how arguments are passed in to query methods
  * 
  * </pre>
  * 
@@ -114,9 +113,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     @Override
     public void persistAll(final Collection<ENTITY> objs) {
-        for (ENTITY obj : objs) {
-            createOrUpdate(obj);
-        }
+        template.saveOrUpdateAll(objs);
     }
 
     /**
@@ -154,41 +151,11 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public List<ENTITY> getAll() {
-        return query("from " + getEntityClass().getSimpleName(),
-                Collections.<String, Object> emptyMap());
+        return query("from " + getEntityClass().getSimpleName());
     }
 
-    /**
-     * Internal convenience method for querying.
-     * 
-     * @param queryString
-     * @param params
-     * @return
-     */
-    @Transactional(propagation = Propagation.REQUIRED)
-    protected List<ENTITY> query(String queryString, Map<String, Object> params) {
-        return query(queryString, params, 0);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.REQUIRED)
-    protected List<ENTITY> query(String queryString,
-            Map<String, Object> params, int maxResults) {
-        final int numberOfParams = params.size();
-        String[] paramNames = new String[numberOfParams];
-        Object[] paramValues = new Object[numberOfParams];
-        Iterator<Map.Entry<String, Object>> iter = params.entrySet().iterator();
-        for (int i = 0; i < numberOfParams; i++) {
-            final Entry<String, Object> entry = iter.next();
-            paramNames[i] = entry.getKey();
-            paramValues[i] = entry.getValue();
-        }
-        HibernateTemplate templateToUse = (maxResults == 0) ? template
-                : new HibernateTemplate(this.getSessionFactory());
-        templateToUse.setMaxResults(maxResults);
-        return templateToUse.findByNamedParam(queryString, paramNames,
-                paramValues);
-
+    public ENTITY uniqueResult(String queryString) {
+        return uniqueResult(queryString, new Object[0]);
     }
 
     /**
@@ -199,8 +166,8 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    protected ENTITY uniqueResult(String queryString, Map<String, Object> params) {
-        final List<ENTITY> results = query(queryString, params);
+    protected ENTITY uniqueResult(String queryString, Object... params) {
+        final List<ENTITY> results = executeHQLQuery(queryString, params);
         if (results.isEmpty()) {
             return null;
         } else if (results.size() > 1) {
@@ -208,6 +175,29 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
                     + queryString + "], only returning the first!");
         }
         return results.get(0);
+    }
+
+    public List<ENTITY> query(String queryString) {
+        return executeHQLQuery(queryString);
+    }
+
+    /**
+     * Internal convenience method for querying.
+     * 
+     * @param queryString
+     * @param params
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<ENTITY> query(String queryString, Object... params) {
+        return executeHQLQuery(queryString, 0, params);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<ENTITY> query(String queryString, int maxResults,
+            Object... params) {
+        return executeHQLQuery(queryString, maxResults, params);
+
     }
 
     /**
@@ -222,26 +212,8 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      *             If errors are encountered during the HQL query
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public <T extends Object> List<T> executeHQLQuery(String queryString)
-            throws DataAccessLayerException {
-        return executeHQLQuery(queryString, true, null);
-    }
-
-    /**
-     * Executes an HQL query
-     * 
-     * @param <T>
-     *            The return object type
-     * @param queryString
-     *            A StringBuilder instance containing an HQL query to execute
-     * @return List containing the results of the query
-     * @throws DataAccessLayerException
-     *             If Hibernate errors occur during execution of the query
-     */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public List<ENTITY> executeHQLQuery(StringBuilder queryString)
-            throws DataAccessLayerException {
-        return executeHQLQuery(queryString.toString(), true, null);
+    public <T extends Object> List<T> executeHQLQuery(String queryString) {
+        return executeHQLQuery(queryString, 0);
     }
 
     /**
@@ -262,45 +234,67 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      *             If Hibernate errors occur during the execution of the query
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<ENTITY> executeHQLQuery(String queryString,
-            Map<String, Object> params) throws DataAccessLayerException {
-        return executeHQLQuery(queryString, true, params);
+    public <T extends Object> List<T> executeHQLQuery(String queryString,
+            Object... params) {
+        return executeHQLQuery(queryString, 0, params);
     }
 
     /**
-     * Executes an HQL query in an existing Hibernate session
+     * Executes a named parameter query with the option to limit the maximum
+     * number of results. The params argument contains the parameter names in
+     * alternating fashion. The parameter name comes first followed by the
+     * parameter value.
+     * <p>
+     * For example, to execute this query 'SELECT obj.field FROM object obj
+     * WHERE obj.id=:id' you would call: <br>
+     * executeHQLQuery("SELECT obj.field FROM object obj WHERE obj.id=:id", 0,
+     * ":id",idValue)
      * 
      * @param <T>
      *            An object type to query for
      * @param queryString
-     *            The query to execute
-     * @param session
-     *            The existing Hibernate session
-     * @return The results of the HQL query
-     * @throws DataAccessLayerException
-     *             if errors are encountered during the HQL query
+     *            The query string, possibly containg name parameters
+     * @param maxResults
+     *            The maximum number of results to return
+     * @param params
+     *            The named parameter pairs
+     * @return The results of the query
      */
     @SuppressWarnings("unchecked")
     @Transactional(propagation = Propagation.REQUIRED)
     public <T extends Object> List<T> executeHQLQuery(final String queryString,
-            boolean eager, final Map<String, Object> params)
-            throws DataAccessLayerException {
-        try {
-            Query query = getSessionFactory().getCurrentSession()
-                    .createQuery(queryString).setCacheable(true)
-                    .setCacheRegion(QUERY_CACHE_REGION);
-            if (params != null) {
-                for (String name : params.keySet()) {
-                    Object val = params.get(name);
-                    query.setParameter(name, val);
-                }
-            }
-            List<T> results = query.list();
-            return results;
-        } catch (Throwable e) {
-            throw new DataAccessLayerException("Error executing HQLQuery ["
-                    + queryString + "]", e);
+            int maxResults, Object... params) {
+        if (params.length % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Wrong number of arguments submitted to executeHQLQuery.");
         }
+        HibernateTemplate templateToUse = (maxResults == 0) ? template
+                : new HibernateTemplate(this.getSessionFactory());
+        templateToUse.setMaxResults(maxResults);
+        templateToUse.setQueryCacheRegion(QUERY_CACHE_REGION);
+        if (params.length == 0) {
+            return templateToUse.find(queryString);
+        }
+        String[] paramNames = new String[params.length / 2];
+        Object[] paramValues = new Object[params.length / 2];
+        int index = 0;
+        for (int i = 0; i < params.length; i += 2) {
+            paramNames[index] = (String) params[i];
+            paramValues[index] = params[i + 1];
+            index++;
+        }
+        return templateToUse.findByNamedParam(queryString, paramNames,
+                paramValues);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED)
+    public <T extends Object> Iterator<T> getQueryIterator(
+            final String queryString, Object... params) {
+        if (params.length == 0) {
+            return template.iterate(queryString);
+        }
+        return template.iterate(queryString, params);
     }
 
     /**
@@ -316,7 +310,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     public int executeHQLStatement(String queryString)
             throws DataAccessLayerException {
-        return executeHQLStatement(queryString, true, null);
+        return executeHQLStatement(queryString, new Object[0]);
     }
 
     /**
@@ -332,60 +326,41 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     public int executeHQLStatement(StringBuilder queryString)
             throws DataAccessLayerException {
-        return executeHQLStatement(queryString.toString(), true, null);
+        return executeHQLStatement(queryString.toString(), new Object[0]);
     }
 
     /**
-     * Executes an HQL query with a map of name value pairs with which to
-     * substitute into the query. This method is a convenience method for
-     * executing prepared statements
-     * 
-     * @param <T>
-     *            The return object type
-     * @param queryString
-     *            The prepared HQL query to execute. This query contains values
-     *            that will be substituted according to the names and values
-     *            found in the params map
-     * @param params
-     *            The named parameters to substitute into the HQL query
-     * @return List containing the results of the query
-     * @throws DataAccessLayerException
-     *             If Hibernate errors occur during the execution of the query
-     */
-    public int executeHQLStatement(String queryString,
-            Map<String, Object> params) throws DataAccessLayerException {
-        return executeHQLStatement(queryString, true, params);
-    }
-
-    /**
-     * Executes an HQL query in an existing Hibernate session
+     * Executes a named parameter statement(non-query). The params argument
+     * contains the parameter names in alternating fashion. The parameter name
+     * comes first followed by the parameter value.
      * 
      * @param <T>
      *            An object type to query for
      * @param queryString
-     *            The query to execute
-     * @param session
-     *            The existing Hibernate session
-     * @return The results of the HQL query
-     * @throws DataAccessLayerException
-     *             if errors are encountered during the HQL query
+     *            The query string, possibly containg name parameters
+     * @param maxResults
+     *            The maximum number of results to return
+     * @param params
+     *            The named parameter pairs
+     * @return The results of the query
      */
-    public int executeHQLStatement(final String queryString, boolean eager,
-            final Map<String, Object> params) throws DataAccessLayerException {
+    public int executeHQLStatement(final String statement, Object... params)
+            throws DataAccessLayerException {
+        if (params.length % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Wrong number of arguments submitted to executeHQLStatement.");
+        }
         try {
             Query query = getSessionFactory().getCurrentSession()
-                    .createQuery(queryString).setCacheable(true)
+                    .createQuery(statement).setCacheable(true)
                     .setCacheRegion(QUERY_CACHE_REGION);
-            if (params != null) {
-                for (String name : params.keySet()) {
-                    Object val = params.get(name);
-                    query.setParameter(name, val);
-                }
+            for (int i = 0; i < params.length; i += 2) {
+                query.setParameter((String) params[i], params[i + 1]);
             }
             return query.executeUpdate();
         } catch (Throwable e) {
             throw new DataAccessLayerException(
-                    "Error executing HQL Statement [" + queryString + "]", e);
+                    "Error executing HQL Statement [" + statement + "]", e);
         }
     }
 
@@ -404,23 +379,11 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     @SuppressWarnings("unchecked")
     @Transactional(propagation = Propagation.REQUIRED)
     public <T extends Object> List<T> executeCriteriaQuery(
-            final DetachedCriteria criteria) throws DataAccessLayerException {
+            final DetachedCriteria criteria) {
         if (criteria == null) {
             return Collections.emptyList();
         }
-
-        try {
-            List<T> results = null;
-            results = criteria
-                    .getExecutableCriteria(
-                            getSessionFactory().getCurrentSession())
-                    .setCacheable(true).setCacheRegion(QUERY_CACHE_REGION)
-                    .list();
-            return results;
-        } catch (Throwable e) {
-            throw new DataAccessLayerException(
-                    "Error executing Criteria Query", e);
-        }
+        return template.findByCriteria(criteria);
     }
 
     public void evict(ENTITY entity) {

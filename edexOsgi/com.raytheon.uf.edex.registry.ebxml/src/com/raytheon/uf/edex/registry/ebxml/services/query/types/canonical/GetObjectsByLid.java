@@ -20,14 +20,13 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -62,12 +62,9 @@ public class GetObjectsByLid extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.LID);
     }
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GetObjectByLid";
-
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
 
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
@@ -86,7 +83,7 @@ public class GetObjectsByLid extends CanonicalEbxmlQuery {
         if (lid.contains("_") || lid.contains("%")) {
             List<String> matchingLids = registryObjectDao.getMatchingLids(lid);
             if (matchingLids.isEmpty()) {
-                return Collections.emptyList();
+                return;
             }
             lids.addAll(matchingLids);
 
@@ -96,11 +93,8 @@ public class GetObjectsByLid extends CanonicalEbxmlQuery {
         HqlQueryUtil.assembleSingleParamQuery(query, RegistryObjectType.class,
                 QueryConstants.LID, HqlQueryUtil.IN, lids);
         query.append(" order by obj.lid asc,obj.versionInfo.versionName desc");
-        try {
-            return (List<T>) registryObjectDao.executeHQLQuery(query);
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Error executing GetObjectsByLid");
-        }
+        setResponsePayload(queryResponse,
+                registryObjectDao.executeHQLQuery(query.toString()));
     }
 
     @Override
@@ -110,6 +104,6 @@ public class GetObjectsByLid extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GET_OBJECTS_BY_LID;
     }
 }
