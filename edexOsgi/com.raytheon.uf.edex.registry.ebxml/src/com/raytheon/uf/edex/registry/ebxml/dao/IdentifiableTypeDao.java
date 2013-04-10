@@ -22,13 +22,10 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.IdentifiableType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -43,6 +40,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/18/2013    1082       bphillip     Initial creation
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 
@@ -88,12 +86,8 @@ public abstract class IdentifiableTypeDao<ENTITY extends IdentifiableType>
      *             If the query encounters errors
      */
     public List<ENTITY> getById(List<String> ids) throws EbxmlRegistryException {
-        try {
-            return this.executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                    this.getEntityClass(), QueryConstants.ID, "in", ids));
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this.executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                this.getEntityClass(), QueryConstants.ID, "in", ids));
     }
 
     /**
@@ -107,16 +101,10 @@ public abstract class IdentifiableTypeDao<ENTITY extends IdentifiableType>
      *             If errors occur during the query
      */
     public List<String> getMatchingIds(String id) throws EbxmlRegistryException {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("id", id);
         String hql = "select obj.id from "
                 + this.getEntityClass().getSimpleName()
                 + " obj where obj.id like :id";
-        try {
-            return this.executeHQLQuery(hql, false, params);
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this.executeHQLQuery(hql, "id", id);
     }
 
 }

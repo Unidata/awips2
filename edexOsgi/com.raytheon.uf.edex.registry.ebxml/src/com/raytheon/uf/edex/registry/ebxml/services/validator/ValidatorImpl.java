@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.validator;
 
+import javax.annotation.Resource;
+import javax.xml.ws.WebServiceContext;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
@@ -55,6 +58,9 @@ public class ValidatorImpl implements Validator {
     /** The query manager implementation */
     private QueryManagerImpl queryManager;
 
+    @Resource
+    private WebServiceContext wsContext;
+
     /*
      * (non-Javadoc)
      * 
@@ -66,6 +72,9 @@ public class ValidatorImpl implements Validator {
     public ValidateObjectsResponse validateObjects(
             ValidateObjectsRequest request) throws MsgRegistryException {
         // TODO: Implement the validator implementation using Schematron
+        statusHandler
+                .info("Validator service received validateObjects request from ["
+                        + EbxmlObjectUtil.getClientHost(wsContext) + "]");
         return EbxmlObjectUtil.spiObjectFactory.createValidateObjectsResponse();
     }
 

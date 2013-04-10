@@ -9,7 +9,8 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.raytheon.uf.edex.database;bundle-version="1.0.0"
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ org.apache.commons.cxf;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.registry.schemas.ebxml.util,
  oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4,
  oasis.names.tc.ebxml.regrep.xsd.lcm.v4,

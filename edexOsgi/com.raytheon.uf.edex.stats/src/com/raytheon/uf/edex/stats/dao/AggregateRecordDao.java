@@ -20,9 +20,7 @@
 
 package com.raytheon.uf.edex.stats.dao;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -68,14 +66,11 @@ public class AggregateRecordDao extends
     public void mergeRecord(AggregateRecord newRecord)
             throws DataAccessLayerException {
         String hql = "from AggregateRecord rec where rec.eventType = :eventType and rec.field = :field and rec.grouping = :grouping and rec.startDate = :startDate and rec.endDate = :endDate";
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("eventType", newRecord.getEventType());
-        parameters.put("field", newRecord.getField());
-        parameters.put("grouping", newRecord.getGrouping());
-        parameters.put("startDate", newRecord.getStartDate());
-        parameters.put("endDate", newRecord.getEndDate());
 
-        List<AggregateRecord> results = this.executeHQLQuery(hql, parameters);
+        List<AggregateRecord> results = this.executeHQLQuery(hql, "eventType",
+                newRecord.getEventType(), "field", newRecord.getField(),
+                "grouping", newRecord.getGrouping(), "startDate",
+                newRecord.getStartDate(), "endDate", newRecord.getEndDate());
         if (!CollectionUtil.isNullOrEmpty(results)) {
             // shouldn't be able to get multiple results, just merge with first
             // and update

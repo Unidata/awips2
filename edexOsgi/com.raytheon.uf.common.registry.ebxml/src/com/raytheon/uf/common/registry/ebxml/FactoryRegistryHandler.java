@@ -46,6 +46,9 @@ import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
+import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -73,6 +76,7 @@ import com.raytheon.uf.common.util.ReflectionException;
  * Feb 26, 2013 1643       djohnson    Remove registry manager debug toggle.
  * 3/18/2013    1802       bphillip    Implemented transaction boundaries
  * 3/27/2013    1802       bphillip    Changed visibility of processRequest and fixed catch block to catch the correct Exception type
+ * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
  * 
  * </pre>
  * 
@@ -192,7 +196,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
         QueryRequest q = RegistryUtil.getQuery(query);
         QueryResponse r = qm.executeQuery(q);
 
-        if (RegistryUtil.RESPONSE_SUCCESS.equals(r.getStatus())
+        if (RegistryResponseStatus.SUCCESS.equals(r.getStatus())
                 && r.getRegistryObjectList() != null) {
             return r.getRegistryObjectList().getRegistryObject();
         }
@@ -275,7 +279,8 @@ public class FactoryRegistryHandler implements RegistryHandler {
         } catch (WebServiceException e) {
             calledResponse = RegistryUtil.getFailedResponse(response,
                     new RegistryException(
-                            RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, e));
+                            RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                            e));
         } catch (CommunicationException e) {
             calledResponse = RegistryUtil.getFailedResponse(response, e);
         } catch (Throwable e) {
@@ -471,7 +476,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
 
         QueryResponse r = qm.executeQuery(query);
 
-        if (RegistryUtil.RESPONSE_SUCCESS.equals(r.getStatus())) {
+        if (RegistryResponseStatus.SUCCESS.equals(r.getStatus())) {
 
             if (r.getRegistryObjectList() != null
                     && r.getRegistryObjectList().getRegistryObject() != null) {
@@ -528,7 +533,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
             LifecycleManager a = lifecycleManagerFactory.getLifeCycleManager();
             RegistryResponseType r = a.removeObjects(deleteRequest);
 
-            if (RegistryUtil.RESPONSE_SUCCESS.equals(r.getStatus())) {
+            if (RegistryResponseStatus.SUCCESS.equals(r.getStatus())) {
                 response.setStatus(OperationStatus.SUCCESS);
             }
 
@@ -776,13 +781,13 @@ public class FactoryRegistryHandler implements RegistryHandler {
             objects = getRawObjects(qm, idQuery);
             if (objects.isEmpty()) {
                 rt = submitObjects(lcm, Arrays.asList(classificationNode));
-                if (!RegistryUtil.RESPONSE_SUCCESS.equals(rt.getStatus())) {
+                if (!RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
                     throwUnsuccessfulResponseException(rt);
                 }
             }
 
             rt = submitObjects(lcm, Arrays.asList(registryObject));
-            if (!RegistryUtil.RESPONSE_SUCCESS.equals(rt.getStatus())) {
+            if (!RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
                 throwUnsuccessfulResponseException(rt);
             }
 
@@ -799,7 +804,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
                 rt = submitObjects(lcm, associations, mode);
             }
 
-            if (!RegistryUtil.RESPONSE_SUCCESS.equals(rt.getStatus())) {
+            if (!RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
                 throwUnsuccessfulResponseException(rt);
             }
         }
@@ -811,7 +816,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
             // associations are stored. First, get the current associations.
             List<RegistryObjectType> existingAssociations = getAssociations(qm,
                     registryObject.getId(), null,
-                    RegistryUtil.PATH_ASSOCIATION_CONTAINS);
+                    AssociationTypes.CONTAINS_PATH);
 
             // Get the targetObjectIds from the existing associations and
             // resolve that Set against the new list of target associations
@@ -959,7 +964,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
         response.setObjectRefList(new ObjectRefListType());
         response.setRegistryObjectList(new RegistryObjectListType());
         response.setException(new ArrayList<RegistryExceptionType>());
-        response.setStatus(RegistryUtil.RESPONSE_SUCCESS);
+        response.setStatus(RegistryResponseStatus.SUCCESS);
 
         if (registryObjects != null && registryObjects.size() > 0) {
 
@@ -976,7 +981,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
 
                 RegistryResponseType rt = lifecycleManager.submitObjects(a);
 
-                if (RegistryUtil.RESPONSE_SUCCESS.equals(rt.getStatus())) {
+                if (RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
                     // Accumulate the ObjectRefList and RegistryObjectList
                     // returns
                     // from each sub-submit to aggregate back into a full
