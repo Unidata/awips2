@@ -59,10 +59,11 @@ public class LatLonReadoutAction extends AbstractRightClickAction {
     private boolean hasLatLonReadout = false;
 
     public LatLonReadoutAction() {
-        this.actionText = "Lat/Lon Readout";
+        this("Lat/Lon Readout");
     }
 
     public LatLonReadoutAction(String actionText) {
+        super(AS_CHECK_BOX);
         this.actionText = actionText;
     }
 
@@ -83,8 +84,8 @@ public class LatLonReadoutAction extends AbstractRightClickAction {
                     pane.getDescriptor().getResourceList().removeRsc(rsc);
                 }
                 List<ISamplingResource> samplers = pane.getDescriptor()
-                .getResourceList()
-                .getResourcesByTypeAsType(ISamplingResource.class);
+                        .getResourceList()
+                        .getResourcesByTypeAsType(ISamplingResource.class);
                 for (ISamplingResource sampler : samplers) {
                     if (sampled) {
                         break;
