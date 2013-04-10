@@ -26,8 +26,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -41,6 +40,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 
@@ -64,22 +64,16 @@ public class PersonDao extends RegistryObjectTypeDao<PersonType> {
      * @param firstName
      *            The first name
      * @return The matching users
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public List<PersonType> getByFirstName(String firstName)
-            throws EbxmlRegistryException {
+    public List<PersonType> getByFirstName(String firstName) {
         if (firstName == null || firstName.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        try {
-            return this
-                    .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
-                            + firstName.toLowerCase()
-                            + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this
+                .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
+                        + firstName.toLowerCase()
+                        + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+
     }
 
     /**
@@ -89,22 +83,16 @@ public class PersonDao extends RegistryObjectTypeDao<PersonType> {
      * @param lastName
      *            The last name
      * @return The matching users
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public List<PersonType> getByLastName(String lastName)
-            throws EbxmlRegistryException {
+    public List<PersonType> getByLastName(String lastName) {
         if (lastName == null || lastName.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        try {
-            return this
-                    .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.lastName) like '%"
-                            + lastName.toLowerCase()
-                            + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this
+                .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.lastName) like '%"
+                        + lastName.toLowerCase()
+                        + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+
     }
 
     /**
@@ -116,33 +104,24 @@ public class PersonDao extends RegistryObjectTypeDao<PersonType> {
      * @param lastName
      *            The last name
      * @return The matching users
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
     public List<PersonType> getByFirstAndLastName(String firstName,
-            String lastName) throws EbxmlRegistryException {
+            String lastName) {
         if (firstName.trim().isEmpty() && lastName.trim().isEmpty()) {
-            try {
-                return this.executeHQLQuery("from PersonType");
-            } catch (DataAccessLayerException e) {
-                throw new EbxmlRegistryException("Data Access Error", e);
-            }
+            return this.executeHQLQuery("from PersonType");
         }
         if (firstName == null || firstName.trim().isEmpty()) {
             return getByLastName(lastName);
         } else if (lastName == null || lastName.trim().isEmpty()) {
             return getByFirstName(firstName);
         }
-        try {
-            return this
-                    .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
-                            + firstName.toLowerCase()
-                            + "%' and lower(obj.personName.lastName) like '%"
-                            + lastName.toLowerCase()
-                            + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this
+                .executeHQLQuery("select obj from PersonType obj where lower(obj.personName.firstName) like '%"
+                        + firstName.toLowerCase()
+                        + "%' and lower(obj.personName.lastName) like '%"
+                        + lastName.toLowerCase()
+                        + "%' order by obj.personName.lastName asc, obj.personName.firstName asc");
+
     }
 
     /**
@@ -151,11 +130,8 @@ public class PersonDao extends RegistryObjectTypeDao<PersonType> {
      * @param orgId
      *            The organization ID
      * @return The users associated with the organization
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public List<PersonType> getEmployeesOfOrganization(String orgId)
-            throws EbxmlRegistryException {
+    public List<PersonType> getEmployeesOfOrganization(String orgId) {
         List<PersonType> employees = new ArrayList<PersonType>();
         List<AssociationType> associations = associationDao.getByTargetAndType(
                 orgId, AssociationTypes.EMPLOYEE_OF);
@@ -172,25 +148,18 @@ public class PersonDao extends RegistryObjectTypeDao<PersonType> {
      * @return List of object arrays (List<Object[]>) Each object array contains
      *         the id, first name, and last name for each PersonType object in
      *         the registry
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
     public Object getAllUserNames() throws EbxmlRegistryException {
-        try {
-            return this
-                    .executeHQLQuery("select obj.id, obj.personName.firstName, obj.personName.lastName from PersonType obj "
-                            + "order by obj.personName.lastName asc, obj.personName.firstName asc");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this
+                .executeHQLQuery("select obj.id, obj.personName.firstName, obj.personName.lastName from PersonType obj "
+                        + "order by obj.personName.lastName asc, obj.personName.firstName asc");
+
     }
 
     /**
      * Gets all PersonType objects in the registry
      * 
      * @return All personType objects in the registry
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
     public List<PersonType> getAllUsers() throws EbxmlRegistryException {
         return getByFirstAndLastName("", "");
@@ -202,10 +171,8 @@ public class PersonDao extends RegistryObjectTypeDao<PersonType> {
      * @param userId
      *            The ID of the person
      * @return The person with the given ID
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public PersonType getByUserId(String userId) throws EbxmlRegistryException {
+    public PersonType getByUserId(String userId) {
         return this.getById(userId);
     }
 
