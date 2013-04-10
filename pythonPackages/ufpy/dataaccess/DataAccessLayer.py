@@ -30,6 +30,7 @@
 #    12/10/12                      njensen       Initial Creation.
 #    Feb 14, 2013    1614          bsteffen       refactor data access framework
 #                                                 to use single request.
+#    4/10/13         1871          mnash         move getLatLonCoords to JGridData and add default args
 #    
 # 
 #
@@ -47,21 +48,69 @@ else:
     
 
 def getAvailableTimes(request):
+    """
+    Get the times of available data to the request.
+    
+    Args: 
+            request: the IDataRequest to get data for
+    
+    Returns:
+            a list of DataTimes    
+    """
     return router.getAvailableTimes(request)
 
-def getGridData(request, times):
+def getGridData(request, times=[]):
+    """
+    Gets the grid data that matches the request at the specified times.  Each
+    combination of parameter, level, and dataTime will be returned as a
+    separate IGridData.
+    
+    Args:
+            request: the IDataRequest to get data for
+            times: a list of DataTimes, a TimeRange, or None if the data is time
+                    agnostic
+    
+    Returns:
+            a list of IGridData
+    """
     return router.getGridData(request, times)
 
-def getGeometryData(request, times):
+def getGeometryData(request, times=[]):
+    """
+    Gets the geometry data that matches the request at the specified times.
+    Each combination of geometry, level, and dataTime will be returned as a 
+    separate IGeometryData.
+    
+    Args:
+            request: the IDataRequest to get data for
+            times: a list of DataTimes, a TimeRange, or None if the data is time
+                    agnostic
+    
+    Returns:
+            a list of IGeometryData
+    """
     return router.getGeometryData(request, times)
 
-def getLatLonCoords(gridData):
-    return router.getLatLonCoords(gridData)
-
 def getAvailableLocationNames(request):
+    """
+    Gets the available location names that match the request without actually
+    requesting the data.
+    
+    Args:
+            request: the request to find matching location names for
+            
+    Returns:
+            a list of strings of available location names.
+    """
     return router.getAvailableLocationNames(request)
 
 def newDataRequest():
+    """"
+    Creates a new instance of IDataRequest suitable for the runtime environment.
+    
+    Returns:
+            a new IDataRequest
+    """
     return router.newDataRequest()
 
 
