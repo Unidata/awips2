@@ -82,6 +82,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Oct 05, 2012   1241     djohnson     Replace RegistryManager calls with registry handler calls.
  * Jan 10, 2013   1346     mpduff       Add additional information to the dataset details output.
  * Feb 15, 2013   1638     mschenke     Moved Util.EOL into FileUtil
+ * Apr 10, 2013   1891     djohnson     Declare variable as List.
  * 
  * </pre>
  * 
@@ -513,7 +514,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
 
         tableData.sortData();
 
-        ArrayList<BrowserTableRowData> btrdArray = tableData.getDataArray();
+        List<BrowserTableRowData> btrdArray = tableData.getDataArray();
 
         for (BrowserTableRowData btrd : btrdArray) {
             TableItem ti = new TableItem(this.table, SWT.NONE);
