@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.query.types;
 
-import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
  * Implementation of a canonical ebXML query
@@ -39,9 +38,6 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * @version 1.0
  */
 public abstract class CanonicalEbxmlQuery extends AbstractEbxmlQuery {
-
-    public static final String QUERY_CANONICAL_PREFIX = EbxmlObjectUtil.EBXML_PREFIX
-            + ":query:";
 
     public boolean isCanonical() {
         return true;

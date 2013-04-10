@@ -77,7 +77,7 @@ public class NotificationType extends RegistryObjectType {
 
     @XmlElement(name = "Event", required = true)
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.DETACH)
     @JoinTable(schema = "ebxml")
     protected List<AuditableEventType> event;
 
