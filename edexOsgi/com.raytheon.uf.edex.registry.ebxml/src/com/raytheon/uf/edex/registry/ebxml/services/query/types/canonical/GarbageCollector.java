@@ -24,13 +24,13 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQuery;
 
 /**
- * TODO Add Description
+ * Garbage collector implementation to purge items from the registry
  * 
  * <pre>
  * 
@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -48,18 +49,15 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
 
 public class GarbageCollector extends CanonicalEbxmlQuery {
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GarbageCollector";
-
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GARBAGE_COLLECTOR;
     }
 
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
-        return Collections.emptyList();
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
+        // TODO:Implement
     }
 
     @Override
