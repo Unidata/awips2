@@ -45,6 +45,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerRowData;
+import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalRowData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -68,7 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2013 1286       djohnson     Fix IndexOutOfBounds exception from getMaxLatency.
  * Jan 22, 2013 1519       djohnson     Correct getMaxLatency() calculations.
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
- * Apr 08, 2013 1826       djohnson     Add getRowData() method to subscription columns.
+ * Apr 08, 2013 1826       djohnson     Add getDisplayData() method to subscription columns.
+ * Apr 10, 2013 1891       djohnson     Add getDisplayData() method to pending subscription columns.
  * </pre>
  * 
  * @author mpduff
@@ -167,42 +169,42 @@ public class DataDeliveryUtils {
         /** Column Name */
         NAME("Name", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getName();
             }
         },
         /** Column Owner */
         OWNER("Owner", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getOwner();
             }
         },
         /** Column Status */
         STATUS("Status", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getStatus();
             }
         },
         /** Column Priority */
         PRIORITY("Priority", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return String.valueOf(rd.getPriority());
             }
         },
         /** Column Description */
         DESCRIPTION("Description", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getDescription();
             }
         },
         /** Column Subscription Start */
         SUBSCRIPTION_START("Subscription Start", "Date subscription will begin") {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 Date date = rd.getSubscriptionStart();
                 if (date != null) {
                     return formatMMddyyyyHH(date);
@@ -214,7 +216,7 @@ public class DataDeliveryUtils {
         SUBSCRIPTION_EXPIRATION("Subscription Expiration",
                 "Date subscription will expire") {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 Date date = rd.getSubscriptionEnd();
                 if (date == null) {
                     return "No Expiration";
@@ -226,7 +228,7 @@ public class DataDeliveryUtils {
         /** Column Active Period Start */
         ACTIVE_START("Active Period Start", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 Date date = rd.getActiveStart();
                 if (date != null) {
                     return formatMMddHH(date);
@@ -237,7 +239,7 @@ public class DataDeliveryUtils {
         /** Column Active Period Start */
         ACTIVE_END("Active Period End", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 Date date = rd.getActiveEnd();
                 if (date != null) {
                     return formatMMddHH(date);
@@ -248,28 +250,28 @@ public class DataDeliveryUtils {
         /** Column Office Id */
         OFFICE_ID("Office ID", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getOfficeId();
             }
         },
         /** Column Full Dataset */
         FULL_DATA_SET("Full Dataset", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getFullDataSet().toString();
             }
         },
         /** Column Data Size */
         DATA_SIZE("Data Size", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return String.valueOf(rd.getDataSetSize());
             }
         },
         /** Column Group Name */
         GROUP_NAME("Group Name", null) {
             @Override
-            public String getRowData(SubscriptionManagerRowData rd) {
+            public String getDisplayData(SubscriptionManagerRowData rd) {
                 return rd.getGroupName();
             }
         };
@@ -308,7 +310,7 @@ public class DataDeliveryUtils {
             return columnName;
         }
 
-        public abstract String getRowData(SubscriptionManagerRowData rd);
+        public abstract String getDisplayData(SubscriptionManagerRowData rd);
 
         /**
          * @param name
@@ -386,17 +388,47 @@ public class DataDeliveryUtils {
      */
     public static enum PendingSubColumnNames {
         /** Subscription name */
-        NAME("Subscription Name", null),
+        NAME("Subscription Name", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getSubName();
+            }
+        },
         /** Requested Action */
-        ACTION("Action", null),
+        ACTION("Action", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getAction();
+            }
+        },
         /** Subscription owner */
-        OWNER("Owner", null),
+        OWNER("Owner", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getOwner();
+            }
+        },
         /** Change ID */
-        CHANGE_ID("Requested Change", null),
+        CHANGE_ID("Requested Change", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getChangeOwner();
+            }
+        },
         /** Office ID */
-        OFFICE("Office Id", null),
+        OFFICE("Office Id", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getOfficeId();
+            }
+        },
         /** Description */
-        DESCRIPTION("Description", null);
+        DESCRIPTION("Description", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getDescription();
+            }
+        };
 
         private final String columnName;
 
@@ -440,6 +472,15 @@ public class DataDeliveryUtils {
             // default to NAME.
             return NAME;
         }
+
+        /**
+         * Get the data this column displays for the row.
+         * 
+         * @param rd
+         *            the row data
+         * @return the display value
+         */
+        public abstract String getDisplayData(SubscriptionApprovalRowData rd);
     }
 
     /**
