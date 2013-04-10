@@ -31,7 +31,23 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- uk.ltd.getahead;bundle-version="1.0.0"
-Export-Package: com.raytheon.uf.edex.registry.ebxml.init,
+ uk.ltd.getahead;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.edex.registry.ebxml.acp,
+ com.raytheon.uf.edex.registry.ebxml.audittrail,
+ com.raytheon.uf.edex.registry.ebxml.dao,
+ com.raytheon.uf.edex.registry.ebxml.exception,
+ com.raytheon.uf.edex.registry.ebxml.init,
+ com.raytheon.uf.edex.registry.ebxml.services,
+ com.raytheon.uf.edex.registry.ebxml.services.cataloger,
  com.raytheon.uf.edex.registry.ebxml.services.lifecycle,
- com.raytheon.uf.edex.registry.ebxml.services.query
+ com.raytheon.uf.edex.registry.ebxml.services.notification,
+ com.raytheon.uf.edex.registry.ebxml.services.query,
+ com.raytheon.uf.edex.registry.ebxml.services.query.adhoc,
+ com.raytheon.uf.edex.registry.ebxml.services.query.types,
+ com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical,
+ com.raytheon.uf.edex.registry.ebxml.services.query.types.ext,
+ com.raytheon.uf.edex.registry.ebxml.services.validator,
+ com.raytheon.uf.edex.registry.ebxml.services.validator.types,
+ com.raytheon.uf.edex.registry.ebxml.util,
+ com.raytheon.uf.edex.registry.ebxml.web

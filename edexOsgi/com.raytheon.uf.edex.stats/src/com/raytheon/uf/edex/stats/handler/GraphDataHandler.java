@@ -22,9 +22,7 @@ package com.raytheon.uf.edex.stats.handler;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,27 +121,31 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
      */
     private GraphDataResponse getGraphData(GraphDataRequest request)
             throws Exception {
-        Map<String, Object> params = new HashMap<String, Object>();
+        List<Object> params = new ArrayList<Object>();
         StringBuffer query = new StringBuffer();
         query.append("from AggregateRecord rec where rec.startDate >= :startDate and rec.endDate <= :endDate");
         GraphDataResponse response = new GraphDataResponse();
         Calendar start = convertToCalendar(request.getTimeRange().getStart());
         Calendar end = convertToCalendar(request.getTimeRange().getEnd());
-        params.put(START_DATE, start);
-        params.put(END_DATE, end);
+        params.add(START_DATE);
+        params.add(start);
+        params.add(END_DATE);
+        params.add(end);
 
         if (request.getEventType() != null) {
             query.append(" and rec.eventType = :eventType");
-            params.put(EVENT_TYPE, request.getEventType());
+            params.add(EVENT_TYPE);
+            params.add(request.getEventType());
         }
 
         if (request.getField() != null) {
             query.append(" and rec.field = :field");
-            params.put(FIELD, request.getField());
+            params.add(FIELD);
+            params.add(request.getField());
         }
 
         List<?> results = aggregateRecordDao.executeHQLQuery(query.toString(),
-                params);
+                params.toArray(new Object[params.size()]));
 
         if (!results.isEmpty()) {
             List<AggregateRecord> arList = new ArrayList<AggregateRecord>();

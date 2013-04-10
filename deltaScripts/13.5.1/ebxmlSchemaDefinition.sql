@@ -207,7 +207,8 @@ ALTER TABLE ebxml.classificationscheme OWNER TO awips;
 
 CREATE TABLE deliveryinfo (
     key integer NOT NULL,
-    notificationoption character varying(255)
+    notificationoption character varying(255),
+    notifyto text
 );
 
 
@@ -857,12 +858,33 @@ ALTER TABLE ebxml.postaladdress_slot OWNER TO awips;
 -- Name: query; Type: TABLE; Schema: ebxml; Owner: awips; Tablespace: 
 --
 
+--
+-- TOC entry 390 (class 1259 OID 257160)
+-- Name: query; Type: TABLE; Schema: ebxml; Owner: awips; Tablespace: 
+--
+
 CREATE TABLE query (
-    querydefinition character varying(255) NOT NULL
+    key integer NOT NULL,
+    querydefinition character varying(255)
 );
 
 
 ALTER TABLE ebxml.query OWNER TO awips;
+
+--
+-- TOC entry 436 (class 1259 OID 258050)
+-- Name: query_sequence; Type: SEQUENCE; Schema: ebxml; Owner: awips
+--
+
+CREATE SEQUENCE query_sequence
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE ebxml.query_sequence OWNER TO awips;
 
 --
 -- TOC entry 394 (class 1259 OID 103667)
@@ -1728,6 +1750,15 @@ ALTER TABLE ONLY notification
 
 
 --
+-- TOC entry 4680 (class 2606 OID 257056)
+-- Name: notificationinfo_pkey; Type: CONSTRAINT; Schema: ebxml; Owner: awips; Tablespace: 
+--
+
+ALTER TABLE ONLY notificationinfo
+    ADD CONSTRAINT notificationinfo_pkey PRIMARY KEY (key);
+
+
+--
 -- TOC entry 4670 (class 2606 OID 103548)
 -- Name: objectref_pkey; Type: CONSTRAINT; Schema: ebxml; Owner: awips; Tablespace: 
 --
@@ -1832,7 +1863,7 @@ ALTER TABLE ONLY postaladdress_slot
 --
 
 ALTER TABLE ONLY query
-    ADD CONSTRAINT query_pkey PRIMARY KEY (querydefinition);
+    ADD CONSTRAINT query_pkey PRIMARY KEY (key);
 
 
 --
@@ -1841,7 +1872,7 @@ ALTER TABLE ONLY query
 --
 
 ALTER TABLE ONLY query_slot
-    ADD CONSTRAINT query_slot_pkey PRIMARY KEY (query_querydefinition, child_slot_key);
+    ADD CONSTRAINT query_slot_pkey PRIMARY KEY (query_key, child_slot_key);
 
 
 --
