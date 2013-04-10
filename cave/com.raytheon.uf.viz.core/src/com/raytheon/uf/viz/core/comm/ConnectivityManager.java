@@ -19,14 +19,14 @@
  **/
 package com.raytheon.uf.viz.core.comm;
 
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.URI;
 
 import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.http.client.methods.HttpGet;
+
+import com.raytheon.uf.common.comm.HttpClient;
 
 /**
  * Class for checking connectivity of http servers, currently only used for
@@ -43,6 +43,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2009            mschenke     Initial creation
+ * Mar 22, 2013   1786     mpduff       Changed to use HttpClient for connectivity.
  * 
  * </pre>
  * 
@@ -71,16 +72,14 @@ public class ConnectivityManager {
      * @return whether quit was selected. TODO: need to return two booleans, one
      *         for quit and one for connectivity
      */
-    public static void checkServer(String server, IConnectivityCallback callback) {
-        boolean good = true;
+    public static void checkHttpServer(String server, IConnectivityCallback callback) {
+        boolean good = false;
         try {
-            new URL(server).openStream().close();
-        } catch (ConnectException e) {
-            good = false;
-        } catch (MalformedURLException e) {
-            good = false;
-        } catch (UnknownHostException e) {
-            good = false;
+            HttpClient client = HttpClient.getInstance();
+            HttpGet request = new HttpGet();
+            request.setURI(new URI(server));
+            client.executeRequest(request);
+            good = true;
         } catch (Exception e) {
             // ignore
         }

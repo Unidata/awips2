@@ -135,7 +135,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
         // check HTTP Server
         Text text = servicesServer.getTextControl(getFieldEditorParent());
-        ConnectivityManager.checkServer(text.getText().trim(),
+        ConnectivityManager.checkHttpServer(text.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
@@ -154,7 +154,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         // check Pypies Server
         Text textPypies = pypiesServer.getTextControl(getFieldEditorParent());
 
-        ConnectivityManager.checkServer(textPypies.getText().trim(),
+        ConnectivityManager.checkHttpServer(textPypies.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
