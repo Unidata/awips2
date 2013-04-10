@@ -22,6 +22,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -38,7 +39,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -88,16 +88,12 @@ public class ActionType extends ExtensibleObjectType implements Serializable {
     @XmlTransient
     private Integer key;
 
-    @OneToOne
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
+    @OneToOne(cascade = CascadeType.ALL)
     @XmlElement(name = "AffectedObjects")
     @DynamicSerializeElement
     protected RegistryObjectListType affectedObjects;
 
-    @OneToOne
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
+    @OneToOne(cascade = CascadeType.ALL)
     @XmlElement(name = "AffectedObjectRefs")
     @DynamicSerializeElement
     protected ObjectRefListType affectedObjectRefs;
