@@ -20,6 +20,9 @@
 
 package com.raytheon.uf.edex.database.plugin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Table;
 
 import org.apache.commons.beanutils.ConstructorUtils;
@@ -68,6 +71,10 @@ public class PluginFactory {
         return instance;
     }
 
+    private Map<Class<PluginDao>, PluginDao> pluginDaoMap = new HashMap<Class<PluginDao>, PluginDao>();
+
+    private Object daoMapLock = new Object();
+
     /**
      * Private constructor
      * 
@@ -98,8 +105,22 @@ public class PluginFactory {
         if (props != null) {
             try {
                 Class<PluginDao> clz = (Class<PluginDao>) props.getDao();
-                return (PluginDao) ConstructorUtils.invokeConstructor(clz,
-                        pluginName);
+                PluginDao dao = pluginDaoMap.get(clz);
+                if (dao == null) {
+                    synchronized (daoMapLock) {
+                        // Create dao
+                        dao = (PluginDao) ConstructorUtils.invokeConstructor(
+                                clz, pluginName);
+                        // Copy dao mapping
+                        Map<Class<PluginDao>, PluginDao> pluginDaoMapCopy = new HashMap<Class<PluginDao>, PluginDao>(
+                                pluginDaoMap);
+                        // Add dao
+                        pluginDaoMapCopy.put(clz, dao);
+                        // Reset mapping
+                        pluginDaoMap = pluginDaoMapCopy;
+                    }
+                }
+                return dao;
             } catch (Exception e) {
                 throw new PluginException("Error instantiating DAO for "
                         + pluginName + " plugin!", e);
