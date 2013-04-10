@@ -50,11 +50,12 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 13, 2012   687    lvenable     Initial creation
- * Jun 27, 2012   702    jpiatt       Updates for subscription groups.
- * Aug 15, 2012   430    jpiatt       Modified sort.
- * Aug 30, 2012  1120    jpiatt       Added clickSort flag.
- * Jan 07, 2013  1437    bgonzale     updateSortDirection method now returns direction.
+ * Jun 13, 2012   687      lvenable     Initial creation
+ * Jun 27, 2012   702      jpiatt       Updates for subscription groups.
+ * Aug 15, 2012   430      jpiatt       Modified sort.
+ * Aug 30, 2012  1120      jpiatt       Added clickSort flag.
+ * Jan 07, 2013  1437      bgonzale     updateSortDirection method now returns direction.
+ * Apr 10, 2013  1891      djohnson     Fix sorting.
  * 
  * </pre>
  * 
@@ -75,16 +76,16 @@ public abstract class TableComp extends Composite implements
     private final Composite parentComp;
 
     /** Selected table column. */
-    protected TableColumn sortedColumn = null;
+    protected TableColumn sortedColumn;
 
     /** Sort direction map. */
-    protected HashMap<String, SortDirection> sortDirectionMap = new HashMap<String, SortDirection>();
+    protected Map<String, SortDirection> sortDirectionMap = new HashMap<String, SortDirection>();
 
     /** Table configuration. */
     private final TableCompConfig tableConfig;
 
     /** Configuration changed flag. */
-    protected boolean configChange = false;
+    protected boolean configChange;
 
     /**
      * Flag indicating if an observer should be added to the Notification
@@ -207,17 +208,7 @@ public abstract class TableComp extends Composite implements
         }
 
         if (table.getItemCount() > 0) {
-            // Only change image if table is re-opened
-            if (!configChange) {
-                sortedColumn.setImage(sortImages.getImage(sortDir));
-            } else if (sortDir == SortDirection.ASCENDING) {
-                sortedColumn.setImage(sortImages
-                        .getImage(SortDirection.ASCENDING));
-            } else {
-                sortedColumn.setImage(sortImages
-                        .getImage(SortDirection.DESCENDING));
-            }
-
+            sortedColumn.setImage(sortImages.getImage(sortDir));
         }
 
         packColumns();
@@ -269,13 +260,8 @@ public abstract class TableComp extends Composite implements
                             .get(sortedColumn.getText());
 
                     if (clickSort) {
-                        if (sortDirection == SortDirection.DESCENDING) {
-                            sortDirection = SortDirection.ASCENDING;
-                        } else {
-                            sortDirection = SortDirection.DESCENDING;
-                        }
+                        sortDirection = sortDirection.reverse();
                     }
-
                 }
 
                 sortDirectionMap.put(sortedColumn.getText(), sortDirection);
