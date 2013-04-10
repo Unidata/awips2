@@ -319,8 +319,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         dataLoadFont.dispose();
         timeDurFont.dispose();
-        FFMPConfig.getInstance().disposeResources();
-        FFMPConfig.unloadConfig();
+        //FFMPConfig.getInstance().disposeResources();
+        //FFMPConfig.unloadConfig();
 
         if (refreshColor != null) {
             refreshColor.dispose();
@@ -1311,15 +1311,20 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (attributeDlg == null || attributeDlg.isDisposed()) {
             attrData = ffmpTable.getVisibleColumns();
             attributeDlg = new AttributesDlg(shell, resource, attrData, this);
+            attributeDlg.open();
+        } else {
+        	attributeDlg.bringToTop();
         }
-        attributeDlg.open();
     }
 
     private void displayThresholdsDialog(ThreshColNames colName) {
         if (attrThreshDlg == null) {
             attrThreshDlg = new AttributeThresholdDlg(shell, colName, this);
+            attrThreshDlg.open();
+        } else {
+        	attrThreshDlg.bringToTop();
         }
-        attrThreshDlg.open();
+        
         attrThreshDlg.newThreshold(colName);
     }
 
@@ -2105,13 +2110,17 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             shell.pack();
         }
 
-        String prefix = null;
+		String prefix = null;
 
-        if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
-            prefix = " Secondary Data Load: ";
-        } else {
-            prefix = " Tertiary Data Load: ";
-        }
+		if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
+			prefix = " Secondary Data Load: ";
+		} else if (status.getLoaderType() == LOADER_TYPE.TERTIARY) {
+			prefix = " Tertiary Data Load: ";
+		} else if (status.getLoaderType() == LOADER_TYPE.GENERAL) {
+			prefix = " General Data Load: ";
+		} else {
+			prefix = " Tertiary Data Load: ";
+		}
 
         if (status.isDone() == false) {
             dataLoadingLbl.setText(prefix + status.getMessage());
