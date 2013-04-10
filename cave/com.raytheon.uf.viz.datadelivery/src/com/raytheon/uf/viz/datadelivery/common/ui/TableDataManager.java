@@ -28,7 +28,8 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 6, 2012            lvenable     Initial creation
+ * Jun 06, 2012            lvenable     Initial creation
+ * Apr 10, 2013 1891       djohnson     Declare variable as List.
  *
  * </pre>
  *
@@ -49,7 +50,7 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
     /**
      * Array of data.
      */
-    private final ArrayList<T> tableData;
+    private final List<T> tableData;
 
     /**
      * Column name.
@@ -93,7 +94,7 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
      * 
      * @return The data array.
      */
-    public ArrayList<T> getDataArray() {
+    public List<T> getDataArray() {
         return tableData;
     }
 
