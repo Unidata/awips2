@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.approve;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -74,6 +73,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Dec 19, 2012 1413       bgonzale     In the notificationArrived method, check for approved or
  *                                      denied pending messages.
  * Apr 05, 2013 1841       djohnson     Refresh entire table on receiving a notification of the correct type.
+ * Apr 10, 2013 1891       djohnson     Move logic to get column display text to the column definition, fix sorting.
  * </pre>
  * 
  * @author lvenable
@@ -200,28 +200,9 @@ public class SubApprovalTableComp extends TableComp {
      * @return Cell text string.
      */
     private String getCellText(String columnName, SubscriptionApprovalRowData rd) {
-        String returnValue = null;
-
-        if (columnName.equals(PendingSubColumnNames.NAME.getColumnName())) {
-            returnValue = rd.getSubName();
-        } else if (columnName.equals(PendingSubColumnNames.OWNER
-                .getColumnName())) {
-            returnValue = rd.getOwner();
-        } else if (columnName.equals(PendingSubColumnNames.CHANGE_ID
-                .getColumnName())) {
-            returnValue = rd.getChangeOwner();
-        } else if (columnName.equals(PendingSubColumnNames.OFFICE
-                .getColumnName())) {
-            returnValue = rd.getOfficeId();
-        } else if (columnName.equals(PendingSubColumnNames.DESCRIPTION
-                .getColumnName())) {
-            returnValue = rd.getDescription();
-        } else if (columnName.equals(PendingSubColumnNames.ACTION
-                .getColumnName())) {
-            returnValue = rd.getAction();
-        }
-
-        return returnValue;
+        PendingSubColumnNames column = PendingSubColumnNames
+                .valueOfColumnName(columnName);
+        return column.getDisplayData(rd);
     }
 
     /**
@@ -361,16 +342,11 @@ public class SubApprovalTableComp extends TableComp {
 
         pendingSubData.sortData();
 
-        ArrayList<SubscriptionApprovalRowData> sardArray = pendingSubData
+        List<SubscriptionApprovalRowData> sardArray = pendingSubData
                 .getDataArray();
 
         for (SubscriptionApprovalRowData sard : sardArray) {
-            TableItem ti = new TableItem(this.table, SWT.NONE);
-            ti.setText(0, sard.getSubName());
-            ti.setText(1, sard.getOwner());
-            ti.setText(2, sard.getChangeOwner());
-            ti.setText(3, sard.getOfficeId());
-            ti.setText(4, sard.getDescription());
+            convertRowDataToTableItem(table.getColumns(), sard);
         }
     }
 
@@ -393,16 +369,11 @@ public class SubApprovalTableComp extends TableComp {
      */
     @Override
     protected void createColumns() {
-        String[] columns = new String[PendingSubColumnNames.values().length];
-        TableColumn tc;
+        final PendingSubColumnNames[] columnNames = PendingSubColumnNames.values();
 
-        for (int i = 0; i < columns.length; i++) {
-            columns[i] = PendingSubColumnNames.values()[i].getColumnName();
-        }
-
-        for (int i = 0; i < columns.length; i++) {
-            tc = new TableColumn(table, SWT.LEFT);
-            tc.setText(columns[i]);
+        for (int i = 0; i < columnNames.length; i++) {
+            TableColumn tc = new TableColumn(table, SWT.LEFT);
+            tc.setText(columnNames[i].getColumnName());
 
             tc.setResizable(true);
 
@@ -412,6 +383,8 @@ public class SubApprovalTableComp extends TableComp {
                     handleColumnSelection(event);
                 }
             });
+
+            sortDirectionMap.put(tc.getText(), SortDirection.ASCENDING);
 
             if (i == 0) {
                 sortedColumn = tc;
@@ -434,16 +407,7 @@ public class SubApprovalTableComp extends TableComp {
 
         for (SubscriptionApprovalRowData rd : this.pendingSubData
                 .getDataArray()) {
-            int idx = 0;
-            TableItem item = new TableItem(table, SWT.NONE);
-            for (TableColumn column : columns) {
-                String text = getCellText(column.getText(), rd);
-                if (text == null) {
-                    item.setText(idx++, "");
-                } else {
-                    item.setText(idx++, text);
-                }
-            }
+            convertRowDataToTableItem(columns, rd);
         }
 
         if (sortedColumn == null) {
@@ -454,6 +418,20 @@ public class SubApprovalTableComp extends TableComp {
         }
 
         updateColumnSortImage();
+    }
+
+    private void convertRowDataToTableItem(TableColumn[] columns,
+            SubscriptionApprovalRowData rd) {
+        int idx = 0;
+        TableItem item = new TableItem(table, SWT.NONE);
+        for (TableColumn column : columns) {
+            String text = getCellText(column.getText(), rd);
+            if (text == null) {
+                item.setText(idx++, "");
+            } else {
+                item.setText(idx++, text);
+            }
+        }
     }
 
     /*

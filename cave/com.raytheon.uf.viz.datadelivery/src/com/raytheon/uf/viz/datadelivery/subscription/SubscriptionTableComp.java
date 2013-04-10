@@ -512,7 +512,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     private String getCellText(String name, SubscriptionManagerRowData rd) {
         SubColumnNames subColumn = SubColumnNames.fromDisplayString(name);
-        return subColumn.getRowData(rd);
+        return subColumn.getDisplayData(rd);
     }
 
     /**
