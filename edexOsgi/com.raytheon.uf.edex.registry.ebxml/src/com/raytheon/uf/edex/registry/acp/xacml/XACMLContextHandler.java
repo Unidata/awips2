@@ -56,6 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.IRegistryRequest;
 import com.raytheon.uf.common.registry.IRegistryRequest.Action;
+import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -66,7 +68,6 @@ import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLException;
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLNotApplicableException;
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLProcessingException;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
@@ -88,6 +89,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 8/17/2012    724          bphillip    Initial Coding
  * Oct 01, 2012 1187         djohnson    Commented out code throwing {@link ClassCastException}s.
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
+ * 4/9/2013     1802        bphillip     Added additional object checking
  * </pre>
  * 
  * @author bphillip
@@ -175,10 +177,15 @@ public class XACMLContextHandler {
             ResourceType resource = new ResourceTypeImplBuilder().buildObject();
             addIdToResource(resource, obj.getId());
             addAttributeToResource(resource, "owner", obj.getOwner());
-            addAttributeToResource(resource, "name", obj.getName()
-                    .getLocalizedString().get(0).getValue());
-            addAttributeToResource(resource, "description", obj
-                    .getDescription().getLocalizedString().get(0).getValue());
+            if (!obj.getName().getLocalizedString().isEmpty()) {
+                addAttributeToResource(resource, "name", obj.getName()
+                        .getLocalizedString().get(0).getValue());
+            }
+            if (!obj.getDescription().getLocalizedString().isEmpty()) {
+                addAttributeToResource(resource, "description", obj
+                        .getDescription().getLocalizedString().get(0)
+                        .getValue());
+            }
             addAttributeToResource(resource, "status", obj.getStatus());
             addAttributeToResource(resource, "objectType", obj.getObjectType());
         }
@@ -296,6 +303,7 @@ public class XACMLContextHandler {
 
         ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
                 .createResponseOptionType();
+        responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
         QueryResponse queryResponse = queryManager.executeQuery(responseOption,
                 query);
         if (queryResponse.getStatus().equals(RegistryResponseStatus.SUCCESS)
