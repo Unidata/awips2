@@ -89,7 +89,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 11, 2011            randerso     Initial creation
+ * Aug 11, 2011            randerso    Initial creation
+ * Apr 10, 2013      #1854 randerso    Fix for compatibility with PostGIS 2.0
  * 
  * </pre>
  * 
@@ -878,7 +879,7 @@ public class ZoneSelectorResource extends DbMapResource {
     private IShadedShape computeShape(IGraphicsTarget target,
             IMapDescriptor descriptor, Geometry g, RGB color) {
         IShadedShape newShadedShape = target.createShadedShape(false,
-                descriptor, true);
+                descriptor.getGridGeometry(), true);
         JTSCompiler shapeCompiler = new JTSCompiler(newShadedShape, null,
                 descriptor, PointStyle.CROSS);
         try {
@@ -978,7 +979,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
         constraint.append("ST_Intersects(");
         constraint.append(geometryField);
-        constraint.append(", ST_SetSrid('");
+        constraint.append(", ST_GeomFromText('");
         constraint.append(g1.toString());
         constraint.append("',4326))");
 
