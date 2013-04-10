@@ -28,6 +28,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -81,6 +82,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -88,9 +90,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * @version 1.0
  */
 public class FindAssociatedObjects extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "FindAssociatedObjects";
 
     /** The valid query parameter for this query **/
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -108,8 +107,8 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
     private FindAssociations findAssociations;
 
     @Override
-    protected List<RegistryObjectType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
         QueryParameters parameters = this.getParameterMap(queryType.getSlot(),
                 queryResponse);
         String associationType = parameters
@@ -145,8 +144,10 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
             throw new EbxmlRegistryException(
                     "Both sourceObjectType and targetObjectType MUST NOT be specified.");
         }
-        List<RegistryObjectType> associations = findAssociations.query(
-                queryType, queryResponse);
+        QueryResponse findAssociationsResponse = new QueryResponse();
+        findAssociations.query(queryType, findAssociationsResponse);
+        List<RegistryObjectType> associations = findAssociationsResponse
+                .getRegistryObjectList().getRegistryObject();
         List<String> ids = new ArrayList<String>();
         for (RegistryObjectType association : associations) {
             if (sourceObjectId == null) {
@@ -155,7 +156,8 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
                 ids.add(((AssociationType) association).getTargetObject());
             }
         }
-        return registryObjectDao.getById(ids);
+        queryResponse.getRegistryObjectList().getRegistryObject()
+                .addAll(registryObjectDao.getById(ids));
 
     }
 
@@ -183,7 +185,7 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.FIND_ASSOCIATED_OBJECTS;
     }
 
     public void setClassificationNodeDao(

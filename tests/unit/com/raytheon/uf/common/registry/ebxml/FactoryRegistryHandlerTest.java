@@ -44,6 +44,7 @@ import org.junit.Test;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryResponse;
+import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
 import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders;
 import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -75,7 +76,7 @@ public class FactoryRegistryHandlerTest {
             "Thrown on purpose");
 
     private static final CommunicationException COMMUNICATION_EXCEPTION = new CommunicationException(
-            RegistryUtil.DATABASE_ERROR_MESSAGE);
+            RegistryErrorMessage.DATABASE_ERROR_MESSAGE);
 
     @BeforeClass
     public static void classSetup() {
@@ -111,8 +112,8 @@ public class FactoryRegistryHandlerTest {
         };
         RegistryResponse<Object> response = new FactoryRegistryHandler()
                 .processRequest(callable, new RegistryResponse<Object>());
-        assertEquals(RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -138,8 +139,8 @@ public class FactoryRegistryHandlerTest {
         };
         RegistryResponse<Object> response = new FactoryRegistryHandler()
                 .processRequest(callable, new RegistryResponse<Object>());
-        assertEquals(RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.FAILED_TO_CONNECT_TO_DATABASE,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
