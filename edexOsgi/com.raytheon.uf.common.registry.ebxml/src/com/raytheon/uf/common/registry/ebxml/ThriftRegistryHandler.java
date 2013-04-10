@@ -18,6 +18,7 @@ import com.raytheon.uf.common.registry.RegistryHandler;
 import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
+import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
 import com.raytheon.uf.common.serialization.ExceptionWrapper;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
  * Sep 28, 2012 1187       djohnson    Break out reusable thrift communication code to ThriftCommunicator.
  * Nov 15, 2012 1322       djohnson    Remove ThriftCommunicator in lieu of server-keyed routing.
  * Dec 03, 2012 1379       djohnson    Use registry service keys.
+ * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
  * 
  * </pre>
  * 
@@ -78,8 +80,11 @@ public class ThriftRegistryHandler implements RegistryHandler {
 
             if (cause instanceof HttpHostConnectException) {
                 return RegistryUtil
-                        .getFailedResponse(response, new RegistryException(
-                                RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, re));
+                        .getFailedResponse(
+                                response,
+                                new RegistryException(
+                                        RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                                        re));
             } else if (cause instanceof CommunicationException) {
                 return RegistryUtil.getFailedResponse(response,
                         (CommunicationException) cause);
