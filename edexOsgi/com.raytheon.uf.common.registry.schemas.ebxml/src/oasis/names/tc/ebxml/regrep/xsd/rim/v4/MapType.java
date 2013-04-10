@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -40,7 +41,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -95,8 +95,7 @@ public class MapType implements Serializable {
 
     @XmlElement(name = "Entry")
     @DynamicSerializeElement
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE })
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(schema = "ebxml")
     protected List<EntryType> entry;
 

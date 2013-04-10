@@ -23,9 +23,6 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-
 /**
  * Data access object for retrieving ClassificationNodeTypes
  * 
@@ -38,6 +35,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 2/21/2012    184        bphillip     Initial creation
  * 8/3/2012     724        bphillip    Added more methods for getting classification nodes
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 
@@ -60,25 +58,25 @@ public class ClassificationNodeDao extends
 
     }
 
+    public boolean isValidNode(String id) {
+        long result = (Long) this
+                .executeHQLQuery(
+                        "select count(node) from ClassificationNodeType node where node.id=:id",
+                        "id", id).get(0);
+        return result != 0;
+    }
+
     /**
      * Retrieves ClassificationNode objects based on the path
      * 
      * @param path
      *            The path to get the classification node type for
      * @return The ClassificationNode object with the specified path
-     * @throws EbxmlRegistryException
-     *             If errors occur during the query
      */
-    public ClassificationNodeType getByPath(String path)
-            throws EbxmlRegistryException {
-        List<ClassificationNodeType> result;
-        try {
-            result = this
-                    .executeHQLQuery("select obj from ClassificationNodeType obj where obj.path='"
-                            + path + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public ClassificationNodeType getByPath(String path) {
+        List<ClassificationNodeType> result = this
+                .executeHQLQuery("select obj from ClassificationNodeType obj where obj.path='"
+                        + path + "'");
         if (result.isEmpty()) {
             return null;
         } else {
@@ -92,18 +90,11 @@ public class ClassificationNodeDao extends
      * @param code
      *            The code of the classification node
      * @return The ID of the classification node with the given code
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public String getNodeFromCode(String code) throws EbxmlRegistryException {
-        List<String> results;
-        try {
-            results = this
-                    .executeHQLQuery("select obj.id from ClassificationNodeType obj where obj.code='"
-                            + code + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public String getNodeFromCode(String code) {
+        List<String> results = this
+                .executeHQLQuery("select obj.id from ClassificationNodeType obj where obj.code='"
+                        + code + "'");
 
         if (results.isEmpty()) {
             return null;
@@ -118,18 +109,11 @@ public class ClassificationNodeDao extends
      * @param id
      *            The object ID of the classification node
      * @return The code of the classification node with the given ID
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public String getCodeFromNode(String id) throws EbxmlRegistryException {
-        List<String> results;
-        try {
-            results = this
-                    .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.id='"
-                            + id + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public String getCodeFromNode(String id) {
+        List<String> results = this
+                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.id='"
+                        + id + "'");
 
         if (results.isEmpty()) {
             return null;
@@ -142,51 +126,37 @@ public class ClassificationNodeDao extends
      * Gets the codes of the telephone types in the registry
      * 
      * @return The codes of the telephone types in the registry
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public List<String> getTelephoneTypes() throws EbxmlRegistryException {
-        try {
-            return this
-                    .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
-                            + TELEPHONE_TYPE_REGEX + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<String> getTelephoneTypes() {
+
+        return this
+                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
+                        + TELEPHONE_TYPE_REGEX + "'");
+
     }
 
     /**
      * Gets the codes of the address types in the registry
      * 
      * @return The codes of the address types in the registry
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public List<String> getAddressTypes() throws EbxmlRegistryException {
-        try {
-            return this
-                    .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
-                            + ADDRESS_TYPE_REGEX + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<String> getAddressTypes() {
+
+        return this
+                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
+                        + ADDRESS_TYPE_REGEX + "'");
+
     }
 
     /**
      * Gets the codes of the email types in the registry
      * 
      * @return The codes dmail types in the registry
-     * @throws EbxmlRegistryException
-     *             If errors occur during interaction with the database
      */
-    public List<String> getEmailTypes() throws EbxmlRegistryException {
-        try {
-            return this
-                    .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
-                            + EMAIL_TYPE_REGEX + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<String> getEmailTypes() {
+        return this
+                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
+                        + EMAIL_TYPE_REGEX + "'");
     }
 
     @Override

@@ -29,6 +29,7 @@ import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterable
 import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.ebxml.AssociationQuery;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
@@ -88,7 +89,7 @@ public abstract class BasePendingSubscriptionHandler<T extends InitialPendingSub
     private void deleteAssociationToSubscription(String id)
             throws RegistryHandlerException {
         AssociationQuery query = new AssociationQuery();
-        query.setAssociationType(RegistryUtil.PATH_ASSOCIATION_RELATED_TO);
+        query.setAssociationType(AssociationTypes.RELATED_TO_PATH);
         query.setSourceObjectId(id);
         query.setReturnObjects(false);
 
@@ -117,7 +118,7 @@ public abstract class BasePendingSubscriptionHandler<T extends InitialPendingSub
             throws RegistryHandlerException {
         // Checks for the existence of a pending subscription
         AssociationQuery query = new AssociationQuery();
-        query.setAssociationType(RegistryUtil.PATH_ASSOCIATION_RELATED_TO);
+        query.setAssociationType(AssociationTypes.RELATED_TO_PATH);
         query.setTargetObjectId(id);
         query.setReturnObjects(true);
 
