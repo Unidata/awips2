@@ -53,10 +53,11 @@ public class SampleAction extends AbstractRightClickAction {
     private boolean sampling = false;
 
     public SampleAction() {
-        this.actionText = "Sample";
+        this("Sample");
     }
 
     public SampleAction(String actionText) {
+        super(AS_CHECK_BOX);
         this.actionText = actionText;
 
     }
