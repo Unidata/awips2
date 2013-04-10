@@ -21,7 +21,9 @@ package com.raytheon.uf.edex.registry.ebxml.services.query;
 
 import java.math.BigInteger;
 
+import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
+import javax.xml.ws.WebServiceContext;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
@@ -34,13 +36,13 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.constants.ErrorSeverity;
+import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.IRegistryQuery;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
@@ -82,6 +84,9 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  */
 @Transactional
 public class QueryManagerImpl implements QueryManager {
+
+    @Resource
+    private WebServiceContext wsContext;
 
     private boolean eagerFetch = false;
 
@@ -153,9 +158,9 @@ public class QueryManagerImpl implements QueryManager {
             throws MsgRegistryException {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
-
-        statusHandler.info("QueryManager received executeQuery Request\n"
-                + queryRequest);
+        statusHandler.info("QueryManager received executeQuery Request "
+                + queryRequest.getId() + " from ["
+                + EbxmlObjectUtil.getClientHost(wsContext) + "]");
         QueryResponse response = EbxmlObjectUtil.queryObjectFactory
                 .createQueryResponse();
         response.setStatus(RegistryResponseStatus.SUCCESS);
