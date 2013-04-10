@@ -25,8 +25,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 
@@ -65,13 +65,8 @@ public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<OrganizationType> getAllOrganizations()
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from OrganizationType");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<OrganizationType> getAllOrganizations() {
+        return getAll();
     }
 
     /**
@@ -84,17 +79,11 @@ public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<OrganizationType> getOrganizationByName(String name)
-            throws EbxmlRegistryException {
-        List<OrganizationType> orgs;
-        try {
-            orgs = executeHQLQuery("select obj from OrganizationType obj inner join obj.name.localizedString as theName where lower(obj.id) like '%"
-                    + name.toLowerCase()
-                    + "%' or lower(theName.value) like '%"
-                    + name.toLowerCase() + "%' order by obj.id asc");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<OrganizationType> getOrganizationByName(String name) {
+        List<OrganizationType> orgs = executeHQLQuery("select obj from OrganizationType obj inner join obj.name.localizedString as theName where lower(obj.id) like '%"
+                + name.toLowerCase()
+                + "%' or lower(theName.value) like '%"
+                + name.toLowerCase() + "%' order by obj.id asc");
         return orgs;
     }
 

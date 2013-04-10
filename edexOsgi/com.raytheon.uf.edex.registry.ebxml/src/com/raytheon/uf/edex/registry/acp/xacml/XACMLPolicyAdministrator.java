@@ -41,12 +41,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
+import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLParser;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.StatusTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
+ * 4/9/2013     1802        bphillip     Import changes due to moved constant classes
  * </pre>
  * 
  * @author bphillip

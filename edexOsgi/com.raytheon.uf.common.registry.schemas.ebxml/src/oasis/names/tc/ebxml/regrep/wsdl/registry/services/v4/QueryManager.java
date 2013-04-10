@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 
+import org.apache.cxf.annotations.GZIP;
+
 /**
  * 
  * The portType for QueryManager abstract interface.
@@ -39,6 +41,7 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
  * source version: 2.1
  * 
  */
+@GZIP(threshold = 0)
 @WebService(name = "QueryManager", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({ oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,
