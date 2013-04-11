@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      getPersistenceTime() from new IPersistable
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 20081106           1515  jkorman     Changed units length from 16 to 26
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * - AWIPS2 Baseline Repository --------
  * 07/30/2012    798        jkorman     Support for common satellite data.
  * 03/25/2013   1823        dgilling    Replace underscores with spaces in URI
@@ -68,6 +70,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Table(name = "satellite", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "satellite",
+		indexes = {
+				@Index(name = "satellite_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

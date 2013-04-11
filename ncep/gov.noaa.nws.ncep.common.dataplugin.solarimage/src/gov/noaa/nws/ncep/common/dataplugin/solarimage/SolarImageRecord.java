@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -28,6 +29,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/05/2012   865        sgurung, qzhou     Initial creation.
  * 01/07/2013   865        qzhou              Added "Site" for Halpha.
  * 01/28/2013   865        qzhou              Changed float to double for intTime.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  * 
  * @author sgurung, qzhou
@@ -36,6 +38,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "solarimage", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "solarimage",
+		indexes = {
+				@Index(name = "solarimage_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
