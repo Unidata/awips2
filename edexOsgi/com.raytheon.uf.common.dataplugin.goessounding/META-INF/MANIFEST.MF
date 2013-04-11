@@ -19,7 +19,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.vividsolutions.jts.geom,
  javax.measure.quantity,
  javax.measure.unit,
- javax.persistence,
- org.hibernate.annotations
+ javax.persistence
 Export-Package: com.raytheon.uf.common.dataplugin.goessounding
-Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174"
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ org.hibernate;bundle-version="1.0.0"

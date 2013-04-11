@@ -30,6 +30,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/12/2007   1003        bwoodle     initial creation
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -51,6 +53,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @Entity
 @XmlAccessorType(XmlAccessType.NONE)
 @Table(name = "warning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "warning",
+		indexes = {
+				@Index(name = "warning_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
+
 @XmlRootElement
 @DynamicSerialize
 public class WarningRecord extends AbstractWarningRecord {
