@@ -196,7 +196,6 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
         } else {
             this.derParLibrary = derParLibrary;
         }
-        long startTime = System.currentTimeMillis();
         DataTree newTree = null;
         newTree = createBaseTree();
         if (newTree == null) {
@@ -224,9 +223,6 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
                 }
             }
         }
-        System.out.println("Time to initialize "
-                + this.getClass().getSimpleName() + ": "
-                + (System.currentTimeMillis() - startTime) + "ms");
     }
 
     @Override
