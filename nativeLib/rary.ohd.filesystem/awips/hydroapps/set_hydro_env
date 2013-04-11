@@ -71,12 +71,19 @@ export DAMCAT_DB_NAME=$(get_apps_defaults damcat_db_name)
 export JDBCURL=jdbc:postgresql://$PGHOST:$PGPORT/$DB_NAME?user=$PGUSER
 export DAMCREST_JDBCURL=jdbc:postgresql://$PGHOST:$PGPORT/$DAMCAT_DB_NAME?user=$PGUSER
 
-PGSQL_DRIVER_JAR=postgresql-8.3-603.jdbc3.jar
 if [ "${PGSQL_DRIVER_DIR}" = "" ]; then
-	export DB_DRIVER_PATH=${EDEX_HOME}/lib/dependencies/org.postgres/${PGSQL_DRIVER_JAR}
+	DB_DRIVER_DIR=${EDEX_HOME}/lib/dependencies/org.postgres
 else
-	export DB_DRIVER_PATH=${PGSQL_DRIVER_DIR}/${PGSQL_DRIVER_JAR}
+	DB_DRIVER_DIR=${PGSQL_DRIVER_DIR}/
 fi
+cd $DB_DRIVER_DIR
+files=$(find . | grep postgresql | grep jar)
+for i in $files
+do
+   echo $i
+   PGSQL_DRIVER_JAR=$i
+done
+export DB_DRIVER_PATH=${DB_DRIVER_DIR}/${PGSQL_DRIVER_JAR}
 
 #===========================================================================
 # This is stuff extracted from the original HYDRO_ENV
