@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -52,6 +53,7 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * ------------ ---------- ----------- --------------------------
  * 06/23/10        208    F. J. Yen    Initial Coding.
  * 03/10/12        606    G. Hull      added reportType to URI
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -60,6 +62,16 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  */
 @Entity
 @Table(name = "atcf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "atcf",
+		indexes = {
+				@Index(name = "atcf_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
