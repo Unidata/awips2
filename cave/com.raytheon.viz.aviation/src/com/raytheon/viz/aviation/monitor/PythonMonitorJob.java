@@ -112,7 +112,7 @@ public class PythonMonitorJob extends AbstractQueueJob<MonitorRequest> {
      * Places request on static queue.
      * 
      * @param req
-     * @return
+     * @return true if request is accepted.
      */
     public static boolean offerRequest(MonitorRequest req) {
         try {
