@@ -82,6 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 24  2012  12996     Xiaochuan   Compare with MidVal()
  * Feb 28, 2013 1731       bsteffen    Allow ScanResource to work better with
  *                                     D2DTimeMatcher.
+ * Apr 02, 2013 1731       mpduff      Fix problem with DMD updates.
  * 
  * </pre>
  * 
@@ -1108,7 +1109,8 @@ public class ScanResource extends
         try {
             if (!getScan().getTimeOrderedKeys(getScan(), newrecord.getType(),
                     resourceData.icao).contains(
-                    newrecord.getDataTime().getRefTime())) {
+                    newrecord.getDataTime().getRefTime())
+                    || newrecord.getType().equals("DMD")) {
 
                 newrecord = resourceData.populateRecord(newrecord);
 
@@ -1118,11 +1120,12 @@ public class ScanResource extends
 
                     getScan().setTableData(resourceData.icao,
                             newrecord.getTableData(),
-                            /* TODO: This should be the volume scan time, 
-                             * but {Radar,Scan}Record.getVolScanTime is actually
-                             * the radar product generation time.
+                            /*
+                             * TODO: This should be the volume scan time, but
+                             * {Radar,Scan}Record.getVolScanTime is actually the
+                             * radar product generation time.
                              */
-                            newrecord.getDataTime().getRefTime(),  
+                            newrecord.getDataTime().getRefTime(),
                             newrecord.getTilt(),
                             newrecord.getDataTime().getRefTime(),
                             newrecord.getType());

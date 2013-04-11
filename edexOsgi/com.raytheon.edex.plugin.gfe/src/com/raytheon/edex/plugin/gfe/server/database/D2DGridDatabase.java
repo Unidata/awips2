@@ -101,6 +101,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      data instead of full grid. Added logging to support
  *                                      GFE performance testing
  * 03/19/2013   #1774       randerso    Fix accumulative grid time ranges
+ * Apr 01, 2013 #1774       randerso    Moved wind component checking to GfeIngestNotificaionFilter
  * 
  * </pre>
  * 
@@ -197,7 +198,7 @@ public class D2DGridDatabase extends VGridDatabase {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    private static class D2DParm {
+    public static class D2DParm {
         private ParmID parmId;
 
         private GridParmInfo gpi;
@@ -1174,7 +1175,7 @@ public class D2DGridDatabase extends VGridDatabase {
         // no-op
     }
 
-    public ParmID getParmId(String d2dParmName, Level level) {
+    public D2DParm getD2DParm(String d2dParmName, Level level) {
         String gfeParmName = getGfeParmName(d2dParmName);
 
         String levelName = GridTranslator.getShortLevelName(level
@@ -1182,24 +1183,26 @@ public class D2DGridDatabase extends VGridDatabase {
                 .getLeveltwovalue());
 
         D2DParm parm = d2dParms.get(compositeName(gfeParmName, levelName));
-        if (parm != null) {
-            return parm.getParmId();
-        }
-
-        Matcher matcher = parmHrPattern.matcher(d2dParmName);
-        if (matcher.find()) {
-            String abbrev = matcher.group(1);
-            gfeParmName = getGfeParmName(abbrev);
-            parm = d2dParms.get(compositeName(gfeParmName, levelName));
-            if (parm != null) {
-                return parm.getParmId();
+        if (parm == null) {
+            // try to find one with duration (XXXnnhr)
+            Matcher matcher = parmHrPattern.matcher(d2dParmName);
+            if (matcher.find()) {
+                String abbrev = matcher.group(1);
+                gfeParmName = getGfeParmName(abbrev);
+                parm = d2dParms.get(compositeName(gfeParmName, levelName));
             }
         }
 
-        return null;
+        if (parm == null) {
+            statusHandler.warn("No gridParameterInfo found for "
+                    + compositeName(gfeParmName, levelName) + ":"
+                    + dbId.getModelId() + ". Check parameterInfo file.");
+        }
+
+        return parm;
     }
 
-    private String getGfeParmName(String d2dParmName) {
+    public String getGfeParmName(String d2dParmName) {
         String gfeParmName = null;
         try {
             gfeParmName = ParameterMapper.getInstance().lookupAlias(
