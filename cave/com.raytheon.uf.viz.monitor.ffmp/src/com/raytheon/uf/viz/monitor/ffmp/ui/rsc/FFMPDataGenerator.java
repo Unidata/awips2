@@ -582,7 +582,7 @@ public class FFMPDataGenerator {
             if (displayName != null) {
                 String cbasinPfaf = cBasin.getPfaf().toString();
                 StringBuilder sb = new StringBuilder(cbasinPfaf);
-                sb.append(cbasinPfaf).append("\n").append(displayName);
+                sb.append("\n").append(displayName);
                 trd.setPfaf(cbasinPfaf);
                 trd.setTableCellData(0, new FFMPTableCellData(rowField,
                         displayName, sb.toString()));
