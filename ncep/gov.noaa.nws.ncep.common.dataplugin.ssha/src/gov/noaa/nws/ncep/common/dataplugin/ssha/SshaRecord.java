@@ -11,6 +11,7 @@
  * ------- 		------- 	--------	-----------
  * Sep 2011	   		        Chin Chen	Initial Coding (Following BufrsshaRecord to refactor for 
  * 										saving data to HDF5)
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  * 
  * @author Chin Chen
@@ -31,6 +32,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -43,6 +45,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "ssha", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ssha",
+		indexes = {
+				@Index(name = "ssha_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 public class SshaRecord extends PersistablePluginDataObject implements
 		IDecoderGettable, IPointData, IPersistable {
