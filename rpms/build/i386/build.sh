@@ -341,8 +341,8 @@ fi
 
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
-   buildCAVE
    buildRPM "awips2-rcm"
+   buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi

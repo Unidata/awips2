@@ -35,6 +35,7 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.referencing.crs.ProjectedCRS;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -59,6 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/14/09      2027        D. Hladky   Initial release
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/13     #1293       bkowal      Removed references to hdffileid.
  * 
  * </pre>
@@ -68,6 +70,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Table(name = "vil", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "vil",
+		indexes = {
+				@Index(name = "vil_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
