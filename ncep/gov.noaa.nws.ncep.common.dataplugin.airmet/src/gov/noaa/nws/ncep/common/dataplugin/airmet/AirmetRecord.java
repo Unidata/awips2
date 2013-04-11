@@ -17,6 +17,7 @@
  * 07/2009		39			    L. Lin		Migration to TO11
  * 09/2011                 		Chin Chen   changed to improve purge performance and
  * 											removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -48,6 +49,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "airmet", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "airmet",
+		indexes = {
+				@Index(name = "airmet_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 
 
