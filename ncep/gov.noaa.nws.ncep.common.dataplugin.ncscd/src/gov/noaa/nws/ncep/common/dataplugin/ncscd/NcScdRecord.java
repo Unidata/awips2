@@ -17,6 +17,7 @@
  * 										of suspectTimeFlag from Boolean to String
  * 										since undefined in PointDataDescription.
  * 09/2011      457         S. Gurung   Renamed H5 to Nc and h5 to nc
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/2013      1293        bkowal      Removed references to hdffileid.
  * </pre>
  * 
@@ -49,6 +50,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -63,6 +65,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "ncscd", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ncscd",
+		indexes = {
+				@Index(name = "ncscd_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
