@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -63,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 9/20/2011     286        qzhou      Change reportType to String
  * 04/05/2012    420        dgilling   Prevent NullPointerExceptions in
  *                                     buildMessageData().
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/13      1293       bkowal     Removed references to hdffileid.
  * </pre>
  * 
@@ -72,6 +74,16 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @Table(name = "ncairep", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ncairep",
+		indexes = {
+				@Index(name = "ncairep_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

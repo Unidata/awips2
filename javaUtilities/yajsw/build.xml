@@ -1,0 +1,36 @@
+<project name="Build YAJSW" default="main" basedir=".">
+	<!-- The location that the built jar files should be copied to. -->
+	<property name="destination.directory"
+		value="/tmp" />
+	
+	<property name="gradle.directory"
+		value="${basedir}/build/gradle" />
+	<property name="gradle.build.script"
+		value="${gradle.directory}/gradlew.sh" />
+	
+	<target name="main" depends="clean">
+		<echo message="Building 'Yet Another Java Service Wrapper' ..." />
+		<exec executable="/bin/bash" dir="${gradle.directory}">
+			<arg value="${gradle.build.script}" />
+		</exec>
+		
+		<echo message="" />
+		
+		<echo message="Copying Built Jars To Destination ... ${destination.directory}" />
+		<copy file="${gradle.directory}/wrapper/build/libs/wrapper.jar"
+			todir="${destination.directory}" />
+		<copy file="${gradle.directory}/wrapper-app/build/libs/wrapperApp.jar"
+			todir="${destination.directory}" />
+		
+		<echo message="" />
+		
+		<antcall target="clean" />
+	</target>
+	
+	<target name="clean">
+		<exec executable="/bin/bash" dir="${gradle.directory}">
+			<arg value="${gradle.build.script}" />
+			<arg value="clean" />
+		</exec>
+	</target>
+</project>
