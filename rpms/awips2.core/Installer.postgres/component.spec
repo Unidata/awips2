@@ -1,5 +1,5 @@
 %define _build_arch %(uname -i)
-%define _postgresql_version 9.2.3
+%define _postgresql_version 9.2.4
 #
 # AWIPS II PostgreSQL Spec File
 #
@@ -37,7 +37,7 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-/bin/mkdir %{_build_root}
+/bin/mkdir -p %{_build_root}
 if [ $? -ne 0 ]; then
    exit 1
 fi
