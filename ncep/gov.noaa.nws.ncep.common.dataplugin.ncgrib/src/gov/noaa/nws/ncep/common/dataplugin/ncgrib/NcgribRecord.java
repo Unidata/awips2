@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -62,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 4/7/09       1994        bphillip    Initial Creation
  * 10/13/10      276        llin        Modified for NC GRIB.
  * 03/07/12      606        ghull       Added eventName to URI for NcInventory updating.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/13     1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
@@ -71,6 +73,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Table(name = "ncgrib", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ncgrib",
+		indexes = {
+				@Index(name = "ncgrib_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
