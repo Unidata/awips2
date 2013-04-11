@@ -47,6 +47,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -80,6 +81,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20080108            382 jkorman     Added IVerticalSoundingCreator impl.
  * 20080114            763 jkorman     Added &quot;below&quot; ground level exclusion to
  *                                     getValue.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  * 
  * @author jkorman
@@ -87,6 +89,16 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @Table(name = "bufrua", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "bufrua",
+		indexes = {
+				@Index(name = "bufrua_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
