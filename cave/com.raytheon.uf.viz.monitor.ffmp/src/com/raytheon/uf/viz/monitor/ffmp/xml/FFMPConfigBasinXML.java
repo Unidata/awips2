@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.monitor.ffmp.xml;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -28,6 +30,22 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+
+/**
+ * Config Basin xml object.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Apr 12, 2013   1902    mpduff       Return a FFMPTableColumnXML object.
+ * 
+ * </pre>
+ * 
+ */
 
 @XmlRootElement(name = "FfmpConfigBasin")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -90,6 +108,11 @@ public class FFMPConfigBasinXML implements ISerializableObject {
 
     @XmlElements({ @XmlElement(name = "TableColumn", type = FFMPTableColumnXML.class) })
     private ArrayList<FFMPTableColumnXML> tableColumnData;
+
+    /**
+     * Temp data structure.
+     */
+    private transient Map<String, FFMPTableColumnXML> tableColumnMap = new HashMap<String, FFMPTableColumnXML>();
 
     public FFMPConfigBasinXML() {
 
@@ -229,5 +252,25 @@ public class FFMPConfigBasinXML implements ISerializableObject {
 
     public void setTableColumnData(ArrayList<FFMPTableColumnXML> tableColumnData) {
         this.tableColumnData = tableColumnData;
+    }
+
+    /**
+     * Get the FFMPTableColumn object for the provided column name
+     * 
+     * @param colName
+     *            the column name
+     * @return the FFMPTableColumnXML object
+     */
+    public FFMPTableColumnXML getTableColumnData(String colName) {
+        if (!tableColumnMap.containsKey(colName)) {
+            for (FFMPTableColumnXML tc : tableColumnData) {
+                if (tc.getColumnName().equals(colName)) {
+                    tableColumnMap.put(colName, tc);
+                    break;
+                }
+            }
+        }
+
+        return tableColumnMap.get(colName);
     }
 }
