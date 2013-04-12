@@ -79,6 +79,10 @@ log_msg Copying cave site configuration for site ${CAPS_SITE} to temporary direc
 cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/gfe $caveDest/site
 log_msg 70
 
+log_msg Copying cave site maps configuration for site ${CAPS_SITE} to temporary directory...
+cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/bundles/maps $caveDest/site
+log_msg 75
+
 log_msg Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory...
 cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/colormaps $caveDest/site
 log_msg 80
