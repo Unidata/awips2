@@ -288,6 +288,11 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         currentDlg = this;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -297,6 +302,11 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         SiteGridManager.clear();
@@ -304,6 +314,13 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         tveDlg.disposeDialog();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -323,6 +340,11 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
     @Override
     protected void preOpened() {
         checkNow();
