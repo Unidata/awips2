@@ -1,6 +1,7 @@
 /**
  * NcUairRecord
  * 
+ * <pre>
  * The java class defines the parameters in the postgres table and
  * the for HDF5 dataset for the upper air data.
  * 
@@ -14,6 +15,7 @@
  * 10/2011                      S. Gurung   Replace slat/slon/selv with location of type SurfaceObsLocation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/2013      1293            bkowal      Removed references to hdffileid. 
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -33,13 +35,16 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -52,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ncuairseq")
 @Table(name = "ncuair", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
