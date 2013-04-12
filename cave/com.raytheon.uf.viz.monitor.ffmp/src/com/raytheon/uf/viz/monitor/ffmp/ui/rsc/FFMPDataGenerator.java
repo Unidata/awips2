@@ -70,14 +70,16 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Feb 1,  2013 DR 1569   dhladky     Switched to using pypies records instead of files
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
- * Feb 28, 2013  1729      dhladky    General enhancements for speed.
+ * Feb 28, 2013    1729   dhladky     General enhancements for speed.
+ * Apr 12, 2013    1902   mpduff      Code Cleanup.
  * </pre>
+ * 
  * @author dhladky
  * @version 1.0
  */
 
 public class FFMPDataGenerator {
-    private FfmpTableConfig tableConfig;
+    private final FfmpTableConfig tableConfig;
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPDataGenerator.class);
@@ -86,23 +88,23 @@ public class FFMPDataGenerator {
 
     private final String NA = "NA";
 
-    private String siteKey;
+    private final String siteKey;
 
-    private String dataKey;
+    private final String dataKey;
 
-    private ProductXML product;
+    private final ProductXML product;
 
-    private Date paintRefTime;
+    private final Date paintRefTime;
 
-    private Date tableTime;
+    private final Date tableTime;
 
-    private Object centeredAggregationKey;
+    private final Object centeredAggregationKey;
 
-    private String huc;
+    private final String huc;
 
-    private ArrayList<DomainXML> domains;
+    private final List<DomainXML> domains;
 
-    private double sliderTime;
+    private final double sliderTime;
 
     private boolean isWorstCase = false;
 
@@ -176,14 +178,14 @@ public class FFMPDataGenerator {
     public FFMPTableData generateFFMPData() throws Exception {
         // You should always have at least a QPE data source
         FFMPTableData tData = null;
+
         // update the FFFGDataManager
         FFFGDataMgr.getUpdatedInstance();
         tData = new FFMPTableData();
 
         try {
-         
             FIELDS field = getBaseField();
-            
+
             if (field != null) {
                 if (baseRec != null) {
                     FFMPBasinData fbd = null;
@@ -209,8 +211,7 @@ public class FFMPDataGenerator {
                                             continue;
                                         }
 
-                                        if ((cwa.equals(fmdb
-                                                .getCwa()))
+                                        if ((cwa.equals(fmdb.getCwa()))
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
                                             try {
@@ -253,9 +254,8 @@ public class FFMPDataGenerator {
                                      * is in the CWA
                                      */
 
-                                    ArrayList<Long> pfafs = ft
-                                            .getAggregatePfafs(key, siteKey,
-                                                    huc);
+                                    List<Long> pfafs = ft.getAggregatePfafs(
+                                            key, siteKey, huc);
 
                                     boolean isVGB = false;
                                     if (ft.checkVGBsInAggregate(key, siteKey,
@@ -300,11 +300,11 @@ public class FFMPDataGenerator {
                                                 || (domain.isPrimary() && fmdb
                                                         .isPrimaryCwa())) {
 
-											setFFMPRow(fbd.get(key), tData,
-													false, null);
-											// virtual basin
-											if (virtualBasin != null) {
-												for (Long id : ft
+                                            setFFMPRow(fbd.get(key), tData,
+                                                    false, null);
+
+                                            if (virtualBasin != null) {
+                                                for (Long id : ft
                                                         .getVirtualGageBasinLookupIds(
                                                                 siteKey,
                                                                 key,
@@ -327,7 +327,7 @@ public class FFMPDataGenerator {
                                             }
                                         }
                                     }
-								}
+                                }
                             }
                         }
                         tData.sortData();
@@ -335,7 +335,8 @@ public class FFMPDataGenerator {
                 }
             }
         } catch (Exception e) {
-           statusHandler.handle(Priority.PROBLEM, "Failed to load FFMP table data!", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to load FFMP table data!", e);
         }
 
         return tData;
@@ -346,11 +347,11 @@ public class FFMPDataGenerator {
         try {
             if (cBasin instanceof FFMPVirtualGageBasin) {
                 if (tData.containsPfaf(((FFMPVirtualGageBasin) cBasin).getLid()
-                        .toString()) == true) {
+                        .toString())) {
                     return;
                 }
             } else {
-                if (tData.containsPfaf(cBasin.getPfaf().toString()) == true) {
+                if (tData.containsPfaf(cBasin.getPfaf().toString())) {
                     return;
                 }
             }
@@ -378,7 +379,6 @@ public class FFMPDataGenerator {
 
             rowField = FIELDS.VIRTUAL;
 
-            
             String lid = ((FFMPVirtualGageBasin) cBasin).getLid();
 
             if (lid != null) {
@@ -394,7 +394,7 @@ public class FFMPDataGenerator {
                 Long parentBasinPfaf = fvgmbd.getParentPfaf();
 
                 if (fvgmbd != null) {
-                    
+
                     mouseOverText = metabasin.getBasinId() + "\n"
                             + fvgmbd.getLid() + "-" + fvgmbd.getName();
 
@@ -403,8 +403,9 @@ public class FFMPDataGenerator {
                     }
                 }
 
-                trd.setTableCellData(0, new FFMPTableCellData(rowField,
-                        sb.toString(), mouseOverText));
+                trd.setTableCellData(0,
+                        new FFMPTableCellData(rowField, sb.toString(),
+                                mouseOverText));
 
                 if (!isWorstCase || huc.equals(ALL)
                         || (centeredAggregationKey != null)) {
@@ -412,14 +413,11 @@ public class FFMPDataGenerator {
                     if (!cBasin.getValues().isEmpty()) {
                         rate = ((FFMPVirtualGageBasin) cBasin)
                                 .getValue(paintRefTime);
-                        trd.setTableCellData(1, new FFMPTableCellData(
-                                FIELDS.RATE, rate));
-                    } else {
-                        trd.setTableCellData(1, new FFMPTableCellData(
-                                FIELDS.RATE, Float.NaN));
                     }
-                    if (!cBasin.getValues().isEmpty()) {
+                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
+                            rate));
 
+                    if (!cBasin.getValues().isEmpty()) {
                         if (sliderTime > 0.00) {
                             qpe = cBasin.getAccumValue(monitor.getQpeWindow()
                                     .getAfterTime(), monitor.getQpeWindow()
@@ -427,37 +425,33 @@ public class FFMPDataGenerator {
                         } else {
                             qpe = 0.0f;
                         }
-                        trd.setTableCellData(2, new FFMPTableCellData(
-                                FIELDS.QPE, qpe));
-
-                    } else {
-                        trd.setTableCellData(2, new FFMPTableCellData(
-                                FIELDS.QPE, Float.NaN));
                     }
+                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
+                            qpe));
 
                     if ((qpfBasin != null)
                             && (qpfBasin.get(parentBasinPfaf) != null)) {
                         qpf = qpfBasin.get(parentBasinPfaf).getAverageValue(
                                 monitor.getQpfWindow().getAfterTime(),
                                 monitor.getQpfWindow().getBeforeTime());
-                        trd.setTableCellData(3, new FFMPTableCellData(
-                                FIELDS.QPF, qpf));
-                    } else {
-                        trd.setTableCellData(3, new FFMPTableCellData(
-                                FIELDS.QPF, Float.NaN));
                     }
+                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
+                            qpf));
 
                     // run over each guidance type
                     int i = 0;
-
                     for (String guidType : guidBasins.keySet()) {
                         List<Long> pfafList = new ArrayList<Long>();
                         List<Long> forcedPfafs = new ArrayList<Long>();
                         guidance = Float.NaN;
                         boolean forced = false;
+                        Float diffValue = Float.NaN;
+                        Float ratioValue = Float.NaN;
+
                         FFFGForceUtil forceUtil = forceUtils.get(guidType);
-                        FFMPBasinData guidBasin = guidBasins.get(guidType);
                         forceUtil.setSliderTime(sliderTime);
+
+                        FFMPBasinData guidBasin = guidBasins.get(guidType);
 
                         if ((guidBasin != null)
                                 && ((FFMPGuidanceBasin) guidBasin
@@ -549,23 +543,15 @@ public class FFMPDataGenerator {
                                     FIELDS.GUIDANCE, Float.NaN));
                         }
 
+                        // If guidance is NaN then it cannot be > 0
                         if (!qpe.isNaN() && (guidance > 0.0f)) {
-                            trd.setTableCellData(
-                                    i + 5,
-                                    new FFMPTableCellData(FIELDS.RATIO,
-                                            FFMPUtils.getRatioValue(qpe,
-                                                    guidance)));
-                            trd.setTableCellData(
-                                    i + 6,
-                                    new FFMPTableCellData(FIELDS.DIFF,
-                                            FFMPUtils.getDiffValue(qpe,
-                                                    guidance)));
-                        } else {
-                            trd.setTableCellData(i + 5, new FFMPTableCellData(
-                                    FIELDS.RATIO, Float.NaN));
-                            trd.setTableCellData(i + 6, new FFMPTableCellData(
-                                    FIELDS.DIFF, Float.NaN));
+                            ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                            diffValue = FFMPUtils.getDiffValue(qpe, guidance);
                         }
+                        trd.setTableCellData(i + 5, new FFMPTableCellData(
+                                FIELDS.RATIO, ratioValue));
+                        trd.setTableCellData(i + 6, new FFMPTableCellData(
+                                FIELDS.DIFF, diffValue));
 
                         i += 3;
                     }
@@ -593,25 +579,20 @@ public class FFMPDataGenerator {
                             && (rateBasin.get(cBasin.getPfaf()) != null)) {
                         rate = rateBasin.get(cBasin.getPfaf()).getValue(
                                 paintRefTime);
-                        trd.setTableCellData(1, new FFMPTableCellData(
-                                FIELDS.RATE, rate));
-                        // System.out.println("rate: "+rate);
-                    } else {
-                        trd.setTableCellData(1, new FFMPTableCellData(
-                                FIELDS.RATE, Float.NaN));
                     }
+                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
+                            rate));
+
                     if ((qpeBasin != null)
                             && (qpeBasin.get(cBasin.getPfaf()) != null)) {
                         qpe = qpeBasin.get(cBasin.getPfaf()).getAccumValue(
                                 monitor.getQpeWindow().getAfterTime(),
                                 monitor.getQpeWindow().getBeforeTime(),
                                 expirationTime, isRate);
-                        trd.setTableCellData(2, new FFMPTableCellData(
-                                FIELDS.QPE, qpe));
-                    } else {
-                        trd.setTableCellData(2, new FFMPTableCellData(
-                                FIELDS.QPE, Float.NaN));
                     }
+                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
+                            qpe));
+
                     if ((qpfBasin != null)
                             && (qpfBasin.get(cBasin.getPfaf()) != null)) {
 
@@ -620,24 +601,26 @@ public class FFMPDataGenerator {
                                 monitor.getQpfWindow().getBeforeTime());
                         // qpf = getQPFValue(false, cBasin.getPfaf(),
                         // new ArrayList<Long>());/* DR13839 */
-                        trd.setTableCellData(3, new FFMPTableCellData(
-                                FIELDS.QPF, qpf));
-                        // System.out.println("qpf: "+qpf);
-                    } else {
-                        trd.setTableCellData(3, new FFMPTableCellData(
-                                FIELDS.QPF, Float.NaN));
                     }
+                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
+                            qpf));
 
                     // run over each guidance type
                     int i = 0;
+                    Float ratioValue;
+                    Float diffValue;
                     for (String guidType : guidBasins.keySet()) {
                         List<Long> pfafList = new ArrayList<Long>();
                         List<Long> forcedPfafs = new ArrayList<Long>();
                         guidance = Float.NaN;
                         boolean forced = false;
+                        ratioValue = Float.NaN;
+                        diffValue = Float.NaN;
+
                         FFFGForceUtil forceUtil = forceUtils.get(guidType);
-                        FFMPBasinData guidBasin = guidBasins.get(guidType);
                         forceUtil.setSliderTime(sliderTime);
+
+                        FFMPBasinData guidBasin = guidBasins.get(guidType);
 
                         if ((guidBasin != null)
                                 && ((FFMPGuidanceBasin) guidBasin.get(cBasin
@@ -729,7 +712,7 @@ public class FFMPDataGenerator {
                             // check for forcing even if no data are available
                             guidance = getForcedAvg(forceUtil, domain, cBasin,
                                     guidType);
-                            if (guidance.isNaN() == false) {
+                            if (!guidance.isNaN()) {
                                 forced = true;
                             } else {
                                 forced = false;
@@ -739,23 +722,15 @@ public class FFMPDataGenerator {
                                     FIELDS.GUIDANCE, guidance, forced));
                         }
 
+                        // If guidance is NaN then it cannot be > 0
                         if (!qpe.isNaN() && (guidance > 0.0f)) {
-                            trd.setTableCellData(
-                                    i + 5,
-                                    new FFMPTableCellData(FIELDS.RATIO,
-                                            FFMPUtils.getRatioValue(qpe,
-                                                    guidance)));
-                            trd.setTableCellData(
-                                    i + 6,
-                                    new FFMPTableCellData(FIELDS.DIFF,
-                                            FFMPUtils.getDiffValue(qpe,
-                                                    guidance)));
-                        } else {
-                            trd.setTableCellData(i + 5, new FFMPTableCellData(
-                                    FIELDS.RATIO, Float.NaN));
-                            trd.setTableCellData(i + 6, new FFMPTableCellData(
-                                    FIELDS.DIFF, Float.NaN));
+                            ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                            diffValue = FFMPUtils.getDiffValue(qpe, guidance);
                         }
+                        trd.setTableCellData(i + 5, new FFMPTableCellData(
+                                FIELDS.RATIO, ratioValue));
+                        trd.setTableCellData(i + 6, new FFMPTableCellData(
+                                FIELDS.DIFF, diffValue));
 
                         i += 3;
                     }
@@ -780,7 +755,7 @@ public class FFMPDataGenerator {
             forceUtil.calculateForcings(domain, ft, cBasin);
             forcedPfafs = forceUtil.getForcedPfafList();
             forced = forceUtil.isForced();
-            if (forced == false) {
+            if (!forced) {
                 return Float.NaN;
             }
         } else {
@@ -883,20 +858,15 @@ public class FFMPDataGenerator {
         Float guidance = Float.NaN;
         Float rate = Float.NaN;
         Float qpf = Float.NaN;
+        Float ratioValue = Float.NaN;
+        Float diffValue = Float.NaN;
 
         if (cBasin instanceof FFMPVirtualGageBasin) {
             if (!pfafs.isEmpty()) {
                 if (virtualBasin != null) {
-                    trd.setTableCellData(
-                            1,
-                            new FFMPTableCellData(FIELDS.RATE, virtualBasin
-                                    .get(cBasin.getPfaf()).getValue(
-                                            paintRefTime)));
-                } else {
-                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
-                            Float.NaN));
-                }
-                if (virtualBasin != null) {
+                    rate = virtualBasin.get(cBasin.getPfaf()).getValue(
+                            paintRefTime);
+
                     if (sliderTime > 0.00) {
                         qpe = virtualBasin.get(cBasin.getPfaf()).getAccumValue(
                                 monitor.getQpeWindow().getAfterTime(),
@@ -905,104 +875,40 @@ public class FFMPDataGenerator {
                     } else {
                         qpe = 0.0f;
                     }
-
-                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
-                            qpe));
-
-                } else {
-                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
-                            Float.NaN));
                 }
+                trd.setTableCellData(1,
+                        new FFMPTableCellData(FIELDS.RATE, rate));
+
+                trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE, qpe));
+
                 if (qpfBasin != null) {
-                    trd.setTableCellData(
-                            3,
-                            new FFMPTableCellData(FIELDS.QPF, new Float(
-                                    qpfBasin.get(cBasin.getPfaf()).getMaxValue(
-                                            monitor.getQpfWindow()
-                                                    .getAfterTime(),
-                                            monitor.getQpfWindow()
-                                                    .getBeforeTime()))
-                                    .floatValue()));
-                } else {
-                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
-                            Float.NaN));
+                    qpf = new Float(qpfBasin.get(cBasin.getPfaf()).getMaxValue(
+                            monitor.getQpfWindow().getAfterTime(),
+                            monitor.getQpfWindow().getBeforeTime()))
+                            .floatValue();
                 }
 
-                // run over each guidance type
-                int i = 0;
-                for (String guidType : guidBasins.keySet()) {
-                    FFFGForceUtil forceUtil = forceUtils.get(guidType);
-                    forceUtil.setSliderTime(sliderTime);
+                trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF, qpf));
 
-                    FFMPBasinData guidBasin = guidBasins.get(guidType);
-
-                    if (guidBasin != null) {
-
-                        FFMPGuidanceBasin basin = ((FFMPGuidanceBasin) guidBasin
-                                .get(cBasin.getPfaf()));
-                        guidance = resource.getGuidanceValue(basin, monitor
-                                .getQpeWindow().getBeforeTime(), guidType);
-
-                        forceUtil.calculateForcings(pfafs, ft, cBasin);
-
-                        List<Long> forcedPfafs = forceUtil.getForcedPfafList();
-                        boolean forced = forceUtil.isForced();
-
-                        if (!forced) {
-                            if ((forcedPfafs != null)
-                                    && (!forcedPfafs.isEmpty())) {
-                                forced = true;
-                            }
-                        }
-
-                        trd.setTableCellData(i + 4, new FFMPTableCellData(
-                                FIELDS.GUIDANCE, guidance, forced));
-                    } else {
-                        trd.setTableCellData(i + 4, new FFMPTableCellData(
-                                FIELDS.GUIDANCE, Float.NaN));
-                    }
-                    if (!qpe.isNaN() && (guidance > 0.0f)) {
-
-                        trd.setTableCellData(
-                                i + 5,
-                                new FFMPTableCellData(FIELDS.RATIO, FFMPUtils
-                                        .getRatioValue(qpe, guidance)));
-                        trd.setTableCellData(
-                                i + 6,
-                                new FFMPTableCellData(FIELDS.DIFF, FFMPUtils
-                                        .getDiffValue(qpe, guidance)));
-                    } else {
-                        trd.setTableCellData(i + 5, new FFMPTableCellData(
-                                FIELDS.RATIO, Float.NaN));
-                        trd.setTableCellData(i + 6, new FFMPTableCellData(
-                                FIELDS.DIFF, Float.NaN));
-                    }
-
-                    i += 3;
-                }
+                processGuidance(trd, cBasin, pfafs, qpe);
             }
-
         } else {
+            // Not Virtual
             if (!pfafs.isEmpty()) {
                 if (rateBasin != null) {
                     rate = rateBasin.getMaxValue(pfafs, paintRefTime);
-                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
-                            rate));
-                } else {
-                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
-                            Float.NaN));
                 }
+                trd.setTableCellData(1,
+                        new FFMPTableCellData(FIELDS.RATE, rate));
+
                 if (qpeBasin != null) {
                     qpe = qpeBasin.getAccumMaxValue(pfafs, monitor
                             .getQpeWindow().getBeforeTime(), monitor
                             .getQpeWindow().getAfterTime(), expirationTime,
                             isRate);
-                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
-                            qpe));
-                } else {
-                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
-                            Float.NaN));
                 }
+                trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE, qpe));
+
                 if (qpfBasin != null) {
                     qpf = qpfBasin.getAverageMaxValue(pfafs, monitor
                             .getQpfWindow().getAfterTime(), monitor
@@ -1010,16 +916,17 @@ public class FFMPDataGenerator {
 
                     // qpf = getQPFValue(true, new Long(0l), pfafs);/* DR13839
                     // */
-                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
-                            qpf.floatValue()));
-                } else {
-                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
-                            Float.NaN));
                 }
+                trd.setTableCellData(3,
+                        new FFMPTableCellData(FIELDS.QPF, qpf.floatValue()));
 
                 // run over each guidance type
                 int i = 0;
                 for (String guidType : guidBasins.keySet()) {
+                    guidance = Float.NaN;
+                    diffValue = Float.NaN;
+                    ratioValue = Float.NaN;
+
                     FFFGForceUtil forceUtil = forceUtils.get(guidType);
                     forceUtil.setSliderTime(sliderTime);
 
@@ -1076,6 +983,8 @@ public class FFMPDataGenerator {
                         trd.setTableCellData(i + 4, new FFMPTableCellData(
                                 FIELDS.GUIDANCE, Float.NaN));
                     }
+
+                    // If guidance is NaN then it cannot be > 0
                     if (!qpe.isNaN() && (guidance > 0.0f)) {
 
                         List<Float> qpes = qpeBasin.getAccumValues(pfafs,
@@ -1091,23 +1000,14 @@ public class FFMPDataGenerator {
 
                         if ((!qpes.isEmpty())
                                 && ((guids != null) && (!guids.isEmpty()))) {
-
-                            trd.setTableCellData(
-                                    i + 5,
-                                    new FFMPTableCellData(FIELDS.RATIO,
-                                            FFMPUtils.getMaxRatioValue(qpes,
-                                                    guids)));
-                            trd.setTableCellData(
-                                    i + 6,
-                                    new FFMPTableCellData(FIELDS.DIFF,
-                                            FFMPUtils.getMaxDiffValue(qpes,
-                                                    guids)));
-                        } else {
-                            trd.setTableCellData(i + 5, new FFMPTableCellData(
-                                    FIELDS.RATIO, Float.NaN));
-                            trd.setTableCellData(i + 6, new FFMPTableCellData(
-                                    FIELDS.DIFF, Float.NaN));
+                            ratioValue = FFMPUtils
+                                    .getMaxRatioValue(qpes, guids);
+                            diffValue = FFMPUtils.getMaxDiffValue(qpes, guids);
                         }
+                        trd.setTableCellData(i + 5, new FFMPTableCellData(
+                                FIELDS.RATIO, ratioValue));
+                        trd.setTableCellData(i + 6, new FFMPTableCellData(
+                                FIELDS.DIFF, diffValue));
                     } else {
                         trd.setTableCellData(i + 5, new FFMPTableCellData(
                                 FIELDS.RATIO, Float.NaN));
@@ -1121,103 +1021,101 @@ public class FFMPDataGenerator {
             } else {
                 if ((rateBasin != null)
                         && (rateBasin.get(cBasin.getPfaf()) != null)) {
-                    trd.setTableCellData(
-                            1,
-                            new FFMPTableCellData(FIELDS.RATE, rateBasin.get(
-                                    cBasin.getPfaf()).getValue(paintRefTime)));
-                } else {
-                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
-                            Float.NaN));
+                    rate = rateBasin.get(cBasin.getPfaf()).getValue(
+                            paintRefTime);
                 }
+                trd.setTableCellData(1,
+                        new FFMPTableCellData(FIELDS.RATE, rate));
+
                 if ((qpeBasin != null)
                         && (qpeBasin.get(cBasin.getPfaf()) != null)) {
                     qpe = qpeBasin.get(cBasin.getPfaf()).getAccumValue(
                             monitor.getQpeWindow().getAfterTime(),
                             monitor.getQpeWindow().getBeforeTime(),
                             expirationTime, isRate);
-                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
-                            qpe));
-                } else {
-                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
-                            Float.NaN));
                 }
+                trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE, qpe));
+
                 if ((qpfBasin != null)
                         && (qpfBasin.get(cBasin.getPfaf()) != null)) {
-                    trd.setTableCellData(
-                            3,
-                            new FFMPTableCellData(FIELDS.QPF, new Float(
-                                    qpfBasin.get(cBasin.getPfaf()).getMaxValue(
-                                            monitor.getQpfWindow()
-                                                    .getAfterTime(),
-                                            monitor.getQpfWindow()
-                                                    .getBeforeTime()))
-                                    .floatValue()));
-                } else {
-                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
-                            Float.NaN));
+                    qpf = new Float(qpfBasin.get(cBasin.getPfaf()).getMaxValue(
+                            monitor.getQpfWindow().getAfterTime(),
+                            monitor.getQpfWindow().getBeforeTime()))
+                            .floatValue();
                 }
+                trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF, qpf));
 
-                // run over each guidance type
-                int i = 0;
-                for (String guidType : guidBasins.keySet()) {
-                    FFFGForceUtil forceUtil = forceUtils.get(guidType);
-                    forceUtil.setSliderTime(sliderTime);
-
-                    FFMPBasinData guidBasin = guidBasins.get(guidType);
-
-                    if (guidBasin != null) {
-
-                        FFMPGuidanceBasin basin = ((FFMPGuidanceBasin) guidBasin
-                                .get(cBasin.getPfaf()));
-                        guidance = resource.getGuidanceValue(basin, monitor
-                                .getQpeWindow().getBeforeTime(), guidType);
-
-                        if (guidance < 0.0f) {
-                            guidance = Float.NaN;
-                        }
-
-                        forceUtil.calculateForcings(pfafs, ft, cBasin);
-
-                        List<Long> forcedPfafs = forceUtil.getForcedPfafList();
-                        boolean forced = forceUtil.isForced();
-
-                        if (!forced) {
-                            if ((forcedPfafs != null)
-                                    && (!forcedPfafs.isEmpty())) {
-                                forced = true;
-                            }
-                        }
-
-                        trd.setTableCellData(i + 4, new FFMPTableCellData(
-                                FIELDS.GUIDANCE, guidance, forced));
-                    } else {
-                        trd.setTableCellData(i + 4, new FFMPTableCellData(
-                                FIELDS.GUIDANCE, Float.NaN));
-                    }
-                    if (!qpe.isNaN() && (guidance > 0.0f)) {
-
-                        trd.setTableCellData(
-                                i + 5,
-                                new FFMPTableCellData(FIELDS.RATIO, FFMPUtils
-                                        .getRatioValue(qpe, guidance)));
-                        trd.setTableCellData(
-                                i + 6,
-                                new FFMPTableCellData(FIELDS.DIFF, FFMPUtils
-                                        .getDiffValue(qpe, guidance)));
-                    } else {
-                        trd.setTableCellData(i + 5, new FFMPTableCellData(
-                                FIELDS.RATIO, Float.NaN));
-                        trd.setTableCellData(i + 6, new FFMPTableCellData(
-                                FIELDS.DIFF, Float.NaN));
-                    }
-
-                    i += 3;
-                }
+                processGuidance(trd, cBasin, pfafs, qpe);
             }
 
         }
 
         return trd;
+    }
+
+    /**
+     * @param trd
+     * @param cBasin
+     * @param pfafs
+     * @param qpe
+     */
+    private void processGuidance(FFMPTableRowData trd, FFMPBasin cBasin,
+            ArrayList<Long> pfafs, Float qpe) {
+        Float guidance;
+        Float ratioValue;
+        Float diffValue;
+        int i = 0;
+        for (String guidType : guidBasins.keySet()) {
+            guidance = Float.NaN;
+            diffValue = Float.NaN;
+            ratioValue = Float.NaN;
+
+            FFFGForceUtil forceUtil = forceUtils.get(guidType);
+            forceUtil.setSliderTime(sliderTime);
+
+            FFMPBasinData guidBasin = guidBasins.get(guidType);
+
+            if (guidBasin != null) {
+
+                FFMPGuidanceBasin basin = ((FFMPGuidanceBasin) guidBasin
+                        .get(cBasin.getPfaf()));
+                guidance = resource.getGuidanceValue(basin, monitor
+                        .getQpeWindow().getBeforeTime(), guidType);
+
+                if (guidance < 0.0f) {
+                    guidance = Float.NaN;
+                }
+
+                forceUtil.calculateForcings(pfafs, ft, cBasin);
+
+                List<Long> forcedPfafs = forceUtil.getForcedPfafList();
+                boolean forced = forceUtil.isForced();
+
+                if (!forced) {
+                    if ((forcedPfafs != null) && (!forcedPfafs.isEmpty())) {
+                        forced = true;
+                    }
+                }
+
+                trd.setTableCellData(i + 4, new FFMPTableCellData(
+                        FIELDS.GUIDANCE, guidance, forced));
+            } else {
+                trd.setTableCellData(i + 4, new FFMPTableCellData(
+                        FIELDS.GUIDANCE, Float.NaN));
+            }
+
+            // If guidance is NaN then it cannot be > 0
+            if (!qpe.isNaN() && (guidance > 0.0f)) {
+                ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                diffValue = FFMPUtils.getDiffValue(qpe, guidance);
+            }
+            trd.setTableCellData(i + 5, new FFMPTableCellData(FIELDS.RATIO,
+                    ratioValue));
+            trd.setTableCellData(i + 6, new FFMPTableCellData(FIELDS.DIFF,
+                    diffValue));
+
+            i += 3;
+        }
     }
 
     /**
