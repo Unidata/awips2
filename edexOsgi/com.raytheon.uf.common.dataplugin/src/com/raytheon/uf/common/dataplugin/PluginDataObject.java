@@ -26,12 +26,12 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -72,11 +72,14 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * 2/6/09       1990        bphillip    Added database index on dataURI
  * 3/18/09      2105        jsanchez    Added getter for id.
  *                                       Removed unused getIdentfier().
+ * Apr 12, 2013 1857        bgonzale    Changed to MappedSuperclass, named generator,
+ *                                      GenerationType SEQUENCE, moved Indexes to getter
+ *                                      methods.
  * 
  * </pre>
  * 
  */
-@Entity
+@MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -85,10 +88,9 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     private static final long serialVersionUID = 1L;
 
-    // @GenericGenerator(name = "generator", strategy = "hilo", parameters = {
-    // @Parameter(name = "max_lo", value = "1000") })
-    // @GeneratedValue(generator = "generator")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    public static final String ID_GEN = "idgen";
+
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     @Id
     protected int id;
 
@@ -112,7 +114,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     /** The timestamp denoting when this record was inserted into the database */
     @Column(columnDefinition = "timestamp without time zone")
-    @Index(name = "insertTimeIndex")
     @XmlAttribute
     @DynamicSerializeElement
     protected Calendar insertTime;
@@ -395,6 +396,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         return dataTime;
     }
 
+    @Index(name = "dataURI_idx")
     public String getDataURI() {
         return this.dataURI;
     }
@@ -403,6 +405,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         return SerializationUtil.marshalToXml(this);
     }
 
+    @Index(name = "insertTimeIndex")
     public Calendar getInsertTime() {
         return insertTime;
     }
