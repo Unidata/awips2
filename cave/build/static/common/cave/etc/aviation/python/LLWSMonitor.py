@@ -95,7 +95,6 @@ class Monitor(MonitorP.Monitor):
     def __compare(self, taf):
         now = time.time()
         text, maxval = [], -1.0
-        #data = Globals.DRC.getLLWS(self.info['ident'])
         data = LLWSData.retrieve(self.info['ident'], self.info)
         if data is None:
             data = []
