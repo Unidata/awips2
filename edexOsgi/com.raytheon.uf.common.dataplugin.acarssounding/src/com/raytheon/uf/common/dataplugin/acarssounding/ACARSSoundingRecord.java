@@ -34,6 +34,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -41,6 +42,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -62,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * 20090403           1939 jkorman     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -69,6 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "acarssoundingseq")
 @Table(name = "acarssounding", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
