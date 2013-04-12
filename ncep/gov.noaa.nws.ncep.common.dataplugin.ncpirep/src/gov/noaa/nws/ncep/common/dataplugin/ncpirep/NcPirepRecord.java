@@ -25,6 +25,7 @@ import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -33,6 +34,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -64,12 +66,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * 09/19/2011    286        Q.Zhou      Changed reportType to string,
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/2013    1293       bkowal     Removed references to hdffileid.
+ * Apr 12, 2013  1857      bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ncpirepseq")
 @Table(name = "ncpirep", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
