@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -37,6 +38,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.data.ModelData;
@@ -69,6 +71,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -77,6 +80,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "scanseq")
 @Table(name = "scan", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
