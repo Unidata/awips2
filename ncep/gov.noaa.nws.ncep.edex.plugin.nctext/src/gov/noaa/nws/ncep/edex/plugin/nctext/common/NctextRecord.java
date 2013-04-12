@@ -20,6 +20,7 @@
  * 10/22/2009	191		Chin Chen	Initial coding
  * 07/23/2010   191      Archana      Added DataUri annotation to productType
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime  
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author Chin Chen
@@ -28,8 +29,10 @@
 package gov.noaa.nws.ncep.edex.plugin.nctext.common;
 
 import java.util.Calendar;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -37,6 +40,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -44,9 +48,9 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-//import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nctextseq")
 @Table(name = "nctext", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
