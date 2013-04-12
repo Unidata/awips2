@@ -15,6 +15,7 @@
  * 05/2010		144			L. Lin		Migration to TO11DR11.
  * 09/2012					B. Hebbard  Merge out RTS changes from OB12.9.1
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author tlee
@@ -29,6 +30,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -43,6 +45,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -51,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "mcidasseq")
 @Table(name = "mcidas", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since

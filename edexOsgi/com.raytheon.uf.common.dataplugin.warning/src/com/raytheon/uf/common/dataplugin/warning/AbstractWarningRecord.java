@@ -32,6 +32,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -59,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/12/2007   1003        bwoodle     initial creation
+ * 04/12/2013   1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -66,6 +68,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1
  */
 @Entity
+@SequenceGenerator(name = PluginDataObject.ID_GEN)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

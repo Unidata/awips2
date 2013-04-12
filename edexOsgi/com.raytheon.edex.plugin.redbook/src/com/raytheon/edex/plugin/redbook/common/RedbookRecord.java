@@ -24,6 +24,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -31,9 +32,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -59,12 +62,14 @@ import com.raytheon.uf.common.time.DataTime;
  * 20080529           1131 jkorman     getPersistenceTime now returns system time.
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 20130408           1293 bkowal      Removed references to hdffileid.
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "redbookseq")
 @Table(name = "redbook", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since

@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -67,6 +68,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 									    Change startRefTime to nearest hour to get hourly refTimes
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/2013   1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre
  * 
@@ -74,6 +76,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nctafseq")
 @Table(name = "nctaf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
