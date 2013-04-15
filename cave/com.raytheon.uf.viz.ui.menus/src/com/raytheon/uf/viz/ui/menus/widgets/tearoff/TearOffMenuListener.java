@@ -39,6 +39,11 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.viz.ui.VizWorkbenchManager;
+
 /**
  * Menu listener that adds item to menu which will open dialog which is the menu
  * 
@@ -49,6 +54,7 @@ import org.eclipse.swt.widgets.MenuItem;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2011            mschenke     Initial creation
+ * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
  * 
  * </pre>
  * 
@@ -65,6 +71,9 @@ public class TearOffMenuListener implements IMenuListener2 {
     private static final String ACTION_ID = "tearOffMenuAction";
 
     public static final String TEAROFF_PREFERENCE_ID = "tearoffmenus";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+        .getHandler(TearOffMenuListener.class);
 
     private static boolean enabled;
     static {
@@ -94,7 +103,7 @@ public class TearOffMenuListener implements IMenuListener2 {
     @Override
     public void menuAboutToShow(final IMenuManager manager) {
         register(manager.getItems(), this);
-        if (openDialogs.contains(getKey(manager)) == false) {
+        if (openDialogs.contains(getPerspectiveKey(manager)) == false) {
             // We need to add our item to be first so we need to remove others
             // then add ourself
             IContributionItem[] items = manager.getItems();
@@ -112,7 +121,7 @@ public class TearOffMenuListener implements IMenuListener2 {
      */
     @Override
     public void menuAboutToHide(IMenuManager manager) {
-        if (openDialogs.contains(getKey(manager)) == false) {
+        if (openDialogs.contains(getPerspectiveKey(manager)) == false) {
             manager.remove(ID);
             manager.remove(ACTION_ID);
             unregister(manager.getItems(), this);
@@ -135,6 +144,16 @@ public class TearOffMenuListener implements IMenuListener2 {
                 ((IMenuManager) item).removeMenuListener(listener);
             }
         }
+    }
+
+    private Object getPerspectiveKey(IMenuManager manager) {
+        String perspectiveId = "";
+        try {
+            perspectiveId =  VizWorkbenchManager.getInstance().getCurrentWindow().getActivePage().getPerspective().getId();
+        } catch (Exception e) {
+            statusHandler.handle(Priority.EVENTA, "Failed to get current perspective ID", e);
+        }
+        return perspectiveId + "::" + getKey(manager);
     }
 
     private static Object getKey(IMenuManager manager) {
@@ -215,17 +234,18 @@ public class TearOffMenuListener implements IMenuListener2 {
          */
         @Override
         public void run() {
+            final Object key = getPerspectiveKey(manager);
             TearOffMenuDialog dialog = new TearOffMenuDialog(menu);
             dialog.addListener(SWT.Dispose, new Listener() {
                 @Override
                 public void handleEvent(Event event) {
-                    openDialogs.remove(getKey(manager));
+                    openDialogs.remove(key);
                     manager.remove(ID);
                     manager.remove(ACTION_ID);
                     unregister(manager.getItems(), TearOffMenuListener.this);
                 }
             });
-            openDialogs.add(getKey(manager));
+            openDialogs.add(key);
             register(manager.getItems(), TearOffMenuListener.this);
             dialog.open();
         }
