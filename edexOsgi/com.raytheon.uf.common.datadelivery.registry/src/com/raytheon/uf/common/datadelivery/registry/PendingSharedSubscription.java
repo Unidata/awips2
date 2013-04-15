@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.AssociationMapping;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -48,11 +48,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-@RegistryObject(objectType = InitialPendingSharedSubscription.class,
-        value = { Subscription.PROVIDER_NAME_SLOT,
-        Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
-        Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = RegistryUtil.ASSOCIATION_RELATED_TO, keyFields = {
+@RegistryObject(objectType = InitialPendingSharedSubscription.class, value = {
+        Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
+        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
+        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = AssociationTypes.RELATED_TO, keyFields = {
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = SharedSubscription.class) })
 public class PendingSharedSubscription extends InitialPendingSharedSubscription
