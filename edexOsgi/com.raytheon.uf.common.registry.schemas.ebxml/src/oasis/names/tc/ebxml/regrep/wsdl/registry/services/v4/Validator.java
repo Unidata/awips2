@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
+import org.apache.cxf.annotations.GZIP;
+
 /**
  * The Validator interface.
  * 
@@ -37,6 +39,7 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
  * source version: 2.1
  * 
  */
+@GZIP(threshold = 0)
 @WebService(name = "Validator", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:spi:interfaces:4.0")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({ oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,

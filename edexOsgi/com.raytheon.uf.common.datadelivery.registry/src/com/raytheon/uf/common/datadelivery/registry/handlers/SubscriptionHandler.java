@@ -44,8 +44,11 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 28, 2013 1841       djohnson     Initial creation
+ * Sep 17, 2012 1169       djohnson     Initial creation.
+ * Sep 24, 2012 1157       mpduff       Change to use InitialPendingSubscription.
+ * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
  * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
+ * 4/9/2013     1802      bphillip     Using constant values from constants package instead of RegistryUtil
  * 
  * </pre>
  * 
@@ -129,8 +132,7 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      */
     @Override
     public Subscription getByName(String name) throws RegistryHandlerException {
-        Subscription value = userSubscriptionHandler
-                .getByName(name);
+        Subscription value = userSubscriptionHandler.getByName(name);
         if (value == null) {
             value = sharedSubscriptionHandler.getByName(name);
         }
