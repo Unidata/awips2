@@ -20,20 +20,19 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQuery;
 
@@ -94,6 +93,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip    Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * 
  * </pre>
@@ -102,9 +102,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * @version 1.0
  */
 public class BasicQuery extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "BasicQuery";
 
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -129,20 +126,15 @@ public class BasicQuery extends CanonicalEbxmlQuery {
         }
 
         List<String> ids = new ArrayList<String>();
-
-        try {
-            for (int i = 0; i < classifications.size(); i++) {
-                String subQuery = HqlQueryUtil.assembleSingleParamQuery(
-                        ClassificationType.class, "classifiedObject",
-                        HqlQueryUtil.EQUALS, classifications.get(i));
-                if (i == 0) {
-                    ids = classificationDao.executeHQLQuery(subQuery);
-                } else {
-                    ids.retainAll(classificationDao.executeHQLQuery(subQuery));
-                }
+        for (int i = 0; i < classifications.size(); i++) {
+            String subQuery = HqlQueryUtil.assembleSingleParamQuery(
+                    ClassificationType.class, "classifiedObject",
+                    HqlQueryUtil.EQUALS, classifications.get(i));
+            if (i == 0) {
+                ids = classificationDao.executeHQLQuery(subQuery);
+            } else {
+                ids.retainAll(classificationDao.executeHQLQuery(subQuery));
             }
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Error executing BasicQuery!", e);
         }
 
         if (ids.isEmpty()) {
@@ -152,8 +144,8 @@ public class BasicQuery extends CanonicalEbxmlQuery {
         return true;
     }
 
-    protected List<RegistryObjectType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
 
         QueryParameters params = getParameterMap(queryType.getSlot(),
                 queryResponse);
@@ -173,8 +165,12 @@ public class BasicQuery extends CanonicalEbxmlQuery {
         }
 
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(HqlQueryUtil.OBJ)
-                .append("from RegistryObjectType ").append(HqlQueryUtil.OBJ);
+        if (returnType.equals(RETURN_TYPE.ObjectRef)) {
+            query.append("select obj.id ");
+        } else {
+            query.append("select obj ");
+        }
+        query.append("from RegistryObjectType ").append(HqlQueryUtil.OBJ);
         if (params.containsParameter(QueryConstants.NAME)) {
             query.append(HqlQueryUtil.INNER_JOIN).append(HqlQueryUtil.OBJ_DOT)
                     .append(QueryConstants.NAME)
@@ -215,14 +211,11 @@ public class BasicQuery extends CanonicalEbxmlQuery {
 
         if (!buildClassificationsClause(query,
                 params.getParameter(QueryConstants.CLASSIFICATIONS))) {
-            return Collections.emptyList();
+            return;
         }
-        try {
-            return registryObjectDao.executeHQLQuery(query.substring(0,
-                    query.length() - conjunction.length()));
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Error executing BasicQuery!", e);
-        }
+        setResponsePayload(queryResponse, registryObjectDao.executeHQLQuery(
+                query.substring(0, query.length() - conjunction.length()),
+                maxResults));
 
     }
 
@@ -233,7 +226,7 @@ public class BasicQuery extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.BASIC_QUERY;
     }
 
     public void setClassificationDao(
