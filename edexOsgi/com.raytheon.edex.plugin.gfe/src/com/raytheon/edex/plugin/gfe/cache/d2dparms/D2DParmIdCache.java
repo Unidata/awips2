@@ -21,7 +21,6 @@
 package com.raytheon.edex.plugin.gfe.cache.d2dparms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,19 +39,16 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.gfe.util.SendNotifications;
+import com.raytheon.edex.plugin.gfe.server.notify.GfeIngestNotificationFilter;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
-import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
@@ -70,7 +66,8 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  *                                     D2DParmIdCache toGfeIngestNotificationFilter. 
  *                                     Added code to match wind components and send 
  *                                     GridUpdateNotifications.
- * Mar 20, 2013  #1774    randerso     Changde to use GFDD2DDao
+ * Mar 20, 2013  #1774     randerso    Changed to use GFDD2DDao
+ * Apr 01, 2013  #1774     randerso    Moved wind component checking to GfeIngestNotificaionFilter
  * 
  * </pre>
  * 
@@ -87,19 +84,8 @@ public class D2DParmIdCache {
     private static final Pattern RangeFilter = Pattern
             .compile("(.*?)\\d{1,2}hr");
 
-    private static final Map<String, String> WIND_COMP_PARMS;
-    static {
-        WIND_COMP_PARMS = new HashMap<String, String>();
-        WIND_COMP_PARMS.put("uw", "vw");
-        WIND_COMP_PARMS.put("vw", "uw");
-        WIND_COMP_PARMS.put("ws", "wd");
-        WIND_COMP_PARMS.put("wd", "ws");
-    }
-
     /** Map containing the ParmIDs */
     private Map<DatabaseID, Set<ParmID>> parmIds;
-
-    private Map<ParmID, Set<TimeRange>> windComps;
 
     private static D2DParmIdCache instance;
 
@@ -115,7 +101,6 @@ public class D2DParmIdCache {
      */
     public D2DParmIdCache() {
         parmIds = new HashMap<DatabaseID, Set<ParmID>>();
-        windComps = new HashMap<ParmID, Set<TimeRange>>();
     }
 
     /**
@@ -360,18 +345,9 @@ public class D2DParmIdCache {
             for (DatabaseID dbId : dbsToRemove) {
                 GridParmManager.removeDbFromMap(dbId);
             }
-            // purge the windComps
-            List<ParmID> wcToRemove = new ArrayList<ParmID>();
-            synchronized (windComps) {
-                for (ParmID id : windComps.keySet()) {
-                    if (dbsToRemove.contains(id.getDbId())) {
-                        wcToRemove.add(id);
-                    }
-                }
-                for (ParmID id : wcToRemove) {
-                    windComps.remove(id);
-                }
-            }
+
+            // inform GfeIngestNotificationFilter of removed dbs
+            GfeIngestNotificationFilter.purgeDbs(dbsToRemove);
 
             statusHandler.handle(Priority.EVENTA,
                     "Total time to build D2DParmIdCache for " + siteID
@@ -404,60 +380,6 @@ public class D2DParmIdCache {
 
     public void processGridUpdateNotification(GridUpdateNotification gun) {
         ParmID parmId = gun.getParmId();
-
-        String otherCompName = WIND_COMP_PARMS.get(parmId.getParmName());
-        if (otherCompName == null) {
-            // if it's not a wind component just add it to the cache
-            putParmID(parmId);
-        } else {
-            Set<TimeRange> windTrs = null;
-            synchronized (windComps) {
-                // add this parms times to windComps map
-                Set<TimeRange> trs = windComps.get(parmId);
-                if (trs == null) {
-                    trs = new HashSet<TimeRange>();
-                    windComps.put(parmId, trs);
-                }
-                trs.addAll(gun.getHistories().keySet());
-
-                // get the other components times
-                ParmID otherCompId = new ParmID(otherCompName,
-                        parmId.getDbId(), parmId.getParmLevel());
-                Set<TimeRange> otherTrs = windComps.get(otherCompId);
-
-                // if we have both components
-                if (otherTrs != null) {
-                    // find times where we have both components
-                    windTrs = new HashSet<TimeRange>(trs);
-                    windTrs.retainAll(otherTrs);
-
-                    // remove the matching times since we don't need them
-                    // anymore
-                    trs.removeAll(windTrs);
-                    otherTrs.removeAll(windTrs);
-                }
-            }
-
-            // if we found any matching times for both components
-            if (windTrs != null && !windTrs.isEmpty()) {
-                // add the wind parmId to the cache
-                ParmID windId = new ParmID("wind", parmId.getDbId(),
-                        parmId.getParmLevel());
-                putParmID(windId);
-
-                // create GridUpdateNotifications for the wind parm
-                Map<TimeRange, List<GridDataHistory>> history = new HashMap<TimeRange, List<GridDataHistory>>();
-                ArrayList<GridUpdateNotification> guns = new ArrayList<GridUpdateNotification>(
-                        windTrs.size());
-                for (TimeRange tr : windTrs) {
-                    history.put(tr, Arrays.asList(new GridDataHistory(
-                            GridDataHistory.OriginType.INITIALIZED, windId, tr,
-                            null, (WsId) null)));
-                    guns.add(new GridUpdateNotification(windId, tr, history,
-                            null, windId.getDbId().getSiteId()));
-                }
-                SendNotifications.send(guns);
-            }
-        }
+        putParmID(parmId);
     }
 }

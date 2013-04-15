@@ -16,6 +16,7 @@
  * 17May2010		 37	   F. J. Yen	Refactored to dataplugin for migration to to11dr11
  * 09/2011      		   Chin Chen    changed to improve purge performance and
  * 										removed xml serialization as well
+ *  * Apr 4, 2013    1846  bkowal       Added an index on refTime and forecastTime
  * </pre>
  * 
  * @author F. J. Yen, SIB
@@ -47,6 +48,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "wcp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "wcp",
+		indexes = {
+				@Index(name = "wcp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
+
 @DynamicSerialize
 
 public class WcpRecord extends PluginDataObject{
