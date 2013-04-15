@@ -12,6 +12,7 @@
  * 09/2011                   	Chin Chen   support batch decoding methods for better performance and
  * 											remove xml serialization as well
  * 10/2011                      S. Gurung   Replace slat/slon/selv with location of type SurfaceObsLocation
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -35,6 +36,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -50,6 +52,16 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @Table(name = "ncuair", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ncuair",
+		indexes = {
+				@Index(name = "ncuair_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 public class NcUairRecord extends PersistablePluginDataObject implements
 		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
