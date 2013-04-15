@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -61,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *											Extracted prod name from mosaicInfo.txt
  * 6/2012       825             G. Hull     rm prodName from URI. Use prodCode where needed.
  * 09/2012						B. Hebbard  Merge out RTS changes from OB12.9.1
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * 
  * </pre>
@@ -73,6 +75,16 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 @Entity
 @Table(name = "mosaic", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "mosaic",
+		indexes = {
+				@Index(name = "mosaic_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)

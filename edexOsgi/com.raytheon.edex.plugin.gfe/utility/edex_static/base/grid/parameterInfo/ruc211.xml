@@ -44,8 +44,8 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>weasd</short_name>
     <long_name>water equivalent of accumulated snow depth</long_name>
-    <units>ml</units>
-    <udunits>mil</udunits>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
     <uiname>waterEqvAccSnowDepth</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
@@ -198,7 +198,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
-    <units>/second</units>
+    <units>/s</units>
     <fillValue>-99999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
