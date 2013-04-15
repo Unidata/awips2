@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -64,6 +65,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 11/03/2011               sgurung     Added probable weather and method to calculate ceiling. 
  * 11/04/2011               sgurung     Sort sky_cover before calculating ceiling. 
  * 									    Change startRefTime to nearest hour to get hourly refTimes
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre
  * 
@@ -72,6 +74,16 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  */
 @Entity
 @Table(name = "nctaf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "nctaf",
+		indexes = {
+				@Index(name = "nctaf_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement

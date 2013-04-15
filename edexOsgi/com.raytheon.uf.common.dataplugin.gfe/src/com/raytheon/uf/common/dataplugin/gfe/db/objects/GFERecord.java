@@ -72,7 +72,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * 20070914            379  jkorman     Added populateDataStore() and
  *                                      getPersistenceTime() from new IPersistable
  * 20071129            472  jkorman     Added IDecoderGettable interface.  
- * 06/17/08    #940         bphillip    Implemented GFE Locking  
+ * 06/17/08    #940         bphillip    Implemented GFE Locking
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime 
  * </pre>
  * 
  * @author randerso
@@ -83,6 +84,16 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 @Entity
 @Table(name = "gfe", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "gfe",
+		indexes = {
+				@Index(name = "gfe_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
