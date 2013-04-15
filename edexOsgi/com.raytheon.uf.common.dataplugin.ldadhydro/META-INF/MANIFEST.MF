@@ -19,3 +19,4 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  javax.measure.unit,
  javax.persistence
 Export-Package: com.raytheon.uf.common.dataplugin.ldadhydro
+Require-Bundle: org.hibernate;bundle-version="1.0.0"
