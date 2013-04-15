@@ -89,8 +89,7 @@ public class RegistryObjectListType implements Serializable {
     private Integer key;
 
     @ManyToMany
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
+    @Cascade(value = { org.hibernate.annotations.CascadeType.PERSIST })
     @JoinTable(schema = "ebxml")
     @XmlElement(name = "RegistryObject")
     @DynamicSerializeElement
