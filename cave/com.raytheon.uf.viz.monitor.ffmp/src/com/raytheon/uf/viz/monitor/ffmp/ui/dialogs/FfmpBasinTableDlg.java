@@ -118,6 +118,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
  * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
  * Mar 29, 2013  1790      rferrel     Bug fix for non-blocking dialogs.
+ * Apr 15, 2013  1904      mpduff       Remove calls to reset FFMPConfig.
  * </pre>
  * 
  * @author lvenable
@@ -320,8 +321,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         dataLoadFont.dispose();
         timeDurFont.dispose();
-        FFMPConfig.getInstance().disposeResources();
-        FFMPConfig.unloadConfig();
 
         if (refreshColor != null) {
             refreshColor.dispose();
