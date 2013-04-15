@@ -19,19 +19,18 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.cataloger;
 
+import javax.annotation.Resource;
+import javax.xml.ws.WebServiceContext;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
  * Implementation of the RegRep cataloger service
@@ -60,79 +59,17 @@ public class CatalogerImpl implements Cataloger {
     /** The data access object */
     private RegistryObjectTypeDao registryObjectDao;
 
+    @Resource
+    private WebServiceContext wsContext;
+
     @Override
     public CatalogObjectsResponse catalogObjects(
             CatalogObjectsRequest partCatalogObjectsRequest)
             throws MsgRegistryException {
-        statusHandler.info("Cataloger received catalogObjects Request");
-        throw EbxmlExceptionUtil.createMsgRegistryException(
-                "Cataloger service not yet implemented",
-                UnsupportedCapabilityExceptionType.class, "",
-                "Unsupported Service", "Unsupported Service",
-                ErrorSeverity.ERROR, statusHandler);
+        statusHandler.info("Cataloger received catalogObjects Request from ["
+                + EbxmlObjectUtil.getClientHost(wsContext) + "]");
+        return EbxmlObjectUtil.spiObjectFactory.createCatalogObjectsResponse();
     }
-
-    /**
-     * Indexes a registry object
-     * 
-     * @param obj
-     *            The registry object to index
-     * @throws EbxmlRegistryException
-     *             If the indexing process produces errors
-     */
-    public void index(RegistryObjectType obj) throws EbxmlRegistryException {
-
-        // TODO:Implement Cataloger according to ebXML spec
-        // if (obj instanceof AuditableEventType) {
-        // return;
-        // }
-        // statusHandler.info("Cataloging object [" + obj.getId() + "]");
-        // obj = registryObjectDao.getById(obj.getId());
-        //
-        // List<IndexEntry> entries = new ArrayList<IndexEntry>();
-        //
-        // if (obj.getName() != null) {
-        // IndexEntry nameEntry = new IndexEntry(obj.getId(),
-        // obj.getObjectType(), CanonicalIndices.NAME, obj.getName()
-        // .getLocalizedString().get(0).getValue());
-        // entries.add(syncEntry(nameEntry));
-        // }
-        //
-        // if (obj.getDescription() != null) {
-        // IndexEntry descEntry = new IndexEntry(obj.getId(),
-        // obj.getObjectType(), CanonicalIndices.DESCRIPTION, obj
-        // .getDescription().getLocalizedString().get(0)
-        // .getValue());
-        // entries.add(syncEntry(descEntry));
-        // }
-        // statusHandler.info("Persisting indexed values to registry for object ["
-        // + obj.getId() + "]");
-        // new RegistryDao(IndexEntry.class).saveOrUpdate(entries);
-        // statusHandler.info("Catalog information persisted for object ["
-        // + obj.getId() + "]");
-    }
-
-    //
-    // /**
-    // * Syncs the given index entry with the database
-    // *
-    // * @param entry
-    // * The entry to check
-    // * @return The persistent entry if it exists, else the given object
-    // * @throws EbxmlRegistryException
-    // * If errors occur during the query
-    // */
-    // private IndexEntry syncEntry(IndexEntry entry)
-    // throws EbxmlRegistryException {
-    // List<IndexEntry> result = registryObjectDao.executeHQLQuery("from "
-    // + IndexEntry.class.getName() + " x where x.key= "
-    // + entry.getKey());
-    // if (result.isEmpty()) {
-    // return entry;
-    // } else {
-    // return result.get(0);
-    // }
-    // }
 
     public void setRegistryObjectDao(RegistryObjectTypeDao registryObjectDao) {
         this.registryObjectDao = registryObjectDao;

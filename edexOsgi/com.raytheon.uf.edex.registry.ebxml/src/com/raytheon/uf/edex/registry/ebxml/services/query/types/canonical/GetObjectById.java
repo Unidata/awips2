@@ -20,15 +20,17 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQuery;
 
@@ -46,6 +48,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -63,12 +66,9 @@ public class GetObjectById extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.ID);
     }
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GetObjectById";
-
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -85,7 +85,7 @@ public class GetObjectById extends CanonicalEbxmlQuery {
         if (id.contains("_") || id.contains("%")) {
             List<String> matchingIds = registryObjectDao.getMatchingIds(id);
             if (matchingIds.isEmpty()) {
-                return Collections.emptyList();
+                return;
             }
             ids.addAll(matchingIds);
 
@@ -93,7 +93,18 @@ public class GetObjectById extends CanonicalEbxmlQuery {
             ids.add(id);
         }
 
-        return (List<T>) registryObjectDao.getById(ids);
+        if (returnType.equals(RETURN_TYPE.ObjectRef)) {
+            ObjectRefListType objectRefList = new ObjectRefListType();
+            for (String idValue : ids) {
+                ObjectRefType objectRef = new ObjectRefType();
+                objectRef.setId(idValue);
+                objectRefList.getObjectRef().add(objectRef);
+            }
+            queryResponse.setObjectRefList(objectRefList);
+        } else {
+            queryResponse.getRegistryObjectList().getRegistryObject()
+                    .addAll(registryObjectDao.getById(ids));
+        }
     }
 
     @Override
@@ -103,6 +114,6 @@ public class GetObjectById extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GET_OBJECT_BY_ID;
     }
 }

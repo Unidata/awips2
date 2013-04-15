@@ -1,9 +1,8 @@
 package com.raytheon.uf.edex.datadelivery.event.notification;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -21,6 +20,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jsanchez     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
+ * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
  * 
  * </pre>
  * 
@@ -52,7 +52,6 @@ public class NotificationDao extends
      */
     public List<NotificationRecord> lookupNotifications(String username,
             Integer hours, Integer maxResults) {
-        Map<String, Object> params = new HashMap<String, Object>();
         String hql = "from NotificationRecord rec";
         String nameClause = " rec.username=:userName ";
         String dateClause = " rec.date >= :date ";
@@ -62,23 +61,29 @@ public class NotificationDao extends
             latestTime.add(Calendar.HOUR, -hours);
         }
 
+        List<Object> params = new ArrayList<Object>();
         if (username == null && hours != null) {
             hql += " where " + dateClause;
-            params.put("date", latestTime);
+            params.add("date");
+            params.add(latestTime);
         } else if (username != null && hours == null) {
             hql += " where " + nameClause;
-            params.put("userName", username);
+            params.add("userName");
+            params.add(username);
         } else if (username != null && hours != null) {
             hql += " where " + nameClause + " and " + dateClause;
-            params.put("date", latestTime);
-            params.put("userName", username);
+            params.add("date");
+            params.add(latestTime);
+            params.add("userName");
+            params.add(username);
         }
         hql += " order by rec.date desc";
 
         if (maxResults == null) {
-            return this.query(hql, params);
+            return this.query(hql, params.toArray(new Object[params.size()]));
         } else {
-            return this.query(hql, params, maxResults);
+            return this.query(hql, maxResults,
+                    params.toArray(new Object[params.size()]));
         }
     }
 
@@ -92,10 +97,8 @@ public class NotificationDao extends
      */
     public int purgeExpiredData(Calendar expiration)
             throws DataAccessLayerException {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("date", expiration);
         String hqlStatement = "delete NotificationRecord r where r.date < :date";
-        return this.executeHQLStatement(hqlStatement, params);
+        return this.executeHQLStatement(hqlStatement, "date", expiration);
     }
 
     /**
@@ -106,10 +109,8 @@ public class NotificationDao extends
      * @return the number of rows deleted
      */
     public int deleteRecords(List<Integer> ids) throws DataAccessLayerException {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("ids", ids);
         String hqlStatement = "delete NotificationRecord r where r.id in :ids";
-        return this.executeHQLStatement(hqlStatement, params);
+        return this.executeHQLStatement(hqlStatement, "ids", ids);
     }
 
     @Override
