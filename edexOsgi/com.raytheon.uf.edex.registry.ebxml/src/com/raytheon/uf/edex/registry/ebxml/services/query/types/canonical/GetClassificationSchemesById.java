@@ -20,14 +20,13 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationSchemeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -54,6 +53,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -62,9 +62,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  */
 
 public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GetClassificationSchemesById";
 
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -77,8 +74,8 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
     private RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao;
 
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -96,7 +93,7 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
             List<String> matchingIds = classificationSchemeTypeDao
                     .getMatchingIds(id);
             if (matchingIds.isEmpty()) {
-                return Collections.emptyList();
+                return;
             }
             ids.addAll(matchingIds);
 
@@ -104,7 +101,8 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
             ids.add(id);
         }
 
-        return (List<T>) classificationSchemeTypeDao.getById(ids);
+        queryResponse.getRegistryObjectList().getRegistryObject()
+                .addAll(classificationSchemeTypeDao.getById(ids));
     }
 
     @Override
@@ -114,7 +112,7 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GET_CLASSIFICATION_SCHEMES_BY_ID;
     }
 
     public void setClassificationSchemeTypeDao(
