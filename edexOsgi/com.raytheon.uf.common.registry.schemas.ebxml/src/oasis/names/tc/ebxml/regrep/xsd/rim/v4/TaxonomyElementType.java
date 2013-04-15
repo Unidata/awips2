@@ -23,6 +23,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -34,8 +35,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-
-import org.hibernate.annotations.Cascade;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -75,9 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class TaxonomyElementType extends RegistryObjectType {
 
-    @ManyToMany
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
+    @ManyToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "ClassificationNode")
     @DynamicSerializeElement
     @JoinTable(schema = "ebxml")

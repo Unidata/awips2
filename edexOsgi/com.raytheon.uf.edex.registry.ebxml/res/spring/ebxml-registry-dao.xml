@@ -1,5 +1,5 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
@@ -64,5 +64,9 @@
 	<bean name="roleDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RoleDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 		<property name="associationDao" ref="associationDao" />
+	</bean>
+	
+	<bean name="notificationTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.NotificationTypeDao" >
+		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
 </beans>

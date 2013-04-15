@@ -123,24 +123,21 @@ public class RegistryObjectType extends IdentifiableType {
     @XmlElement(name = "Classification")
     @DynamicSerializeElement
     @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
+            org.hibernate.annotations.CascadeType.DETACH,
+            org.hibernate.annotations.CascadeType.MERGE })
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(schema = "ebxml")
     protected Set<ClassificationType> classification;
 
     @XmlElement(name = "ExternalIdentifier")
     @DynamicSerializeElement
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(schema = "ebxml")
     protected Set<ExternalIdentifierType> externalIdentifier;
 
     @XmlElement(name = "ExternalLink")
     @DynamicSerializeElement
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(schema = "ebxml")
     protected Set<ExternalLinkType> externalLink;
 

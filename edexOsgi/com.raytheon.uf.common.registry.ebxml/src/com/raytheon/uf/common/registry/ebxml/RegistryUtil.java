@@ -27,6 +27,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.registry.OperationStatus;
+import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
@@ -38,6 +39,10 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
+import com.raytheon.uf.common.registry.constants.Languages;
+import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
+import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.registry.ebxml.slots.BooleanSlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
@@ -47,13 +52,10 @@ import com.raytheon.uf.common.registry.ebxml.slots.IntegerSlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.StringSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
-import com.raytheon.uf.common.util.registry.RegistryException;
 
 /**
  * Utility class for common Registry activities.
@@ -72,6 +74,7 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * Aug 20, 2012 0743       djohnson    Slot converter for {@link ImmutableDate}, and enumerations.
  * Sep 07, 2012 1102       djohnson    Check in hanging around encoding strategy code that will prove useful later.
  * Oct 05, 2012 1195       djohnson    Don't persist slots for null values.
+ * 4/9/2013     1802       bphillip    Pulled constants out into existing constants package that was moved into common
  * 
  * </pre>
  * 
@@ -80,104 +83,14 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  */
 public final class RegistryUtil {
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RegistryUtil.class);
-
     private RegistryUtil() {
         // Prevent Instantiation
     }
 
     /**
-     * The default launguge
-     */
-    public static final String EN_US = "en-US";
-
-    /**
      * The default internal owner
      */
     public static final String DEFAULT_OWNER = "EDEX_Internal_User";
-
-    /**
-     * Constant for the association type of "contains"
-     */
-    public static final String ASSOCIATION_CONTAINS = "urn:oasis:names:tc:ebxml-regrep:AssociationType:Contains";
-
-    /**
-     * Constant for the association type of "RelatedTo"
-     */
-    public static final String ASSOCIATION_RELATED_TO = "urn:oasis:names:tc:ebxml-regrep:AssociationType:RelatedTo";
-
-    public static final String CLASSIFICATION_SCHEME_OBJECT_TYPE = "urn:oasis:names:tc:ebxml-regrep:classificationScheme:ObjectType";
-
-    /**
-     * Constant for the delete repository item only option on delete requests.
-     */
-    public static final String DELETE_REPOSITORY_ITEM_ONLY = "DeleteRepositoryItemOnly";
-
-    public static final String NODE_TYPE_UNIQUE_CODE = "urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode";
-
-    /**
-     * Constant for the path of the classificationNode for the association type
-     * of "contains"
-     */
-    public static final String PATH_ASSOCIATION_CONTAINS = "/urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType/Contains";
-
-    /**
-     * Constant for the path of the classificationNode for the association type
-     * of "related to"
-     */
-    public static final String PATH_ASSOCIATION_RELATED_TO = "/urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType/RelatedTo";
-
-    /**
-     * Constant for the path of the classificationNode for 'ObjectType'
-     */
-    public static final String PATH_REGISTRY_OBJECT_TYPE_PREFIX = "/urn:oasis:names:tc:ebxml-regrep:classificationScheme:ObjectType/RegistryObject/";
-
-    /**
-     * Constant for the adhoc query type.
-     */
-    public static final String QUERY_TYPE_ADHOC = "urn:oasis:names:tc:ebxml-regrep:query:AdhocQuery";
-
-    public static final String QUERY_TYPE_ASSOCIATIONS = "urn:oasis:names:tc:ebxml-regrep:query:FindAssociations";
-
-    public static final String QUERY_TYPE_ASSOCIATED_OBJECTS = "urn:oasis:names:tc:ebxml-regrep:query:FindAssociatedObjects";
-
-    /**
-     * Constant for the basic query type.
-     */
-    public static final String QUERY_TYPE_BASIC = "urn:oasis:names:tc:ebxml-regrep:query:BasicQuery";
-
-    /**
-     * Constant for the query by id query type.
-     */
-    public static final String QUERY_TYPE_BYID = "urn:oasis:names:tc:ebxml-regrep:query:GetObjectById";
-
-    public static final String REGISTRY_OBJECT_CLASSIFICATION_NODE_PREFIX = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject";
-
-    public static final String REGISTRY_OBJECT_TYPE_CLASSIFICATION_NODE = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode";
-
-    public static final String REGISTRY_OBJECT_TYPE_CLASSIFICATION_SCHEME = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme";
-
-    public static final String REGISTRY_OBJECT_TYPE_PREFIX = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject";
-
-    /**
-     * Constant for the response status of success returned by the registry.
-     */
-    public static final String RESPONSE_SUCCESS = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
-
-    public static final String UNABLE_TO_CONNECT_TO_REGISTRY = "Unable to connect to the registry.";
-
-    public static final String FAILED_TO_CONNECT_TO_DATABASE = "Unable to connect to the database.";
-
-    public static final String DATABASE_ERROR_MESSAGE = "org.hibernate.exception.GenericJDBCException: Cannot open connection";
-
-    private static final String REGISTRY_OBJECT = RegistryObject.class
-            .getSimpleName();
-
-    private static final String NAMESPACE_SEPARATOR = ":";
-
-    private static final int NAMESPACE_SEPARATOR_LENGTH = NAMESPACE_SEPARATOR
-            .length();
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
@@ -210,6 +123,29 @@ public final class RegistryUtil {
      */
     @VisibleForTesting
     static IRegistryEncoder ENCODER_STRATEGY;
+
+    /**
+     * Creates a slot of the given type.
+     * 
+     * @param slotType
+     *            The type of slot to create
+     * @param slotName
+     *            The name of the slot
+     * @param slotValue
+     *            The value of the slot
+     * @return The SlotType object
+     * @throws Exception
+     *             If errors occur while creating the slot
+     */
+    public static SlotType getSlot(String slotType, String slotName,
+            Object slotValue) {
+        SlotConverter converter = SLOT_CONVERSION.get(slotType);
+        if (converter == null) {
+            throw new RegistryException("Not slot converter for type "
+                    + slotType);
+        }
+        return converter.getSlots(slotName, slotValue).get(0);
+    }
 
     /**
      * Sets the encoder strategy to use. This method should only be called once
@@ -284,12 +220,11 @@ public final class RegistryUtil {
      * @return A registry object type.
      */
     public static String getObjectType(Class<?> object) {
-        return REGISTRY_OBJECT_TYPE_PREFIX + NAMESPACE_SEPARATOR
-                + object.getName();
+        return RegistryObjectTypes.REGISTRY_OBJECT + ":" + object.getName();
     }
 
     public static String getObjectTypePath(Class<?> object) {
-        return PATH_REGISTRY_OBJECT_TYPE_PREFIX + object.getName();
+        return RegistryObjectTypes.REGISTRY_OBJECT + object.getName();
     }
 
     /**
@@ -308,7 +243,7 @@ public final class RegistryUtil {
         queryRequest.setId(RegistryUtil.generateRegistryObjectId());
         ResponseOptionType responseOption = new ResponseOptionType();
         responseOption.setReturnComposedObjects(true);
-        responseOption.setReturnType(REGISTRY_OBJECT);
+        responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
 
         QueryType query = new QueryType();
         query.setQueryDefinition(registryQuery.getQueryType());
@@ -468,7 +403,7 @@ public final class RegistryUtil {
                 // Objects
                 // more easily.
                 registryObject
-                        .setObjectType(REGISTRY_OBJECT_CLASSIFICATION_NODE_PREFIX
+                        .setObjectType(RegistryObjectTypes.REGISTRY_OBJECT
                                 + ":" + registryObjectType);
 
                 String objectOwner = ReflectionUtil.getAnnotatedField(
@@ -673,11 +608,10 @@ public final class RegistryUtil {
         ClassificationNodeType node = new ClassificationNodeType();
         node.setId(objectType);
         node.setLid(objectType);
-        node.setParent(REGISTRY_OBJECT_CLASSIFICATION_NODE_PREFIX);
+        node.setParent(RegistryObjectTypes.REGISTRY_OBJECT);
         // Add the namespace separator length to get the correct substring
-        node.setCode(objectType
-                .substring(REGISTRY_OBJECT_CLASSIFICATION_NODE_PREFIX.length()
-                        + NAMESPACE_SEPARATOR_LENGTH));
+        node.setCode(objectType.substring(RegistryObjectTypes.REGISTRY_OBJECT
+                .length() + 1));
 
         return node;
     }
@@ -787,7 +721,7 @@ public final class RegistryUtil {
             R response, CommunicationException e) {
         String message = e.getMessage();
         String errorMessage = (message
-                .indexOf(RegistryUtil.DATABASE_ERROR_MESSAGE) != -1) ? RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE
+                .indexOf(RegistryErrorMessage.DATABASE_ERROR_MESSAGE) != -1) ? RegistryErrorMessage.FAILED_TO_CONNECT_TO_DATABASE
                 : message;
         return getFailedResponse(response, new RegistryException(errorMessage,
                 e));
@@ -801,7 +735,7 @@ public final class RegistryUtil {
      * @return The new InternationalStringType instance
      */
     public static InternationalStringType getInternationalString(String str) {
-        return getInternationalString(str, EN_US);
+        return getInternationalString(str, Languages.EN_US);
     }
 
     /**
