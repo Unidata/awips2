@@ -32,6 +32,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
+import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 
 /**
  * Extends {@link FactoryRegistryHandler} to allow it to be testable.
@@ -128,7 +129,7 @@ public class TestableFactoryRegistryHandler extends FactoryRegistryHandler
      */
     private QueryResponse getQueryResponse() {
         QueryResponse response = new QueryResponse();
-        response.setStatus(RegistryUtil.RESPONSE_SUCCESS);
+        response.setStatus(RegistryResponseStatus.SUCCESS);
         return response;
     }
 }
