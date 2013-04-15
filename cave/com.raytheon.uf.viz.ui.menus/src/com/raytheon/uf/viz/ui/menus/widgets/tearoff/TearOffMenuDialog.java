@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.viz.ui.menus.widgets.tearoff;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
@@ -53,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2011            mnash     Initial creation
  * Jan 09, 2013 1442       rferrel     Add Simulated Time Change Listener.
+ * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
  * 
  * </pre>
  * 
@@ -62,7 +69,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class TearOffMenuDialog extends CaveSWTDialog {
 
-    private MenuItem[] items;
+    private MenuPathElement[] menuPath;
+
+    private Menu menu;
 
     private ScrolledComposite scrolledComp;
 
@@ -80,8 +89,9 @@ public class TearOffMenuDialog extends CaveSWTDialog {
     public TearOffMenuDialog(Menu menu) {
         super(VizWorkbenchManager.getInstance().getCurrentWindow().getShell(),
                 SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        this.menuPath = getMenuPath(menu);
+        this.menu = menu;
         String text = menu.getParentItem().getText();
-        this.items = menu.getItems();
 
         // handle for the & that makes key bindings
         setText(text.replace("&", ""));
@@ -89,6 +99,7 @@ public class TearOffMenuDialog extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(final Shell shell) {
+        shell.setData(this);
         // allow for scrolling if necessary
         scrolledComp = new ScrolledComposite(shell, SWT.V_SCROLL);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -106,6 +117,7 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         // go through menu items and build MenuItemComposite for each item,
         // which handles all the selection and color of the "MenuItem" in the
         // dialog
+        MenuItem[] items = getTargetMenu().getItems();
         int radioGroup = 0;
         for (int i = 1; i < items.length; i++) {
             MenuItem item = items[i];
@@ -140,11 +152,10 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         int y = point.y;
         shell.setLocation(x, y);
 
-        // close the dialog on perspective change
-        shell.addListener(SWT.Hide, new Listener() {
+        shell.addListener(SWT.Show, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                close();
+                updateItems();
             }
         });
     }
@@ -204,12 +215,156 @@ public class TearOffMenuDialog extends CaveSWTDialog {
      * Force update of item's display.
      */
     private void updateItems() {
-        // items[0] is the tear off object and is not in the dialog's display.
-        for (int index = 1; index < items.length; ++index) {
-            MenuItem item = items[index];
+        Menu menu = getMenuIfAvailable();
+        if (menu == null)
+            return;
+        for (MenuItemComposite mic : getMenuItemComposites())
+            mic.reconnect();
+        for (MenuItem item : menu.getItems()) {
             if (item.getData() instanceof BundleContributionItem) {
                 ((BundleContributionItem) item.getData()).refreshText();
             }
         }
+    }
+
+    private List<MenuItemComposite> getMenuItemComposites() {
+        List<MenuItemComposite> result = new ArrayList<MenuItemComposite>();
+        for (Control c : fullComp.getChildren()) {
+            if (c instanceof MenuItemComposite)
+                result.add((MenuItemComposite) c);
+        }
+        return result;
+    }
+
+    /**
+     * Return the portion of a menu item's title that should not change over
+     * time
+     * 
+     */
+    private static String getCleanMenuItemText(String text) {
+        int pos = text.indexOf('\t');
+        if (pos >= 0)
+            return text.substring(0, pos);
+        else
+            return text;
+    }
+
+    private Menu getMenuIfAvailable() {
+        if (menu == null || menu.isDisposed()) {
+            menu = findMenu();
+        }
+        return menu;
+    }
+
+    /*package*/ Menu getTargetMenu() {
+        Menu menu = getMenuIfAvailable();
+        if (menu == null) {
+            throw new IllegalStateException(
+                    String.format("Tear-off menu %s is not available", shell.getText()));
+        }
+        if (menu.getItems().length == 0)
+            tryToFillMenu(menu);
+        return menu;
+    }
+
+    private void tryToFillMenu(Menu menu) {
+        /*
+         * Menu may not have been created so call listeners. This still does
+         * not work if all of the menu items need the workbench window to be
+         * active in order to be enabled.
+         */
+
+        Shell shell = this.shell.getParent().getShell();
+        shell.setActive();
+        while (shell.getDisplay().readAndDispatch()) {
+            // nothing
+        }
+
+        Event event = new Event();
+        event.type = SWT.Show;
+        menu.notifyListeners(SWT.Show, event);
+        event = new Event();
+        event.type = SWT.Hide;
+        menu.notifyListeners(SWT.Hide, event);
+    }
+
+    private Menu findMenu() {
+        /* NOTE: Assuming shell.getParent().getShell() is the workbench window. */
+        Menu container = shell.getParent().getShell().getMenuBar();
+        MenuPathElement lastPathElement = null;
+        for (int i = 0; i < menuPath.length; ++i) {
+            MenuItem mi = findItem(container, menuPath[i]);
+            if (mi == null)
+                return null;
+            Menu mim = mi.getMenu();
+            if (mim == null)
+                throw new IllegalStateException(String.format(
+                        "Could not get target menu \"%s\" in %s",
+                        menuPath[i].getName(), lastPathElement != null ?
+                            '"' + lastPathElement.getName() + '"' : "menu bar"));
+            tryToFillMenu(mim);
+            container = mim;
+            lastPathElement = menuPath[i];
+        }
+        return container;
+    }
+
+    /**
+     * Identifies a specific item in an SWT menu.  It has been observed that
+     * associated data of a menu item maintains the same identity during a CAVE
+     * session even if the MenuItem is recreated.  However, the associated
+     * data is not always unique.  Menu item text is used to differentiate.
+     */
+    static class MenuPathElement {
+        Object data;
+        String cleanText;
+        public MenuPathElement(MenuItem item) {
+            data = item.getData();
+            cleanText = getCleanMenuItemText(item.getText());
+        }
+        public int getMatchLevel(MenuItem item) {
+            int level = 0;
+            if (item.getData() == data)
+                ++level;
+            if (cleanText.equals(item.getText()))
+                ++level;
+            return level;
+        }
+        public String getName() {
+            if (cleanText != null && cleanText.length() > 0)
+                return cleanText;
+            Object value = data;
+            if (value instanceof MenuManager)
+                value = ((MenuManager) value).getId();
+            else if (value instanceof ContributionItem)
+                value = ((ContributionItem) value).getId();
+            return String.valueOf(value);
+        }
+    }
+
+    /*package*/ static MenuItem findItem(Menu menu, MenuPathElement pe) {
+        MenuItem best = null;
+        int bestLevel = 0;
+        for (MenuItem item : menu.getItems()) {
+            int matchLevel = pe.getMatchLevel(item);
+            if (matchLevel > bestLevel) {
+                bestLevel = matchLevel;
+                best = item;
+            }
+        }
+        return best;
+    }
+
+    private static MenuPathElement[] getMenuPath(Menu menu) {
+        ArrayList<MenuPathElement> data = new ArrayList<MenuPathElement>();
+        while (menu != null) {
+            MenuItem mi = menu.getParentItem();
+            if (mi == null)
+                break;
+            data.add(new MenuPathElement(mi));
+            menu = menu.getParentMenu();
+        }
+        Collections.reverse(data);
+        return data.toArray(new MenuPathElement[data.size()]);
     }
 }

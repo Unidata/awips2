@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * ------------ ----------  ----------- --------------------------
  * Aug 28, 2009 2924         rjpeter    Initial creation
  * Nov 16, 2009 3336         njensen  Added lookupAfosId(String, String, String)
+ * 02apr2013    15564   mgamazaychikov Ensured afosid to be 9 characters space-padded long
  * 
  * </pre>
  * 
@@ -137,7 +138,9 @@ public class AfosToAwipsDao extends CoreDao {
 
                     while (rs.next()) {
                         AfosToAwips id = new AfosToAwips();
-                        id.setAfosid(rs.getString(1));
+                        // make sure that the afosid is 9 characters space-padded long 
+						String afosid = String.format("%-9s", rs.getString(1).trim());
+                        id.setAfosid(afosid);
                         id.setWmottaaii(ttaaii);
                         id.setWmocccc(cccc);
                         rval.add(id);
