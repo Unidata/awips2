@@ -32,7 +32,8 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  uk.ltd.getahead;bundle-version="1.0.0",
- com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0"
+ com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0",
+ javax.mail;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.audittrail,
  com.raytheon.uf.edex.registry.ebxml.dao,
