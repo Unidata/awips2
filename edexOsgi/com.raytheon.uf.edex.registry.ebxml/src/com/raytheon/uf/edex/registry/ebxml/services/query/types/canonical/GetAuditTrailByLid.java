@@ -23,10 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -52,6 +51,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date Ticket# Engineer Description ------------ ---------- -----------
  * -------------------------- Jan 18, 2012 bphillip Initial creation 3/18/2013
  * 1802 bphillip Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013 1802 bphillip Changed abstract method signature, modified return
+ * processing, and changed static variables
  * 
  * </pre>
  * 
@@ -60,9 +61,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  */
 
 public class GetAuditTrailByLid extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GetAuditTrailByLid";
 
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -78,8 +76,8 @@ public class GetAuditTrailByLid extends CanonicalEbxmlQuery {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<AuditableEventType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
 
@@ -111,12 +109,9 @@ public class GetAuditTrailByLid extends CanonicalEbxmlQuery {
             query = query.replace(":endTimeClause", " and obj.timestamp <= '"
                     + endTime + "'");
         }
-        try {
-            return auditableEventDao.executeHQLQuery(query);
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException(
-                    "Error executing GetAuditTrailByLid!", e);
-        }
+        setResponsePayload(queryResponse,
+                auditableEventDao.executeHQLQuery(query));
+
     }
 
     @Override
@@ -126,7 +121,7 @@ public class GetAuditTrailByLid extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GET_AUDIT_TRAIL_BY_LID;
     }
 
     public void setAuditableEventDao(AuditableEventTypeDao auditableEventDao) {

@@ -22,23 +22,20 @@ package com.raytheon.uf.edex.registry.ebxml.services.query.types;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
@@ -58,6 +55,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * 2/21/2012    #184       bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip    Refactor of registry query handling
  * 
  * </pre>
  * 
@@ -70,116 +68,44 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IRegistryQuery.class);
 
-    protected abstract <T extends RegistryObjectType> List<T> query(
-            QueryType queryType, QueryResponse queryResponse)
-            throws EbxmlRegistryException;
+    protected abstract void query(QueryType queryType,
+            QueryResponse queryResponse) throws EbxmlRegistryException;
 
     protected abstract List<String> getValidParameters();
 
     protected boolean matchOlderVersions = false;
 
+    protected int maxResults = -1;
+
+    protected RETURN_TYPE returnType;
+
     protected RegistryObjectTypeDao<RegistryObjectType> registryObjectDao;
 
     public void executeQuery(QueryRequest queryRequest,
             QueryResponse queryResponse) throws EbxmlRegistryException {
+        /*
+         * The full functionality of querying will be implemented at a later
+         * time under a different ticket. Parts of this method have been removed
+         * and will be more efficiently implemented
+         */
+
+        // TODO: Implement version matching using matchOlderVersions
+        // TODO: Handle max results. Partially handled currently by some queries
         // TODO: Add support for specifying query depth
+        // TODO: Add support for start index
+
+        returnType = getReturnType(queryRequest.getResponseOption()
+                .getReturnType());
         @SuppressWarnings("unused")
         int depth = queryRequest.getDepth().intValue();
         matchOlderVersions = queryRequest.isMatchOlderVersions();
-        int maxResults = queryRequest.getMaxResults().intValue();
-        int startIndex = queryRequest.getStartIndex().intValue();
-
-        List<RegistryObjectType> childQueryResults = query(
-                queryRequest.getQuery(), queryResponse);
-        List<RegistryObjectType> queryResults = null;
-        if (matchOlderVersions) {
-            queryResults = childQueryResults;
-        } else {
-            queryResults = new ArrayList<RegistryObjectType>();
-            Map<String, RegistryObjectType> maxVersionMap = new HashMap<String, RegistryObjectType>();
-            String lid = null;
-            int objVersion = 0;
-            for (RegistryObjectType regObj : childQueryResults) {
-                int version = 0;
-                if (regObj.getVersionInfo() == null) {
-                    queryResults.add(regObj);
-                    continue;
-                } else {
-                    objVersion = Integer.parseInt(regObj.getVersionInfo()
-                            .getVersionName());
-                }
-                lid = regObj.getLid();
-
-                RegistryObjectType maxObj = maxVersionMap.get(lid);
-                if (maxObj != null) {
-                    version = Integer.parseInt(maxObj.getVersionInfo()
-                            .getVersionName());
-                }
-                if (objVersion > version) {
-                    maxVersionMap.put(lid, regObj);
-                }
-            }
-            queryResults.addAll(maxVersionMap.values());
+        maxResults = queryRequest.getMaxResults().intValue();
+        if (maxResults < 0) {
+            maxResults = 0;
         }
 
-        RETURN_TYPE returnType = getReturnType(queryRequest.getResponseOption()
-                .getReturnType());
-        if (queryResults == null || queryResults.isEmpty()) {
-            return;
-        }
-        List<RegistryObjectType> results = new ArrayList<RegistryObjectType>();
-
-        int start = 0;
-        if (maxResults <= QueryManagerImpl.DEFAULT_MAX_RESULTS) {
-            results = queryResults;
-        } else {
-            if (startIndex <= QueryManagerImpl.DEFAULT_START_INDEX) {
-                start = 0;
-            } else {
-                statusHandler.info("Start index is set to " + startIndex);
-                start = startIndex;
-            }
-            for (int i = start; i < start + maxResults
-                    && i < queryResults.size(); i++) {
-                results.add(queryResults.get(i));
-            }
-            statusHandler.info((queryResults.size() - results.size())
-                    + " items have been discarded from the result set.");
-        }
-        queryResponse.setStartIndex(new BigInteger(String.valueOf(start)));
-
-        switch (returnType) {
-        case ObjectRef:
-            queryResponse.setObjectRefList(EbxmlObjectUtil
-                    .createObjectRefListFromObjects(results));
-            break;
-        case RegistryObject:
-            RegistryObjectListType objList = EbxmlObjectUtil.rimObjectFactory
-                    .createRegistryObjectListType();
-            objList.getRegistryObject().addAll(results);
-            queryResponse.setRegistryObjectList(objList);
-            break;
-        case LeafClass:
-            // TODO: Add support for this type
-        case LeafClassWithRepositoryItem:
-        default:
-            // TODO: Add support for this type
-            queryResponse
-                    .getException()
-                    .add(EbxmlExceptionUtil
-                            .createRegistryException(
-                                    UnsupportedCapabilityExceptionType.class,
-                                    "",
-                                    "Return type not currently not supported",
-                                    "The ["
-                                            + returnType
-                                            + "] return type is currently not supported",
-                                    ErrorSeverity.WARNING, statusHandler));
-            break;
-        }
+        query(queryRequest.getQuery(), queryResponse);
         statusHandler.info("Query completed.");
-        queryResponse.setTotalResultCount(new BigInteger(String.valueOf(results
-                .size())));
     }
 
     protected QueryParameters getParameterMap(Collection<SlotType> slots,
@@ -209,6 +135,42 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
             }
         }
         return parameters;
+    }
+
+    protected void setResponsePayload(QueryResponse queryResponse,
+            List<Object> values) {
+        switch (returnType) {
+        case ObjectRef:
+            queryResponse.setObjectRefList(EbxmlObjectUtil
+                    .createObjectRefList(values));
+            queryResponse.setTotalResultCount(BigInteger.valueOf(queryResponse
+                    .getObjectRefList().getObjectRef().size()));
+            break;
+        case RegistryObject:
+            queryResponse.setRegistryObjectList(EbxmlObjectUtil
+                    .createRegistryObjectList(values));
+            queryResponse.setTotalResultCount(BigInteger.valueOf(queryResponse
+                    .getRegistryObjectList().getRegistryObject().size()));
+            break;
+        case LeafClass:
+            // TODO: Add support for this type
+        case LeafClassWithRepositoryItem:
+        default:
+            // TODO: Add support for this type
+            queryResponse
+                    .getException()
+                    .add(EbxmlExceptionUtil
+                            .createRegistryException(
+                                    UnsupportedCapabilityExceptionType.class,
+                                    "",
+                                    "Return type not currently not supported",
+                                    "The ["
+                                            + returnType
+                                            + "] return type is currently not supported",
+                                    ErrorSeverity.WARNING, statusHandler));
+            break;
+
+        }
     }
 
     protected QueryParameters getParameterMap(Collection<SlotType> slots,
@@ -259,6 +221,10 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
     public void setRegistryObjectDao(
             RegistryObjectTypeDao<RegistryObjectType> registryObjectDao) {
         this.registryObjectDao = registryObjectDao;
+    }
+
+    public void setReturnType(RETURN_TYPE returnType) {
+        this.returnType = returnType;
     }
 
 }

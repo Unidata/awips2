@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.xml.ws.WebServiceContext;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
@@ -39,11 +42,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationSchemeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalIdentifierType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalLinkType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TaxonomyElementType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
@@ -53,12 +56,18 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
-import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
-import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.event.EventBus;
+import com.raytheon.uf.common.registry.constants.ActionTypes;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.DeletionScope;
+import com.raytheon.uf.common.registry.constants.ErrorSeverity;
+import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
+import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
+import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RegistryEvent.Action;
@@ -66,14 +75,7 @@ import com.raytheon.uf.common.registry.event.RegistryStatisticsEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.audittrail.AuditTrailManager;
-import com.raytheon.uf.edex.registry.ebxml.constants.ActionTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.DeletionScope;
-import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
-import com.raytheon.uf.edex.registry.ebxml.constants.StatusTypes;
+import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -99,6 +101,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Jan 18, 2012            bphillip     Initial creation
  * Sep 14, 2012 1169       djohnson     Throw exception when object exists during create only mode.
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
+ * 4/9/2013     1802       bphillip    Changed how auditable events are handled
  * 
  * </pre>
  * 
@@ -112,10 +115,14 @@ public class LifecycleManagerImpl implements LifecycleManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LifecycleManagerImpl.class);
 
+    @Resource
+    private WebServiceContext wsContext;
+
     /** The query manager */
     private QueryManagerImpl queryManager;
 
     /** The validator */
+    @SuppressWarnings("unused")
     private ValidatorImpl validator;
 
     /** The cataloger */
@@ -125,7 +132,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
     /** The registry object data access object */
     private RegistryObjectDao registryObjectDao;
 
-    private AuditTrailManager auditTrailMgr;
+    private AuditableEventTypeDao auditableEventDao;
 
     /**
      * The Remove Objects protocol allows a client to remove or delete one or
@@ -141,7 +148,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
     public RegistryResponseType removeObjects(RemoveObjectsRequest request)
             throws MsgRegistryException {
         long startTime = System.currentTimeMillis();
-        statusHandler.info("LifecycleManager received removeObjectsRequest");
+        statusHandler
+                .info("LifecycleManager received removeObjectsRequest from ["
+                        + EbxmlObjectUtil.getClientHost(wsContext) + "]");
         RegistryResponseType response = EbxmlObjectUtil.rsObjectFactory
                 .createRegistryResponseType();
         response.setRequestId(request.getId());
@@ -216,7 +225,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (query != null) {
             ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
                     .createResponseOptionType();
-            responseOption.setReturnType("ObjectRef");
+            responseOption.setReturnType(QueryReturnTypes.OBJECT_REF);
             QueryResponse queryResponse = queryManager.executeQuery(
                     responseOption, query);
             if (queryResponse.getStatus()
@@ -231,8 +240,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
             }
         }
         try {
-            auditTrailMgr.createAuditTrailFromResponse(response,
-                    ActionTypes.delete);
+            Map<String, List<ObjectRefType>> actionMap = new HashMap<String, List<ObjectRefType>>();
+            actionMap.put(ActionTypes.delete, objRefs);
+            auditableEventDao.createAuditableEventsFromRefs(request, actionMap,
+                    System.currentTimeMillis());
             registryObjectDao.deleteByRefs(objRefs);
 
         } catch (EbxmlRegistryException e) {
@@ -263,15 +274,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 event.setLid(obj.getLid());
                 event.setObjectType(objectType);
                 EventBus.publish(event);
-                // RegistrySessionManager.postEvent(event);
             }
 
             EventBus.publish(new RegistryStatisticsEvent(obj.getObjectType(),
                     obj.getStatus(), obj.getOwner(), avTimePerRecord));
-            // all registry removals are logged for statistics
-            // RegistrySessionManager.postEvent(new RegistryStatisticsEvent(obj
-            // .getObjectType(), obj.getStatus(), obj.getOwner(),
-            // avTimePerRecord));
         }
 
         return response;
@@ -288,27 +294,12 @@ public class LifecycleManagerImpl implements LifecycleManager {
      * The LifecycleManager sends a RegistryResponse back to the client as
      * response.
      */
-    @Override
     public RegistryResponseType submitObjects(SubmitObjectsRequest request)
             throws MsgRegistryException {
-        return submitObjects(request, true);
-    }
 
-    public RegistryResponseType submitObjectsInternal(
-            SubmitObjectsRequest request) throws MsgRegistryException {
-        if (request == null) {
-            return null;
-        }
-        return submitObjects(request, false);
-    }
-
-    /**
-     * Submits objects bypassing the validation step. This is used when
-     * initializing the database
-     */
-    protected RegistryResponseType submitObjects(SubmitObjectsRequest request,
-            boolean validate) throws MsgRegistryException {
-        statusHandler.info("LifecycleManager received submitObjectsRequest");
+        statusHandler
+                .info("LifecycleManager received submitObjectsRequest from ["
+                        + EbxmlObjectUtil.getClientHost(wsContext) + "]");
         long startTime = System.currentTimeMillis();
 
         RegistryResponseType response = EbxmlObjectUtil.rsObjectFactory
@@ -339,25 +330,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (submitMode.equals(Mode.CREATE_OR_REPLACE)
                 || submitMode.equals(Mode.CREATE_OR_VERSION)
                 || submitMode.equals(Mode.CREATE_ONLY)) {
-
-            if (validate) {
-                statusHandler.info("Validating objects...");
-                ValidateObjectsResponse validateResponse = validateObjects(request
-                        .getRegistryObjectList());
-                if (validateResponse.getException().isEmpty()) {
-                    statusHandler
-                            .info("Objects successfully validated! Submitting...");
-                    processSubmit(submitMode, objs, response, request.getId());
-                } else {
-                    statusHandler
-                            .info("Objects failed to validate! submitObjects aborted!");
-                    response.getException().addAll(
-                            validateResponse.getException());
-                }
-            } else {
-                statusHandler.info("Object validation skipped");
-                processSubmit(submitMode, objs, response, request.getId());
-            }
+            // TODO: Add object validation
+            processSubmit(request, response);
         } else {
             throw EbxmlExceptionUtil
                     .createMsgRegistryException(
@@ -371,8 +345,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
 
         response.setRequestId(request.getId());
-        response.setObjectRefList(EbxmlObjectUtil
-                .createObjectRefListFromObjects(objs));
+        response.setObjectRefList(EbxmlObjectUtil.createObjectRefList(objs));
         long totalTime = System.currentTimeMillis() - startTime;
         statusHandler
                 .info("LifeCycleManager submitObjects operation completed in "
@@ -386,15 +359,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
             for (RegistryObjectType obj : objs) {
                 EventBus.publish(new InsertRegistryEvent(obj.getId(), obj
                         .getLid(), obj.getObjectType()));
-                // RegistrySessionManager.postEvent(new InsertRegistryEvent(obj
-                // .getId(), obj.getLid(), obj.getObjectType()));
-                // also log a statistical event
                 EventBus.publish(new RegistryStatisticsEvent(obj
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));
-                // RegistrySessionManager.postEvent(new RegistryStatisticsEvent(
-                // obj.getObjectType(), obj.getStatus(), obj.getOwner(),
-                // avTimePerRecord));
             }
         }
 
@@ -460,25 +427,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
     }
 
     /**
-     * Validates the given object list
-     * 
-     * @param objectList
-     *            The list of objects to be validated
-     * @return A response containing the status of the validation action
-     * @throws MsgRegistryException
-     *             If errors occur during validation
-     */
-    private ValidateObjectsResponse validateObjects(
-            RegistryObjectListType objectList) throws MsgRegistryException {
-        ValidateObjectsRequest validateRequest = EbxmlObjectUtil.spiObjectFactory
-                .createValidateObjectsRequest();
-        validateRequest.setOriginalObjects(objectList);
-        validateRequest
-                .setComment("Validation of objects before registry submission");
-        return validator.validateObjects(validateRequest);
-    }
-
-    /**
      * 
      * Submits objects to the registry
      * 
@@ -493,18 +441,18 @@ public class LifecycleManagerImpl implements LifecycleManager {
      * @return time taken for transaction
      * @throws MsgRegistryException
      */
-    private void processSubmit(Mode submitMode, List<RegistryObjectType> objs,
-            RegistryResponseType response, String requestId)
-            throws MsgRegistryException {
+    private void processSubmit(SubmitObjectsRequest request,
+            RegistryResponseType response) throws MsgRegistryException {
 
         Map<String, RegistryObjectType> storedObjects = new HashMap<String, RegistryObjectType>();
         List<RegistryObjectType> objsCreated = new ArrayList<RegistryObjectType>();
         List<RegistryObjectType> objsVersioned = new ArrayList<RegistryObjectType>();
         List<RegistryObjectType> objsUpdated = new ArrayList<RegistryObjectType>();
-        for (RegistryObjectType obj : objs) {
+        for (RegistryObjectType obj : request.getRegistryObjectList()
+                .getRegistryObject()) {
             statusHandler.info("Processing object [" + obj.getId() + "]");
             if (obj.getId() == null) {
-                if (submitMode.equals(Mode.CREATE_ONLY)) {
+                if (request.getMode().equals(Mode.CREATE_ONLY)) {
                     statusHandler
                             .info("Generating id for object specified with CREATE_ONLY Mode");
                     String uuid = EbxmlObjectUtil.getUUID();
@@ -534,18 +482,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
             }
 
-            List<RegistryObjectType> dbObjects = new ArrayList<RegistryObjectType>();
-            try {
-                dbObjects = registryObjectDao.getByLid(obj.getLid());
-            } catch (EbxmlRegistryException e1) {
-                throw EbxmlExceptionUtil.createMsgRegistryException(
-                        "Database submission error",
-                        InvalidRequestExceptionType.class, "",
-                        "Error querying for database objects",
-                        "The query for objects having lid [" + obj.getLid()
-                                + "] failed", ErrorSeverity.ERROR, e1,
-                        statusHandler);
-            }
+            List<RegistryObjectType> dbObjects = registryObjectDao.getByLid(obj
+                    .getLid());
             storedObjects.clear();
             for (RegistryObjectType regObj : dbObjects) {
                 storedObjects.put(regObj.getId(), regObj);
@@ -559,17 +497,26 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 obj.setVersionInfo(version);
             }
 
-            switch (submitMode) {
+            switch (request.getMode()) {
             case CREATE_OR_REPLACE:
                 if (storedObjects.containsKey(obj.getId())) {
                     VersionInfoType versionInfo = storedObjects
                             .get(obj.getId()).getVersionInfo();
                     obj.setVersionInfo(versionInfo);
                     obj.setStatus(storedObjects.get(obj.getId()).getStatus());
+                    /*
+                     * A server MUST NOT perform update operations via
+                     * SubmitObjects and UpdateObjects operations on a local
+                     * replica of a remote object. (Except in the case of
+                     * updating objects from notifications)
+                     */
+                    checkReplica(request, obj, storedObjects.get(obj.getId()));
                     statusHandler.info("Object [" + obj.getId()
                             + "] replaced in the registry.");
-                    registryObjectDao.delete(storedObjects.get(obj.getId()));
+                    // registryObjectDao.delete(storedObjects.get(obj.getId()));
                     objsUpdated.add(obj);
+                    registryObjectDao
+                            .merge(obj, storedObjects.get(obj.getId()));
 
                 } else {
                     obj.setStatus(StatusTypes.APPROVED);
@@ -577,6 +524,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     statusHandler.info("Object [" + obj.getId()
                             + "] added to the registry.");
                     objsCreated.add(obj);
+                    registryObjectDao.create(obj);
                 }
                 break;
             case CREATE_OR_VERSION:
@@ -616,6 +564,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                             .info("Supersedes association for new version of ["
                                     + obj.getId()
                                     + "] persisted to the registry");
+                    registryObjectDao.create(obj);
                 } else {
                     if (!dbObjects.isEmpty()) {
                         EbxmlExceptionUtil
@@ -632,6 +581,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     statusHandler.info("Object [" + obj.getId()
                             + "] added to the registry.");
                     objsCreated.add(obj);
+                    registryObjectDao.create(obj);
                 }
                 break;
             case CREATE_ONLY:
@@ -661,11 +611,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     statusHandler.info("Object [" + obj.getId()
                             + "] added to the registry.");
                     objsCreated.add(obj);
+                    registryObjectDao.create(obj);
                 }
 
                 break;
             }
-            registryObjectDao.create(obj);
 
             // TODO: Implement proper cataloging of objects accorind to EbXML
             // spec
@@ -675,18 +625,18 @@ public class LifecycleManagerImpl implements LifecycleManager {
             statusHandler.info("Submit objects successful");
             statusHandler.info("Creating auditable events....");
             try {
+                Map<String, List<RegistryObjectType>> actionMap = new HashMap<String, List<RegistryObjectType>>();
                 if (!objsCreated.isEmpty()) {
-                    auditTrailMgr.createAuditTrail(objsCreated,
-                            ActionTypes.create, requestId);
+                    actionMap.put(ActionTypes.create, objsCreated);
                 }
                 if (!objsVersioned.isEmpty()) {
-                    auditTrailMgr.createAuditTrail(objsCreated,
-                            ActionTypes.version, requestId);
+                    actionMap.put(ActionTypes.version, objsVersioned);
                 }
                 if (!objsUpdated.isEmpty()) {
-                    auditTrailMgr.createAuditTrail(objsCreated,
-                            ActionTypes.update, requestId);
+                    actionMap.put(ActionTypes.update, objsUpdated);
                 }
+                auditableEventDao.createAuditableEventsFromObjects(request,
+                        actionMap, System.currentTimeMillis());
             } catch (EbxmlRegistryException e) {
                 response.getException()
                         .add(EbxmlExceptionUtil
@@ -702,6 +652,42 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     .warn("Submit objects failed. Returning errors to client.");
         }
 
+    }
+
+    private void checkReplica(SubmitObjectsRequest request,
+            ExtensibleObjectType object1, ExtensibleObjectType object2)
+            throws MsgRegistryException {
+        boolean fromNotification = EbxmlObjectUtil.getHomeSlot(request) != null;
+        String object1Home = EbxmlObjectUtil.getHomeSlot(object1);
+        String object2Home = EbxmlObjectUtil.getHomeSlot(object2);
+
+        if (fromNotification) {
+            if (object1Home != null && object2Home == null) {
+                throw EbxmlExceptionUtil.createMsgRegistryException(
+                        "Cannot overwrite local object with replica",
+                        ObjectExistsExceptionType.class, "",
+                        "Cannot overwrite local object with replica", "",
+                        ErrorSeverity.ERROR, statusHandler);
+            } else if (object1Home != null && object2Home != null) {
+                if (!object1Home.equals(object2Home)) {
+                    throw EbxmlExceptionUtil
+                            .createMsgRegistryException(
+                                    "Cannot overwrite a remote replica from a different server",
+                                    ObjectExistsExceptionType.class,
+                                    "",
+                                    "Cannot overwrite a remote replica from a different server",
+                                    "", ErrorSeverity.ERROR, statusHandler);
+                }
+            }
+        } else {
+            if (object2Home != null) {
+                throw EbxmlExceptionUtil.createMsgRegistryException(
+                        "Cannot update replicas",
+                        InvalidRequestExceptionType.class, "",
+                        "Cannot update replicas", "", ErrorSeverity.ERROR,
+                        statusHandler);
+            }
+        }
     }
 
     private void generatePaths(TaxonomyElementType element, String pathPrefix) {
@@ -731,7 +717,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
     @Override
     public RegistryResponseType updateObjects(UpdateObjectsRequest request)
             throws MsgRegistryException {
-        statusHandler.info("LifecycleManager received updateObjects");
+        statusHandler.info("LifecycleManager received updateObjects from ["
+                + EbxmlObjectUtil.getClientHost(wsContext) + "]");
         throw EbxmlExceptionUtil.createMsgRegistryException(
                 "updateObjects not yet implemented",
                 UnsupportedCapabilityExceptionType.class, "",
@@ -751,8 +738,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
         this.validator = validator;
     }
 
-    public void setAuditTrailMgr(AuditTrailManager auditTrailMgr) {
-        this.auditTrailMgr = auditTrailMgr;
+    public void setAuditableEventDao(AuditableEventTypeDao auditableEventDao) {
+        this.auditableEventDao = auditableEventDao;
     }
 
     public void setCataloger(CatalogerImpl cataloger) {
