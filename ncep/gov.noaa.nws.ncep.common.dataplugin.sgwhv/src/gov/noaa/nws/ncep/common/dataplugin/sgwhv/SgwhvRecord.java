@@ -10,6 +10,7 @@
  * ------------ -----------	----------- --------------------------
  * Aug23 2011	   		    Chin Chen	Initial Coding (Following BufrsgwhvRecord to refactor for 
  * 										saving data to HDF5)
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  * 
  * @author chin chen
@@ -29,6 +30,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -41,6 +43,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "sgwhv", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "sgwhv",
+		indexes = {
+				@Index(name = "sgwhv_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
 		IPointData, IPersistable {
