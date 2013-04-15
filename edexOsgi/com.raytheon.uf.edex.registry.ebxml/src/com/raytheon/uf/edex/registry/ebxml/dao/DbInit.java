@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * ------------ ----------  ----------- --------------------------
  * 2/9/2012     184         bphillip    Initial Coding
  * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
+ * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
  * </pre>
  * 
  * @author bphillip
@@ -364,7 +365,7 @@ public class DbInit implements ApplicationListener {
                             "Error assigning default owner", e);
                 }
             }
-            lcm.submitObjectsInternal(obj);
+            lcm.submitObjects(obj);
         }
 
     }
