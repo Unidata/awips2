@@ -29,7 +29,7 @@ TODAY=`/bin/date +%Y%m%d`
 
 QPID_HOME=/awips2/qpid
 
-QPID_JAVA_MEM=-Xmx3072m
+export QPID_JAVA_MEM=-Xmx2048m
 
 start() {
    isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c "PNAME=QPBRKR "`
