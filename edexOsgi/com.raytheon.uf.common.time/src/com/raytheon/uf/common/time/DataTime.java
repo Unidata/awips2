@@ -40,7 +40,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -112,7 +111,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @DynamicSerialize
 public class DataTime implements Comparable<DataTime>, Serializable,
         ISerializableObject, Cloneable {
-
     /**
      * 
      */
@@ -130,17 +128,15 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     /** The minor sort key */
     @Transient
     protected SortKey minorKey = SortKey.FORECAST_TIME;
-
+    
     /** The reference time */
     @Column(name = "refTime")
-    @Index(name = "refTimeIndex")
     @DynamicSerializeElement
     @XmlAttribute
     protected Date refTime;
 
     /** The forecast time (in seconds from reference time) */
     @Column(name = "forecastTime")
-    @Index(name = "fcstTimeIndex")
     @DynamicSerializeElement
     @XmlAttribute
     protected int fcstTime = 0;

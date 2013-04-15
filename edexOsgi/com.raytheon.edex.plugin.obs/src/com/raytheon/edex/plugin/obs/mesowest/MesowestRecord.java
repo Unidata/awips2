@@ -43,7 +43,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 2/14/2007	139			Phillippe	Initial creation	
- * 20071129            472  jkorman     Added IDecoderGettable interface.    
+ * 20071129            472  jkorman     Added IDecoderGettable interface.
+ *    
  * 
  * </pre>
  * 
