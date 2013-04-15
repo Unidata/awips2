@@ -32,7 +32,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
@@ -47,6 +46,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012 184        bphillip     Initial creation
+ * 4/9/2013     1802       bphillip    Removed exception catching.  Added merge method.
  * 
  * </pre>
  * 
@@ -64,27 +64,34 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
     }
 
     /**
+     * Merges the state of the new object onto the persistent object
+     * 
+     * @param newObject
+     *            The object to get the state from
+     * @param existingObject
+     *            The existing persistent object to copy the state on to
+     */
+    public void merge(RegistryObjectType newObject,
+            RegistryObjectType existingObject) {
+        newObject.setId(existingObject.getId());
+        template.merge(newObject);
+    }
+
+    /**
      * Queries for all lids of registry objects matching the pattern of the
      * given id. A query using 'like' will be executed.
      * 
      * @param lid
      *            The lid containing % or _ denoting wildcard characters
      * @return List of lids matching the given id pattern
-     * @throws EbxmlRegistryException
-     *             If errors occur during the query
      */
-    public List<String> getMatchingLids(String lid)
-            throws EbxmlRegistryException {
+    public List<String> getMatchingLids(String lid) {
         DetachedCriteria criteria = DetachedCriteria.forClass(this
                 .getEntityClass());
         criteria = criteria.add(Property.forName(QueryConstants.LID).like(lid));
         criteria = criteria.setProjection(Projections
                 .property(QueryConstants.LID));
-        try {
-            return this.executeCriteriaQuery(criteria);
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this.executeCriteriaQuery(criteria);
     }
 
     /**
@@ -95,20 +102,13 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param lids
      *            The list of lids to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
      */
-    public List<ENTITY> getByLid(List<String> lids)
-            throws EbxmlRegistryException {
+    public List<ENTITY> getByLid(List<String> lids) {
         StringBuilder str = new StringBuilder();
         HqlQueryUtil.assembleSingleParamQuery(str, getEntityClass(),
                 QueryConstants.LID, "in", lids);
         str.append(" order by obj.lid asc,obj.versionInfo.versionName desc");
-        try {
-            return executeHQLQuery(str.toString());
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return executeHQLQuery(str.toString());
     }
 
     /**
@@ -119,10 +119,8 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param lids
      *            The list of lids to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
      */
-    public List<ENTITY> getByLid(String... lids) throws EbxmlRegistryException {
+    public List<ENTITY> getByLid(String... lids) {
         return getByLid(Arrays.asList(lids));
     }
 
@@ -134,18 +132,10 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param objTypes
      *            The list of objectTypes to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
      */
-    public List<ENTITY> getByObjectType(List<String> objTypes)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                    getEntityClass(), QueryConstants.OBJECT_TYPE, "in",
-                    objTypes));
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<ENTITY> getByObjectType(List<String> objTypes) {
+        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                getEntityClass(), QueryConstants.OBJECT_TYPE, "in", objTypes));
     }
 
     /**
@@ -156,17 +146,10 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param status
      *            The list of statuses to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
      */
-    public List<ENTITY> getByStatus(List<String> status)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                    getEntityClass(), QueryConstants.STATUS, "in", status));
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<ENTITY> getByStatus(List<String> status) {
+        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                getEntityClass(), QueryConstants.STATUS, "in", status));
     }
 
     /**
@@ -177,17 +160,10 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param owner
      *            The list of owners to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
      */
-    public List<ENTITY> getByOwner(List<String> owner)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                    getEntityClass(), QueryConstants.OWNER, "in", owner));
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<ENTITY> getByOwner(List<String> owner) {
+        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
+                getEntityClass(), QueryConstants.OWNER, "in", owner));
     }
 
     /**
@@ -198,11 +174,8 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param owner
      *            The list of owners to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the query encounters errors
      */
-    public List<ENTITY> getByOwner(String... owner)
-            throws EbxmlRegistryException {
+    public List<ENTITY> getByOwner(String... owner) {
         return getByOwner(Arrays.asList(owner));
     }
 
@@ -214,19 +187,12 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param ids
      *            The list of names to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the criteria query encounters errors
      */
-    public List<ENTITY> getByName(List<String> names)
-            throws EbxmlRegistryException {
+    public List<ENTITY> getByName(List<String> names) {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.name.localizedString as Strings where Strings.value in ");
         HqlQueryUtil.assembleInClause(str, "Strings.value", names);
-        try {
-            return this.executeHQLQuery(str.toString());
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this.executeHQLQuery(str.toString());
     }
 
     /**
@@ -237,19 +203,12 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param ids
      *            The list of descriptions to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the criteria query encounters errors
      */
-    public List<ENTITY> getByDescription(List<String> descriptions)
-            throws EbxmlRegistryException {
+    public List<ENTITY> getByDescription(List<String> descriptions) {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.description.localizedString as Strings where Strings.value in ");
         HqlQueryUtil.assembleInClause(str, "Strings.value", descriptions);
-        try {
-            return this.executeHQLQuery(str.toString());
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+        return this.executeHQLQuery(str.toString());
     }
 
     /**
@@ -260,20 +219,14 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @param ids
      *            The list of classificationNodes to query for
      * @return The list of registry objects;
-     * @throws EbxmlRegistryException
-     *             If the criteria query encounters errors
      */
-    public List<ENTITY> getByClassification(List<String> classifications)
-            throws EbxmlRegistryException {
+    public List<ENTITY> getByClassification(List<String> classifications) {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.classification as Classifications where ");
         HqlQueryUtil.assembleInClause(str,
                 "Classifications.classificationNode", classifications);
-        try {
-            return this.executeHQLQuery(str.toString());
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+
+        return this.executeHQLQuery(str.toString());
     }
 
     /**

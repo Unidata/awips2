@@ -4,24 +4,29 @@
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<!-- <bean id="metadataSessionFactory" class="org.hibernate.impl.SessionFactoryImpl" /> -->
+	<!-- <bean id="metadataSessionFactory" class="org.hibernate.impl.SessionFactoryImpl" 
+		/> -->
 	<!-- QUERY -->
 	<!-- Define concrete implementation of the service -->
 	<bean id="queryServiceImpl"
-		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl" >
-		<property name="queryTypeMgr" ref="queryTypeManager"/>
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
+		<property name="queryTypeMgr" ref="queryTypeManager" />
 	</bean>
-	
+
 	<bean id="queryServiceSoapImpl"
-		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl" >
-		<property name="eagerFetch" value="true"/>
-		<property name="queryTypeMgr" ref="queryTypeManager"/>
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
+		<property name="eagerFetch" value="true" />
+		<property name="queryTypeMgr" ref="queryTypeManager" />
 	</bean>
-	
+
 	<!-- NOTIFICATION LISTENER -->
 	<!-- Define concrete implementation of the service -->
 	<bean id="notificationServiceImpl"
-		class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImpl" />
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImpl">
+		<property name="lcm" ref="lcmServiceImpl" />
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+		<property name="classificationNodeDao" ref="classificationNodeDao"/>
+	</bean>
 
 
 	<!-- LIFE CYCLE MANAGER -->
@@ -30,9 +35,9 @@
 		class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl">
 		<property name="queryManager" ref="queryServiceImpl" />
 		<property name="validator" ref="validatorServiceImpl" />
-		<property name="registryObjectDao" ref="registryObjectDao"/>
-		<property name="auditTrailMgr" ref="auditTrailManager"/>
-		<property name="cataloger" ref="catalogerServiceImpl"/>
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
+		<property name="cataloger" ref="catalogerServiceImpl" />
 	</bean>
 
 	<!-- VALIDATOR -->
@@ -46,22 +51,24 @@
 	<!-- CATALOGER -->
 	<!-- Define concrete implementation of the service -->
 	<bean id="catalogerServiceImpl"
-		class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl" >
-		<property name="registryObjectDao" ref="registryObjectDao"/>
+		class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl">
+		<property name="registryObjectDao" ref="registryObjectDao" />
 	</bean>
-	
-	<bean id="edexRegistryManager" class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager" >
-	<property name="xacmlPep" ref="XACMLPolicyEnforcementPoint"/>
-	<property name="queryManager" ref="queryServiceImpl"/>
+
+	<bean id="edexRegistryManager"
+		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager">
+		<property name="xacmlPep" ref="XACMLPolicyEnforcementPoint" />
+		<property name="queryManager" ref="queryServiceImpl" />
 	</bean>
-    
-    <bean id="registryHandler" class="com.raytheon.uf.common.registry.ebxml.FactoryRegistryHandler">
-        <property name="lcmFactory" ref="edexRegistryManager"/>
-        <property name="queryFactory" ref="edexRegistryManager"/>
-    </bean>
-    
-    <bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
-        <constructor-arg ref="registryHandler" />
-    </bean>
+
+	<bean id="registryHandler"
+		class="com.raytheon.uf.common.registry.ebxml.FactoryRegistryHandler">
+		<property name="lcmFactory" ref="edexRegistryManager" />
+		<property name="queryFactory" ref="edexRegistryManager" />
+	</bean>
+
+	<bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
+		<constructor-arg ref="registryHandler" />
+	</bean>
 
 </beans>

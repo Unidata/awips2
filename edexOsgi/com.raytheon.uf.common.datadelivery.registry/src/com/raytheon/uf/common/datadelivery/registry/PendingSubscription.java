@@ -35,5 +35,7 @@ package com.raytheon.uf.common.datadelivery.registry;
  * @author djohnson
  * @version 1.0
  */
+
 public interface PendingSubscription extends InitialPendingSubscription {
+
 }
