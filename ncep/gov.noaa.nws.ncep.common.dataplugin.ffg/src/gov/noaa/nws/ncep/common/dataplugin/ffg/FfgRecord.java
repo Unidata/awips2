@@ -15,6 +15,7 @@
  * 07/2009		14				T. Lee		Migration to TO11
  * 09/2011      				Chin Chen   changed to improve purge performance and
  * 										    removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  *
  * @author T.Lee
@@ -45,6 +46,16 @@ import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgPrecip;
 
 @Entity
 @Table(name = "ffg", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ffg",
+		indexes = {
+				@Index(name = "ffg_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 
 public class FfgRecord extends PluginDataObject {
