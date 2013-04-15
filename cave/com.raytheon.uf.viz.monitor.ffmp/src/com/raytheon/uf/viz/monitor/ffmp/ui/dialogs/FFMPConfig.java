@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * ------------ ---------- ----------- --------------------------
  * Aug 01, 2012 14168      mpduff       Add convenience methods for 
  *                                      getting ColorCell and ReverseFilter
+ * Apr 15, 2013   1904     mpduff       Don't allow this class to be nulled out
  * 
  * </pre>
  * 
@@ -123,25 +124,7 @@ public class FFMPConfig {
     }
 
     public static synchronized FFMPConfig getInstance() {
-        if (classInstance == null) {
-            classInstance = new FFMPConfig();
-        }
-
         return classInstance;
-    }
-
-    public void disposeResources() {
-        upperColor.dispose();
-        midColor.dispose();
-        lowerColor.dispose();
-        belowLowerColor.dispose();
-        defaultColor.dispose();
-        forcedFFGColor.dispose();
-        vgbColor.dispose();
-    }
-
-    public static void unloadConfig() {
-        classInstance = null;
     }
 
     private void init() {
