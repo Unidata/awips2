@@ -15,6 +15,7 @@
  * 09/2011      			Chin Chen   changed to improve purge performance and
  * 										removed xml serialization as well
  * 07/2012      #606        Greg Huoll  added reportType to the dataURI
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -48,6 +49,16 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name = "tcm", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "tcm",
+		indexes = {
+				@Index(name = "tcm_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 
 public class TcmRecord extends PluginDataObject {

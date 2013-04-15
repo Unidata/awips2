@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -52,6 +53,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009            jsanchez     Initial creation
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -60,6 +62,16 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @Table(name = "tcg", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "tcg",
+		indexes = {
+				@Index(name = "tcg_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
