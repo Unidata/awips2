@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 03/03/2007   908         bwoodle     initial creation
  * 09/15/2009   3027       njensen      Use dates for times
  * 09/21/2009   3072        bsteffen    Removed times because they are stored in DataTime
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * 
  * </pre>
@@ -58,6 +60,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Table(name = "ccfp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ccfp",
+		indexes = {
+				@Index(name = "ccfp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

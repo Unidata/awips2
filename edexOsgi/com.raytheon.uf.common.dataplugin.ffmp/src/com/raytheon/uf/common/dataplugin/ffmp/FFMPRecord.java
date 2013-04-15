@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -69,6 +70,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 06/03/09     2521     D. Hladky   Initial release
  * 01/27/13     1478        D. Hladky   OUN memory help
  * Feb 28, 2013  1729      dhladky    Supressed un-necessary debug loggers
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -77,6 +79,17 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @Entity
 @Table(name = "ffmp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ffmp",
+		indexes = {
+				@Index(name = "ffmp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
