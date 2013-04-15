@@ -24,7 +24,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RoleType;
 
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -38,6 +38,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 

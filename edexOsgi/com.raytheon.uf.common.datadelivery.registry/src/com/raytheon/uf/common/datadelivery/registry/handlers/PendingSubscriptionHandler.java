@@ -49,6 +49,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2012 1169       djohnson     Initial creation
  * Sep 24, 2012 1157       mpduff       Changed to use InitialPendingSubscription.
+ * 4/9/2013     1802      bphillip   Using constant values from constants package instead of RegistryUtil
  * 
  * </pre>
  * 

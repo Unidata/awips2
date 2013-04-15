@@ -43,11 +43,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TelephoneNumberType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
+import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
+import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
-import com.raytheon.uf.edex.registry.ebxml.constants.StatusTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.AssociationDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.OrganizationDao;
@@ -437,7 +437,7 @@ public class RegistryWebUtil {
         RemoveObjectsRequest request = getRemoveRequest(party);
         RegistryResponseType response = lcm.removeObjects(request);
         if (!response.getStatus().equals(RegistryResponseStatus.SUCCESS)) {
-            StringBuffer exceptionText = new StringBuffer();
+            StringBuilder exceptionText = new StringBuilder();
             exceptionText.append("Remove Objects Failed:\n");
             for (RegistryExceptionType exception : response.getException()) {
                 exceptionText.append("Exception: ")
@@ -518,7 +518,7 @@ public class RegistryWebUtil {
      */
     public <T extends RegistryObjectType> RemoveObjectsRequest getRemoveRequest(
             List<T> objs) {
-        StringBuffer comment = new StringBuffer(objs.size() * 38);
+        StringBuilder comment = new StringBuilder(objs.size() * 38);
         comment.append("Removing objects: ");
         for (RegistryObjectType regObj : objs) {
             comment.append("[");
@@ -528,8 +528,7 @@ public class RegistryWebUtil {
         RemoveObjectsRequest request = new RemoveObjectsRequest();
         request.setId(EbxmlObjectUtil.getUUID());
         request.setComment(comment.toString());
-        request.setObjectRefList(EbxmlObjectUtil
-                .createObjectRefListFromObjects(objs));
+        request.setObjectRefList(EbxmlObjectUtil.createObjectRefList(objs));
         return request;
 
     }

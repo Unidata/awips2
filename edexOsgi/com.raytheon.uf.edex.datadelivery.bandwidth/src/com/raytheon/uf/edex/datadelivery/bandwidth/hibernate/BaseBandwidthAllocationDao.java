@@ -20,9 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
@@ -40,6 +38,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
+ * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
  * 
  * </pre>
  * 
@@ -47,7 +46,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * @version 1.0
  */
 abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
-        extends SessionManagedDao<Long, ENTITY> implements IBaseBandwidthAllocationDao<ENTITY> {
+        extends SessionManagedDao<Long, ENTITY> implements
+        IBaseBandwidthAllocationDao<ENTITY> {
 
     private static final String GET_BANDWIDTH_ALLOCATIONS_BY_SUBSCRIPTION_ID = "from %s res where res.bandwidthSubscription.id = :subscriptionId";
 
@@ -56,8 +56,7 @@ abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
     private static final String GET_BANDWIDTH_ALLOCATIONS_BY_STATE = "from %s res where res.status = :state";
 
     private static final String GET_DEFERRED = "from %s alloc where "
-            + "alloc.status = :status and "
-            + "alloc.network = :network and "
+            + "alloc.status = :status and " + "alloc.network = :network and "
             + "alloc.endTime <= :endTime";
 
     /**
@@ -65,11 +64,9 @@ abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
      */
     @Override
     public List<ENTITY> getBySubscriptionId(Long subscriptionId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("subscriptionId", subscriptionId);
         return query(String.format(
                 GET_BANDWIDTH_ALLOCATIONS_BY_SUBSCRIPTION_ID, getEntityClass()
-                        .getSimpleName()), params);
+                        .getSimpleName()), "subscriptionId", subscriptionId);
     }
 
     /**
@@ -77,10 +74,8 @@ abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
      */
     @Override
     public List<ENTITY> getByNetwork(Network network) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("network", network);
         return query(String.format(GET_BANDWIDTH_ALLOCATIONS_BY_NETWORK,
-                getEntityClass().getSimpleName()), params);
+                getEntityClass().getSimpleName()), "network", network);
     }
 
     /**
@@ -88,24 +83,18 @@ abstract class BaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
      */
     @Override
     public List<ENTITY> getByState(RetrievalStatus state) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("state", state);
         return query(String.format(GET_BANDWIDTH_ALLOCATIONS_BY_STATE,
-                getEntityClass().getSimpleName()), params);
+                getEntityClass().getSimpleName()), "state", state);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<ENTITY> getDeferred(Network network,
-            Calendar endTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("status", RetrievalStatus.DEFERRED);
-        params.put("network", network);
-        params.put("endTime", endTime);
+    public List<ENTITY> getDeferred(Network network, Calendar endTime) {
         return query(
                 String.format(GET_DEFERRED, getEntityClass().getSimpleName()),
-                params);
+                "status", RetrievalStatus.DEFERRED, "network", network,
+                "endTime", endTime);
     }
 }
