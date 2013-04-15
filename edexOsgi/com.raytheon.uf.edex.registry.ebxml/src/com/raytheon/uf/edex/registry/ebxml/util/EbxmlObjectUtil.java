@@ -37,6 +37,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
@@ -71,7 +72,11 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 
 public class EbxmlObjectUtil {
 
+    /** The name of the slot designated to hold the home server address of a registry object */
     public static final String HOME_SLOT_NAME = "urn:oasis:names:tc:ebxml-regrep:rim:RegistryObject:home";
+
+    /** The name of the slot designated to hold the email notification formatter */
+    public static final String EMAIL_NOTIFICATION_FORMATTER_SLOT = "urn:oasis:names:tc:ebxml-regrep:rim:DeliveryInfo:emailNotificationFormatter";
 
     /**
      * The lifecycle manager object factory
@@ -326,6 +331,12 @@ public class EbxmlObjectUtil {
 
     public static String getHomeSlot(ExtensibleObjectType object) {
         return getStringSlotValue(object, HOME_SLOT_NAME);
+    }
+
+    public static String getEmailNotificationFormatterSlot(
+            DeliveryInfoType deliveryInfo) {
+        return getStringSlotValue(deliveryInfo,
+                EMAIL_NOTIFICATION_FORMATTER_SLOT);
     }
 
     public static String getClientHost(WebServiceContext wsContext) {
