@@ -23,6 +23,7 @@
  *                                          of original 5 elements is not unique in some scenarios.                                       
  * 09/2011      				Chin Chen   changed to improve purge performance and
  * 											removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -61,6 +62,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "aww", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "aww",
+		indexes = {
+				@Index(name = "aww_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 
 public class AwwRecord extends PluginDataObject{

@@ -69,6 +69,7 @@ import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Feb 14, 2007             chammack    Initial Creation.
+ * Apr 03, 2013     1562   mschenke   Fix for custom colormaps
  * 
  * </pre>
  * 
@@ -140,10 +141,9 @@ public class TopoResource extends
         ColorMapParameters existing = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
         if (existing != null) {
-            PersistedParameters params = existing.getPersisted();
-            if (params != null) {
-                parameters.setColorMapMin(params.getColorMapMin());
-                parameters.setColorMapMax(params.getColorMapMax());
+            PersistedParameters persisted = existing.getPersisted();
+            if (persisted != null) {
+                parameters.applyPersistedParameters(persisted);
             }
 
             if (existing.getColorMap() != null) {
