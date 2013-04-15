@@ -20,6 +20,8 @@
 package com.raytheon.uf.edex.registry.ebxml.util;
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 /**
@@ -42,6 +44,10 @@ import java.net.UnknownHostException;
  */
 public class ServiceUrlFactory {
 
+    public ServiceUrlFactory() {
+
+    }
+
     /**
      * Gets a service address for the given service
      * 
@@ -52,10 +58,12 @@ public class ServiceUrlFactory {
      * @return The URL String of the service endpoint
      * @throws UnknownHostException
      *             If problems occur determining the host name
+     * @throws MalformedURLException
      */
-    public String getServiceAddress(String service, String port)
-            throws UnknownHostException {
-        String hostName = InetAddress.getLocalHost().getHostName();
-        return "http://" + hostName + ":" + port + "/" + service;
+    public String getServiceAddress(String serviceName, int servicePort)
+            throws UnknownHostException, MalformedURLException {
+        URL url = new URL("http", InetAddress.getLocalHost().getHostAddress(),
+                servicePort, "/" + serviceName);
+        return url.toString();
     }
 }
