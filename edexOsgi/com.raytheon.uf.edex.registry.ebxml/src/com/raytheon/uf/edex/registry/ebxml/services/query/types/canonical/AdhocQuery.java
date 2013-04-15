@@ -21,9 +21,7 @@ package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
@@ -34,9 +32,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.adhoc.AdhocQueryExpression;
 import com.raytheon.uf.edex.registry.ebxml.services.query.adhoc.AdhocQueryExpressionManager;
@@ -68,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -87,12 +87,9 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.QUERY_LANGUAGE);
     }
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "AdhocQuery";
-
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse)
+            throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse, true);
         // The client did not specify the required parameter
@@ -123,29 +120,27 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
 
         AdhocQueryExpression expression = AdhocQueryExpressionManager
                 .getInstance().getAdhocQueryExpression(queryExpressionSlot);
-        Map<String, Object> paramMap = null;
-        try {
-            if (queryExpressionSlot.equals("SlotQuery")) {
-                queryLanguage = "HQL";
-                paramMap = new HashMap<String, Object>();
-                queryExpression = getSlotQuery(queryType.getSlot(), paramMap);
-                return registryObjectDao.executeHQLQuery(queryExpression, true,
-                        paramMap);
-            } else if (expression == null) {
-                paramMap = getQueryParams(queryType.getSlot());
-                queryExpression = queryExpressionSlot;
-                return filterResults(registryObjectDao.executeHQLQuery(
-                        queryExpression, true, paramMap));
-            } else {
-                queryLanguage = "HQL";
-                paramMap = getQueryParams(queryType.getSlot());
-                queryExpression = expression.getQueryExpression();
-                return filterResults(registryObjectDao.executeHQLQuery(
-                        queryExpression, true, paramMap));
-            }
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Error executing Adhoc Query!", e);
+        List<Object> results = null;
+        if (queryExpressionSlot.equals("SlotQuery")) {
+            queryLanguage = "HQL";
+            Object[] params = new Object[queryType.getSlot().size() * 2];
+            queryExpression = getSlotQuery(queryType.getSlot(), params);
+            results = registryObjectDao.executeHQLQuery(queryExpression,
+                    maxResults, params);
+        } else if (expression == null) {
+            Object[] params = getQueryParams(queryType.getSlot());
+            queryExpression = queryExpressionSlot;
+            results = registryObjectDao.executeHQLQuery(queryExpression,
+                    maxResults, params);
+        } else {
+            queryLanguage = "HQL";
+            Object[] params = getQueryParams(queryType.getSlot());
+            queryExpression = expression.getQueryExpression();
+            results = registryObjectDao.executeHQLQuery(queryExpression,
+                    maxResults, params);
         }
+        setResponsePayload(queryResponse, results);
+
     }
 
     /**
@@ -157,19 +152,19 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
      *            The slot values to substitute
      * @return The prepared query
      */
-    private Map<String, Object> getQueryParams(Collection<SlotType> slots) {
-        Map<String, Object> params = new HashMap<String, Object>();
+    private Object[] getQueryParams(Collection<SlotType> slots) {
+        List<Object> params = new ArrayList<Object>();
         String slotName = null;
         String slotValue = null;
-
         for (SlotType slot : slots) {
             slotName = slot.getName();
             slotValue = slot.getSlotValue().getValue();
             if (!QUERY_PARAMETERS.contains(slotName)) {
-                params.put(slotName, slotValue);
+                params.add(slotName);
+                params.add(slotValue);
             }
         }
-        return params;
+        return params.toArray(new Object[params.size()]);
     }
 
     /**
@@ -179,15 +174,18 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
      *            The slots containing values to substitute in
      * @return The prepared query
      */
-    private String getSlotQuery(Collection<SlotType> slots,
-            Map<String, Object> params) {
+    private String getSlotQuery(Collection<SlotType> slots, Object[] params) {
         String slotName = null;
         String slotValue = null;
         String operand = null;
         boolean firstClause = true;
         StringBuffer hqlQuery = new StringBuffer();
-        hqlQuery.append("select obj from ")
-                .append(RegistryObjectType.class.getName()).append(" as obj ");
+        if (returnType.equals(RETURN_TYPE.ObjectRef)) {
+            hqlQuery.append("select obj.id from ");
+        } else {
+            hqlQuery.append("select obj from ");
+        }
+        hqlQuery.append(RegistryObjectType.class.getName()).append(" as obj ");
 
         int i = 0;
         for (SlotType slot : slots) {
@@ -199,6 +197,7 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
 
         hqlQuery.append(" where ");
 
+        int paramIndex = 0;
         i = 0;
         for (SlotType slot : slots) {
             slotName = slot.getName();
@@ -222,7 +221,8 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
                     operand = "=";
                 }
                 String paramHolder = "slotValue_" + i;
-                params.put(paramHolder, slotValue);
+                params[paramIndex++] = paramHolder;
+                params[paramIndex++] = slotValue;
                 hqlQuery.append(" (slot").append(i).append(".name='")
                         .append(slotName).append("' AND slot").append(i)
                         .append(".slotValue.")
@@ -243,7 +243,7 @@ public class AdhocQuery extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.ADHOC_QUERY;
     }
 
 }

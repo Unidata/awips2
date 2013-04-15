@@ -23,7 +23,6 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -36,6 +35,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/13/2013    1082       bphillip    Initial creation
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 
@@ -57,13 +57,8 @@ public class RegistryObjectDao extends
      * @throws EbxmlRegistryException
      *             If the HQL query fails
      */
-    public List<RegistryObjectType> getAllRegistryObjects()
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from" + RegistryObjectType.class.getName());
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<RegistryObjectType> getAllRegistryObjects() {
+        return getAll();
     }
 
     @Override

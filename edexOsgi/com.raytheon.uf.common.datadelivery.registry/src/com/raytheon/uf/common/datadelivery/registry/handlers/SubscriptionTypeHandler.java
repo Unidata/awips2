@@ -27,6 +27,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
 import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.ebxml.AssociationQuery;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
@@ -72,7 +73,7 @@ public abstract class SubscriptionTypeHandler<T extends Subscription, QUERY exte
             throws RegistryHandlerException {
         // Checks for the existence of the subscription
         AssociationQuery query = new AssociationQuery();
-        query.setAssociationType(RegistryUtil.PATH_ASSOCIATION_RELATED_TO);
+        query.setAssociationType(AssociationTypes.RELATED_TO_PATH);
         query.setSourceObjectId(id);
         query.setReturnObjects(true);
 
@@ -122,9 +123,8 @@ public abstract class SubscriptionTypeHandler<T extends Subscription, QUERY exte
      * {@inheritDoc}
      */
     @Override
-    public List<T> getActiveByDataSetAndProvider(
-            String dataSetName, String providerName)
-            throws RegistryHandlerException {
+    public List<T> getActiveByDataSetAndProvider(String dataSetName,
+            String providerName) throws RegistryHandlerException {
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setDataSetName(dataSetName);
         query.setProviderName(providerName);
