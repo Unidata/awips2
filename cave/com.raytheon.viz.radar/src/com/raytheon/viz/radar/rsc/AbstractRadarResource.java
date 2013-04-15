@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 03, 2010            mnash     Initial creation
  * MAR 05, 2013 15313      kshresth  Added sampling for DMD 
+ * Apr 11, 2013 DR 16030   D. Friedman Fix NPE.
  * 
  * </pre>
  * 
@@ -414,7 +415,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             displayedData.append("@" + dataMap.get("Azimuth"));
         }
 
-        if (!dataMap.get("Mnemonic").equalsIgnoreCase("DMD"))
+        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic")))
         {
             if (labels.contains(InspectLabels.ICAO)) {
                 displayedData.append(' ').append(dataMap.get("ICAO"));
