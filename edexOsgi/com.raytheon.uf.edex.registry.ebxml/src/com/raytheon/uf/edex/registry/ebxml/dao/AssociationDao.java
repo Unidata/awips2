@@ -24,7 +24,6 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
+ * 4/9/2013     1802        bphillip     Removed exception catching
  * 
  * </pre>
  * 
@@ -57,15 +57,9 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getByTargetAndType(String target, String type)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from AssociationType obj where obj.targetObject='"
-                    + target + "' and obj.type='" + type + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException(
-                    "Error getting by target and type", e);
-        }
+    public List<AssociationType> getByTargetAndType(String target, String type) {
+        return executeHQLQuery("from AssociationType obj where obj.targetObject='"
+                + target + "' and obj.type='" + type + "'");
     }
 
     /**
@@ -79,14 +73,9 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getBySourceAndType(String source, String type)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                    + source + "' and obj.type='" + type + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<AssociationType> getBySourceAndType(String source, String type) {
+        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                + source + "' and obj.type='" + type + "'");
     }
 
     /**
@@ -103,16 +92,12 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      *             If errors occur during interaction with the database
      */
     public List<AssociationType> getBySourceTargetAndType(String source,
-            String target, String type) throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                    + source
-                    + "' and obj.type='"
-                    + type
-                    + "' and obj.targetObject='" + target + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+            String target, String type) {
+        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                + source
+                + "' and obj.type='"
+                + type
+                + "' and obj.targetObject='" + target + "'");
     }
 
     /**
@@ -124,17 +109,12 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getAllAssociations(String objReferenced)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                    + objReferenced
-                    + "' or obj.targetObject='"
-                    + objReferenced
-                    + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<AssociationType> getAllAssociations(String objReferenced) {
+        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                + objReferenced
+                + "' or obj.targetObject='"
+                + objReferenced
+                + "'");
     }
 
     /**
@@ -146,14 +126,9 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getAssociationsTo(String objReferenced)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from AssociationType obj where obj.targetObject='"
-                    + objReferenced + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<AssociationType> getAssociationsTo(String objReferenced) {
+        return executeHQLQuery("from AssociationType obj where obj.targetObject='"
+                + objReferenced + "'");
     }
 
     /**
@@ -165,14 +140,9 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getAssociationsFrom(String objReferenced)
-            throws EbxmlRegistryException {
-        try {
-            return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
-                    + objReferenced + "'");
-        } catch (DataAccessLayerException e) {
-            throw new EbxmlRegistryException("Data Access Error", e);
-        }
+    public List<AssociationType> getAssociationsFrom(String objReferenced) {
+        return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
+                + objReferenced + "'");
     }
 
     /**
@@ -183,8 +153,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public void deleteAssociationsForObj(String objReferenced)
-            throws EbxmlRegistryException {
+    public void deleteAssociationsForObj(String objReferenced) {
         List<AssociationType> associations = getAllAssociations(objReferenced);
         if (!associations.isEmpty()) {
             for (AssociationType association : associations) {

@@ -21,9 +21,7 @@
 package com.raytheon.uf.edex.stats.dao;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -66,11 +64,9 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
      */
     public List<StatsRecord> retrieveRecords(Calendar limit, String eventType,
             int maxResults) throws DataAccessLayerException {
-        Map<String, Object> params = new HashMap<String, Object>();
         String hql = "from StatsRecord rec where rec.eventType = :eventType and rec.date < :date order by rec.date asc";
-        params.put("eventType", eventType);
-        params.put("date", limit);
-        return this.query(hql, params, maxResults);
+        return this.query(hql, maxResults, "eventType", eventType, "date",
+                limit);
     }
 
     @Override
