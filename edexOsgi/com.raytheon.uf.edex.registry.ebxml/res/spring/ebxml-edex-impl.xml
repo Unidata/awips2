@@ -1,0 +1,93 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
+  
+    <!-- This file should only contain beans used on a running EDEX instance. -->
+    
+    <bean id="ebxmlDbValidationStrategy"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.EbxmlPostgresValidationStrategy" />
+
+    <!-- start service -->
+    <bean id="queryServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+        init-method="create">
+        <property name="serviceClass"
+            value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager" />
+        <property name="address">
+            <bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
+                <constructor-arg value="queryManager" />
+                <constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
+            </bean>
+        </property>
+        <property name="serviceBean" ref="queryServiceSoapImpl" />
+        <property name="inInterceptors">
+            <list>
+                <ref bean="XACMLPolicyEnforcementPoint" />
+            </list>
+        </property>
+    </bean>
+
+    <!-- start service -->
+    <bean id="notificationServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+        init-method="create">
+        <property name="serviceClass"
+            value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener" />
+        <property name="address">
+            <bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
+                <constructor-arg value="notificationListener" />
+                <constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
+            </bean>
+        </property>
+        <property name="serviceBean" ref="notificationServiceImpl" />
+    </bean>
+
+    <!-- start service -->
+    <bean id="lcmServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+        init-method="create">
+        <property name="serviceClass"
+            value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager" />
+        <property name="address">
+            <bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
+                <constructor-arg value="lifecycleManager" />
+                <constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
+            </bean>
+        </property>
+        <property name="serviceBean" ref="lcmServiceImpl" />
+        <property name="inInterceptors">
+            <list>
+                <ref bean="XACMLPolicyEnforcementPoint" />
+            </list>
+        </property>
+    </bean>
+
+    <!-- start service -->
+    <bean id="validatorServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+        init-method="create">
+        <property name="serviceClass"
+            value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator" />
+        <property name="address">
+            <bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
+                <constructor-arg value="validator" />
+                <constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
+            </bean>
+        </property>
+        <property name="serviceBean" ref="validatorServiceImpl" />
+    </bean>
+
+    <!-- start service -->
+    <bean id="catalogerServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
+        init-method="create">
+        <property name="serviceClass"
+            value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger" />
+        <property name="address">
+            <bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
+                <constructor-arg value="cataloger" />
+                <constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
+            </bean>
+        </property>
+        <property name="serviceBean" ref="catalogerServiceImpl" />
+    </bean>
+
+</beans>
