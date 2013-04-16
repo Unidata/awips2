@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -77,6 +76,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * 2/9/2012     184         bphillip    Initial Coding
  * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
  * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
+ * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
  * </pre>
  * 
  * @author bphillip
@@ -89,11 +89,8 @@ public class DbInit implements ApplicationListener {
     private static volatile boolean INITIALIZED = false;
 
     /** The logger */
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbInit.class);
-
-    /** Query to check which tables exist in the ebxml database */
-    private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
     /** Constant used for table regeneration */
     private static final String DROP_TABLE = "drop table ";
@@ -113,8 +110,9 @@ public class DbInit implements ApplicationListener {
 
     private XACMLPolicyAdministrator xacmlAdmin;
 
-    public DbInit() {
+    private IEbxmlDatabaseValidationStrategy dbValidationStrategy;
 
+    public DbInit() {
     }
 
     /**
@@ -290,39 +288,7 @@ public class DbInit implements ApplicationListener {
      */
     private boolean isDbValid(AnnotationConfiguration aConfig)
             throws SQLException, EbxmlRegistryException {
-        statusHandler.info("Verifying RegRep database...");
-        final List<String> existingTables = new ArrayList<String>();
-        List<String> definedTables = new ArrayList<String>();
-        @SuppressWarnings("unchecked")
-        List<String> tables = (List<String>) sessionFactory.getCurrentSession()
-                .createSQLQuery(TABLE_CHECK_QUERY).list();
-        for (String table : tables) {
-            existingTables.add("ebxml." + table);
-        }
-
-        final String[] dropSqls = aConfig
-                .generateDropSchemaScript(((SessionFactoryImpl) sessionFactory)
-                        .getDialect());
-        for (String sql : dropSqls) {
-            if (sql.startsWith(DROP_TABLE)) {
-                // Drop the table names to all lower case since this is the form
-                // the database expects
-                definedTables.add(sql.replace(DROP_TABLE, "").toLowerCase());
-            }
-        }
-
-        // Check if the table set defined by Hibernate matches the table set
-        // defined in the database already
-        if (existingTables.size() <= definedTables.size()
-                && !existingTables.containsAll(definedTables)) {
-            for (String defined : definedTables) {
-                if (!existingTables.contains(defined)) {
-                    statusHandler.warn("MISSING TABLE: " + defined);
-                }
-            }
-            return false;
-        }
-        return true;
+        return dbValidationStrategy.isDbValid(aConfig, sessionFactory);
     }
 
     /**
@@ -351,9 +317,8 @@ public class DbInit implements ApplicationListener {
             statusHandler.info("Populating RegRep database from file: "
                     + fileList[i].getName());
 
-            SubmitObjectsRequest obj = null;
-            obj = (SubmitObjectsRequest) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(fileList[i]);
+            SubmitObjectsRequest obj = SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(SubmitObjectsRequest.class, fileList[i]);
 
             // Ensure an owner is assigned
             for (RegistryObjectType regObject : obj.getRegistryObjectList()
@@ -487,6 +452,7 @@ public class DbInit implements ApplicationListener {
         this.sessionFactory = sessionFactory;
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void onApplicationEvent(ApplicationEvent event) {
         if (!INITIALIZED) {
@@ -513,6 +479,22 @@ public class DbInit implements ApplicationListener {
 
     public void setXacmlAdmin(XACMLPolicyAdministrator xacmlAdmin) {
         this.xacmlAdmin = xacmlAdmin;
+    }
+
+    /**
+     * @return the dbValidationStrategy
+     */
+    public IEbxmlDatabaseValidationStrategy getDbValidationStrategy() {
+        return dbValidationStrategy;
+    }
+
+    /**
+     * @param dbValidationStrategy
+     *            the dbValidationStrategy to set
+     */
+    public void setDbValidationStrategy(
+            IEbxmlDatabaseValidationStrategy dbValidationStrategy) {
+        this.dbValidationStrategy = dbValidationStrategy;
     }
 
 }
