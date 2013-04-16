@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.personalities.awips;
+package com.raytheon.uf.viz.personalities.cave.workbench;
 
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -50,6 +50,7 @@ import org.eclipse.ui.views.IViewRegistry;
  * @version 1.0
  */
 
+@SuppressWarnings("restriction")
 public class CloseNonRestorableDetachedViewsListener implements Listener {
 
     /**
@@ -59,7 +60,6 @@ public class CloseNonRestorableDetachedViewsListener implements Listener {
     }
 
     @Override
-    @SuppressWarnings("restriction")
     public void handleEvent(Event event) {
         IViewRegistry reg = PlatformUI.getWorkbench().getViewRegistry();
         for (IWorkbenchWindow win : PlatformUI.getWorkbench()
