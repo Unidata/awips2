@@ -120,12 +120,6 @@
 				includes="it.*/**" />
 		</copy>
 		<!-- END: Copy The Plugins -->
-
-		<!-- copy required features that are not built -->
-		<copy todir="${basedir}/cave/p2/features">
-			<fileset dir="${workspace.dir}"
-				includes="com.raytheon.uf.viz.eclipse.feature/**" />
-		</copy>
 	</target>
 	
 	<!-- Cleans Up Any Temporary Directories -->
@@ -161,6 +155,10 @@
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.common.base.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.base.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -417,20 +415,6 @@
 				<delete includeemptydirs="true">
 					<fileset 
 						dir="${basedir}/cave/p2/features/com.raytheon.viz.feature.awips" 
-					/>
-				</delete>
-			</then>
-		</if>
-		
-		<!-- Remove 'com.raytheon.uf.viz.eclipse.feature' -->
-		<if>
-			<available 
-				file="${basedir}/cave/p2/features/com.raytheon.uf.viz.eclipse.feature" 
-				type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset 
-						dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.eclipse.feature" 
 					/>
 				</delete>
 			</then>
