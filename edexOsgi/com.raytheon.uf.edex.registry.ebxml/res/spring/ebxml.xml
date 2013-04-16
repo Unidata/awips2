@@ -1,128 +1,50 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
   http://www.springframework.org/schema/tx
   http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<bean id="ServiceUrlFactory"
-		class="com.raytheon.uf.edex.registry.ebxml.util.ServiceUrlFactory" />
-	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
-		<property name="lcm" ref="lcmServiceImpl" />
-		<property name="sessionFactory" ref="metadataSessionFactory" />
-		<property name="xacmlAdmin" ref="XACMLPolicyAdministrator" />
-	</bean>
+    <bean id="ServiceUrlFactory"
+        class="com.raytheon.uf.edex.registry.ebxml.util.ServiceUrlFactory" />
+    <bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
+        <property name="dbValidationStrategy" ref="ebxmlDbValidationStrategy" />
+        <property name="lcm" ref="lcmServiceImpl" />
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+        <property name="xacmlAdmin" ref="XACMLPolicyAdministrator" />
+    </bean>
 
-	<bean id="pwCallback"
-		class="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
+    <bean id="pwCallback"
+        class="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
 
-	<bean id="WsSecurity" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-		<constructor-arg>
-			<map>
-				<entry key="action" value="UsernameToken" />
-				<entry key="passwordType" value="PasswordText" />
-				<entry key="passwordCallbackRef">
-					<ref bean="pwCallback" />
-				</entry>
-			</map>
-		</constructor-arg>
-	</bean>
+    <bean id="WsSecurity" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+        <constructor-arg>
+            <map>
+                <entry key="action" value="UsernameToken" />
+                <entry key="passwordType" value="PasswordText" />
+                <entry key="passwordCallbackRef">
+                    <ref bean="pwCallback" />
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
 
-	<bean id="XACMLPolicyEnforcementPoint"
-		class="com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyEnforcementPoint">
-		<property name="xacmlContextHandler" ref="XACMLContextHandler" />
-	</bean>
+    <bean id="XACMLPolicyEnforcementPoint"
+        class="com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyEnforcementPoint">
+        <property name="xacmlContextHandler" ref="XACMLContextHandler" />
+    </bean>
 
-	<bean id="XACMLContextHandler"
-		class="com.raytheon.uf.edex.registry.acp.xacml.XACMLContextHandler">
-		<property name="queryManager" ref="queryServiceImpl" />
-		<property name="registryObjectDao" ref="registryObjectDao" />
-		<property name="xacmlPolicyAdmin" ref="XACMLPolicyAdministrator" />
-	</bean>
+    <bean id="XACMLContextHandler"
+        class="com.raytheon.uf.edex.registry.acp.xacml.XACMLContextHandler">
+        <property name="queryManager" ref="queryServiceImpl" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="xacmlPolicyAdmin" ref="XACMLPolicyAdministrator" />
+    </bean>
 
-	<bean id="XACMLPolicyAdministrator"
-		class="com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator">
-		<property name="extrinsicObjectDao" ref="extrinsicObjectDao" />
-		<property name="lcm" ref="lcmServiceImpl" />
-	</bean>
+    <bean id="XACMLPolicyAdministrator"
+        class="com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator">
+        <property name="extrinsicObjectDao" ref="extrinsicObjectDao" />
+        <property name="lcm" ref="lcmServiceImpl" />
+    </bean>
 
-	<!-- start service -->
-	<bean id="queryServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
-		init-method="create">
-		<property name="serviceClass"
-			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager" />
-		<property name="address">
-			<bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
-				<constructor-arg value="queryManager" />
-				<constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
-			</bean>
-		</property>
-		<property name="serviceBean" ref="queryServiceSoapImpl" />
-		<property name="inInterceptors">
-			<list>
-				<ref bean="XACMLPolicyEnforcementPoint" />
-			</list>
-		</property>
-	</bean>
-
-	<!-- start service -->
-	<bean id="notificationServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
-		init-method="create">
-		<property name="serviceClass"
-			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener" />
-		<property name="address">
-			<bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
-				<constructor-arg value="notificationListener" />
-				<constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
-			</bean>
-		</property>
-		<property name="serviceBean" ref="notificationServiceImpl" />
-	</bean>
-
-	<!-- start service -->
-	<bean id="lcmServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
-		init-method="create">
-		<property name="serviceClass"
-			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager" />
-		<property name="address">
-			<bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
-				<constructor-arg value="lifecycleManager" />
-				<constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
-			</bean>
-		</property>
-		<property name="serviceBean" ref="lcmServiceImpl" />
-		<property name="inInterceptors">
-			<list>
-				<ref bean="XACMLPolicyEnforcementPoint" />
-			</list>
-		</property>
-	</bean>
-
-	<!-- start service -->
-	<bean id="validatorServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
-		init-method="create">
-		<property name="serviceClass"
-			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator" />
-		<property name="address">
-			<bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
-				<constructor-arg value="validator" />
-				<constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
-			</bean>
-		</property>
-		<property name="serviceBean" ref="validatorServiceImpl" />
-	</bean>
-
-	<!-- start service -->
-	<bean id="catalogerServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
-		init-method="create">
-		<property name="serviceClass"
-			value="oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger" />
-		<property name="address">
-			<bean factory-bean="ServiceUrlFactory" factory-method="getServiceAddress">
-				<constructor-arg value="cataloger" />
-				<constructor-arg value="${EBXML_QUERY_SERVICE_SOAP_PORT}" />
-			</bean>
-		</property>
-		<property name="serviceBean" ref="catalogerServiceImpl" />
-	</bean>
 </beans>
