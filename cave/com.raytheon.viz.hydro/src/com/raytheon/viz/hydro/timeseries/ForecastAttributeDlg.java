@@ -45,7 +45,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * Dialog to insert forecast data attributes.
  * 
  * <pre>
  * 
@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2009            mpduff     Initial creation
+ * April 16, 2013 1790     rferrel     Make non-blocking dialog.
  * 
  * </pre>
  * 
@@ -89,16 +90,28 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
     /** Forecast data attribute data object */
     private ForecastDataAttribute fcstDataAtt = null;
 
+    /** List of listeners. */
     private ArrayList<ForecastDataAttributeListener> listenerList = new ArrayList<ForecastDataAttributeListener>();
 
+    /**
+     * Non-blocking constructor.
+     * 
+     * @param parentShell
+     * @param fcstDataAtt
+     */
     public ForecastAttributeDlg(Shell parentShell,
             ForecastDataAttribute fcstDataAtt) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(TITLE);
 
         this.fcstDataAtt = fcstDataAtt;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -108,6 +121,13 @@ public class ForecastAttributeDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
