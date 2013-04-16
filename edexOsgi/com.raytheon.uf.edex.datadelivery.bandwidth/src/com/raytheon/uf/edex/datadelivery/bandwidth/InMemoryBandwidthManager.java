@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Oct 30, 2012 1286       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     For now assume all in-memory bandwidth managers are WFOs.
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
+ * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
  * 
  * </pre>
  * 
@@ -91,6 +92,14 @@ class InMemoryBandwidthManager extends BandwidthManager {
                                 + "  This is a configuration error.");
                 return false;
             }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void executeAfterRegistryInit() {
+            // Nothing to do
         }
     }
 
