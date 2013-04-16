@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataRecordLoader.LoadTask;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
@@ -72,7 +73,15 @@ public class FFMPBasinData implements ISerializableObject {
     @DynamicSerializeElement
     private Map<Long, FFMPBasin> basins = new HashMap<Long, FFMPBasin>();
 
+    /**
+     * Pending load tasks that need to be run to fully populate basins
+     */
     private List<LoadTask> tasks = new ArrayList<LoadTask>();
+
+    /**
+     * Cache of basins in order for easy population from Load Tasks.
+     */
+    private Map<String, FFMPBasin[]> orderedBasinsCache = new HashMap<String, FFMPBasin[]>();
 
     /**
      * Public one arg constructor
@@ -107,10 +116,11 @@ public class FFMPBasinData implements ISerializableObject {
      * 
      * @param basins
      */
-    public void setBasins(HashMap<Long, FFMPBasin> basins) {
+    public void setBasins(Map<Long, FFMPBasin> basins) {
         if (!tasks.isEmpty()) {
             synchronized (tasks) {
                 tasks.clear();
+                orderedBasinsCache.clear();
             }
         }
         this.basins = basins;
@@ -581,13 +591,19 @@ public class FFMPBasinData implements ISerializableObject {
     }
 
     /**
-     * Add basins from datasetGroupPath in datastoreFile. The basins will not be
+     * Add basins some basins from a datastoreFile. The basins will not be
      * loaded immediately, they will be loaded when they are needed.
      * 
      * @param datastoreFile
      *            - the file containing data.
-     * @param datasetGroupPath
-     *            - the datasetGroupPath where the data is
+     * @param uri
+     *            - datauri of record to load
+     * @param siteKey
+     *            - siteKey to load
+     * @param cwa
+     *            - cwa to load
+     * @param huc
+     *            - huc to load
      * @param sourceName
      *            - the sourceName for the data.
      * @param date
@@ -596,60 +612,98 @@ public class FFMPBasinData implements ISerializableObject {
      *            - a collection of Longs which is in the same order as the data
      *            in the dataStore.
      * @param aggregate
-     *            -
      */
-    public void addBasins(File datastoreFile, String datasetGroupPath,
-            String sourceName, Date date, Collection<Long> orderedPfafs,
-            boolean aggregate) {
+    public void addBasins(File datastoreFile, String uri, String siteKey,
+            String cwa, String huc, String sourceName, Date date,
+            Collection<Long> orderedPfafs, boolean aggregate) {
+        SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                .getSource(sourceName);
+        boolean guidance = source.getSourceType().equals(
+                SOURCE_TYPE.GUIDANCE.getSourceType());
+        String basinsKey = siteKey + ' ' + cwa + ' ' + huc;
+        String datasetGroupPath = uri + DataStoreFactory.DEF_SEPARATOR + cwa
+                + DataStoreFactory.DEF_SEPARATOR + huc;
+
         synchronized (tasks) {
-            // clone orderedPfafs to protect from concurrency issues.
-            orderedPfafs = new ArrayList<Long>(orderedPfafs);
-            SourceXML source = FFMPSourceConfigurationManager.getInstance()
-                    .getSource(sourceName);
-            if (source.getSourceType().equals(
-                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            FFMPBasin[] basins = this.orderedBasinsCache.get(basinsKey);
+            if (basins == null) {
+                basins = new FFMPBasin[orderedPfafs.size()];
+                int j = 0;
+                for (Long pfaf : orderedPfafs) {
+                    FFMPBasin basin = this.basins.get(pfaf);
+                    if (basin == null) {
+                        if (guidance) {
+                            basin = new FFMPGuidanceBasin(pfaf, aggregate);
+                        } else {
+                            basin = new FFMPBasin(pfaf, aggregate);
+                        }
+                        this.basins.put(pfaf, basin);
+                    }
+                    basins[j++] = basin;
+                }
+                this.orderedBasinsCache.put(basinsKey, basins);
+            }
+            if (guidance) {
                 tasks.add(new LoadGuidanceMapTask(datastoreFile,
-                        datasetGroupPath, orderedPfafs, date, aggregate,
-                        sourceName));
+                        datasetGroupPath, basins, date, sourceName));
             } else {
                 tasks.add(new LoadMapTask(datastoreFile, datasetGroupPath,
-                        orderedPfafs, date, aggregate));
+                        basins, date));
             }
         }
     }
 
     /**
-     * Add virtual basins from datasetGroupPath in datastoreFile. The basins
-     * will not be loaded immediately, they will be loaded when they are needed.
+     * Add virtual basins from a datastoreFile. The basins will not be loaded
+     * immediately, they will be loaded when they are needed.
      * 
      * @param datastoreFile
      *            - the file containing data.
-     * @param datasetGroupPath
-     *            - the datasetGroupPath where the data is
+     * @param uri
+     *            - datauri of record to load
+     * @param dataKey
+     *            - dataKey to load
+     * @param cwa
+     *            - cwa to load
      * @param date
      *            - the date of the data.
      * @param orderedMetadata
      *            - a collection of FFMPVirtualGageBasinMetaData which is in the
      *            same order as the data in the dataStore.
      */
-    public void addVirtualBasins(File datastoreFile, String datasetGroupPath,
-            Date date, Collection<FFMPVirtualGageBasinMetaData> orderedMetadata) {
-        // clone ordered metadata to protect from concurrency issues.
+    public void addVirtualBasins(File datastoreFile, String uri,
+            String dataKey, String cwa, Date date,
+            Collection<FFMPVirtualGageBasinMetaData> orderedMetadata) {
+        String basinsKey = dataKey + ' ' + cwa;
+        String datasetGroupPath = uri + DataStoreFactory.DEF_SEPARATOR + cwa
+                + DataStoreFactory.DEF_SEPARATOR + FFMPRecord.ALL;
         synchronized (tasks) {
-            orderedMetadata = new ArrayList<FFMPVirtualGageBasinMetaData>(
-                    orderedMetadata);
+            FFMPBasin[] basins = this.orderedBasinsCache.get(basinsKey);
+            if (basins == null) {
+                basins = new FFMPBasin[orderedMetadata.size()];
+                int j = 0;
+                for (FFMPVirtualGageBasinMetaData fvgbmd : orderedMetadata) {
+                    FFMPBasin basin = this.basins.get(fvgbmd.getLookupId());
+                    if (basin == null) {
+                        basin = new FFMPVirtualGageBasin(fvgbmd.getLid(),
+                                fvgbmd.getLookupId(), false);
+                        this.basins.put(fvgbmd.getLookupId(), basin);
+                    }
+                    basins[j++] = basin;
+                }
+                this.orderedBasinsCache.put(basinsKey, basins);
+            }
             tasks.add(new LoadVirtualMapTask(datastoreFile, datasetGroupPath,
-                    date, orderedMetadata));
+                    basins, date));
         }
     }
 
     public void loadNow() {
         synchronized (tasks) {
             if (!tasks.isEmpty()) {
-                System.out.println("Loading tasks: " + tasks.size() + " "
-                        + this);
                 FFMPDataRecordLoader.loadRecords(tasks);
                 tasks.clear();
+                orderedBasinsCache.clear();
             }
         }
     }
@@ -659,43 +713,36 @@ public class FFMPBasinData implements ISerializableObject {
      */
     private class LoadMapTask extends LoadTask {
 
-        protected final Collection<Long> orderedPfafs;
+        protected final FFMPBasin[] basins;
 
         protected final Date date;
 
-        protected final boolean aggregate;
-
         public LoadMapTask(File datastoreFile, String datasetGroupPath,
-                Collection<Long> orderedPfafs, Date date, boolean aggregate) {
+                FFMPBasin[] basins, Date date) {
             super(datastoreFile, datasetGroupPath);
-            this.orderedPfafs = orderedPfafs;
+            this.basins = basins;
             this.date = date;
-            this.aggregate = aggregate;
         }
 
         @Override
         public void process(FloatDataRecord record) {
             float[] values = record.getFloatData();
-            int j = 0;
-            for (Long pfaf : orderedPfafs) {
-                FFMPBasin basin = basins.get(pfaf);
-                if (basin == null) {
-                    basin = new FFMPBasin(pfaf, aggregate);
-                    basins.put(pfaf, basin);
-                }
+            for (int j = 0; j < values.length; j += 1) {
+                applyValue(basins[j], values[j]);
+            }
+        }
 
-                if (basin.contains(date)) {
-                    float curval = basin.getValue(date);
-                    if (curval >= 0.0f && values[j] >= 0.0f) {
-                        basin.setValue(date, (curval + values[j]) / 2);
-                    } else if (values[j] >= 0.0f) {
-                        basin.setValue(date, values[j]);
-                    } // do not overwrite original value
-                } else {
-                    // no value at time exists, write regardless
-                    basin.setValue(date, values[j]);
-                }
-                j++;
+        protected void applyValue(FFMPBasin basin, float value) {
+            if (basin.contains(date)) {
+                float curval = basin.getValue(date);
+                if (curval >= 0.0f && value >= 0.0f) {
+                    basin.setValue(date, (curval + value) / 2);
+                } else if (value >= 0.0f) {
+                    basin.setValue(date, value);
+                } // do not overwrite original value
+            } else {
+                // no value at time exists, write regardless
+                basin.setValue(date, value);
             }
         }
     }
@@ -708,41 +755,27 @@ public class FFMPBasinData implements ISerializableObject {
         private final String sourceName;
 
         public LoadGuidanceMapTask(File datastoreFile, String datasetGroupPath,
-                Collection<Long> orderedPfafs, Date date, boolean aggregate,
-                String sourceName) {
-            super(datastoreFile, datasetGroupPath, orderedPfafs, date,
-                    aggregate);
+                FFMPBasin[] basins, Date date, String sourceName) {
+            super(datastoreFile, datasetGroupPath, basins, date);
             this.sourceName = sourceName;
         }
 
         @Override
-        public void process(FloatDataRecord record) {
-            float[] values = record.getFloatData();
-            int j = 0;
-            for (Long pfaf : orderedPfafs) {
-                FFMPGuidanceBasin basin = (FFMPGuidanceBasin) basins.get(pfaf);
+        protected void applyValue(FFMPBasin basin, float value) {
+            FFMPGuidanceBasin gBasin = (FFMPGuidanceBasin) basin;
 
-                if (basin == null) {
-                    basin = new FFMPGuidanceBasin(pfaf, aggregate);
-                    basins.put(pfaf, basin);
+            Float curval = gBasin.getValue(date, sourceName);
+
+            if (curval != FFMPUtils.MISSING || !curval.isNaN()) {
+
+                if (curval >= 0.0f && value >= 0.0f) {
+                    gBasin.setValue(sourceName, date, (curval + value) / 2);
+                } else if (value >= 0.0f) {
+                    gBasin.setValue(sourceName, date, value);
                 }
-
-                Float curval = basin.getValue(date, sourceName);
-
-                if (curval != FFMPUtils.MISSING || !curval.isNaN()) {
-
-                    if (curval >= 0.0f && values[j] >= 0.0f) {
-                        basin.setValue(sourceName, date,
-                                (curval + values[j]) / 2);
-                    } else if (values[j] >= 0.0f) {
-                        basin.setValue(sourceName, date, values[j]);
-                    }
-                    // do not overwrite original value
-                } else {
-                    basin.setValue(sourceName, date, values[j]);
-                }
-
-                j++;
+                // do not overwrite original value
+            } else {
+                gBasin.setValue(sourceName, date, value);
             }
         }
 
@@ -751,39 +784,16 @@ public class FFMPBasinData implements ISerializableObject {
     /**
      * Task for loading data from a dataRecord into FFMPVirtualGageBasins
      */
-    private class LoadVirtualMapTask extends LoadTask {
-
-        protected final Date date;
-
-        protected final Collection<FFMPVirtualGageBasinMetaData> orderedMetadata;
+    private class LoadVirtualMapTask extends LoadMapTask {
 
         public LoadVirtualMapTask(File datastoreFile, String datasetGroupPath,
-                Date date,
-                Collection<FFMPVirtualGageBasinMetaData> orderedMetadata) {
-            super(datastoreFile, datasetGroupPath);
-            this.date = date;
-            this.orderedMetadata = orderedMetadata;
+                FFMPBasin[] basins, Date date) {
+            super(datastoreFile, datasetGroupPath, basins, date);
         }
 
         @Override
-        public void process(FloatDataRecord record) {
-            boolean aggregate = false;
-            float[] values = record.getFloatData();
-            if (values != null) {
-                int j = 0;
-
-                for (FFMPVirtualGageBasinMetaData fvgbmd : orderedMetadata) {
-                    FFMPVirtualGageBasin vgbasin = (FFMPVirtualGageBasin) basins
-                            .get(fvgbmd.getLookupId());
-                    if (vgbasin == null) {
-                        vgbasin = new FFMPVirtualGageBasin(fvgbmd.getLid(),
-                                fvgbmd.getLookupId(), aggregate);
-                        basins.put(fvgbmd.getLookupId(), vgbasin);
-                    }
-                    vgbasin.setValue(date, values[j]);
-                    j++;
-                }
-            }
+        protected void applyValue(FFMPBasin basin, float value) {
+            basin.setValue(date, value);
         }
 
     }
