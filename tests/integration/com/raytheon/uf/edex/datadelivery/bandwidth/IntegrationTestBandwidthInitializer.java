@@ -32,6 +32,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializ
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2012 0726       djohnson     Initial creation
+ * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
  * 
  * </pre>
  * 
@@ -48,6 +49,14 @@ public class IntegrationTestBandwidthInitializer implements
     @Override
     public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit) {
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void executeAfterRegistryInit() {
+        // Nothing to do
     }
 
 }
