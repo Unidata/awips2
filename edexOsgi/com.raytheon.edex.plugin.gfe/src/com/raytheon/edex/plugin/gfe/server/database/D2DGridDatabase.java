@@ -23,7 +23,6 @@ package com.raytheon.edex.plugin.gfe.server.database;
 import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -46,6 +45,7 @@ import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
 import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.util.GridTranslator;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
@@ -65,6 +65,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -101,7 +102,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      data instead of full grid. Added logging to support
  *                                      GFE performance testing
  * 03/19/2013   #1774       randerso    Fix accumulative grid time ranges
- * Apr 01, 2013 #1774       randerso    Moved wind component checking to GfeIngestNotificaionFilter
+ * 04/04/2013   #1774       randerso    Moved wind component checking to GfeIngestNotificaionFilter
+ * 04/04/2013   #1787       randerso    Move the D2D to GFE translation logic out of GFED2DDao
  * 
  * </pre>
  * 
@@ -167,8 +169,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         try {
             GFED2DDao dao = new GFED2DDao();
-            List<Date> result = dao.getD2DModelRunTimes(d2dModelName,
-                    maxRecords);
+            List<Date> result = dao.getModelRunTimes(d2dModelName, maxRecords);
 
             List<DatabaseID> dbInventory = new ArrayList<DatabaseID>();
             for (Date date : result) {
@@ -209,6 +210,8 @@ public class D2DGridDatabase extends VGridDatabase {
 
         private String[] components;
 
+        private Level level;
+
         public D2DParm(ParmID parmId, GridParmInfo gpi,
                 Map<Integer, TimeRange> fcstHrToTimeRange, String... components) {
             this.parmId = parmId;
@@ -222,6 +225,8 @@ public class D2DGridDatabase extends VGridDatabase {
             for (Entry<Integer, TimeRange> entry : fcstHrToTimeRange.entrySet()) {
                 this.timeRangeToFcstHr.put(entry.getValue(), entry.getKey());
             }
+
+            this.level = getD2DLevel(parmId.getParmLevel());
         }
 
         public ParmID getParmId() {
@@ -244,6 +249,10 @@ public class D2DGridDatabase extends VGridDatabase {
             return components;
         }
 
+        public Level getLevel() {
+            return level;
+        }
+
         @Override
         public String toString() {
             return this.parmId.toString();
@@ -252,7 +261,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
     private String d2dModelName;
 
-    private Date modelTime;
+    private Date refTime;
 
     private GridParamInfo modelInfo;
 
@@ -275,20 +284,20 @@ public class D2DGridDatabase extends VGridDatabase {
      *            The database ID of this database
      */
     public D2DGridDatabase(IFPServerConfig config, String d2dModelName,
-            Date modelTime) throws GfeException {
+            Date refTime) throws GfeException {
         super(config);
 
         this.d2dModelName = d2dModelName;
-        this.modelTime = modelTime;
+        this.refTime = refTime;
         this.modelInfo = GridParamInfoLookup.getInstance().getGridParamInfo(
                 d2dModelName);
         if (modelInfo == null) {
             throw new GfeException("No model info for: " + d2dModelName);
         }
-        this.availableTimes = modelInfo.getAvailableTimes(modelTime);
+        this.availableTimes = modelInfo.getAvailableTimes(refTime);
 
         // Get the database id for this database.
-        this.dbId = getDbId(this.d2dModelName, this.modelTime, this.config);
+        this.dbId = getDbId(this.d2dModelName, this.refTime, this.config);
         this.valid = this.dbId.isValid();
 
         // get the output gloc'
@@ -409,8 +418,10 @@ public class D2DGridDatabase extends VGridDatabase {
             }
         }
 
+        String d2dParmName = getD2DParmName(atts.getShort_name());
+
         D2DParm d2dParm = new D2DParm(pid, gpi, possibleInventorySlots,
-                atts.getShort_name());
+                d2dParmName);
         this.gfeParms.put(pid, d2dParm);
         this.d2dParms.put(compositeName(atts.getShort_name(), level), d2dParm);
     }
@@ -450,8 +461,11 @@ public class D2DGridDatabase extends VGridDatabase {
                     availableTimes.get(i));
         }
 
+        String uD2dParmName = getD2DParmName(uatts.getShort_name());
+        String vD2dParmName = getD2DParmName(vatts.getShort_name());
+
         D2DParm d2dParm = new D2DParm(pid, gpi, possibleInventorySlots,
-                uatts.getShort_name(), vatts.getShort_name());
+                uD2dParmName, vD2dParmName);
         this.gfeParms.put(pid, d2dParm);
         this.d2dParms.put(compositeName(uatts.getShort_name(), level), d2dParm);
         this.d2dParms.put(compositeName(vatts.getShort_name(), level), d2dParm);
@@ -514,10 +528,8 @@ public class D2DGridDatabase extends VGridDatabase {
 
                 // get database inventory where all components are available
                 for (String component : parm.getComponents()) {
-                    ParmID compPid = new ParmID(component, dbId,
-                            id.getParmLevel());
-                    List<Integer> compInv = dao
-                            .queryFcstHourByD2DParmId(compPid);
+                    List<Integer> compInv = dao.queryFcstHourByParmId(
+                            d2dModelName, refTime, component, parm.getLevel());
 
                     if (dbInv == null) {
                         dbInv = compInv;
@@ -828,17 +840,18 @@ public class D2DGridDatabase extends VGridDatabase {
 
         try {
             // Gets the metadata from the grib metadata database
+            D2DParm parm = this.gfeParms.get(parmId);
             Integer fcstHr = null;
             if (!GridPathProvider.STATIC_PARAMETERS.contains(parmId
                     .getParmName())) {
-                D2DParm parm = this.gfeParms.get(parmId);
                 fcstHr = parm.getTimeRangeToFcstHr().get(timeRange);
                 if (fcstHr == null) {
                     throw new GfeException("Invalid time range " + timeRange
                             + " for " + parmId);
                 }
             }
-            d2dRecord = dao.getD2DGrid(parmId, fcstHr, gpi);
+            d2dRecord = dao.getGrid(d2dModelName, refTime,
+                    parm.getComponents()[0], parm.getLevel(), fcstHr, gpi);
         } catch (DataAccessLayerException e) {
             throw new GfeException(
                     "Error retrieving D2D Grid record from database", e);
@@ -955,21 +968,18 @@ public class D2DGridDatabase extends VGridDatabase {
                     + parmId);
         }
 
-        String mappedModel = config.d2dModelNameMapping(dbId.getModelName());
-
-        if (windParm.getComponents()[0].equals("uw")) {
+        // TODO clean up the hard coded d2d parm names
+        if (windParm.getComponents()[0].equals("uW")) {
             try {
                 GridRecord uRecord = null;
                 GridRecord vRecord = null;
 
                 // Get the metadata from the grib metadata database
 
-                uRecord = dao.getD2DGrid(
-                        new ParmID("uw", this.dbId, parmId.getParmLevel()),
-                        fcstHr, gpi);
-                vRecord = dao.getD2DGrid(
-                        new ParmID("vw", this.dbId, parmId.getParmLevel()),
-                        fcstHr, gpi);
+                uRecord = dao.getGrid(d2dModelName, refTime, "uW",
+                        windParm.getLevel(), fcstHr, gpi);
+                vRecord = dao.getGrid(d2dModelName, refTime, "vW",
+                        windParm.getLevel(), fcstHr, gpi);
 
                 // Gets the raw grid data from the D2D grib HDF5 files
                 Grid2DFloat uData = getRawGridData(uRecord);
@@ -977,8 +987,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
                 // Resample the data to fit the desired region
                 float fillV = Float.MAX_VALUE;
-                ParameterInfo pa = GridParamInfoLookup.getInstance()
-                        .getParameterInfo(mappedModel, "uw");
+                ParameterInfo pa = modelInfo.getParameterInfo("uw");
                 if (pa != null) {
                     fillV = pa.getFillValue();
                 }
@@ -1003,12 +1012,10 @@ public class D2DGridDatabase extends VGridDatabase {
                 GridRecord dRecord = null;
 
                 // Get the metadata from the grib metadata database
-                sRecord = dao.getD2DGrid(
-                        new ParmID("ws", this.dbId, parmId.getParmLevel()),
-                        fcstHr, gpi);
-                dRecord = dao.getD2DGrid(
-                        new ParmID("wd", this.dbId, parmId.getParmLevel()),
-                        fcstHr, gpi);
+                sRecord = dao.getGrid(d2dModelName, refTime, "WS",
+                        windParm.getLevel(), fcstHr, gpi);
+                dRecord = dao.getGrid(d2dModelName, refTime, "WD",
+                        windParm.getLevel(), fcstHr, gpi);
 
                 // Gets the raw grid data from the D2D grib HDF5 files
                 Grid2DFloat sData = getRawGridData(sRecord);
@@ -1016,8 +1023,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
                 // Resample the data to fit the desired region
                 float fillV = Float.MAX_VALUE;
-                ParameterInfo pa = GridParamInfoLookup.getInstance()
-                        .getParameterInfo(mappedModel, "ws");
+                ParameterInfo pa = modelInfo.getParameterInfo("ws");
                 if (pa != null) {
                     fillV = pa.getFillValue();
                 }
@@ -1153,14 +1159,11 @@ public class D2DGridDatabase extends VGridDatabase {
             throw new GfeException("Unable to get GFE dao!!", e);
         }
 
-        List<Integer> fcstTimes = dao.getD2DForecastTimes(dbId);
+        List<Integer> fcstTimes = dao.getForecastTimes(d2dModelName, refTime);
         SortedSet<Date> validTimes = new TreeSet<Date>();
-        Calendar validTimeCalc = Calendar.getInstance();
-        Date refTime = dbId.getModelTimeAsDate();
         for (Integer fcstTime : fcstTimes) {
-            validTimeCalc.setTime(refTime);
-            validTimeCalc.add(Calendar.SECOND, fcstTime.intValue());
-            validTimes.add(validTimeCalc.getTime());
+            validTimes.add(new Date(refTime.getTime() + fcstTime
+                    * TimeUtil.MILLIS_PER_SECOND));
         }
         return validTimes;
     }
@@ -1214,6 +1217,18 @@ public class D2DGridDatabase extends VGridDatabase {
         return gfeParmName;
     }
 
+    public String getD2DParmName(String gfeParmName) {
+        String d2dParmName = null;
+        try {
+            d2dParmName = ParameterMapper.getInstance().lookupBaseName(
+                    gfeParmName, "gfeParamName");
+        } catch (MultipleMappingException e) {
+            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            d2dParmName = e.getArbitraryMapping();
+        }
+        return d2dParmName;
+    }
+
     public TimeRange getTimeRange(ParmID parmID, Integer fcstHour) {
         D2DParm parm = this.gfeParms.get(parmID);
         if (parm == null) {
@@ -1226,5 +1241,35 @@ public class D2DGridDatabase extends VGridDatabase {
 
     private String compositeName(String parmName, String level) {
         return parmName + "_" + level;
+    }
+
+    private static Level getD2DLevel(String gfeLevel) {
+        String levelName = GridTranslator.getLevelName(gfeLevel);
+
+        double[] levelValues = GridTranslator.getLevelValue(gfeLevel);
+        boolean levelOnePresent = (levelValues[0] != Level
+                .getInvalidLevelValue());
+        boolean levelTwoPresent = (levelValues[1] != Level
+                .getInvalidLevelValue());
+        Level level = null;
+
+        // to have a level 2, must have a level one
+        try {
+            if (levelOnePresent && levelTwoPresent) {
+                level = LevelFactory.getInstance().getLevel(levelName,
+                        levelValues[0], levelValues[1]);
+            } else if (levelOnePresent) {
+                level = LevelFactory.getInstance().getLevel(levelName,
+                        levelValues[0]);
+            } else {
+                level = LevelFactory.getInstance().getLevel(levelName, 0.0);
+            }
+        } catch (CommunicationException e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+        }
+        if (level == null) {
+            statusHandler.warn(gfeLevel + " does not map to a D2D level");
+        }
+        return level;
     }
 }
