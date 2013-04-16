@@ -131,6 +131,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * 05/09/2011   9151	   lbousaid     open Modify Location window on double click
  * 04/16/2013   1790        rferrel     Changes for non-blocking AddModifyLocationDlg.
+ *                                      Changes for non-blocking AdministrationDlg.
  * 
  * </pre>
  * 
@@ -152,6 +153,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow only one dialog per location.
      */
     private final Map<String, AddModifyLocationDlg> modLocDlgMap = new HashMap<String, AddModifyLocationDlg>();
+
+    /**
+     * Administration information dialog.
+     */
+    private AdministrationDlg adminDlg;
 
     /**
      * Flood category menu item.
@@ -923,8 +929,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         adminMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                AdministrationDlg adminDlg = new AdministrationDlg(shell);
-                adminDlg.open();
+                if (adminDlg == null || adminDlg.isDisposed()) {
+                    adminDlg = new AdministrationDlg(shell);
+                    adminDlg.open();
+                } else {
+                    adminDlg.bringToTop();
+                }
             }
         });
 
