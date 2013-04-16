@@ -29,7 +29,7 @@ import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientCachePreference
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientConnectionPreferences;
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientPreferencePage;
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientServerPreferences;
-import com.raytheon.viz.ui.personalities.awips.VizWorkbenchAdvisor;
+import com.raytheon.viz.ui.personalities.awips.AWIPSWorkbenchAdvisor;
 
 /**
  * Thin Client workbench advisor, adds the thin client preference page
@@ -49,7 +49,7 @@ import com.raytheon.viz.ui.personalities.awips.VizWorkbenchAdvisor;
  * @version 1.0
  */
 
-public class ThinClientWorkbenchAdvisor extends VizWorkbenchAdvisor {
+public class ThinClientWorkbenchAdvisor extends AWIPSWorkbenchAdvisor {
 
     /*
      * (non-Javadoc)
