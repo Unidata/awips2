@@ -201,10 +201,18 @@ public class HttpClient {
                     public void process(final HttpRequest request,
                             final HttpContext context) throws HttpException,
                             IOException {
-                        if (request.getFirstHeader("Content-Length") != null) {
-                            logBytes(
-                                    Long.valueOf(request.getFirstHeader(
-                                            "Content-Length").getValue()), 0);
+                        try {
+                            if (request != null
+                                    && request.getFirstHeader("Content-Length") != null) {
+                                logBytes(
+                                        Long.valueOf(request.getFirstHeader(
+                                                "Content-Length").getValue()),
+                                        0);
+                            }
+                        } catch (Throwable t) {
+                            statusHandler.handle(Priority.DEBUG,
+                                    "Error in httpClient request interceptor",
+                                    t);
                         }
                     }
                 });
@@ -214,7 +222,18 @@ public class HttpClient {
                     public void process(final HttpResponse response,
                             final HttpContext context) throws HttpException,
                             IOException {
-                        logBytes(0, response.getEntity().getContentLength());
+                        try {
+                            if (response != null
+                                    && response.getEntity() != null) {
+                                logBytes(0, response.getEntity()
+                                        .getContentLength());
+                            }
+                        } catch (Throwable t) {
+                            statusHandler
+                                    .handle(Priority.DEBUG,
+                                            "Error in httpsClient response interceptor",
+                                            t);
+                        }
                     }
                 });
 
@@ -280,10 +299,16 @@ public class HttpClient {
                 public void process(final HttpRequest request,
                         final HttpContext context) throws HttpException,
                         IOException {
-                    if (request.getFirstHeader("Content-Length") != null) {
-                        logBytes(
-                                Long.valueOf(request.getFirstHeader(
-                                        "Content-Length").getValue()), 0);
+                    try {
+                        if (request != null
+                                && request.getFirstHeader("Content-Length") != null) {
+                            logBytes(
+                                    Long.valueOf(request.getFirstHeader(
+                                            "Content-Length").getValue()), 0);
+                        }
+                    } catch (Throwable t) {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Error in httpClient request interceptor", t);
                     }
                 }
             });
@@ -293,7 +318,14 @@ public class HttpClient {
                 public void process(final HttpResponse response,
                         final HttpContext context) throws HttpException,
                         IOException {
-                    logBytes(0, response.getEntity().getContentLength());
+                    try {
+                        if (response != null && response.getEntity() != null) {
+                            logBytes(0, response.getEntity().getContentLength());
+                        }
+                    } catch (Throwable t) {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Error in httpClient response interceptor", t);
+                    }
                 }
             });
 
