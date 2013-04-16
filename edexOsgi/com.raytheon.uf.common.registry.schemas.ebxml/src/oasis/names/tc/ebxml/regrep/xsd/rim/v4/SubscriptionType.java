@@ -95,7 +95,7 @@ public class SubscriptionType extends RegistryObjectType {
     @DynamicSerializeElement
     protected QueryType selector;
 
-    @Column(columnDefinition = "timestamp without timezone default now()")
+    @Column
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.XMLGregorianCalendarType")
     @XmlAttribute
     @XmlSchemaType(name = "dateTime")
