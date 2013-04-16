@@ -14,6 +14,7 @@
             <list>
                 <value>com.raytheon.uf.edex.datadelivery.bandwidth.dao</value>
                 <value>com.raytheon.uf.edex.datadelivery.retrieval.db</value>
+                <value>oasis.names.tc.ebxml.regrep.xsd.rim.v4</value>
             </list>
         </property>
         <property name="configLocation">
@@ -21,7 +22,7 @@
         </property>
     </bean>
 
-    <tx:annotation-driven transaction-manager="metadataTxManager" />
+    <tx:annotation-driven transaction-manager="metadataTxManager" proxy-target-class="true" />
 
     <bean id="metadataTxManager"
         class="org.springframework.orm.hibernate3.HibernateTransactionManager">
