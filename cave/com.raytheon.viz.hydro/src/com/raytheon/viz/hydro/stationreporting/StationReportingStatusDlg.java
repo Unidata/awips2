@@ -32,7 +32,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -50,8 +49,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.hydro.stationreporting.StationReportingConstants.SortOrder;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -64,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation.
  * 21 Feb 2010  2915       mpduff      Fixed Time Zone problem.
  * 23 Feb 2010  4303       mpduff      Changed the &quot;missing&quot; date display to be N/A.
+ * 16 Apr 2013  1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -72,6 +77,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class StationReportingStatusDlg extends CaveSWTDialog {
+    /**
+     * Message handler.
+     */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StationReportingStatusDlg.class);
 
     /**
      * Font used with the list controls.
@@ -89,19 +99,22 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
     private Spinner hoursAgoSpnr;
 
     /**
-     * Sort combo box.
+     * Sort order for stations combo box.
      */
     private Combo sortCbo;
 
+    /**
+     * Maximum number of stations to display.
+     */
     private Combo maxCbo;
 
     /**
-     * Data list control.
+     * List to display selected stations data.
      */
     private List dataList;
 
     /**
-     * Latest data list control.
+     * List to display station records.
      */
     private List latestDataList;
 
@@ -125,15 +138,25 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
      */
     private Text minutesStartDataTF;
 
+    /**
+     * latest stations being displayed.
+     */
     private ArrayList<StationReportingData> latestObs;
 
+    /**
+     * Job to update the time field.
+     */
     private CurrentTimeUpdateJob timeUpdateJob = new CurrentTimeUpdateJob();
 
-    ArrayList<StationReportingData> currObs = new ArrayList<StationReportingData>();
-
+    /**
+     * System busy cursor.
+     */
     private Cursor waitCursor = null;
 
-    private Cursor arrowCursor = null;
+    /**
+     * Job to obtain station record's off the UI thread.
+     */
+    private LoadRecordsJob loadRecordsJob = new LoadRecordsJob();
 
     /**
      * Dialog font.
@@ -147,10 +170,15 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public StationReportingStatusDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Station Reporting Status");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -160,19 +188,30 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
 
         font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
 
-        waitCursor = new Cursor(getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(getDisplay(), SWT.CURSOR_ARROW);
+        waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 
         // Initialize all of the controls and layouts
         initializeComponents();
@@ -193,10 +232,22 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         createTopDataListControl();
         createLatestListDataGroup();
         createBottonButton();
-        loadRecords(true);
-
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        scheduleLoadRecords();
+    }
+
+    /**
+     * Update current time text field to current simulated time.
+     */
     private void updateTime() {
         TimeZone GMT = TimeZone.getTimeZone("GMT");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -233,7 +284,7 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
                 } else {
                     hoursAgoSpnr.setEnabled(false);
                 }
-                loadRecords(true);
+                scheduleLoadRecords();
             }
         });
 
@@ -253,7 +304,7 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         hoursAgoSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                loadRecords(true);
+                scheduleLoadRecords();
             }
         });
 
@@ -271,36 +322,24 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         sortCbo.add("Location");
         sortCbo.add("Time");
         sortCbo.select(0);
-        sortCbo.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-
-            }
+        sortCbo.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                loadRecords(true);
+                scheduleLoadRecords();
             }
         });
 
         Label maxLbl = new Label(topComp, SWT.NONE);
         maxLbl.setText("Max # of Obs");
         maxCbo = new Combo(topComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        maxCbo.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-
-            }
-
+        maxCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                loadRecords(false);
+                loadRecords();
             }
         });
+
         maxCbo.add("100");
         maxCbo.add("50");
         maxCbo.add("10");
@@ -322,26 +361,6 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         locationLbl.setFont(controlFont);
         locationLbl.setText(getLblText());
         locationLbl.setLayoutData(gd);
-
-        // GridData gd = new GridData(80, SWT.DEFAULT);
-        // Label locationLbl = new Label(labelComp, SWT.NONE);
-        // locationLbl.setText("Location");
-        // locationLbl.setLayoutData(gd);
-        //
-        // gd = new GridData(200, SWT.DEFAULT);
-        // Label nameLbl = new Label(labelComp, SWT.NONE);
-        // nameLbl.setText("Name");
-        // nameLbl.setLayoutData(gd);
-        //
-        // gd = new GridData(220, SWT.DEFAULT);
-        // Label obsTimeLbl = new Label(labelComp, SWT.NONE);
-        // obsTimeLbl.setText("Observation TimeZ");
-        // obsTimeLbl.setLayoutData(gd);
-        //
-        // gd = new GridData(220, SWT.DEFAULT);
-        // Label latestDataLbl = new Label(labelComp, SWT.NONE);
-        // latestDataLbl.setText("Latest Data Posted TimeZ");
-        // latestDataLbl.setLayoutData(gd);
     }
 
     /**
@@ -490,11 +509,17 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Get the integer value associated with the current seleciton of the max
+     * combo.
+     * 
+     * @return value
+     */
     private int getMaxCount() {
         if (maxCbo.getSelectionIndex() == 3) { // ALL
             return -1;
@@ -503,6 +528,11 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Get the list type associated with list combo current selection.
+     * 
+     * @return type
+     */
     private StationReportingConstants.ListType getListType() {
         if (listCbo.getSelectionIndex() == 1) {
             return StationReportingConstants.ListType.DURATION;
@@ -512,6 +542,12 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         return StationReportingConstants.ListType.ALL;
     }
 
+    /**
+     * Determine the sort order associated with the current sort combo
+     * selection.
+     * 
+     * @return sortOrder
+     */
     private StationReportingConstants.SortOrder getSortOrder() {
         if (sortCbo.getSelectionIndex() == 0) {
             return StationReportingConstants.SortOrder.LOCATION;
@@ -520,72 +556,66 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         }
     }
 
-    private void loadRecords(boolean getData) {
-        try {
-            StationReportingDataManager dataManager = StationReportingDataManager
-                    .getInstance();
-
-            if (getData) {
-                latestDataList.removeAll();
-
-                /* Set the wait cursor */
-                shell.setCursor(waitCursor);
-                currObs = dataManager.getStationReportingData(getListType(),
-                        getSortOrder(),
-                        StationReportingConstants.Duration.DEFAULT,
-                        hoursAgoSpnr.getSelection());
-
-                if (currObs.isEmpty()) {
-                    String showErrorMsg = "No latest obs found. ";
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING
-                            | SWT.OK | SWT.CANCEL);
-                    mb.setText("No Records Found.");
-                    mb.setMessage(showErrorMsg);
-
-                    return;
-                }
-            }
-            latestObs = currObs;
-            dataList.removeAll();
-            int count = 0;
-            int maxCount = getMaxCount();
-
-            // Create a calendar object and set to '2001-01-01 00:00:00.00
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.set(2001, 0, 1, 0, 0, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-
-            for (StationReportingData currLIDData : latestObs) {
-                if ((maxCount == -1) || (count < getMaxCount())) {
-                    String lid = currLIDData.getLid();
-                    String name = currLIDData.getName();
-                    String obsTime = null;
-                    String postTime = null;
-
-                    if (currLIDData.getPostingtime().equals(cal.getTime())) {
-                        obsTime = "      N/A";
-                        postTime = "         N/A";
-                    } else {
-                        obsTime = StationReportingData
-                                .formatDBTimestamp(currLIDData.getObstime());
-                        postTime = StationReportingData
-                                .formatDBTimestamp(currLIDData.getPostingtime());
-                    }
-
-                    String entry = String.format("%-9s %-24.24s %-27s %-19s",
-                            lid, name, obsTime, postTime);
-
-                    dataList.add(entry);
-                    count++;
-                }
-            }
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        shell.setCursor(arrowCursor);
+    /**
+     * Retrieve station records off the UI thread.
+     */
+    private void scheduleLoadRecords() {
+        loadRecordsJob.listType = getListType();
+        loadRecordsJob.order = getSortOrder();
+        loadRecordsJob.hoursAgo = hoursAgoSpnr.getSelection();
+        setBusy(true);
+        latestDataList.removeAll();
+        dataList.removeAll();
+        loadRecordsJob.schedule();
     }
 
+    /**
+     * Display station records based on latest obs.
+     * 
+     */
+    private void loadRecords() {
+        latestDataList.removeAll();
+        dataList.removeAll();
+        int count = 0;
+        int maxCount = getMaxCount();
+
+        // Create a calendar object and set to '2001-01-01 00:00:00.00
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(2001, 0, 1, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        for (StationReportingData currLIDData : latestObs) {
+            if ((maxCount == -1) || (count < getMaxCount())) {
+                String lid = currLIDData.getLid();
+                String name = currLIDData.getName();
+                String obsTime = null;
+                String postTime = null;
+
+                if (currLIDData.getPostingtime().equals(cal.getTime())) {
+                    obsTime = "      N/A";
+                    postTime = "         N/A";
+                } else {
+                    obsTime = StationReportingData
+                            .formatDBTimestamp(currLIDData.getObstime());
+                    postTime = StationReportingData
+                            .formatDBTimestamp(currLIDData.getPostingtime());
+                }
+
+                String entry = String.format("%-9s %-24.24s %-27s %-19s", lid,
+                        name, obsTime, postTime);
+
+                dataList.add(entry);
+                count++;
+            }
+        }
+        setBusy(false);
+    }
+
+    /**
+     * Display data for the selected station record.
+     * 
+     * @param index
+     */
     private void updateLatestDataList(int index) {
         latestDataList.removeAll();
 
@@ -601,9 +631,8 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         if (!obsForLid.isEmpty()) {
             for (StationReportingData currData : obsForLid) {
                 String entry = String
-                        .format(
-                                "%-8s %-3s %-5d %-4s %-2s %-17s  %-8.2f %-2s  %-2s %-2s %-11s %-16s %-16s", //
-                                currData.getLid(), // 
+                        .format("%-8s %-3s %-5d %-4s %-2s %-17s  %-8.2f %-2s  %-2s %-2s %-11s %-16s %-16s", //
+                        currData.getLid(), //
                                 currData.getPe(),//
                                 currData.getDur(), //
                                 currData.getTs(), //
@@ -655,6 +684,12 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Display string for the desired quality code.
+     * 
+     * @param qualityCode
+     * @return value
+     */
     private String build_qc_symbol(int qualityCode) {
 
         if (checkQCCode(StationReportingConstants.QC_PASSED, qualityCode)) {
@@ -670,6 +705,13 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
 
     }
 
+    /**
+     * Validate QC code and type.
+     * 
+     * @param type
+     * @param qualityCode
+     * @return
+     */
     private boolean checkQCCode(String type, int qualityCode) {
         if (type.equals(StationReportingConstants.QC_PASSED)) {
             if (qualityCode > StationReportingConstants.GOOD_QUESTIONABLE_THRESHOLD) {
@@ -698,7 +740,7 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
     }
 
     /**
-     * Job to update the time display
+     * Job to update the time display.
      */
     class CurrentTimeUpdateJob extends Job {
 
@@ -736,6 +778,12 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Formats the label for locations so it lines up with display of the
+     * location records.
+     * 
+     * @return label
+     */
     private String getLblText() {
         String format = "%S    %S                        %S              %S";
 
@@ -745,6 +793,12 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
         return labelStr;
     }
 
+    /**
+     * Formats the label for locations data so it lines up with the values in
+     * the list.
+     * 
+     * @return label
+     */
     private String getLatestDataLbl() {
         String format = "%S    %S     %S      %S     %S         %S              %S          %S    %S    %S          %S                   %S         %S";
 
@@ -753,5 +807,96 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
                 "PRODUCT_TIME(Z)", "POSTING_TIME(Z)");
 
         return labelStr;
+    }
+
+    /**
+     * Set cursor to desired state and enable/disables buttons so user cannot
+     * prematurely change state.
+     * 
+     * @param busy
+     */
+    private void setBusy(boolean busy) {
+        listCbo.setEnabled(!busy);
+        sortCbo.setEnabled(!busy);
+        maxCbo.setEnabled(!busy);
+        if (busy) {
+            hoursAgoSpnr.setEnabled(false);
+            shell.setCursor(waitCursor);
+        } else {
+            hoursAgoSpnr.setEnabled(listCbo.getSelectionIndex() == 1);
+            shell.setCursor(null);
+        }
+    }
+
+    /**
+     * A job to get station records off the UI thread.
+     */
+    private class LoadRecordsJob extends Job {
+        /**
+         * List type constraint.
+         */
+        protected StationReportingConstants.ListType listType;
+
+        /**
+         * sort order for the data.
+         */
+        protected SortOrder order;
+
+        /**
+         * Number of hours of data to retrieve.
+         */
+        protected int hoursAgo;
+
+        public LoadRecordsJob() {
+            super("Load RecordsJob");
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
+         * IProgressMonitor)
+         */
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
+                StationReportingDataManager dataManager = StationReportingDataManager
+                        .getInstance();
+
+                ArrayList<StationReportingData> currObs = dataManager
+                        .getStationReportingData(listType, order,
+                                StationReportingConstants.Duration.DEFAULT,
+                                hoursAgo);
+
+                if (currObs.isEmpty()) {
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            setBusy(false);
+                            String showErrorMsg = "No latest obs found. ";
+                            MessageBox mb = new MessageBox(shell,
+                                    SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+                            mb.setText("No Records Found.");
+                            mb.setMessage(showErrorMsg);
+                            mb.open();
+                        }
+                    });
+                } else {
+                    latestObs = currObs;
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            loadRecords();
+                        }
+                    });
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+            return Status.OK_STATUS;
+        }
     }
 }
