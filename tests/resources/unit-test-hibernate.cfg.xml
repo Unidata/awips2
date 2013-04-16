@@ -17,5 +17,6 @@
         <property name="hibernate.jdbc.use_streams_for_binary">false</property>
         <property name="hibernate.hbm2ddl.auto">create</property>
         <property name="cache.use_query_cache">false</property>
+        <property name="dialect">com.raytheon.uf.edex.database.hibernate.H2Dialect</property>
     </session-factory>
 </hibernate-configuration>
