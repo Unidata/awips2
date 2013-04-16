@@ -217,6 +217,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-postgres"
    buildRPM "awips2-pgadmin3"
+   buildRPM "awips2-ldm"
    exit 0
 fi
 
@@ -257,7 +258,8 @@ if [ "${1}" = "-qpid" ]; then
 fi
 
 if [ "${1}" = "-ldm" ]; then
-   echo "INFO: AWIPS II currently does not support a 64-bit version of ldm."
+   buildRPM "awips2-ldm"
+
    exit 0
 fi
 
