@@ -20,6 +20,8 @@
 package com.raytheon.viz.hydrobase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -52,7 +54,6 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -104,6 +105,7 @@ import com.raytheon.viz.hydrocommon.ratingcurve.RatingCurveDlg;
 import com.raytheon.viz.hydrocommon.textreport.TextReportDataManager;
 import com.raytheon.viz.hydrocommon.textreport.TextReportDlg;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the main Hydrobase dialog.
@@ -128,6 +130,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      an update.
  * 
  * 05/09/2011   9151	   lbousaid     open Modify Location window on double click
+ * 04/16/2013   1790        rferrel     Changes for non-blocking AddModifyLocationDlg.
  * 
  * </pre>
  * 
@@ -139,6 +142,16 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         KeyListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(HydroBaseDlg.class);
+
+    /**
+     * Allow only one dialog
+     */
+    private AddModifyLocationDlg addLocDlg;
+
+    /**
+     * Allow only one dialog per location.
+     */
+    private final Map<String, AddModifyLocationDlg> modLocDlgMap = new HashMap<String, AddModifyLocationDlg>();
 
     /**
      * Flood category menu item.
@@ -263,6 +276,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         this.selectedLid = selectedLid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -273,15 +291,27 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
 
         // release the text report data
         TextReportDataManager.getInstance().dispose();
-        shell.dispose();
+        close();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -985,19 +1015,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             }
         });
 
-        // Vector Definitions menu item
-        // Vector Definitions menu not needed in AWIPS 2
-        // MenuItem vectorDefinitionsMI = new MenuItem(setupMenu, SWT.NONE);
-        // vectorDefinitionsMI.setText("&Vector Definitions...");
-        // vectorDefinitionsMI.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent event) {
-        // VectorDefinitionsDlg vectorDefDlg = new VectorDefinitionsDlg(
-        // shell);
-        // vectorDefDlg.open();
-        // }
-        // });
-
         new MenuItem(setupMenu, SWT.SEPARATOR);
 
         // NWR Transmitter Towers menu item
@@ -1169,8 +1186,10 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         stationCountLbl.setText("( " + size + " Stations )");
     }
 
-    /**
-     * Get the sort type.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.IGetSortType#getSortType()
      */
     @Override
     public String getSortType() {
@@ -1294,6 +1313,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         sortAndUpdateListControl();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.listeners.IPreferencesListener#notifyUpdate()
+     */
     @Override
     public void notifyUpdate() {
         applyPreferences();
@@ -1335,12 +1360,23 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         sortAndUpdateListControl();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.swt.events.KeyListener#keyPressed(org.eclipse.swt.events.
+     * KeyEvent)
+     */
     @Override
     public void keyPressed(KeyEvent e) {
     }
 
-    /**
-     * Handles the Station Search functionality
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.swt.events.KeyListener#keyReleased(org.eclipse.swt.events
+     * .KeyEvent)
      */
     @Override
     public void keyReleased(KeyEvent e) {
@@ -1362,6 +1398,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.listeners.IStationFilterListener#
+     * notifyFilterChange()
+     */
     @Override
     public void notifyFilterChange() {
         populateListControl();
@@ -1378,6 +1420,13 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         stationFilterDlg.removeListener(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.listeners.IStationListener#notifyStationUpdate
+     * (java.lang.String)
+     */
     @Override
     public void notifyStationUpdate(String lid) {
         populateListControl();
@@ -1388,8 +1437,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 handleSiteSelection();
                 return;
             }
-        } 
-        
+        }
+
         dataList.setSelection(0);
         dataList.showSelection();
         handleSiteSelection();
@@ -1400,20 +1449,41 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Open the Add Location Dialog.
      */
     private void openAddDlg() {
-        AddModifyLocationDlg addLocDlg = new AddModifyLocationDlg(shell, false,
-                getSelectedLocation().getStation(), getStationAndName());
-        addLocDlg.addListener(this);
-        addLocDlg.open();
+        if (addLocDlg == null || addLocDlg.isDisposed()) {
+            addLocDlg = new AddModifyLocationDlg(shell, false,
+                    getSelectedLocation().getStation(), getStationAndName());
+            addLocDlg.addListener(this);
+            addLocDlg.open();
+        } else {
+            addLocDlg.bringToTop();
+        }
     }
 
     /**
      * Open the Modify Location Dialog.
      */
     private void openModifyDlg() {
-        AddModifyLocationDlg modLocDlg = new AddModifyLocationDlg(shell, true,
-                getSelectedLocation().getStation(), getStationAndName());
-        modLocDlg.addListener(this);
-        modLocDlg.open();
+        String lid = getSelectedLocation().getStation();
+        AddModifyLocationDlg modLocDlg = modLocDlgMap.get(lid);
+        if (modLocDlg == null) {
+            modLocDlg = new AddModifyLocationDlg(shell, true,
+                    getSelectedLocation().getStation(), getStationAndName());
+            modLocDlg.addListener(this);
+            modLocDlgMap.put(lid, modLocDlg);
+            modLocDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        modLocDlgMap.remove(lid);
+                    }
+                }
+            });
+            modLocDlg.open();
+        } else {
+            modLocDlg.bringToTop();
+        }
     }
 
     /**
