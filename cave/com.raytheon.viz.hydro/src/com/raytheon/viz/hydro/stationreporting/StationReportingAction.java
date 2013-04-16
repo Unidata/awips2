@@ -36,6 +36,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 4/16/2013    1790        rferrel     Changes for non-blocking stationReportingDlg.
  * 
  * </pre>
  * 
@@ -43,15 +44,19 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class StationReportingAction extends AbstractHandler {
+    private StationReportingStatusDlg stationReportingDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        StationReportingStatusDlg stationReportingDlg = new StationReportingStatusDlg(
-                shell);
-        stationReportingDlg.open();
+        if (stationReportingDlg == null || stationReportingDlg.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            stationReportingDlg = new StationReportingStatusDlg(shell);
+            stationReportingDlg.open();
+        } else {
+            stationReportingDlg.bringToTop();
+        }
 
         return null;
     }
