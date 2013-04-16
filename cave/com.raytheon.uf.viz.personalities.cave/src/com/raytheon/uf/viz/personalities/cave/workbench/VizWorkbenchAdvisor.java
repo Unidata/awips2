@@ -18,23 +18,14 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.ui.personalities.awips;
-
-//import gov.noaa.nws.ost.awips.viz.CaveCommandExecutionListener;
-//import gov.noaa.nws.ost.awips.viz.CaveJobChangeListener;
+package com.raytheon.uf.viz.personalities.cave.workbench;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.commands.IExecutionListener;
 import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceManager;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveRegistry;
 import org.eclipse.ui.PlatformUI;
@@ -42,14 +33,12 @@ import org.eclipse.ui.application.IWorkbenchConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.contexts.IContextService;
 
 import com.raytheon.uf.viz.application.ProgramArguments;
-import com.raytheon.uf.viz.core.Activator;
-import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
 import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
@@ -60,8 +49,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
- * Mar 5, 2013     1753     njensen     Added shutdown printout
- * Mar 20, 2013    1638     mschenke    Added overrideable method for dynamic menu creation
+ * Mar 5, 2013     1753     njensen    Added shutdown printout
  * 
  * </pre>
  * 
@@ -70,38 +58,12 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  */
 public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
 
-    protected boolean logPeformance = false;
-
-    protected IExecutionListener performanceListener;
-
-    protected IJobChangeListener jobChangeListener;
-
     protected CloseNonRestorableDetachedViewsListener detachedViewsListener;
-
-    protected boolean singlePerspective;
 
     private boolean createdMenus = false;
 
     public VizWorkbenchAdvisor() {
-        performanceListener = CaveCommandExecutionListener.getInstance();
-        jobChangeListener = CaveJobChangeListener.getInstance();
         detachedViewsListener = new CloseNonRestorableDetachedViewsListener();
-
-        Activator.getDefault().getPreferenceStore()
-                .addPropertyChangeListener(new IPropertyChangeListener() {
-                    @Override
-                    public void propertyChange(PropertyChangeEvent event) {
-                        if (PreferenceConstants.P_LOG_PERF.equals(event
-                                .getProperty())) {
-                            Boolean log = (Boolean) event.getNewValue();
-                            if (log != logPeformance) {
-                                toggleLogging();
-                            }
-                        }
-                    }
-                });
-        singlePerspective = ProgramArguments.getInstance().getString(
-                "-perspective") != null;
     }
 
     /*
@@ -176,7 +138,8 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     }
 
     /**
-     * Removes perspectives from the rcp perspectives menu
+     * Removes perspectives from the rcp perspectives menu that are not managed
+     * by an {@link AbstractVizPerspectiveManager}
      */
     @SuppressWarnings("restriction")
     private void removeExtraPerspectives() {
@@ -187,10 +150,14 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         for (IPerspectiveDescriptor perspective : reg.getPerspectives()) {
             if (managed.contains(perspective.getId()) == false) {
                 org.eclipse.ui.internal.registry.PerspectiveDescriptor sync = (org.eclipse.ui.internal.registry.PerspectiveDescriptor) perspective;
-                IExtension ext = sync.getConfigElement()
-                        .getDeclaringExtension();
-                ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
-                        .removeExtension(ext, new Object[] { perspective });
+                if (sync.getConfigElement() != null) {
+                    IExtension ext = sync.getConfigElement()
+                            .getDeclaringExtension();
+                    ((org.eclipse.ui.internal.registry.PerspectiveRegistry) reg)
+                            .removeExtension(ext, new Object[] { perspective });
+                } else {
+                    sync.deleteCustomDefinition();
+                }
             }
         }
     }
@@ -218,28 +185,48 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
      */
     @Override
     public String getInitialWindowPerspectiveId() {
-        if (singlePerspective) {
-            String perspective = ProgramArguments.getInstance().getString(
-                    "-perspective");
+        String perspective = ProgramArguments.getInstance().getString(
+                "-perspective");
+        IPerspectiveDescriptor desc = getSpecifiedPerspective(perspective);
+        if (desc != null) {
+            return desc.getId();
+        }
+        IPerspectiveRegistry registry = PlatformUI.getWorkbench()
+                .getPerspectiveRegistry();
+        perspective = registry.getDefaultPerspective();
+        desc = getSpecifiedPerspective(perspective);
+        if (desc != null) {
+            return desc.getId();
+        }
+
+        // No default perspective specified in preference, look for managed
+        for (String pid : VizPerspectiveListener.getManagedPerspectives()) {
+            perspective = pid;
+            break;
+        }
+        return null;
+    }
+
+    protected IPerspectiveDescriptor getSpecifiedPerspective(String perspective) {
+        IPerspectiveRegistry registry = PlatformUI.getWorkbench()
+                .getPerspectiveRegistry();
+
+        if (perspective != null) {
             // Check Id first
-            for (IPerspectiveDescriptor desc : PlatformUI.getWorkbench()
-                    .getPerspectiveRegistry().getPerspectives()) {
+            for (IPerspectiveDescriptor desc : registry.getPerspectives()) {
                 if (perspective.equals(desc.getId())) {
-                    return perspective;
+                    return desc;
                 }
             }
 
             // Check label second
-            for (IPerspectiveDescriptor desc : PlatformUI.getWorkbench()
-                    .getPerspectiveRegistry().getPerspectives()) {
+            for (IPerspectiveDescriptor desc : registry.getPerspectives()) {
                 if (perspective.equalsIgnoreCase(desc.getLabel())) {
-                    return desc.getId();
+                    return desc;
                 }
             }
         }
-
-        // Fall back to a reasonable default if not available
-        return "com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane";
+        return null;
     }
 
     /*
@@ -256,7 +243,7 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
             createdMenus = true;
             createDynamicMenus();
         }
-        return new VizWorkbenchWindowAdvisor(configurer, singlePerspective);
+        return new VizWorkbenchWindowAdvisor(configurer);
     }
 
     /*
@@ -284,24 +271,13 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         return bResult;
     }
 
-    /**
-     * Added by Wufeng Zhou to hook up command execution listener and job
-     * listener
-     * 
-     */
     @Override
     public void postStartup() {
         super.postStartup();
 
-        Boolean log = Activator.getDefault().getPreferenceStore()
-                .getBoolean(PreferenceConstants.P_LOG_PERF);
-
-        if (log != logPeformance) {
-            toggleLogging();
-        }
         IContextService service = (IContextService) PlatformUI.getWorkbench()
                 .getService(IContextService.class);
-        service.activateContext("com.raytheon.uf.viz.application.awips");
+        service.activateContext("com.raytheon.uf.viz.application.cave");
     }
 
     /**
@@ -310,36 +286,6 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
      */
     protected void createDynamicMenus() {
         DiscoverMenuContributions.discoverContributions();
-    }
-
-    /**
-     * Toggle whether we are logging or not
-     */
-    private void toggleLogging() {
-        logPeformance = !logPeformance;
-
-        // add command execution listener
-        ICommandService service = (ICommandService) PlatformUI.getWorkbench()
-                .getService(ICommandService.class);
-        if (logPeformance) {
-            service.addExecutionListener(performanceListener);
-        } else {
-            service.removeExecutionListener(performanceListener);
-        }
-
-        // add job change listener
-        IJobManager jobManager = Job.getJobManager();
-        if (logPeformance) {
-            jobManager.addJobChangeListener(jobChangeListener);
-        } else {
-            jobManager.removeJobChangeListener(jobChangeListener);
-        }
-    }
-
-    @Override
-    public void preStartup() {
-        // only restore state if no perspective passed in
-        getWorkbenchConfigurer().setSaveAndRestore(!singlePerspective);
     }
 
 }
