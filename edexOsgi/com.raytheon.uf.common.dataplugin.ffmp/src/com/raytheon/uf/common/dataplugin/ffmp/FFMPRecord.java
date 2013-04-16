@@ -393,32 +393,26 @@ public class FFMPRecord extends PersistablePluginDataObject
             FFMPTemplates template, String huc, Date date, String sourceName)
             throws Exception {
 
+        FFMPBasinData fbd = getBasinData(huc);
+        ImmutableDate idate = getCacheDate(date);
+
         boolean aggregate = true;
 
         if (huc.equals(ALL)) {
             aggregate = false;
         }
 
-        FFMPBasinData fbd = getBasinData(huc);
-        ImmutableDate idate = getCacheDate(date);
-
         for (DomainXML domain : template.getDomains()) {
 
-            LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(), domain.getCwa(), huc);
+            LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
+                    domain.getCwa(), huc);
 
             if (map != null && !map.isEmpty()) {
-                fbd.addBasins(datastoreFile, uri
-                        + DataStoreFactory.DEF_SEPARATOR + domain.getCwa()
-                        + DataStoreFactory.DEF_SEPARATOR
-                        + huc, sourceName, idate, map.keySet(), aggregate);
+                fbd.addBasins(datastoreFile, uri, getSiteKey(),
+                        domain.getCwa(), huc, sourceName, idate, map.keySet(),
+                        aggregate);
             }
         }
-
-        // TODO in the future if we can not loadNow then the basinData can get
-        // really bulk data retrieval which will help performance. Unfortunately
-        // at this time there is no way to guarantee that the load will not
-        // happen on the UI thread.
-        fbd.loadNow();
     }
 
     public void retrieveMapFromDataStore(FFMPTemplates template, String huc)
@@ -538,19 +532,12 @@ public class FFMPRecord extends PersistablePluginDataObject
                 int size = lids.size();
 
                 if (size > 0) {
-                    fbd.addVirtualBasins(datastoreFile, uri
-                            + DataStoreFactory.DEF_SEPARATOR + domain.getCwa()
-                            + DataStoreFactory.DEF_SEPARATOR + ALL, idate,
+                    fbd.addVirtualBasins(datastoreFile, uri, key,
+                            domain.getCwa(), idate,
                             lids.values());
                 }
             }
         }
-
-        // TODO in the future if we can not loadNow then the basinData can get
-        // really bulk data retrieval which will help performance. Unfortunately
-        // at this time there is no way to guarantee that the load will not
-        // happen on the UI thread.
-        fbd.loadNow();
     }
 
     /**
