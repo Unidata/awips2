@@ -78,6 +78,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  *                                      SectorId and PhysicalElement.
  * Mar 20, 2013      #1774 randerso     Refactor to use grid durations from D2DGridDatabase
  * Apr 01, 2013      #1774 randerso     Moved wind component checking to GfeIngestNotificaionFilter
+ * Apr 04, 2013      #1787 randerso     Added null check to prevent log spamming for parameters
+ *                                      not included in the parameter info file
  * 
  * </pre>
  * 
