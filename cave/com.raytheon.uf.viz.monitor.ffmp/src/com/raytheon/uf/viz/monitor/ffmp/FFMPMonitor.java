@@ -1,7 +1,6 @@
 package com.raytheon.uf.viz.monitor.ffmp;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,7 +35,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasin;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
@@ -94,6 +92,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 02/20/13     1635        D. Hladky   Fixed multi guidance sources
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * Apr 9, 2013   1890     dhladky     Fixed the broken cache file load
+ * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
  * 
  * </pre>
  * 
@@ -467,7 +466,7 @@ public class FFMPMonitor extends ResourceMonitor {
                     if (sourceXML.getSourceType().equals(
                             SOURCE_TYPE.GAGE.getSourceType())
                             && phuc.equals(FFMPRecord.ALL)) {
-                        ffmpRec.retrieveVirtualBasinFromDataStore(dataStore,
+                        ffmpRec.retrieveVirtualBasinFromDataStore(loc,
                                 dataUri, getTemplates(siteKey), ffmpRec
                                         .getDataTime().getRefTime(), basin);
                     } else {
@@ -2189,16 +2188,20 @@ public class FFMPMonitor extends ResourceMonitor {
                 List<String> uris = getLoadedUris(fsiteKey, fsource, fhuc);
                 String dataUri = fffmpRec.getDataURI();
                 if (!uris.contains(dataUri)) {
+                    Date refTime = fffmpRec.getDataTime().getRefTime();
                     File loc = HDF5Util.findHDF5Location(fffmpRec);
-                    IDataStore dataStore = DataStoreFactory.getDataStore(loc);
 
                     FFMPSiteData siteData = siteDataMap.get(fsiteKey);
                     String mySource = fsource;
+                    boolean isGageSource = false;
                     SourceXML source = fscm.getSource(fsource);
 
                     if (source.getSourceType().equals(
                             SOURCE_TYPE.GUIDANCE.getSourceType())) {
                         mySource = source.getDisplayName();
+                    } else if (source.getSourceType().equals(
+                            SOURCE_TYPE.GAGE.getSourceType())) {
+                        isGageSource = true;
                     }
 
                     FFMPSourceData sourceData = siteData
@@ -2207,55 +2210,36 @@ public class FFMPMonitor extends ResourceMonitor {
                     if (curRecord == null) {
                         // ensure the record can only be set once
                         synchronized (siteDataMap) {
-                            curRecord = siteDataMap.get(fsiteKey)
-                                    .getSourceData(mySource).getRecord();
+                            siteData = siteDataMap.get(fsiteKey);
+                            sourceData = siteData.getSourceData(mySource);
+                            curRecord = sourceData.getRecord();
                             if (curRecord == null) {
                                 curRecord = new FFMPRecord(dataUri);
-                                siteDataMap.get(fsiteKey)
-                                        .getSourceData(mySource)
-                                        .setRecord(curRecord);
+                                sourceData.setRecord(curRecord);
                             }
                         }
                     }
 
-                    SourceXML sourceXML = fscm.getSource(mySource);
+                    try {
 
-                    if ((sourceXML != null)
-                            && sourceXML.getSourceType().equals(
-                                    SOURCE_TYPE.GAGE.getSourceType())
-                            && fhuc.equals(FFMPRecord.ALL)) {
-                        try {
-                            curRecord.retrieveVirtualMapFromDataStore(
-                                    dataStore, dataUri, getTemplates(fsiteKey),
-                                    fffmpRec.getDataTime().getRefTime(),
+                        if (isGageSource && fhuc.equals(FFMPRecord.ALL)) {
+                            curRecord.retrieveVirtualMapFromDataStore(loc,
+                                    dataUri, getTemplates(fsiteKey), refTime,
                                     fffmpRec.getSourceName());
-                        } catch (FileNotFoundException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "FFMP Can't find FFMP URI, " + dataUri, e);
-                        } catch (StorageException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "FFMP Can't retrieve (Storage problem) FFMP URI, "
-                                            + dataUri, e);
-                        }
-                    } else {
-                        try {
+                        } else {
                             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                                 statusHandler.handle(Priority.DEBUG,
                                         "Retrieving and Populating URI: , "
                                                 + dataUri);
                             }
-                            curRecord.retrieveMapFromDataStore(dataStore,
-                                    dataUri,
+                            curRecord.retrieveMapFromDataStore(loc, dataUri,
                                     getTemplates(fffmpRec.getSiteKey()), fhuc,
-                                    fffmpRec.getDataTime().getRefTime(),
-                                    fffmpRec.getSourceName());
-                        } catch (Exception e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "FFMP Can't retrieve FFMP URI, " + dataUri,
-                                    e);
+                                    refTime, fffmpRec.getSourceName());
                         }
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "FFMP Can't retrieve FFMP URI, " + dataUri, e);
                     }
-
                     sourceData.addLoadedUri(fhuc, dataUri);
                 }
             }
