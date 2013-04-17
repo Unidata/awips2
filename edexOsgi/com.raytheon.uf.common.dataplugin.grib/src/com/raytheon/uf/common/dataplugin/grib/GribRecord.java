@@ -30,6 +30,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -38,10 +39,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.IPrecomputedRange;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -63,6 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 4/7/09       1994        bphillip    Initial Creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/13     1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -70,6 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gribseq")
 @Table(name = "grib", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
