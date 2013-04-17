@@ -26,6 +26,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -36,6 +37,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIConfig;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -56,6 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * 20080221            862 jkorman     Initial Coding.
  * 02/06/09     1990       bphillip    removed populateDataStore method
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -63,6 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrmosseq")
 @Table(name = "bufrmos", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
