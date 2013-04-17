@@ -21,7 +21,7 @@ package com.raytheon.uf.common.dataplugin.npp.sounding;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -44,13 +44,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 3, 2013            mschenke     Initial creation
+ * Apr 12, 2013 1857       bgonzale    Changed to MappedSuperclass.
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@Entity
+@MappedSuperclass
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class NPPSoundingRecord extends PersistablePluginDataObject
