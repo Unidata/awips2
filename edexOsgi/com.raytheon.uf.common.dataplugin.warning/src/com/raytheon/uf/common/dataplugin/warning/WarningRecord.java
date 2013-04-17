@@ -25,13 +25,16 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -44,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ----------  ----------- --------------------------
  * 03/12/2007   1003        bwoodle     initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -52,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @XmlAccessorType(XmlAccessType.NONE)
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "warningseq")
 @Table(name = "warning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
