@@ -132,6 +132,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 05/09/2011   9151	   lbousaid     open Modify Location window on double click
  * 04/16/2013   1790        rferrel     Changes for non-blocking AddModifyLocationDlg.
  *                                      Changes for non-blocking AdministrationDlg.
+ *                                      Changes for non-blocking ArealDefinitionsDlg.
+ *                                      Changes for non-blocking BenchmarkDlg.
  * 
  * </pre>
  * 
@@ -141,7 +143,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         IPreferencesListener, IStationFilterListener, IStationListener,
         KeyListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(HydroBaseDlg.class);
 
     /**
@@ -158,6 +160,16 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Administration information dialog.
      */
     private AdministrationDlg adminDlg;
+
+    /**
+     * Allow one areal definitions dialog.
+     */
+    private ArealDefinitionsDlg arealDlg;
+
+    /**
+     * Allow one benchmark dialog per location.
+     */
+    private final Map<String, BenchmarkDlg> benchmarkDlgMap = new HashMap<String, BenchmarkDlg>();
 
     /**
      * Flood category menu item.
@@ -681,9 +693,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         benchmarkMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                BenchmarkDlg benchmarkDlg = new BenchmarkDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                benchmarkDlg.open();
+                String lid = getSelectedLocation().getStation();
+                BenchmarkDlg benchmarkDlg = benchmarkDlgMap.get(lid);
+                if (benchmarkDlg == null) {
+                    benchmarkDlg = new BenchmarkDlg(shell, getStationAndName(),
+                            lid);
+                    benchmarkDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                benchmarkDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    benchmarkDlgMap.put(lid, benchmarkDlg);
+                    benchmarkDlg.open();
+                } else {
+                    benchmarkDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(benchmarkMI);
@@ -1020,8 +1049,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         arealDefinitionsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ArealDefinitionsDlg arealDlg = new ArealDefinitionsDlg(shell);
-                arealDlg.open();
+                if (arealDlg == null || arealDlg.isDisposed()) {
+                    arealDlg = new ArealDefinitionsDlg(shell);
+                    arealDlg.open();
+                } else {
+                    arealDlg.bringToTop();
+                }
             }
         });
 
