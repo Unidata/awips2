@@ -20,6 +20,7 @@
 package com.raytheon.viz.hydrobase.dialogs;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.viz.hydrobase.data.HrapBinList;
 import com.raytheon.viz.hydrobase.data.LineSegment;
@@ -36,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2009 2772       mpduff     Initial creation
+ * Apr 16, 2013 1790       rferrel     Code clean up for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -44,7 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class LineSegmentUtil {
-    private static final int LATLON_NORTHWEST_CORNER = 0;
+    // private static final int LATLON_NORTHWEST_CORNER = 0;
 
     private static final int LATLON_NORTHEAST_CORNER = 1;
 
@@ -59,15 +61,15 @@ public class LineSegmentUtil {
      * i+1 th points are used to initialize n-1 segments.
      * 
      * @param points
-     *            ArrayList of Point objects
+     *            List of Point objects
      */
-    public static ArrayList<LineSegment> getSegmentsFromPoints(
-            ArrayList<Coordinate> points) {
-        ArrayList<LineSegment> lineSegments = new ArrayList<LineSegment>();
+    public static List<LineSegment> getSegmentsFromPoints(
+            List<Coordinate> points) {
+        List<LineSegment> lineSegments = new ArrayList<LineSegment>();
 
         for (int i = 0; i < points.size() - 1; i++) {
-            LineSegment segment = initLineSegment(points.get(i), points
-                    .get(i + 1));
+            LineSegment segment = initLineSegment(points.get(i),
+                    points.get(i + 1));
             lineSegments.add(segment);
         }
 
@@ -134,17 +136,13 @@ public class LineSegmentUtil {
         /* set the max and min box */
         Coordinate min = new Coordinate();
         seg.setMin(min);
-        seg.getMin().y = (
-                minDouble(seg.getPoint1().y, seg.getPoint2().y));
-        seg.getMin().x = (
-                minDouble(seg.getPoint1().x, seg.getPoint2().x));
-        
+        seg.getMin().y = Math.min(seg.getPoint1().y, seg.getPoint2().y);
+        seg.getMin().x = Math.min(seg.getPoint1().x, seg.getPoint2().x);
+
         Coordinate max = new Coordinate();
         seg.setMax(max);
-        seg.getMax().y = (
-                maxDouble(seg.getPoint1().y, seg.getPoint2().y));
-        seg.getMax().x = (
-                maxDouble(seg.getPoint1().x, seg.getPoint2().x));
+        seg.getMax().y = Math.max(seg.getPoint1().y, seg.getPoint2().y);
+        seg.getMax().x = Math.max(seg.getPoint1().x, seg.getPoint2().x);
 
         return seg;
     }
@@ -170,16 +168,16 @@ public class LineSegmentUtil {
      * area.
      * 
      * @param segments
-     *            ArrayList of LineSegment objects
+     *            List of LineSegment objects
      */
     public static HrapBinList getHrapBinListFromSegments(
-            ArrayList<LineSegment> segments) {
+            List<LineSegment> segments) {
         HrapBinList binList = new HrapBinList();
         Coordinate maxLatLon;
         Coordinate minLatLon;
         Coordinate startLatLon;
         Coordinate endLatLon;
-        ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+        List<Coordinate> points = new ArrayList<Coordinate>();
         double r;
         double c;
         double maxCol;
@@ -206,7 +204,8 @@ public class LineSegmentUtil {
          * longitude box defined by the max lat/lon and the min lat/lon pairs
          * retrieved above.
          */
-        Coordinate hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x, maxLatLon.y));
+        Coordinate hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x,
+                maxLatLon.y));
         minRow = hrap.y;
         maxRow = hrap.y;
         minCol = hrap.x;
@@ -215,18 +214,18 @@ public class LineSegmentUtil {
         for (int i = LATLON_NORTHEAST_CORNER; i <= LATLON_SOUTHWEST_CORNER; i++) {
             switch (i) {
             case LATLON_NORTHEAST_CORNER:
-                hrap = HrapUtil
-                        .latLonToHrap(new Coordinate(maxLatLon.x, maxLatLon.y));
+                hrap = HrapUtil.latLonToHrap(new Coordinate(maxLatLon.x,
+                        maxLatLon.y));
                 break;
 
             case LATLON_SOUTHEAST_CORNER:
-                hrap = HrapUtil
-                        .latLonToHrap(new Coordinate(maxLatLon.x, minLatLon.y));
+                hrap = HrapUtil.latLonToHrap(new Coordinate(maxLatLon.x,
+                        minLatLon.y));
                 break;
 
             case LATLON_SOUTHWEST_CORNER:
-                hrap = HrapUtil
-                        .latLonToHrap(new Coordinate(minLatLon.x, minLatLon.y));
+                hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x,
+                        minLatLon.y));
                 break;
 
             default:
@@ -263,11 +262,13 @@ public class LineSegmentUtil {
             numIntersections = 0;
 
             /* init the first lat lon point */
-            startLatLon = new Coordinate(HrapUtil.hrapToLatLon(new Coordinate(minCol - 0.5, r)));
+            startLatLon = new Coordinate(HrapUtil.hrapToLatLon(new Coordinate(
+                    minCol - 0.5, r)));
 
             for (c = minCol + 0.5; c <= maxCol; c++) {
                 /* get the lat lon coordinate from the hrap row and column */
-                endLatLon = new Coordinate(HrapUtil.hrapToLatLon(new Coordinate(c, r)));
+                endLatLon = new Coordinate(
+                        HrapUtil.hrapToLatLon(new Coordinate(c, r)));
 
                 /* create a segment from start to end */
                 segment = initLineSegment(startLatLon, endLatLon);
@@ -289,7 +290,8 @@ public class LineSegmentUtil {
                     if (inside) {
                         binList.getEndCols().set(index, (long) c);
                         binList.setNumBins(binList.getNumBins() + 1);
-                        singleBinArea = HrapUtil.getHrapBinArea(new Coordinate(c, r));
+                        singleBinArea = HrapUtil.getHrapBinArea(new Coordinate(
+                                c, r));
                         binList.setArea(binList.getArea() + singleBinArea);
                     } else {
                         /* previous bin was outside */
@@ -298,7 +300,8 @@ public class LineSegmentUtil {
                         binList.getEndCols().add((long) c);
 
                         binList.setNumBins(binList.getNumBins() + 1);
-                        singleBinArea = HrapUtil.getHrapBinArea(new Coordinate(c, r));
+                        singleBinArea = HrapUtil.getHrapBinArea(new Coordinate(
+                                c, r));
                         binList.setArea(binList.getArea() + singleBinArea);
 
                         inside = true;
@@ -314,61 +317,27 @@ public class LineSegmentUtil {
                         binList.setNumRows(binList.getNumRows() + 1);
                     }
                 }
-                
+
                 startLatLon = endLatLon;
             }
         }
-        
+
         return binList;
-    }
-
-    /**
-     * returns the minimum of two doubles.
-     * 
-     * @param num1
-     *            first value to check
-     * @param num2
-     *            second value to check
-     * @return the smaller of the two, num1 or num2
-     */
-    public static double minDouble(double num1, double num2) {
-        if (num1 < num2) {
-            return num1;
-        } else {
-            return num2;
-        }
-    }
-
-    /**
-     * returns the maximum of two doubles.
-     * 
-     * @param num1
-     *            first value to check
-     * @param num2
-     *            second value to check
-     * @return the larger of the two, num1 or num2
-     */
-    public static double maxDouble(double num1, double num2) {
-        if (num1 > num2) {
-            return num1;
-        } else {
-            return num2;
-        }
     }
 
     /**
      * Determines the max x and y values for a list of segments.
      * 
      * @param segments
-     *            ArrayList<LineSegment>
+     *            List<LineSegment>
      * @return Max Point of the segment list
      */
-    public static Coordinate getMaxXY(ArrayList<LineSegment> segments) {
+    public static Coordinate getMaxXY(List<LineSegment> segments) {
         Coordinate p = segments.get(0).getMax();
 
         for (int i = 1; i < segments.size(); i++) {
-            p.x = (maxDouble(segments.get(i).getMax().x, p.x));
-            p.y = (maxDouble(segments.get(i).getMax().y, p.y));
+            p.x = Math.max(segments.get(i).getMax().x, p.x);
+            p.y = Math.max(segments.get(i).getMax().y, p.y);
         }
 
         return p;
@@ -378,18 +347,18 @@ public class LineSegmentUtil {
      * Determines the min x and y values for a list of segments.
      * 
      * @param segments
-     *            ArrayList<LineSegment>
+     *            List<LineSegment>
      * @return Min Point of the segment list
      */
-    public static Coordinate getMinXY(ArrayList<LineSegment> segments) {
+    public static Coordinate getMinXY(List<LineSegment> segments) {
         Coordinate p = new Coordinate();
 
         p.x = (segments.get(0).getMin().x);
         p.y = (segments.get(0).getMin().y);
 
         for (int i = 1; i < segments.size(); i++) {
-            p.x = (minDouble(segments.get(i).getMin().x, p.x));
-            p.y = (minDouble(segments.get(i).getMin().y, p.y));
+            p.x = Math.min(segments.get(i).getMin().x, p.x);
+            p.y = Math.min(segments.get(i).getMin().y, p.y);
         }
 
         return p;
@@ -406,10 +375,10 @@ public class LineSegmentUtil {
      * @param numSegments
      *            Number of segments
      */
-    public static ArrayList<Coordinate> getIntersectionPoints(LineSegment segment,
-            ArrayList<LineSegment> segments) {
+    public static List<Coordinate> getIntersectionPoints(LineSegment segment,
+            List<LineSegment> segments) {
         Coordinate intersectPoint;
-        ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+        List<Coordinate> points = new ArrayList<Coordinate>();
 
         for (int i = 0; i < segments.size(); i++) {
             intersectPoint = getIntersectionOfSegments(segment, segments.get(i));
@@ -431,7 +400,8 @@ public class LineSegmentUtil {
      *            LineSegment 2
      * @return The intersection point, null if no intersection
      */
-    public static Coordinate getIntersectionOfSegments(LineSegment s1, LineSegment s2) {
+    public static Coordinate getIntersectionOfSegments(LineSegment s1,
+            LineSegment s2) {
         Coordinate p = new Coordinate(0, 0);
         double x;
         double y;
@@ -461,10 +431,10 @@ public class LineSegmentUtil {
              * see if vertical segment is in the x range of the non vertical
              * segment
              */
-            if (isBetweenInclusive(tempVertical.getXValue(), tempNonVertical
-                    .getMin().x, tempNonVertical.getMax().x)) {
-                y = evaluateLineSegmentAtX(tempNonVertical, tempVertical
-                        .getXValue());
+            if (isBetweenInclusive(tempVertical.getXValue(),
+                    tempNonVertical.getMin().x, tempNonVertical.getMax().x)) {
+                y = evaluateLineSegmentAtX(tempNonVertical,
+                        tempVertical.getXValue());
 
                 if ((y != HydroConstants.MISSING_VALUE)
                         && isBetweenInclusive(y, tempVertical.getMin().y,
@@ -517,8 +487,7 @@ public class LineSegmentUtil {
 
         if (segment.isVertical()) {
             y = segment.getMin().y;
-        } else if (isBetweenInclusive(x, segment.getMin().x, segment
-                .getMax().x)) {
+        } else if (isBetweenInclusive(x, segment.getMin().x, segment.getMax().x)) {
             y = (segment.getSlope() * x) + segment.getBase();
         } else {
             y = HydroConstants.MISSING_VALUE;

@@ -26,14 +26,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.*;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.hydrocommon.data.LocationData;
 import com.raytheon.viz.hydrocommon.datamanager.AddModifyLocationDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -57,6 +61,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class CopyNewLocationDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CopyNewLocationDlg.class);
 
     /**
      * Source text control.
@@ -90,7 +96,7 @@ public class CopyNewLocationDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public CopyNewLocationDlg(Shell parent, LocationData sourceData) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Copy to New Location");
 
         this.sourceData = sourceData;
@@ -159,23 +165,23 @@ public class CopyNewLocationDlg extends CaveSWTDialog {
         destinationTF = new Text(controlComp, SWT.BORDER);
         destinationTF.setLayoutData(gd);
         destinationTF.setFocus();
-        /*Only allow 8 characters to be entered */
+        /* Only allow 8 characters to be entered */
         destinationTF.setTextLimit(8);
-        destinationTF.addListener(SWT.Verify, new Listener(){
-        	public void handleEvent(Event e){
-        		String newStr = e.text;
-        		char[] newChars = new char[newStr.length()];
-        		newStr.getChars(0, newChars.length, newChars, 0);
-        		for (int i = 0; i < newChars.length; i++){
-        			if (!('0' <= newChars[i] && newChars[i] <= '9') && 
-        				!('a' <= newChars[i] && newChars[i] <= 'z') &&
-        				!('A' <= newChars[i] && newChars[i] <= 'Z')) {
-        				e.doit = false;  
-        			}
-        		}
-        		e.text = e.text.toUpperCase();	
-        	}
-        });   
+        destinationTF.addListener(SWT.Verify, new Listener() {
+            public void handleEvent(Event e) {
+                String newStr = e.text;
+                char[] newChars = new char[newStr.length()];
+                newStr.getChars(0, newChars.length, newChars, 0);
+                for (int i = 0; i < newChars.length; i++) {
+                    if (!('0' <= newChars[i] && newChars[i] <= '9')
+                            && !('a' <= newChars[i] && newChars[i] <= 'z')
+                            && !('A' <= newChars[i] && newChars[i] <= 'Z')) {
+                        e.doit = false;
+                    }
+                }
+                e.text = e.text.toUpperCase();
+            }
+        });
     }
 
     /**
@@ -215,7 +221,7 @@ public class CopyNewLocationDlg extends CaveSWTDialog {
         copyBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 if (copyLocation()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -227,20 +233,20 @@ public class CopyNewLocationDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
     /**
-     * 
+     * Populate dialog with information in source data.
      */
     private void initializeData() {
         sourceTF.setText(sourceData.getLid());
     }
 
     /**
-     * Calls the actual copy methods based on the
+     * Calls the actual copy methods based on the user's selections.
      * 
      * @return True if the data was copied successfully, otherwise False
      */
@@ -261,12 +267,7 @@ public class CopyNewLocationDlg extends CaveSWTDialog {
                 }
                 successfulCopy = true;
             } catch (Exception e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Copy Failure");
-                mb.setMessage("An error occurred while copying the location");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, "Copy Failure", e);
             }
         } else {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
