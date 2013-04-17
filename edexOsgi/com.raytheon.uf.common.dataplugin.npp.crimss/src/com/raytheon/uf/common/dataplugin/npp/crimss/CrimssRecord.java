@@ -20,12 +20,14 @@
 package com.raytheon.uf.common.dataplugin.npp.crimss;
 
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.npp.sounding.NPPSoundingRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -39,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 2, 2011            bsteffen     Initial creation
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -46,6 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "crimssseq")
 @Table(name = "crimss", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @DynamicSerialize
 @XmlRootElement
