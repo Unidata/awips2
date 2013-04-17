@@ -22,6 +22,7 @@ package com.raytheon.uf.common.dataplugin;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -75,7 +76,9 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * Apr 12, 2013 1857        bgonzale    Changed to MappedSuperclass, named generator,
  *                                      GenerationType SEQUENCE, moved Indexes to getter
  *                                      methods.
- * 
+ * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
+ *                                      dataURI fields
+ * Apr 15, 2013 1868        bsteffen    Improved performance of createDataURIMap
  * </pre>
  * 
  */
@@ -204,6 +207,91 @@ public abstract class PluginDataObject extends PersistableDataObject implements
             }
         }
         return uriBuffer;
+    }
+
+    /**
+     * Populates the record object from a data map
+     * 
+     * @param dataMap
+     * @throws PluginException
+     */
+    public void populateFromMap(Map<String, Object> dataMap)
+            throws PluginException {
+        populateFromMap(this, dataMap);
+    }
+
+    /**
+     * Creates a mapping of dataURI fields to objects set in the record
+     * 
+     * @return
+     * @throws PluginException
+     */
+    public Map<String, Object> createDataURIMap() throws PluginException {
+        try {
+            Class<? extends PluginDataObject> thisClass = this.getClass();
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("pluginName", getPluginName());
+            int index = 0;
+            String fieldName = PluginDataObject.getDataURIFieldName(thisClass,
+                    index++);
+            while (fieldName != null) {
+                Object source = this;
+                int start = 0;
+                int end = fieldName.indexOf('.', start);
+                while (end >= 0) {
+                    source = PropertyUtils.getProperty(source,
+                            fieldName.substring(start, end));
+                    start = end + 1;
+                    end = fieldName.indexOf('.', start);
+                }
+                source = PropertyUtils.getProperty(source,
+                        fieldName.substring(start));
+                map.put(fieldName, source);
+                fieldName = PluginDataObject.getDataURIFieldName(thisClass,
+                        index++);
+            }
+            return map;
+        } catch (Exception e) {
+            throw new PluginException("Error constructing dataURI mapping", e);
+        }
+    }
+
+    /**
+     * Populates object from data mapping
+     * 
+     * @param object
+     * @param dataMap
+     */
+    public static void populateFromMap(Object object,
+            Map<String, Object> dataMap) throws PluginException {
+        try {
+            for (String property : dataMap.keySet()) {
+                String[] nested = property.split("[.]");
+                if (nested.length > 0) {
+                    Object source = object;
+                    for (int i = 0; i < nested.length - 1; ++i) {
+                        String field = nested[i];
+                        Object obj = PropertyUtils.getProperty(source, field);
+                        if (obj == null) {
+                            obj = PropertyUtils.getPropertyType(source, field)
+                                    .newInstance();
+                            PropertyUtils.setProperty(source, field, obj);
+                        }
+                        source = obj;
+                    }
+                    String sourceProperty = nested[nested.length - 1];
+                    Object value = dataMap.get(property);
+                    if (value != null) {
+                        PropertyUtils
+                                .setProperty(source, sourceProperty, value);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new PluginException("Error populating record type: "
+                    + (object != null ? object.getClass() : null)
+                    + " from map: " + dataMap, e);
+        }
     }
 
     /**
@@ -468,15 +556,14 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     }
 
     /**
-     * Used to determine if a given subclass exposes the IDecoderGettable
-     * interface. Normally if the class does implement the interface then a
-     * reference to "this" is returned. Otherwise a null reference indicates
-     * that the interface is not implemented.
+     * TODO: Rework non-PointDataContainer plots and remove
      * 
-     * @return The IDecoderGettable interface implementation. Null reference if
-     *         not implemented.
+     * @return
      */
-    public abstract IDecoderGettable getDecoderGettable();
+    @Deprecated
+    public IDecoderGettable getDecoderGettable() {
+        return null;
+    }
 
     public void setDataURI(String dataURI) {
         this.dataURI = dataURI;
