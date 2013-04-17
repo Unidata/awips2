@@ -59,6 +59,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the Add/Modify location dialog. A flag is passed into the
@@ -79,6 +80,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     wipe out the field (e.g. blank)
  * 26 Nov 2012 15440       lbousaidi   display lat/lon in the GUI in decimal degrees
  * 16 Apr 2013  1790       rferrel     Make dialog non-blocking.
+ *                                     Changes for non-blocking CoopAgencyOfficeDlg.
+ *                                     Changes for non-blocking CopyNewLocationDlg.
  * 
  * 
  * </pre>
@@ -89,6 +92,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class AddModifyLocationDlg extends CaveSWTDialog implements
         ICountyStateListener {
+
+    /**
+     * Allow one Coop Agency Office dialog.
+     */
+    private CoopAgencyOfficeDlg coopAgencyOfficeDlg;
+
+    /**
+     * Allow ojne Copy New dialog.
+     */
+    private CopyNewLocationDlg copyDlg;
 
     /**
      * Font used for controls.
@@ -510,10 +523,20 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         copyToNewLocationBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CopyNewLocationDlg copyDlg = new CopyNewLocationDlg(shell,
-                        locData);
-                copyDlg.open();
-                fireUpdateEvent();
+                if (copyDlg == null) {
+                    copyDlg = new CopyNewLocationDlg(shell, locData);
+                    copyDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            copyDlg = null;
+                            fireUpdateEvent();
+                        }
+                    });
+                    copyDlg.open();
+                } else {
+                    copyDlg.bringToTop();
+                }
             }
         });
     }
@@ -1085,10 +1108,21 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         coopAgencyOfficeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CoopAgencyOfficeDlg coopAgencyOfficeDlg = new CoopAgencyOfficeDlg(
-                        shell, titleString, lid);
-                coopAgencyOfficeDlg.open();
-                updateCoops();
+                if (coopAgencyOfficeDlg == null) {
+                    coopAgencyOfficeDlg = new CoopAgencyOfficeDlg(shell,
+                            titleString, lid);
+                    coopAgencyOfficeDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            coopAgencyOfficeDlg = null;
+                            updateCoops();
+                        }
+                    });
+                    coopAgencyOfficeDlg.open();
+                } else {
+                    coopAgencyOfficeDlg.bringToTop();
+                }
             }
         });
 
