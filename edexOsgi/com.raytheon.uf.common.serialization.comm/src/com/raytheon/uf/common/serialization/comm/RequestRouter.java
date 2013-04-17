@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.serialization.comm;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.registry.GenericRegistry;
 import com.raytheon.uf.common.util.registry.RegistryException;
 
@@ -35,8 +37,7 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * Nov 15, 2012 1322       djohnson    Add ability to route by server key.
  * Mar 05, 2013 1754       djohnson    Prevent infinite loop when request.server router not registered,
  *                                     info log when router registered.
- * Apr 04, 2013 1786       mpduff      Remove StatusHandler and logging.  Prevents thrift logging 
- *                                     requests from happening before the VIZ platform is ready.
+ * Apr 04, 2013 1786       mpduff      Simplify logging.
  * 
  * </pre>
  * 
@@ -45,6 +46,9 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  */
 
 public final class RequestRouter {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RequestRouter.class);
+
     static final String REQUEST_SERVICE = "request.server";
 
     /**
@@ -65,7 +69,8 @@ public final class RequestRouter {
                                 + s.getClass().getName()
                                 + "] already registered for key [" + t + "]"));
             }
-
+            statusHandler.info("Registered request router for key [" + t
+                    + "] of type [" + s.getClass().getName() + "]");
             return super.register(t, s);
         }
 
