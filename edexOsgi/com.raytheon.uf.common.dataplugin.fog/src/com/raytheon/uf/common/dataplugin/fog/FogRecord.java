@@ -23,6 +23,7 @@ import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -34,10 +35,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.referencing.crs.ProjectedCRS;
 import org.hibernate.annotations.Index;
+import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.analysis.FogRange;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -61,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/12/09                 D. Hladky   Initial release
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/13     1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -68,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "fogseq")
 @Table(name = "fog", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
