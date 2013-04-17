@@ -38,6 +38,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.BenchmarkData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -53,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * 17 Dec 2008  1787       askripsk    Connect to database.
+ * 17 Apr 2013  1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -61,6 +65,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class BenchmarkDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BenchmarkDlg.class);
 
     /**
      * Control font.
@@ -117,22 +123,30 @@ public class BenchmarkDlg extends CaveSWTDialog {
      */
     private ArrayList<BenchmarkData> benchData;
 
+    /**
+     * Dialog states.
+     */
     private enum DialogStates {
         NO_DATA, DATA_AVAILABLE, NEW_ENTRY
     }
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public BenchmarkDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Benchmark" + titleInfo);
         this.lid = lid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -142,14 +156,26 @@ public class BenchmarkDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
 
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
@@ -158,7 +184,7 @@ public class BenchmarkDlg extends CaveSWTDialog {
         createInformationGroup();
 
         createBottomButtons();
-     // Get the dialog data
+        // Get the dialog data
         getDialogData();
     }
 
@@ -261,7 +287,7 @@ public class BenchmarkDlg extends CaveSWTDialog {
                 }
 
                 if (close) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -284,7 +310,7 @@ public class BenchmarkDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -324,6 +350,9 @@ public class BenchmarkDlg extends CaveSWTDialog {
         return labelStr;
     }
 
+    /**
+     * Get the data for the lid and update the display.
+     */
     private void getDialogData() {
         if (benchData == null) {
             benchData = new ArrayList<BenchmarkData>();
@@ -373,9 +402,12 @@ public class BenchmarkDlg extends CaveSWTDialog {
      */
     private String getDisplayString(BenchmarkData currData) {
         String displayFormat = "%-6s %47s %14s";
-        return String.format(displayFormat, currData.getBenchmarkNumber(), " ",
-                HydroDataUtils.getDisplayString("%14s", "%8.3f", currData
-                        .getElevation()));
+        return String.format(
+                displayFormat,
+                currData.getBenchmarkNumber(),
+                " ",
+                HydroDataUtils.getDisplayString("%14s", "%8.3f",
+                        currData.getElevation()));
     }
 
     /**
@@ -514,8 +546,7 @@ public class BenchmarkDlg extends CaveSWTDialog {
                     MessageBox mbErr = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbErr.setText("Unable to Delete");
-                    mbErr
-                            .setMessage("An error occurred while trying to delete the record.");
+                    mbErr.setMessage("An error occurred while trying to delete the record.");
                     mbErr.open();
 
                     e.printStackTrace();
@@ -550,13 +581,12 @@ public class BenchmarkDlg extends CaveSWTDialog {
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Data for the location must be add via the River Gauge dialog first.");
+                mb.setMessage("Data for the location must be add via the River Gauge dialog first.");
                 mb.open();
             }
         } catch (VizException e) {
             // don't care, just return false
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Checking constraints", e);
         }
 
         return rval;
