@@ -4,11 +4,14 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
   http://www.springframework.org/schema/tx
   http://www.springframework.org/schema/tx/spring-tx.xsd">
-  
+
     <!-- This file should only contain beans used on a running EDEX instance. -->
-    
+
     <bean id="ebxmlDbValidationStrategy"
         class="com.raytheon.uf.edex.registry.ebxml.dao.EbxmlPostgresValidationStrategy" />
+
+    <bean id="registrySubscriptionManagerInvoker"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.EsbRouteRegistrySubscriptionManagerInvocation" />
 
     <!-- start service -->
     <bean id="queryServiceFactory" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
