@@ -20,6 +20,8 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -28,6 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -94,6 +97,18 @@ public class SubmitObjectsRequest extends RegistryRequestType {
      */
     public void setRegistryObjectList(RegistryObjectListType value) {
         this.registryObjectList = value;
+    }
+
+    /**
+     * Get the registry objects on the request.
+     * 
+     * @return
+     */
+    public List<RegistryObjectType> getRegistryObjects() {
+        if (registryObjectList == null) {
+            registryObjectList = new RegistryObjectListType();
+        }
+        return registryObjectList.getRegistryObject();
     }
 
     /**
