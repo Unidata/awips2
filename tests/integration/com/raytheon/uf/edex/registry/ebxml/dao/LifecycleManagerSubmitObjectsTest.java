@@ -21,12 +21,12 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -34,10 +34,12 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.InvalidRequestExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectExistsExceptionType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +48,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Sets;
 import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 
@@ -59,6 +62,7 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2013 1693       djohnson     Initial creation
+ * Apr 18, 2013 1693       djohnson     More tests verifying spec compliance..
  * 
  * </pre>
  * 
@@ -81,7 +85,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * @throws MsgRegistryException
      */
     @Test
-    public void createOnlySubmitObjectsWithNonExistantObjectSucceeds()
+    public void createOnlyWithNonExistantObjectSucceeds()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -102,7 +106,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * @throws MsgRegistryException
      */
     @Test
-    public void createOnlySubmitObjectsWithExistantObjectFails()
+    public void createOnlyWithExistantObjectFails()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -110,15 +114,8 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
 
         lifecycleManager.submitObjects(submitObjectsRequest);
 
-        try {
-            lifecycleManager.submitObjects(submitObjectsRequest);
-
-            fail("Expected a MsgRegistryException to have been thrown!");
-        } catch (MsgRegistryException exception) {
-            final RegistryExceptionType faultInfo = exception.getFaultInfo();
-            assertThat(faultInfo,
-                    is(instanceOf(ObjectExistsExceptionType.class)));
-        }
+        expectFaultException(submitObjectsRequest,
+                ObjectExistsExceptionType.class);
     }
 
     /**
@@ -127,7 +124,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * replace the existing object with the submitted object
      */
     @Test
-    public void createOrReplaceSubmitObjectsWithNonExistantObjectSucceeds()
+    public void createOrReplaceWithNonExistantObjectSucceeds()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -142,12 +139,35 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
     }
 
     /**
+     * CreateOrReplace (default)
+     */
+    @Test
+    public void noModeSpecifiedCanReplaceExistantObject()
+            throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_REPLACE);
+
+        lifecycleManager.submitObjects(submitObjectsRequest);
+
+        // Null out the mode
+        submitObjectsRequest.setMode(null);
+
+        final RegistryResponseType response = lifecycleManager
+                .submitObjects(submitObjectsRequest);
+
+        assertThat(response.getStatus(),
+                is(equalTo(RegistryResponseStatus.SUCCESS)));
+    }
+
+    /**
      * CreateOrReplace (default) - If an object does not exist, server MUST
      * create it as a new object. If an object already exists, server MUST
      * replace the existing object with the submitted object
      */
     @Test
-    public void createOrReplaceSubmitObjectsWithExistantObjectSucceeds()
+    public void createOrReplaceWithExistantObjectSucceeds()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -169,7 +189,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * replace the existing object with the submitted object
      */
     @Test
-    public void createOrReplaceSubmitObjectsWithExistantObjectReplacesExisting()
+    public void createOrReplaceWithExistantObjectReplacesExisting()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -195,7 +215,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * object using the state of the submitted object
      */
     @Test
-    public void createOrVersionSubmitObjectsWithNonExistantObjectSucceeds()
+    public void createOrVersionWithNonExistantObjectSucceeds()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -216,7 +236,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * object using the state of the submitted object
      */
     @Test
-    public void createOrVersionSubmitObjectsWithExistantObjectVersionsExisting()
+    public void createOrVersionWithExistantObjectVersionsExisting()
             throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
@@ -235,4 +255,205 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
         assertThat(registryObjects, hasSize(2));
     }
 
+    /**
+     * Attribute checkReferences - true - Specifies that a server MUST check
+     * submitted objects and make sure that all references via reference
+     * attributes and slots to other RegistryObjects are resolvable. If a
+     * reference does not resolve then the server MUST return
+     * UnresolvedReferenceException
+     */
+    @Test
+    public void checkReferencesTrueWithNonExistantAssociationFails()
+            throws MsgRegistryException {
+
+        final ClassificationType classificationType = new ClassificationType();
+        classificationType.setId("someClassificationId");
+
+        final Set<ClassificationType> classifications = Sets
+                .<ClassificationType> newHashSet();
+        classifications.add(classificationType);
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_VERSION);
+        submitObjectsRequest.setCheckReferences(true);
+
+        final RegistryObjectType registryObject = submitObjectsRequest
+                .getRegistryObjects().iterator().next();
+        registryObject.setClassification(classifications);
+
+        expectFaultException(submitObjectsRequest,
+                UnresolvedReferenceExceptionType.class);
+    }
+
+    /**
+     * Attribute checkReferences - false - Specifies that a server MUST NOT
+     * check submitted objects to make sure that all references via reference
+     * attributes and slots to other RegistryObjects are resolvable. If a
+     * reference does not resolve then the server MUST NOT return
+     * UnresolvedReferenceException
+     */
+    @Test
+    public void checkReferencesFalseWithNonExistantAssociationSucceeds()
+            throws MsgRegistryException {
+
+        final ClassificationType classificationType = new ClassificationType();
+        classificationType.setId("someClassificationId");
+
+        final Set<ClassificationType> classifications = Sets
+                .<ClassificationType> newHashSet();
+        classifications.add(classificationType);
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_VERSION);
+        submitObjectsRequest.setCheckReferences(false);
+
+        final RegistryObjectType registryObject = submitObjectsRequest
+                .getRegistryObjects().iterator().next();
+        registryObject.setClassification(classifications);
+
+        lifecycleManager.submitObjects(submitObjectsRequest);
+    }
+
+    /**
+     * id - MUST be specified by client or else server MUST return
+     * InvalidRequestException
+     */
+    @Test
+    public void createOrReplaceWithoutIdFails() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_REPLACE);
+        submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
+
+        expectFaultException(submitObjectsRequest,
+                InvalidRequestExceptionType.class);
+    }
+
+    /**
+     * id - MUST be specified by client or else server MUST return
+     * InvalidRequestException
+     */
+    @Test
+    public void createOrVersionWithoutIdFails() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_VERSION);
+        submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
+
+        expectFaultException(submitObjectsRequest,
+                InvalidRequestExceptionType.class);
+    }
+
+    /**
+     * id - If unspecified Server MUST generate UUID URN
+     */
+    @Test
+    public void createOnlyWithoutIdCreatesUUID() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE, Mode.CREATE_ONLY);
+        submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
+
+        final RegistryResponseType response = lifecycleManager
+                .submitObjects(submitObjectsRequest);
+
+        final String id = response.getObjectRefList().getObjectRef().iterator()
+                .next().getId();
+
+        // Make sure it can be parsed as a UUID
+        UUID.fromString(id);
+    }
+
+    /**
+     * id - If id does not exists, server MUST create new object using that id
+     * (create)
+     */
+    @Test
+    public void createOnlyWithIdUsesGivenId() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE, Mode.CREATE_ONLY);
+        submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
+
+        final RegistryResponseType response = lifecycleManager
+                .submitObjects(submitObjectsRequest);
+
+        assertThat(response.getObjectRefList().getObjectRef().iterator().next()
+                .getId(), is(submitObjectsRequest.getRegistryObjects()
+                .iterator().next().getId()));
+    }
+
+    /**
+     * lid - MUST be specified by client or else server MUST return
+     * InvalidRequestException
+     */
+    @Test
+    public void createOrReplaceWithoutLidFails() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_REPLACE);
+        submitObjectsRequest.getRegistryObjects().iterator().next()
+                .setLid(null);
+
+        expectFaultException(submitObjectsRequest,
+                InvalidRequestExceptionType.class);
+    }
+
+    /**
+     * lid - MUST be specified by client or else server MUST return
+     * InvalidRequestException
+     */
+    @Test
+    public void createOrVersionWithoutLidFails() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_VERSION);
+        submitObjectsRequest.getRegistryObjects().iterator().next()
+                .setLid(null);
+
+        expectFaultException(submitObjectsRequest,
+                InvalidRequestExceptionType.class);
+    }
+
+    /**
+     * lid - MUST be specified by client or else server MUST return
+     * InvalidRequestException
+     */
+    @Test
+    public void createOnlyWithoutLidFails() throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE, Mode.CREATE_ONLY);
+        submitObjectsRequest.getRegistryObjects().iterator().next()
+                .setLid(null);
+
+        expectFaultException(submitObjectsRequest,
+                InvalidRequestExceptionType.class);
+    }
+
+    /**
+     * lid - MUST NOT exist or else server MUST return ObjectExistsException
+     */
+    @Test
+    public void createOrVersionWithExistingLidFails()
+            throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE, Mode.CREATE_ONLY);
+        submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
+        submitObjectsRequest.getRegistryObjects().iterator().next()
+                .setLid("goingToSubmitTheSameLidTwice");
+
+        lifecycleManager.submitObjects(submitObjectsRequest);
+
+        submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
+        expectFaultException(submitObjectsRequest,
+                ObjectExistsExceptionType.class);
+    }
 }
