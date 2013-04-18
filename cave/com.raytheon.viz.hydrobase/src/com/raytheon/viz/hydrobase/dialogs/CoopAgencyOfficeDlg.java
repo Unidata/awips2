@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -105,12 +103,12 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
     /**
      * Cache of available agencies/offices
      */
-    private ArrayList<AgencyOfficeData> availData;
+    private java.util.List<AgencyOfficeData> availData;
 
     /**
      * Cache of selected agencies/offices
      */
-    private ArrayList<LocationAgencyOfficeData> selectedData;
+    private java.util.List<LocationAgencyOfficeData> selectedData;
 
     /**
      * Non-blocking Constructor.

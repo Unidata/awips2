@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -98,12 +96,12 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
     /**
      * Dam Type Data.
      */
-    private ArrayList<DamTypeData> damTypeData;
+    private java.util.List<DamTypeData> damTypeData;
 
     /**
      * Reservoir Owner Data.
      */
-    private ArrayList<ReservoirOwnerData> resOwnerData;
+    private java.util.List<ReservoirOwnerData> resOwnerData;
 
     private final int OWNER = 0;
 
@@ -389,8 +387,7 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         if (dataList.getSelectionIndex() < 0) {
             MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
             mb.setText("Delete Error");
-            mb
-                    .setMessage("You need to select an item from the list for deletion.");
+            mb.setMessage("You need to select an item from the list for deletion.");
             mb.open();
             return;
         }
