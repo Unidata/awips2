@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.ui.personalities.awips;
+package com.raytheon.uf.viz.personalities.cave.workbench;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.graphics.Point;
@@ -32,7 +32,6 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
-import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
 import com.raytheon.viz.ui.dialogs.ModeListener;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -47,7 +46,6 @@ import com.raytheon.viz.ui.statusline.VizActionBarAdvisor;
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
  * Oct 21, 2008   #1450     randerso    Fixed to support multipane editors
- * Mar 20, 2013    1638     mschenke    Removed call to DiscoverMenuContributions as now handled in VizWorkbenchAdvisor
  * 
  * </pre>
  * 
@@ -55,8 +53,6 @@ import com.raytheon.viz.ui.statusline.VizActionBarAdvisor;
  * @version 1
  */
 public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
-
-    private boolean singlePerspective;
 
     private VizPerspectiveListener listener;
 
@@ -67,10 +63,8 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
      * 
      * @param configurer
      */
-    public VizWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer,
-            boolean singlePerspective) {
+    public VizWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
         super(configurer);
-        this.singlePerspective = singlePerspective;
     }
 
     /*
@@ -85,7 +79,6 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
         configurer.setShowProgressIndicator(true);
         configurer.setInitialSize(new Point(1024, 768));
         // Don't show perspective bar if running a specific perspective?
-        configurer.setShowPerspectiveBar(!singlePerspective);
         configurer.setShowCoolBar(true);
         configurer.setShowStatusLine(true);
 
@@ -135,9 +128,6 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
         if (perspective != null) {
             listener.perspectiveActivated(page, perspective);
         }
-
-        new TearOffMenuListener(VizActionBarAdvisor.getInstance(window)
-                .getMenuManager());
     }
 
     /*

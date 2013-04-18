@@ -1,4 +1,4 @@
-package com.raytheon.viz.ui.personalities.awips;
+package com.raytheon.uf.viz.personalities.cave.menu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +43,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.actions.ContributedEditorMenuAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
+@SuppressWarnings("restriction")
 public class VizEditorSystemMenu implements ISystemMenu {
 
     private static final String EDITOR_MENU_EXTENSION_POINT = "com.raytheon.viz.ui.editorMenuAddition";
