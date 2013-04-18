@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 16 Apr 2013  1790       rferrel     Make dialog non-blocking.
  *                                     Changes for non-blocking CoopAgencyOfficeDlg.
  *                                     Changes for non-blocking CopyNewLocationDlg.
+ *                                     Changes for non-blocking CountyStateDlg.
  * 
  * 
  * </pre>
@@ -99,9 +100,14 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     private CoopAgencyOfficeDlg coopAgencyOfficeDlg;
 
     /**
-     * Allow ojne Copy New dialog.
+     * Allow one Copy New dialog.
      */
     private CopyNewLocationDlg copyDlg;
+
+    /**
+     * Allow one County/State dialog.
+     */
+    private CountyStateDlg countyStateDlg;
 
     /**
      * Font used for controls.
@@ -1867,10 +1873,15 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     }
 
     private void openCountyStateDlg() {
-        CountyStateDlg countyStateDlg = new CountyStateDlg(shell);
-        countyStateDlg.addListener(this);
+        if (countyStateDlg == null || countyStateDlg.isDisposed()) {
+            countyStateDlg = new CountyStateDlg(shell);
+            countyStateDlg.addListener(this);
+            countyStateDlg.open();
+        } else {
+            countyStateDlg.bringToTop();
+        }
 
-        // Open the county/state dlg
+        // Set the selection county/state dlg
         if (!countyStateTF.getText().equals("")) {
             // Set selection in dialog to current location's settings
             CountiesData currCountyState = new CountiesData();
@@ -1880,12 +1891,8 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
             currCountyState.setState(countyState[1].trim());
 
             // Tell county/state dialog what to select
-            countyStateDlg.open(currCountyState);
-        } else {
-            countyStateDlg.open();
+            countyStateDlg.setSelection(currCountyState);
         }
-
-        countyStateDlg.removeListener(this);
     }
 
     @Override
