@@ -54,8 +54,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.hydrocommon.Activator;
-import com.raytheon.viz.hydrocommon.constants.StatusConstants;
 import com.raytheon.viz.hydrocommon.data.ColorValueData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -70,7 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation
  * 23 Feb 2011  5400       lbousaidi   fixed issues in color/value bar
  * 11 Mar 2013  15065      lbousaidi   fixed issue with both color legend 
- *                         disappearing after save	
+ *                         disappearing after save
  * </pre>
  * 
  * @author lvenable
@@ -78,7 +76,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class ColorScaleMgrDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ColorScaleMgrDlg.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ColorScaleMgrDlg.class);
+
     private static final String OFFICE = "Office";
 
     private static final String DEFAULT = "Default";
@@ -110,12 +110,12 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
     /**
      * Updated Color/Value array of color and value labels.
      */
-    private ArrayList<ColorValueLabels> colorValLblArray;
+    private java.util.List<ColorValueLabels> colorValLblArray;
 
     /**
      * Used Color/Value array of color and value labels.
      */
-    private ArrayList<ColorValueLabels> usedColorValLblArray;
+    private java.util.List<ColorValueLabels> usedColorValLblArray;
 
     /**
      * Source combo box.
@@ -228,7 +228,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      */
     private Combo browseDurationCbo;
 
-    private ArrayList<ColorValueLabels> browseColorValLblArray;
+    private java.util.List<ColorValueLabels> browseColorValLblArray;
 
     private Composite browseLabelComp;
 
@@ -749,7 +749,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         changeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	if (valueTF.getText() == null || valueTF.getText().equals("")) {
+                if (valueTF.getText() == null || valueTF.getText().equals("")) {
                     MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING
                             | SWT.OK);
                     mb.setText("Choose a value");
@@ -757,7 +757,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                     mb.open();
 
                     return;
-            	}
+                }
                 String source = getSource();
                 changeColor(currentColor.getRGB(), source);
                 updateColorValueLabelBar();
@@ -1094,7 +1094,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
     private void createEditColorDisplay(Composite parentComp) {
         String source = getSource();
 
-        ArrayList<ColorScaleData> updatedColorSet = editColorData
+        java.util.List<ColorScaleData> updatedColorSet = editColorData
                 .getColorScaleDataArray(source, selectedDurationInSeconds + "_"
                         + dataTypeCbo.getText());
 
@@ -1134,7 +1134,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
     private void createBrowseEditColorDisplay(Composite parentComp) {
         String source = getSource();
 
-        ArrayList<ColorScaleData> updatedColorSet = editColorData
+        java.util.List<ColorScaleData> updatedColorSet = editColorData
                 .getColorScaleDataArray(source, selectedBrowseDurationInSeconds
                         + "_" + browseDataTypeCbo.getText());
 
@@ -1269,7 +1269,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      *            Parent composite.
      */
     private void createUsedColorDisplay(Composite parentComp) {
-        ArrayList<ColorScaleData> usedColorSet = editColorData
+        java.util.List<ColorScaleData> usedColorSet = editColorData
                 .getUsedColorScaleDataArray(sourceCbo.getText(),
                         selectedDurationInSeconds + "_" + dataTypeCbo.getText());
 
@@ -1419,9 +1419,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             durationCbo.add("0");
         } else {
             // HERE is the NULL Pointer
-        	String dataType = colorManager.getDataTypeName(dataTypeCbo.getText());
+            String dataType = colorManager.getDataTypeName(dataTypeCbo
+                    .getText());
             Set<String> durations = editColorData.getColorDataTypeSets(
-                    sourceKey).getDurations(colorManager.getDescription(dataType));
+                    sourceKey).getDurations(
+                    colorManager.getDescription(dataType));
             Iterator<String> i = durations.iterator();
             while (i.hasNext()) {
                 addDuration(i.next());
@@ -1436,7 +1438,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      */
     private void updateBrowseDurationCombo() {
         String source = getSource();
-        ArrayList<String> durations;
+        java.util.List<String> durations;
         if (source.equals(DEFAULT)) {
             durations = new ArrayList<String>();
             durations.add("0");
@@ -1465,17 +1467,16 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
         String source = getSource();
 
-        ArrayList<ColorScaleData> updatedColorSet = editColorData
+        java.util.List<ColorScaleData> updatedColorSet = editColorData
                 .getColorScaleDataArray(source, selectedDurationInSeconds + "_"
                         + dataTypeCbo.getText());
-        // ArrayList<ColorScaleData> updatedColorSet = editColorData
+        // java.util.List<ColorScaleData> updatedColorSet = editColorData
         // .getColorScaleDataArray(source, durationCbo.getText() + "_"
         // + dataTypeCbo.getText());
-       
-        if (updatedColorSet.size()==0) {          
-        	 updatedColorSet = editColorData
-        	    .getColorScaleDataArray(source, 0 + "_"
-                        + dataTypeCbo.getText());
+
+        if (updatedColorSet.size() == 0) {
+            updatedColorSet = editColorData.getColorScaleDataArray(source, 0
+                    + "_" + dataTypeCbo.getText());
         }
         int numCols = updatedColorSet.size();
 
@@ -1515,7 +1516,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
         String source = getSource();
 
-        ArrayList<ColorScaleData> updatedColorSet = editColorData
+        java.util.List<ColorScaleData> updatedColorSet = editColorData
                 .getColorScaleDataArray(source, selectedBrowseDurationInSeconds
                         + "_" + browseDataTypeCbo.getText());
         if (updatedColorSet == null) {
@@ -1560,18 +1561,17 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
         String source = getSource();
 
-        // ArrayList<ColorScaleData> updatedColorSet = editColorData
+        // java.util.List<ColorScaleData> updatedColorSet = editColorData
         // .getUsedColorScaleDataArray(source, durationCbo.getText() + "_"
         // + dataTypeCbo.getText());
-        ArrayList<ColorScaleData> updatedColorSet = editColorData
+        java.util.List<ColorScaleData> updatedColorSet = editColorData
                 .getUsedColorScaleDataArray(source, selectedDurationInSeconds
                         + "_" + dataTypeCbo.getText());
-        
-        //use default color
-        if (updatedColorSet.size() == 0 ) {       	
-        	 updatedColorSet = editColorData
-                  .getUsedColorScaleDataArray(source, 0
-                       + "_" + dataTypeCbo.getText());
+
+        // use default color
+        if (updatedColorSet.size() == 0) {
+            updatedColorSet = editColorData.getUsedColorScaleDataArray(source,
+                    0 + "_" + dataTypeCbo.getText());
         }
         int numCols = updatedColorSet.size();
 
@@ -1713,7 +1713,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      */
     private boolean populateUserIdCombo() {
         userIdCbo.removeAll();
-        ArrayList<String> userIds = colorManager.getUsers();
+        java.util.List<String> userIds = colorManager.getUsers();
         if (userIds.size() == 0) {
             return false;
         } else {
@@ -1739,7 +1739,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
     private boolean createColorData(String user) {
         ColorDataTypeSets dataTypeSets = new ColorDataTypeSets();
         // get all datatypes this user has saved data for
-        ArrayList<String> userDataTypes = colorManager.getDataTypes(user);
+        java.util.List<String> userDataTypes = colorManager.getDataTypes(user);
 
         if (userDataTypes.size() == 0) {
             return false;
@@ -1753,8 +1753,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         // for each datatype in database...
         for (String dataType : userDataTypes) {
             // get all durations for this datatype and this user
-            ArrayList<String> durations = colorManager.getDurations(userId,
-                    dataType);
+            java.util.List<String> durations = colorManager.getDurations(
+                    userId, dataType);
 
             // for each duration for datatype
             for (String duration : durations) {
@@ -1767,13 +1767,13 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
                 try {
                     // actually get the data from database
-                    ArrayList<ColorValueData> data = manager.getData(cvd);
+                    java.util.List<ColorValueData> data = manager.getData(cvd);
                     // sort data by double value because data is stored as
                     // String
                     // see ColorValueData class for compareTo function
                     Collections.sort(data);
                     ColorScaleSets colorScaleSets = new ColorScaleSets();
-                    ArrayList<ColorScaleData> origList = new ArrayList<ColorScaleData>();
+                    java.util.List<ColorScaleData> origList = new ArrayList<ColorScaleData>();
 
                     for (ColorValueData colorValue : data) {
                         ColorScaleData csd = new ColorScaleData();
@@ -1792,7 +1792,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                         }
                         origList.add(csd);
                     }
-                    ArrayList<ColorScaleData> usedList = new ArrayList<ColorScaleData>();
+                    java.util.List<ColorScaleData> usedList = new ArrayList<ColorScaleData>();
                     usedList.addAll(origList);
 
                     colorScaleSets.setOriginalArray(origList);
@@ -1800,8 +1800,9 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
                     // Right now last data will be only data to show up
                     // Need to incorporate duration into key for dataTypeSets
-                    dataTypeSets.addDataTypeColorSets(
-                            duration + "_" + colorManager.getDescription(dataType), colorScaleSets);
+                    dataTypeSets.addDataTypeColorSets(duration + "_"
+                            + colorManager.getDescription(dataType),
+                            colorScaleSets);
                 } catch (VizException e) {
                     e.printStackTrace();
                 }
@@ -1840,7 +1841,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * Creates the default color data
      */
     private void createDefaultData() {
-        ArrayList<String> defaultDataTypes = colorManager.getDefaultDataTypes();
+        java.util.List<String> defaultDataTypes = colorManager
+                .getDefaultDataTypes();
 
         editColorData = new EditColorData();
 
@@ -1848,7 +1850,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
         for (int i = 0; i < defaultDataTypes.size(); i++) {
             ColorScaleSets colorScaleSets = new ColorScaleSets();
-            ArrayList<ColorScaleData> origList = colorManager
+            java.util.List<ColorScaleData> origList = colorManager
                     .getDefaultColorScaleData(defaultDataTypes.get(i));
 
             colorScaleSets.setOriginalArray(origList);
@@ -1889,10 +1891,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         Iterator<String> i = dataTypes.iterator();
         while (i.hasNext()) {
             String dt = i.next();
-            //add a check in case there is a typo in dataType the it will be null
-            if (!dt.contains("null")) {            	            	
-               dataTypeCbo.add(colorManager.getDescription(dt));
-            }            
+            // add a check in case there is a typo in dataType the it will be
+            // null
+            if (!dt.contains("null")) {
+                dataTypeCbo.add(colorManager.getDescription(dt));
+            }
         }
 
         if (dataTypeCbo.getItemCount() == 0) {
@@ -1975,11 +1978,11 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         } else {
             createColorData(user);
         }
-       
-        updateDurationCombo(); 
-        updateColorValueLabelBar();   
-        
-        setReturnValue(true);  
+
+        updateDurationCombo();
+        updateColorValueLabelBar();
+
+        setReturnValue(true);
     }
 
     /**
@@ -2002,8 +2005,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             updateSaveDataTypeCombo();
             updateUsedColorSetGroupText();
         } catch (Throwable t) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error parsing duration: " + durationCbo.getText(), t);
+            statusHandler.handle(Priority.PROBLEM, "Error parsing duration: "
+                    + durationCbo.getText(), t);
         }
     }
 
@@ -2043,7 +2046,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         String dataType = dataTypeCbo.getText();
         String duration = selectedDurationInSeconds.toString();
         String dataTypeKey = duration + "_" + dataType;
-        ArrayList<ColorScaleData> data = editColorData
+        java.util.List<ColorScaleData> data = editColorData
                 .getUsedColorScaleDataArray(source, duration + "_" + dataType);
         ColorValueData cvd = new ColorValueData();
         cvd.setApplicationName(colorManager.getApplicationName());
@@ -2156,8 +2159,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             durationCbo
                     .add(String.valueOf(Integer.parseInt(durInSeconds) / 3600));
         } catch (Throwable t) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error parsing duration: " + durInSeconds, t);
+            statusHandler.handle(Priority.PROBLEM, "Error parsing duration: "
+                    + durInSeconds, t);
         }
     }
 
@@ -2166,8 +2169,8 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             browseDurationCbo
                     .add(String.valueOf(Integer.parseInt(durInSeconds) / 3600));
         } catch (Throwable t) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error parsing duration: " + durInSeconds, t);
+            statusHandler.handle(Priority.PROBLEM, "Error parsing duration: "
+                    + durInSeconds, t);
         }
     }
 

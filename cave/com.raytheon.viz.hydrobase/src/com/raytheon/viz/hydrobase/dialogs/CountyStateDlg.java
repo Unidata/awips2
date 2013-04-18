@@ -72,12 +72,12 @@ public class CountyStateDlg extends CaveSWTDialog {
     /**
      * Hold the county/state data
      */
-    private ArrayList<CountiesData> countiesData;
+    private java.util.List<CountiesData> countiesData;
 
     /**
      * List of listeners for changes
      */
-    private ArrayList<ICountyStateListener> countyStateListeners;
+    private java.util.List<ICountyStateListener> countyStateListeners;
 
     /**
      * Constructor.
