@@ -44,7 +44,6 @@ import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfo;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
 import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
-import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -65,7 +64,8 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -104,6 +104,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 03/19/2013   #1774       randerso    Fix accumulative grid time ranges
  * 04/04/2013   #1774       randerso    Moved wind component checking to GfeIngestNotificaionFilter
  * 04/04/2013   #1787       randerso    Move the D2D to GFE translation logic out of GFED2DDao
+ * 04/17/2013   #1913       randerso    Added GFE level mapping to replace GridTranslator
  * 
  * </pre>
  * 
@@ -195,6 +196,8 @@ public class D2DGridDatabase extends VGridDatabase {
     // regex to match parmnnhr
     private static final Pattern parmHrPattern = Pattern
             .compile("(\\D+)\\d+hr");
+
+    private static final String GFE_LEVEL_MAPPING_FILE = "grid/gfeLevelMappingFile.xml";
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
@@ -1178,27 +1181,33 @@ public class D2DGridDatabase extends VGridDatabase {
         // no-op
     }
 
-    public D2DParm getD2DParm(String d2dParmName, Level level) {
+    public D2DParm getD2DParm(String d2dParmName, Level d2dLevel) {
         String gfeParmName = getGfeParmName(d2dParmName);
 
-        String levelName = GridTranslator.getShortLevelName(level
-                .getMasterLevel().getName(), level.getLevelonevalue(), level
-                .getLeveltwovalue());
+        String gfeLevel = getGFELevel(d2dLevel);
+        if (gfeLevel == null) {
+            statusHandler.warn("No GFE level found for D2D model: "
+                    + d2dModelName + " D2D parm: " + d2dParmName
+                    + " D2D level:" + d2dLevel + " GFE model: "
+                    + dbId.getModelName() + " GFE parm: " + gfeParmName
+                    + ". Check gfeLevelMapping and parameterInfo files.");
+            return null;
+        }
 
-        D2DParm parm = d2dParms.get(compositeName(gfeParmName, levelName));
+        D2DParm parm = d2dParms.get(compositeName(gfeParmName, gfeLevel));
         if (parm == null) {
             // try to find one with duration (XXXnnhr)
             Matcher matcher = parmHrPattern.matcher(d2dParmName);
             if (matcher.find()) {
                 String abbrev = matcher.group(1);
                 gfeParmName = getGfeParmName(abbrev);
-                parm = d2dParms.get(compositeName(gfeParmName, levelName));
+                parm = d2dParms.get(compositeName(gfeParmName, gfeLevel));
             }
         }
 
         if (parm == null) {
             statusHandler.warn("No gridParameterInfo found for "
-                    + compositeName(gfeParmName, levelName) + ":"
+                    + compositeName(gfeParmName, gfeLevel) + ":"
                     + dbId.getModelId() + ". Check parameterInfo file.");
         }
 
@@ -1244,32 +1253,36 @@ public class D2DGridDatabase extends VGridDatabase {
     }
 
     private static Level getD2DLevel(String gfeLevel) {
-        String levelName = GridTranslator.getLevelName(gfeLevel);
-
-        double[] levelValues = GridTranslator.getLevelValue(gfeLevel);
-        boolean levelOnePresent = (levelValues[0] != Level
-                .getInvalidLevelValue());
-        boolean levelTwoPresent = (levelValues[1] != Level
-                .getInvalidLevelValue());
-        Level level = null;
-
-        // to have a level 2, must have a level one
+        List<Level> levels;
         try {
-            if (levelOnePresent && levelTwoPresent) {
-                level = LevelFactory.getInstance().getLevel(levelName,
-                        levelValues[0], levelValues[1]);
-            } else if (levelOnePresent) {
-                level = LevelFactory.getInstance().getLevel(levelName,
-                        levelValues[0]);
-            } else {
-                level = LevelFactory.getInstance().getLevel(levelName, 0.0);
-            }
+            levels = LevelMappingFactory.getInstance(GFE_LEVEL_MAPPING_FILE)
+                    .getLevelMappingForKey(gfeLevel).getLevels();
         } catch (CommunicationException e) {
-            statusHandler.error(e.getLocalizedMessage(), e);
+            levels = Collections.emptyList();
         }
-        if (level == null) {
-            statusHandler.warn(gfeLevel + " does not map to a D2D level");
+
+        Level level = null;
+        if (levels.isEmpty()) {
+            statusHandler.warn("No D2D level found for: " + gfeLevel);
+        } else {
+            level = levels.get(0);
         }
         return level;
+    }
+
+    private static String getGFELevel(Level d2dLevel) {
+        LevelMapping levelMapping;
+        try {
+            levelMapping = LevelMappingFactory.getInstance(
+                    GFE_LEVEL_MAPPING_FILE).getLevelMappingForLevel(d2dLevel);
+        } catch (CommunicationException e) {
+            levelMapping = null;
+        }
+
+        String gfeLevel = null;
+        if (levelMapping != null) {
+            gfeLevel = levelMapping.getKey();
+        }
+        return gfeLevel;
     }
 }
