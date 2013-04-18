@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.level;
+package com.raytheon.uf.common.dataplugin.level.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * ------------ ---------- ----------- --------------------------
  * 11/01/2007    #518      S.Manoj     Initial version
  * 11/16/2009    #3120     rjpeter     Refactored to use factory and level mapping.
+ * 04/17/2013    #1913     randerso    Moved to common
  * 
  * @author smanoj
  * @version 1.0
@@ -56,7 +57,7 @@ public class LevelMappingFile implements ISerializableObject {
         STANDARD, COMPOSITE, BINARY, XSECT, TSECT, VRTGPH, DIAGRAM, ALL, SURFACE
     };
 
-    @XmlElements( { @XmlElement(name = "Level", type = LevelMapping.class) })
+    @XmlElements({ @XmlElement(name = "Level", type = LevelMapping.class) })
     private List<LevelMapping> levelMappingFile;
 
     public List<LevelMapping> getLevelMappingFile() {
