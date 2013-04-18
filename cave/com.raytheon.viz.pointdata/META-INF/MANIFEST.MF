@@ -18,7 +18,8 @@ Require-Bundle: org.apache.batik,
  com.raytheon.uf.viz.localization;bundle-version="1.12.1174",
  org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.python;bundle-version="1.12.1161",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.drawables,
@@ -28,7 +29,6 @@ Export-Package: com.raytheon.viz.pointdata,
 Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.pointdata,
