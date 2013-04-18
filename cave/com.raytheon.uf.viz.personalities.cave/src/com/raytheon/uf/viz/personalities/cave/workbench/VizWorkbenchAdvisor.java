@@ -237,12 +237,23 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
      * (org.eclipse.ui.application.IWorkbenchWindowConfigurer)
      */
     @Override
-    public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
+    public final WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
             IWorkbenchWindowConfigurer configurer) {
         if (createdMenus == false) {
             createdMenus = true;
             createDynamicMenus();
         }
+        return createNewWindowAdvisor(configurer);
+    }
+
+    /**
+     * Create a new {@link WorkbenchWindowAdvisor}
+     * 
+     * @param configurer
+     * @return
+     */
+    protected WorkbenchWindowAdvisor createNewWindowAdvisor(
+            IWorkbenchWindowConfigurer configurer) {
         return new VizWorkbenchWindowAdvisor(configurer);
     }
 
