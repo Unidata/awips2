@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -342,7 +341,7 @@ public class AdministrationDlg extends CaveSWTDialog {
 
     private void getAdministrationData() {
         try {
-            ArrayList<AdministrationData> data = HydroDBDataManager
+            java.util.List<AdministrationData> data = HydroDBDataManager
                     .getInstance().getData(AdministrationData.class);
 
             // if no data is returned, clear the current display data
