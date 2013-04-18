@@ -31,5 +31,14 @@
 
     <!-- Register the application context with EDEXUtil -->
     <bean class="com.raytheon.uf.edex.core.EDEXUtil" />
+    
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+        destroy-method="close">
+        <property name="driverClassName" value="org.h2.Driver" />
+        <property name="url" value="${unit.test.jdbc.url}:;INIT=create schema IF NOT EXISTS ebxml" />
+        <property name="username" value="sa" />
+        <property name="password" value="" />
+        <property name="defaultAutoCommit" value="false" />
+    </bean>
 
 </beans>
