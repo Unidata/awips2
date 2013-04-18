@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -186,17 +184,17 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
     /**
      * Cache of available counties
      */
-    private ArrayList<CountiesData> availableCounties;
+    private java.util.List<CountiesData> availableCounties;
 
     /**
      * Cache of Transmitters
      */
-    private ArrayList<NWRTransmitterData> txData;
+    private java.util.List<NWRTransmitterData> txData;
 
     /**
      * Cache of Transmitter's Counties
      */
-    private ArrayList<CountyTransmitData> selectedCounties;
+    private java.util.List<CountyTransmitData> selectedCounties;
 
     /**
      * Cache of selected county and state
