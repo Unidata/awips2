@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.level;
+package com.raytheon.uf.common.dataplugin.level.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,6 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Class defines a database level
@@ -46,6 +45,8 @@ import com.raytheon.uf.viz.core.exception.VizCommunicationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11/16/2008   #3576      rjpeter     Initial version
+ * 04/17/2013   #1913      randerso    Moved to common
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -59,16 +60,16 @@ public class DatabaseLevelMapping {
             .getHandler(DatabaseLevelMapping.class);
 
     @XmlAttribute
-    private String levelName = null;
-
-    @XmlAttribute
-    private String levelOneValue = null;
+    private String unit = null;
 
     @XmlAttribute
     private String levelTwoValue = null;
 
     @XmlAttribute
-    private String unit = null;
+    private String levelOneValue = null;
+
+    @XmlAttribute
+    private String levelName = null;
 
     public String getLevelName() {
         return levelName;
@@ -102,7 +103,7 @@ public class DatabaseLevelMapping {
         this.unit = unit;
     }
 
-    public List<Level> getLevels() throws VizCommunicationException {
+    public List<Level> getLevels() throws CommunicationException {
         String[] levelOneValues = new String[0];
         String[] levelTwoValues = new String[0];
 
@@ -145,16 +146,11 @@ public class DatabaseLevelMapping {
             }
 
             // handle any aliasing etc
-            try {
-                Level level = LevelFactory.getInstance().getLevel(levelName,
-                        lvl1, lvl2, unit);
-                if (level != null) {
-                    rval.add(level);
-                }
-            } catch (CommunicationException e) {
-                throw new VizCommunicationException(e);
+            Level level = LevelFactory.getInstance().getLevel(levelName, lvl1,
+                    lvl2, unit);
+            if (level != null) {
+                rval.add(level);
             }
-
         }
 
         return rval;
