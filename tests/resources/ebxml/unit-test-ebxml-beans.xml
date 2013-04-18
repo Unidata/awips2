@@ -6,6 +6,9 @@
     <bean id="ebxmlDbValidationStrategy"
         class="com.raytheon.uf.edex.registry.ebxml.dao.EbxmlHsqlValidationStrategy" />
 
+    <bean id="registrySubscriptionManagerInvoker"
+        class="com.raytheon.uf.edex.registry.ebxml.dao.DirectlyInvokeRegistrySubscriptionManager" />
+
     <bean
         class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetClass">
