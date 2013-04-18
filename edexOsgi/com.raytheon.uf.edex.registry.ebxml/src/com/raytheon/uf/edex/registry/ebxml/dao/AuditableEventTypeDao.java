@@ -40,8 +40,8 @@ import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * 3/18/2013    1802       bphillip    Initial creation
  * 4/9/2013     1802       bphillip    Removed exception catching
+ * Apr 17, 2013 1914       djohnson    Use strategy for subscription processing.
  * 
  * </pre>
  * 
@@ -82,12 +83,22 @@ public class AuditableEventTypeDao extends
     /** Order by clause */
     private static final String ORDER_CLAUSE = " order by event.timestamp asc";
 
+    private IRegistrySubscriptionManager subscriptionManager;
+
+    /**
+     * Constructor.
+     * 
+     * @param subscriptionProcessor
+     */
+    public AuditableEventTypeDao() {
+    }
+
+    @Override
     public void create(AuditableEventType event) {
         template.save(event);
         // Notify the subscription monitor that a new event has occurred
         try {
-            EDEXUtil.getMessageProducer().sendAsyncUri(
-                    "vm:processSubscriptions", null);
+            subscriptionManager.processSubscriptions();
         } catch (Throwable t) {
             statusHandler
                     .error("Unexpected error ecountered while processing subscriptions!",
@@ -290,6 +301,22 @@ public class AuditableEventTypeDao extends
     @Override
     protected Class<AuditableEventType> getEntityClass() {
         return AuditableEventType.class;
+    }
+
+    /**
+     * @return the subscription manager
+     */
+    public IRegistrySubscriptionManager getSubscriptionManager() {
+        return subscriptionManager;
+    }
+
+    /**
+     * @param subscriptionManager
+     *            the subscriptionManager to set
+     */
+    public void setSubscriptionManager(
+            IRegistrySubscriptionManager subscriptionManager) {
+        this.subscriptionManager = subscriptionManager;
     }
 
 }
