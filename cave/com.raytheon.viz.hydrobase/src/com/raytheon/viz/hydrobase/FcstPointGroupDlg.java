@@ -72,7 +72,7 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
     /**
      * Cache of forecast groups
      */
-    private ArrayList<RPFFcstGroupData> fcstGroups;
+    private java.util.List<RPFFcstGroupData> fcstGroups;
 
     /**
      * Previously selected group
@@ -82,7 +82,7 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
     /**
      * List of listeners to group assignment changes
      */
-    private ArrayList<IForecastGroupAssignmentListener> fcstGroupListeners;
+    private java.util.List<IForecastGroupAssignmentListener> fcstGroupListeners;
 
     /**
      * Constructor.
@@ -236,8 +236,7 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
             }
         } else {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb
-                    .setMessage("No forecast groups have been defined under \"Setup\"");
+            mb.setMessage("No forecast groups have been defined under \"Setup\"");
             mb.open();
         }
     }
