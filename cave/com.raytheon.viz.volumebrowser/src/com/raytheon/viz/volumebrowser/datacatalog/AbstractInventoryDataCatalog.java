@@ -38,13 +38,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
 import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
@@ -184,16 +184,13 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                     }
                     request.addAvailablePlane("spatial-"
                             + level.getMasterLevel().getName());
-                    try {
-                        LevelMapping lm = LevelMappingFactory.getInstance()
-                                .getLevelMappingForLevel(level);
+                    LevelMapping lm = LevelMappingFactory
+                            .getInstance(
+                                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                            .getLevelMappingForLevel(level);
 
-                        if (lm != null) {
-                            request.addAvailablePlane(lm.getKey());
-                        }
-                    } catch (VizCommunicationException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
+                    if (lm != null) {
+                        request.addAvailablePlane(lm.getKey());
                     }
                 } catch (CommunicationException e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -255,6 +252,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         return result;
     }
 
+    @Override
     public List<String> getSupportedSources() {
         return getSupportedSourcesInternal();
     }
@@ -280,7 +278,8 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             if (selectedPlanes == null || selectedPlanes.length == 0) {
                 return null;
             }
-            LevelMappingFactory lmf = LevelMappingFactory.getInstance();
+            LevelMappingFactory lmf = LevelMappingFactory
+                    .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
             for (String plane : selectedPlanes) {
                 Collection<Level> levels = Collections.emptyList();
                 if (plane.startsWith("spatial-")) {
@@ -297,7 +296,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                     if (lm != null) {
                         try {
                             levels = lm.getLevels();
-                        } catch (VizCommunicationException e) {
+                        } catch (CommunicationException e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
                         }

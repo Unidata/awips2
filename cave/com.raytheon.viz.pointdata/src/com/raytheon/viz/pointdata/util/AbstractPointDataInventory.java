@@ -28,7 +28,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
@@ -40,9 +42,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
@@ -278,9 +278,11 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
 
     public static Level getStationLevel() {
         try {
-            return LevelMappingFactory.getInstance()
+            return LevelMappingFactory
+                    .getInstance(
+                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey("Station").getLevels().get(0);
-        } catch (VizCommunicationException e) {
+        } catch (CommunicationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return null;
         }
