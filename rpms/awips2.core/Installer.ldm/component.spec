@@ -20,6 +20,8 @@ Packager: Bryan Kowal
 AutoReq: no
 Requires: qpid-cpp-client = 0.7.946106-28.el5.centos.1 
 Requires: qpid-cpp-client-devel = 0.7.946106-28.el5.centos.1
+Requires: zlib-devel
+Requires: /usr/lib/libz.a
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -217,10 +219,12 @@ fi
 su ldm -c "./configure --disable-max-size --with-noaaport --disable-root-actions" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
+   echo "FATAL: ldm configure has failed!"
    exit 1
 fi
 su ldm -c "make install" > install.log 2>&1
 if [ $? -ne 0 ]; then
+   echo "FATAL: make install has failed!"
    exit 1
 fi
 popd > /dev/null 2>&1
@@ -231,6 +235,7 @@ if [ $? -ne 0 ]; then
 fi
 su ldm -c "/bin/bash my-make" > my-make.log 2>&1
 if [ $? -ne 0 ]; then
+   echo "FATAL: my-make has failed!"
    exit 1
 fi
 popd > /dev/null 2>&1
@@ -238,6 +243,7 @@ pushd . > /dev/null 2>&1
 cd ${_ldm_root_dir}/src
 make root-actions > root-actions.log 2>&1
 if [ $? -ne 0 ]; then
+   echo "FATAL: root-actions has failed!"
    exit 1
 fi
 popd > /dev/null 2>&1
@@ -247,18 +253,22 @@ pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
 /bin/tar -xf decrypt_file.tar
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to untar decrypt_file.tar!"
    exit 1
 fi
 /bin/tar -xf edexBridge.tar
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to untar edexBridge.tar!"
    exit 1
 fi
 /bin/rm -f *.tar
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to remove edexBridge.tar and decrypt_file.tar!"
    exit 1
 fi
 /bin/chown -R ldm:fxalpha ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to change owner of ldm SOURCES directory."
    exit 1
 fi
 cd decrypt_file
@@ -268,10 +278,12 @@ fi
 su ldm -c "gcc -D_GNU_SOURCE -o decrypt_file decrypt_file.c" > \
    decrypt_file.log 2>&1
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to build decrypt_file!"
    exit 1
 fi
 /bin/mv decrypt_file ${_ldm_dir}/decoders/decrypt_file
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
    exit 1
 fi
 cd ../edexBridge
@@ -287,10 +299,12 @@ su ldm -c "g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
    -l ldm -l xml2 -l qpidclient -l qpidcommon -o edexBridge" > \
    edexBridge.log 2>&1
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to build edexBridge!"
    exit 1
 fi
 /bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
 if [ $? -ne 0 ]; then
+   echo "FATAL: failed to move edexBridge to ldm bin directory!"
    exit 1
 fi
 cd ..
