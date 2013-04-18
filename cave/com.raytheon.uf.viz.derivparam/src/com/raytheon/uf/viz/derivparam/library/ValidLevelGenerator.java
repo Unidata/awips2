@@ -34,11 +34,11 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.util.mapping.Mapper;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 
 /**
  * Generates the valid levels for a derived parameter script based on it
@@ -74,7 +74,8 @@ public class ValidLevelGenerator {
     private Set<MasterLevel> masterLevelsHandled;
 
     public ValidLevelGenerator() {
-        lmf = LevelMappingFactory.getInstance();
+        lmf = LevelMappingFactory
+                .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
         lf = LevelFactory.getInstance();
         lm = LevelMapper.getInstance();
     }
@@ -84,61 +85,65 @@ public class ValidLevelGenerator {
         masterLevels = new HashMap<MasterLevel, Set<Level>>();
         validLevels = new HashSet<Level>();
         masterLevelsHandled = new HashSet<MasterLevel>();
-        if (validLevelsString != null && validLevelsString.length() > 0) {
-            String[] levelTokenArray = validLevelsString.split(",");
-            List<String> tokensToProcess = new ArrayList<String>(
-                    levelTokenArray.length);
+        try {
+            if (validLevelsString != null && validLevelsString.length() > 0) {
+                String[] levelTokenArray = validLevelsString.split(",");
+                List<String> tokensToProcess = new ArrayList<String>(
+                        levelTokenArray.length);
 
-            for (String token : levelTokenArray) {
-                tokensToProcess.add(token);
-            }
-
-            // generate initial list
-            Iterator<String> iter = tokensToProcess.iterator();
-
-            while (iter.hasNext()) {
-                String token = iter.next();
-
-                if (token.charAt(0) == '!') {
-                    token = token.substring(1);
+                for (String token : levelTokenArray) {
+                    tokensToProcess.add(token);
                 }
-                // See if this is a group.
-                Map<MasterLevel, Set<Level>> tmp = lmf
-                        .getLevelMapForGroup(token);
 
-                if (tmp != null) {
-                    masterLevels = tmp;
-                    iter.remove();
-                    break;
-                }
-            }
+                // generate initial list
+                Iterator<String> iter = tokensToProcess.iterator();
 
-            if (masterLevels.size() == 0 && tokensToProcess.size() > 0) {
-                for (Level l : lmf.getAllLevels()) {
-                    MasterLevel ml = l.getMasterLevel();
-                    Set<Level> levels = masterLevels.get(ml);
-                    if (levels == null) {
-                        levels = new HashSet<Level>();
-                        masterLevels.put(ml, levels);
+                while (iter.hasNext()) {
+                    String token = iter.next();
+
+                    if (token.charAt(0) == '!') {
+                        token = token.substring(1);
                     }
+                    // See if this is a group.
+                    Map<MasterLevel, Set<Level>> tmp = lmf
+                            .getLevelMapForGroup(token);
 
-                    levels.add(l);
-                }
-            }
-
-            if (tokensToProcess.size() > 0) {
-                for (String token : tokensToProcess) {
-                    try {
-                        processLevelToken(token);
-                    } catch (CommunicationException e) {
-                        throw new VizCommunicationException(e);
+                    if (tmp != null) {
+                        masterLevels = tmp;
+                        iter.remove();
+                        break;
                     }
                 }
-            } else {
-                for (Set<Level> levels : masterLevels.values()) {
-                    validLevels.addAll(levels);
+
+                if (masterLevels.size() == 0 && tokensToProcess.size() > 0) {
+                    for (Level l : lmf.getAllLevels()) {
+                        MasterLevel ml = l.getMasterLevel();
+                        Set<Level> levels = masterLevels.get(ml);
+                        if (levels == null) {
+                            levels = new HashSet<Level>();
+                            masterLevels.put(ml, levels);
+                        }
+
+                        levels.add(l);
+                    }
+                }
+
+                if (tokensToProcess.size() > 0) {
+                    for (String token : tokensToProcess) {
+                        try {
+                            processLevelToken(token);
+                        } catch (CommunicationException e) {
+                            throw new VizCommunicationException(e);
+                        }
+                    }
+                } else {
+                    for (Set<Level> levels : masterLevels.values()) {
+                        validLevels.addAll(levels);
+                    }
                 }
             }
+        } catch (CommunicationException e) {
+            throw new VizCommunicationException(e);
         }
 
         return validLevels;
