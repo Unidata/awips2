@@ -10,13 +10,11 @@
     <!-- Used in the case where a second in-memory database needs to be started 
         in the same unit test -->
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-        destroy-method="close">
-        <property name="driverClassName" value="org.hsqldb.jdbc.JDBCDriver" />
-        <property name="url" value="jdbc:hsqldb:mem:unit-testing2" />
-        <property name="username" value="sa" />
-        <property name="password" value="" />
-        <property name="defaultAutoCommit" value="false" />
+    <bean
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:/unit-test-db-beans2.properties</value>
+        </property>
     </bean>
 
     <import resource="classpath:/unit-test-db-session.xml" />
