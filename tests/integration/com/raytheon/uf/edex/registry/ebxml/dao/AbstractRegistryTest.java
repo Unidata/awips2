@@ -19,12 +19,18 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
@@ -35,12 +41,14 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
@@ -56,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2013 1914       djohnson     Initial creation
+ * Apr 18, 2013 1693       djohnson     Consolidate reusable methods.
  * 
  * </pre>
  * 
@@ -94,6 +103,10 @@ public class AbstractRegistryTest {
         registryObject.setId(MY_REGISTRY_OBJECT_ID);
         registryObject.setLid(registryObject.getId());
         registryObject.setObjectType(registryObjectType);
+        registryObject.setName(RegistryUtil
+                .getInternationalString(registryObjectId));
+        registryObject.setDescription(RegistryUtil
+                .getInternationalString(registryObjectId));
 
         List<RegistryObjectType> registryObjects = Lists.newArrayList();
         registryObjects.add(registryObject);
@@ -138,4 +151,26 @@ public class AbstractRegistryTest {
         return partQueryRequest;
     }
 
+    /**
+     * Expect the specified exception to be wrapped in a
+     * {@link MsgRegistryException}.
+     * 
+     * @param <T>
+     *            the expected exception type
+     * @param submitObjectsRequest
+     *            the request
+     * @param expectedException
+     *            the expected exception class
+     */
+    protected <T extends RegistryExceptionType> void expectFaultException(
+            SubmitObjectsRequest submitObjectsRequest,
+            Class<T> expectedException) {
+        try {
+            lifecycleManager.submitObjects(submitObjectsRequest);
+            fail("Expected a MsgRegistryException to have been thrown!");
+        } catch (MsgRegistryException exception) {
+            final RegistryExceptionType faultInfo = exception.getFaultInfo();
+            assertThat(faultInfo, is(instanceOf(expectedException)));
+        }
+    }
 }
