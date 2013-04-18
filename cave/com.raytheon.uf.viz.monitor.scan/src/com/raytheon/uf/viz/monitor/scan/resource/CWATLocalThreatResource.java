@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.viz.monitor.scan.resource;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.FactoryException;
@@ -28,9 +32,11 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.cwat.CWATRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.monitor.scan.ThreatLocation;
+import com.raytheon.uf.common.monitor.scan.ThreatReport;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -39,7 +45,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.cwat.CWATResource;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -52,6 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009   2307         dhladky     Initial creation
+ * Apr 18, 2013    1916      njensen       Bulk rendering
+ * 
  * 
  * </pre>
  * 
@@ -61,36 +68,27 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class CWATLocalThreatResource extends CWATResource {
 
-    private int lineWidth = 0;
-
     private static final int BOX_HEIGHT = 10;
 
     private static final int BOX_WIDTH = 10;
 
     private RGB color;
 
-    private double previousZoom = 0.0;
-
     private PaintProperties myPaintProps;
 
-    protected HashMap<ThreatLocation, PixelCoverage> drawables = new HashMap<ThreatLocation, PixelCoverage>();
+    protected Map<ThreatLocation, PixelCoverage> drawables = new HashMap<ThreatLocation, PixelCoverage>();
 
     public CWATLocalThreatResource(CWATLocalThreatResourceData data,
             LoadProperties props) {
-
         super(data, props);
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-
         this.displayedDataTime = paintProps.getDataTime();
         this.myPaintProps = paintProps;
         this.record = resourceData.dataObjectMap.get(this.displayedDataTime);
-
-        this.lineWidth = this.getCapability(OutlineCapability.class)
-                .getOutlineWidth();
         this.color = this.getCapability(ColorableCapability.class).getColor();
 
         if (record == null) {
@@ -103,26 +101,12 @@ public class CWATLocalThreatResource extends CWATResource {
         }
 
         if (record.getThreats() != null && drawables != null) {
-
             drawables.clear();
-            previousZoom = myPaintProps.getZoomLevel();
-            this.previousDataTime = displayedDataTime;
-
-            for (ThreatLocation loc : record.getThreats().keySet()) {
+            Set<ThreatLocation> keyset = record.getThreats().keySet();
+            for (ThreatLocation loc : keyset) {
                 drawables.put(loc, getPixelCoverage(loc));
             }
-
-            if (record != null && drawables != null && target != null) {
-                for (ThreatLocation loc : record.getThreats().keySet()) {
-                    if (drawables.containsKey(loc)) {
-                        drawSquare(loc, drawables.get(loc), target);
-                    } else {
-                        PixelCoverage pc = getPixelCoverage(loc);
-                        drawables.put(loc, pc);
-                        drawSquare(loc, pc, target);
-                    }
-                }
-            }
+            drawSquares(keyset, target);
         }
     }
 
@@ -182,47 +166,48 @@ public class CWATLocalThreatResource extends CWATResource {
     }
 
     /**
-     * Draw the square and whatever else it needs
+     * Draws all the squares and selectively draws the location names if there
+     * is a threat
      * 
-     * @param loc
-     * @param pc
+     * @param locs
      * @param target
-     * @param paintProps
      * @throws VizException
      */
-    private void drawSquare(ThreatLocation loc, PixelCoverage pc,
-            IGraphicsTarget target) throws VizException {
-        font.setMagnification(getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue());
-        if (record.getThreats() != null && record.getThreats().containsKey(loc)) {
+    private void drawSquares(Set<ThreatLocation> locs, IGraphicsTarget target)
+            throws VizException {
+        float mag = getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue();
+        font.setMagnification(mag);
+        Map<ThreatLocation, ThreatReport> recordThreats = record.getThreats();
+        List<double[]> points = new ArrayList<double[]>(locs.size());
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                locs.size());
+        for (ThreatLocation loc : locs) {
+            // get the point for drawing in bulk
+            PixelCoverage pc = drawables.get(loc);
             if (pc != null) {
-                if (!record.getThreats().get(loc).isThreat()) {
-                    target.drawLine(pc.getLl().x, pc.getLl().y, 0.0,
-                            pc.getUl().x, pc.getUl().y, 0.0, color, lineWidth,
-                            LineStyle.SOLID);
-                    target.drawLine(pc.getUl().x, pc.getUl().y, 0.0,
-                            pc.getUr().x, pc.getUr().y, 0.0, color, lineWidth,
-                            LineStyle.SOLID);
-                    target.drawLine(pc.getUr().x, pc.getUr().y, 0.0,
-                            pc.getLr().x, pc.getLr().y, 0.0, color, lineWidth,
-                            LineStyle.SOLID);
-                    target.drawLine(pc.getLr().x, pc.getLr().y, 0.0,
-                            pc.getLl().x, pc.getLl().y, 0.0, color, lineWidth,
-                            LineStyle.SOLID);
-                }
-                // System.out.p
-                if (record.getThreats().get(loc) != null) {
-                    if (record.getThreats().get(loc).isThreat()) {
-                        double[] center = descriptor.worldToPixel(new double[] {
-                                loc.getLon(), loc.getLat() });
-                        target.drawString(font, loc.getLocationName(),
-                                center[0], center[1], 0.0, TextStyle.BOXED,
-                                color, HorizontalAlignment.CENTER,
-                                VerticalAlignment.MIDDLE, 0.0);
-                    }
-                }
+                points.add(pc.getExtent().getCenter());
+            }
+
+            // if a threat, prepare it to draw in bulk
+            ThreatReport report = recordThreats.get(loc);
+            if (report != null && report.isThreat()) {
+                DrawableString ds = new DrawableString(loc.getLocationName(),
+                        color);
+                ds.horizontalAlignment = HorizontalAlignment.CENTER;
+                ds.font = font;
+                ds.textStyle = TextStyle.BOXED;
+                ds.verticallAlignment = VerticalAlignment.MIDDLE;
+                double[] center = descriptor.worldToPixel(new double[] {
+                        loc.getLon(), loc.getLat() });
+                ds.setCoordinates(center[0], center[1]);
+                strings.add(ds);
             }
         }
+
+        // now draw everything in bulk
+        target.drawPoints(points, color, PointStyle.BOX, mag);
+        target.drawStrings(strings);
     }
 
     /**
