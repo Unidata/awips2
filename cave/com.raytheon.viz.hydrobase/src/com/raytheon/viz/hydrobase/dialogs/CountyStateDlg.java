@@ -29,7 +29,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
@@ -50,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * Dec 5, 2008  1744       askripsk    Connect to DB
+ * Apr 18,2013 1790        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -122,28 +122,6 @@ public class CountyStateDlg extends CaveSWTDialog {
 
         // Load data
         getDialogData();
-    }
-
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return True/False.
-     */
-    public Object open(CountiesData selectedData) {
-        open();
-
-        setSelection(selectedData);
-
-        Display display = getDisplay();
-
-        // Manually block here
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return getReturnValue();
     }
 
     /**
@@ -225,10 +203,10 @@ public class CountyStateDlg extends CaveSWTDialog {
      * @return List label text.
      */
     private String getCountyStateListLabelText() {
-        String format = "%S                               %S";
-
-        String labelStr = String.format(format, "County", "State");
-
+        CountiesData rval = new CountiesData();
+        rval.setCounty("COUNTY");
+        rval.setState("STATE");
+        String labelStr = formatCountState(rval);
         return labelStr;
     }
 
@@ -254,9 +232,19 @@ public class CountyStateDlg extends CaveSWTDialog {
         countyStateList.removeAll();
 
         for (CountiesData currCounty : countiesData) {
-            countyStateList.add(String.format("%-20s %-2s", currCounty
-                    .getCounty(), currCounty.getState()));
+            countyStateList.add(formatCountState(currCounty));
         }
+    }
+
+    /**
+     * Formated county/state data for list view.
+     * 
+     * @param countiesData
+     * @return formatedString
+     */
+    private String formatCountState(CountiesData countiesData) {
+        return String.format("%-36s %-2s", countiesData.getCounty(),
+                countiesData.getState());
     }
 
     /**
@@ -318,28 +306,15 @@ public class CountyStateDlg extends CaveSWTDialog {
         if (selectedData == null) {
             return;
         }
-        String currRow;
-        String currCounty;
-        String currState;
-        String[] countyState;
+
+        String selectedString = formatCountState(selectedData);
 
         // Clear selection
         countyStateList.deselectAll();
 
         // Find the county/state and select it
         for (int i = 0; i < countyStateList.getItemCount(); i++) {
-            currRow = countyStateList.getItem(i);
-
-            // Split on whitespace
-            countyState = currRow.split("\\s+");
-
-            // Save the county and state
-            currCounty = countyState[0];
-            currState = countyState[1];
-
-            // compare
-            if (selectedData.getCounty().equalsIgnoreCase(currCounty)
-                    && selectedData.getState().equalsIgnoreCase(currState)) {
+            if (selectedString.equalsIgnoreCase(countyStateList.getItem(i))) {
                 countyStateList.setSelection(i);
                 break;
             }
