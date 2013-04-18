@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 5, 2008				lvenable	Initial creation
  * Jan 9, 2008  1802        askripsk    Connect to DB.
+ * Apr 17,2013  1790        rferrel     Changes for non-blocking CountyStateDlg.
  * 
  * </pre>
  * 
@@ -66,6 +67,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class NwrTransmitterDlg extends CaveSWTDialog implements
         ICountyStateListener {
+
+    /**
+     * Allow one Count/State dialog.
+     */
+    private CountyStateDlg countyStateDlg;
 
     /**
      * Control font.
@@ -640,8 +646,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
             // update the display with the data
             if (availableCounties.size() > 0) {
                 for (CountiesData currCounty : availableCounties) {
-                    cntyAvailList.add(String.format(cntFormat, currCounty
-                            .getCounty(), currCounty.getState()));
+                    cntyAvailList.add(String.format(cntFormat,
+                            currCounty.getCounty(), currCounty.getState()));
                 }
 
                 updateDialogState(DialogState.COUNTIES_AVAILABLE);
@@ -687,8 +693,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                         HydroDataUtils.getLatLonDisplayString(currTx
                                 .getLatitude()), HydroDataUtils
                                 .getLatLonDisplayString(currTx.getLongitude()),
-                        HydroDataUtils.getDisplayString("%s", "%7.3f", currTx
-                                .getTransmitFrequency()), HydroDataUtils
+                        HydroDataUtils.getDisplayString("%s", "%7.3f",
+                                currTx.getTransmitFrequency()), HydroDataUtils
                                 .getDisplayString(currTx.getTransmitPower()),
                         currTx.getTransmitProductCode(), currTx
                                 .getTransmitCountyNumber(), currTx
@@ -820,8 +826,7 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the City");
+                mb.setMessage("An error occurred while trying to save the City");
                 mb.open();
 
                 e.printStackTrace();
@@ -854,8 +859,7 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the County");
+                mb.setMessage("An error occurred while trying to save the County");
                 mb.open();
 
                 e.printStackTrace();
@@ -879,8 +883,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                     | SWT.CANCEL);
             mb.setText("Delete Confirmation");
             mb.setMessage(String.format(
-                    "Do you wish to delete Transmitter %s?", currData
-                            .getCallSign()));
+                    "Do you wish to delete Transmitter %s?",
+                    currData.getCallSign()));
 
             int result = mb.open();
 
@@ -890,12 +894,10 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                 if (selectedCounties.size() > 0) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage(String
-                                    .format(
-                                            "Can not delete NWR Transmitter %s.\n"
-                                                    + "There is at least one county associated with it.",
-                                            currData.getCallSign()));
+                    mb.setMessage(String
+                            .format("Can not delete NWR Transmitter %s.\n"
+                                    + "There is at least one county associated with it.",
+                                    currData.getCallSign()));
                     mb.open();
                 } else {
                     try {
@@ -906,8 +908,7 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                     } catch (VizException e) {
                         mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                         mb.setText("Unable to Delete");
-                        mb
-                                .setMessage("An error occurred while trying to delete the City");
+                        mb.setMessage("An error occurred while trying to delete the City");
                         mb.open();
 
                         e.printStackTrace();
@@ -948,8 +949,7 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the City");
+                    mb.setMessage("An error occurred while trying to delete the City");
                     mb.open();
 
                     e.printStackTrace();
@@ -1026,8 +1026,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
 
                 if (selectedCounties.size() > 0) {
                     for (CountyTransmitData currCounty : selectedCounties) {
-                        cntyCovList.add(String.format("%-20s %-2s", currCounty
-                                .getCounty(), currCounty.getState()));
+                        cntyCovList.add(String.format("%-20s %-2s",
+                                currCounty.getCounty(), currCounty.getState()));
                     }
 
                     updateDialogState(DialogState.COUNTIES_SELECTED);
@@ -1126,10 +1126,15 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
      * Opens the County/State selection dialog
      */
     private void openCountyStateDlg() {
-        CountyStateDlg countyStateDlg = new CountyStateDlg(shell);
-        countyStateDlg.addListener(this);
+        if (countyStateDlg == null || countyStateDlg.isDisposed()) {
+            countyStateDlg = new CountyStateDlg(shell);
+            countyStateDlg.addListener(this);
+            countyStateDlg.open();
+        } else {
+            countyStateDlg.bringToTop();
+        }
 
-        // Open the county/state dlg
+        // Set the selection county/state dlg
         if (!countyStateTF.getText().equals("")) {
             // Set selection in dialog to current location's settings
             CountiesData currCountyState = new CountiesData();
@@ -1139,12 +1144,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
             currCountyState.setState(countyState[1].trim());
 
             // Tell county/state dialog what to select
-            countyStateDlg.open(currCountyState);
-        } else {
-            countyStateDlg.open();
+            countyStateDlg.setSelection(currCountyState);
         }
-
-        countyStateDlg.removeListener(this);
     }
 
     @Override
