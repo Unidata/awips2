@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.level;
+package com.raytheon.uf.common.dataplugin.level.mapping;
 
 import java.io.File;
 import java.util.Collection;
@@ -29,13 +29,13 @@ import java.util.Set;
 
 import javax.xml.bind.JAXB;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Factory for getting level mappings
@@ -49,15 +49,19 @@ import com.raytheon.uf.viz.core.exception.VizCommunicationException;
  * ------------ ---------- ----------- --------------------------
  * 11/16/2009    #3120     rjpeter     Initial version
  * 11/21/2009    #3576     rjpeter     Added group capability
+ * 04/17/2013    #1913     randerso    Moved to common
  * 
  * &#064;author rjpeter
  * @version 1.0
  */
 public class LevelMappingFactory {
+    // TODO: this should move somewhere else
+    public static final String VOLUMEBROWSER_LEVEL_MAPPING_FILE = "volumebrowser/LevelMappingFile.xml";
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LevelMappingFactory.class);
 
-    private static LevelMappingFactory instance = null;
+    private static Map<String, LevelMappingFactory> instanceMap = new HashMap<String, LevelMappingFactory>();
 
     private Map<String, LevelMapping> keyToLevelMappings = new HashMap<String, LevelMapping>();
 
@@ -69,16 +73,17 @@ public class LevelMappingFactory {
 
     private Map<String, Map<MasterLevel, Set<Level>>> groupToMasterLevels = new HashMap<String, Map<MasterLevel, Set<Level>>>();
 
-    public synchronized static LevelMappingFactory getInstance() {
+    public synchronized static LevelMappingFactory getInstance(String filePath) {
+        LevelMappingFactory instance = instanceMap.get(filePath);
         if (instance == null) {
-            instance = new LevelMappingFactory();
+            instance = new LevelMappingFactory(filePath);
+            instanceMap.put(filePath, instance);
         }
         return instance;
     }
 
-    private LevelMappingFactory() {
-        File path = PathManagerFactory.getPathManager().getStaticFile(
-                "volumebrowser/LevelMappingFile.xml");
+    private LevelMappingFactory(String filePath) {
+        File path = PathManagerFactory.getPathManager().getStaticFile(filePath);
         LevelMappingFile levelMapFile = null;
         long start = System.currentTimeMillis();
         try {
@@ -115,7 +120,7 @@ public class LevelMappingFactory {
     }
 
     public LevelMapping getLevelMappingForLevel(Level level)
-            throws VizCommunicationException {
+            throws CommunicationException {
         if (!levelToLevelMappingsInitialized) {
             initializeLevelToLevelMappings();
         }
@@ -126,7 +131,7 @@ public class LevelMappingFactory {
         return keyToLevelMappings.values();
     }
 
-    public Set<Level> getAllLevels() throws VizCommunicationException {
+    public Set<Level> getAllLevels() throws CommunicationException {
         if (!levelToLevelMappingsInitialized) {
             initializeLevelToLevelMappings();
         }
@@ -134,15 +139,14 @@ public class LevelMappingFactory {
     }
 
     public Map<MasterLevel, Set<Level>> getLevelMapForGroup(String group)
-            throws VizCommunicationException {
+            throws CommunicationException {
         if (!groupToMasterLevelsInitialized) {
             initializeGroupToMasterLevels();
         }
         return groupToMasterLevels.get(group);
     }
 
-    private void initializeLevelToLevelMappings()
-            throws VizCommunicationException {
+    private void initializeLevelToLevelMappings() throws CommunicationException {
         for (LevelMapping mapping : keyToLevelMappings.values()) {
             String group = mapping.getGroup();
 
@@ -165,8 +169,7 @@ public class LevelMappingFactory {
         levelToLevelMappingsInitialized = true;
     }
 
-    private void initializeGroupToMasterLevels()
-            throws VizCommunicationException {
+    private void initializeGroupToMasterLevels() throws CommunicationException {
         for (LevelMapping mapping : keyToLevelMappings.values()) {
             String group = mapping.getGroup();
             Map<MasterLevel, Set<Level>> masterLevels = null;
