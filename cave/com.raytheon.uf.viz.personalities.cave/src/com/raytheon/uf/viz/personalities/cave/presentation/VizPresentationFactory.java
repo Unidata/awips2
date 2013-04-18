@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.personalities.awips;
+package com.raytheon.uf.viz.personalities.cave.presentation;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -33,6 +33,8 @@ import org.eclipse.ui.internal.presentations.util.TabbedStackPresentation;
 import org.eclipse.ui.presentations.IStackPresentationSite;
 import org.eclipse.ui.presentations.StackPresentation;
 import org.eclipse.ui.presentations.WorkbenchPresentationFactory;
+
+import com.raytheon.uf.viz.personalities.cave.menu.VizEditorSystemMenu;
 
 /**
  * Presentation Factory for the system

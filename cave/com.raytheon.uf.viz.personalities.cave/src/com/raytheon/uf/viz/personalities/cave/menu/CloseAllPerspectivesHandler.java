@@ -17,19 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.personalities.awips;
+package com.raytheon.uf.viz.personalities.cave.menu;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Close perspective handler, only runs if not last perspective
+ * Never closes all perspectives
  * 
  * <pre>
  * 
@@ -37,7 +35,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 11, 2011            mschenke     Initial creation
+ * May 12, 2011            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -45,7 +43,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * @version 1.0
  */
 
-public class ClosePerspectiveHandler extends AbstractHandler {
+public class CloseAllPerspectivesHandler extends AbstractHandler {
 
     /*
      * (non-Javadoc)
@@ -57,26 +55,11 @@ public class ClosePerspectiveHandler extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-        if (window != null) {
-            String perspectiveToClose = event
-                    .getParameter(IWorkbenchCommandConstants.WINDOW_CLOSE_PERSPECTIVE_PARM_ID);
-            IPerspectiveDescriptor perspective = window.getWorkbench()
-                    .getPerspectiveRegistry()
-                    .findPerspectiveWithId(perspectiveToClose);
-            OpenPerspectiveList opl = OpenPerspectiveList.getInstance(window);
-            if (opl.getOpenedPerspectives().size() > 1) {
-                if (perspective != null) {
-                    window.getActivePage().closePerspective(perspective, true,
-                            true);
-                }
-            } else {
-                MessageDialog
-                        .openInformation(
-                                window.getShell(),
-                                "Close Perspective",
-                                "Could not close perspective, must keep at least one perspective open at all times");
-            }
-        }
+        MessageDialog
+                .openInformation(
+                        window.getShell(),
+                        "Close Perspectives",
+                        "Could not close all perspectives, must keep at least one perspective open at all times");
         return null;
     }
 }
