@@ -22,6 +22,8 @@ package com.raytheon.uf.common.serialization;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
+
 import org.junit.Ignore;
 
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
@@ -37,6 +39,7 @@ import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Moved out of SerializationUtilTest.
+ * Apr 17, 2013 1914       djohnson     Add W3CEndpointReference.
  * 
  * </pre>
  * 
@@ -91,7 +94,7 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class,
                 com.raytheon.uf.common.monitor.xml.FFMPSourceConfigXML.class,
                 com.raytheon.uf.common.monitor.xml.FFMPRunConfigXML.class,
-                FFMPTemplateXML.class };
+                FFMPTemplateXML.class, W3CEndpointReference.class };
 
         JAXB_CLASSES = Arrays.asList(array);
     }
