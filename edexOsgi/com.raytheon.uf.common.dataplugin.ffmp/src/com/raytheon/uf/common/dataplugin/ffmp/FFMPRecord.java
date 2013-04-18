@@ -84,6 +84,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * April, 9 2013  1890     dhladky    Moved dates to referenced map in record rather than multiple dates in FFMPBasin objs.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
+ * Apr 18, 2013 1919       dhladky     Added method for VGB loading
  * 
  * </pre>
  * 
@@ -424,6 +425,12 @@ public class FFMPRecord extends PersistablePluginDataObject
             throws Exception {
         retrieveMapFromDataStore(getDataStoreFile(), getDataURI(), template,
                 huc, getDataTime().getRefTime(), getSourceName());
+    }
+
+    public void retrieveVirtualMapFromDataStore(FFMPTemplates template,
+            String huc) throws Exception {
+        retrieveVirtualMapFromDataStore(getDataStoreFile(), getDataURI(), template,
+                getDataTime().getRefTime(), getSourceName());
     }
 
     private File getDataStoreFile() {
