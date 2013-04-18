@@ -20,6 +20,7 @@
 package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -35,6 +36,8 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2008 1787       askripsky   Initial Creation
+ * Apr 18, 2013 1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -45,7 +48,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 public class DataAdjustFactorDataManager {
     private static DataAdjustFactorDataManager manager = null;
 
-    private ArrayList<DataAdjustFactorData> adjustFactorData = null;
+    private List<DataAdjustFactorData> adjustFactorData = null;
 
     /**
      * Private constructor.
@@ -72,8 +75,8 @@ public class DataAdjustFactorDataManager {
      * @return The duration from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefDur() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefDur() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String durQuery = "SELECT name, dur FROM shefdur ORDER BY dur";
 
@@ -99,8 +102,8 @@ public class DataAdjustFactorDataManager {
      * @return The type sources from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefTs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefTs() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String tsQuery = "SELECT name, ts FROM shefts ORDER BY ts";
 
@@ -126,8 +129,8 @@ public class DataAdjustFactorDataManager {
      * @return The extremum from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefExtremum() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefExtremum() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String extQuery = "SELECT name, extremum FROM shefex ORDER BY extremum";
 
@@ -147,12 +150,11 @@ public class DataAdjustFactorDataManager {
         return rval;
     }
 
-    public ArrayList<DataAdjustFactorData> getAdjustFactorData()
-            throws VizException {
+    public List<DataAdjustFactorData> getAdjustFactorData() throws VizException {
         return getAdjustFactorData(false);
     }
 
-    public ArrayList<DataAdjustFactorData> getAdjustFactorData(boolean forceLoad)
+    public List<DataAdjustFactorData> getAdjustFactorData(boolean forceLoad)
             throws VizException {
         if (adjustFactorData == null || forceLoad) {
             adjustFactorData = HydroDBDataManager.getInstance().getData(
@@ -179,8 +181,10 @@ public class DataAdjustFactorDataManager {
         data.append(String.format("%2s ", currData.getPe()));
 
         // Duration
-        data.append(String.format("%s    ", HydroDataUtils.getDisplayString(
-                "%4s", "%d", currData.getDuration())));
+        data.append(String.format(
+                "%s    ",
+                HydroDataUtils.getDisplayString("%4s", "%d",
+                        currData.getDuration())));
 
         // TS
         data.append(String.format("%2s  ", currData.getTypeSource()));
@@ -189,20 +193,28 @@ public class DataAdjustFactorDataManager {
         data.append(String.format("%2s  ", currData.getExtremum()));
 
         // Divisor
-        data.append(String.format("%s   ", HydroDataUtils.getDisplayString(
-                "%11s", "%.3f", currData.getDivisor())));
+        data.append(String.format(
+                "%s   ",
+                HydroDataUtils.getDisplayString("%11s", "%.3f",
+                        currData.getDivisor())));
 
         // Base
-        data.append(String.format("%s  ", HydroDataUtils.getDisplayString(
-                "%11s", "%.3f", currData.getBase())));
+        data.append(String.format(
+                "%s  ",
+                HydroDataUtils.getDisplayString("%11s", "%.3f",
+                        currData.getBase())));
 
         // Multiplier
-        data.append(String.format("%s    ", HydroDataUtils.getDisplayString(
-                "%11s", "%.3f", currData.getMultiplier())));
+        data.append(String.format(
+                "%s    ",
+                HydroDataUtils.getDisplayString("%11s", "%.3f",
+                        currData.getMultiplier())));
 
         // Adder
-        data.append(String.format("%s  ", HydroDataUtils.getDisplayString(
-                "%11s", "%.3f", currData.getAdder())));
+        data.append(String.format(
+                "%s  ",
+                HydroDataUtils.getDisplayString("%11s", "%.3f",
+                        currData.getAdder())));
 
         return data.toString();
     }

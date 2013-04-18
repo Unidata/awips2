@@ -102,7 +102,7 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
     /**
      * Cache of display data.
      */
-    private ArrayList<HydroGenStationData> stationData;
+    private java.util.List<HydroGenStationData> stationData;
 
     /**
      * Constructor.
@@ -354,9 +354,9 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
 
         String displayStr;
         for (HydroGenStationData currData : stationData) {
-            displayStr = String.format(format, currData.getLid(), currData
-                    .getHsa(), currData.getPe(), currData.getTs(), currData
-                    .getForecastTs());
+            displayStr = String.format(format, currData.getLid(),
+                    currData.getHsa(), currData.getPe(), currData.getTs(),
+                    currData.getForecastTs());
 
             locationList.add(displayStr);
         }
@@ -368,8 +368,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
      * @return The display string for the TS.
      * @throws VizException
      */
-    public ArrayList<String> getShefTs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public java.util.List<String> getShefTs() throws VizException {
+        java.util.List<String> rval = new ArrayList<String>();
 
         String tsQuery = "SELECT name, ts FROM shefts WHERE ts LIKE 'P%' or ts LIKE 'R%' ORDER BY ts";
 
@@ -395,8 +395,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
      * @return The display string for the TS.
      * @throws VizException
      */
-    public ArrayList<String> getShefFcstTs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public java.util.List<String> getShefFcstTs() throws VizException {
+        java.util.List<String> rval = new ArrayList<String>();
 
         String tsQuery = "SELECT name, ts FROM shefts WHERE ts LIKE 'C%' or ts LIKE 'F%' ORDER BY ts";
 
@@ -492,8 +492,7 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the record.");
+                    mb.setMessage("An error occurred while trying to delete the record.");
                     mb.open();
 
                     e.printStackTrace();
@@ -615,8 +614,7 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("The location must be add via the River Gauge dialog first.");
+                mb.setMessage("The location must be added via the River Gauge dialog first.");
                 mb.open();
             }
         } catch (VizException e) {
