@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -75,6 +74,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  *                                       Removed unused getIdentfier().
  * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
  *                                      dataURI fields
+ * Apr 18, 2013 1638        mschenke    Moved dataURI map generation into DataURIUtil
  * 
  * </pre>
  * 
@@ -227,27 +227,9 @@ public abstract class PluginDataObject extends PersistableDataObject implements
      * @throws PluginException
      */
     public Map<String, Object> createDataURIMap() throws PluginException {
-        try {
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("pluginName", getPluginName());
-            Field[] fields = DataURIUtil.getInstance().getAllDataURIFields(
-                    getClass());
-            for (int i = 0; i < fields.length; ++i) {
-                String fieldName = PluginDataObject.getDataURIFieldName(
-                        getClass(), i);
-                String[] nested = fieldName.split("[.]");
-                Object source = this;
-                if (nested.length > 0) {
-                    for (int j = 0; j < nested.length; ++j) {
-                        source = PropertyUtils.getProperty(source, nested[j]);
-                    }
-                    map.put(fieldName, source);
-                }
-            }
-            return map;
-        } catch (Exception e) {
-            throw new PluginException("Error constructing dataURI mapping", e);
-        }
+        Map<String, Object> map = DataURIUtil.createDataURIMap(this);
+        map.put("pluginName", getPluginName());
+        return map;
     }
 
     /**
