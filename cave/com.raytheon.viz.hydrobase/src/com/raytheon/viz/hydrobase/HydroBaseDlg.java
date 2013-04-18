@@ -134,6 +134,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking AdministrationDlg.
  *                                      Changes for non-blocking ArealDefinitionsDlg.
  *                                      Changes for non-blocking BenchmarkDlg.
+ *                                      Changes for non-blocking CountyZoneUgcDlg.
+ *                                      Changes for non-blocking DataAdjustFactorDlg.
+ *                                      Changes for non-blocking DataIngestFilterDlg.
+ *                                      Changes for non-blocking DataPurgeParamsDlg.
+ *                                      Changes for non-blocking DatumDlg .
  * 
  * </pre>
  * 
@@ -170,6 +175,31 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow one benchmark dialog per location.
      */
     private final Map<String, BenchmarkDlg> benchmarkDlgMap = new HashMap<String, BenchmarkDlg>();
+
+    /**
+     * Allow one County/Zone UGC dialog per location.
+     */
+    private final Map<String, CountyZoneUgcDlg> czDlgMap = new HashMap<String, CountyZoneUgcDlg>();;
+
+    /**
+     * Allow one Data Adjustment Factor dialog.
+     */
+    private DataAdjustFactorDlg dataAdjustDlg;
+
+    /**
+     * Allow one Ingest Filter Dialog.
+     */
+    private DataIngestFilterDlg dataIngestDlg;
+
+    /*
+     * Allow one data purge paramertres dialog.
+     */
+    private DataPurgeParamsDlg dataPurgeDlg;
+
+    /**
+     * Allow one dataum dialog per station.
+     */
+    private final Map<String, DatumDlg> datumDlgMap = new HashMap<String, DatumDlg>();
 
     /**
      * Flood category menu item.
@@ -499,9 +529,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         countyZoneUgcMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CountyZoneUgcDlg czDlg = new CountyZoneUgcDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                czDlg.open();
+                String lid = getSelectedLocation().getStation();
+                CountyZoneUgcDlg czDlg = czDlgMap.get(lid);
+                if (czDlg == null) {
+                    czDlg = new CountyZoneUgcDlg(shell, getStationAndName(),
+                            lid);
+                    czDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                czDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    czDlgMap.put(lid, czDlg);
+                    czDlg.open();
+                } else {
+                    czDlg.bringToTop();
+                }
             }
         });
 
@@ -724,9 +771,25 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         datumMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DatumDlg datumDlg = new DatumDlg(shell, getStationAndName(),
-                        getSelectedLocation().getStation());
-                datumDlg.open();
+                String lid = getSelectedLocation().getStation();
+                DatumDlg datumDlg = datumDlgMap.get(lid);
+                if (datumDlg == null) {
+                    datumDlg = new DatumDlg(shell, getStationAndName(), lid);
+                    datumDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                datumDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    datumDlgMap.put(lid, datumDlg);
+                    datumDlg.open();
+                } else {
+                    datumDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(datumMI);
@@ -838,9 +901,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         ingestFilterMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataIngestFilterDlg dataIngetsDlg = new DataIngestFilterDlg(
-                        shell);
-                dataIngetsDlg.open();
+                if (dataIngestDlg == null || dataIngestDlg.isDisposed()) {
+                    dataIngestDlg = new DataIngestFilterDlg(shell);
+                    dataIngestDlg.open();
+                } else {
+                    dataIngestDlg.bringToTop();
+                }
             }
         });
 
@@ -850,9 +916,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         adjustmentFactorsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataAdjustFactorDlg dataAdjustDlg = new DataAdjustFactorDlg(
-                        shell);
-                dataAdjustDlg.open();
+                if (dataAdjustDlg == null || dataAdjustDlg.isDisposed()) {
+                    dataAdjustDlg = new DataAdjustFactorDlg(shell);
+                    dataAdjustDlg.open();
+                } else {
+                    dataAdjustDlg.bringToTop();
+                }
             }
         });
 
@@ -874,8 +943,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         purgeParamsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataPurgeParamsDlg dataPurgeDlg = new DataPurgeParamsDlg(shell);
-                dataPurgeDlg.open();
+                if (dataPurgeDlg == null || dataPurgeDlg.isDisposed()) {
+                    dataPurgeDlg = new DataPurgeParamsDlg(shell);
+                    dataPurgeDlg.open();
+                } else {
+                    dataPurgeDlg.bringToTop();
+                }
             }
         });
     }
@@ -1702,7 +1775,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         private String getPassword() {
             String pw = null;
             try {
-                ArrayList<AdministrationData> data = HydroDBDataManager
+                java.util.List<AdministrationData> data = HydroDBDataManager
                         .getInstance().getData(AdministrationData.class);
 
                 // if no data is returned, clear the current display data

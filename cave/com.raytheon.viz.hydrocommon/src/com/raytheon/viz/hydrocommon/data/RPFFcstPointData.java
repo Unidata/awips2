@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.hydrocommon.data;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -37,6 +37,8 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
  * ------------	----------	-----------	--------------------------
  * Dec 19, 2008	1787		askripsky	Initial creation
  * Mar 08, 2012 14600       wkwock      Delete one lid instead of one group
+ * 18 APR 2013  1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -137,8 +139,8 @@ public class RPFFcstPointData extends HydroDBData implements IHydroDBData {
         setGroupID(getDBValue("group_id", data, dataMap, ""));
         setOrdinal(getDBValue("ordinal", data, dataMap,
                 HydroConstants.MISSING_VALUE));
-        setChangeThreshold(getDBValue("chg_threshold", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setChangeThreshold(getDBValue("chg_threshold", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setRecordType(getDBValue("rec_type", data, dataMap, ""));
         setPrimaryBackup(getDBValue("primary_back", data, dataMap, ""));
         setSecondaryBackup(getDBValue("secondary_back", data, dataMap, ""));
@@ -160,8 +162,8 @@ public class RPFFcstPointData extends HydroDBData implements IHydroDBData {
         }
 
         try {
-            ArrayList<RPFParamData> data = HydroDBDataManager.getInstance()
-                    .getData(RPFParamData.class);
+            List<RPFParamData> data = HydroDBDataManager.getInstance().getData(
+                    RPFParamData.class);
 
             if (data != null && data.size() > 0) {
                 // There should only be one record
@@ -379,8 +381,8 @@ public class RPFFcstPointData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getDeleteStatement() {
-        return "DELETE FROM rpffcstpoint WHERE lid="+getDBString(lid)+" and group_id="
-                + getDBString(groupID);
+        return "DELETE FROM rpffcstpoint WHERE lid=" + getDBString(lid)
+                + " and group_id=" + getDBString(groupID);
     }
 
     @Override
