@@ -23,9 +23,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
@@ -169,15 +172,36 @@ public class FFMPDataLoader extends Thread {
                     .getSourceConfig();
 
             ProductRunXML productRun = runner.getProduct(siteKey);
-            ArrayList<String> qpfSources = new ArrayList<String>();
+            ArrayList<SourceXML> qpfSources = new ArrayList<SourceXML>();
             String layer = config.getFFMPConfigData().getLayer();
             boolean isProductLoad = true;
             String rateURI = null;
 
+            if (loadType != LOADER_TYPE.GENERAL) {
+                // preload all the uris except guidance. Guidance loads data
+                // much further back and it is not efficient to group with the
+                // rest.
+                Set<String> sources = new HashSet<String>();
+                sources.add(product.getRate());
+                sources.add(product.getQpe());
+                sources.add(product.getVirtual());
+                for (String qpfType : productRun.getQpfTypes(product)) {
+                    for (SourceXML qpfSource : productRun.getQpfSources(
+                            product, qpfType)) {
+                        sources.add(qpfSource.getSourceName());
+                    }
+                }
+                monitor.preloadAvailableUris(siteKey, dataKey, sources,
+                        timeBack);
+            }
             if ((loadType == LOADER_TYPE.INITIAL || loadType == LOADER_TYPE.GENERAL)
                     && !product.getRate().equals(product.getQpe())) {
-                rateURI = monitor.getAvailableUri(siteKey, dataKey,
-                        product.getRate(), mostRecentTime);
+                Map<Date, List<String>> rateURIs = monitor
+                .getAvailableUris(siteKey, dataKey, product.getRate(),
+                        mostRecentTime);
+                if (rateURIs.containsKey(mostRecentTime)) {
+                    rateURI = rateURIs.get(mostRecentTime).get(0);
+                }
             }
 
             NavigableMap<Date, List<String>> qpeURIs = monitor
@@ -203,7 +227,7 @@ public class FFMPDataLoader extends Thread {
 
                     if (qpfURIs != null && !qpfURIs.isEmpty()) {
                         qpfs.add(qpfURIs);
-                        qpfSources.add(qpfSource.getSourceName());
+                        qpfSources.add(qpfSource);
                     }
                 }
             }
@@ -298,8 +322,7 @@ public class FFMPDataLoader extends Thread {
 
                 if (loadType == LOADER_TYPE.INITIAL) {
 
-                    SourceXML source = sourceConfig
-                            .getSource(qpfSources.get(i));
+                    SourceXML source = qpfSources.get(i);
 
                     String pdataKey = findQPFHomeDataKey(source);
                     qpfCache = readAggregateRecord(source, pdataKey, wfo);
