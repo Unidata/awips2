@@ -7,15 +7,13 @@
                            http://www.springframework.org/schema/tx
                            http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-        destroy-method="close">
-        <property name="driverClassName" value="org.h2.Driver" />
-        <property name="url" value="jdbc:h2:mem:unit-testing:;INIT=create schema IF NOT EXISTS ebxml" />
-        <property name="username" value="sa" />
-        <property name="password" value="" />
-        <property name="defaultAutoCommit" value="false" />
+    <bean
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:/unit-test-db-beans.properties</value>
+        </property>
     </bean>
-    
+
     <import resource="classpath:/unit-test-db-session.xml" />
 
 </beans>
