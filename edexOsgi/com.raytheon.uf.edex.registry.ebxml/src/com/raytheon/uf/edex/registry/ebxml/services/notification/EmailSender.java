@@ -40,6 +40,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -48,6 +49,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.PropertiesUtil;
+import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -63,6 +65,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/9/2013     1905        bphillip    Initial implementation
+ * Apr 17, 2013 1914        djohnson    Now has reference to extrinsic object dao.
  * </pre>
  * 
  * @author bphillip
@@ -74,7 +77,7 @@ public class EmailSender {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(EmailSender.class);
 
-    private boolean emailEnabled;
+    private final boolean emailEnabled;
 
     /** The subject prefix attached to all email notifications */
     private static final String SUBJECT_PREFIX = "Registry Event Notification for Subscription: ";
@@ -92,7 +95,10 @@ public class EmailSender {
     private JAXBManager jaxbManager;
 
     /** Factory for generating XSLT transformations */
-    private final TransformerFactory factory = TransformerFactory.newInstance();;
+    private final TransformerFactory factory = TransformerFactory.newInstance();
+
+    /** Data access object for extrinsic objects */
+    private final ExtrinsicObjectDao extrinsicObjectDao;
 
     /**
      * Creates a new EmailSender object
@@ -102,8 +108,11 @@ public class EmailSender {
      * @throws JAXBException
      *             If problems occur initializing the JAXBManager
      */
-    public EmailSender(boolean emailEnabled) throws IOException, JAXBException {
+    public EmailSender(boolean emailEnabled,
+            ExtrinsicObjectDao extrinsicObjectDao) throws IOException,
+            JAXBException {
         this.emailEnabled = emailEnabled;
+        this.extrinsicObjectDao = extrinsicObjectDao;
         if (emailEnabled) {
             statusHandler.debug("Loading email properties...");
             File emailPropertiesFile = PathManagerFactory.getPathManager()
@@ -208,6 +217,17 @@ public class EmailSender {
 
     public boolean isEmailEnabled() {
         return emailEnabled;
+    }
+
+    /**
+     * Get a style sheet by its id.
+     * 
+     * @param styleSheetId
+     *            the style sheet id
+     * @return the extrinsic object
+     */
+    public ExtrinsicObjectType getStyleSheetById(String styleSheetId) {
+        return extrinsicObjectDao.getById(styleSheetId);
     }
 
 }

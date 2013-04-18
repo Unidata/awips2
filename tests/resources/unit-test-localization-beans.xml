@@ -3,10 +3,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-    <bean id="ebxmlDbValidationStrategy"
-        class="com.raytheon.uf.edex.registry.ebxml.dao.EbxmlHsqlValidationStrategy" />
-
-    <bean id="registrySubscriptionManagerInvoker"
-        class="com.raytheon.uf.edex.registry.ebxml.dao.DirectlyInvokeRegistrySubscriptionManager" />
+    <!-- Spring BeanFactoryPostProcessor to add localization support -->
+    <bean class="com.raytheon.uf.common.localization.PathManagerFactoryTest" />
 
 </beans>
