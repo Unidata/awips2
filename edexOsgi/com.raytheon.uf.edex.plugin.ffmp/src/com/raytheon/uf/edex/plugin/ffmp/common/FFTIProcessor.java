@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * 02/01/13     1569        D. Hladky   Added constants, records writing switched to pypies
  * </pre>
  * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
+ * Apr 18, 2013 1919       dhladky     Fixed VGB breakage
  * 
  * @author dhladky
  * @version 1.0
@@ -312,20 +313,30 @@ public class FFTIProcessor {
             FFMPTemplates template) throws PluginException {
 
         try {
-            // file not populated, skip it
-            if (rec.getPluginName() == null) {
-                return rec;
-            }
 
             FFMPDao dao = (FFMPDao) PluginFactory.getInstance().getPluginDao(
                     rec.getPluginName());
             rec = (FFMPRecord) dao.getMetadata(rec.getDataURI());
+            
+            if (rec.getPluginName() == null) {
+                //return rec;
+                rec.setPluginName("ffmp");
+            }
 
-            rec.retrieveMapFromDataStore(template, huc);
+            SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                    .getSource(rec.getSourceName());
+            
+            // check for gage(VGB) types, if so process as a VGB
+            if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
+                rec.retrieveVirtualMapFromDataStore(template, huc);
+            } else {
+                rec.retrieveMapFromDataStore(template, huc);
+            }
 
             // System.out.println("Size of huc: "
             // + rec.getBasinData(huc).getBasins().size());
         } catch (Exception se) {
+
             statusHandler.handle(Priority.ERROR,
                     "Source: " + rec.getSourceName() + " sitekey: "
                             + " domain: " + rec.getWfo()
