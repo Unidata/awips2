@@ -116,7 +116,7 @@ _QPID_VERSION="0.18"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
 POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
 QPID_INITD="${RPM_PROJECT}/awips2.qpid/${_QPID_VERSION}/SOURCES/qpidd"
-EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
+EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex-base/scripts/init.d/edex_camel"
 HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
 # Copy the startup scripts.
