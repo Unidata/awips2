@@ -1,4 +1,5 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
+%define _java_version 1.6.0_43 
 %define _build_arch %(uname -i)
 
 #
@@ -6,8 +7,8 @@
 #
 Name: awips2-java
 Summary: AWIPS II Java Distribution
-Version: 1.6.0_27
-Release: 3
+Version: %{_java_version}
+Release: 1
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -21,7 +22,7 @@ AutoReq: no
 provides: awips2-java
 
 %description
-AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.6.0_27 
+AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.6.0_43 
 plus additional libraries used by AWIPS II.
 
 %prep
@@ -72,8 +73,8 @@ else
    fi
 fi
 
-JDK_BIN_var_javahome="jdk1.6.0_27"
-jdk_bin="jdk-6u27-linux-${jdk_arch}.bin"
+JDK_BIN_var_javahome="jdk%{_java_version}"
+jdk_bin="jdk-6u43-linux-${jdk_arch}.bin"
 jai_bin="jai-1_1_3-lib-linux-${build_arch}-jdk.bin"
 jai_imageio_bin="jai_imageio-1_1-lib-linux-${build_arch}-jdk.bin"
 jai_bin_patch="jai.patch1"
@@ -237,8 +238,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %dir /awips2/java/db
 /awips2/java/db/*
-%dir /awips2/java/demo
-/awips2/java/demo/*
 %dir /awips2/java/include
 /awips2/java/include/*
 %dir /awips2/java/jre
@@ -254,7 +253,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/java/jre/plugin/*
 %dir /awips2/java/lib
 
-/awips2/java/sample
 /awips2/java/src.zip
 
 %defattr(755,awips,fxalpha,755)
