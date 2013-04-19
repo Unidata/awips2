@@ -188,12 +188,22 @@ function buildFeatureRPMs()
       fi
 
       echo "feature = ${feature}"
-      if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ]; then
-         echo 'export COMPONENT_NAME="awips2-cave-viz-cots"' > \
+      if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ] ||
+         [ "${feature}" = "com.raytheon.uf.viz.base.feature" ]; then
+
+         _component_name = ""
+         if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ]; then
+            _component_name="awips2-cave-viz-cots"
+         fi
+         if [ "${feature}" = "com.raytheon.uf.viz.base.feature" ]; then
+            _component_name="awips2-cave-viz-base"
+         fi
+
+         echo 'export COMPONENT_NAME="${_component_name}"' > \
             ${CONST_SETUP_DIR}/feature.setup
          echo 'export COMPONENT_FEATURE="${feature}"' >> \
             ${CONST_SETUP_DIR}/feature.setup
-         echo 'export COMPONENT_DESC="awips2-cave-viz-cots"' >> \
+         echo 'export COMPONENT_DESC="${_component_name}"' >> \
             ${CONST_SETUP_DIR}/feature.setup
          echo 'export DOWNSTREAM_REQUIRES="awips2-common-base"' >> \
             ${CONST_SETUP_DIR}/feature.setup         
