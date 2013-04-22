@@ -347,7 +347,6 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	}
     	
     	pane.setZoomLevel( mapDisplay.getZoomLevel() );
-    	pane.resize();
     	pane.refresh();
 
     	return true;
