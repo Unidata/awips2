@@ -37,6 +37,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -61,6 +62,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * @author djohnson
  * @version 1.0
  */
+@Ignore
 public class AbstractRegistryTest {
 
     protected static final String MY_REGISTRY_OBJECT_ID = "myRegistryObjectId";
