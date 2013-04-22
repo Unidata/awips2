@@ -184,6 +184,43 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
+# create the ldm directory link
+pushd . > /dev/null 2>&1
+cd /usr/local
+if [ -h /usr/local/ldm ]; then
+   # if this command fails, ldm may be a directory
+   # instead of a link.
+   rm -f /usr/local/ldm
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to remove the /usr/local/ldm link!"
+      exit 1
+   fi
+else
+   if [ -d /usr/local/ldm ]; then
+      # archive the directory
+      _identifier=`date +"%s"`
+      mv /usr/local/ldm /usr/local/ldm.archive_${_identifier}
+      if [ $? -ne 0 ]; then
+         echo "FATAL: failed to archive the /usr/local/ldm directory!"
+         exit 1
+      fi
+      echo "INFO: archived /usr/local/ldm to /usr/local/ldm.archive_${_identifier}."
+   fi
+fi
+
+ln -s ${_ldm_dir} ldm
+if [ $? -ne 0 ]; then
+   echo "FATAL: failed to create the /usr/local/ldm link."
+   exit 1
+fi
+
+# create .bash_profile
+echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
+   /usr/local/ldm/.bash_profile
+echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
+   /usr/local/ldm/.bash_profile
+popd > /dev/null 2>&1
+
 # construct pqact
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/etc
@@ -216,13 +253,15 @@ cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
    exit 1
 fi
-su ldm -c "./configure --disable-max-size --with-noaaport --disable-root-actions" \
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
    exit 1
 fi
-su ldm -c "make install" > install.log 2>&1
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; make install" > install.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
    exit 1
@@ -233,7 +272,8 @@ cd ${_ldm_root_dir}/src/noaaport
 if [ $? -ne 0 ]; then
    exit 1
 fi
-su ldm -c "/bin/bash my-make" > my-make.log 2>&1
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; /bin/bash my-make" > my-make.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: my-make has failed!"
    exit 1
@@ -275,7 +315,8 @@ cd decrypt_file
 if [ $? -ne 0 ]; then
    exit 1
 fi
-su ldm -c "gcc -D_GNU_SOURCE -o decrypt_file decrypt_file.c" > \
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; gcc -D_GNU_SOURCE -o decrypt_file decrypt_file.c" > \
    decrypt_file.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to build decrypt_file!"
@@ -290,7 +331,8 @@ cd ../edexBridge
 if [ $? -ne 0 ]; then
    exit 1
 fi
-su ldm -c "g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
    -I${_ldm_root_dir}/include \
    -I${_ldm_root_dir}/src \
    -I/usr/include/qpid \
