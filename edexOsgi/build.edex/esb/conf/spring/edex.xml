@@ -12,8 +12,9 @@
   http://www.springframework.org/schema/util/spring-util-2.5.xsd
   http://www.springframework.org/schema/tx
   http://www.springframework.org/schema/tx/spring-tx.xsd">
- 
-    <tx:annotation-driven transaction-manager="metadataTxManager" proxy-target-class="true" />
+  
+  	<!-- Separated out database specific beans to seperate file so they can be loaded by themselves if necessary -->
+  	<import resource="file:///${edex.home}/conf/spring/edex-db.xml"/>
   
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
@@ -279,41 +280,6 @@
     <!--
     <commandAgent xmlns="http://activemq.apache.org/schema/core" brokerUrl="vm://localhost"/>
     -->
-	
-    <bean id="metadataDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
-        <property name="excludes">
-           <list>
-                <value>com.raytheon.uf.common.dataplugin.text</value>
-                <value>com.raytheon.edex.plugin.shef</value>
-           </list>
-        </property>
-    </bean>
-    <bean id="metadataSessionFactory"
-		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-		<property name="configLocation">
-			<value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.cfg.xml</value>
-		</property>
-		<!-- >property name="dataSource"><ref bean="datasourceMetadata"/></property-->		
-		<property name="databaseSessionConfiguration" ref="metadataDbSessionConfig"/>
-	</bean>
-
-	<bean id="metadataTxManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="metadataSessionFactory" />
-	</bean>
-	
-	<bean id="mapsSessionFactory"
-		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-		<!--  no annotations to load, so no databaseSessionConfig -->
-		<property name="configLocation">
-			<value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.cfg.xml</value>
-		</property>
-	</bean>
-
-	<bean id="mapsTxManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="mapsSessionFactory" />
-	</bean>	
 
    <!-- Redirect geotools log -->
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>

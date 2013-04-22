@@ -21,26 +21,30 @@ package com.raytheon.uf.edex.registry.ebxml.web;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PartyType;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.PartyDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 
 /**
  * 
- * Servlet implementation used to add a user or organization to the registry
+ * Servlet implementation used to add a user or organization to the registry.
+ * FIXME: This class will be refactored in a later ticket
  * 
  * <pre>
  * 
@@ -50,15 +54,17 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * ------------ ---------- ----------- --------------------------
  * 7/31/2012    #724       bphillip     Initial creation
  * 3/13/2013    1082       bphillip     Made transactional
+ * 4/19/2013    1931       bphillip     Refactored to use web application spring container and cxf services
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+@Path("/AddRegistryParty")
+@Service
 @Transactional
-public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
-        javax.servlet.Servlet {
+public class AddRegistryParty {
 
     /** Serial */
     private static final long serialVersionUID = 1422748054768442033L;
@@ -73,93 +79,87 @@ public class AddRegistryParty extends javax.servlet.http.HttpServlet implements
     /** the page to display upon failure */
     private static final String ERROR_RESPONSE_PAGE = "addPartyFailure";
 
-    // FIXME: Add spring support to servlets
+    private PartyDao partyDao;
 
-    private PartyDao partyDao = (PartyDao) EDEXUtil.getESBComponent("partyDao");
+    private LifecycleManagerImpl lcm;
 
-    private LifecycleManagerImpl lcm = (LifecycleManagerImpl) EDEXUtil
-            .getESBComponent("lcmServiceImpl");
+    private RegistryWebUtil webUtil;
 
-    private RegistryWebUtil webUtil = (RegistryWebUtil) EDEXUtil
-            .getESBComponent("webUtil");
-
-    @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+    @POST
+    @Produces("text/html")
+    public Response doPost(@Context HttpServletRequest request)
+            throws IOException {
         String partyId = request.getParameter(WebFields.ID.fieldName());
         String objectType = request
                 .getParameter(WebFields.OBJ_TYPE.fieldName());
         PartyType existingParty = null;
 
-        try {
-            // The EDEX internal user cannot be modified
-            if (partyId.equals(RegistryUtil.DEFAULT_OWNER)) {
-                webUtil.sendErrorResponse(request, response,
-                        ERROR_RESPONSE_PAGE, partyId, objectType,
-                        "Cannot modify EDEX Internal User");
-            }
-
-            /*
-             * Check to see if the party already exists. If so, the user cannot
-             * be added
-             */
-            existingParty = partyDao.getById(partyId);
-
-            if (existingParty != null) {
-                statusHandler.error("Error adding " + objectType
-                        + " to registry. " + objectType + " " + partyId
-                        + " already exists");
-                webUtil.sendErrorResponse(request, response,
-                        ERROR_RESPONSE_PAGE, partyId, objectType, objectType
-                                + " Already Exists");
-
-            }
-
-            /*
-             * Create a new submit request containing the new party
-             */
-            SubmitObjectsRequest submitRequest = null;
-            try {
-                submitRequest = webUtil.createParty(request);
-            } catch (EbxmlRegistryException e) {
-                statusHandler.error("Error creating " + objectType, e);
-                webUtil.sendErrorResponse(
-                        request,
-                        response,
-                        ERROR_RESPONSE_PAGE,
-                        partyId,
-                        objectType,
-                        "Error creating " + objectType + "\n"
-                                + e.getLocalizedMessage());
-            }
-
-            // Submit the objects to the registry
-            try {
-                lcm.submitObjects(submitRequest);
-                webUtil.updatePC(request);
-            } catch (Exception e) {
-                statusHandler.error("Error submitting new " + objectType
-                        + " to the registry", e);
-                webUtil.sendErrorResponse(
-                        request,
-                        response,
-                        ERROR_RESPONSE_PAGE,
-                        partyId,
-                        objectType,
-                        "Error submitting new " + objectType
-                                + " to the registry\n"
-                                + e.getLocalizedMessage());
-            }
-
-            // Send success response back to the caller
-            webUtil.sendSuccessResponse(request, response,
-                    SUCCESS_RESPONSE_PAGE, partyId, objectType);
-
-        } catch (ServletException e) {
-            statusHandler.error("Error generating response", e);
-            response.sendError(1,
-                    "Error generating response: " + e.getLocalizedMessage());
+        // The EDEX internal user cannot be modified
+        if (partyId.equals(RegistryUtil.DEFAULT_OWNER)) {
+            return Response.serverError().build();
+            // webUtil.sendErrorResponse(request, response,
+            // ERROR_RESPONSE_PAGE, partyId, objectType,
+            // "Cannot modify EDEX Internal User");
         }
+
+        /*
+         * Check to see if the party already exists. If so, the user cannot be
+         * added
+         */
+        existingParty = partyDao.getById(partyId);
+
+        if (existingParty != null) {
+            statusHandler.error("Error adding " + objectType + " to registry. "
+                    + objectType + " " + partyId + " already exists");
+            return Response.serverError().build();
+            // webUtil.sendErrorResponse(request, response,
+            // ERROR_RESPONSE_PAGE, partyId, objectType, objectType
+            // + " Already Exists");
+
+        }
+
+        /*
+         * Create a new submit request containing the new party
+         */
+        SubmitObjectsRequest submitRequest = null;
+        try {
+            submitRequest = webUtil.createParty(request);
+        } catch (EbxmlRegistryException e) {
+            statusHandler.error("Error creating " + objectType, e);
+            return Response.serverError().build();
+            // webUtil.sendErrorResponse(
+            // request,
+            // response,
+            // ERROR_RESPONSE_PAGE,
+            // partyId,
+            // objectType,
+            // "Error creating " + objectType + "\n"
+            // + e.getLocalizedMessage());
+        }
+
+        // Submit the objects to the registry
+        try {
+            lcm.submitObjects(submitRequest);
+            webUtil.updatePC(request);
+        } catch (Exception e) {
+            statusHandler.error("Error submitting new " + objectType
+                    + " to the registry", e);
+            return Response.serverError().build();
+            // webUtil.sendErrorResponse(
+            // request,
+            // response,
+            // ERROR_RESPONSE_PAGE,
+            // partyId,
+            // objectType,
+            // "Error submitting new " + objectType
+            // + " to the registry\n"
+            // + e.getLocalizedMessage());
+        }
+
+        // Send success response back to the caller
+        return Response.ok().build();
+        // webUtil.sendSuccessResponse(request, response, SUCCESS_RESPONSE_PAGE,
+        // partyId, objectType);
     }
 
     public void setWebUtil(RegistryWebUtil webUtil) {
