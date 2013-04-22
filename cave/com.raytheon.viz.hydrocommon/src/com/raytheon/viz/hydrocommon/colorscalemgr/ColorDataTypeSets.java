@@ -22,6 +22,7 @@ package com.raytheon.viz.hydrocommon.colorscalemgr;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -35,7 +36,9 @@ import org.eclipse.swt.graphics.RGB;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 29 NOV 2007  373        lvenable    Initial creation
+ * 29 NOV 2007  373        lvenable    Initial creation.
+ * 18 APR 2013  1790       rferrel     Clean up method interfaces;
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -122,7 +125,7 @@ public class ColorDataTypeSets {
      *            Data type key.
      * @return Array of color set data (updated).
      */
-    public ArrayList<ColorScaleData> getColorScaleDataArray(String dataTypeKey) {
+    public List<ColorScaleData> getColorScaleDataArray(String dataTypeKey) {
         ColorScaleSets colorSets = dataTypeMap.get(dataTypeKey);
         if (colorSets == null) {
             return new ArrayList<ColorScaleData>();
@@ -138,8 +141,7 @@ public class ColorDataTypeSets {
      *            Data type key.
      * @return Array of color set data (used).
      */
-    public ArrayList<ColorScaleData> getUsedColorScaleDataArray(
-            String dataTypeKey) {
+    public List<ColorScaleData> getUsedColorScaleDataArray(String dataTypeKey) {
         ColorScaleSets colorSets = dataTypeMap.get(dataTypeKey);
         if (colorSets == null) {
             return new ArrayList<ColorScaleData>();
