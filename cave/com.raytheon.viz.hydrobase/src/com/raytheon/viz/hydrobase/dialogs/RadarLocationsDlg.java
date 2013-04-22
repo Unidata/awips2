@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -144,7 +142,7 @@ public class RadarLocationsDlg extends CaveSWTDialog {
     /**
      * Cache of Radar Locations
      */
-    private ArrayList<RadarLocData> radarData;
+    private java.util.List<RadarLocData> radarData;
 
     /**
      * States of the dialog
@@ -466,10 +464,10 @@ public class RadarLocationsDlg extends CaveSWTDialog {
                                 .getLatLonDisplayString(currLoc.getLatitude()),
                         HydroDataUtils.getLatLonDisplayString(currLoc
                                 .getLongitude()), HydroDataUtils
-                                .getDisplayString("%s", "%6.1f", currLoc
-                                        .getElevation()), HydroDataUtils
-                                .getDisplayString("%s", "%5.1f", currLoc
-                                        .getTowerHeight()), currLoc
+                                .getDisplayString("%s", "%6.1f",
+                                        currLoc.getElevation()), HydroDataUtils
+                                .getDisplayString("%s", "%5.1f",
+                                        currLoc.getTowerHeight()), currLoc
                                 .getUseRadar(), currLoc.getOfficeID()));
             }
 
@@ -590,8 +588,7 @@ public class RadarLocationsDlg extends CaveSWTDialog {
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the Radar Location");
+                mb.setMessage("An error occurred while trying to save the Radar Location");
                 mb.open();
 
                 e.printStackTrace();
@@ -610,12 +607,11 @@ public class RadarLocationsDlg extends CaveSWTDialog {
             MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
                     | SWT.CANCEL);
             mb.setText("Delete Confirmation");
-            mb
-                    .setMessage("WARNING:  You are about to delete radar information \n"
-                            + "from multiple tables.  Are you sure you want to do this? \n\n"
-                            + "(Note: If you delete this radar now, you will NOT be able to \n"
-                            + "recover the non-default values for the affected tables.) \n\n"
-                            + "If you do not wish to delete at this time, click \"Cancel\".");
+            mb.setMessage("WARNING:  You are about to delete radar information \n"
+                    + "from multiple tables.  Are you sure you want to do this? \n\n"
+                    + "(Note: If you delete this radar now, you will NOT be able to \n"
+                    + "recover the non-default values for the affected tables.) \n\n"
+                    + "If you do not wish to delete at this time, click \"Cancel\".");
 
             int result = mb.open();
 
@@ -631,8 +627,7 @@ public class RadarLocationsDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the City");
+                    mb.setMessage("An error occurred while trying to delete the City");
                     mb.open();
 
                     e.printStackTrace();
