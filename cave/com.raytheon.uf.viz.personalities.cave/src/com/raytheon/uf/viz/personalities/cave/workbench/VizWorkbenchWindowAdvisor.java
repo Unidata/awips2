@@ -78,7 +78,7 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
         IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
         configurer.setShowProgressIndicator(true);
         configurer.setInitialSize(new Point(1024, 768));
-        // Don't show perspective bar if running a specific perspective?
+        configurer.setShowPerspectiveBar(true);
         configurer.setShowCoolBar(true);
         configurer.setShowStatusLine(true);
 
