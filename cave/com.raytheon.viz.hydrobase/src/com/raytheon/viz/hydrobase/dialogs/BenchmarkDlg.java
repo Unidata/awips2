@@ -121,7 +121,7 @@ public class BenchmarkDlg extends CaveSWTDialog {
     /**
      * Benchmark data for the current location.
      */
-    private ArrayList<BenchmarkData> benchData;
+    private java.util.List<BenchmarkData> benchData;
 
     /**
      * Dialog states.
