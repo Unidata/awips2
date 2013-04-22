@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.hydrocommon.util;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -42,6 +42,8 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009 1802       askripsk     Initial creation
+ * Apr 18, 2013 1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -71,8 +73,8 @@ public class StnClassSyncUtil {
         TelemData telemSeedData = new TelemData();
         telemSeedData.setLid(lid);
 
-        ArrayList<TelemData> telemData = HydroDBDataManager.getInstance()
-                .getData(telemSeedData);
+        List<TelemData> telemData = HydroDBDataManager.getInstance().getData(
+                telemSeedData);
 
         int telemCount = telemData.size();
         if (telemCount != 0) {
@@ -156,7 +158,7 @@ public class StnClassSyncUtil {
         ingestSeedData.setWhereClause(" WHERE lid= '" + lid
                 + "' AND ingest= 'T'");
 
-        ArrayList<DataIngestFilterData> ingestFilterData = HydroDBDataManager
+        List<DataIngestFilterData> ingestFilterData = HydroDBDataManager
                 .getInstance().getData(ingestSeedData);
 
         if (ingestFilterData.size() > 0) {
@@ -337,8 +339,8 @@ public class StnClassSyncUtil {
      * @return The number of PEs in the ingest filter list that starts with the
      *         specified PE prefix.
      */
-    private static int getPECount(
-            ArrayList<DataIngestFilterData> ingestFilterData, String currPE) {
+    private static int getPECount(List<DataIngestFilterData> ingestFilterData,
+            String currPE) {
         int peCount = 0;
 
         for (DataIngestFilterData currFilter : ingestFilterData) {

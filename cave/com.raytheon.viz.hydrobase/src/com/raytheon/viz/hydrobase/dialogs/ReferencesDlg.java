@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -51,7 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 8, 2008				lvenable	Initial creation.
  * 12/19/2008   1782        grichard    Connected to IHFS DB.
  * Nov 03 2011	11273		lbousaidi   make changes to update an existing entry
- * 										without creating new entry 	
+ * 										without creating new entry
  * 
  * </pre>
  * 
@@ -105,16 +103,14 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
     /**
      * Array of reference data.
      */
-    private ArrayList<ReferencesData> referenceData;
+    private java.util.List<ReferencesData> referenceData;
 
     /**
      * Location ID.
      */
     private String lid;
-    
-    private boolean newInsert=false;
-    
-    
+
+    private boolean newInsert = false;
 
     /**
      * Constructor.
@@ -273,7 +269,7 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         newBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	newInsert=true;
+                newInsert = true;
                 clearForm();
                 okBtn.setEnabled(true);
                 applyBtn.setEnabled(true);
@@ -426,22 +422,21 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
 
         // Save to DB
         try {
-        	   if ((referenceList.getSelectionIndex() < 0) && 
-        			   (newInsert)) {
-        		   HydroDBDataManager.getInstance().putData(dataToSave);
-           		   newInsert=false;
-        	   } else {
-        	
-        		   //Data Listed
-        		   ReferencesData dataDisplayed = new ReferencesData();
-        		   dataDisplayed.setLid(lid);
-        		   dataDisplayed.setReference(referenceList.
-        				   getItem(referenceList.getSelectionIndex()));
-        		   HydroDBDataManager.getInstance().
-        		   		   putNewData(dataToSave, dataDisplayed, newInsert);
-        		   referenceList.setSelection(referenceList.getSelectionIndex());
-        		   newInsert=false;
-        	   }
+            if ((referenceList.getSelectionIndex() < 0) && (newInsert)) {
+                HydroDBDataManager.getInstance().putData(dataToSave);
+                newInsert = false;
+            } else {
+
+                // Data Listed
+                ReferencesData dataDisplayed = new ReferencesData();
+                dataDisplayed.setLid(lid);
+                dataDisplayed.setReference(referenceList.getItem(referenceList
+                        .getSelectionIndex()));
+                HydroDBDataManager.getInstance().putNewData(dataToSave,
+                        dataDisplayed, newInsert);
+                referenceList.setSelection(referenceList.getSelectionIndex());
+                newInsert = false;
+            }
         } catch (VizException e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Unable to Save");
@@ -495,8 +490,7 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
                     MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbDel.setText("Unable to Delete");
-                    mbDel
-                            .setMessage("No item is selected in the reference list");
+                    mbDel.setMessage("No item is selected in the reference list");
                     mbDel.open();
                 }
 
@@ -515,12 +509,11 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
 
         // Refresh the data
         getDialogData();
-        
-        if (referenceList.getItemCount() !=0 ) {
-        	referenceList.setSelection(0);
-        	updateInformation();
-        } 
-        
+
+        if (referenceList.getItemCount() != 0) {
+            referenceList.setSelection(0);
+            updateInformation();
+        }
 
     }
 
