@@ -20,10 +20,10 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import javax.persistence.Transient;
@@ -31,7 +31,6 @@ import javax.persistence.Transient;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.time.util.ImmutableDate;
 
 /**
  * FFMP basin/aggregated value holder
@@ -44,6 +43,9 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 01/27/13      1478       D. Hladky   Added support for writing aggregate record cache
+ * Apr 22, 2013 1912        bsteffen    optimized the creation of NavigableMaps
+ *                                      from aggregate records and delayed
+ *                                      TreeMap creation to the tertiary loader.
  * 
  * </pre>
  * 
@@ -65,7 +67,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      *  not serialized!
      **/
     @Transient
-    protected TreeMap<Date, Float> values;
+    protected NavigableMap<Date, Float> values;
     
     /** object used for serialization **/
     @DynamicSerializeElement
@@ -316,6 +318,12 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      */
     public void setValue(Date date, Float dvalue) {
         synchronized (values) {
+            if (!(values instanceof TreeMap) && !values.containsKey(dvalue)) {
+                // ArrayBackedMap may have been used if this basin was
+                // deserialized. It is much faster to do inserts on a TreeMap so
+                // convert now.
+                values = new TreeMap<Date, Float>(values);
+            }
             values.put(date, dvalue);
         }
     }
@@ -325,7 +333,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      * 
      * @return
      */
-    public TreeMap<Date, Float> getValues() {
+    public NavigableMap<Date, Float> getValues() {
         return values;
     }
 
@@ -343,13 +351,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      */
     public FFMPBasin() {
 
-        values = new TreeMap<Date, Float>(new Comparator<Date>() {
-            @Override
-            public int compare(Date o1, Date o2) {
-                // Null checks?
-                return (int)(o2.getTime() - o1.getTime()) ;
-            }
-        });
+        values = new TreeMap<Date, Float>(Collections.reverseOrder());
     }
 
     /**
@@ -360,14 +362,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     public FFMPBasin(Long pfaf, boolean aggregated) {
         setPfaf(pfaf);
         setAggregated(aggregated);
-        values = new TreeMap<Date, Float>(new Comparator<Date>() {
-            @Override
-            public int compare(Date o1, Date o2) {
-                // Null checks?
-            	return (int)(o2.getTime() - o1.getTime()) ;
-            }
-
-        });
+        values = new TreeMap<Date, Float>(Collections.reverseOrder());
     }
     
     /**
@@ -375,18 +370,18 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      * 
      * @param times
      */
-    public void deserialize(List<Long> times) {
+    public void deserialize(long[] times) {
         // safe to avoid Array Index Exceptions / shouldn't happen but.....
 
-        if (serializedValues != null && (times.size() == serializedValues.length)) {
+        if (serializedValues != null
+                && (times.length == serializedValues.length)) {
+            NavigableMap<Date, Float> fastMap = new ArrayBackedMap(times,
+                    serializedValues);
+            values = fastMap.descendingMap();
 
-            int i = 0;
-            for (Long time : times) {
-                values.put(new Date(time), serializedValues[i]);
-                i++;
-            }
-            //System.out.println("populated :"+i+" pfaf : "+pfaf);
+            // values = new TreeMap<Date, Float>(fastMap.descendingMap());
         }
+        serializedValues = null;
     }
     
     /**

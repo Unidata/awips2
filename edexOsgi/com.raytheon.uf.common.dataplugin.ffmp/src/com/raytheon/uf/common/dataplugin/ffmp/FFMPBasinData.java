@@ -576,8 +576,12 @@ public class FFMPBasinData implements ISerializableObject {
      * @param times
      */
     public void populate(List<Long> times) {
+        long[] timesArr = new long[times.size()];
+        for (int i = 0; i < timesArr.length; i += 1) {
+            timesArr[i] = times.get(i);
+        }
         for (FFMPBasin basin : getBasins().values()) {
-            basin.deserialize(times);
+            basin.deserialize(timesArr);
         }
     }
 
