@@ -198,17 +198,17 @@ public class VizDisplayPane implements IDisplayPane {
             boolean enableContextualMenus) throws VizException {
         this.container = container;
         this.canvasComp = canvasComp;
-        this.canvasComp.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                VizDisplayPane.this.dispose();
-            }
-        });
 
         // create the graphics adapter
         graphicsAdapter = display.getGraphicsAdapter();
         // create the canvas
         this.canvas = graphicsAdapter.constrcutCanvas(canvasComp);
+        this.canvas.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                VizDisplayPane.this.dispose();
+            }
+        });
         // set the renderable display
         setRenderableDisplay(display);
 
@@ -399,10 +399,6 @@ public class VizDisplayPane implements IDisplayPane {
                 this.renderableDisplay.dispose();
                 container.notifyRenderableDisplayChangedListeners(this,
                         renderableDisplay, DisplayChangeType.REMOVE);
-            }
-
-            if (canvas.isDisposed() == false) {
-                canvasComp.dispose();
             }
         }
     }
@@ -812,41 +808,21 @@ public class VizDisplayPane implements IDisplayPane {
     /**
      * Resize the pane
      */
-    public void resize() {
-        synchronized (this) {
-
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (canvas == null || canvas.isDisposed()) {
-                        return;
-                    }
-
-                    target.resize();
-
-                    Rectangle clientArea = canvas.getClientArea();
-
-                    if (renderableDisplay != null
-                            && renderableDisplay.getExtent() == null) {
-                        scaleToClientArea();
-
-                        zoomLevel = renderableDisplay
-                                .recalcZoomLevel(renderableDisplay
-                                        .getDimensions());
-                        refresh();
-
-                    } else if (renderableDisplay != null) {
-                        renderableDisplay.calcPixelExtent(clientArea);
-                        zoomLevel = renderableDisplay
-                                .recalcZoomLevel(renderableDisplay
-                                        .getDimensions());
-                        refresh();
-                    }
-                }
-            });
-
+    protected void resize() {
+        if (canvas == null || canvas.isDisposed()) {
+            return;
         }
+
+        target.resize();
+
+        Rectangle clientArea = canvas.getClientArea();
+
+        if (renderableDisplay != null) {
+            renderableDisplay.calcPixelExtent(clientArea);
+            zoomLevel = renderableDisplay.recalcZoomLevel(renderableDisplay
+                    .getDimensions());
+        }
+        refresh();
     }
 
     /*
@@ -912,6 +888,13 @@ public class VizDisplayPane implements IDisplayPane {
      */
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    /**
+     * @return the pane composite
+     */
+    public Composite getComposite() {
+        return canvasComp;
     }
 
     /*
