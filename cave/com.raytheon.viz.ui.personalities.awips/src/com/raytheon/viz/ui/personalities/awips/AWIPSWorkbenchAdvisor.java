@@ -27,6 +27,8 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
+import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.contexts.IContextService;
 
@@ -89,6 +91,12 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
 
         singlePerspective = ProgramArguments.getInstance().getString(
                 "-perspective") != null;
+    }
+
+    @Override
+    protected WorkbenchWindowAdvisor createNewWindowAdvisor(
+            IWorkbenchWindowConfigurer configurer) {
+        return new AWIPSWorkbenchWindowAdvisor(configurer, singlePerspective);
     }
 
     @Override
