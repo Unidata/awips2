@@ -106,8 +106,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
      * Location text control.
      */
     private Text locationTF;
-    
-    private String currentLocText=null;
+
+    private String currentLocText = null;
+
     /**
      * OK button.
      */
@@ -126,7 +127,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
     /**
      * Cache of Gages
      */
-    private ArrayList<GageDBData> gageData;
+    private java.util.List<GageDBData> gageData;
 
     /**
      * Date format
@@ -322,16 +323,15 @@ public class GageHistoryDlg extends CaveSWTDialog {
         locationTF = new Text(locationGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         locationTF.setLayoutData(gd);
         locationTF.setTextLimit(255);
-        currentLocText=locationTF.getText();
+        currentLocText = locationTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (locationTF.getText().length()>255){
-        			locationTF.setText(currentLocText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentLocText=locationTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (locationTF.getText().length() > 255) {
+                    locationTF.setText(currentLocText);
+                    shell.getDisplay().beep();
+                } else
+                    currentLocText = locationTF.getText();
+            }
         };
 
         locationTF.addModifyListener(listener);
@@ -449,9 +449,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
         }
     }
 
-    private ArrayList<String> getGageData(String table, String column)
+    private java.util.List<String> getGageData(String table, String column)
             throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+        java.util.List<String> rval = new ArrayList<String>();
 
         String query = "SELECT %s FROM %s ORDER BY %s";
         query = String.format(query, column, table, column);
@@ -490,8 +490,8 @@ public class GageHistoryDlg extends CaveSWTDialog {
             for (GageDBData currData : gageData) {
                 endDate = (currData.getEndDate() != null) ? dateFormat
                         .format(currData.getEndDate()) : "";
-                dataList.add(String.format(format, currData.getType(), currData
-                        .getOwner(),
+                dataList.add(String.format(format, currData.getType(),
+                        currData.getOwner(),
                         dateFormat.format(currData.getBeginDate()), endDate));
             }
 
@@ -564,8 +564,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Please enter the Begin Date\nin the form: YYYY-MM-DD");
+                mb.setMessage("Please enter the Begin Date\nin the form: YYYY-MM-DD");
                 mb.open();
 
                 return successful;
@@ -581,8 +580,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
                     MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mb.setText("Unable to Save");
-                    mb
-                            .setMessage("Please enter the End Date\nin the form: YYYY-MM-DD");
+                    mb.setMessage("Please enter the End Date\nin the form: YYYY-MM-DD");
                     mb.open();
 
                     return successful;
@@ -612,8 +610,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the City");
+                mb.setMessage("An error occurred while trying to save the City");
                 mb.open();
 
                 e.printStackTrace();
@@ -643,8 +640,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the entry");
+                    mb.setMessage("An error occurred while trying to delete the entry");
                     mb.open();
 
                     e.printStackTrace();
