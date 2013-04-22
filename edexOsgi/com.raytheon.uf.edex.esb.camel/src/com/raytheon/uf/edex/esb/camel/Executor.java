@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
@@ -70,6 +71,7 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
  * Jul 17, 2012  #0740     djohnson     Redo changes since the decomposed repositories lost them.
  * Oct 19, 2012  #1274     bgonzale     Load properties from files in conf 
  *                                         resources directory.
+ * Apr 22, 2013  #1932     djohnson     Use countdown latch for a shutdown hook.
  * 
  * </pre>
  * 
@@ -88,12 +90,20 @@ public class Executor {
 
     private static final String MODES_FILE = "modes.xml";
 
+    private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
+
     public static void start() throws Exception {
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                shutdownLatch.countDown();
+            }
+        });
+
         long t0 = System.currentTimeMillis();
         Thread.currentThread().setName("EDEXMain");
         System.setProperty("System.status", "Starting");
-
-        final boolean[] shutdown = new boolean[] { false };
 
         String pluginDirStr = PropertiesFactory.getInstance()
                 .getEnvProperties().getEnvValue("PLUGINDIR");
@@ -198,26 +208,8 @@ public class Executor {
         System.out
                 .println("**************************************************");
         System.setProperty("System.status", "Operational");
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
 
-                    shutdown[0] = true;
-                } catch (Exception e) {
-                }
-
-            }
-        });
-
-        synchronized (shutdown) {
-            while (!shutdown[0]) {
-                try {
-                    shutdown.wait();
-                } catch (InterruptedException e) {
-                }
-            }
-        }
+        shutdownLatch.await();
     }
 
     /**
