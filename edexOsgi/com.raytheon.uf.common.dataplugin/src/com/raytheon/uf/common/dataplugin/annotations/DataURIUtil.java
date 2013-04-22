@@ -27,6 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.PropertyUtils;
+
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
+
 /**
  * Utility class for working with dataURIs
  * 
@@ -37,6 +42,7 @@ import java.util.Map;
  * 10/07/2008   1533        bphillip   Initial Checkin
  * Mar 29, 2013 1638       mschenke    Added method for recursively getting all
  *                                     dataURI fields for an object
+ * Apr 18, 2013 1638        mschenke    Moved dataURI map generation into here from PluginDataObject
  * 
  * </pre>
  * 
@@ -68,6 +74,38 @@ public class DataURIUtil {
             instance = new DataURIUtil();
         }
         return instance;
+    }
+
+    /**
+     * Creates a DataURI map for the specified object based on {@link DataURI}
+     * annotations
+     * 
+     * @param object
+     * @return
+     * @throws PluginException
+     */
+    public static Map<String, Object> createDataURIMap(Object object)
+            throws PluginException {
+        try {
+            Map<String, Object> map = new HashMap<String, Object>();
+            Field[] fields = DataURIUtil.getInstance().getAllDataURIFields(
+                    object.getClass());
+            for (int i = 0; i < fields.length; ++i) {
+                String fieldName = PluginDataObject.getDataURIFieldName(
+                        object.getClass(), i);
+                String[] nested = fieldName.split("[.]");
+                Object source = object;
+                if (nested.length > 0) {
+                    for (int j = 0; j < nested.length && source != null; ++j) {
+                        source = PropertyUtils.getProperty(source, nested[j]);
+                    }
+                    map.put(fieldName, source);
+                }
+            }
+            return map;
+        } catch (Exception e) {
+            throw new PluginException("Error constructing dataURI mapping", e);
+        }
     }
 
     public Field[] getAllDataURIFields(Class<?> obj) {

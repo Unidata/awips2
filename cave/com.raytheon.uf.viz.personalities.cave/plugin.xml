@@ -41,7 +41,7 @@
                    id="com.raytheon.uf.viz.personalities.cave.openPerspective">
             	</dynamic>
             </menu>
-            <menu id="cave.browsers"
+            <menu id="browsers"
             	label="Data Browsers">
             	<!-- Place holder for data browsers -->
             </menu>
