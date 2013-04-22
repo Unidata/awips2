@@ -424,8 +424,17 @@ public class YajswConfigurationImpl extends CompositeConfiguration implements Ya
 		{
 			if (key.equals("wrapper.startup.timeout"))
 				result = Integer.MAX_VALUE / 1000;
-			else if (key.equals("wrapper.shutdown.timeout"))
-				result = (Integer.MAX_VALUE / 1000);
+            /*
+             * djohnson
+             * 
+             * Allow the wrapper to kill the process using the shutdown timeout,
+             * even when in debug mode (old wrapper behavior). The shutdown hook
+             * of the wrapped process cannot and will not be invoked if the
+             * wrapper process is signalled to shutdown prior to the wrapped
+             * application starting.
+             */
+            // else if (key.equals("wrapper.shutdown.timeout"))
+            //    result = (Integer.MAX_VALUE / 1000);
 			else if (key.equals("wrapper.ping.timeout"))
 				result = (Integer.MAX_VALUE / 1000);
 		}
