@@ -21,6 +21,7 @@ package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +47,9 @@ import com.raytheon.viz.hydrocommon.data.LocationData;
  * 									   location table instead of hsa table.
  * Oct 05, 2011 15333      lbousaidi   changed the queries that retrieves the HSAs from 
  * 									   the database.
- *
+ * Apr 18, 2013 1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
+ * 
  * </pre>
  * 
  * @author askripsky
@@ -55,9 +58,10 @@ import com.raytheon.viz.hydrocommon.data.LocationData;
 
 public class AddModifyLocationDataManager extends HydroDataManager {
     protected static AddModifyLocationDataManager manager = null;
-    
-    private static final String[] rval = { "AT", "N", "NNE", "NE", "ENE", "E", "ESE", "SE",
-        "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+
+    private static final String[] rval = { "AT", "N", "NNE", "NE", "ENE", "E",
+            "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW",
+            "NNW" };
 
     /**
      * Private constructor.
@@ -95,8 +99,8 @@ public class AddModifyLocationDataManager extends HydroDataManager {
         LocationData locData = new LocationData();
         locData.setLid(lid);
 
-        ArrayList<LocationData> data = HydroDBDataManager.getInstance()
-                .getData(locData);
+        List<LocationData> data = HydroDBDataManager.getInstance().getData(
+                locData);
 
         if ((data != null) && (data.size() > 0)) {
             locData = data.get(0);
@@ -122,8 +126,8 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return The networks from the DB
      * @throws VizException
      */
-    public ArrayList<String> getNetworks() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getNetworks() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String query = "Select network from network order by network";
 
@@ -146,8 +150,8 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return The rfcs from the DB
      * @throws VizException
      */
-    public ArrayList<String> getRFCs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getRFCs() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String query = "Select rfc from rfc order by rfc";
 
@@ -170,10 +174,10 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return The HSAs from the DB
      * @throws VizException
      */
-    public ArrayList<String> getHSAs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getHSAs() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
-       String query= "SELECT DISTINCT upper(hsa) from hsa order by upper (hsa)";
+        String query = "SELECT DISTINCT upper(hsa) from hsa order by upper (hsa)";
         QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
                 query);
 
@@ -193,8 +197,8 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return The HSAs from the DB
      * @throws VizException
      */
-    public ArrayList<String> getHSAsForFilter() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getHSAsForFilter() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String query = "Select distinct(hsa) from location order by hsa";
 
@@ -217,11 +221,11 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return The WFOs from the DB
      * @throws VizException
      */
-    public ArrayList<String> getWFOs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
-        
-        String query= "SELECT DISTINCT upper(wfo) from wfo order by upper (wfo)";
-        
+    public List<String> getWFOs() throws VizException {
+        List<String> rval = new ArrayList<String>();
+
+        String query = "SELECT DISTINCT upper(wfo) from wfo order by upper (wfo)";
+
         QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
                 query);
 
@@ -241,8 +245,8 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return The Time Zones from the DB
      * @throws VizException
      */
-    public ArrayList<String> getTimeZones() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getTimeZones() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String query = "Select tzone, name from timezone order by tzone";
 
@@ -273,9 +277,8 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return
      * @throws VizException
      */
-    public ArrayList<String> getAvailableAgenciesAndOffices()
-            throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getAvailableAgenciesAndOffices() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String agencyCode;
         String office;
@@ -297,7 +300,7 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return
      * @throws VizException
      */
-    public ArrayList<AgencyOfficeData> getAvailableAgenciesAndOfficesData()
+    public List<AgencyOfficeData> getAvailableAgenciesAndOfficesData()
             throws VizException {
         return HydroDBDataManager.getInstance().getData(AgencyOfficeData.class);
     }
@@ -308,7 +311,7 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return
      * @throws VizException
      */
-    public ArrayList<LocationAgencyOfficeData> getSelectedAgenciesAndOfficesData(
+    public List<LocationAgencyOfficeData> getSelectedAgenciesAndOfficesData(
             String lid) throws VizException {
         LocationAgencyOfficeData dataToGet = new LocationAgencyOfficeData();
         dataToGet.setLid(lid);
@@ -322,9 +325,9 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      * @return
      * @throws VizException
      */
-    public ArrayList<String> getSelectedAgenciesAndOffices(String lid)
+    public List<String> getSelectedAgenciesAndOffices(String lid)
             throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<String>();
 
         String agencyCode;
         String office;
@@ -416,7 +419,7 @@ public class AddModifyLocationDataManager extends HydroDataManager {
 
         // Verify Lid exists
         if (locationExists(sourceLocation)) {
-            
+
             /*
              * Copy all necessary information.
              */
@@ -573,16 +576,18 @@ public class AddModifyLocationDataManager extends HydroDataManager {
         return (rowCount > 0);
     }
 
-    private void copyTableData(String sourceLid, String destinationLid, String table) {
+    private void copyTableData(String sourceLid, String destinationLid,
+            String table) {
         // Get the columns for the table
-        final String columnQuery = "SELECT column_name FROM information_schema.columns WHERE table_name = '" + table + "' ORDER BY ordinal_position";
+        final String columnQuery = "SELECT column_name FROM information_schema.columns WHERE table_name = '"
+                + table + "' ORDER BY ordinal_position";
 
-        ArrayList<Object[]> columns = runQuery(columnQuery);
-        
+        List<Object[]> columns = runQuery(columnQuery);
+
         // Dynamically create the select statement to
-        //  get the data out
+        // get the data out
         StringBuffer query = new StringBuffer("select ");
-        
+
         for (int i = 0; i < columns.size(); i++) {
             Object[] oa = columns.get(i);
             if (i == 0) {
@@ -591,14 +596,14 @@ public class AddModifyLocationDataManager extends HydroDataManager {
                 query.append(", " + oa[0]);
             }
         }
-        
+
         query.append(" from " + table + " where lid = '" + sourceLid + "'");
-        
+
         // execute the dynamically created query
-        ArrayList<Object[]> rs = runQuery(query.toString());
-        
+        List<Object[]> rs = runQuery(query.toString());
+
         // Get the data from the query and dynamically build
-        //  an insert statement
+        // an insert statement
         StringBuilder insert = new StringBuilder("insert into " + table + " (");
         if ((rs != null) && (rs.size() > 0)) {
             for (int i = 0; i < columns.size(); i++) {
@@ -609,17 +614,17 @@ public class AddModifyLocationDataManager extends HydroDataManager {
                     insert.append(", " + oa[0]);
                 }
             }
-            
+
             insert.append(") values (");
             String insertBegin = insert.toString();
-            for (Object[] oa: rs) {
+            for (Object[] oa : rs) {
                 insert.setLength(0);
                 insert.append(insertBegin);
-                for (int i = 0; i < oa.length; i++) {                
+                for (int i = 0; i < oa.length; i++) {
                     if (i == 0) {
                         insert.append("'" + destinationLid + "'");
                     } else {
-                        if (oa[i] instanceof String) { 
+                        if (oa[i] instanceof String) {
                             String s = (String) oa[i];
                             if (s.contains("'")) {
                                 s = s.replace("'", "''");
@@ -627,17 +632,19 @@ public class AddModifyLocationDataManager extends HydroDataManager {
                             if (s.indexOf("\"") > 0) {
                                 s = s.replace("\"", "\\\"");
                             }
-                            		
+
                             insert.append(", '" + s + "'");
                         } else if (oa[i] instanceof Date) {
-                            insert.append(", '" + HydroConstants.DATE_FORMAT.format(oa[i]) + "'");
+                            insert.append(", '"
+                                    + HydroConstants.DATE_FORMAT.format(oa[i])
+                                    + "'");
                         } else {
                             insert.append(", " + oa[i]);
                         }
-                    }               
+                    }
                 }
                 insert.append(")");
-                
+
                 try {
                     runStatement(insert.toString());
                 } catch (VizException e) {

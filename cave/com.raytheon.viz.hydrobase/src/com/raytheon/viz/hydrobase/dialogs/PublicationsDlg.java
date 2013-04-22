@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -136,7 +135,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
     /**
      * Publications Data.
      */
-    private ArrayList<PublicationsData> pubData;
+    private java.util.List<PublicationsData> pubData;
 
     /**
      * Location Identifier.
@@ -571,8 +570,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a valid date in the form: MM/DD/YYYY");
+                mb.setMessage("Please enter a valid date in the form: MM/DD/YYYY");
                 mb.open();
                 return false;
             }
@@ -584,8 +582,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a valid date in the form: MM/DD/YYYY");
+                mb.setMessage("Please enter a valid date in the form: MM/DD/YYYY");
                 mb.open();
                 return false;
             }
@@ -647,8 +644,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
                     MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbDel.setText("Unable to Delete");
-                    mbDel
-                            .setMessage("No item is selected in the publications list");
+                    mbDel.setMessage("No item is selected in the publications list");
                     mbDel.open();
                 }
 
