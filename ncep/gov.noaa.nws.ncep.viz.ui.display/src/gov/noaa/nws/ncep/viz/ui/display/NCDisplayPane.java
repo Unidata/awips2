@@ -64,17 +64,6 @@ public class NCDisplayPane extends VizDisplayPane {
     	
     }
 
-    // if the user has locked the zoom due to a size-of-image reprojection, we
-    // don't want to change the zoomLevel which is a done in VizPaneDisplay
-    //   TODO : this seems to work except that resize() is called just after an rbd is
-    // loaded which, when size of image is selected, causes the image not to display.
-    // 
-    public void resize() {
-//    	if( !((NCMapDescriptor)getDescriptor()).getSuspendZoom() ) {
-    		super.resize();
-//    	}
-    }
-    
     // if we need to get rid of NCDisplayPane we can either go back 
     // to having a separate 'no-op' SuspendZoomHandler or add a check
     // for the descriptor's suspend zoom flag in our NcPanHandler class
