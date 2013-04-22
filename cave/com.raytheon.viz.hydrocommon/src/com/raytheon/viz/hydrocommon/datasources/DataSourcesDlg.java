@@ -23,7 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -1109,8 +1108,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
             }
 
             // Select the first option
-            dataList.getClass().getMethod("select", int.class).invoke(dataList,
-                    0);
+            dataList.getClass().getMethod("select", int.class)
+                    .invoke(dataList, 0);
         }
     }
 
@@ -1131,8 +1130,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
         seedData.setLid(lid);
 
         try {
-            ArrayList<DcpData> data = HydroDBDataManager.getInstance().getData(
-                    seedData);
+            java.util.List<DcpData> data = HydroDBDataManager.getInstance()
+                    .getData(seedData);
 
             if (data.size() > 0) {
                 // There will only be one record per lid
@@ -1152,8 +1151,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
         seedData.setLid(lid);
 
         try {
-            ArrayList<ObserverData> data = HydroDBDataManager.getInstance()
-                    .getData(seedData);
+            java.util.List<ObserverData> data = HydroDBDataManager
+                    .getInstance().getData(seedData);
 
             if (data.size() > 0) {
                 // There will only be one record per lid
@@ -1173,7 +1172,7 @@ public class DataSourcesDlg extends CaveSWTDialog {
         seedData.setLid(lid);
 
         try {
-            ArrayList<TelemData> data = HydroDBDataManager.getInstance()
+            java.util.List<TelemData> data = HydroDBDataManager.getInstance()
                     .getData(seedData);
 
             if (data.size() > 0) {
@@ -1258,8 +1257,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
             emailTF.setText(obsData.getEmail());
 
             // Date of service
-            dosTF.setText(HydroDataUtils.getDisplayString(obsData
-                    .getDateOfService(), isoDate));
+            dosTF.setText(HydroDataUtils.getDisplayString(
+                    obsData.getDateOfService(), isoDate));
 
             // Phone Numbers
             homePhoneTF.setText(obsData.getHomePhone());
@@ -1389,8 +1388,7 @@ public class DataSourcesDlg extends CaveSWTDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a Service Date in the form: YYYY-MM-DD");
+                mb.setMessage("Please enter a Service Date in the form: YYYY-MM-DD");
                 mb.open();
 
                 e.printStackTrace();
