@@ -20,8 +20,8 @@
 
 package com.raytheon.viz.hydrocommon.colorscalemgr;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -36,6 +36,8 @@ import org.eclipse.swt.graphics.RGB;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
+ * 18 APR 2013  1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -115,7 +117,7 @@ public class EditColorData {
      *            Data type key.
      * @return Updated color scale data array.
      */
-    public ArrayList<ColorScaleData> getColorScaleDataArray(String sourceKey,
+    public List<ColorScaleData> getColorScaleDataArray(String sourceKey,
             String dataTypeKey) {
         return sourceMap.get(sourceKey).getColorScaleDataArray(dataTypeKey);
     }
@@ -129,8 +131,8 @@ public class EditColorData {
      *            Data type key.
      * @return Used color scale data array.
      */
-    public ArrayList<ColorScaleData> getUsedColorScaleDataArray(
-            String sourceKey, String dataTypeKey) {
+    public List<ColorScaleData> getUsedColorScaleDataArray(String sourceKey,
+            String dataTypeKey) {
         return sourceMap.get(sourceKey).getColorScaleDataArray(dataTypeKey);
     }
 
@@ -161,8 +163,8 @@ public class EditColorData {
      * @param dblVal
      *            Scale value.
      */
-    public void updateColorValue(String sourceKey, String dataTypeKey,
-            RGB rgb, double dblVal) {
+    public void updateColorValue(String sourceKey, String dataTypeKey, RGB rgb,
+            double dblVal) {
         sourceMap.get(sourceKey).addUpdateColorValue(dataTypeKey, rgb, dblVal);
     }
 
