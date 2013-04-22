@@ -389,7 +389,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     /**
      * Listeners to notify main HB Dialog of station list changes
      */
-    private ArrayList<IStationListener> stationListeners;
+    private java.util.List<IStationListener> stationListeners;
 
     /**
      * States for the dialog
@@ -1300,7 +1300,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         StationClassData seedData = new StationClassData();
         seedData.setLid(lid);
 
-        ArrayList<StationClassData> classData = new ArrayList<StationClassData>();
+        java.util.List<StationClassData> classData = new ArrayList<StationClassData>();
         try {
             classData = HydroDBDataManager.getInstance().getData(seedData);
 
@@ -1494,7 +1494,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         coopAgencyOfficeList.removeAll();
 
         try {
-            ArrayList<String> offices = AddModifyLocationDataManager
+            java.util.List<String> offices = AddModifyLocationDataManager
                     .getInstance().getSelectedAgenciesAndOffices(lid);
 
             for (String currOffice : offices) {
@@ -1578,7 +1578,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     private void setDefaultHsaWfo() {
         // If adding location, HSA and WFO default to Admin table values
         try {
-            ArrayList<AdministrationData> data = HydroDBDataManager
+            java.util.List<AdministrationData> data = HydroDBDataManager
                     .getInstance().getData(AdministrationData.class);
 
             if (data.size() > 0) {
