@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -212,17 +211,17 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
     /**
      * Dam Type Data.
      */
-    private ArrayList<DamTypeData> damTypesData;
+    private java.util.List<DamTypeData> damTypesData;
 
     /**
      * Reservoir Owner Data.
      */
-    private ArrayList<ReservoirOwnerData> resOwnerData;
+    private java.util.List<ReservoirOwnerData> resOwnerData;
 
     /**
      * Reservoir Data.
      */
-    private ArrayList<ReservoirData> resData;
+    private java.util.List<ReservoirData> resData;
 
     /**
      * Location Identifier.
@@ -718,8 +717,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
             topTF.setText(HydroDataUtils.getDisplayString(currData.getTop()));
             maxSurchargeTF.setText(HydroDataUtils.getDisplayString(currData
                     .getSurchg()));
-            gatesTF.setText(HydroDataUtils
-                    .getDisplayString(currData.getGates()));
+            gatesTF.setText(HydroDataUtils.getDisplayString(currData.getGates()));
             impoundTF.setText((currData.getImpounded() != null) ? dateFormat
                     .format(currData.getImpounded()) : "");
             floodControlChk
@@ -827,18 +825,17 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
      * @return true if form is correctly filled out
      */
     private boolean validateDateForm() {
-        boolean isValid = true;      
+        boolean isValid = true;
 
-       if (impoundTF.getText().equals("")) {       
-        	 isValid = false;
+        if (impoundTF.getText().equals("")) {
+            isValid = false;
         }
 
         if (!isValid) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
-            mb
-                    .setMessage("Please enter a valid date in the form:MM/DD/YYYY");
-            
+            mb.setMessage("Please enter a valid date in the form:MM/DD/YYYY");
+
             mb.open();
         }
 
@@ -859,31 +856,32 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         dataToSave.setType(typeCbo.getText());
         dataToSave.setOwner(ownerCbo.getText());
         if (!deadTF.getText().equals("")) {
-        	dataToSave.setDeadpool(Double.parseDouble(deadTF.getText()));
+            dataToSave.setDeadpool(Double.parseDouble(deadTF.getText()));
         }
-        if (!conservationTF.getText().equals("")){
-        	dataToSave.setConserpool(Double.parseDouble(conservationTF.getText()));
+        if (!conservationTF.getText().equals("")) {
+            dataToSave.setConserpool(Double.parseDouble(conservationTF
+                    .getText()));
         }
-        if (!floodTF.getText().equals("")){
-        	dataToSave.setFloodpool(Double.parseDouble(floodTF.getText()));
+        if (!floodTF.getText().equals("")) {
+            dataToSave.setFloodpool(Double.parseDouble(floodTF.getText()));
         }
         if (!spillwayTF.getText().equals("")) {
-        	dataToSave.setSpillway(Double.parseDouble(spillwayTF.getText()));
+            dataToSave.setSpillway(Double.parseDouble(spillwayTF.getText()));
         }
         if (!sillTF.getText().equals("")) {
-        	dataToSave.setSill(Double.parseDouble(sillTF.getText()));
+            dataToSave.setSill(Double.parseDouble(sillTF.getText()));
         }
         if (!reservoirTF.getText().equals("")) {
-        	dataToSave.setElev(Double.parseDouble(reservoirTF.getText()));
+            dataToSave.setElev(Double.parseDouble(reservoirTF.getText()));
         }
         if (!topTF.getText().equals("")) {
-        	dataToSave.setTop(Double.parseDouble(topTF.getText()));
+            dataToSave.setTop(Double.parseDouble(topTF.getText()));
         }
         if (!maxSurchargeTF.getText().equals("")) {
-        	dataToSave.setSurchg(Double.parseDouble(maxSurchargeTF.getText()));
+            dataToSave.setSurchg(Double.parseDouble(maxSurchargeTF.getText()));
         }
         if (!gatesTF.getText().equals("")) {
-        	dataToSave.setGates(Integer.parseInt(gatesTF.getText()));
+            dataToSave.setGates(Integer.parseInt(gatesTF.getText()));
         }
         if (!impoundTF.getText().equals("")) {
             try {
@@ -892,8 +890,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a valid date in the form: MM/DD/YYYY");
+                mb.setMessage("Please enter a valid date in the form: MM/DD/YYYY");
                 mb.open();
                 return false;
             }
@@ -975,8 +972,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
                     MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbDel.setText("Unable to Delete");
-                    mbDel
-                            .setMessage("No item is selected in the reservoir list");
+                    mbDel.setMessage("No item is selected in the reservoir list");
                     mbDel.open();
                 }
 
