@@ -22,6 +22,7 @@ package com.raytheon.viz.hydrocommon.datamanager;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
@@ -38,6 +39,8 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2008 1661       askripsky   Initial Creation
+ * Apr 19, 2013 1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -86,7 +89,7 @@ public class LowWaterDataManager extends HydroDataManager {
      * @param recordsToDelete
      * @throws VizException
      */
-    public void deleteRecords(ArrayList<LowWaterData> recordsToDelete)
+    public void deleteRecords(List<LowWaterData> recordsToDelete)
             throws VizException {
         for (LowWaterData currData : recordsToDelete) {
             deleteRecord(currData);
@@ -100,8 +103,8 @@ public class LowWaterDataManager extends HydroDataManager {
      * @throws VizException
      */
     public void deleteRecord(LowWaterData recordToDelete) throws VizException {
-        runStatement(String.format(DELETE_STATEMENT, HydroDataUtils
-                .getPKStatement(recordToDelete)));
+        runStatement(String.format(DELETE_STATEMENT,
+                HydroDataUtils.getPKStatement(recordToDelete)));
     }
 
     /**
@@ -117,8 +120,9 @@ public class LowWaterDataManager extends HydroDataManager {
         QueryResult result = runMappedQuery(SELECT_STATEMENT + " WHERE "
                 + HydroDataUtils.getPKStatement(data));
 
-        return (result.getResultCount() > 0) ? new LowWaterData(result
-                .getRows()[0], result.getColumnNames()) : new LowWaterData();
+        return (result.getResultCount() > 0) ? new LowWaterData(
+                result.getRows()[0], result.getColumnNames())
+                : new LowWaterData();
     }
 
     /**
@@ -129,9 +133,8 @@ public class LowWaterDataManager extends HydroDataManager {
      * @throws VizException
      * @throws VizException
      */
-    public ArrayList<LowWaterData> getLowWaterData(String lid)
-            throws VizException {
-        ArrayList<LowWaterData> rval = new ArrayList<LowWaterData>();
+    public List<LowWaterData> getLowWaterData(String lid) throws VizException {
+        List<LowWaterData> rval = new ArrayList<LowWaterData>();
 
         QueryResult result = runMappedQuery(SELECT_STATEMENT + " WHERE lid='"
                 + lid + "' ORDER BY stage DESC, lwdat DESC");
@@ -158,7 +161,8 @@ public class LowWaterDataManager extends HydroDataManager {
     }
 
     private void updateLowWaterData(LowWaterData data) throws VizException {
-        runStatement(String.format(UPDATE_STATEMENT,
+        runStatement(String.format(
+                UPDATE_STATEMENT,
                 (data.getFlow() == LowWaterData.MISSING_VALUE) ? "null" : data
                         .getFlow(), data.getRemark(),
                 (data.getStage() == LowWaterData.MISSING_VALUE_D) ? "null"
