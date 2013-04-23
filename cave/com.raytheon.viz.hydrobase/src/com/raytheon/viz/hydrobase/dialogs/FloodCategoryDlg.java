@@ -353,38 +353,44 @@ public class FloodCategoryDlg extends CaveSWTDialog {
             FloodCategoryData data = FloodCategoryDataManager.getInstance()
                     .getFloodCategoryData(lid);
 
-            if (Math.abs(data.getMajorStage() - missingVal) < diffAllowed)
+            if (Math.abs(data.getMajorStage() - missingVal) < diffAllowed) {
                 majorStageTF.setText("");
-            else
+            } else {
                 majorStageTF.setText(Double.toString(data.getMajorStage()));
+            }
 
-            if (Math.abs(data.getModerateStage() - missingVal) < diffAllowed)
+            if (Math.abs(data.getModerateStage() - missingVal) < diffAllowed) {
                 modStageTF.setText("");
-            else
+            } else {
                 modStageTF.setText(Double.toString(data.getModerateStage()));
+            }
 
-            if (Math.abs(data.getMinorStage() - missingVal) < diffAllowed)
+            if (Math.abs(data.getMinorStage() - missingVal) < diffAllowed) {
                 minorStageTF.setText("");
-            else
+            } else {
                 minorStageTF.setText(Double.toString(data.getMinorStage()));
+            }
 
-            if (Math.abs(data.getMajorDischarge() - missingVal) < diffAllowed)
+            if (Math.abs(data.getMajorDischarge() - missingVal) < diffAllowed) {
                 majorDischargeTF.setText("");
-            else
+            } else {
                 majorDischargeTF.setText(Double.toString(data
                         .getMajorDischarge()));
+            }
 
-            if (Math.abs(data.getModerateDischarge() - missingVal) < diffAllowed)
+            if (Math.abs(data.getModerateDischarge() - missingVal) < diffAllowed) {
                 modDischargeTF.setText("");
-            else
+            } else {
                 modDischargeTF.setText(Double.toString(data
                         .getModerateDischarge()));
+            }
 
-            if (Math.abs(data.getMinorDischarge() - missingVal) < diffAllowed)
+            if (Math.abs(data.getMinorDischarge() - missingVal) < diffAllowed) {
                 minorDischargeTF.setText("");
-            else
+            } else {
                 minorDischargeTF.setText(Double.toString(data
                         .getMinorDischarge()));
+            }
 
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Retrieve failed. ", e);

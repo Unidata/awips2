@@ -277,8 +277,9 @@ public class DescriptionDlg extends CaveSWTDialog {
                 if (remarksTF.getText().length() > 255) {
                     remarksTF.setText(currentRemarkText);
                     shell.getDisplay().beep();
-                } else
+                } else {
                     currentRemarkText = remarksTF.getText();
+                }
             }
         };
 
@@ -302,8 +303,9 @@ public class DescriptionDlg extends CaveSWTDialog {
                 if (freezingTF.getText().length() > 160) {
                     freezingTF.setText(currentFreezeText);
                     shell.getDisplay().beep();
-                } else
+                } else {
                     currentFreezeText = freezingTF.getText();
+                }
             }
         };
         freezingTF.addModifyListener(listenerF);
@@ -326,8 +328,9 @@ public class DescriptionDlg extends CaveSWTDialog {
                 if (reachTF.getText().length() > 80) {
                     reachTF.setText(currentReachText);
                     shell.getDisplay().beep();
-                } else
+                } else {
                     currentReachText = reachTF.getText();
+                }
             }
         };
         reachTF.addModifyListener(listenerR);
@@ -350,8 +353,9 @@ public class DescriptionDlg extends CaveSWTDialog {
                 if (regulationTF.getText().length() > 230) {
                     regulationTF.setText(currentRegText);
                     shell.getDisplay().beep();
-                } else
+                } else {
                     currentRegText = regulationTF.getText();
+                }
             }
         };
         regulationTF.addModifyListener(listenerReg);
@@ -374,8 +378,9 @@ public class DescriptionDlg extends CaveSWTDialog {
                 if (topoTF.getText().length() > 230) {
                     topoTF.setText(currentTopoText);
                     shell.getDisplay().beep();
-                } else
+                } else {
                     currentTopoText = topoTF.getText();
+                }
             }
         };
         topoTF.addModifyListener(listenerT);
@@ -439,8 +444,9 @@ public class DescriptionDlg extends CaveSWTDialog {
                 if (affectedAreaTF.getText().length() > 80) {
                     affectedAreaTF.setText(currentAreaText);
                     shell.getDisplay().beep();
-                } else
+                } else {
                     currentAreaText = affectedAreaTF.getText();
+                }
             }
         };
         affectedAreaTF.addModifyListener(listenerA);
