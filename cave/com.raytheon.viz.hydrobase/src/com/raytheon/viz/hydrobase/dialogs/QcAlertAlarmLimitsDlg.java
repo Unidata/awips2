@@ -23,15 +23,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.TimeZone;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -46,6 +51,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.DataLimitData;
@@ -56,7 +65,6 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.QcAlertAlarmLimitsDataManager;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-
 
 /**
  * this class displays the QC Alert and Alarm dialog.
@@ -71,13 +79,17 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 5, 2009  2181        mpduff      Keep selection upon submit.
  * Jun 16,2010  5526        lbousaidi   Start/End date not correct
  * Oct 27,2011  11305       lbousaidi   change some logic to have physical
- * 										elements matches the selection of default limits * 
+ * 										elements matches the selection of default limits
+ * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
+ * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
 public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(QcAlertAlarmLimitsDlg.class);
 
     /**
      * Control font.
@@ -223,13 +235,12 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
      * Date validator.
      */
     private SimpleDateFormat dateFormat1, dateFormat2;
-    
+
     /**
      * Selection index.
      */
     private int selection = -9999;
-    
-       
+
     /**
      * States for the dialog.
      */
@@ -238,25 +249,33 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     };
 
     /**
-     * Constructor.
+     * System wait cursor no need to dispose.
+     */
+    private Cursor waitCursor;
+
+    /**
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public QcAlertAlarmLimitsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Quality Control and Alert/Alarm Limits");
 
         dateFormat1 = new SimpleDateFormat("MM/dd");
         dateFormat1.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
+
         dateFormat2 = new SimpleDateFormat("MM-dd");
         dateFormat2.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
-        
-    }    
-    
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -267,14 +286,29 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
+
+        waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+
         // Initialize all of the controls and layouts
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
@@ -384,9 +418,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         physElemChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	loadData();
+                loadData();
             }
-       
+
         });
 
         gd = new GridData(300, 125);
@@ -403,7 +437,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                     loadData();
                 }
             }
-        
+
         });
 
         gd = new GridData();
@@ -456,7 +490,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         // -----------------------------------------------------
         // Create the location, duration, and date controls
         // -----------------------------------------------------
-        gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
+        gd = new GridData(SWT.FILL, SWT.TOP, true, true);
         Composite leftComp = new Composite(limitSelectedGroup, SWT.NONE);
         leftComp.setLayout(new GridLayout(2, false));
         leftComp.setLayoutData(gd);
@@ -479,7 +513,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         durationLbl.setLayoutData(gd);
 
         durationCbo = new Combo(leftComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        durationCbo.select(0);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        durationCbo.setLayoutData(gd);
 
         // Start Date
         gd = new GridData(SWT.FILL, SWT.CENTER, false, true);
@@ -681,7 +716,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -706,7 +741,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -743,7 +778,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     private String getNotesText() {
         StringBuilder str = new StringBuilder();
 
-        str.append("Notes:\n");        
+        str.append("Notes:\n");
         str.append("1) Individual check is not performed if the limit value is not defined.\n");
         str.append("2) If the limits defined for location, default limits not considered\n");
         str.append("   even if location limits are undefined.");
@@ -781,28 +816,71 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         return text;
     }
 
+    /**
+     * Get data to populate GUI.
+     */
     private void initializeData() {
-        // Populate PhysElem
-        try {
-            for (String currPE : DataTrashCanDataManager.getInstance()
-                    .getPEList()) {
-                physElemList.add(currPE);
-                physElemSelItemList.add(currPE);
-                
-            }
 
-            for (String currDur : QcAlertAlarmLimitsDataManager.getInstance()
-                    .getShefDur()) {
-                durationCbo.add(currDur);
-                
-            }
+        setBusy(true);
 
-            updateDialogState(DialogStates.DEFAULT_LIMITS);
-            loadData();
-        } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        Job job = new Job("QcAlertAlarmLimits") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                // Populate PhysElem
+                try {
+                    final java.util.List<String> peList = DataTrashCanDataManager
+                            .getInstance().getPEList();
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            for (String currPE : peList) {
+                                physElemList.add(currPE);
+                                physElemSelItemList.add(currPE);
+
+                            }
+                        }
+                    });
+
+                    final java.util.List<String> durList = QcAlertAlarmLimitsDataManager
+                            .getInstance().getShefDur();
+
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            durationCbo.setItems(durList.toArray(new String[0]));
+                            updateDialogState(DialogStates.DEFAULT_LIMITS);
+                            loadData();
+                        }
+                    });
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to load data. ", e);
+                } finally {
+
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            setBusy(false);
+                        }
+                    });
+                }
+
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
+    }
+
+    private void setBusy(boolean busy) {
+        Cursor cursor = null;
+        if (busy) {
+            cursor = waitCursor;
         }
+        shell.setCursor(cursor);
     }
 
     private void loadData() {
@@ -811,38 +889,40 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
     private void loadData(boolean forceLoad) {
         limitsList.removeAll();
-      
+
         String dayStartChange, dayEndChange;
         try {
             if (currentlyDisplayingDefaultLimits()) {
                 QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
                         .getInstance();
-                for (DataLimitData currData : man.getDefaultLimits(physElemChk
-                        .getSelection(), getSelectedPEs(), forceLoad)) {
-      
-                	//Start/End dates format will be changed to MM/DD only for display                      	
-                    
+                for (DataLimitData currData : man
+                        .getDefaultLimits(physElemChk.getSelection(),
+                                getSelectedPEs(), forceLoad)) {
+
+                    // Start/End dates format will be changed to MM/DD only for
+                    // display
+
                     dayStartChange = changeFormat(currData.getMonthDayStart(),
-                    	 dateFormat2, dateFormat1);
-                    dayEndChange   = changeFormat(currData.getMonthDayEnd(),
-                    	 dateFormat2, dateFormat1);
-                    currData.setMonthDayStart(dayStartChange);                                                     	
+                            dateFormat2, dateFormat1);
+                    dayEndChange = changeFormat(currData.getMonthDayEnd(),
+                            dateFormat2, dateFormat1);
+                    currData.setMonthDayStart(dayStartChange);
                     currData.setMonthDayEnd(dayEndChange);
-                    
-                 	limitsList.add(man.getDefaultLimitString(currData));                  
-                  
+
+                    limitsList.add(man.getDefaultLimitString(currData));
+
                     dayStartChange = changeFormat(currData.getMonthDayStart(),
-                   		 dateFormat1, dateFormat2);
-                    dayEndChange   = changeFormat(currData.getMonthDayEnd(),
-                   		 dateFormat1, dateFormat2);
-                    currData.setMonthDayStart(dayStartChange);                                               	
-                    currData.setMonthDayEnd(dayEndChange);   
-                                     
+                            dateFormat1, dateFormat2);
+                    dayEndChange = changeFormat(currData.getMonthDayEnd(),
+                            dateFormat1, dateFormat2);
+                    currData.setMonthDayStart(dayStartChange);
+                    currData.setMonthDayEnd(dayEndChange);
+
                     updateDefaultInformationDisplay(currData);
-                                            
+
                 }
-                if (!physElemChk.getSelection() ){
-                	limitsList.setSelection(0);
+                if (!physElemChk.getSelection()) {
+                    limitsList.setSelection(0);
                     getSelectedLimit();
                 }
             } else {
@@ -850,40 +930,38 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                         .getInstance();
                 for (LocationDataLimitData currData : man
                         .getLocationLimits(locationChk.getSelection(),
-                                locationLimitTF.getText(), physElemChk
-                                        .getSelection(), getSelectedPEs(),
+                                locationLimitTF.getText(),
+                                physElemChk.getSelection(), getSelectedPEs(),
                                 forceLoad)) {
-                	dayStartChange = changeFormat(currData.getMonthDayStart(),
-                			dateFormat2, dateFormat1);
-                	dayEndChange   = changeFormat(currData.getMonthDayEnd(),
-                			dateFormat2, dateFormat1);
-                    currData.setMonthDayStart(dayStartChange);                	             	                                                    	
-                    currData.setMonthDayEnd(dayEndChange);
-                	
-                    limitsList.add(man.getLocationLimitString(currData));
-                
                     dayStartChange = changeFormat(currData.getMonthDayStart(),
-                    		dateFormat1, dateFormat2);
-                    dayEndChange   = changeFormat(currData.getMonthDayEnd(),
-                    		dateFormat1, dateFormat2);
-                    currData.setMonthDayStart(dayStartChange);                                                                          	
-                    currData.setMonthDayEnd(dayEndChange);                  
-                  
-                    limitsList.setSelection(0);       
-                    updateLocationInformationDisplay(currData);
-                    
+                            dateFormat2, dateFormat1);
+                    dayEndChange = changeFormat(currData.getMonthDayEnd(),
+                            dateFormat2, dateFormat1);
+                    currData.setMonthDayStart(dayStartChange);
+                    currData.setMonthDayEnd(dayEndChange);
+
+                    limitsList.add(man.getLocationLimitString(currData));
+
+                    dayStartChange = changeFormat(currData.getMonthDayStart(),
+                            dateFormat1, dateFormat2);
+                    dayEndChange = changeFormat(currData.getMonthDayEnd(),
+                            dateFormat1, dateFormat2);
+                    currData.setMonthDayStart(dayStartChange);
+                    currData.setMonthDayEnd(dayEndChange);
                 }
+
+                limitsList.setSelection(0);
+                getSelectedLimit();
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to load data. ", e);
         }
 
         if (limitsList.getItemCount() > 0) {
             updateDialogState(DialogStates.NORMAL_MODE);
         } else {
             updateDialogState(DialogStates.NO_ENTRIES);
-        }     
+        }
     }
 
     /**
@@ -941,7 +1019,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             durationCbo.select(0);
 
             limitSelectedGroup.setEnabled(true);
-            physElemSelItemList.setEnabled(true); 
+            physElemSelItemList.setEnabled(true);
             deleteBtn.setEnabled(false);
             break;
         case NORMAL_MODE:
@@ -982,7 +1060,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             LocationDataLimitData currData = QcAlertAlarmLimitsDataManager
                     .getInstance().getSelectedLocationData(
                             limitsList.getSelectionIndex());
-          
+
             updateLocationInformationDisplay(currData);
         }
 
@@ -994,7 +1072,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     }
 
     private void updateDefaultInformationDisplay(DataLimitData currData) {
-    	String dateSringStart, dateStringEnd;
+        String dateSringStart, dateStringEnd;
         clearInformation();
 
         // No Lid for default limits
@@ -1009,17 +1087,18 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             }
         }
 
-        /** Get the Start/End dates and change the format from "MM-DD" to "MM/DD"
+        /**
+         * Get the Start/End dates and change the format from "MM-DD" to "MM/DD"
          * 
-         *  only for the display.*/
-        
-        
-        
+         * only for the display.
+         */
+
         try {
-        if (currData.getMonthDayStart()!=null) {
-        	dateSringStart= changeFormat(currData.getMonthDayStart(),
-        			dateFormat2, dateFormat1);
-            startDateTF.setText(dateSringStart);}
+            if (currData.getMonthDayStart() != null) {
+                dateSringStart = changeFormat(currData.getMonthDayStart(),
+                        dateFormat2, dateFormat1);
+                startDateTF.setText(dateSringStart);
+            }
         } catch (Exception e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
@@ -1027,22 +1106,23 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
             mb.open();
 
-        }      
+        }
 
         try {
 
-         if (currData.getMonthDayEnd()!=null) {
-        	 dateStringEnd= changeFormat(currData.getMonthDayEnd(),
-        			 dateFormat2, dateFormat1);
-        	 endDateTF.setText(dateStringEnd);}
-         } catch (Exception e) {
-             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-             mb.setText("Invalid Date");
-             mb.setMessage("Please enter a valid Start date");
+            if (currData.getMonthDayEnd() != null) {
+                dateStringEnd = changeFormat(currData.getMonthDayEnd(),
+                        dateFormat2, dateFormat1);
+                endDateTF.setText(dateStringEnd);
+            }
+        } catch (Exception e) {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+            mb.setText("Invalid Date");
+            mb.setMessage("Please enter a valid Start date");
 
-             mb.open();
-         }
-            
+            mb.open();
+        }
+
         // Get the PE
         String currPE = currData.getPe();
         for (int i = 0; i < physElemSelItemList.getItemCount(); i++) {
@@ -1050,12 +1130,11 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                 physElemSelItemList.setSelection(i);
                 break;
             }
-            
-        }
-               
 
-        QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
-                .getInstance();
+        }
+
+        // QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
+        // .getInstance();
         grossRangeMinTF.setText(HydroDataUtils.getDisplayString(currData
                 .getGrossRangeMin()));
         grossRangeMaxTF.setText(HydroDataUtils.getDisplayString(currData
@@ -1093,7 +1172,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
      * @param currData
      */
     private void updateLocationInformationDisplay(LocationDataLimitData currData) {
-    	String dateSringStart, dateStringEnd;
+        String dateSringStart, dateStringEnd;
         clearInformation();
 
         locationSelItemTF.setText(currData.getLid());
@@ -1106,17 +1185,18 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                 break;
             }
         }
-        
-        
-       /** Get the Start/End dates and change the format from "MM-DD" to "MM/DD"
-        *  
-        *  only for the display.*/     
-   
+
+        /**
+         * Get the Start/End dates and change the format from "MM-DD" to "MM/DD"
+         * 
+         * only for the display.
+         */
+
         try {
-        	
-        	dateSringStart = changeFormat(currData.getMonthDayStart(),
-        			dateFormat2, dateFormat1);
-        	startDateTF.setText(dateSringStart);
+
+            dateSringStart = changeFormat(currData.getMonthDayStart(),
+                    dateFormat2, dateFormat1);
+            startDateTF.setText(dateSringStart);
         } catch (Exception e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
@@ -1124,21 +1204,21 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
             mb.open();
 
-        }      
-        
-        try {       
-        	 dateStringEnd = changeFormat(currData.getMonthDayEnd(),  dateFormat2, dateFormat1);
-        	 endDateTF.setText(dateStringEnd);
-        	
-         } catch (Exception e) {
-             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-             mb.setText("Invalid Date");
-             mb.setMessage("Please enter a valid Start date");
+        }
 
-             mb.open();
-         }
-        
- 
+        try {
+            dateStringEnd = changeFormat(currData.getMonthDayEnd(),
+                    dateFormat2, dateFormat1);
+            endDateTF.setText(dateStringEnd);
+
+        } catch (Exception e) {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+            mb.setText("Invalid Date");
+            mb.setMessage("Please enter a valid Start date");
+
+            mb.open();
+        }
+
         // Get the PE
         String currPE = currData.getPe();
         for (int i = 0; i < physElemSelItemList.getItemCount(); i++) {
@@ -1148,8 +1228,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             }
         }
 
-        QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
-                .getInstance();
+        // QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
+        // .getInstance();
         grossRangeMinTF.setText(HydroDataUtils.getDisplayString(currData
                 .getGrossRangeMin()));
         grossRangeMaxTF.setText(HydroDataUtils.getDisplayString(currData
@@ -1205,29 +1285,30 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         alarmDiffTF.setText("");
     }
 
-  // change date format display
+    // change date format display
 
-    private String changeFormat(String initDateFormat, SimpleDateFormat dateF1, SimpleDateFormat dateF2) {
-            String finalDateFormat=null;
-            Date dd1=null;
-                  
-            if ((initDateFormat!= null) && !(initDateFormat.equals("")) ) {
-                   	try {
-                        dateF1.setLenient(false);
-                        dateF2.setLenient(false);
-               
-						dd1=dateF1.parse(initDateFormat);
-					
-					} catch (ParseException e) {							            
-						// TODO Auto-generated catch block
-						//e.printStackTrace();
-					}
-                     
-                	finalDateFormat=dateF2.format(dd1);                
-              
+    private String changeFormat(String initDateFormat, SimpleDateFormat dateF1,
+            SimpleDateFormat dateF2) {
+        String finalDateFormat = null;
+        Date dd1 = null;
+
+        if ((initDateFormat != null) && !(initDateFormat.equals(""))) {
+            try {
+                dateF1.setLenient(false);
+                dateF2.setLenient(false);
+
+                dd1 = dateF1.parse(initDateFormat);
+
+            } catch (ParseException e) {
+                statusHandler.handle(Priority.PROBLEM, "Error parsing data. ",
+                        e);
             }
 
-            return finalDateFormat;
+            finalDateFormat = dateF2.format(dd1);
+
+        }
+
+        return finalDateFormat;
     }
 
     private boolean saveRecord() {
@@ -1242,8 +1323,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Location Does Not Exist");
-                mb
-                        .setMessage("Please use Add Location from the Location Menu to add the location first.");
+                mb.setMessage("Please use Add Location from the Location Menu to add the location first.");
                 mb.open();
 
                 success = false;
@@ -1255,7 +1335,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             selection = limitsList.getSelectionIndex();
             loadData(true);
             limitsList.setSelection(selection);
-            getSelectedLimit();   
+            getSelectedLimit();
         }
 
         return success;
@@ -1271,7 +1351,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             try {
                 rval = HydroDBDataManager.getInstance().checkData(locData) > 0;
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, "Error in data check. ",
+                        e);
             }
         }
 
@@ -1290,12 +1371,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                 rval = true;
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb.setMessage("An error occurred while trying to save");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, "Unable to save data. ",
+                        e);
             }
         }
 
@@ -1315,12 +1392,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                 rval = true;
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb.setMessage("An error occurred while trying to save");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, "Unable to save data. ",
+                        e);
             }
         }
 
@@ -1361,7 +1434,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
     private String getSelectedInformationPE() {
         String rval = "";
-      
+
         String selectedPE = physElemSelItemList.getSelection()[0];
 
         rval = selectedPE.split(" ")[0];
@@ -1370,16 +1443,16 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     }
 
     private boolean setSaveValues(DataLimitData dataToSave) {
-    	Date startDate=null;
-    	Date endDate=null;
-    	
-    	// Make sure that PE is selected
-    	
-    	try {
-    		
-    		dataToSave.setPe(getSelectedInformationPE());
-        
-    	} catch (Exception e) {
+        // Date startDate = null;
+        // Date endDate = null;
+
+        // Make sure that PE is selected
+
+        try {
+
+            dataToSave.setPe(getSelectedInformationPE());
+
+        } catch (Exception e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Physical Element");
             mb.setMessage("You must select a Physical Element.");
@@ -1389,14 +1462,13 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             return false;
         }
 
-    	
         dataToSave.setDur(getSelectedDuration());
-        
-     // Validate date format
-        
+
+        // Validate date format
+
         String displayStartDate, displayEndDate;
         if (startDateTF.getText().equals("")) {
-        	MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
             mb.setMessage("Please enter a valid Start date");
 
@@ -1404,17 +1476,15 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
             return false;
         }
-           
+
         try {
-        	if (!startDateTF.getText().equals("")) {
+            if (!startDateTF.getText().equals("")) {
 
-        	
-        displayStartDate=changeFormat(startDateTF.getText(),
-        		dateFormat1,dateFormat2 );        	
-        dataToSave.setMonthDayStart(displayStartDate);       	
-        }
-        }
-        catch (Exception e) {
+                displayStartDate = changeFormat(startDateTF.getText(),
+                        dateFormat1, dateFormat2);
+                dataToSave.setMonthDayStart(displayStartDate);
+            }
+        } catch (Exception e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
             mb.setMessage("Please enter a valid Start date");
@@ -1424,23 +1494,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             return false;
         }
 
-        if (endDateTF.getText().equals("")) { 
-       	   	MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Invalid Date");
-            mb.setMessage("Please enter a valid End date");
-
-            mb.open();
-
-            return false;
-        }
-        try { 
-        	if (!endDateTF.getText().equals("")) { 
-        
-        displayEndDate=changeFormat(endDateTF.getText(),
-        		dateFormat1,dateFormat2 );
-         	dataToSave.setMonthDayEnd(displayEndDate);
-        	}
-        }    catch (Exception e) {
+        if (endDateTF.getText().equals("")) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
             mb.setMessage("Please enter a valid End date");
@@ -1449,21 +1503,24 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
             return false;
         }
-        
-        if ((startDate != null) && (endDate != null)
-                && startDate.after(endDate)) {
+        try {
+            if (!endDateTF.getText().equals("")) {
+
+                displayEndDate = changeFormat(endDateTF.getText(), dateFormat1,
+                        dateFormat2);
+                dataToSave.setMonthDayEnd(displayEndDate);
+            }
+        } catch (Exception e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
-            mb.setMessage("The end date must be >= the start date, up to\n"
-                    + "a maximum end date of 12/31.  Please make the\n"
-                    + "required changes and re-Apply them.");
+            mb.setMessage("Please enter a valid End date");
 
             mb.open();
 
             return false;
         }
 
-        Double temp;
+        Double temp = null;
 
         temp = getDoubleFromTF(grossRangeMinTF, "Gross Range Min");
         if (temp == null) {
@@ -1578,6 +1635,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         return Integer.valueOf(temp);
     }
 
+    /**
+     * Confirm and delete entry.
+     */
     private void deleteRecord() {
         MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
                 | SWT.CANCEL);
@@ -1596,14 +1656,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                     // Delete via the Hydro Data Manager
                     HydroDBDataManager.getInstance().deleteRecord(currData);
                 } catch (VizException e) {
-                    MessageBox mbDel = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.OK | SWT.CANCEL);
-                    mbDel.setText("Delete Error");
-                    mbDel
-                            .setMessage("An error occurred while trying to delete the entry");
-                    mbDel.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to delete data. ", e);
                 }
             } else {
                 LocationDataLimitData currData = QcAlertAlarmLimitsDataManager
@@ -1614,14 +1668,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                     // Delete via the Hydro Data Manager
                     HydroDBDataManager.getInstance().deleteRecord(currData);
                 } catch (VizException e) {
-                    MessageBox mbDel = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.OK | SWT.CANCEL);
-                    mbDel.setText("Delete Error");
-                    mbDel
-                            .setMessage("An error occurred while trying to delete the entry");
-                    mbDel.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to delete entry. ", e);
                 }
             }
 

@@ -40,6 +40,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.FloodData;
 import com.raytheon.viz.hydrocommon.datamanager.FloodDataManager;
@@ -53,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
+ * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -60,6 +64,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class FloodDamageDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FloodDamageDlg.class);
 
     /**
      * Control font.
@@ -89,7 +95,7 @@ public class FloodDamageDlg extends CaveSWTDialog {
     /**
      * text from the remark text box
      */
-    private String currentDamageText=null;
+    private String currentDamageText = null;
 
     /**
      * Lid for the dialog.
@@ -102,7 +108,7 @@ public class FloodDamageDlg extends CaveSWTDialog {
     private ArrayList<FloodData> floodData;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -110,12 +116,17 @@ public class FloodDamageDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public FloodDamageDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Flood Damage" + titleInfo);
 
         this.lid = lid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -125,14 +136,26 @@ public class FloodDamageDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         initializeComponents();
 
@@ -228,16 +251,15 @@ public class FloodDamageDlg extends CaveSWTDialog {
         damageTF = new Text(statmentGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         damageTF.setLayoutData(gd);
         damageTF.setFont(controlFont);
-        currentDamageText=damageTF.getText();
+        currentDamageText = damageTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (damageTF.getText().length()>510){
-        			damageTF.setText(currentDamageText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentDamageText=damageTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (damageTF.getText().length() > 510) {
+                    damageTF.setText(currentDamageText);
+                    shell.getDisplay().beep();
+                } else
+                    currentDamageText = damageTF.getText();
+            }
         };
 
         damageTF.addModifyListener(listener);
@@ -262,7 +284,7 @@ public class FloodDamageDlg extends CaveSWTDialog {
         okBtn.setLayoutData(gd);
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -284,7 +306,7 @@ public class FloodDamageDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -335,13 +357,16 @@ public class FloodDamageDlg extends CaveSWTDialog {
         try {
             floodData = FloodDataManager.getInstance().getFloodData(lid);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Uable to get flood damage data. ", e);
         }
 
         updateFloodDamageData();
     }
 
+    /**
+     * Update stage list with current flood data.
+     */
     private void updateFloodDamageData() {
         // Clear current Stages
         stageList.removeAll();
@@ -351,20 +376,36 @@ public class FloodDamageDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Display flood damage for the currentl selected stage.
+     */
     private void getDamageStatement() {
         updateDamageDisplay(getCurrentlySelectedStage());
     }
 
+    /**
+     * Dispal the data's damage information.
+     * 
+     * @param data
+     */
     private void updateDamageDisplay(FloodData data) {
         stageTF.setText(Double.toString(data.getStage()));
         displayTF.setText(data.getDisplayStatement());
         damageTF.setText(data.getDamage());
     }
 
+    /**
+     * Get the flood data for the currently selected stage.
+     * 
+     * @return data
+     */
     private FloodData getCurrentlySelectedStage() {
         return floodData.get(stageList.getSelectionIndex());
     }
 
+    /**
+     * Confirm, delete record and update display.
+     */
     private void deleteRecord() {
         if (MessageDialog.openConfirm(null, "Delete Confirmation",
                 "Do you wish to delete this entry?")) {
@@ -372,8 +413,8 @@ public class FloodDamageDlg extends CaveSWTDialog {
                 FloodDataManager.getInstance().deleteRecord(
                         getCurrentlySelectedStage());
             } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to delete record. ", e);
             }
 
             getFloodDamageData();
@@ -382,12 +423,18 @@ public class FloodDamageDlg extends CaveSWTDialog {
         clearStatement();
     }
 
+    /**
+     * Clear text fields.
+     */
     private void clearStatement() {
         stageTF.setText("");
         damageTF.setText("");
         displayTF.setText("");
     }
 
+    /**
+     * Save flood information for station location.
+     */
     private void saveRecord() {
         try {
             FloodDataManager.getInstance().putFloodCategoryData(lid,
@@ -397,8 +444,7 @@ public class FloodDamageDlg extends CaveSWTDialog {
             MessageDialog.openConfirm(null, "Invalid Stage value",
                     "Please enter a valid numeric value for Stage");
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Uable to save record. ", e);
         }
 
         getFloodDamageData();
