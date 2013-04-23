@@ -35,6 +35,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.FloodCategoryData;
 import com.raytheon.viz.hydrocommon.datamanager.FloodCategoryDataManager;
@@ -52,12 +55,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 10, 2008 1661        askripsky   Connected to DB
  * March 3, 2011            JingtaoD    Mondification - display blank on Flood category GUI 
  * 										if the value is null in database
+ * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
 public class FloodCategoryDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FloodCategoryDlg.class);
 
     /**
      * Location whose data is displayed.
@@ -98,10 +104,14 @@ public class FloodCategoryDlg extends CaveSWTDialog {
      * constant for missing value
      */
     private static final double missingVal = -9999.0;
+
+    /**
+     * delta factor to consider 2 double values equal.
+     */
     private static final double diffAllowed = 0.0001;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -109,12 +119,17 @@ public class FloodCategoryDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public FloodCategoryDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Flood Category" + titleInfo);
 
         this.lid = lid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -125,9 +140,16 @@ public class FloodCategoryDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         initializeComponents();
 
@@ -230,7 +252,7 @@ public class FloodCategoryDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 if (saveChanges()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -241,7 +263,7 @@ public class FloodCategoryDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -254,12 +276,17 @@ public class FloodCategoryDlg extends CaveSWTDialog {
                 if (MessageDialog.openConfirm(null, "Delete Confirmation",
                         "Do you wish to delete this entry?")) {
                     removeRecord();
-                    shell.dispose();
+                    close();
                 }
             }
         });
     }
 
+    /**
+     * Verify and save changes.
+     * 
+     * @return true if save successful
+     */
     private boolean saveChanges() {
         boolean successful = false;
 
@@ -272,9 +299,7 @@ public class FloodCategoryDlg extends CaveSWTDialog {
                                 modDischargeTF.getText(),
                                 minorDischargeTF.getText(), shell);
             } catch (VizException e) {
-                e.printStackTrace();
-                String showErrorMsg = "Unable to save values";
-                MessageDialog.openConfirm(null, "Save Failed", showErrorMsg);
+                statusHandler.handle(Priority.PROBLEM, "Save failed. ", e);
             }
         }
 
@@ -301,13 +326,12 @@ public class FloodCategoryDlg extends CaveSWTDialog {
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Data for the location must be add via the River Gauge dialog first.");
+                mb.setMessage("Data for the location must be add via the River Gauge dialog first.");
                 mb.open();
             }
         } catch (VizException e) {
-            // don't care, just return false
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Check constraints failed. ", e);
         }
 
         return rval;
@@ -317,50 +341,53 @@ public class FloodCategoryDlg extends CaveSWTDialog {
         try {
             FloodCategoryDataManager.getInstance().deleteRecord(lid);
         } catch (VizException e) {
-            String showErrorMsg = "Unable to delete records";
-            MessageDialog.openConfirm(null, "Delete Failed", showErrorMsg);
+            statusHandler.handle(Priority.PROBLEM, "Delete record failed. ", e);
         }
     }
 
+    /**
+     * Get flood catagory data and update display.
+     */
     private void loadFloodCategoryData() {
         try {
             FloodCategoryData data = FloodCategoryDataManager.getInstance()
                     .getFloodCategoryData(lid);
-            
-            if (Math.abs(data.getMajorStage() - missingVal) < diffAllowed )
-            	majorStageTF.setText("");   
+
+            if (Math.abs(data.getMajorStage() - missingVal) < diffAllowed)
+                majorStageTF.setText("");
             else
-            	majorStageTF.setText(Double.toString(data.getMajorStage()));
-            
+                majorStageTF.setText(Double.toString(data.getMajorStage()));
+
             if (Math.abs(data.getModerateStage() - missingVal) < diffAllowed)
-            	modStageTF.setText("");
+                modStageTF.setText("");
             else
-            	modStageTF.setText(Double.toString(data.getModerateStage()));
-            
+                modStageTF.setText(Double.toString(data.getModerateStage()));
+
             if (Math.abs(data.getMinorStage() - missingVal) < diffAllowed)
-        	    minorStageTF.setText("");
+                minorStageTF.setText("");
             else
-            	minorStageTF.setText(Double.toString(data.getMinorStage()));
-            
+                minorStageTF.setText(Double.toString(data.getMinorStage()));
+
             if (Math.abs(data.getMajorDischarge() - missingVal) < diffAllowed)
-            	majorDischargeTF.setText("");  
+                majorDischargeTF.setText("");
             else
-            	majorDischargeTF.setText(Double.toString(data.getMajorDischarge()));
-            
+                majorDischargeTF.setText(Double.toString(data
+                        .getMajorDischarge()));
+
             if (Math.abs(data.getModerateDischarge() - missingVal) < diffAllowed)
-            	modDischargeTF.setText("");
+                modDischargeTF.setText("");
             else
-            	modDischargeTF.setText(Double.toString(data.getModerateDischarge()));
-            
+                modDischargeTF.setText(Double.toString(data
+                        .getModerateDischarge()));
+
             if (Math.abs(data.getMinorDischarge() - missingVal) < diffAllowed)
-        	    minorDischargeTF.setText("");
+                minorDischargeTF.setText("");
             else
-            	minorDischargeTF.setText(Double.toString(data.getMinorDischarge()));
-            
-                     
+                minorDischargeTF.setText(Double.toString(data
+                        .getMinorDischarge()));
+
         } catch (VizException e) {
-            String showErrorMsg = "Unable to retrieve values";
-            MessageDialog.openConfirm(null, "Retrieve Failed", showErrorMsg);
+            statusHandler.handle(Priority.PROBLEM, "Retrieve failed. ", e);
         }
     }
 }

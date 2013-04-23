@@ -38,6 +38,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.DescriptionData;
 import com.raytheon.viz.hydrocommon.data.LocationAreaData;
@@ -55,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
+ * Apr 19,2013  1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -62,6 +66,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DescriptionDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DescriptionDlg.class);
 
     /**
      * Control font.
@@ -134,13 +140,18 @@ public class DescriptionDlg extends CaveSWTDialog {
     private Button affectAreaSaveBtn;
 
     private String locationId;
-    
-    private String currentRemarkText=null;
-    private String currentFreezeText=null;
-    private String currentReachText=null;
-    private String currentRegText=null;
-    private String currentTopoText=null;
-    private String currentAreaText=null;
+
+    private String currentRemarkText = null;
+
+    private String currentFreezeText = null;
+
+    private String currentReachText = null;
+
+    private String currentRegText = null;
+
+    private String currentTopoText = null;
+
+    private String currentAreaText = null;
 
     // private boolean hasCurrentData = false;
 
@@ -153,12 +164,17 @@ public class DescriptionDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public DescriptionDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Description" + titleInfo);
 
         locationId = lid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -169,14 +185,26 @@ public class DescriptionDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(locationId);
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         createMainControls();
@@ -243,16 +271,15 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         remarksTF.setFont(controlFont);
         remarksTF.setLayoutData(gd);
-        currentRemarkText=remarksTF.getText();
+        currentRemarkText = remarksTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (remarksTF.getText().length()>255){
-        			remarksTF.setText(currentRemarkText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentRemarkText=remarksTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (remarksTF.getText().length() > 255) {
+                    remarksTF.setText(currentRemarkText);
+                    shell.getDisplay().beep();
+                } else
+                    currentRemarkText = remarksTF.getText();
+            }
         };
 
         remarksTF.addModifyListener(listener);
@@ -269,16 +296,15 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         freezingTF.setFont(controlFont);
         freezingTF.setLayoutData(gd);
-        currentFreezeText=freezingTF.getText();
+        currentFreezeText = freezingTF.getText();
         ModifyListener listenerF = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (freezingTF.getText().length()>160){
-        			freezingTF.setText(currentFreezeText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentFreezeText=freezingTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (freezingTF.getText().length() > 160) {
+                    freezingTF.setText(currentFreezeText);
+                    shell.getDisplay().beep();
+                } else
+                    currentFreezeText = freezingTF.getText();
+            }
         };
         freezingTF.addModifyListener(listenerF);
 
@@ -294,16 +320,15 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         reachTF.setFont(controlFont);
         reachTF.setLayoutData(gd);
-        currentReachText=reachTF.getText();
+        currentReachText = reachTF.getText();
         ModifyListener listenerR = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (reachTF.getText().length()>80){
-        			reachTF.setText(currentReachText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentReachText=reachTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (reachTF.getText().length() > 80) {
+                    reachTF.setText(currentReachText);
+                    shell.getDisplay().beep();
+                } else
+                    currentReachText = reachTF.getText();
+            }
         };
         reachTF.addModifyListener(listenerR);
 
@@ -319,16 +344,15 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         regulationTF.setFont(controlFont);
         regulationTF.setLayoutData(gd);
-        currentRegText=regulationTF.getText();
+        currentRegText = regulationTF.getText();
         ModifyListener listenerReg = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (regulationTF.getText().length()>230){
-        			regulationTF.setText(currentRegText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentRegText=regulationTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (regulationTF.getText().length() > 230) {
+                    regulationTF.setText(currentRegText);
+                    shell.getDisplay().beep();
+                } else
+                    currentRegText = regulationTF.getText();
+            }
         };
         regulationTF.addModifyListener(listenerReg);
 
@@ -344,16 +368,15 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         topoTF.setFont(controlFont);
         topoTF.setLayoutData(gd);
-        currentTopoText=topoTF.getText();
+        currentTopoText = topoTF.getText();
         ModifyListener listenerT = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (topoTF.getText().length()>230){
-        			topoTF.setText(currentTopoText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentTopoText=topoTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (topoTF.getText().length() > 230) {
+                    topoTF.setText(currentTopoText);
+                    shell.getDisplay().beep();
+                } else
+                    currentTopoText = topoTF.getText();
+            }
         };
         topoTF.addModifyListener(listenerT);
 
@@ -410,19 +433,17 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.WRAP | SWT.V_SCROLL);
         affectedAreaTF.setFont(controlFont);
         affectedAreaTF.setLayoutData(gd);
-        currentAreaText=affectedAreaTF.getText();
+        currentAreaText = affectedAreaTF.getText();
         ModifyListener listenerA = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (affectedAreaTF.getText().length()>80){
-        			affectedAreaTF.setText(currentAreaText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentAreaText=affectedAreaTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (affectedAreaTF.getText().length() > 80) {
+                    affectedAreaTF.setText(currentAreaText);
+                    shell.getDisplay().beep();
+                } else
+                    currentAreaText = affectedAreaTF.getText();
+            }
         };
         affectedAreaTF.addModifyListener(listenerA);
-
 
         // ---------------------------------------------
         // Add the Delete and Save buttons
@@ -475,7 +496,7 @@ public class DescriptionDlg extends CaveSWTDialog {
         exitBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -502,8 +523,8 @@ public class DescriptionDlg extends CaveSWTDialog {
             }
 
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get proximity data. ", e);
         }
     }
 
@@ -543,8 +564,8 @@ public class DescriptionDlg extends CaveSWTDialog {
                 affectedAreaTF.setText(locAreaData.getArea());
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get description data. ", e);
         }
     }
 
@@ -565,15 +586,8 @@ public class DescriptionDlg extends CaveSWTDialog {
         try {
             DescriptionDataManager.getInstance().deleteDescription(locationId);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-
-            MessageBox errorMb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            errorMb.setText("Error");
-            errorMb.setMessage("Error deleting the selected description.");
-            errorMb.open();
-
-            return;
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to delete description. ", e);
         }
 
         streamBedTF.setText("");
@@ -603,8 +617,8 @@ public class DescriptionDlg extends CaveSWTDialog {
                         descriptionData);
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to save description. ", e);
         }
     }
 
@@ -625,14 +639,8 @@ public class DescriptionDlg extends CaveSWTDialog {
         try {
             LocationAreaManager.getInstance().deleteRecord(locationId);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-
-            MessageBox errorMb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            errorMb.setText("Error");
-            errorMb.setMessage("Error deleting the selected description.");
-            errorMb.open();
-
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to delete selected description. ", e);
             return;
         }
 
@@ -659,8 +667,8 @@ public class DescriptionDlg extends CaveSWTDialog {
                         locAreaData);
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to save affected area. ", e);
         }
     }
 
