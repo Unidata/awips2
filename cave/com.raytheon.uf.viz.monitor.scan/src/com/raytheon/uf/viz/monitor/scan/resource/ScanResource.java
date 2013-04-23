@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
@@ -83,6 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 28, 2013 1731       bsteffen    Allow ScanResource to work better with
  *                                     D2DTimeMatcher.
  * Apr 02, 2013 1731       mpduff      Fix problem with DMD updates.
+ * Apr 22, 2013   1926       njensen     Faster rendering
  * 
  * </pre>
  * 
@@ -118,7 +120,7 @@ public class ScanResource extends
     private static final int titleXOffset = 50;
 
     /** trends graphs **/
-    public boolean isTrend = false;
+    private boolean isTrend = false;
 
     private GeodeticCalculator gc = null;
 
@@ -146,7 +148,7 @@ public class ScanResource extends
 
     private String cellId = null;
 
-    protected HashMap<String, PixelCoverage> drawables = new HashMap<String, PixelCoverage>();
+    protected Map<String, PixelCoverage> drawables = new HashMap<String, PixelCoverage>();
 
     protected ScanResource(ScanResourceData srd, LoadProperties loadProps)
             throws VizException {
@@ -333,9 +335,6 @@ public class ScanResource extends
                             }
 
                             if (draw && (ctdr != null)) {
-                                // System.out.println("Draw CELL: "+ctdr.getIdent());
-                                getScanDrawer().setCount(1);
-
                                 getScanDrawer().drawHexagon(ctdr, descriptor,
                                         target);
                                 drawables.put(id, getScanDrawer()
@@ -566,12 +565,10 @@ public class ScanResource extends
         if (drawer == null && gc != null) {
             if (getTable().equals(ScanTables.CELL)) {
                 drawer = new ScanDrawer(SCANConfig.getInstance()
-                        .getStormCellConfig(), gc, getScan()
-                        .getStationCoordinate(resourceData.icao));
+                        .getStormCellConfig(), gc);
             } else if (getTable().equals(ScanTables.DMD)) {
                 drawer = new ScanDrawer(SCANConfig.getInstance()
-                        .getDmdDisplayFilterConfig(), gc, getScan()
-                        .getStationCoordinate(resourceData.icao));
+                        .getDmdDisplayFilterConfig(), gc);
             }
         }
         return drawer;
