@@ -1,0 +1,71 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:jaxws="http://cxf.apache.org/jaxws" 
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
+  	http://camel.apache.org/schema/spring 
+  	http://camel.apache.org/schema/spring/camel-spring.xsd
+  	http://cxf.apache.org/jaxws
+    http://cxf.apache.org/schemas/jaxws.xsd
+    http://cxf.apache.org/jaxrs
+    http://cxf.apache.org/schemas/jaxrs.xsd">
+
+	<import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
+	<import resource="classpath:res/spring/ebxml.xml"/>
+	<import resource="classpath:res/spring/ebxml-webservices.xml" />
+	<import resource="classpath:res/spring/ebxml-querytypes.xml" />
+	<import resource="classpath:res/spring/ebxml-registry-dao.xml" />
+
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+
+	<!-- SOAP Service definitions -->
+	<jaxws:server id="QueryService" address="/queryManager">
+		<jaxws:serviceBean>
+			<ref bean="queryServiceImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+
+	<jaxws:server id="NotificationListenerService" address="/notificationListener">
+		<jaxws:serviceBean>
+			<ref bean="notificationServiceImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+
+	<jaxws:server id="LifecycleManagerServiceService" address="/lifecycleManager">
+		<jaxws:serviceBean>
+			<ref bean="lcmServiceImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+
+	<jaxws:server id="ValidatorService" address="/validator">
+		<jaxws:serviceBean>
+			<ref bean="validatorServiceImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+
+	<jaxws:server id="CatalogerService" address="/cataloger">
+		<jaxws:serviceBean>
+			<ref bean="catalogerServiceImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+	<!-- End Soap Service Definitions -->
+
+	<!-- REST Service Definitions -->
+	<jaxrs:server id="registryRestServices" address="/">
+		<jaxrs:serviceBeans>
+			<ref bean="registryObjectsRestService" />
+			<ref bean="repositoryObjectsRestService" />
+			<ref bean="queryProtocolRestService" />
+			<ref bean="AddRegistryParty" />
+			<ref bean="ModifyRegistryParty" />
+			<ref bean="DeleteRegistryParty" />
+		</jaxrs:serviceBeans>
+	</jaxrs:server>
+	<!-- End REST Endpoint definitions -->
+
+</beans>

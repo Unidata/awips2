@@ -37,7 +37,7 @@
 							<property name="handlers">
 								<list>
 									<bean class="org.eclipse.jetty.webapp.WebAppContext">
-										<property name="contextPath" value="/registryEbxml" />
+										<property name="contextPath" value="/" />
 										<property name="war"
 											value="file:///${edex.home}/webapps/registryEbxml" />
 									</bean>
@@ -52,16 +52,4 @@
 		</property>
 	</bean>
 
-	<bean id="RegistryWebUtil" class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebUtil">
-		<property name="lcm" ref="lcmServiceImpl" />
-	</bean>
-
-	<bean id="RegistryWebAdmin"
-		class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebAdmin">
-		<property name="partyDao" ref="partyDao" />
-		<property name="classificationNodeDao" ref="classificationNodeDao" />
-		<property name="organizationDao" ref="organizationDao" />
-		<property name="personDao" ref="personDao" />
-		<property name="roleDao" ref="roleDao" />
-	</bean>
 </beans>  
