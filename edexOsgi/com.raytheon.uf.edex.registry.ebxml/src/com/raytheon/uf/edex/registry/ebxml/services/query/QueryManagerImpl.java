@@ -202,15 +202,7 @@ public class QueryManagerImpl implements QueryManager {
 
         if (lang != null) {
             // TODO: Add support for specifying the lang attribute
-            response.getException()
-                    .add(EbxmlExceptionUtil
-                            .createRegistryException(
-                                    UnsupportedCapabilityExceptionType.class,
-                                    "",
-                                    "lang attribute not currently supported",
-                                    "This EBXML registry does not currently support the lang attribute on the QueryRequest object",
-                                    ErrorSeverity.WARNING, statusHandler));
-            response.setStatus(RegistryResponseStatus.PARTIAL_SUCCESS);
+            statusHandler.warn("Lang attribute currently not supported.");
         }
 
         IRegistryQuery query = getQuery(queryType);
