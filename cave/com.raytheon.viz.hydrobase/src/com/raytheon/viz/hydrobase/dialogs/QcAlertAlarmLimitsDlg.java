@@ -1133,8 +1133,6 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
         }
 
-        // QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
-        // .getInstance();
         grossRangeMinTF.setText(HydroDataUtils.getDisplayString(currData
                 .getGrossRangeMin()));
         grossRangeMaxTF.setText(HydroDataUtils.getDisplayString(currData
@@ -1228,8 +1226,6 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             }
         }
 
-        // QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
-        // .getInstance();
         grossRangeMinTF.setText(HydroDataUtils.getDisplayString(currData
                 .getGrossRangeMin()));
         grossRangeMaxTF.setText(HydroDataUtils.getDisplayString(currData
@@ -1443,8 +1439,6 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     }
 
     private boolean setSaveValues(DataLimitData dataToSave) {
-        // Date startDate = null;
-        // Date endDate = null;
 
         // Make sure that PE is selected
 
