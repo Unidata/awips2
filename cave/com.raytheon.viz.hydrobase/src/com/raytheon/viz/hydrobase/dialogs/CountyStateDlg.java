@@ -206,7 +206,7 @@ public class CountyStateDlg extends CaveSWTDialog {
         CountiesData rval = new CountiesData();
         rval.setCounty("COUNTY");
         rval.setState("STATE");
-        String labelStr = formatCountState(rval);
+        String labelStr = formatCountyState(rval);
         return labelStr;
     }
 
@@ -232,7 +232,7 @@ public class CountyStateDlg extends CaveSWTDialog {
         countyStateList.removeAll();
 
         for (CountiesData currCounty : countiesData) {
-            countyStateList.add(formatCountState(currCounty));
+            countyStateList.add(formatCountyState(currCounty));
         }
     }
 
@@ -242,7 +242,7 @@ public class CountyStateDlg extends CaveSWTDialog {
      * @param countiesData
      * @return formatedString
      */
-    private String formatCountState(CountiesData countiesData) {
+    private String formatCountyState(CountiesData countiesData) {
         return String.format("%-36s %-2s", countiesData.getCounty(),
                 countiesData.getState());
     }
@@ -307,7 +307,7 @@ public class CountyStateDlg extends CaveSWTDialog {
             return;
         }
 
-        String selectedString = formatCountState(selectedData);
+        String selectedString = formatCountyState(selectedData);
 
         // Clear selection
         countyStateList.deselectAll();
