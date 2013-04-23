@@ -36,6 +36,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.listeners.ICountyStateListener;
 import com.raytheon.viz.hydrocommon.data.CountiesData;
@@ -57,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 5, 2008				lvenable	Initial creation
  * Jan 9, 2008  1802        askripsk    Connect to DB.
  * Apr 17,2013  1790        rferrel     Changes for non-blocking CountyStateDlg.
+ *                                      Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -65,6 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class NwrTransmitterDlg extends CaveSWTDialog implements
         ICountyStateListener {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(NwrTransmitterDlg.class);
 
     /**
      * Allow one Count/State dialog.
@@ -215,10 +221,15 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
      *            Parent shell.
      */
     public NwrTransmitterDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("NWR Transmitter");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -229,11 +240,23 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -584,7 +607,7 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -654,7 +677,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
             }
 
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Uable to load static data. ", e);
         }
 
     }
@@ -667,7 +691,7 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
             txData = HydroDBDataManager.getInstance().getData(
                     NWRTransmitterData.class);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Uable to load data. ", e);
         }
 
         updateDisplay();
@@ -822,12 +846,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
 
                 successful = true;
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb.setMessage("An error occurred while trying to save the City");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to save city data. ", e);
             }
         }
 
@@ -855,12 +875,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                 // Update county cache
                 getSelectedCountiesData();
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb.setMessage("An error occurred while trying to save the County");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to save county data. ", e);
             }
         } else {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
@@ -904,12 +920,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                         // Refresh the cache
                         getDialogData();
                     } catch (VizException e) {
-                        mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                        mb.setText("Unable to Delete");
-                        mb.setMessage("An error occurred while trying to delete the City");
-                        mb.open();
-
-                        e.printStackTrace();
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Uable to delete city data. ", e);
                     }
                 }
             }
@@ -945,12 +957,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                     // Refresh the cache
                     getSelectedCountiesData();
                 } catch (VizException e) {
-                    mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Unable to Delete");
-                    mb.setMessage("An error occurred while trying to delete the City");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Uable to delete county data. ", e);
                 }
             }
         } else {
@@ -1033,7 +1041,8 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
                     updateDialogState(DialogState.NO_COUNTIES_SELECTED);
                 }
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to load county data. ", e);
             }
         }
     }
@@ -1146,6 +1155,13 @@ public class NwrTransmitterDlg extends CaveSWTDialog implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.listeners.ICountyStateListener#notifyUpdate
+     * (com.raytheon.viz.hydrocommon.data.CountiesData)
+     */
     @Override
     public void notifyUpdate(CountiesData selectedCountyState) {
         if (selectedCountyState.getCounty().startsWith("XXXXX")) {
