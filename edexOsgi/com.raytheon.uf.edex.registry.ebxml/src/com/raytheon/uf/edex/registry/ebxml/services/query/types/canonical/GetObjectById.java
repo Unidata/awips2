@@ -26,6 +26,8 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -49,7 +51,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
- * 
+ * 4/19/2013    1931       bphillip    Fixed null pointer issue
  * </pre>
  * 
  * @author bphillip
@@ -88,7 +90,6 @@ public class GetObjectById extends CanonicalEbxmlQuery {
                 return;
             }
             ids.addAll(matchingIds);
-
         } else {
             ids.add(id);
         }
@@ -102,8 +103,15 @@ public class GetObjectById extends CanonicalEbxmlQuery {
             }
             queryResponse.setObjectRefList(objectRefList);
         } else {
-            queryResponse.getRegistryObjectList().getRegistryObject()
-                    .addAll(registryObjectDao.getById(ids));
+            List<RegistryObjectType> results = new ArrayList<RegistryObjectType>();
+            if (ids.size() == 1) {
+                results.add(registryObjectDao.getById(ids.get(0)));
+            } else {
+                results.addAll(registryObjectDao.getById(ids));
+            }
+            RegistryObjectListType objList = new RegistryObjectListType();
+            objList.getRegistryObject().addAll(results);
+            queryResponse.setRegistryObjectList(objList);
         }
     }
 

@@ -71,7 +71,8 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        "/spring/ebxml.xml", "/spring/ebxml-impl.xml",
+        "/spring/ebxml.xml", "/spring/ebxml-xacml.xml",
+        "/spring/ebxml-webservices.xml", "/spring/ebxml-impl.xml",
         "/spring/ebxml-querytypes.xml", "/spring/ebxml-registry-dao.xml",
         "/ebxml/unit-test-ebxml-beans.xml", "/unit-test-localization-beans.xml" })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
