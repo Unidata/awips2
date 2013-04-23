@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -41,6 +40,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.LowWaterData;
 import com.raytheon.viz.hydrocommon.datamanager.LowWaterDataManager;
@@ -55,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 5, 2008				lvenable	Initial creation
  * Nov 12, 2008 1697        askripsky   Connect to DB
+ * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -62,6 +65,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class LowWaterDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LowWaterDlg.class);
 
     /**
      * Control font.
@@ -109,9 +114,9 @@ public class LowWaterDlg extends CaveSWTDialog {
     private String lid;
 
     /**
-     * Low water Data for the current location
+     * Low water Data for the current location.
      */
-    private ArrayList<LowWaterData> lwData;
+    private java.util.List<LowWaterData> lwData;
 
     /**
      * Formats date.
@@ -128,7 +133,7 @@ public class LowWaterDlg extends CaveSWTDialog {
     private DialogStates buttonState;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -136,7 +141,7 @@ public class LowWaterDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public LowWaterDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Low Water" + titleInfo);
 
         this.lid = lid;
@@ -144,6 +149,11 @@ public class LowWaterDlg extends CaveSWTDialog {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -154,14 +164,26 @@ public class LowWaterDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         initializeComponents();
 
@@ -285,7 +307,7 @@ public class LowWaterDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 saveRecord();
-                shell.dispose();
+                close();
             }
         });
 
@@ -307,7 +329,7 @@ public class LowWaterDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -348,7 +370,7 @@ public class LowWaterDlg extends CaveSWTDialog {
     }
 
     /**
-     * Loads the Stage/Display statement data for a location
+     * Loads the Stage/Display statement data for a location.
      */
     private void getLowWaterData() {
         if (lwData != null) {
@@ -358,13 +380,16 @@ public class LowWaterDlg extends CaveSWTDialog {
         try {
             lwData = LowWaterDataManager.getInstance().getLowWaterData(lid);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get low water data. ", e);
         }
 
         updateFloodDamageData();
     }
 
+    /**
+     * Update flood damage stages based on selected data.
+     */
     private void updateFloodDamageData() {
         // Clear current Stages
         dataList.removeAll();
@@ -383,15 +408,16 @@ public class LowWaterDlg extends CaveSWTDialog {
         setButtonStates();
     }
 
+    /**
+     * Display information on currently selected stage.
+     */
     private void getLowWaterInformation() {
         updateInformationDisplay(getCurrentlySelectedStage());
     }
 
     private void updateInformationDisplay(LowWaterData data) {
-        stageTF
-                .setText((data.getStage() != LowWaterData.MISSING_VALUE_D) ? Double
-                        .toString(data.getStage())
-                        : "");
+        stageTF.setText((data.getStage() != LowWaterData.MISSING_VALUE_D) ? Double
+                .toString(data.getStage()) : "");
         flowTF.setText((data.getFlow() != LowWaterData.MISSING_VALUE) ? Integer
                 .toString(data.getFlow()) : "");
         dateTF.setText(dateFormat.format(data.getDate()));
@@ -409,8 +435,8 @@ public class LowWaterDlg extends CaveSWTDialog {
                 LowWaterDataManager.getInstance().deleteRecord(
                         getCurrentlySelectedStage());
             } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to delete low water data. ", e);
             }
 
             getLowWaterData();
@@ -453,8 +479,8 @@ public class LowWaterDlg extends CaveSWTDialog {
                 MessageDialog.openConfirm(null, "Invalid Stage value",
                         "Please enter a valid numeric value for Stage");
             } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to save low water data. ", e);
             } catch (ParseException e) {
                 MessageDialog.openConfirm(null, "Invalid Date value",
                         "Please enter a date in the form: MM/DD/YYYY");
