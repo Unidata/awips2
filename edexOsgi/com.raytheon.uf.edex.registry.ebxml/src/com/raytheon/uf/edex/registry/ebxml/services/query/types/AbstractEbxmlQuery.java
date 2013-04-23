@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
@@ -79,7 +79,7 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
 
     protected RETURN_TYPE returnType;
 
-    protected RegistryObjectTypeDao<RegistryObjectType> registryObjectDao;
+    protected RegistryObjectDao registryObjectDao;
 
     public void executeQuery(QueryRequest queryRequest,
             QueryResponse queryResponse) throws EbxmlRegistryException {
@@ -218,8 +218,7 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
         return filterResults(results, null);
     }
 
-    public void setRegistryObjectDao(
-            RegistryObjectTypeDao<RegistryObjectType> registryObjectDao) {
+    public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
         this.registryObjectDao = registryObjectDao;
     }
 

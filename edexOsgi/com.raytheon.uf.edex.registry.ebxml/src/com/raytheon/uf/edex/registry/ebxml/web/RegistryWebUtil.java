@@ -77,6 +77,10 @@ public class RegistryWebUtil {
 
     private LifecycleManagerImpl lcm;
 
+    private ClassificationNodeDao classificationNodeDao;
+
+    private PersonDao personDao;
+
     /**
      * Creates a party (user or organization) based on parameters contained in
      * the servlet request
@@ -91,7 +95,6 @@ public class RegistryWebUtil {
             throws EbxmlRegistryException {
 
         List<RegistryObjectType> objectList = new ArrayList<RegistryObjectType>();
-        ClassificationNodeDao dao = new ClassificationNodeDao();
 
         String partyId = request.getParameter("id");
         PartyType party = null;
@@ -146,7 +149,6 @@ public class RegistryWebUtil {
         }
         // Creating an organization
         else {
-            PersonDao personDao = new PersonDao();
             party = new OrganizationType();
             party.setLid(partyId);
             party.setOwner(RegistryUtil.DEFAULT_OWNER);
@@ -173,7 +175,7 @@ public class RegistryWebUtil {
 
         // Assign the postal address
         PostalAddressType address = new PostalAddressType();
-        address.setType(dao.getNodeFromCode(request
+        address.setType(classificationNodeDao.getNodeFromCode(request
                 .getParameter(WebFields.ADDRESS_TYPE.fieldName())));
         address.setStreet(request.getParameter(WebFields.ADDRESS_1.fieldName()));
         address.setStreetNumber(request.getParameter(WebFields.ADDRESS_2
@@ -188,7 +190,7 @@ public class RegistryWebUtil {
 
         // Assign the telephone number
         TelephoneNumberType phone = new TelephoneNumberType();
-        phone.setType(dao.getNodeFromCode(request
+        phone.setType(classificationNodeDao.getNodeFromCode(request
                 .getParameter(WebFields.TELEPHONE_TYPE.fieldName())));
         phone.setAreaCode(request.getParameter(WebFields.AREA_CODE.fieldName()));
         phone.setNumber(request.getParameter(WebFields.PHONE_1.fieldName())
@@ -198,7 +200,7 @@ public class RegistryWebUtil {
 
         // Assign the email address
         EmailAddressType email = new EmailAddressType();
-        email.setType(dao.getNodeFromCode(request
+        email.setType(classificationNodeDao.getNodeFromCode(request
                 .getParameter(WebFields.EMAIL_TYPE.fieldName())));
         email.setAddress(request.getParameter(WebFields.EMAIL.fieldName()));
         party.getEmailAddress().add(email);
@@ -535,6 +537,15 @@ public class RegistryWebUtil {
 
     public void setLcm(LifecycleManagerImpl lcm) {
         this.lcm = lcm;
+    }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
+    }
+
+    public void setPersonDao(PersonDao personDao) {
+        this.personDao = personDao;
     }
 
 }
