@@ -20,6 +20,7 @@
 
 
 import string, getopt, sys, time, gzip, os, LogStream, stat, traceback
+from collections import OrderedDict
 import numpy
 #import pupynere as NetCDF
 try:
@@ -61,12 +62,15 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
 #    03/11/13        1759          dgilling       Removed unneeded methods.
+#    04/23/13        1937          dgilling       Reimplement WECache to match
+#                                                 A1, big perf improvement.
 #    
 # 
 #
 
-
-BATCH_WRITE_COUNT = 10 
+# Original A1 BATCH WRITE COUNT was 10, we found doubling that
+# lead to a significant performance increase.
+BATCH_WRITE_COUNT = 20 
 BATCH_DELAY = 0.0
 ifpNetcdfLogger=None
 
@@ -95,44 +99,60 @@ def logDebug(*msg):
 class WECache(object):
     def __init__(self, we, inv):
         self._we = we
-        self._grids = []
-        self._hist = []
-        self._inv = []
-        lst = []
+        self._inv = OrderedDict()
         lst = list(inv)
         while len(lst):
             i = lst[:BATCH_WRITE_COUNT]
-            self._inv = self._inv + list(i)
+            javaTRs = ArrayList()
+            for tr in i:
+                javaTRs.add(iscUtil.toJavaTimeRange(tr))
+            gridsAndHist = self._we.get(javaTRs, True)
+            for idx, tr in enumerate(i):
+                pair = gridsAndHist.get(idx)
+                g = self.__encodeGridSlice(pair.getFirst())
+                h = self.__encodeGridHistory(pair.getSecond())
+                self._inv[tr] = (g, h)
             lst = lst[BATCH_WRITE_COUNT:]
             time.sleep(BATCH_DELAY)
 
     def keys(self):
-        return tuple(self._inv)
+        return tuple(self._inv.keys())
 
     def __getitem__(self, key):
-        grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
-        history = grid.getGridDataHistory()
-        hist = []
-        for i in range(0, history.size()):
-            hist.append(history.get(i).getCodedString())
+        try:
+            return self._inv[key]
+        except KeyError:
+            grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
+            pyGrid = self.__encodeGridSlice(grid)
+            history = grid.getGridDataHistory()
+            pyHist = self.__encodeGridHistory(history)
+            return (pyGrid, pyHist)
+    
+    def __encodeGridSlice(self, grid):
         gridType = grid.getGridInfo().getGridType().toString()
         if gridType == "SCALAR":
-            return (grid.__numpy__[0], hist)
+            return grid.__numpy__[0]
         elif gridType == "VECTOR":
             vecGrids = grid.__numpy__
-            return ((vecGrids[0], vecGrids[1]), hist)
+            return (vecGrids[0], vecGrids[1])
         elif gridType == "WEATHER":
             keys = grid.getKeys()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return ((grid.__numpy__[0],keyList), hist)
+            return (grid.__numpy__[0], keyList)
         elif gridType =="DISCRETE":
             keys = grid.getKey()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return ((grid.__numpy__[0],keyList), hist)
+            return (grid.__numpy__[0], keyList)
+    
+    def __encodeGridHistory(self, histories):
+        retVal = []
+        for i in xrange(histories.size()):
+            retVal.append(histories.get(i).getCodedString())
+        return tuple(retVal)
 
 
 ###-------------------------------------------------------------------------###
