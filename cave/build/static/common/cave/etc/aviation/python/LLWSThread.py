@@ -159,6 +159,17 @@
 #       	Status:           CLOSED
 #       	Title:             AvnFPS:  AvnFPS regression based lightning forecast to use LAMP
 #       
+#**
+#* 
+#* 
+#* <pre>
+#* SOFTWARE HISTORY
+#* Date         Ticket#     Engineer    Description
+#* ------------ ----------  ----------- --------------------------
+#*                                      Initial creation.
+#* Mar 25, 2013 1735        rferrel     __initializeLLWSDictsLists now reads cfg data only for 
+#*                                      desired site instead of all sites. So it is O(n) instead of O(n**2)
+##  
 #
 import logging, os, Queue, re, time, math, sys
 import Avn, AvnParser, LLWSData, MetarData
@@ -184,7 +195,6 @@ class Server(object):
    __TimeOut = 10.0
 
    def __init__(self, info):     
-      #self.name = info['name']
       self.profilerList = []
       self.radarList = []
       self.metarList = []
@@ -207,7 +217,8 @@ class Server(object):
       rList = []
       aList = []
 
-      for m in AvnParser.getTafHeaders():
+      m = info['ident']
+      if m is not None:
          siteDict = AvnParser.getTafSiteCfg(m)
          try:
             radars = siteDict['sites']['radars']
@@ -226,17 +237,16 @@ class Server(object):
          except KeyError:
             acars = []
 
-         if profilers == [] and radars == [] and acars == []:
-            continue
-         #
-         # This TAF site needs to be monitored
-         self.metarList.append(m)
-         self.siteVWPsDict[m] = [radars,profilers,radar_cutoff,profiler_cutoff]
-         self.acarsDict[m] = [acars]
-         #
-         pList.extend(profilers)
-         rList.extend(radars)
-         aList.extend(acars)
+         if len(profilers) > 0 or len(radars) > 0 or len(acars) > 0 :
+             #
+             # This TAF site needs to be monitored
+             self.metarList.append(m)
+             self.siteVWPsDict[m] = [radars,profilers,radar_cutoff,profiler_cutoff]
+             self.acarsDict[m] = [acars]
+             #
+             pList.extend(profilers)
+             rList.extend(radars)
+             aList.extend(acars)
       #
       # Find all unique radars and profilers to monitor
       self.profilerList = dict.fromkeys(pList).keys()

@@ -237,11 +237,11 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     }
 
     private void validateServices() {
-        ConnectivityManager.checkServer(services, servicesCallback);
+        ConnectivityManager.checkHttpServer(services, servicesCallback);
     }
 
     private void validatePypies() {
-        ConnectivityManager.checkServer(pypies, pypiesCallback);
+        ConnectivityManager.checkHttpServer(pypies, pypiesCallback);
     }
 
     private void updateProxyEnabled() {
