@@ -19,30 +19,18 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.crimss;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
-import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
-import com.raytheon.uf.common.pointdata.IPointData;
-import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.dataplugin.npp.sounding.NPPSoundingRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * PluginDataObject record for NPP CrIMSS data
  * 
  * <pre>
  * 
@@ -62,8 +50,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class CrimssRecord extends PersistablePluginDataObject implements
-        IPointData {
+public class CrimssRecord extends NPPSoundingRecord {
+
+    private static final long serialVersionUID = 1L;
 
     public static final String PDV_SURFACE_PRESSURE = "SurfacePressure";
 
@@ -78,78 +67,5 @@ public class CrimssRecord extends PersistablePluginDataObject implements
     public static final String PDV_H2O = "H2O";
 
     public static final String PDV_P_H2O = "PressureLevels_H2O";
-
-    public static final String LATITUDE = "latitude";
-
-    public static final String LONGITUDE = "longitude";
-
-    @Embedded
-    private PointDataView pdv;
-
-    @DataURI(position = 1)
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Double latitude;
-
-    @DataURI(position = 2)
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Double longitude;
-
-    public CrimssRecord() {
-        super();
-    }
-
-    public CrimssRecord(String uri) {
-        super(uri);
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
-
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
 
 }
