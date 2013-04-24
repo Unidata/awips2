@@ -22,10 +22,10 @@ package com.raytheon.viz.core.topo;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
-import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -34,9 +34,10 @@ import javax.measure.unit.UnitFormat;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -47,7 +48,6 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -58,8 +58,15 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.style.LabelingPreferences;
+import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.viz.core.style.StyleManager;
+import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
+import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
+import com.raytheon.viz.core.style.image.DataScale;
+import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.viz.core.style.image.SamplePreferences;
 
 /**
  * Provides an SRTM hdf5-backed topographic map
@@ -69,7 +76,8 @@ import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Feb 14, 2007             chammack    Initial Creation.
- * Apr 03, 2013     1562   mschenke   Fix for custom colormaps
+ * Apr 03, 2013     1562    mschenke    Fix for custom colormaps
+ * Apr 24, 2013     1638    mschenke    Made topo configurable for source data
  * 
  * </pre>
  * 
@@ -79,9 +87,6 @@ import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 public class TopoResource extends
         AbstractVizResource<TopoResourceData, IMapDescriptor> {
 
-    private static final File DATA_FILE = new File("topo"
-            + IPathManager.SEPARATOR + "srtm30.hdf");
-
     private IResourceDataChanged changeListener = new IResourceDataChanged() {
         @Override
         public void resourceChanged(ChangeType type, Object object) {
@@ -89,11 +94,14 @@ public class TopoResource extends
         }
     };
 
+    private File dataFile;
+
     private TileSetRenderable topoTileSet;
 
     protected TopoResource(TopoResourceData topoData,
-            LoadProperties loadProperties) throws VizException {
+            LoadProperties loadProperties, File dataFile) throws VizException {
         super(topoData, loadProperties);
+        this.dataFile = dataFile;
     }
 
     /*
@@ -121,59 +129,98 @@ public class TopoResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         resourceData.addChangeListener(changeListener);
 
-        Unit<Length> dataUnit = SI.METER;
-
         // TODO: create topo style rules for topo and bathymetric topo
+        ParamLevelMatchCriteria criteria = new ParamLevelMatchCriteria();
+        criteria.setParameterName(Arrays.asList(resourceData.getTopoFile()));
+        StyleRule styleRule = StyleManager.getInstance().getStyleRule(
+                StyleType.IMAGERY, criteria);
 
-        ColorMapParameters parameters = ColorMapParameterFactory.build(
-                (Object) null, "topo", dataUnit, null);
-        parameters.setDataMin(Short.MIN_VALUE);
-        parameters.setDataMax(Short.MAX_VALUE);
+        // Default colormap
+        String colorMapName = "topo";
 
-        parameters.setColorMapMin(-19);
-        parameters.setColorMapMax(5000);
-
-        String colorMapName = parameters.getColorMapName();
-        if (colorMapName == null) {
-            colorMapName = "topo";
-        }
-
-        ColorMapParameters existing = getCapability(ColorMapCapability.class)
+        ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
-        if (existing != null) {
-            PersistedParameters persisted = existing.getPersisted();
-            if (persisted != null) {
-                parameters.applyPersistedParameters(persisted);
+        PersistedParameters persisted = null;
+        if (params == null) {
+            params = new ColorMapParameters();
+        } else {
+            persisted = params.getPersisted();
+        }
+
+        // Set data unit, specify in resource data? Look up in data record?
+        params.setDataUnit(SI.METER);
+        params.setDisplayUnit(NonSI.FOOT);
+        params.setColorMapMin(-19);
+        params.setColorMapMax(5000);
+        params.setDataMin(Short.MIN_VALUE);
+        params.setDataMax(Short.MAX_VALUE);
+        params.setFormatString("0.00");
+
+        if (styleRule != null) {
+            // TODO: This basic logic should be extracted somewhere,
+            // ColorMapParametersFactory has become overkill of any basic kind
+            // of colormapping based on style rules and is extremely grib
+            // specific
+            ImagePreferences prefs = (ImagePreferences) styleRule
+                    .getPreferences();
+            Unit<?> prefDisplayUnit = prefs.getDisplayUnits();
+            if (prefDisplayUnit != null) {
+                params.setDisplayUnit(prefDisplayUnit);
             }
 
-            if (existing.getColorMap() != null) {
-                parameters.setColorMap(existing.getColorMap());
-            } else if (existing.getColorMapName() != null) {
-                colorMapName = existing.getColorMapName();
+            DataScale scale = prefs.getDataScale();
+            if (scale != null) {
+                Double minVal = scale.getMinValue();
+                Double maxVal = scale.getMaxValue();
+                if (minVal != null) {
+                    params.setColorMapMin((float) params
+                            .getDisplayToDataConverter().convert(minVal));
+                }
+                if (maxVal != null) {
+                    params.setColorMapMax((float) params
+                            .getDisplayToDataConverter().convert(maxVal));
+                }
+            }
+
+            String defaultCmap = prefs.getDefaultColormap();
+            if (defaultCmap != null) {
+                colorMapName = defaultCmap;
+            }
+
+            SamplePreferences samplePrefs = prefs.getSamplePrefs();
+            if (samplePrefs != null && samplePrefs.getFormatString() != null) {
+                params.setFormatString(samplePrefs.getFormatString());
+            }
+
+            LabelingPreferences labelPrefs = prefs.getColorbarLabeling();
+            if (labelPrefs != null && labelPrefs.getValues() != null) {
+                params.setColorBarIntervals(labelPrefs.getValues());
             }
         }
 
-        if (parameters.getColorMap() == null) {
-            parameters.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+        if (params.getColorMap() == null) {
+            if (params.getColorMapName() != null) {
+                // Use one specified in params over style rules
+                colorMapName = params.getColorMapName();
+            }
+            params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
         }
 
-        if (parameters.getDisplayUnit() == null) {
-            parameters.setDisplayUnit(NonSI.FOOT);
+        if (persisted != null) {
+            params.applyPersistedParameters(persisted);
         }
-        parameters.setFormatString("0");
 
-        getCapability(ColorMapCapability.class).setColorMapParameters(
-                parameters);
+        getCapability(ColorMapCapability.class).setColorMapParameters(params);
 
         topoTileSet = new TileSetRenderable(
                 getCapability(ImagingCapability.class), getTopoGeometry(),
-                new TopoTileImageCreator(this, DATA_FILE),
+                new TopoTileImageCreator(this, dataFile),
                 getNumberOfTopoLevels(), 512);
         topoTileSet.project(descriptor.getGridGeometry());
     }
 
     private int getNumberOfTopoLevels() throws VizException {
-        IDataStore ds = DataStoreFactory.getDataStore(DATA_FILE);
+        IDataStore ds = DataStoreFactory.getDataStore(dataFile);
         try {
             return ds.getDatasets("/interpolated").length + 1;
         } catch (Exception e) {
@@ -182,7 +229,7 @@ public class TopoResource extends
     }
 
     private GridGeometry2D getTopoGeometry() throws VizException {
-        IDataStore ds = DataStoreFactory.getDataStore(DATA_FILE);
+        IDataStore ds = DataStoreFactory.getDataStore(dataFile);
 
         Request request = Request.buildSlab(new int[] { 0, 0 }, new int[] { 1,
                 1 });
@@ -198,28 +245,29 @@ public class TopoResource extends
             double lrLon = (Double) attributes.get("lrLon");
             String crsString = (String) attributes.get("CRS");
 
-            // construct the grid geometry that covers the topo grid
+            // Construct CRS for topo data
             CoordinateReferenceSystem crs = CRSCache.getInstance()
                     .getCoordinateReferenceSystem(crsString);
-            GeneralEnvelope ge = new GeneralEnvelope(2);
-            ge.setCoordinateReferenceSystem(crs);
-            ge.setRange(0, ulLon, lrLon);
-            ge.setRange(1, lrLat, ulLat);
+            // Grid range
+            GridEnvelope gridRange = new GeneralGridEnvelope(
+                    new int[] { 0, 0 }, new int[] { width, height });
 
-            GeneralGridEnvelope gr = new GeneralGridEnvelope(
-                    new int[] { 1, 1 }, new int[] { width, height }, false);
+            // Convert ulLat/ulLon to crs space
+            MathTransform mt = CRS.findMathTransform(
+                    DefaultGeographicCRS.WGS84, crs);
+            double[] in = new double[] { ulLon, ulLat, lrLon, lrLat };
+            double[] out = new double[in.length];
 
-            GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
-            mapper.setEnvelope(ge);
-            mapper.setGridRange(gr);
-            mapper.setPixelAnchor(PixelInCell.CELL_CENTER);
-            mapper.setReverseAxis(new boolean[] { false, true });
-            MathTransform mt = mapper.createTransform();
+            mt.transform(in, 0, out, 0, 2);
 
-            GridGeometry2D gridGeom = new GridGeometry2D(
-                    PixelInCell.CELL_CORNER, mt, ge, null);
+            GeneralEnvelope gridEnvelope = new GeneralEnvelope(2);
+            gridEnvelope.setCoordinateReferenceSystem(crs);
+            gridEnvelope.setRange(0, Math.min(out[0], out[2]),
+                    Math.max(out[0], out[2]));
+            gridEnvelope.setRange(1, Math.min(out[1], out[3]),
+                    Math.max(out[1], out[3]));
 
-            return gridGeom;
+            return new GridGeometry2D(gridRange, gridEnvelope);
         } catch (Exception e) {
             throw new VizException("Error getting grid geometry", e);
         }
@@ -276,7 +324,7 @@ public class TopoResource extends
                     ColorMapCapability.class).getColorMapParameters();
             UnitConverter cvt = parameters.getDataToDisplayConverter();
 
-            DecimalFormat df = new DecimalFormat("0.00");
+            DecimalFormat df = new DecimalFormat(parameters.getFormatString());
             return String.format(
                     "%s %s ",
                     df.format(cvt.convert(height)),
