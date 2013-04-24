@@ -21,9 +21,12 @@
 package com.raytheon.edex.plugin.gfe.server.lock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +63,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 
+ * 04/23/13     #1949      rjpeter     Updated to work with Normalized Database,
+ *                                     fixed inefficiencies in querying/merging
  * </pre>
  * 
  * @author bphillip
@@ -69,22 +73,21 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 public class LockManager {
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
-    private LockComparator startTimeComparator = new LockComparator();
+    private final LockComparator startTimeComparator = new LockComparator();
+
+    private final GFELockDao dao = new GFELockDao();
 
     /** The singleton instance of the LockManager */
-    private static LockManager instance;
+    private static LockManager instance = new LockManager();
 
     /**
      * Gets the singleton instance of the LockManager
      * 
      * @return The singleton instance of the LockManager
      */
-    public synchronized static LockManager getInstance() {
-        if (instance == null) {
-            instance = new LockManager();
-        }
+    public static LockManager getInstance() {
         return instance;
     }
 
@@ -117,14 +120,15 @@ public class LockManager {
 
         // extract the ParmIds from the request list
         List<ParmID> parmIds = new ArrayList<ParmID>();
-        sr.addMessages(extractParmIds(request, parmIds, siteID));
-
         try {
-            sr.setPayload(new ArrayList<LockTable>(new GFELockDao().getLocks(
-                    parmIds, requestor).values()));
-        } catch (DataAccessLayerException e) {
+            sr.addMessages(extractParmIds(request, parmIds, siteID));
+
+            sr.setPayload(new ArrayList<LockTable>(dao.getLocks(parmIds,
+                    requestor).values()));
+        } catch (Exception e) {
+            logger.error("Error getting lock tables for " + parmIds, e);
             sr.addMessage("Error getting lock tables for " + parmIds);
-            sr.setPayload(new ArrayList<LockTable>());
+            sr.setPayload(new ArrayList<LockTable>(0));
         }
 
         return sr;
@@ -143,9 +147,7 @@ public class LockManager {
      */
     public ServerResponse<List<LockTable>> getLockTables(
             LockTableRequest request, WsId wsId, String siteID) {
-        List<LockTableRequest> requests = new ArrayList<LockTableRequest>();
-        requests.add(request);
-        return getLockTables(requests, wsId, siteID);
+        return getLockTables(Arrays.asList(request), wsId, siteID);
     }
 
     public ServerResponse<List<LockTable>> requestLockChange(
@@ -167,9 +169,8 @@ public class LockManager {
     public ServerResponse<List<LockTable>> requestLockChange(
             LockRequest request, WsId requestor, String siteID,
             boolean combineLocks) throws GfeLockException {
-        List<LockRequest> requests = new ArrayList<LockRequest>();
-        requests.add(request);
-        return requestLockChange(requests, requestor, siteID, combineLocks);
+        return requestLockChange(Arrays.asList(request), requestor, siteID,
+                combineLocks);
     }
 
     public ServerResponse<List<LockTable>> requestLockChange(
@@ -191,8 +192,8 @@ public class LockManager {
             List<LockRequest> requests, WsId requestor, String siteID,
             boolean combineLocks) {
 
-        List<LockTable> lockTablesAffected = new ArrayList<LockTable>();
-        List<GridUpdateNotification> gridUpdatesAffected = new ArrayList<GridUpdateNotification>();
+        List<LockTable> lockTablesAffected = new LinkedList<LockTable>();
+        List<GridUpdateNotification> gridUpdatesAffected = new LinkedList<GridUpdateNotification>();
         ServerResponse<List<LockTable>> sr = new ServerResponse<List<LockTable>>();
         sr.setPayload(lockTablesAffected);
 
@@ -205,7 +206,7 @@ public class LockManager {
 
         // expand the request as appropriate to the time boundary requirements
         // and convert to all parm-type requests
-        List<LockRequest> req = new ArrayList<LockRequest>();
+        List<LockRequest> req = new ArrayList<LockRequest>(requests.size());
 
         sr.addMessages(adjustLockToTimeBoundaries(requests, req));
         if (!sr.isOkay()) {
@@ -213,85 +214,87 @@ public class LockManager {
             return sr;
         }
 
-        // extract the ParmIds from the requests
-        List<ParmID> parmIds = new ArrayList<ParmID>();
-        sr.addMessages(extractParmIdsFromLockReq(req, parmIds, siteID));
-
-        // get the lock tables specific to the extracted parmIds
+        List<ParmID> parmIds = new LinkedList<ParmID>();
         Map<ParmID, LockTable> lockTableMap;
         try {
-            lockTableMap = new GFELockDao().getLocks(parmIds, requestor);
-        } catch (DataAccessLayerException e) {
+            // extract the ParmIds from the requests
+            sr.addMessages(extractParmIdsFromLockReq(req, parmIds, siteID));
+
+            // get the lock tables specific to the extracted parmIds
+            lockTableMap = dao.getLocks(parmIds, requestor);
+        } catch (Exception e) {
+            logger.error("Error getting lock tables for " + parmIds, e);
             sr.addMessage("Error getting lock tables for " + parmIds);
             return sr;
         }
 
         // process each modified lock request, these are all parm-type requests
         ParmID currentParmId = null;
+        TimeRange currentTimeRange = null;
         for (LockRequest currentRequest : req) {
             currentParmId = currentRequest.getParmId();
+            currentTimeRange = currentRequest.getTimeRange();
+
             // get table from sequence
             LockTable lt = lockTableMap.get(currentParmId);
             LockTable prevLT = lt.clone();
 
             try {
                 // Change Lock
-                if (!changeLock(lt, currentRequest.getTimeRange(), requestor,
+                if (!changeLock(lt, currentTimeRange, requestor,
                         currentRequest.getMode(), combineLocks)) {
                     sr.addMessage("Requested change lock failed - Lock is owned by another user - "
                             + currentRequest + " LockTable=" + lt);
-                    lockTablesAffected.clear();
-                    gridUpdatesAffected.clear();
-                    return sr;
-
+                    continue;
                 }
             } catch (Exception e) {
+                logger.error("Error changing lock", e);
                 sr.addMessage("Requested change lock failed - Exception thrown - "
                         + currentRequest
                         + " LockTable="
                         + lt
                         + " Exception: "
                         + e.getLocalizedMessage());
-                lockTablesAffected.clear();
-                gridUpdatesAffected.clear();
-                return sr;
+                continue;
             }
 
             // the change lock worked, but resulted in the same lock situation
             if (prevLT.equals(lt)) {
+                // TODO: Equals not implemented, this is dead code due to clone
                 continue;
             }
 
-            // add the lock table to the lockTablesAffected" if it already
-            // doesn't exist -- if it does exist, then replace it but don't add
-            // it if it really didn't change
+            // add the lock table to the lockTablesAffected if it already
+            // doesn't exist
 
-            LockTable tableToRemove = null;
-            for (int j = 0; j < lockTablesAffected.size(); j++) {
-                if (lockTablesAffected.get(j).getParmId().equals(currentParmId)) {
-                    tableToRemove = lockTablesAffected.get(j);
+            boolean addTable = true;
+            for (LockTable ltAffected : lockTablesAffected) {
+                if (ltAffected.getParmId().equals(currentParmId)) {
+                    addTable = false;
                     break;
                 }
             }
 
-            if (tableToRemove != null) {
-                lockTablesAffected.remove(tableToRemove);
+            if (addTable) {
+                lockTablesAffected.add(lt);
             }
-            lockTablesAffected.add(lt);
 
-            // assemble a grid update notification since the lock table has
-            // changed - IF this is BREAK LOCK request
             if (currentRequest.getMode().equals(LockTable.LockMode.BREAK_LOCK)) {
+                // TODO: Should be able to do in a single look up that retrieves
+                // the histories that intersect the time ranges instead of the
+                // current two stage query
                 List<TimeRange> trs = new ArrayList<TimeRange>();
                 ServerResponse<List<TimeRange>> ssr = GridParmManager
-                        .getGridInventory(currentParmId);
+                        .getGridInventory(currentParmId, currentTimeRange);
                 sr.addMessages(ssr);
                 trs = ssr.getPayload();
                 if (!sr.isOkay()) {
-                    lockTablesAffected.clear();
-                    gridUpdatesAffected.clear();
-                    return sr;
+                    // unable to get payload, can't reverse the break lock, add
+                    // a new message to our current response and keep going
+                    sr.addMessages(ssr);
+                    continue;
                 }
+
                 List<TimeRange> updatedGridsTR = new ArrayList<TimeRange>();
                 for (int p = 0; p < trs.size(); p++) {
                     if (trs.get(p).overlaps(currentRequest.getTimeRange())) {
@@ -312,14 +315,17 @@ public class LockManager {
 
             }
         }
-        // if we made it here, then all lock requests were successful
-        for (int k = 0; k < lockTablesAffected.size(); k++) {
-            lockTablesAffected.get(k).resetWsId(requestor);
+
+        // update the lockTables that were successful
+        for (LockTable lt : lockTablesAffected) {
+            lt.resetWsId(requestor);
         }
 
+        // process the break lock notifications that were successful
         for (GridUpdateNotification notify : gridUpdatesAffected) {
             sr.addNotifications(notify);
         }
+
         return sr;
     }
 
@@ -348,143 +354,161 @@ public class LockManager {
             } else if (ls.equals(LockTable.LockStatus.LOCKED_BY_ME)) {
                 return true;
             } else if (ls.equals(LockTable.LockStatus.LOCKABLE)) {
-                GFELockDao dao = new GFELockDao();
-                List<Lock> existingLocks = new ArrayList<Lock>();
                 try {
-                    existingLocks = dao.getLocksInRange(lt.getParmId(),
-                            timeRange);
-                    if (existingLocks != null && !existingLocks.isEmpty()) {
-                        for (Lock lock : existingLocks) {
-                            dao.delete(lock);
-                            lt.removeLock(lock);
-                        }
-                    }
+                    Lock newLock = new Lock(lt.getParmId(), timeRange,
+                            requestorId);
+                    replaceLocks(lt, newLock, combineLocks);
                 } catch (DataAccessLayerException e) {
-                    logger.error("Error changing locks", e);
+                    logger.error("Error adding lock", e);
+                    throw new GfeLockException("Unable add new lock", e);
                 }
-
-                Lock newLock = new Lock(timeRange, requestorId);
-                newLock.setParmId(lt.getParmId());
-                dao.persist(newLock);
-                try {
-                    newLock = dao.getLock(newLock.getParmId(),
-                            newLock.getTimeRange(), newLock.getWsId());
-                } catch (DataAccessLayerException e) {
-                    throw new GfeLockException("Unable to update new lock", e);
-                }
-                lt.addLock(newLock);
             }
-
-            if (combineLocks) {
-                combineLocks(lt);
-            }
-        }
-
-        else if (lockMode.equals(LockTable.LockMode.UNLOCK)) {
+        } else if (lockMode.equals(LockTable.LockMode.UNLOCK)) {
             if (ls.equals(LockTable.LockStatus.LOCKED_BY_ME)) {
                 try {
-                    GFELockDao dao = new GFELockDao();
-                    Lock newLock = dao.getLock(lt.getParmId(), timeRange,
-                            requestorId);
-                    if (newLock != null) {
-                        dao.delete(newLock);
-                        lt.removeLock(newLock);
-                    }
+                    deleteLocks(lt, timeRange);
                 } catch (DataAccessLayerException e) {
-                    throw new GfeLockException(
-                            "Unable to retrieve lock information for: "
-                                    + lt.getParmId() + " TimeRange: "
-                                    + timeRange + " WorkstationID: "
-                                    + requestorId);
+                    throw new GfeLockException("Unable to delete locks for: "
+                            + lt.getParmId() + " TimeRange: " + timeRange
+                            + " WorkstationID: " + requestorId);
                 }
-
             } else if (ls.equals(LockTable.LockStatus.LOCKED_BY_OTHER)) {
                 logger.warn("Lock for time range: " + timeRange
                         + " already owned");
             } else {
                 // Record already unlocked
             }
-        }
-
-        else if (lockMode.equals(LockTable.LockMode.BREAK_LOCK)) {
+        } else if (lockMode.equals(LockTable.LockMode.BREAK_LOCK)) {
             try {
-                GFELockDao dao = new GFELockDao();
-                Lock newLock = dao.getLock(lt.getParmId(), timeRange,
-                        requestorId);
-                if (newLock != null) {
-                    dao.delete(newLock);
-                    lt.removeLock(newLock);
-                }
+                deleteLocks(lt, timeRange);
             } catch (DataAccessLayerException e) {
-                throw new GfeLockException(
-                        "Unable to retrieve lock information for: "
-                                + lt.getParmId() + " TimeRange: " + timeRange
-                                + " WorkstationID: " + requestorId);
+                throw new GfeLockException("Unable to delete locks for: "
+                        + lt.getParmId() + " TimeRange: " + timeRange
+                        + " WorkstationID: " + requestorId);
             }
         }
+
         return true;
     }
 
     /**
-     * Examines the locks contained in a given lock table and combines locks if
-     * possible.
+     * Replaces locks in the given time range with the passed lock.
      * 
      * @param lt
      *            The lock table to examine
+     * @param newLock
+     *            The lock to add
      * @throws GfeLockException
      *             If errors occur when updating the locks in the database
      */
-    private void combineLocks(final LockTable lt) throws GfeLockException {
+    private void replaceLocks(final LockTable lt, final Lock newLock,
+            boolean combineLocks) throws DataAccessLayerException {
+        // update the locks in memory
         Set<Lock> added = new HashSet<Lock>();
-        Set<Lock> deleted = new HashSet<Lock>();
-        List<Lock> locks = null;
-        Lock currentLock = null;
-        Lock nextLock = null;
-        boolean lockCombined = true;
-        while (lockCombined) {
-            lockCombined = false;
-            lt.addLocks(added);
-            lt.removeLocks(deleted);
-            Collections.sort(lt.getLocks(), startTimeComparator);
-            locks = lt.getLocks();
-            for (int i = 0; i < locks.size() - 1; i++) {
-                currentLock = locks.get(i);
-                nextLock = locks.get(i + 1);
-                if (currentLock.getEndTime() >= nextLock.getStartTime()
-                        && currentLock.getWsId().equals(nextLock.getWsId())) {
-                    lockCombined = true;
-                    deleted.add(currentLock);
-                    deleted.add(nextLock);
-                    Lock newLock = new Lock(new TimeRange(
-                            currentLock.getStartTime(), nextLock.getEndTime()),
-                            lt.getWsId());
-                    newLock.setParmId(lt.getParmId());
-                    added.add(newLock);
+        List<Integer> removed = new ArrayList<Integer>();
+
+        List<Lock> locks = lt.getLocks();
+        Collections.sort(locks, startTimeComparator);
+        long start = newLock.getStartTime();
+        long end = newLock.getEndTime();
+        Iterator<Lock> iter = locks.iterator();
+
+        while (iter.hasNext()) {
+            Lock lock = iter.next();
+            if (start <= lock.getStartTime()) {
+                if (end >= lock.getEndTime()) {
+                    removed.add(lock.getId());
+                    iter.remove();
+                } else {
+                    // list was sorted by start time, not need to go any further
                     break;
                 }
             }
         }
-        try {
-            new GFELockDao().updateCombinedLocks(deleted, added);
-        } catch (DataAccessLayerException e) {
-            throw new GfeLockException("Error combining locks", e);
+
+        added.add(newLock);
+        locks.add(newLock);
+
+        // if combineLocks, do the combine before storing the initial change to
+        // the db
+        if (combineLocks) {
+            Lock prevLock = null;
+            Lock currentLock = null;
+            Collections.sort(locks, startTimeComparator);
+            prevLock = locks.get(0);
+            for (int i = 1; i < locks.size(); i++) {
+                currentLock = locks.get(i);
+                if ((prevLock.getEndTime() >= currentLock.getStartTime())
+                        && prevLock.getWsId().equals(currentLock.getWsId())) {
+                    // remove previous lock, checking if it was a new lock first
+                    if (!added.remove(prevLock)) {
+                        removed.add(prevLock.getId());
+                    }
+
+                    // remove currentLock, checking if it was a new lock first
+                    if (!added.remove(currentLock)) {
+                        removed.add(currentLock.getId());
+                    }
+                    locks.remove(i);
+
+                    // replace prevLock with new Lock
+                    prevLock = new Lock(lt.getParmId(), new TimeRange(
+                            prevLock.getStartTime(), Math.max(
+                                    prevLock.getEndTime(),
+                                    currentLock.getEndTime())), lt.getWsId());
+
+                    added.add(prevLock);
+                    locks.set(i - 1, prevLock);
+
+                    // keep current position
+                    i--;
+                } else {
+                    prevLock = currentLock;
+                }
+            }
+        }
+
+        // update the database
+        if (!added.isEmpty() || !removed.isEmpty()) {
+            dao.addRemoveLocks(added, removed);
         }
     }
 
     /**
-     * Notification that one or more databases were deleted. No lock change
-     * notifications are generated since all clients will already know that the
-     * databases have been removed.
+     * Deletes locks in the given time range
      * 
-     * Asks the LockDatabase for the list of LockTables. Eliminate entries in
-     * LockTables that no longer should exist based on the sequence of database
-     * identifiers that were deleted. Restore the LockTables by passing them to
-     * the LockDatabase.
-     * 
-     * @param deletions
+     * @param lt
+     *            The lock table to examine
+     * @param tr
+     *            The TimeRange to delete
+     * @throws GfeLockException
+     *             If errors occur when updating the locks in the database
      */
-    public void databaseDeleted(List<DatabaseID> deletions) {
-        // TODO: Implement database deletion
+    private void deleteLocks(final LockTable lt, final TimeRange tr)
+            throws DataAccessLayerException {
+        // update the locks in memory
+        List<Lock> locks = lt.getLocks();
+        Collections.sort(locks, startTimeComparator);
+        long start = tr.getStart().getTime();
+        long end = tr.getEnd().getTime();
+        Iterator<Lock> iter = locks.iterator();
+        List<Integer> locksToRemove = new LinkedList<Integer>();
+
+        while (iter.hasNext()) {
+            Lock lock = iter.next();
+            if (start <= lock.getStartTime()) {
+                if (end >= lock.getEndTime()) {
+                    locksToRemove.add(lock.getId());
+                    iter.remove();
+                } else {
+                    // list was sorted by start time, not need to go any further
+                    break;
+                }
+            }
+        }
+
+        // update the database
+        dao.addRemoveLocks(null, locksToRemove);
     }
 
     /**
@@ -520,10 +544,7 @@ public class LockManager {
         }
 
         for (LockRequest req : requestsOut) {
-            List<LockRequest> reqList = new ArrayList<LockRequest>();
-            reqList.add(req);
-            sr.addMessages(expandRequestToBoundary(reqList));
-            req = reqList.get(0);
+            sr.addMessages(expandRequestToBoundary(req));
             if (!sr.isOkay()) {
                 return sr;
             }
@@ -596,27 +617,27 @@ public class LockManager {
      *            The lock requst
      * @return
      */
-    private ServerResponse<?> expandRequestToBoundary(List<LockRequest> req) {
+    private ServerResponse<?> expandRequestToBoundary(LockRequest req) {
 
         ServerResponse<?> sr = new ServerResponse<String>();
-        if (!req.get(0).isParmRequest()) {
+        if (!req.isParmRequest()) {
             logger.error("Expected parm-type request in expandRequestToBoundary");
         }
 
         // If this is a break-lock request, then do not expand to time constrts
-        if (req.get(0).getMode().equals(LockTable.LockMode.BREAK_LOCK)) {
+        if (req.getMode().equals(LockTable.LockMode.BREAK_LOCK)) {
             return sr;
         }
 
         // Only expand for request lock and unlock
-        DatabaseID dbid = req.get(0).getParmId().getDbId();
+        DatabaseID dbid = req.getParmId().getDbId();
 
         TimeRange tr = null;
 
         switch (dbid.getFormat()) {
         case GRID:
             ServerResponse<GridParmInfo> ssr = GridParmManager
-                    .getGridParmInfo(req.get(0).getParmId());
+                    .getGridParmInfo(req.getParmId());
             GridParmInfo gpi = ssr.getPayload();
             sr.addMessages(ssr);
             if (!sr.isOkay()) {
@@ -624,8 +645,7 @@ public class LockManager {
                 return sr;
             }
             // calculate the expanded time
-            tr = gpi.getTimeConstraints().expandTRToQuantum(
-                    req.get(0).getTimeRange());
+            tr = gpi.getTimeConstraints().expandTRToQuantum(req.getTimeRange());
             if (!tr.isValid()) {
                 sr.addMessage("Request does not match TimeConstraints "
                         + gpi.getTimeConstraints() + " ParmReq: " + req);
@@ -638,9 +658,7 @@ public class LockManager {
 
         // Update the lock request
         if (tr.isValid()) {
-            req.add(new LockRequest(req.get(0).getParmId(), tr, req.get(0)
-                    .getMode()));
-            req.remove(0);
+            req.setTimeRange(tr);
         } else {
             sr.addMessage("TimeRange not valid in LockRequest");
         }
@@ -649,10 +667,10 @@ public class LockManager {
     }
 
     /**
-     * * Overloaded utility routine to extract the ParmIds for a given
+     * Overloaded utility routine to extract the ParmIds for a given
      * SeqOf<LockTableRequest>. If the request is a parm request, the ParmId
      * will be appended to the list ParmIds to be returned. If the request is a
-     * database request, all the ParmIds for the given databaseId wil be
+     * database request, all the ParmIds for the given databaseId will be
      * appended to the list of ParmIds. If the request is neither a parm nor a
      * database request, all the parmId for all the databaseIds are appended to
      * the list of ParmIds to be returned.
@@ -662,22 +680,23 @@ public class LockManager {
      * @return The ParmIDs contained in the requests
      * @throws GfeException
      */
-    private ServerResponse<?> extractParmIds(List<LockTableRequest> ltr,
-            List<ParmID> parmIds, String siteID) {
+    private ServerResponse<?> extractParmIds(List<LockTableRequest> ltrList,
+            List<ParmID> parmIds, String siteID) throws GfeException {
 
         ServerResponse<?> sr = new ServerResponse<String>();
         // process each request
-        for (int i = 0; i < ltr.size(); i++) {
-            if (ltr.get(i).isParmRequest()) {
+        for (LockTableRequest ltr : ltrList) {
+            if (ltr.isParmRequest()) {
+                ParmID parmId = ltr.getParmId();
                 // append parm (if not already in the list)
-                if (!parmIds.contains(ltr.get(i).getParmId())) {
-                    parmIds.add(ltr.get(i).getParmId());
+                if (!parmIds.contains(parmId)) {
+                    parmIds.add(GridParmManager.getDb(parmId.getDbId())
+                            .getCachedParmID(parmId));
                 }
-            } else if (ltr.get(i).isDatabaseRequest()) {
+            } else if (ltr.isDatabaseRequest()) {
                 // get all the parmIds for that databaseId
-
-                List<ParmID> pids = GridParmManager.getParmList(
-                        ltr.get(i).getDbId()).getPayload();
+                List<ParmID> pids = GridParmManager.getParmList(ltr.getDbId())
+                        .getPayload();
                 for (ParmID id : pids) {
                     if (!parmIds.contains(id)) {
                         parmIds.add(id);
@@ -696,7 +715,6 @@ public class LockManager {
                         }
                     }
                 }
-                // this only needs to be done once
             }
         }
         return sr;
@@ -719,23 +737,24 @@ public class LockManager {
      * @throws GfeException
      *             If errors occur
      */
-    private ServerResponse<?> extractParmIdsFromLockReq(List<LockRequest> lr,
-            List<ParmID> parmIds, String siteID) {
+    private ServerResponse<?> extractParmIdsFromLockReq(List<LockRequest> lrs,
+            List<ParmID> parmIds, String siteID) throws GfeException {
         ServerResponse<?> sr = new ServerResponse<String>();
 
         // process each request
-        for (int i = 0; i < lr.size(); i++) {
-            if (lr.get(i).isParmRequest()) {
+        for (LockRequest lr : lrs) {
+            if (lr.isParmRequest()) {
+                ParmID parmId = lr.getParmId();
                 // append parm (if not already in the list)
-                if (!parmIds.contains(lr.get(i).getParmId())) {
-                    parmIds.add(lr.get(i).getParmId());
+                if (!parmIds.contains(parmId)) {
+                    parmIds.add(GridParmManager.getDb(parmId.getDbId())
+                            .getCachedParmID(parmId));
                 }
-            } else if (lr.get(i).isDatabaseRequest()) {
-                List<ParmID> pids = new ArrayList<ParmID>();
+            } else if (lr.isDatabaseRequest()) {
                 ServerResponse<List<ParmID>> ssr = GridParmManager
-                        .getParmList(lr.get(i).getDbId());
+                        .getParmList(lr.getDbId());
                 sr.addMessages(ssr);
-                pids = ssr.getPayload();
+                List<ParmID> pids = ssr.getPayload();
                 if (!sr.isOkay()) {
                     return sr;
                 }
@@ -755,11 +774,10 @@ public class LockManager {
                     return sr;
                 }
                 for (int j = 0; j < dbids.size(); j++) {
-                    List<ParmID> pids = new ArrayList<ParmID>();
                     ServerResponse<List<ParmID>> ssr1 = GridParmManager
                             .getParmList(dbids.get(j));
                     sr.addMessages(ssr1);
-                    pids = ssr1.getPayload();
+                    List<ParmID> pids = ssr1.getPayload();
                     if (!sr.isOkay()) {
                         return sr;
                     }
@@ -769,7 +787,6 @@ public class LockManager {
                         }
                     }
                 }
-                // this only needs to be done once
             }
         }
 
@@ -786,17 +803,16 @@ public class LockManager {
      */
     private ServerResponse<?> officialDbLockCheck(final List<LockRequest> req,
             String siteID) {
-
         ServerResponse<?> sr = new ServerResponse<String>();
+        Set<DatabaseID> official = null;
 
-        List<DatabaseID> official = new ArrayList<DatabaseID>();
-        List<DatabaseID> officialDbs = null;
         try {
-            officialDbs = IFPServerConfigManager.getServerConfig(siteID)
-                    .getOfficialDatabases();
+            List<DatabaseID> officialDbs = IFPServerConfigManager
+                    .getServerConfig(siteID).getOfficialDatabases();
+            official = new HashSet<DatabaseID>(officialDbs.size(), 1);
 
-            for (int j = 0; j < officialDbs.size(); j++) {
-                official.add(officialDbs.get(j).stripModelTime());
+            for (DatabaseID offDbId : officialDbs) {
+                official.add(offDbId.stripModelTime());
             }
         } catch (GfeException e) {
             sr.addMessage("Unable to get official databases from IFPServer config");
@@ -806,15 +822,15 @@ public class LockManager {
         }
 
         // process each request - extracting out the databse id w/o modeltime
-        for (int i = 0; i < req.size(); i++) {
+        for (LockRequest lr : req) {
             DatabaseID requestDB = null;
-            if (req.get(i).isDatabaseRequest()) {
-                requestDB = req.get(i).getDbId();
-            } else if (req.get(i).isParmRequest()) {
-                requestDB = req.get(i).getParmId().getDbId();
+            if (lr.isDatabaseRequest()) {
+                requestDB = lr.getDbId();
+            } else if (lr.isParmRequest()) {
+                requestDB = lr.getParmId().getDbId();
             } else {
                 sr.addMessage("Invalid Lock Request (not parm or databse type): "
-                        + req.get(i));
+                        + lr);
                 return sr;
             }
             requestDB = requestDB.stripModelTime();
@@ -822,7 +838,7 @@ public class LockManager {
             // look for a match
             if (official.contains(requestDB)) {
                 sr.addMessage("Request locks on official database not permitted.  Request="
-                        + req.get(i));
+                        + lr);
                 return sr;
             }
 
