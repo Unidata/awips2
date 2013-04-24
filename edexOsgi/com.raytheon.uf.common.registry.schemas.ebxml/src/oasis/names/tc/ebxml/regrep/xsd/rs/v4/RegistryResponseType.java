@@ -94,7 +94,7 @@ public class RegistryResponseType extends ExtensibleObjectType {
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
-    protected String status;
+    protected RegistryResponseStatus status;
 
     @XmlAttribute
     @XmlSchemaType(name = "anyURI")
@@ -180,10 +180,10 @@ public class RegistryResponseType extends ExtensibleObjectType {
     /**
      * Gets the value of the status property.
      * 
-     * @return possible object is {@link String }
+     * @return possible object is {@link RegistryResponseStatus }
      * 
      */
-    public String getStatus() {
+    public RegistryResponseStatus getStatus() {
         return status;
     }
 
@@ -191,10 +191,10 @@ public class RegistryResponseType extends ExtensibleObjectType {
      * Sets the value of the status property.
      * 
      * @param value
-     *            allowed object is {@link String }
+     *            allowed object is {@link RegistryResponseStatus }
      * 
      */
-    public void setStatus(String value) {
+    public void setStatus(RegistryResponseStatus value) {
         this.status = value;
     }
 
