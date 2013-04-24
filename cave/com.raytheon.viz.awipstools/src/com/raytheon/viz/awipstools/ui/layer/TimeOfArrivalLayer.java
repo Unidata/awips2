@@ -71,7 +71,6 @@ import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
 import com.raytheon.viz.awipstools.ui.dialog.TimeOfArrivalDialog;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.ui.VizWorkbenchManager;
-import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -99,7 +98,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                     left-to-right if there is not enough room
  *                                     for the text to the left of the point.
  * 15Mar2013	15693	mgamazaychikov Added magnification capability.
- *  Apr 12 2013 DR 16032   D. Friedman Make it work in multiple panes.
  * </pre>
  * 
  * @author mschenke
@@ -258,6 +256,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         this.pdProps.setMaxDisplayWidth(TimeOfArrivalLayer.PD_MAX_WIDTH);
 
         timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        reopenDialog();
         leadState = new LeadTimeState();
 
         shell = VizWorkbenchManager.getInstance().getCurrentWindow().getShell();
@@ -273,7 +272,6 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         if (container != null) {
             container.registerMouseHandler(adapter);
         }
-        reopenDialog();
     }
 
     @Override
@@ -567,20 +565,20 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
      */
     public void reopenDialog() {
         // Open the dialog
-        VizApp.runAsync(new Runnable() {
+        if (dialog == null || dialog.getShell() == null
+                || dialog.getShell().isDisposed()) {
+            VizApp.runAsync(new Runnable() {
 
-            @Override
-            public void run() {
-                if (dialog == null || dialog.getShell() == null
-                        || dialog.getShell().isDisposed()) {
+                @Override
+                public void run() {
                     dialog = new TimeOfArrivalDialog(VizWorkbenchManager
                             .getInstance().getCurrentWindow().getShell(),
                             TimeOfArrivalLayer.this);
                     dialog.setBlockOnOpen(false);
                     dialog.open();
                 }
-            }
-        });
+            });
+        }
     }
 
     private void updateLeadTimeState() {
@@ -679,10 +677,5 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             }
         }
         leadState.changed = false;
-    }
-
-    public void makeEditableAndReopenDialog() {
-        EditableManager.makeEditable(this, true);
-        reopenDialog();
     }
 }

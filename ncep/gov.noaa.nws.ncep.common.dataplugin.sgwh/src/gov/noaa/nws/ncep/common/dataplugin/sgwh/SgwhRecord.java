@@ -11,6 +11,7 @@
  * Aug17 2011	   		    Chin Chen	Initial Coding (Following BufrsgwhRecord to refactor for 
  * 										saving data to HDF5)
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
  * </pre>
  * 
  * @author chin chen
@@ -1701,18 +1702,6 @@ public class SgwhRecord extends PluginDataObject implements IDecoderGettable,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 		// TODO Auto-generated method stub
 
 	}

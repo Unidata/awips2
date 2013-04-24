@@ -34,6 +34,8 @@ from collections import OrderedDict
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/01/08                      njensen       Initial Creation.
+#    03/12/13         1759         dgilling      Extend Java List types handled
+#                                                by javaObjToPyVal().
 #    
 # 
 #
@@ -133,7 +135,7 @@ def javaObjToPyVal(obj, customConverter=None):
         retVal = obj.longValue()
     elif objtype == "java.lang.Boolean":
         retVal = bool(obj.booleanValue())
-    elif objtype == "java.util.ArrayList":
+    elif objtype in ["java.util.ArrayList", "java.util.Arrays$ArrayList"]:
         retVal = []
         size = obj.size()
         for i in range(size):

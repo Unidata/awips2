@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Dec 6, 2012  1353       rferrel     Make dialog non-blocking.
+ * Apr 01, 2013  1830      mpduff      Don't allow base files.
  * 
  * </pre>
  * 
@@ -318,8 +319,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         IPathManager pm = PathManagerFactory.getPathManager();
 
         ArrayList<LocalizationContext> contextList = new ArrayList<LocalizationContext>();
-        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE));
         contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.SITE));
         contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
