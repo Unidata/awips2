@@ -41,7 +41,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -314,9 +313,9 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
         Field currentField = null;
         String currentUriToken = null;
-        for (int i = 0; i < dataURIFields.length; i++) {
+        for (Field dataURIField : dataURIFields) {
             currentUriToken = uriTokens[uriIndex];
-            currentField = dataURIFields[i];
+            currentField = dataURIField;
 
             if (currentField.getAnnotation(DataURI.class).embedded()) {
                 // The current dataURI token refers to a field in an embedded
@@ -484,7 +483,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         return dataTime;
     }
 
-    @Index(name = "dataURI_idx")
     public String getDataURI() {
         return this.dataURI;
     }
@@ -493,7 +491,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         return SerializationUtil.marshalToXml(this);
     }
 
-    @Index(name = "insertTimeIndex")
     public Calendar getInsertTime() {
         return insertTime;
     }
