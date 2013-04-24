@@ -56,7 +56,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                     duration is 0, use TimeUtil constants.
  * 04/04/2013     #1787    randerso    Removed a bunch of isValid checks to the logic
  *                                     works as intended by the original A1 implementation.
- * 
+ * 04/24/2013   1949       rjpeter     Updated clone to deep copy by millis.
  * </pre>
  * 
  * <B>Original Documentation:</B>
@@ -260,10 +260,10 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
         if (days > 0) {
             sb.append(days + "d ");
         }
-        if (hours > 0 || min > 0 || sec > 0) {
+        if ((hours > 0) || (min > 0) || (sec > 0)) {
             sb.append(hours + "h ");
         }
-        if (min > 0 || sec > 0) {
+        if ((min > 0) || (sec > 0)) {
             sb.append(min + "m ");
         }
         if (sec > 0) {
@@ -340,7 +340,7 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof TimeRange)) {
+        if ((obj == null) || !(obj instanceof TimeRange)) {
             return false;
         }
 
@@ -368,8 +368,8 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
     public boolean contains(Date time) {
         if (getDuration() != 0) {
             // the end time is not part of the time range (hence the < operator)
-            return time.getTime() >= start.getTime()
-                    && time.getTime() < end.getTime();
+            return (time.getTime() >= start.getTime())
+                    && (time.getTime() < end.getTime());
         } else {
             // Special case for zero duration time range
             return time.equals(start);
@@ -416,8 +416,8 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
         } else if (timeRange.getDuration() == 0) {
             return contains(timeRange.getStart());
         } else {
-            return timeRange.start.compareTo(start) >= 0
-                    && timeRange.end.compareTo(end) <= 0;
+            return (timeRange.start.compareTo(start) >= 0)
+                    && (timeRange.end.compareTo(end) <= 0);
         }
     }
 
@@ -545,7 +545,7 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     @Override
     public TimeRange clone() {
-        return new TimeRange(this.start, this.end);
+        return new TimeRange(this.start.getTime(), this.end.getTime());
     }
 
     @Override
