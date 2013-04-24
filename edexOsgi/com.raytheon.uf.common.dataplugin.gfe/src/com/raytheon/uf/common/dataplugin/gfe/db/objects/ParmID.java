@@ -20,19 +20,33 @@
 
 package com.raytheon.uf.common.dataplugin.gfe.db.objects;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.ParmIDAdapter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 
@@ -47,66 +61,92 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
  * 5/8/12       #600       dgilling    Implement clone().
- * 01/18/13    #1504       randerso    Removed setters since class should be immutable
- * 
+ * 01/18/13     1504       randerso    Removed setters since class should be immutable
+ * 03/28/13     1949       rjpeter     Normalized database structure.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlJavaTypeAdapter(value = ParmIDAdapter.class)
+@Entity
+@Table(name = "gfe_parmid", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "dbId_id", "parmName", "parmLevel" }) })
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = ParmIDAdapter.class)
-public class ParmID implements Comparable<ParmID>, Serializable,
-        ISerializableObject, Cloneable {
+public class ParmID implements Comparable<ParmID> {
 
     private static final long serialVersionUID = 6801523496768037356L;
 
     private static final String DEFAULT_LEVEL = "SFC";
 
     private static final SimpleDateFormat MODEL_TIME_FORMAT;
+
     static {
         MODEL_TIME_FORMAT = new SimpleDateFormat("MMMddHH");
         MODEL_TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
+    /**
+     * Auto-generated surrogate key
+     */
+    @Id
+    @SequenceGenerator(name = "GFE_PARMID_GENERATOR", sequenceName = "gfe_parmid_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GFE_PARMID_GENERATOR")
+    private int id;
+
     /** The name of the parm (i.e. T for Temperature) */
+    @Column(length = 100)
+    @DataURI(position = 1)
     private String parmName;
 
     /** The level at which this parm applies */
+    @Column(length = 8)
+    @DataURI(position = 2)
     private String parmLevel;
 
     /** The database that this parm ID is associated with */
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @PrimaryKeyJoinColumn
+    @DataURI(position = 0, embedded = true)
     private DatabaseID dbId;
 
     /**
      * The parameter name/level information <br>
      * Example: T_SFC (Temperature parameter and surface level)
      */
+    @Transient
     private String compositeName;
 
     /** The parmID including the parameter, level and database ID */
+    @Transient
     private String shortParmId;
 
     /** A more extended version of the parameter ID */
+    @Transient
     private String parmId;
+
+    /**
+     * Used only for hibernate mappings to allow a cascade delete to all records
+     * when the databaseId is deleted
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parmId", cascade = { CascadeType.REMOVE })
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @SuppressWarnings("unused")
+    private Set<GFERecord> records;
+
+    /**
+     * Used only for hibernate mappings to allow a cascade delete to all locks
+     * when the databaseId is deleted
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parmId", cascade = { CascadeType.REMOVE })
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @SuppressWarnings("unused")
+    private Set<Lock> locks;
 
     @Override
     public String toString() {
-        return this.parmId;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
-     */
-    @Override
-    public ParmID clone() throws CloneNotSupportedException {
-        return new ParmID(this.parmName, this.dbId.clone(), this.parmLevel);
+        return getParmId();
     }
 
     /**
@@ -120,7 +160,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
     }
 
     public ParmID() {
-
     }
 
     /**
@@ -132,11 +171,9 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      *            The model name
      */
     public ParmID(String parmName, String parmModel) {
-
         this.parmName = parmName;
         this.parmLevel = defaultLevel();
         this.dbId = new DatabaseID(parmModel);
-        encodeIdentifier();
     }
 
     /**
@@ -153,7 +190,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = level;
         this.dbId = new DatabaseID(parmModel);
-        encodeIdentifier();
     }
 
     /**
@@ -164,7 +200,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
     public ParmID(String parmIdentifier) {
         decodeIdentifier(parmIdentifier);
-        encodeIdentifier();
     }
 
     /**
@@ -179,7 +214,6 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = defaultLevel();
         this.dbId = dbId;
-        encodeIdentifier();
     }
 
     /**
@@ -196,7 +230,15 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         this.parmName = parmName;
         this.parmLevel = level;
         this.dbId = dbId;
-        encodeIdentifier();
+    }
+
+    /**
+     * Returns the id field, auto-generated surrogate key.
+     * 
+     * @return
+     */
+    public int getId() {
+        return id;
     }
 
     /**
@@ -211,7 +253,7 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         if (DEFAULT_LEVEL.equals(parmLevel)) {
             return parmName;
         }
-        return this.compositeName;
+        return getCompositeName();
     }
 
     /**
@@ -251,18 +293,20 @@ public class ParmID implements Comparable<ParmID>, Serializable,
             if (DEFAULT_LEVEL.equals(this.parmLevel)) {
                 expressionName = parmName;
             } else {
-                expressionName = compositeName;
+                expressionName = getCompositeName();
             }
         } else {
-            expressionName = compositeName + "_" + dbID.getSiteId() + "_"
+            expressionName = getCompositeName() + "_" + dbID.getSiteId() + "_"
                     + dbID.getDbType() + "_" + dbID.getModelName();
             if (includeTime) {
                 Date modelDate = dbID.getModelDate();
                 if (modelDate == null) {
                     expressionName += "_00000000_0000";
                 } else {
-                    expressionName += "_"
-                            + MODEL_TIME_FORMAT.format(dbID.getModelDate());
+                    synchronized (MODEL_TIME_FORMAT) {
+                        expressionName += "_"
+                                + MODEL_TIME_FORMAT.format(dbID.getModelDate());
+                    }
                 }
             }
         }
@@ -279,11 +323,12 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
 
     public boolean isValid() {
-        if (parmName == null || parmLevel == null || dbId == null) {
+        if ((parmName == null) || (parmLevel == null) || (dbId == null)) {
             return false;
         }
 
-        if (parmName.length() < 1 || parmLevel.length() < 1 || !dbId.isValid()) {
+        if ((parmName.length() < 1) || (parmLevel.length() < 1)
+                || !dbId.isValid()) {
             return false;
         }
 
@@ -358,6 +403,10 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
 
     public String getCompositeName() {
+        if (compositeName == null) {
+            encodeIdentifier();
+        }
+
         return compositeName;
     }
 
@@ -369,6 +418,7 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         if (shortParmId == null) {
             encodeIdentifier();
         }
+
         return shortParmId;
     }
 
@@ -377,6 +427,10 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
 
     public String getParmId() {
+        if (parmId == null) {
+            encodeIdentifier();
+        }
+
         return parmId;
     }
 
@@ -387,7 +441,7 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      */
     @Override
     public int hashCode() {
-        return parmId.hashCode();
+        return getParmId().hashCode();
     }
 
     /*
@@ -463,8 +517,8 @@ public class ParmID implements Comparable<ParmID>, Serializable,
      * @param parmID
      * @return
      */
-    public static String shortSerializer(ParmID parmID) {
-        return parmID.toString();
+    public static String shortSerializer(ParmID localParmID) {
+        return localParmID.toString();
     }
 
     /**
