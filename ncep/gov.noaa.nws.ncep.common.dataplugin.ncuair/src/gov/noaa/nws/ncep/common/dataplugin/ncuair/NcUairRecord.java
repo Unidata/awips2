@@ -13,6 +13,7 @@
  * 											remove xml serialization as well
  * 10/2011                      S. Gurung   Replace slat/slon/selv with location of type SurfaceObsLocation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/2013      1293            bkowal      Removed references to hdffileid. 
  * 
  * </pre>
  * 
@@ -517,11 +518,6 @@ public class NcUairRecord extends PersistablePluginDataObject implements
 	@Override
 	public void setPointDataView(PointDataView pointDataView) {
 		this.pointDataView = pointDataView;
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		return null;
 	}
 
 	@Override

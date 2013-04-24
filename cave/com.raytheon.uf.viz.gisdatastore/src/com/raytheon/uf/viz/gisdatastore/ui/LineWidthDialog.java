@@ -21,8 +21,6 @@ package com.raytheon.uf.viz.gisdatastore.ui;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
@@ -47,7 +45,6 @@ import org.eclipse.swt.widgets.TableItem;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 27, 2012            randerso     Initial creation
- * Apr 9, 2013      #1860  randerso    Fix image disposed issued on Windows
  * 
  * </pre>
  * 
@@ -91,7 +88,7 @@ public class LineWidthDialog extends Dialog {
 
         for (int w = min; w <= max; w++) {
             TableItem item = new TableItem(table, SWT.NONE);
-            final Image image = new Image(d, 128, 10);
+            Image image = new Image(d, 128, 10);
             Rectangle bounds = image.getBounds();
             GC gc = new GC(image);
             gc.fillRectangle(bounds);
@@ -101,13 +98,7 @@ public class LineWidthDialog extends Dialog {
 
             gc.dispose();
             item.setImage(image);
-            item.addDisposeListener(new DisposeListener() {
-
-                @Override
-                public void widgetDisposed(DisposeEvent e) {
-                    image.dispose();
-                }
-            });
+            image.dispose();
             item.setData(w);
 
             if (w == this.width) {
