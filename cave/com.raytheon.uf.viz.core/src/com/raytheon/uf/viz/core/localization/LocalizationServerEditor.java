@@ -83,7 +83,7 @@ public class LocalizationServerEditor extends StringFieldEditor implements
     @Override
     protected boolean doCheckState() {
         if (httpCheck) {
-            ConnectivityManager.checkServer(this.getTextControl().getText(),
+            ConnectivityManager.checkHttpServer(this.getTextControl().getText(),
                     this);
         } else {
             ConnectivityManager.checkJmsServer(this.getTextControl().getText(),

@@ -90,6 +90,7 @@ public:
 				gettimeofday(&tv, NULL);
 				long long current = (((long long) tv.tv_sec) * 1000000
 						+ ((long long) tv.tv_usec)) / 1000;
+				message.getDeliveryProperties().setDeliveryMode(PERSISTENT);
 				message.setData(fileLocation);
 				message.getHeaders().setString("header", fileHeader);
 				message.getHeaders().setInt64("enqueueTime", current);

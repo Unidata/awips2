@@ -41,6 +41,7 @@ import java.util.Date;
  *                                      Removed createHDF5Record method in favor 
  *                                      of the more general populateDataStore method.
  * 02/06/09     1990        bphillip    Moved populateDataStore method to plugin specific dao implementations
+ * 04/08/13     1293        bkowal      Removed references to hdffileid.
  * </pre>
  * 
  */
@@ -60,19 +61,6 @@ public interface IPersistable {
      *            The persistence time to be used.
      */
     public void setPersistenceTime(Date persistTime);
-
-    /**
-     * Return the hdf5 file id
-     * 
-     * @return the hdf5 file id
-     */
-    public Integer getHdfFileId();
-
-    /**
-     * @param hdfFileId
-     *            the hdfFileId to set
-     */
-    public void setHdfFileId(Integer hdfFileId);
 
     /**
      * Gets the HDF5 file path provider used by this object

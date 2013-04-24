@@ -101,7 +101,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  */
 public class TafSiteComp {
     /**
-     * 
+     * Grid monitor class name.
      */
     public static final String GRID_MONITOR_CLASS = "GridMonitor";
 
