@@ -10,6 +10,8 @@ Require-Bundle: org.apache.http,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.comm.stream
+Eclipse-BuddyPolicy: ext, registered, global

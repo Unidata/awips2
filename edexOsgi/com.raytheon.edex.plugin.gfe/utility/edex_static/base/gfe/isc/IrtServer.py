@@ -20,7 +20,7 @@
 
 import cPickle
 
-import LogStream, siteConfig, tempfile, os, sys, JUtil, subprocess, traceback
+import LogStream, tempfile, os, sys, JUtil, subprocess, traceback
 import time, copy, string, iscUtil
 
 from com.raytheon.edex.plugin.gfe.isc import IRTManager
@@ -39,6 +39,9 @@ from com.raytheon.edex.plugin.gfe.isc import IRTManager
 #    01/25/13        1447          dgilling       Implement routines needed by
 #                                                 iscDataRec for VTEC table 
 #                                                 sharing.
+#    03/13/13        1759          dgilling       Move siteConfig imports into
+#                                                 functions where module is used
+#                                                 to interact better with IscScript.
 #    
 # 
 #
@@ -64,7 +67,9 @@ def logDebug(*msg):
 # called by iscDataRec when another site has requested the active table
 # returns the active table, filtered, pickled.
 def getVTECActiveTable(siteAndFilterInfo, xmlPacket):
+    import siteConfig
     import VTECPartners
+    
     if not VTECPartners.VTEC_RESPOND_TO_TABLE_REQUESTS:
         return   #respond is disabled
 
@@ -154,6 +159,8 @@ def getVTECActiveTable(siteAndFilterInfo, xmlPacket):
 #when we receive a requested active table from another site, this function
 #is called from iscDataRec
 def putVTECActiveTable(strTable, xmlPacket):
+    import siteConfig
+    
     #write the xmlpacket to a temporary file, if one was passed
     inDir = os.path.join(siteConfig.GFESUITE_PRDDIR, "ATBL")
     if xmlPacket is not None:
@@ -351,6 +358,7 @@ def serviceISCRequest(xmlRequest):
     # We take this information, convert it into a different format,
     # and queue the request via the IFPServer to the SendISCMgr
     import IrtAccess
+    import siteConfig
     import xml
     from xml.etree import ElementTree
     from xml.etree.ElementTree import Element, SubElement

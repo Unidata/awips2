@@ -27,6 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.bind.JAXB;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -50,6 +54,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.aviation.climatology.ClimateMenuDlg;
 import com.raytheon.viz.aviation.model.ForecastModel;
@@ -95,6 +100,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      file exists.
  * 10/02/2012   1229        rferrel     Made dialog non-blocking.
  * 10/09/2012   1229        rferrel     Changes for non-blocking TafMonitorDlg.
+ * 04/10/2013   1735        rferrel     Changes for taf monitor speed up.
  * 
  * </pre>
  * 
@@ -186,11 +192,21 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         ForecastModel.getInstance().setBackupRestartUtility(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
@@ -211,6 +227,13 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -271,6 +294,25 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         createLabel();
         createList();
         createComposite();
+        initAcarsSounding();
+    }
+
+    /**
+     * To speed up the display of the monitor this method starts up the Data
+     * Cube for the acarssounding inventory which can take over a second for the
+     * initial retrieval. This may cause blocking issues that slows the display
+     * of the monitor.
+     */
+    private void initAcarsSounding() {
+        Job job = new Job("AviationDialog") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                DataCubeContainer.getInventory("acarssounding");
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
     /**
