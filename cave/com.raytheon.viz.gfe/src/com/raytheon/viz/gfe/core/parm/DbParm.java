@@ -82,7 +82,7 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 01/21/12     #1504      randerso    Cleaned up old debug logging to improve performance
  * 02/12/13     #1597      randerso    Made save threshold a configurable value. Added detailed
  *                                     logging for save performance
- * 
+ * 04/23/13     #1949      rjpeter     Added logging of number of records.
  * </pre>
  * 
  * @author chammack
@@ -120,7 +120,8 @@ public class DbParm extends Parm {
             }
         }
 
-        if (this.dataManager != null && this.dataManager.getClient() != null) {
+        if ((this.dataManager != null)
+                && (this.dataManager.getClient() != null)) {
             this.lockTable = this.dataManager.getClient().getLockTable(
                     this.getParmID());
         }
@@ -222,7 +223,7 @@ public class DbParm extends Parm {
                             .getGridHistory(getParmID(), gridTimes);
                     histories = (Map<TimeRange, List<GridDataHistory>>) sr
                             .getPayload();
-                    if (!sr.isOkay() || histories.size() != gridTimes.size()) {
+                    if (!sr.isOkay() || (histories.size() != gridTimes.size())) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to retrieve gridded data [history] for "
                                         + getParmID() + sr);
@@ -456,13 +457,13 @@ public class DbParm extends Parm {
             IGridData[] grids = this.getGridInventory(tr);
 
             // if only a single unmodified grid exactly matches the time range
-            if (grids.length == 1 && !this.isLocked(tr)
+            if ((grids.length == 1) && !this.isLocked(tr)
                     && grids[0].getGridTime().equals(tr)) {
                 List<GridDataHistory> newHist = histories.get(tr);
                 GridDataHistory[] currentHist = grids[0].getHistory();
 
                 // if current history exists and has a matching update time
-                if (currentHist != null
+                if ((currentHist != null)
                         && currentHist[0].getUpdateTime().equals(
                                 newHist.get(0).getUpdateTime())) {
                     // update last sent time
@@ -495,7 +496,7 @@ public class DbParm extends Parm {
         }
         timer.stop();
         perfLog.logDuration("Server lock change for " + this.getParmID() + " "
-                + lreq.size() + " time rangess", timer.getElapsedTime());
+                + lreq.size() + " time ranges", timer.getElapsedTime());
 
         timer.reset();
         timer.start();
@@ -565,7 +566,9 @@ public class DbParm extends Parm {
         int gridCount = 0;
         int totalGrids = 0;
         long totalSize = 0;
+        int totalRecords = 0;
         long size = 0;
+        int recordCount = 0;
         for (int i = 0; i < trs.size(); i++) {
             // ensure we have a lock for the time period
             TimeRange lockTime = new TimeRange();
@@ -629,6 +632,7 @@ public class DbParm extends Parm {
                     }
 
                     totalGrids += gridCount;
+                    totalRecords += records.size();
                     totalSize += size;
 
                     pendingUnlocks.clear();
@@ -641,9 +645,10 @@ public class DbParm extends Parm {
             }
 
             // if any grids or any time not saved
-            if (size > 0 || saveTime.getDuration() > 0) {
+            if ((size > 0) || (saveTime.getDuration() > 0)) {
                 sgr.add(new SaveGridRequest(getParmID(), saveTime, records,
                         dataManager.clientISCSendStatus()));
+                recordCount = records.size();
             }
 
             // if we haven't had a failure yet add to pending locks
@@ -666,6 +671,7 @@ public class DbParm extends Parm {
 
             totalSize += size;
             totalGrids += gridCount;
+            totalRecords += recordCount;
             pendingUnlocks.clear();
         }
 
@@ -685,8 +691,8 @@ public class DbParm extends Parm {
 
         timer.stop();
         perfLog.logDuration("Save Grids " + getParmID().getParmName() + ": "
-                + totalGrids + " grids (" + totalSize + " bytes) ",
-                timer.getElapsedTime());
+                + totalRecords + " records, " + totalGrids + " grids ("
+                + totalSize + " bytes) ", timer.getElapsedTime());
 
         return success;
     }
