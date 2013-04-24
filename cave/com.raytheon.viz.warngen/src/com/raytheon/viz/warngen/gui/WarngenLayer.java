@@ -167,6 +167,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/03/2013   1858       jsanchez    Handled creating follow up warnings when created before 0z but issued after 0z.
  * 03/13/2013   DR 15942   Qinglu Lin  Added code to prevent small area from being toggled on that
  *                                     does not meet inclusionPercent/inclusionArea criteria.
+ * 04/10/2013   DR 16044   D. Friedman Fix NPE in getAllFipsInArea.
  * </pre>
  * 
  * @author mschenke
@@ -2600,7 +2601,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Set<String> fipsIds = new HashSet<String>();
         for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
             Geometry area = warningArea.getGeometryN(n);
-            fipsIds.add(getFips(((CountyUserData) area.getUserData()).entry));
+            fipsIds.add(getFips(area));
         }
         return fipsIds;
     }
