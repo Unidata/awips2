@@ -28,40 +28,35 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
-import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * Record implementation for GFE plugin.
+ * Record implementation for GFE plugin. Record is essentially read only and
+ * should never need to be updated. GridDataHistory referenced by record may
+ * update.
  * 
  * <pre>
  * 
@@ -70,37 +65,30 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * --------            ---  randerso    Initial creation    
- * 20070914            379  jkorman     Added populateDataStore() and
+ * 20070914     379         jkorman     Added populateDataStore() and
  *                                      getPersistenceTime() from new IPersistable
- * 20071129            472  jkorman     Added IDecoderGettable interface.  
- * 06/17/08    #940         bphillip    Implemented GFE Locking
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime 
- * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
+ * 20071129     472         jkorman     Added IDecoderGettable interface.  
+ * 06/17/08     940         bphillip    Implemented GFE Locking
+ * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime 
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * Apr 23, 2013 1949        rjpeter     Normalized database structure.
  * </pre>
  * 
  * @author randerso
  * @version 1
  */
-/**
- * 
- */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gfeseq")
-@Table(name = "gfe", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "gfe", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "parmId_id", "rangestart", "rangeend", "refTime", "forecasttime" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "gfe",
-		indexes = {
-				@Index(name = "gfe_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+@org.hibernate.annotations.Table(appliesTo = "gfe", indexes = { @Index(name = "gfe_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
+@BatchSize(size = 500)
 public class GFERecord extends PluginDataObject {
 
     private static final long serialVersionUID = 1L;
@@ -110,59 +98,41 @@ public class GFERecord extends PluginDataObject {
         NONE, SCALAR, VECTOR, WEATHER, DISCRETE
     };
 
-    /** The name of the parm parameter */
-    @Column(length = 100)
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String parmName;
-
-    /** The name of the parm level */
-    @Column(length = 8)
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String parmLevel;
-
     /**
      * The parmID of the associated parm.<br>
-     * This field is constructed when the getter is called.<br>
-     * It is constructed from the parmName, parmLevel, and the databaseID
      */
-    @DataURI(position = 1)
-    @Column
-    @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.ParmIdType")
-    @XmlElement
+    @DataURI(position = 1, embedded = true)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @PrimaryKeyJoinColumn
     @DynamicSerializeElement
     private ParmID parmId;
-
-    /**
-     * The database associated with this record
-     */
-    @DataURI(position = 2)
-    @Column
-    @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.DatabaseIdType")
-    @XmlElement
-    @DynamicSerializeElement
-    private DatabaseID dbId;
 
     /** The grid parm information associated with this parameter */
     @Transient
     private GridParmInfo gridInfo;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    @JoinColumn(name = "parent", nullable = false)
-    @Index(name = "gfe_gridhistory_history_idx")
-    @OrderBy("key")
-    @XmlElement
+    /**
+     * GridHistories for this record. Only cascade on remove. Insert/Update
+     * managed independently.
+     */
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parent")
+    @BatchSize(size = 500)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OrderBy("id")
     @DynamicSerializeElement
-    private List<GridDataHistory> gridHistory = new ArrayList<GridDataHistory>(
-            0);
+    private List<GridDataHistory> gridHistory = null;
+
+    /**
+     * Histories to remove when updated
+     */
+    @Transient
+    private List<GridDataHistory> oldHistory = null;
 
     /**
      * Creates a new empty GFERecord. Must use setters to fill in private fields
      * or the object is invalid.
      */
     public GFERecord() {
-
     }
 
     /**
@@ -180,13 +150,14 @@ public class GFERecord extends PluginDataObject {
         cal.setTime(timeRange.getStart());
         this.dataTime = new DataTime(cal, timeRange);
         this.parmId = parmId;
-        this.parmName = parmId.getParmName();
-        this.parmLevel = parmId.getParmLevel();
-        this.dbId = parmId.getDbId();
     }
 
     public void addHistoryEntry(GridDataHistory historyEntry) {
+        if (gridHistory == null) {
+            gridHistory = new ArrayList<GridDataHistory>(1);
+        }
         gridHistory.add(historyEntry);
+        historyEntry.setParent(this);
     }
 
     /**
@@ -226,27 +197,15 @@ public class GFERecord extends PluginDataObject {
     }
 
     public DatabaseID getDbId() {
-        return dbId;
-    }
-
-    public void setDbId(DatabaseID dbId) {
-        this.dbId = dbId;
+        return parmId.getDbId();
     }
 
     public String getParmName() {
-        return parmName;
-    }
-
-    public void setParmName(String parmName) {
-        this.parmName = parmName;
+        return parmId.getParmName();
     }
 
     public String getParmLevel() {
-        return parmLevel;
-    }
-
-    public void setParmLevel(String parmLevel) {
-        this.parmLevel = parmLevel;
+        return parmId.getParmLevel();
     }
 
     public GridParmInfo getGridInfo() {
@@ -261,14 +220,14 @@ public class GFERecord extends PluginDataObject {
         return this.dataTime.getValidPeriod();
     }
 
-    public String getGridHistoryStrings() {
-        return GfeUtil.getHistoryStrings(this.gridHistory);
-    }
-
     /**
      * @return the gridHistory
      */
     public List<GridDataHistory> getGridHistory() {
+        if (gridHistory == null) {
+            gridHistory = new ArrayList<GridDataHistory>(0);
+        }
+
         return gridHistory;
     }
 
@@ -278,6 +237,41 @@ public class GFERecord extends PluginDataObject {
      */
     public void setGridHistory(List<GridDataHistory> gridHistory) {
         this.gridHistory = gridHistory;
+        if (gridHistory != null) {
+            for (GridDataHistory hist : gridHistory) {
+                hist.setParent(this);
+            }
+        }
     }
 
+    /**
+     * @return the oldHistory
+     */
+    public List<GridDataHistory> getOldHistory() {
+        return oldHistory;
+    }
+
+    public void consolidateHistory(List<GridDataHistory> newHistory) {
+        for (int i = 0; i < newHistory.size(); i++) {
+            if (i < gridHistory.size()) {
+                gridHistory.get(i).replaceValues(newHistory.get(i));
+            } else {
+                GridDataHistory hist = newHistory.get(i);
+                hist.setParent(this);
+                gridHistory.add(hist);
+            }
+        }
+
+        if (gridHistory.size() > newHistory.size()) {
+            if (oldHistory == null) {
+                oldHistory = new ArrayList<GridDataHistory>(
+                        gridHistory.subList(newHistory.size(),
+                                gridHistory.size()));
+            }
+
+            for (int i = newHistory.size(); i < gridHistory.size(); i++) {
+                gridHistory.remove(i);
+            }
+        }
+    }
 }
