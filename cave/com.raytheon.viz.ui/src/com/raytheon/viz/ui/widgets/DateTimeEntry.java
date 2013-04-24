@@ -27,6 +27,8 @@ import java.util.TimeZone;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -50,7 +52,8 @@ import com.raytheon.viz.ui.dialogs.AwipsCalendar;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 6, 2012            randerso     Initial creation
+ * Dec 6, 2012             randerso    Initial creation
+ * Apr 9, 2013      #1860  randerso    Fix image disposed issued on Windows
  * 
  * </pre>
  * 
@@ -110,9 +113,15 @@ public class DateTimeEntry extends Composite {
         Button button = new Button(this, SWT.PUSH);
         ImageDescriptor imageDesc = UiPlugin
                 .getImageDescriptor("icons/calendar.gif");
-        Image image = imageDesc.createImage();
+        final Image image = imageDesc.createImage();
         button.setImage(image);
-        image.dispose();
+        button.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                image.dispose();
+            }
+        });
 
         button.addSelectionListener(new SelectionAdapter() {
             @Override
