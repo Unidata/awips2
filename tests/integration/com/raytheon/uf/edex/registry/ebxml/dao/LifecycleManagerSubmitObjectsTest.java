@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -35,9 +36,13 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationTypeFixture;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.InvalidRequestExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectExistsExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
@@ -49,7 +54,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Sets;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 
 /**
@@ -63,6 +68,7 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2013 1693       djohnson     Initial creation
  * Apr 18, 2013 1693       djohnson     More tests verifying spec compliance..
+ * Apr 23, 2013 1910       djohnson     More checkReference tests.
  * 
  * </pre>
  * 
@@ -71,10 +77,11 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        "/spring/ebxml.xml", "/spring/ebxml-xacml.xml",
-        "/spring/ebxml-webservices.xml", "/spring/ebxml-impl.xml",
-        "/spring/ebxml-querytypes.xml", "/spring/ebxml-registry-dao.xml",
-        "/ebxml/unit-test-ebxml-beans.xml", "/unit-test-localization-beans.xml" })
+        SpringFiles.EBXML_XML, SpringFiles.EBXML_IMPL_XML,
+        SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
+        SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
+        SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
+        SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
 
@@ -318,6 +325,37 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
     }
 
     /**
+     * Attribute checkReferences - true - Specifies that a server MUST check
+     * submitted objects and make sure that all references via reference
+     * attributes and slots to other RegistryObjects are resolvable. If a
+     * reference does not resolve then the server MUST return
+     * UnresolvedReferenceException
+     */
+    @Test
+    public void checkReferencesTrueWithNonExistantLocalStaticFails()
+            throws MsgRegistryException {
+
+        SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE,
+                Mode.CREATE_OR_VERSION);
+        submitObjectsRequest.setCheckReferences(true);
+
+        final OrganizationType organizationType = OrganizationTypeFixture.INSTANCE
+                .get();
+        // Local static reference as taken from ebXML 4.0 ebRIM specification
+        // section 2.9.3.3
+        organizationType.setPrimaryContact("urn:acme:person:Danyal");
+
+        final List<RegistryObjectType> registryObjects = submitObjectsRequest
+                .getRegistryObjects();
+        registryObjects.clear();
+        registryObjects.add(organizationType);
+
+        expectFaultException(submitObjectsRequest,
+                UnresolvedReferenceExceptionType.class);
+    }
+
+    /**
      * id - MUST be specified by client or else server MUST return
      * InvalidRequestException
      */
@@ -456,5 +494,28 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
         submitObjectsRequest.getRegistryObjects().iterator().next().setId(null);
         expectFaultException(submitObjectsRequest,
                 ObjectExistsExceptionType.class);
+    }
+
+    /**
+     * Expect the specified exception to be wrapped in a
+     * {@link MsgRegistryException}.
+     * 
+     * @param <T>
+     *            the expected exception type
+     * @param submitObjectsRequest
+     *            the request
+     * @param expectedException
+     *            the expected exception class
+     */
+    private <T extends RegistryExceptionType> void expectFaultException(
+            final SubmitObjectsRequest submitObjectsRequest,
+            Class<T> expectedException) {
+        expectFaultException(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                lifecycleManager.submitObjects(submitObjectsRequest);
+                return null;
+            }
+        }, expectedException);
     }
 }
