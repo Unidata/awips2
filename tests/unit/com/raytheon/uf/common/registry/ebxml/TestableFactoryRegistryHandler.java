@@ -27,12 +27,12 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.UpdateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 
 /**
  * Extends {@link FactoryRegistryHandler} to allow it to be testable.
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 20, 2012 0743       djohnson     Initial creation
+ * Apr 23, 2013 1910       djohnson     RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
