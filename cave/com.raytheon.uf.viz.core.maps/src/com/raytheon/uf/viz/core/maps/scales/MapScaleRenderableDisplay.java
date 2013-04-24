@@ -29,12 +29,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.actions.LoadSerializedXml;
 
 /**
@@ -109,7 +111,13 @@ public class MapScaleRenderableDisplay extends PlainMapRenderableDisplay
                             VizConstants.SCALE_ID));
         }
         if (scale != null) {
-            descriptor.getResourceList().clear();
+            ResourceList list = descriptor.getResourceList();
+            for (ResourcePair rp : list) {
+                if (rp.getProperties().isSystemResource() == false) {
+                    // Keep system resources
+                    list.remove(rp);
+                }
+            }
             loadScale(scale);
         }
     }
