@@ -261,8 +261,7 @@ class Procedure (SmartScript.SmartScript):
 
                 if checkOnly:
                     self.createGrid(MODEL, "MaxLessThanMin", "SCALAR", mask.astype('float32'),
-                                    maxTR, minAllowedValue=0.0, maxAllowedValue= 1.0,
-                                    units="", descriptiveName="")
+                                    maxTR, minAllowedValue=0.0, maxAllowedValue= 1.0)
                 else:   # force the change
                     if maxTR in maxTLocks:
                         msg = "Can't modify MaxT grid at " + str(maxTR) + \
