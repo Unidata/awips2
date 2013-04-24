@@ -24,13 +24,6 @@
    </requires>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.npp.crimss"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.dataplugin.npp.viirs"
          download-size="0"
          install-size="0"
@@ -45,14 +38,35 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.plugin.npp.crimss"
+         id="com.raytheon.uf.edex.plugin.npp.viirs"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.plugin.npp.viirs"
+         id="com.raytheon.uf.common.dataplugin.npp.sounding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.npp.sounding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.npp.nucaps"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.npp.nucaps"
          download-size="0"
          install-size="0"
          version="0.0.0"
