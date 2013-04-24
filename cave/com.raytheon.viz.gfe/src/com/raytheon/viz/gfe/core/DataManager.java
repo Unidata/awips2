@@ -74,6 +74,7 @@ import com.raytheon.viz.gfe.smarttool.EditActionProcessor;
 import com.raytheon.viz.gfe.smarttool.GridCycler;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolFactory;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolUIController;
+import com.raytheon.viz.gfe.textformatter.TextProductManager;
 
 /**
  * DataManager is the central singleton in GFE upon which other managers are
@@ -93,6 +94,8 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolUIController;
  * 02/15/2013    1507      dgilling    Force procedureInterface and
  *                                     smartToolInterface to be 
  *                                     initialized by constructor.
+ * 04/24/2013    1936      dgilling    Move initialization of TextProductMgr
+ *                                     to GFE startup.
  * 
  * </pre>
  * 
@@ -158,6 +161,8 @@ public class DataManager {
     private SmartToolUIController smartToolInterface;
 
     private ProcedureUIController procedureInterface;
+
+    private TextProductManager textProductMgr;
 
     private IToolController itoolInterface;
 
@@ -507,6 +512,8 @@ public class DataManager {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error initializing smart tool interface", e);
                 }
+
+                DataManager.this.textProductMgr = new TextProductManager();
             }
         });
     }
@@ -683,6 +690,10 @@ public class DataManager {
 
     public DataMgrInitStatus getInitStatus() {
         return initStatus;
+    }
+
+    public TextProductManager getTextProductMgr() {
+        return textProductMgr;
     }
 
 }
