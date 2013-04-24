@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
@@ -41,10 +40,7 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationSchemeType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalIdentifierType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalLinkType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
@@ -53,9 +49,12 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.InvalidRequestExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectExistsExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
+import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +65,6 @@ import com.raytheon.uf.common.registry.constants.DeletionScope;
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
@@ -103,6 +101,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802       bphillip    Changed how auditable events are handled
  * Apr 18, 2013 1693       djohnson    Changes to conform to Ebxml 4.0 SubmitObjects protocol.
+ * Apr 24, 2013 1910       djohnson    Use validation framework to check references.
+ * 
  * 
  * </pre>
  * 
@@ -113,7 +113,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 public class LifecycleManagerImpl implements LifecycleManager {
 
     /** The logger */
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(LifecycleManagerImpl.class);
 
     @Resource
@@ -123,7 +123,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
     private QueryManagerImpl queryManager;
 
     /** The validator */
-    @SuppressWarnings("unused")
     private ValidatorImpl validator;
 
     /** The cataloger */
@@ -323,16 +322,39 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (checkReferences) {
             statusHandler
                     .info("Client has selected to check object references before submitting objects.");
-            // check the references. A MsgRegistryException error will be thrown
-            // if references fail to resolve
-            for (RegistryObjectType obj : objs) {
-                resolveReferences(obj, obj.getId());
+            ValidateObjectsRequest validateObjectsRequest = new ValidateObjectsRequest();
+            validateObjectsRequest.setOriginalObjects(request.getRegistryObjectList());
+
+            // Uses the validation service directly, not going through the
+            // web-service client interface
+            final ValidateObjectsResponse validationResponse = validator
+                    .serverValidateObjects(validateObjectsRequest,
+                            EbxmlObjectUtil.spiObjectFactory
+                                    .createValidateObjectsResponse());
+
+            final List<RegistryExceptionType> validationExceptions = validationResponse.getException();
+            final List<RegistryExceptionType> responseExceptions = response.getException();
+
+            if (!validationExceptions.isEmpty()) {
+                // Only care about unresolved references
+                for (RegistryExceptionType exception : validationExceptions) {
+                    if (exception instanceof UnresolvedReferenceExceptionType) {
+                        responseExceptions.add(exception);
+                    }
+                }
+            }
+
+            if (!responseExceptions.isEmpty()) {
+                throw EbxmlExceptionUtil
+                        .createMsgRegistryException(
+                                "Unresolved references occurred with the submitted registry objects",
+                                responseExceptions.get(0), statusHandler);
+
             }
         }
         if (submitMode.equals(Mode.CREATE_OR_REPLACE)
                 || submitMode.equals(Mode.CREATE_OR_VERSION)
                 || submitMode.equals(Mode.CREATE_ONLY)) {
-            // TODO: Add object validation
             processSubmit(request, response);
         } else {
             throw EbxmlExceptionUtil
@@ -368,64 +390,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
 
         return response;
-    }
-
-    /**
-     * Checks the specified object to ensure that all references via references
-     * attributes and slots to other RegistryObjects are resolvable
-     * 
-     * @param object
-     *            The object to check
-     * @param originalId
-     *            A record of the original object's id as this id will not need
-     *            to pass the check since it is the id of the object being
-     *            submitted
-     * @throws MsgRegistryException
-     *             If errors occur while querying the registry, or there is an
-     *             unresolvable property
-     */
-    private void resolveReferences(RegistryObjectType object, String originalId)
-            throws MsgRegistryException {
-        statusHandler.info("Checking references for object with id ["
-                + object.getId() + "]...");
-        Set<ClassificationType> classifications = object.getClassification();
-        if (classifications != null) {
-            for (ClassificationType classification : classifications) {
-                resolveReferences(classification, originalId);
-            }
-        }
-        Set<ExternalIdentifierType> externIdents = object
-                .getExternalIdentifier();
-        if (externIdents != null) {
-            for (ExternalIdentifierType externIdent : externIdents) {
-                resolveReferences(externIdent, originalId);
-            }
-        }
-        Set<ExternalLinkType> externLinks = object.getExternalLink();
-        if (externLinks != null) {
-            for (ExternalLinkType externLink : externLinks) {
-                resolveReferences(externLink, originalId);
-            }
-        }
-
-        if (!object.getId().equals(originalId)) {
-            RegistryObjectType classResult = registryObjectDao.getById(object
-                    .getId());
-
-            if (classResult == null) {
-                throw EbxmlExceptionUtil.createMsgRegistryException(
-                        "Unresolved reference found",
-                        UnresolvedReferenceExceptionType.class, "",
-                        "Unresolved reference found",
-                        "The registry does not contain a reference to type ["
-                                + object.getClass().getCanonicalName()
-                                + "] with id [" + object.getId() + "]",
-                        ErrorSeverity.ERROR, statusHandler);
-            }
-        }
-        statusHandler
-                .info("References successfully resolve for object with id ["
-                        + object.getId() + "]");
     }
 
     /**
@@ -637,7 +601,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 break;
             }
 
-            // TODO: Implement proper cataloging of objects accorind to EbXML
+            // TODO: Implement proper cataloging of objects according to EbXML
             // spec
         }
 

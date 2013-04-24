@@ -95,6 +95,24 @@ public class RegistryObjectListType implements Serializable {
     @DynamicSerializeElement
     protected List<RegistryObjectType> registryObject;
 
+    /**
+     * Constructor.
+     */
+    public RegistryObjectListType() {
+
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param registryObjects
+     *            the collection of registry objects
+     */
+    public RegistryObjectListType(List<RegistryObjectType> registryObjects) {
+        // Defensive list copy, not using the original list
+        this.registryObject = new ArrayList<RegistryObjectType>(registryObjects);
+    }
+
     public Integer getKey() {
         return key;
     }
