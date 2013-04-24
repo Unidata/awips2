@@ -231,6 +231,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-localapps-environment"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-notification"
    buildRPM "awips2-pypies"
