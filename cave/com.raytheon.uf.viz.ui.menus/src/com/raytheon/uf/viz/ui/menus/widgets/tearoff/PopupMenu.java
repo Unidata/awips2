@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
 
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -41,6 +42,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 5, 2011            mnash     Initial creation
+ * Apr 10, 2013 DR 15185   D. Friedman Do not assume there is an active editor.
  * 
  * </pre>
  * 
@@ -88,7 +90,10 @@ public class PopupMenu {
             mItem.addListener(SWT.Selection, new Listener() {
                 @Override
                 public void handleEvent(Event event) {
-                    ((AbstractEditor) EditorUtil.getActiveEditor()).refresh();
+                    IEditorPart editor = EditorUtil.getActiveEditor();
+                    if (editor instanceof AbstractEditor) {
+                        ((AbstractEditor) editor).refresh();
+                    }
                 }
             });
 
