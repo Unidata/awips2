@@ -121,4 +121,11 @@
             type="java.lang.Object">
       </propertyTester>
    </extension>
+   <extension
+   		point="com.raytheon.uf.viz.core.units">
+   		<units
+           class="com.raytheon.viz.core.topo.TopoUnitRegistrar"
+           name="Topo Units">
+   		</units>
+   </extension>
 </plugin>
