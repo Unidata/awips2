@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -80,13 +80,13 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 /**
  * Implements common parm manager functionality shared between concrete and mock
  * implementations.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/26/2008              chammack    Split non-mock code from MockParmManager
- * 02/23/2012    #346      dgilling    Dispose of VCParms from this class's
+ * 02/23/2012    #346      dgilling    Dispose of VCParms from this class's 
  *                                     dispose method.
  * 02/23/2012    #346      dgilling    Ensure all Parms are disposed when calling
  *                                     dispose method.
@@ -101,11 +101,9 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * 01/22/2013    #1515     dgilling    Increase default size of VCModule thread pool
  *                                     to decrease UI hang-ups waiting for results.
  * 03/20/2013    #1774     randerso    Code cleanup
- * 04/11/2013    16028     ryu         Fixed setParmsRemoveISCDeps() to not remove
- *                                     modified parms.
- *
+ * 
  * </pre>
- *
+ * 
  * @author chammack
  * @version 1.0
  */
@@ -421,7 +419,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#dispose()
      */
     @Override
@@ -493,14 +491,14 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Return the DataManager
-     *
+     * 
      * @return the dataManager
      */
     protected abstract DataManager getDataManager();
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#finalize()
      */
     @Override
@@ -511,7 +509,7 @@ public abstract class AbstractParmManager implements IParmManager {
     /**
      * Recalculate the system time range using the total time span of all
      * displayed parms and their locks
-     *
+     * 
      * @return the system time range
      */
     protected TimeRange recalcSystemTimeRange() {
@@ -573,7 +571,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.parm.IParmManager#getLockedParms()
      */
     @Override
@@ -595,7 +593,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.parm.IParmManager#getParm(com.raytheon.viz.
      * gfe.core.parm.ParmID)
@@ -617,7 +615,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.parm.IParmManager#getUndisplayedParms()
      */
     @Override
@@ -632,7 +630,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#getSelectedParms()
      */
     @Override
@@ -655,7 +653,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#getModifiedParms()
      */
     @Override
@@ -678,7 +676,7 @@ public abstract class AbstractParmManager implements IParmManager {
     /**
      * Returns a matching parm * (creates if necessary) for the given expression
      * and database id.
-     *
+     * 
      * @param dbid
      *            the database
      * @param exprName
@@ -812,7 +810,7 @@ public abstract class AbstractParmManager implements IParmManager {
      * Helper function for <code>setParms</code>. Takes the toBeLoaded and
      * removeParms lists, calculates non-visible ISC dependencies, and then
      * returns the updated lists through the calling arguments.
-     *
+     * 
      * @param toBeLoaded
      * @param removeParms
      */
@@ -824,8 +822,7 @@ public abstract class AbstractParmManager implements IParmManager {
             List<ParmID> depParms = dependentParms(removeList.get(i), true);
             for (ParmID pid : depParms) {
                 int index = pivdIndex(toBeLoaded, pid);
-                if ((index != -1) && (!toBeLoaded.get(index).isVisible())
-                        && (!getParm(toBeLoaded.get(index).getParmID()).isModified())) {
+                if ((index != -1) && (!toBeLoaded.get(index).isVisible())) {
                     removeList.add(toBeLoaded.get(index).getParmID());
                     toBeLoaded.remove(index);
                 }
@@ -843,7 +840,7 @@ public abstract class AbstractParmManager implements IParmManager {
      * Helper function for <code>setParms</code>. Takes the toBeLoaded,
      * addedParms, removeParms, and modParms lists, calculates dependencies, and
      * then returns the updated lists through the calling arguments.
-     *
+     * 
      * @param toBeLoaded
      * @param addParms
      * @param removeParms
@@ -938,7 +935,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Actual parm creation mechanism
-     *
+     * 
      * @param pid
      *            parm id
      * @param mutableParm
@@ -951,20 +948,20 @@ public abstract class AbstractParmManager implements IParmManager {
             boolean mutableParm, boolean displayable) throws GFEServerException;
 
     /**
-     *
+     * 
      * Command to create/remove parms based on ParmID. For additions, the Map
      * contains the ParmID and visibility.
-     *
+     * 
      * implementation ---------------------------------------------------------
      * Note: addParms, removeParms is modified within this routine, thus they
      * are not passed in as const references.
-     *
+     * 
      * Routine converts the ParmIDs into Parms*. Special cases for VCParms,
      * since they need to load other parms possibly. Thus the input add and
      * remove may not result in the same parms being created and destroyed.
      * ------
      * ---------------------------------------------------------------------
-     *
+     * 
      * @param addParms
      * @param removeParms
      */
@@ -1087,7 +1084,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Command to create/remove parms based on ParmID.
-     *
+     * 
      * @param addParms
      *            the parms to add
      * @param removeParms
@@ -1101,7 +1098,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#getParmInExpr(java.lang.String,
      * boolean, com.raytheon.viz.gfe.core.parm.Parm)
@@ -1153,7 +1150,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.parm.IParmManager#getDisplayedParms()
      */
     @Override
@@ -1174,7 +1171,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#setDisplayedParms(com.raytheon
      * .edex.plugin.gfe.db.objects.ParmID[])
@@ -1278,7 +1275,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener#parmIDChanged(com
      * .raytheon.viz.gfe.core.parm.Parm,
@@ -1294,7 +1291,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener#
      * parmInventoryChanged(com.raytheon.viz.gfe.core.parm.Parm,
      * com.raytheon.uf.common.time.TimeRange)
@@ -1318,7 +1315,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.msgs.ILockTableChangedListener#lockTableChanged
      * (com.raytheon.viz.gfe.core.parm.Parm,
@@ -1336,7 +1333,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#addDisplayedParmListChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener)
@@ -1349,7 +1346,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#removeDisplayedParmListChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener)
@@ -1362,7 +1359,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#addParmListChangedListener(com
      * .raytheon.viz.gfe.core.msgs.IParmListChangedListener)
@@ -1375,7 +1372,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#removeParmListChangedListener(
      * com.raytheon.viz.gfe.core.msgs.IParmListChangedListener)
@@ -1387,7 +1384,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#addParmIDChangedListener(com.raytheon
      * .viz.gfe.core.msgs.IParmIDChangedListener)
@@ -1399,7 +1396,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#removeParmIDChangedListener(com
      * .raytheon.viz.gfe.core.msgs.IParmIDChangedListener)
@@ -1411,7 +1408,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#addSystemTimeRangeChangedListener
      * (com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener)
@@ -1424,7 +1421,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#removeSystemTimeRangeChangedListener
      * (com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener)
@@ -1437,7 +1434,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#addAvailableSourcesChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener)
@@ -1450,7 +1447,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#addNewModelAvailableListener(com
      * .raytheon.viz.gfe.core.msgs.INewModelAvailableListener)
@@ -1462,7 +1459,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#removeAvailableSourcesChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener)
@@ -1475,7 +1472,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#removeNewModelAvailableListener
      * (com.raytheon.viz.gfe.core.msgs.INewModelAvailableListener)
@@ -1488,7 +1485,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Fire the displayed parm list changed listener
-     *
+     * 
      * @param parms
      *            complete list of parms
      * @param adds
@@ -1515,7 +1512,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Fire the ParmID changed event.
-     *
+     * 
      * @param parm
      *            The parm which had its ParmID change
      * @param newParmId
@@ -1538,7 +1535,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Fire the parm list changed listener
-     *
+     * 
      * @param parms
      *            complete list of parms
      * @param adds
@@ -1564,7 +1561,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Fire the system time range changed listener
-     *
+     * 
      * @param systemTimeRange
      *            new system time range
      */
@@ -1586,7 +1583,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Fire the available sources changed event.
-     *
+     * 
      * @param inventory
      *            The complete inventory
      * @param deletions
@@ -1615,7 +1612,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Fire the new model available event.
-     *
+     * 
      * @param additions
      *            The DatabaseID of the newly-available model
      */
@@ -1636,7 +1633,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Return a list of ParmIDs for a list of Parms
-     *
+     * 
      * @param parms
      * @return
      */
@@ -1652,7 +1649,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#getParms(com.raytheon.uf.common
      * .dataplugin.gfe.db.objects.ParmID[])
@@ -1670,7 +1667,7 @@ public abstract class AbstractParmManager implements IParmManager {
     /**
      * Return a list of Parms for a list of ParmIDs with nulls in place of parms
      * that are not loaded.
-     *
+     * 
      * @param parmIDs
      * @return
      */
@@ -1688,7 +1685,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#getAllAvailableParms()
      */
     @Override
@@ -1704,7 +1701,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#setParmDisplayable(com.raytheon
      * .viz.gfe.core.parm.Parm, boolean)
@@ -1730,7 +1727,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#deallocateUnusedGrids(int)
      */
     @Override
@@ -1797,7 +1794,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#getProductDB()
      */
     @Override
@@ -1808,7 +1805,7 @@ public abstract class AbstractParmManager implements IParmManager {
     /**
      * Filters out a complete list of databaseIDs to those only allowed by the
      * dbCatagories in the gfeConfig. Sorts the final list.
-     *
+     * 
      * @param dbIds
      *            The list of DatabaseIDs to filter
      * @return A sorted list of DatabseIDs that are GRID types and match the
@@ -1835,7 +1832,7 @@ public abstract class AbstractParmManager implements IParmManager {
      * mutable model, plus all other databases identified by the database
      * categories specified in the gfeConfig. The databases are filtered by
      * projection also, since the GFE can only handle one projection.
-     *
+     * 
      * @return A filtered list of available databases.
      */
     private List<DatabaseID> getDatabaseInventory() {
@@ -1855,7 +1852,7 @@ public abstract class AbstractParmManager implements IParmManager {
      * This function is called when the list of available database has changed.
      * The list of available parms is updated based on the list of additions and
      * deletions.
-     *
+     * 
      * @param deletions
      *            The items being removed from the inventory
      * @param additions
@@ -1889,7 +1886,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IParmManager#updateModel(com.raytheon.uf.common
      * .dataplugin.gfe.db.objects.DatabaseID)
@@ -1999,7 +1996,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IParmManager#deleteTemporaryParms()
      */
     @Override
@@ -2072,7 +2069,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     /**
      * Returns the Virtual Parm index into vcModules for the given ParmID.
-     *
+     * 
      * @param pid
      *            ParmID to search for.
      * @return The index of the ParmID if it is in vcModules. Else, -1.

@@ -2,8 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="backport-util-concurrent-2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="qpid-client-0.7.jar" sourcepath="qpid-client-0.7-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="qpid-common-0.7.jar" sourcepath="qpid-common-0.7-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="qpid-client-0.18.jar" sourcepath="qpid-client-0.18-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="qpid-common-0.18.jar" sourcepath="qpid-common-0.18-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
