@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribPathProvider;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
 import gov.noaa.nws.ncep.edex.common.dao.NcepDefaultPluginDao;
 
@@ -38,7 +37,6 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -53,8 +51,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.hdf5.HDF5PluginFilenameFilter;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
@@ -70,6 +66,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 4/7/09       1994        bphillip    Initial Creation
  * 12/16/10				    mli			extend NcepDefaultPluginDao to enable purge
  * 01/14/13     1469        bkowal      Removed the hdf5 data directory.
+ * 04/08/13     1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -403,7 +400,6 @@ public class NcgribDao extends NcepDefaultPluginDao {
             throws PluginException {
         List<StorageException> exceptions = new ArrayList<StorageException>();
         IPersistable persistable = (IPersistable) pdo;
-        persistable.setHdfFileId(EDEXUtil.getServerId());
 
         // get the directory
         String directory = pdo.getPluginName() + File.separator

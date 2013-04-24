@@ -37,7 +37,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  **/
 
 /**
- * TODO Add Description
+ * Repacks all point data hdf5 files.
  * 
  * <pre>
  * 
@@ -45,9 +45,9 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 1, 2011            njensen     Initial creation
- * Jan 14, 2013 1469      bkowal      Removed the hdf5 data directory
- * 
+ * Nov 1, 2011             njensen     Initial creation
+ * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory
+ * Mar 21, 2013 1814       rjpeter     Fixed logging of exception.
  * </pre>
  * 
  * @author njensen
@@ -79,7 +79,8 @@ public class DataStoreRepacker {
             try {
                 ds.repack(compression);
             } catch (StorageException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         // TODO change log statement if more than pointdata is hooked into this
