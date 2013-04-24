@@ -42,7 +42,7 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -71,6 +71,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 01/27/13     1478        D. Hladky   OUN memory help
  * Feb 28, 2013  1729      dhladky    Supressed un-necessary debug loggers
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 8, 2013   1293      bkowal     Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -93,7 +94,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
+public class FFMPRecord extends PersistablePluginDataObject
         implements IPersistable {
 
     private static final long serialVersionUID = 76774564365671L;

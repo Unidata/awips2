@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDescriptor;
 import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDisplay;
-import com.raytheon.uf.viz.npp.crimss.map.CrimssMapResourceData;
+import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
@@ -229,7 +229,10 @@ public class CrimssDataDefinition
         for (int i = 0; i < selection.length; i++) {
             if (order[i].equals(POINT)) {
                 if (selection[i].equals(MAP_RESOURCE)) {
-                    resourceData = new CrimssMapResourceData();
+                    NPPSoundingMapResourceData nsmrd = new NPPSoundingMapResourceData();
+                    nsmrd.setNsharpResourceData(CrimssNSharpResourceData.class);
+                    nsmrd.setResourceName("CrIMSS");
+                    resourceData = nsmrd;
                 }
             }
         }
