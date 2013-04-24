@@ -167,10 +167,14 @@ public class MapScales implements ISerializableObject {
         return instance;
     }
 
-    public static void loadScales(IWorkbenchWindow window) throws VizException {
+    public static void loadScales(IWorkbenchWindow window, MapScale... scales)
+            throws VizException {
+        if (scales == null || scales.length == 0) {
+            scales = getInstance().getScales();
+        }
         Procedure procedure = new Procedure();
         List<Bundle> bundles = new ArrayList<Bundle>();
-        for (MapScale scale : MapScales.getInstance().getScales()) {
+        for (MapScale scale : scales) {
             String editorId = null;
             for (PartId partId : scale.getPartIds()) {
                 if (partId.isView() == false) {
