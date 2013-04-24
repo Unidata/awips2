@@ -27,17 +27,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
-import org.springframework.dao.DataAccessException;
-
-import com.raytheon.edex.plugin.gfe.cache.ifpparms.IFPParmIdCache;
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.exception.UnknownParmIdException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -96,7 +96,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * GFE Grid database containing IFP Grid data.
+ * GFE Grid database containing IFP Grid data. All public methods that take a
+ * ParmID or DatabaseID must first look up the corresponding version from the
+ * database for use with calling private and dao methods.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -115,7 +117,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/07/13     #1737      njensen      Logged getGridData times
  * 03/15/13     #1795      njensen      Added updatePublishTime()
  * 03/20/13     #1774      randerso    Cleanup code to use proper constructors
- * 
+ * 04/08/13     #1949      rjpeter     Updated to work with normalized database.
  * </pre>
  * 
  * @author bphillip
@@ -150,16 +152,10 @@ public class IFPGridDatabase extends GridDatabase {
 
     private final Map<String, ParmStorageInfo> parmStorageInfo = new HashMap<String, ParmStorageInfo>();
 
+    private final Map<String, ParmID> parmIdMap = new HashMap<String, ParmID>();
+
     /** The grid configuration for this database */
     protected GridDbConfig gridConfig;
-
-    /**
-     * Creates a new IFPGridDatabase
-     */
-    public IFPGridDatabase() {
-        super();
-        valid = false;
-    }
 
     /**
      * Creates a new IFPGridDatabase
@@ -171,8 +167,7 @@ public class IFPGridDatabase extends GridDatabase {
         super(dbId);
         try {
             this.gridConfig = IFPServerConfigManager.getServerConfig(
-                    dbId.getSiteId()).gridDbConfig(
-                    new DatabaseID(dbId.toString().replace("D2D", "")));
+                    dbId.getSiteId()).gridDbConfig(dbId);
             if (this.gridConfig == null) {
                 throw new GfeException(
                         "Server config contains no gridDbConfig for database "
@@ -182,6 +177,20 @@ public class IFPGridDatabase extends GridDatabase {
         } catch (GfeException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to get gridConfig for: " + dbId, e);
+        }
+
+        if (valid) {
+            try {
+                // lookup actual database id row from database
+                // if it doesn't exist, it will be created at this point
+                GFEDao dao = new GFEDao();
+                this.dbId = dao.getDatabaseId(dbId);
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to look up database id for ifp database: "
+                                + dbId, e);
+                valid = false;
+            }
         }
     }
 
@@ -223,6 +232,22 @@ public class IFPGridDatabase extends GridDatabase {
         // accommodate changes
         changeParmCharacteristics(toBeChangedParms, parmInfoUser,
                 parmStorageInfoUser);
+
+        // verify current parms are still in database - can be removed once
+        // gridParamInfo is in database
+        try {
+            GFEDao dao = new GFEDao();
+            for (String item : parmInfo.keySet()) {
+                if (!parmIdMap.containsKey(item)) {
+                    String[] nameLevel = splitNameAndLevel(item);
+                    ParmID parmId = new ParmID(nameLevel[0], dbId, nameLevel[1]);
+                    parmIdMap.put(item, dao.getParmId(parmId));
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error getting db configuration for " + this.dbId, e);
+        }
     }
 
     private void addNewParms(List<String> newParms,
@@ -233,10 +258,15 @@ public class IFPGridDatabase extends GridDatabase {
         }
         statusHandler.handle(Priority.INFO, "Creating new weather elements...");
         try {
-            List<GridParmInfo> gpis = new ArrayList<GridParmInfo>();
-            List<ParmStorageInfo> psis = new ArrayList<ParmStorageInfo>();
-            for (int i = 0; i < newParms.size(); i++) {
-                String item = newParms.get(i);
+            List<GridParmInfo> gpis = new ArrayList<GridParmInfo>(
+                    newParms.size());
+            List<ParmStorageInfo> psis = new ArrayList<ParmStorageInfo>(
+                    newParms.size());
+            GFEDao dao = new GFEDao();
+            for (String item : newParms) {
+                String[] nameLevel = splitNameAndLevel(item);
+                ParmID parmId = new ParmID(nameLevel[0], dbId, nameLevel[1]);
+                parmIdMap.put(item, dao.getParmId(parmId));
                 statusHandler.handle(Priority.INFO, "Adding: " + item
                         + " to the " + this.dbId + " database.");
                 gpis.add(parmInfoUser.get(item));
@@ -395,33 +425,27 @@ public class IFPGridDatabase extends GridDatabase {
      */
     private void changeMinMaxValues(String compositeName, GridParmInfo newGPI,
             ParmStorageInfo newPSI) {
-        GFEDao dao = null;
         // Make sure the specified parm is of type Scalar or Vector
         GridType gridType = newGPI.getGridType();
         if (!(gridType.equals(GridType.SCALAR) || gridType
                 .equals(GridType.VECTOR))) {
             return;
         }
-        ParmID parmId = new ParmID(this.splitNameAndLevel(compositeName)[0],
-                this.dbId);
-        try {
-            dao = new GFEDao();
-        } catch (PluginException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error changing min/max values.  Unable to instantiate GFE dao",
-                            e);
-            return;
-        }
+
+        ParmID parmId = null;
         List<GFERecord> records = null;
+
         try {
+            parmId = getCachedParmID(compositeName);
+            GFEDao dao = new GFEDao();
             records = dao.queryByParmID(parmId);
-        } catch (DataAccessLayerException e) {
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error changing min/max values.  Error querying GFE table",
                     e);
             return;
         }
+
         List<GFERecord> updatedRecords = new ArrayList<GFERecord>();
         for (GFERecord rec : records) {
             switch (gridType) {
@@ -518,7 +542,7 @@ public class IFPGridDatabase extends GridDatabase {
             TimeConstraints timeConstraints) {
         List<String> puntList = new ArrayList<String>();
         puntList.add(compositeName);
-        this.removeOldParms(puntList);
+        this.removeOldParmData(puntList);
     }
 
     /**
@@ -558,34 +582,33 @@ public class IFPGridDatabase extends GridDatabase {
                     this.splitNameAndLevel(compositeName)[0], this.dbId);
             dao = new GFEDao();
             List<GFERecord> records = dao.queryByParmID(parmId);
-            List<GFERecord> updatedRecords = new ArrayList<GFERecord>();
-            for (GFERecord rec : records) {
-                switch (gridType) {
-                case SCALAR:
-                    FloatDataRecord scalarRecord = this.retrieveFromHDF5(
-                            parmId, rec.getTimeRange());
-                    float[] convertedScalarData = this.convertData(
-                            this.parmInfo.get(compositeName).getUnitObject(),
-                            gpi.getUnitObject(), scalarRecord.getFloatData());
-                    scalarRecord.setFloatData(convertedScalarData);
-                    rec.setMessageData(scalarRecord);
-                    updatedRecords.add(rec);
-                    break;
-                case VECTOR:
-                    FloatDataRecord[] vectorRecord = this
-                            .retrieveVectorFromHDF5(parmId, rec.getTimeRange());
-                    float[] convertedVectorData = this
-                            .convertData(this.parmInfo.get(compositeName)
-                                    .getUnitObject(), gpi.getUnitObject(),
-                                    vectorRecord[0].getFloatData());
-                    vectorRecord[0].setFloatData(convertedVectorData);
-                    rec.setMessageData(vectorRecord);
-                    updatedRecords.add(rec);
-                    break;
+            if (!records.isEmpty()) {
+                for (GFERecord rec : records) {
+                    switch (gridType) {
+                    case SCALAR:
+                        FloatDataRecord scalarRecord = this.retrieveFromHDF5(
+                                parmId, rec.getTimeRange());
+                        float[] convertedScalarData = this.convertData(
+                                this.parmInfo.get(compositeName)
+                                        .getUnitObject(), gpi.getUnitObject(),
+                                scalarRecord.getFloatData());
+                        scalarRecord.setFloatData(convertedScalarData);
+                        rec.setMessageData(scalarRecord);
+                        break;
+                    case VECTOR:
+                        FloatDataRecord[] vectorRecord = this
+                                .retrieveVectorFromHDF5(parmId,
+                                        rec.getTimeRange());
+                        float[] convertedVectorData = this.convertData(
+                                this.parmInfo.get(compositeName)
+                                        .getUnitObject(), gpi.getUnitObject(),
+                                vectorRecord[0].getFloatData());
+                        vectorRecord[0].setFloatData(convertedVectorData);
+                        rec.setMessageData(vectorRecord);
+                        break;
+                    }
                 }
-            }
-            if (!updatedRecords.isEmpty()) {
-                this.saveGridsToHdf5(updatedRecords);
+                this.saveGridsToHdf5(records);
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, "Error changing units", e);
@@ -642,7 +665,7 @@ public class IFPGridDatabase extends GridDatabase {
             ParmStorageInfo newPSI) {
         List<String> entries = new ArrayList<String>();
         entries.add(compositeName);
-        removeOldParms(entries);
+        removeOldParmData(entries);
         updateParmAttributes(compositeName, newGPI, newPSI);
         this.parmInfo.put(compositeName, newGPI);
         this.parmStorageInfo.put(compositeName, newPSI);
@@ -667,24 +690,54 @@ public class IFPGridDatabase extends GridDatabase {
     }
 
     /**
-     * Removes the data in the database and HDF5 repository for the list of
-     * parms
+     * Removes the parm in the database and HDF5 repository for the list of
+     * parms.
      * 
-     * @param puntList
+     * @param parms
      *            The list of parms to delete
      */
-    private void removeOldParms(List<String> puntList) {
+    private void removeOldParms(List<String> parms) {
 
         try {
             GFEDao dao = new GFEDao();
-            // Remove the grids
-            String item = null;
-            for (int i = 0; i < puntList.size(); i++) {
-                item = puntList.get(i);
+            for (String item : parms) {
                 statusHandler.handle(Priority.INFO, "Removing: " + item
                         + " from the " + this.dbId + " database.");
                 try {
-                    dao.removeOldParm(item, this.dbId);
+                    // Remove the entire data structure for the parm
+                    dao.removeParm(parmIdMap.get(item));
+                    parmIdMap.remove(item);
+                    this.parmInfo.remove(item);
+                    this.parmStorageInfo.remove(item);
+                } catch (DataAccessLayerException e) {
+                    statusHandler.handle(Priority.PROBLEM, "Error removing: "
+                            + item + " from the database");
+                }
+            }
+        } catch (PluginException e) {
+            statusHandler.handle(Priority.PROBLEM, "Error removing old parms!",
+                    e);
+        }
+
+    }
+
+    /**
+     * Removes the data in the database and HDF5 repository for the list of
+     * parms.
+     * 
+     * @param parms
+     *            The list of parms to delete
+     */
+    private void removeOldParmData(List<String> parms) {
+
+        try {
+            GFEDao dao = new GFEDao();
+            for (String item : parms) {
+                statusHandler.handle(Priority.INFO, "Removing: " + item
+                        + " from the " + this.dbId + " database.");
+                try {
+                    // Remove the grids for the parm
+                    dao.removeParmData(parmIdMap.get(item));
                     this.parmInfo.remove(item);
                     this.parmStorageInfo.remove(item);
                 } catch (DataAccessLayerException e) {
@@ -701,13 +754,8 @@ public class IFPGridDatabase extends GridDatabase {
 
     @Override
     public ServerResponse<List<ParmID>> getParmList() {
-        List<ParmID> parmIds = new ArrayList<ParmID>();
+        List<ParmID> parmIds = new ArrayList<ParmID>(parmIdMap.values());
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
-
-        // Construct ParmIDs for each entry in the grid info dictionary
-        if (gridConfig != null) {
-            parmIds = IFPParmIdCache.getInstance().getParmIds(gridConfig, dbId);
-        }
         sr.setPayload(parmIds);
         return sr;
     }
@@ -715,21 +763,36 @@ public class IFPGridDatabase extends GridDatabase {
     @Override
     public ServerResponse<List<TimeRange>> getGridInventory(ParmID id) {
 
-        List<TimeRange> trs = new ArrayList<TimeRange>();
         ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e1) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e1);
-        }
-        try {
-            trs.addAll(dao.getTimes(id));
-        } catch (DataAccessLayerException e) {
+            sr.setPayload(dao.getTimes(getCachedParmID(id)));
+        } catch (Exception e) {
+            sr.setPayload(new ArrayList<TimeRange>(0));
+            statusHandler.handle(Priority.PROBLEM, "Unable to get times for: "
+                    + id.getParmName() + "_" + id.getParmLevel(), e);
             sr.addMessage("Unable to get times for: " + id.getParmName() + "_"
                     + id.getParmLevel());
         }
-        sr.setPayload(trs);
+        return sr;
+    }
+
+    @Override
+    public ServerResponse<List<TimeRange>> getGridInventory(ParmID id,
+            TimeRange tr) {
+        ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
+        GFEDao dao = null;
+        try {
+            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
+            sr.setPayload(dao.getOverlappingTimes(getCachedParmID(id), tr));
+        } catch (Exception e) {
+            sr.setPayload(new ArrayList<TimeRange>(0));
+            statusHandler.handle(Priority.PROBLEM, "Unable to get times for: "
+                    + id.getParmName() + "_" + id.getParmLevel(), e);
+            sr.addMessage("Unable to get times for: " + id.getParmName() + "_"
+                    + id.getParmLevel());
+        }
         return sr;
     }
 
@@ -740,19 +803,18 @@ public class IFPGridDatabase extends GridDatabase {
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e1) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e1);
-        }
-
-        try {
             Map<TimeRange, List<GridDataHistory>> history = dao.getGridHistory(
-                    id, trs);
+                    getCachedParmID(id), trs);
             sr.setPayload(history);
         } catch (DataAccessLayerException e) {
             sr.addMessage("Error getting grid history for: " + id + "\n"
                     + e.getLocalizedMessage());
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting grid history for: " + id, e);
+        } catch (PluginException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e);
+        } catch (UnknownParmIdException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unknown parmId: " + id, e);
         }
 
         return sr;
@@ -786,8 +848,17 @@ public class IFPGridDatabase extends GridDatabase {
     public ServerResponse<?> saveGridData(ParmID id,
             TimeRange originalTimeRange, List<GFERecord> records,
             WsId requesterId) {
-        return this.saveGridData(id, originalTimeRange, records, requesterId,
-                null);
+        ServerResponse<?> sr = new ServerResponse<String>();
+        ParmID dbParmId = null;
+        try {
+            dbParmId = getCachedParmID(id);
+        } catch (UnknownParmIdException e) {
+            sr.addMessage(e.getLocalizedMessage());
+            return sr;
+        }
+
+        return this.saveGridData(dbParmId, originalTimeRange, records,
+                requesterId, null);
     }
 
     /**
@@ -805,115 +876,185 @@ public class IFPGridDatabase extends GridDatabase {
      * timeInfo array. Write the new timeInfo array to the database and return.
      * 
      * @param id
-     *            The parm ID to save
+     *            The database parm ID to save
      * @param originalTimeRange
      *            The time range to save
      * @param records
-     *            The records to save
+     *            The records to save, records are not db records at this point.
      * @param requesterId
      *            who requested to save the grids
      * @param skipDelete
      *            time ranges to not delete
      * @return The server response
      */
-    public ServerResponse<?> saveGridData(ParmID id,
-            TimeRange originalTimeRange, List<GFERecord> records,
+    private ServerResponse<?> saveGridData(ParmID id,
+            TimeRange originalTimeRange, List<GFERecord> recordsToSave,
             WsId requesterId, List<TimeRange> skipDelete) {
-
         ServerResponse<?> sr = dbIsValid();
 
         if (!sr.isOkay()) {
             return sr;
         }
 
-        sr.addMessages(validGridTimes(records, originalTimeRange));
-        if (!sr.isOkay()) {
+        long t0 = System.currentTimeMillis();
+        GFEDao dao = null;
+        Map<TimeRange, GFERecord> existingMap = null;
+
+        try {
+            dao = new GFEDao();
+
+            // Grab the current records for the general time range in question
+            existingMap = dao.getOverlappingRecords(id, originalTimeRange);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to lookup existing GFE Records", e);
+            sr.addMessage("Unable to lookup existing GFE Records.  Data not saved");
             return sr;
         }
 
-        long t0 = System.currentTimeMillis();
-        records = consolidateWithExisting(id, records);
-        // Figure out where the grids fit into the current inventory
-        List<TimeRange> timeInfo = getGridInventory(id).getPayload();
-        List<TimeRange> newTimes = new ArrayList<TimeRange>(records.size());
-        Map<TimeRange, List<GridDataHistory>> histories = new HashMap<TimeRange, List<GridDataHistory>>(
-                (int) (records.size() * 1.25) + 1);
-        for (GFERecord rec : records) {
-            newTimes.add(rec.getTimeRange());
-            histories.put(rec.getTimeRange(), rec.getGridHistory());
-        }
-
-        // don't delete if record already exists
-        timeInfo.removeAll(newTimes);
-        if (skipDelete != null) {
-            timeInfo.removeAll(skipDelete);
-        }
-        List<GFERecord> gridsToRemove = new ArrayList<GFERecord>();
-        for (TimeRange time : timeInfo) {
-            if (time.overlaps(originalTimeRange)) {
-                gridsToRemove.add(new GFERecord(id, time));
-            }
-        }
         long t1 = System.currentTimeMillis();
-        perfLog.logDuration("Consolidating grids", (t1 - t0));
+        perfLog.logDuration("Save: Retrieve overlapping grids", (t1 - t0));
 
-        if (!gridsToRemove.isEmpty()) {
-            for (GFERecord toRemove : gridsToRemove) {
-                removeFromDb(toRemove);
-                removeFromHDF5(toRemove);
+        // Determine records/times to delete
+        Set<TimeRange> timesToDelete = new HashSet<TimeRange>(
+                existingMap.keySet());
+        if (skipDelete != null) {
+            timesToDelete.removeAll(skipDelete);
+        }
+
+        for (GFERecord recToSave : recordsToSave) {
+            timesToDelete.remove(recToSave.getTimeRange());
+        }
+
+        if (!timesToDelete.isEmpty()) {
+            try {
+                List<GFERecord> recsToDelete = new ArrayList<GFERecord>(
+                        timesToDelete.size());
+                for (TimeRange timeToRemove : timesToDelete) {
+                    recsToDelete.add(existingMap.get(timeToRemove));
+                }
+
+                dao.deleteRecords(recsToDelete);
+                removeFromHDF5(id, new ArrayList<TimeRange>(timesToDelete));
+                existingMap.keySet().removeAll(timesToDelete);
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to delete existing GFE Records", e);
+                sr.addMessage("Unable to delete existing GFE Records.  Data not saved");
+                return sr;
             }
         }
+
         long t2 = System.currentTimeMillis();
-        perfLog.logDuration("Removing " + gridsToRemove.size()
+        perfLog.logDuration("Save: Removing " + timesToDelete.size()
                 + " existing grids", (t2 - t1));
+
+        // begin consolidation of new vs update
+        List<TimeRange> timesToBeSaved = new ArrayList<TimeRange>(
+                recordsToSave.size());
+        for (GFERecord recToSave : recordsToSave) {
+            timesToBeSaved.add(recToSave.getTimeRange());
+        }
+
+        // theoretically shouldn't be needed, but skipDelete list requires it
+        // since the delete list may have differed
+        existingMap.keySet().retainAll(timesToBeSaved);
+        List<GFERecord> newRecords = new ArrayList<GFERecord>(
+                timesToBeSaved.size() - existingMap.size());
+
+        // track merge with existing records or add to new list
+        for (GFERecord recToSave : recordsToSave) {
+            TimeRange tr = recToSave.getTimeRange();
+            GFERecord existing = existingMap.get(tr);
+            if (existing != null) {
+                existing.setMessageData(recToSave.getMessageData());
+                existing.consolidateHistory(recToSave.getGridHistory());
+            } else {
+                // set the parmId to the cache'd instance
+                recToSave.setParmId(id);
+                newRecords.add(recToSave);
+            }
+        }
 
         boolean hdf5SaveSuccess = false;
         List<GFERecord> failedGrids = Collections.emptyList();
+        Map<TimeRange, List<GridDataHistory>> histories = new HashMap<TimeRange, List<GridDataHistory>>(
+                recordsToSave.size(), 1);
 
         try {
-            failedGrids = saveGridsToHdf5(records);
+            List<GFERecord> recList = new ArrayList<GFERecord>(
+                    existingMap.size() + newRecords.size());
+            recList.addAll(newRecords);
+            recList.addAll(existingMap.values());
+            failedGrids = saveGridsToHdf5(recList);
             hdf5SaveSuccess = true;
         } catch (GfeException e) {
             statusHandler.handle(Priority.PROBLEM, "Error saving to hdf5", e);
             sr.addMessage("Error accessing HDF5.  Data not saved.");
         }
 
-        // Save off the individual failures (if any), and then save what we can
-        for (GFERecord gfeRecord : failedGrids) {
-            sr.addMessage("Failed to save grid to HDF5: " + gfeRecord);
-        }
         long t3 = System.currentTimeMillis();
-        perfLog.logDuration("Saving " + records.size() + " " + id.getParmName()
-                + " grids to hdf5", (t3 - t2));
+        perfLog.logDuration(
+                "Saving " + (existingMap.size() + newRecords.size()) + " "
+                        + id.getParmName() + " grids to hdf5", (t3 - t2));
 
         if (hdf5SaveSuccess) {
-            records.removeAll(failedGrids);
+            // Save off the individual failures (if any), and then save what we
+            // can
+            for (GFERecord gfeRecord : failedGrids) {
+                sr.addMessage("Failed to save grid to HDF5: " + gfeRecord);
+                GFERecord rec = existingMap.remove(gfeRecord.getTimeRange());
 
-            try {
-                failedGrids = saveGridToDb(records);
-                for (GFERecord rec : failedGrids) {
-                    // already logged at a lower level
-                    String msg = "Error saving grid " + rec.toString();
-                    sr.addMessage(msg);
-                    newTimes.remove(rec.getTimeRange());
-                    histories.remove(rec.getTimeRange());
-                    removeFromHDF5(rec);
+                if (rec == null) {
+                    newRecords.remove(gfeRecord);
                 }
-            } catch (DataAccessLayerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error persisting grids", e);
-                String msg = "General grid persistence error: "
-                        + e.getMessage();
-                sr.addMessage(msg);
+            }
+
+            if (!newRecords.isEmpty()) {
+                try {
+                    dao.save(newRecords);
+                    for (GFERecord rec : newRecords) {
+                        histories.put(rec.getTimeRange(), rec.getGridHistory());
+                    }
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error saving new grids to database", e);
+                    for (GFERecord rec : newRecords) {
+                        // already logged at a lower level
+                        String msg = "Error saving new grid to database: "
+                                + rec.toString();
+                        sr.addMessage(msg);
+                        removeFromHDF5(rec);
+                    }
+                }
+            }
+
+            if (!existingMap.isEmpty()) {
+                try {
+                    dao.update(existingMap.values());
+
+                    for (GFERecord rec : existingMap.values()) {
+                        histories.put(rec.getTimeRange(), rec.getGridHistory());
+                    }
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error updating existing grids in database", e);
+                    for (GFERecord rec : existingMap.values()) {
+                        // already logged at a lower level
+                        String msg = "Error updating grid in database: "
+                                + rec.toString();
+                        sr.addMessage(msg);
+                    }
+                }
             }
         }
         long t4 = System.currentTimeMillis();
-        perfLog.logDuration("Saving " + records.size() + " " + id.getParmName()
-                + " grids to database", (t4 - t3));
+        perfLog.logDuration(
+                "Saving " + (existingMap.size() + newRecords.size()) + " "
+                        + id.getParmName() + " grids to database", (t4 - t3));
 
         sr.addNotifications(new GridUpdateNotification(id, originalTimeRange,
                 histories, requesterId, id.getDbId().getSiteId()));
-
         return sr;
     }
 
@@ -922,85 +1063,26 @@ public class IFPGridDatabase extends GridDatabase {
             TimeRange originalTimeRange, List<IGridSlice> slices,
             WsId requesterId, List<TimeRange> skipDelete) {
         ServerResponse<?> sr = new ServerResponse<String>();
+        ParmID dbParmId = null;
+
+        try {
+            dbParmId = getCachedParmID(parmId);
+        } catch (UnknownParmIdException e) {
+            sr.addMessage(e.getLocalizedMessage());
+            return sr;
+        }
 
         List<GFERecord> records = new ArrayList<GFERecord>();
         for (IGridSlice slice : slices) {
-            GFERecord rec = new GFERecord(parmId, slice.getValidTime());
-            GridDataHistory[] newHistArray = new GridDataHistory[slice
-                    .getHistory().length];
-            for (int i = 0; i < slice.getHistory().length; i++) {
-                GridDataHistory newHist = null;
-                try {
-                    newHist = slice.getHistory()[i].clone();
-                    newHistArray[i] = newHist;
-                } catch (CloneNotSupportedException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to clone GridDataHistory for saveGridSlices operation",
-                                    e);
-                }
-            }
-
-            rec.setGridHistory(newHistArray);
+            GFERecord rec = new GFERecord(dbParmId, slice.getValidTime());
+            rec.setGridHistory(slice.getHistory());
             rec.setMessageData(slice);
             records.add(rec);
         }
-        sr.addMessages(this.saveGridData(parmId, originalTimeRange, records,
+
+        sr.addMessages(this.saveGridData(dbParmId, originalTimeRange, records,
                 requesterId, skipDelete));
         return sr;
-    }
-
-    /**
-     * Determines if a record already exists for the corresponding time range.
-     * If so, copies the data from the new record into the existing one so the
-     * existing row can be used in the database.
-     * 
-     * @param parmId
-     * @param records
-     * @return the consolidated records
-     */
-    private List<GFERecord> consolidateWithExisting(ParmID parmId,
-            List<GFERecord> records) {
-        List<GFERecord> consolidated = new ArrayList<GFERecord>(records.size());
-        List<TimeRange> times = new ArrayList<TimeRange>();
-        for (GFERecord rec : records) {
-            times.add(rec.getTimeRange());
-        }
-
-        GFEDao dao = null;
-        try {
-            dao = new GFEDao();
-        } catch (PluginException e1) {
-            statusHandler
-                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
-        }
-
-        List<GFERecord> existingList = dao.getRecords(parmId, times);
-        Map<TimeRange, GFERecord> map = new HashMap<TimeRange, GFERecord>(
-                existingList.size());
-        for (GFERecord rec : existingList) {
-            map.put(rec.getTimeRange(), rec);
-        }
-
-        // don't make a new record if record already exists with matching time
-        // range
-        for (GFERecord rec : records) {
-            GFERecord existing = map.get(rec.getTimeRange());
-            if (existing == null) {
-                consolidated.add(rec);
-            } else {
-                existing.setMessageData(rec.getMessageData());
-
-                List<GridDataHistory> existHist = existing.getGridHistory();
-                List<GridDataHistory> newHist = rec.getGridHistory();
-                dao.consolidateHistories(existHist, newHist);
-
-                consolidated.add(existing);
-            }
-
-        }
-
-        return consolidated;
     }
 
     @Override
@@ -1165,7 +1247,16 @@ public class IFPGridDatabase extends GridDatabase {
     @Override
     public ServerResponse<List<IGridSlice>> getGridData(ParmID id,
             List<TimeRange> timeRanges) {
-        return this.getGridData(id, timeRanges, getGridParmInfo(id)
+        ParmID dbParmId = null;
+        try {
+            dbParmId = getCachedParmID(id);
+        } catch (UnknownParmIdException e) {
+            ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
+            sr.addMessage(e.getLocalizedMessage());
+            return sr;
+        }
+
+        return this.getGridData(dbParmId, timeRanges, getGridParmInfo(dbParmId)
                 .getPayload().getGridLoc());
 
     }
@@ -1173,25 +1264,6 @@ public class IFPGridDatabase extends GridDatabase {
     @Override
     public String getProjectionId() {
         return this.gridConfig.projectionData().getProjectionID();
-    }
-
-    @Override
-    @Deprecated
-    public ServerResponse<?> updateGridHistory(ParmID parmId,
-            Map<TimeRange, List<GridDataHistory>> history) {
-        ServerResponse<?> sr = new ServerResponse<String>();
-        GFEDao dao = null;
-        try {
-            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-            dao.updateGridHistories(parmId, history);
-        } catch (PluginException e1) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e1);
-        } catch (DataAccessLayerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to update grid history!!", e);
-        }
-        return sr;
-
     }
 
     /**
@@ -1203,18 +1275,19 @@ public class IFPGridDatabase extends GridDatabase {
 
         try {
             IFPServerConfig serverConfig = IFPServerConfigManager
-                    .getServerConfig(this.dbId.getSiteId());
+                    .getServerConfig(dbId.getSiteId());
             GridLocation currentGridLocation = serverConfig.dbDomain();
             if (currentGridLocation.getSiteId().equals("")) {
-                currentGridLocation.setSiteId(this.getDbId().getSiteId());
+                currentGridLocation.setSiteId(dbId.getSiteId());
             }
+
+            GFEDao gfeDao = new GFEDao();
 
             for (String parmNameAndLevel : parmInfo.keySet()) {
                 GridLocation storedGridLocation = parmInfo
                         .get(parmNameAndLevel).getGridLoc();
                 String parmName = parmNameAndLevel.split("_")[0];
                 String parmLevel = parmNameAndLevel.split("_")[1];
-                ParmID currentParm = new ParmID(parmName, dbId, parmLevel);
 
                 if (!storedGridLocation.equals(currentGridLocation)) {
                     GridParmInfo gpi = gridConfig.getGridParmInfo(parmName,
@@ -1226,12 +1299,11 @@ public class IFPGridDatabase extends GridDatabase {
                             parmName, parmLevel);
                     this.storeGridParmInfo(gpi, psi, StoreOp.REPLACE);
 
-                    GFEDao gfeDao = new GFEDao();
-
                     RemapGrid remap = new RemapGrid(storedGridLocation,
                             currentGridLocation, true);
-                    ArrayList<GFERecord> records = gfeDao
-                            .queryByParmID(currentParm);
+
+                    ParmID currentParm = getCachedParmID(parmNameAndLevel);
+                    List<GFERecord> records = gfeDao.queryByParmID(currentParm);
                     if (!records.isEmpty()) {
                         statusHandler.handle(
                                 Priority.WARN,
@@ -1344,11 +1416,14 @@ public class IFPGridDatabase extends GridDatabase {
     }
 
     private void getDBConfiguration() throws GfeException {
-        this.parmInfo.clear();
-        this.parmStorageInfo.clear();
+        parmInfo.clear();
+        parmStorageInfo.clear();
+        parmIdMap.clear();
+
         if (!parmInfoInitialized) {
             initGridParmInfo();
         }
+
         try {
             IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
                     .getGridParmHdf5File(gfeBaseDataDir, this.dbId));
@@ -1365,9 +1440,16 @@ public class IFPGridDatabase extends GridDatabase {
                         .getDataAttributes());
                 parmStorageInfo.put(psiRecord.getName(), psi);
             }
+
+            GFEDao dao = new GFEDao();
+            List<ParmID> currentIds = dao.getParmIds(dbId);
+            for (ParmID parmId : currentIds) {
+                parmIdMap.put(parmId.getCompositeName(), parmId);
+            }
         } catch (Exception e) {
             throw new GfeException("Error getting db configuration", e);
         }
+
     }
 
     private void compareParmInfoWithDB(Map<String, GridParmInfo> parmInfoUser,
@@ -1502,7 +1584,7 @@ public class IFPGridDatabase extends GridDatabase {
         String[] retValue = parmAndLevel.split("_");
 
         if (retValue.length == 1) {
-            return new String[] { retValue[0], "SFC" };
+            return new String[] { retValue[0], ParmID.defaultLevel() };
         } else {
             return retValue;
         }
@@ -1512,20 +1594,6 @@ public class IFPGridDatabase extends GridDatabase {
         ServerResponse<?> sr = new ServerResponse<String>();
         if ((dbId == null) || !dbId.isValid()) {
             sr.addMessage("DBInvalid - The database is not valid.");
-        }
-        return sr;
-    }
-
-    private ServerResponse<?> validGridTimes(final List<GFERecord> grids,
-            final TimeRange validTR) {
-        ServerResponse<?> sr = new ServerResponse<String>();
-
-        // Make sure every grid's TR falls within the validTR
-        for (int j = 0; j < grids.size(); j++) {
-            if (!validTR.contains(grids.get(j).getTimeRange())) {
-                sr.addMessage("Grid times not valid");
-                return sr;
-            }
         }
         return sr;
     }
@@ -2117,32 +2185,6 @@ public class IFPGridDatabase extends GridDatabase {
         correlationMap.put(storeDataRec, rec);
     }
 
-    /**
-     * Saves GFERecords to the database
-     * 
-     * @param records
-     *            The GFERecords to be saved
-     * @param requestorId
-     *            The workstationID of the requestor
-     * @return failed grids
-     * @throws DataAccessLayerException
-     */
-    public List<GFERecord> saveGridToDb(List<GFERecord> records)
-            throws DataAccessLayerException {
-        GFEDao dao = null;
-        try {
-            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e1) {
-            throw new DataAccessLayerException("Unable to get gfe dao", e1);
-        }
-        try {
-            return dao.saveOrUpdate(records);
-        } catch (DataAccessException e) {
-            throw new DataAccessLayerException(
-                    "Error saving GFE grid to database", e);
-        }
-    }
-
     @Override
     public FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
@@ -2429,24 +2471,6 @@ public class IFPGridDatabase extends GridDatabase {
     }
 
     /**
-     * Removes a record from the PostGres database
-     * 
-     * @param record
-     *            The record to remove
-     */
-    private void removeFromDb(GFERecord record) {
-        GFEDao dao = null;
-        try {
-            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e);
-        }
-        dao.delete(record);
-        statusHandler.handle(Priority.DEBUG, "Deleted: " + record
-                + " from database");
-    }
-
-    /**
      * Removes a record from the HDF5 repository. If the record does not exist
      * in the HDF5, the operation is ignored
      * 
@@ -2476,6 +2500,40 @@ public class IFPGridDatabase extends GridDatabase {
         }
     }
 
+    /**
+     * Removes records from the HDF5 repository. If the records do not exist in
+     * the HDF5, the operation is ignored
+     * 
+     * @param record
+     *            The record to remove
+     */
+    private void removeFromHDF5(ParmID parmId, List<TimeRange> times) {
+        Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
+                .getHdf5FilesAndGroups(GridDatabase.gfeBaseDataDir, parmId,
+                        times);
+        for (Map.Entry<File, Pair<List<TimeRange>, String[]>> entry : fileMap
+                .entrySet()) {
+            File hdf5File = entry.getKey();
+            IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+            String[] groupsToDelete = entry.getValue().getSecond();
+
+            try {
+                dataStore.deleteGroups(groupsToDelete);
+
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.handle(Priority.DEBUG,
+                            "Deleted: " + Arrays.toString(groupsToDelete)
+                                    + " from " + hdf5File.getName());
+                }
+            } catch (Exception e) {
+                statusHandler.handle(
+                        Priority.WARN,
+                        "Error deleting hdf5 record(s) from file: "
+                                + hdf5File.getPath(), e);
+            }
+        }
+    }
+
     private void deleteModelHDF5() {
         File hdf5File = GfeUtil.getHdf5Dir(GridDatabase.gfeBaseDataDir, dbId);
         IDataStore ds = DataStoreFactory.getDataStore(hdf5File);
@@ -2489,6 +2547,10 @@ public class IFPGridDatabase extends GridDatabase {
         }
     }
 
+    /**
+     * Updates the history times for the associated history objects. History
+     * objects must have already been retrieved from database.
+     */
     @Override
     public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
             Date publishTime) {
@@ -2507,4 +2569,27 @@ public class IFPGridDatabase extends GridDatabase {
         return sr;
     }
 
+    public ParmID getCachedParmID(String parmNameAndLevel)
+            throws UnknownParmIdException {
+        ParmID rval = parmIdMap.get(parmNameAndLevel);
+
+        if (rval == null) {
+            throw new UnknownParmIdException("ParmId: " + parmNameAndLevel
+                    + ":" + dbId.getModelId() + " doesn't exist");
+        }
+
+        return rval;
+    }
+
+    @Override
+    public ParmID getCachedParmID(ParmID parmId) throws UnknownParmIdException {
+        ParmID rval = parmIdMap.get(parmId.getCompositeName());
+
+        if (rval == null) {
+            throw new UnknownParmIdException("ParmId: " + parmId.toString()
+                    + " doesn't exist");
+        }
+
+        return rval;
+    }
 }
