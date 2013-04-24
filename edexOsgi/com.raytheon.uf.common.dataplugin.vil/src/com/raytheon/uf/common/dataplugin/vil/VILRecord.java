@@ -39,7 +39,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -61,6 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 1/14/09      2027        D. Hladky   Initial release
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/08/13     #1293       bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -82,7 +83,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class VILRecord extends ServerSpecificPersistablePluginDataObject
+public class VILRecord extends PersistablePluginDataObject
         implements ISpatialEnabled {
 
     private static final long serialVersionUID = 767763365671L;
