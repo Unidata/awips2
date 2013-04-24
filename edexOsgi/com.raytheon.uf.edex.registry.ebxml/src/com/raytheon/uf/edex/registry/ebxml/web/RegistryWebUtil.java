@@ -41,11 +41,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PostalAddressType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TelephoneNumberType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.AssociationDao;
@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip     Modified to use spring injection
+ * Apr 23, 2013 1910       djohnson     RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
