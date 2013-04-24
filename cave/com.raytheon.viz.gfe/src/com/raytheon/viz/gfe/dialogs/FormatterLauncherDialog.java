@@ -92,6 +92,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
  * Oct 23, 2012 1287       rferrel     Changes for non-blocking dialogs and code clean up.
  * Nov 08, 2012 1298       rferrel     Changes for non-blocking IssuanceSiteIdDlg.
+ * Apr 24, 2013 1936       dgilling    Remove initialization of 
+ *                                     TextProductManager from this class, clean
+ *                                     up warnings.
  * 
  * </pre>
  * 
@@ -205,6 +208,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     private TextProductManager textProductMgr;
 
+    private DataManager dataMgr;
+
     private String selectedDataSource = null;
 
     private boolean doClose = false;
@@ -214,12 +219,14 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * 
      * @param parent
      *            Parent Shell.
+     * @param dataMgr
+     *            DataManager instance.
      */
-    public FormatterLauncherDialog(Shell parent) {
+    public FormatterLauncherDialog(Shell parent, DataManager dataMgr) {
         super(parent);
         setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE | SWT.RESIZE);
-
-        textProductMgr = new TextProductManager();
+        this.dataMgr = dataMgr;
+        this.textProductMgr = this.dataMgr.getTextProductMgr();
     }
 
     @Override
@@ -326,10 +333,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         // Create all the items in the Data Source dropdown menu
         // ------------------------------------------------------
 
-        DataManager dm = DataManager.getCurrentInstance();
-
         // Get the CAVE operating mode
-        CAVEMode mode = dm.getOpMode();
+        CAVEMode mode = dataMgr.getOpMode();
 
         // Forecast menu item, set text based on operating mode
         fcstMI = new MenuItem(dataSourceMenu, SWT.RADIO);
@@ -345,8 +350,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         fcstMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                selectedDataSource = DataManager.getCurrentInstance()
-                        .getParmManager().getMutableDatabase().toString();
+                selectedDataSource = dataMgr.getParmManager()
+                        .getMutableDatabase().toString();
             }
         });
 
@@ -382,8 +387,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 }
             });
         } else {
-            selectedDataSource = DataManager.getCurrentInstance()
-                    .getParmManager().getMutableDatabase().toString();
+            selectedDataSource = dataMgr.getParmManager().getMutableDatabase()
+                    .toString();
         }
     }
 
@@ -735,8 +740,9 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
             ProductDefinition prodDef = textProductMgr
                     .getProductDefinition(productName);
             String dataSource = (String) prodDef.get("database");
-            if (dataSource == null)
+            if (dataSource == null) {
                 dataSource = "Official";
+            }
 
             if (dataSource.equals("ISC")) {
                 selectedDataSource = getIscDataSource();
@@ -787,6 +793,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @param tabName
      *            Name of the tab to be removed.
      */
+    @Override
     public void removeProductTab(String tabName) {
         TabItem[] items = tabFolder.getItems();
 
@@ -808,6 +815,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @param tabName
      *            Name of the tab.
      */
+    @Override
     public void setTabState(ConfigData.productStateEnum state, String tabName) {
         TabItem[] items = tabFolder.getItems();
 
@@ -999,8 +1007,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @return The FcstDataSource
      */
     private String getFcstDataSource() {
-        return DataManager.getCurrentInstance().getParmManager()
-                .getMutableDatabase().toString();
+        return dataMgr.getParmManager().getMutableDatabase().toString();
     }
 
     /**
@@ -1012,8 +1019,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @return The ISC Data Source
      */
     private String getIscDataSource() {
-        java.util.List<DatabaseID> dbs = DataManager.getCurrentInstance()
-                .getParmManager().getIscDatabases();
+        java.util.List<DatabaseID> dbs = dataMgr.getParmManager()
+                .getIscDatabases();
 
         if (dbs.size() > 0) {
             // Always return the last one in the list
@@ -1031,8 +1038,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     private String getOfficialDataSource() {
         String source = null;
         try {
-            ServerResponse<java.util.List<DatabaseID>> sr = DataManager
-                    .getCurrentInstance().getClient().getOfficialDBName();
+            ServerResponse<java.util.List<DatabaseID>> sr = dataMgr.getClient()
+                    .getOfficialDBName();
             source = sr.getPayload().get(0).toString();
         } catch (GFEServerException e) {
             statusHandler.handle(Priority.PROBLEM,
