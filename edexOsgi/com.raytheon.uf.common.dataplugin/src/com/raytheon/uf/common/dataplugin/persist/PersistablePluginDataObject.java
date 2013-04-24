@@ -42,6 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2008            chammack     Initial creation
+ * Apr 8, 2013  1293       bkowal       Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -69,24 +70,6 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
      */
     public PersistablePluginDataObject() {
         super();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.IPersistable#getHdfFileId()
-     */
-    @Override
-    public Integer getHdfFileId() {
-        return null;
-    }
-
-    /**
-     * @param hdfFileId
-     *            the hdfFileId to set
-     */
-    @Override
-    public void setHdfFileId(Integer hdfFileId) {
     }
 
     /**

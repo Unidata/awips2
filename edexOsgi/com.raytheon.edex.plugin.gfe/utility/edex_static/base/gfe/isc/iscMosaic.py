@@ -72,7 +72,9 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
-#    01/17/13	     15588	   jdynina	  Fixed Publish history removal 
+#    01/17/13        15588         jdynina        Fixed Publish history removal
+#    03/12/13        1759          dgilling       Remove unnecessary command line
+#                                                 processing. 
 # 
 # 
 
@@ -192,32 +194,37 @@ class IscMosaic:
         self.__logger=iscUtil.getLogger("iscMosaic",self.__logFile)
         
     def __init__(self, args):
-        import siteConfig
-        self.__host = 0
-        self.__port = 0
-        self.__userID = 'SITE'
-
+        self.__mysite = args['siteID']
+        self.__userID = args['userID']
         self.__db = None    # ifpServer database object
         self.__dbGrid = None
-        self.__parmsToProcess = []
-        self.__blankOtherPeriods = 0
-        self.__processTimePeriod = None
-        self.__altMask = None
-        self.__replaceOnly = 0
-        self.__eraseFirst = 0
-        self.__announce = ""
-        self.__renameWE = 0
-        self.__iscSends = 0
-        self.__databaseID = ''
-        self.__inFiles = []
-        self.__ignoreMask = 0
-        self.__adjustTranslate = 0
-        self.__deleteInput = 0
-        self.__parmsToIgnore = []
-        self.__gridDelay = 0.0
-        self.__logFile = None
+        self.__parmsToProcess = args['parmsToProcess']
+        self.__blankOtherPeriods = args['blankOtherPeriods']
+        self.__altMask = args['altMask']
+        self.__replaceOnly = args['replaceOnly']
+        self.__eraseFirst = args['eraseFirst']
+        self.__announce = args['announce']
+        self.__renameWE = args['renameWE']
+        self.__iscSends = args['iscSends']
+        if args['databaseID'] is not None:
+            self.__databaseID = args['databaseID']
+        else: 
+            self.__databaseID = self.__mysite + "_GRID__ISC_00000000_0000"
+        self.__inFiles = args['inFiles']
+        self.__ignoreMask = args['ignoreMask']
+        self.__adjustTranslate = args['adjustTranslate']
+        self.__deleteInput = args['deleteInput']
+        self.__parmsToIgnore = args['parmsToIgnore']
+        self.__gridDelay = args['gridDelay']
+        self.__logFile = args['logFileName']
         
-        self.__getArgs(args)        
+        startTime = 0 
+        if args['startTime'] is not None:
+            startTime = self.__decodeTimeString(args['startTime'])
+        endTime = int(2 ** 30 - 1 + 2 ** 30)
+        if args['endTime'] is not None:
+            endTime = self.__decodeTimeString(args['endTime'])
+        self.__processTimePeriod = (startTime, endTime)
 
         self.__initLogger()
 
@@ -236,97 +243,6 @@ class IscMosaic:
         
     def logDebug(self,*msg):
         self.logVerbose(iscUtil.tupleToString(*msg))
-        
-    
-    #------------------------------------------------------------------------
-    # Read command line arguments
-    #------------------------------------------------------------------------
-    def __getArgs(self, args):
-
-        try:
-            optlist, args = getopt.getopt(args[1:],
-              'v:h:r:d:p:u:f:bs:e:xzkna:w:i:D:oST')
-        except getopt.error, val:
-            print val
-            return
-        startTime = 0
-        endTime = int(2 ** 30 - 1 + 2 ** 30)
-
-        import siteConfig
-        try:
-            self.__host = siteConfig.GFESUITE_SERVER
-            self.__port = int(siteConfig.GFESUITE_PORT)
-            self.__mysite = siteConfig.GFESUITE_SITEID
-            self.__databaseID = self.__mysite + "_GRID__ISC_00000000_0000"
-        except:
-            pass
-
-        for opt in optlist:
-            if opt[0] == '-h':
-                self.__host = opt[1]
-            if opt[0] == '-a':
-                self.__altMask = opt[1]
-            elif opt[0] == '-r':
-                self.__port = int(opt[1])
-            elif opt[0] == '-b':
-                self.__blankOtherPeriods = 1
-            elif opt[0] == '-u':
-                self.__userID = opt[1]
-            elif opt[0] == '-T':
-                self.__adjustTranslate = 1
-            elif opt[0] == '-k':
-                self.__deleteInput = 1
-            elif opt[0] == '-d':
-                self.__databaseID = opt[1]
-            elif opt[0] == '-D':
-                self.__gridDelay = float(opt[1])
-            elif opt[0] == '-p':
-                p = opt[1]
-                # add SFC if necessary
-                if string.find(p, "_SFC") == -1:
-                    p = p + "_SFC"
-                if p not in self.__parmsToProcess:
-                    self.__parmsToProcess.append(p)
-            elif opt[0] == '-i':
-                i = opt[1]
-                # add SFC if necessary
-                if string.find(i, "_SFC") == -1:
-                    i = i + "_SFC"
-                if i not in self.__parmsToIgnore:
-                    self.__parmsToIgnore.append(i)
-            elif opt[0] == '-f':
-                self.__inFiles.append(opt[1])
-            elif opt[0] == '-s':
-                startTime = self.__decodeTimeString(opt[1])
-            elif opt[0] == '-e':
-                endTime = self.__decodeTimeString(opt[1])
-            elif opt[0] == '-z':
-                self.__eraseFirst = 1
-            elif opt[0] == '-x':
-                self.__replaceOnly = 1
-            elif opt[0] == '-w':
-                self.__announce = opt[1]
-            elif opt[0] == '-o':
-                self.__renameWE = 1
-            elif opt[0] == '-n':
-                self.__ignoreMask = 1
-            elif opt[0] == '-S':
-                self.__iscSends = 1
-            elif opt[0] == '-v':
-                self.__logFile = opt[1]
-
-        if len(self.__inFiles) > 1 and self.__eraseFirst == 1:
-            self.logProblem(\
-              "Multiple input files [-f switches] and -z switch not compatible")
-            raise Exception, "Bad command line"
-
-        if self.__ignoreMask == 1 and self.__altMask is not None:
-            self.logProblem(\
-              "-n and -a altMask switches not compatible")
-            raise Exception, "Bad command line"
-
-        self.__inFiles = JUtil.pyValToJavaObj(self.__inFiles)
-        self.__processTimePeriod = (startTime, endTime)
     
     def execute(self):
         self.logEvent("iscMosaic Starting")
@@ -348,12 +264,12 @@ class IscMosaic:
         self.__myOfficeType = IFPServerConfigManager.getServerConfig(DatabaseID(self.__databaseID).getSiteId()).officeType()
         
         #process each input file
-        for i in range(0, self.__inFiles.size()):
+        for file in self.__inFiles:
             self.__areaMask = None
-            self.__processInputFile(str(self.__inFiles.get(i)))
+            self.__processInputFile(file)
             
             if self.__deleteInput:
-                os.remove(str(self.__inFiles.get(i)))
+                os.remove(file)
 
         self.logEvent("iscMosaic Finished")
         
@@ -1540,9 +1456,43 @@ class IscMosaic:
 
         self.__dbGrid = None
 
-def main(argv):    
-    if type(argv) != 'list':
-        argv = JUtil.javaStringListToPylist(argv)
+
+def convertList(unknownList):
+    retVal = unknownList
+    try:
+        len(unknownList)
+    except TypeError:
+        retVal = JUtil.javaObjToPyVal(unknownList)
+    return retVal
+
+def main(siteID, userID, databaseID, parmsToProcess, blankOtherPeriods, 
+        startTime, endTime, altMask, replaceOnly, eraseFirst, 
+        announce, renameWE, iscSends, inFiles, ignoreMask, 
+        adjustTranslate, deleteInput, parmsToIgnore, gridDelay, logFileName):    
+    # convert Java types to python and send to IscMosaic for execution
+    parmsToProcess = convertList(parmsToProcess)
+    inFiles = convertList(inFiles)
+    parmsToIgnore = convertList(parmsToIgnore)
+    argv = {"siteID": siteID, 
+            "userID": userID, 
+            "databaseID": databaseID,
+            "parmsToProcess": parmsToProcess, 
+            "blankOtherPeriods": bool(blankOtherPeriods), 
+            "startTime": startTime,
+            "endTime": endTime, 
+            "altMask": altMask,
+            "replaceOnly": bool(replaceOnly), 
+            "eraseFirst": bool(eraseFirst),
+            "announce": announce, 
+            "renameWE": bool(renameWE),
+            "iscSends": bool(iscSends), 
+            "inFiles": inFiles,
+            "ignoreMask": bool(ignoreMask), 
+            "adjustTranslate": bool(adjustTranslate),
+            "deleteInput": bool(deleteInput), 
+            "parmsToIgnore": parmsToIgnore,
+            "gridDelay": float(gridDelay), 
+            "logFileName": logFileName}
     mosaic = IscMosaic(argv)
     mosaic.execute()
     mosaic = None

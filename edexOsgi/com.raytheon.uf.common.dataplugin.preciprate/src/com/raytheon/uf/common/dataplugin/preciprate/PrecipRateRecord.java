@@ -43,7 +43,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -73,6 +73,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 01/25/10      3796       D. Hladky   Initial release
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/08/13      1293       bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PrecipRateRecord extends ServerSpecificPersistablePluginDataObject
+public class PrecipRateRecord extends PersistablePluginDataObject
         implements IMonitorProcessing {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateRecord.class);
