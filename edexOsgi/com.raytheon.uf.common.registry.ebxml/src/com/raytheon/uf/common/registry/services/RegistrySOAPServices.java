@@ -45,9 +45,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -62,6 +62,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/9/2013     1802        bphillip    Initial implementation
+ * Apr 24, 2013 1910        djohnson    RegistryResponseStatus is now an enum.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -382,7 +384,7 @@ public class RegistrySOAPServices {
             throw new RegistryServiceException(
                     "Error executing submitObjects!", e);
         }
-        String status = response.getStatus();
+        RegistryResponseStatus status = response.getStatus();
         if (status.equals(RegistryResponseStatus.SUCCESS)) {
             statusHandler.info("Submit Objects request ["
                     + response.getRequestId() + "] successful");

@@ -25,10 +25,13 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
 import org.apache.commons.beanutils.MethodUtils;
 
+import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -42,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012 184        bphillip     Initial creation
+ * Apr 23, 2013 1910       djohnson     Add createUnresolvedReferenceException().
  * 
  * </pre>
  * 
@@ -272,5 +276,29 @@ public class EbxmlExceptionUtil {
             }
         }
 
+    }
+
+    /**
+     * Create an {@link UnresolvedReferenceExceptionType} exception.
+     * 
+     * @param referencedObjectType
+     *            the referenced object type, can be null
+     * @param id
+     *            the id of the referenced object, cannot be null
+     * @param statusHandler
+     *            the statusHandler reference
+     * @return the exception type
+     */
+    public static UnresolvedReferenceExceptionType createUnresolvedReferenceException(
+            Class<? extends RegistryObjectType> referencedObjectType,
+            String id, IUFStatusHandler statusHandler) {
+        final String ofType = (referencedObjectType == null) ? "" : "to type ["
+                                       + referencedObjectType.getCanonicalName()
+                                       + "] ";
+        final String message = "Registry object reference " + ofType
+                + "with id [" + id + "] was unresolved";
+        return createRegistryException(UnresolvedReferenceExceptionType.class,
+                "", "Unresolved reference found", message, ErrorSeverity.ERROR,
+                statusHandler);
     }
 }

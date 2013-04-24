@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,6 +29,7 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -42,6 +44,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -65,6 +69,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2013 1914       djohnson     Initial creation
  * Apr 18, 2013 1693       djohnson     Consolidate reusable methods.
+ * Apr 23, 2013 1910       djohnson     Allow sub-classes to pass callables and monitor for fault exceptions.
  * 
  * </pre>
  * 
@@ -87,6 +92,30 @@ public class AbstractRegistryTest {
     public void setUp() {
         this.queryManager = EDEXUtil.getESBComponent(QueryManager.class,
                 "queryServiceImpl");
+    }
+
+    /**
+     * Submits the registry object to the registry and verifies it was
+     * successfully processed.
+     * 
+     * @param registryObjectId
+     *            the registry object id to use
+     * @param registryObject
+     *            the registry object
+     * @throws MsgRegistryException
+     */
+    protected void submitRegistryObjectToRegistry(
+            final RegistryObjectType registryObject)
+            throws MsgRegistryException {
+        final SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
+                MY_REGISTRY_OBJECT_ID, MY_REGISTRY_OBJECT_ID,
+                Mode.CREATE_OR_REPLACE);
+        submitRequest.getRegistryObjects().clear();
+        submitRequest.getRegistryObjects().add(registryObject);
+
+        final RegistryResponseType submitResponse = lifecycleManager
+                .submitObjects(submitRequest);
+        assertSuccessfulResponse(submitResponse);
     }
 
     /**
@@ -163,14 +192,68 @@ public class AbstractRegistryTest {
      *            the expected exception class
      */
     protected <T extends RegistryExceptionType> void expectFaultException(
-            SubmitObjectsRequest submitObjectsRequest,
-            Class<T> expectedException) {
+            Callable<?> callable, Class<T> expectedException) {
         try {
-            lifecycleManager.submitObjects(submitObjectsRequest);
-            fail("Expected a MsgRegistryException to have been thrown!");
+            callable.call();
+            fail("Expected a MsgRegistryException to have been thrown, wrapping a ["
+                    + expectedException.getName() + "]");
         } catch (MsgRegistryException exception) {
             final RegistryExceptionType faultInfo = exception.getFaultInfo();
             assertThat(faultInfo, is(instanceOf(expectedException)));
+        } catch (Exception e) {
+            throw new RuntimeException("Incorrect exception type was thrown!",
+                    e);
         }
     }
+
+    /**
+     * Assert a successful response status.
+     * 
+     * @param response
+     *            the response
+     */
+    protected void assertSuccessfulResponse(RegistryResponseType response) {
+        assertResponseStatus("The response did not have a successful status!",
+                response, RegistryResponseStatus.SUCCESS);
+    }
+
+    /**
+     * Assert a successful response status.
+     * 
+     * @param response
+     *            the response
+     */
+    protected void assertPartialSuccessResponse(RegistryResponseType response) {
+        assertResponseStatus(
+                "The response did not have a partial success status!",
+                response, RegistryResponseStatus.PARTIAL_SUCCESS);
+    }
+
+    /**
+     * Assert a successful response status.
+     * 
+     * @param response
+     *            the response
+     */
+    protected void assertFailureResponse(RegistryResponseType response) {
+        assertResponseStatus(
+                "The response did not have a partial success status!",
+                response, RegistryResponseStatus.FAILURE);
+    }
+
+    /**
+     * Assert the response has the given status.
+     * 
+     * @param failMessage
+     *            the assertion failure message
+     * @param response
+     *            the response
+     * @param expected
+     *            the expected status
+     */
+    private void assertResponseStatus(String failMessage,
+            RegistryResponseType response, RegistryResponseStatus expected) {
+        assertThat(failMessage, response.getStatus(), is(equalTo(expected)));
+    }
+
 }
