@@ -133,7 +133,7 @@
 #* Date         Ticket#     Engineer    Description
 #* ------------ ----------  ----------- --------------------------
 #*                                      Initial creation.
-#* Mar 07, 2013 1735        rferrel     Use SiteGridManger to limit calls to server.
+#* Mar 07, 2013 1735        rferrel     Use SiteGridManager to limit calls to server.
 ##  
 
 import logging, time, cPickle

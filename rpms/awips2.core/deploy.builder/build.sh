@@ -109,7 +109,7 @@ function buildRPM()
          [ ! "${COMPONENT_DIR}" = "Installer.irt" ] &&
          [ ! "${COMPONENT_DIR}" = "Installer.java" ] &&
          [ ! "${COMPONENT_DIR}" = "Installer.ldm" ] &&
-         [ ! "${COMPONENT_DIR}" = "Installer.postgresql" ] &&
+         [ ! "${COMPONENT_DIR}" = "Installer.postgres" ] &&
          [ ! "${COMPONENT_DIR}" = "Installer.psql" ] &&
          [ ! "${COMPONENT_DIR}" = "Installer.python" ] &&
          [ ! "${COMPONENT_DIR}" = "Installer.server" ] &&

@@ -163,6 +163,8 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 20, 2013    1635   dhladky      Fixed multiple guidance display
  * Feb 28, 2013  1729      dhladky     Changed the way the loaders are managed via the status updates.
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
+ * Apr 10, 2013 1896       bsteffen    Make FFMPResource work better with D2D
+ *                                     time matcher.
  * </pre>
  * 
  * @author dhladky
@@ -242,10 +244,10 @@ public class FFMPResource extends
     private final FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
 
     /** Basin shaded shape **/
-    protected ConcurrentHashMap<DataTime, FFMPDrawable> drawables = new ConcurrentHashMap<DataTime, FFMPDrawable>();
+    protected Map<DataTime, FFMPDrawable> drawables = new ConcurrentHashMap<DataTime, FFMPDrawable>();
 
     /** VGB drawables **/
-    protected HashMap<String, PixelCoverage> vgbDrawables = new HashMap<String, PixelCoverage>();
+    protected Map<String, PixelCoverage> vgbDrawables = new HashMap<String, PixelCoverage>();
 
     /** used to create the wireframes for the streams **/
     private Set<Long> streamPfafIds = null;
@@ -2886,7 +2888,7 @@ public class FFMPResource extends
 
         private void generateShapes(FFMPTemplates templates, String huc,
                 Long pfaf, Map<Long, Geometry> geomMap, Request req,
-                IColormapShadedShape shape, HashMap<Object, RGB> colorMap) {
+                IColormapShadedShape shape, Map<Object, RGB> colorMap) {
 
             // my logic
             Geometry g = geomMap.get(pfaf);
@@ -4194,6 +4196,12 @@ public class FFMPResource extends
                 });
             }
         }
+        if (event.getSource() instanceof FFMPLoaderStatus) {
+            FFMPLoaderStatus status = (FFMPLoaderStatus) event.getSource();
+            if (status.isDone()) {
+                issueRefresh();
+            }
+        }
     }
 
     /**
@@ -4381,6 +4389,16 @@ public class FFMPResource extends
                 }
             }
         }
+    }
+
+    @Override
+    public DataTime[] getDataTimes() {
+        List<Date> dates = getTimeOrderedKeys();
+        DataTime[] dataTimes = new DataTime[dates.size()];
+        for (int i = 0; i < dataTimes.length; i += 1) {
+            dataTimes[i] = new DataTime(dates.get(i));
+        }
+        return dataTimes;
     }
 
 }
