@@ -50,7 +50,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Feb 26, 2013 1597       randerso    Add SECONDS_PER_HOUR.
  * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil
  * Mar 20, 2013 1774       randerso    Add SECONDS_PER_DAY, changed SECONDS_PER_HOUR to int.
- *  
+ * Apr 24, 2013 1628       mschenke    Added GMT TimeZone Object constant
  * </pre>
  * 
  * @author njensen
@@ -137,6 +137,8 @@ public final class TimeUtil {
      */
     public static final long MILLIS_PER_YEAR = MILLIS_PER_DAY * 365;
 
+    public static final TimeZone GMT_TIME_ZONE = TimeZone.getTimeZone("GMT");
+
     private static ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
@@ -152,7 +154,7 @@ public final class TimeUtil {
         @Override
         protected SimpleDateFormat initialValue() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            sdf.setTimeZone(GMT_TIME_ZONE);
             return sdf;
         }
 
@@ -176,7 +178,7 @@ public final class TimeUtil {
      */
     public static Date calendarToGMT(Calendar cal) {
         Calendar copy = (Calendar) cal.clone();
-        copy.setTimeZone(TimeZone.getTimeZone("GMT"));
+        copy.setTimeZone(GMT_TIME_ZONE);
         return copy.getTime();
     }
 
@@ -231,7 +233,7 @@ public final class TimeUtil {
      * @return The formatted date string from the Date instance
      */
     public static String formatDate(Date aDate) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = Calendar.getInstance(GMT_TIME_ZONE);
         cal.setTimeInMillis(aDate.getTime());
         return formatCalendar(cal);
     }
@@ -341,7 +343,7 @@ public final class TimeUtil {
      * @return the calendar
      */
     public static Calendar newGmtCalendar() {
-        return TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        return TimeUtil.newCalendar(GMT_TIME_ZONE);
     }
 
     /**
