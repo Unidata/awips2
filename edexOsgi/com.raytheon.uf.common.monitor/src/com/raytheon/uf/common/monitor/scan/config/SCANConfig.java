@@ -50,6 +50,7 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2009 3039       lvenable     Initial creation
+ * Apr 25, 2013   1926     njensen      synchronized instance creation
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public class SCANConfig {
     /**
      * Class instance
      */
-    private static SCANConfig classInstance;
+    private static volatile SCANConfig classInstance;
 
     /**
      * Unwarned configuration data class.
@@ -242,11 +243,18 @@ public class SCANConfig {
      * @return Class instance.
      */
     public static SCANConfig getInstance() {
-        if (classInstance == null) {
-            classInstance = new SCANConfig();
+        SCANConfig retVal = classInstance;
+        if (retVal == null) {
+            synchronized (SCANConfig.class) {
+                retVal = classInstance;
+                if (retVal == null) {
+                    classInstance = new SCANConfig();
+                    retVal = classInstance;
+                }
+            }
         }
 
-        return classInstance;
+        return retVal;
     }
 
     /**
@@ -261,7 +269,6 @@ public class SCANConfig {
 
         cellTrendConfigMgr = new TrendSetConfigMgr("CellTrendSets.xml");
         dmdTrendConfigMgr = new TrendSetConfigMgr("DmdTrendSets.xml");
-        ;
 
         setupTableIntFormatMap();
         setupTrendIntFormatMaps();
