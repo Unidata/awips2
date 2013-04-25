@@ -1,4 +1,4 @@
-package com.raytheon.uf.viz.d2d.ui.map.actions;
+package com.raytheon.uf.viz.core.maps.actions;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
