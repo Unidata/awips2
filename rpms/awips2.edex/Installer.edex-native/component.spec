@@ -56,6 +56,24 @@ PACKAGES="%{_awipscm_share}/packages"
 if [ $? -ne 0 ]; then
    exit 1
 fi
+# purge all libpq with the exception of libpq 5.5
+# temporary until a decision is made about the native tar file -
+# almost any decision that is made will impact this rpm
+_libpq_55="libpq.so.5.5"
+_edex_native_path=%{_build_root}/awips2/edex/lib/native
+_edex_linux32_path=${_edex_native_path}/linux32
+/bin/cp -v ${_edex_linux32_path}/${_libpq_55} ${_edex_native_path}/${_libpq_55}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/rm -fv ${_edex_linux32_path}/libpq.so*
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/mv -v ${_edex_native_path}/${_libpq_55} ${_edex_linux32_path}/${_libpq_55}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 # copy the AWIPS I mhs libraries
 cp ${PACKAGES}/mhs/* \
    %{_build_root}/awips2/edex/lib/native/linux32/awips1
