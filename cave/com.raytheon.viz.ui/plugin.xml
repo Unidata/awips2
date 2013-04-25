@@ -345,12 +345,6 @@
             id="com.raytheon.viz.ui.modalTool"
             name="Modal Tool">
       </category>
-      <command
-            id="com.raytheon.viz.ui.createProjection"
-            categoryId="com.raytheon.uf.viz.core.commandCategory"
-      	    description="Command to create a new projection"
-            name="Create Projection">
-      </command>
       <commandParameterType
             converter="com.raytheon.viz.ui.parameter.converters.IntegerParameterValueConverter"
             id="com.raytheon.viz.ui.parameter.Integer"
@@ -473,14 +467,6 @@
 </extension>
 <extension
       point="org.eclipse.ui.menus">
-   <menuContribution
-         locationURI="menu:file.new">
-      <command
-            commandId="com.raytheon.viz.ui.createProjection"
-            label="Map Projection..."
-            style="push">
-      </command>
-   </menuContribution>
    <menuContribution
          locationURI="menu:import">
       <command
