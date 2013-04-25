@@ -24,7 +24,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
@@ -35,7 +37,6 @@ import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
@@ -77,6 +78,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * Jan 22, 2010  4248       njensen     Better error msgs
  * Jul 25, 2012  #957       dgilling    Implement getEditArea().
  * Apr 23, 2013  #1937      dgilling    Implement get().
+ * Apr 23, 2013  #1941      dgilling    Implement put(), add methods to build
+ *                                      Scalar/VectorGridSlices, refactor
+ *                                      Discrete/WeatherGridSlices builders.
  * 
  * </pre>
  * 
@@ -234,6 +238,76 @@ public class IFPWE {
         return rval;
     }
 
+    /**
+     * Stores the provided grid slices into this weather element's permanent
+     * storage.
+     * 
+     * @param inventory
+     *            A Map of TimeRanges to IGridSlices to be saved. Time is the
+     *            slice's valid time.
+     * @param timeRangeSpan
+     *            The replacement time range of grids to be saved. Must cover
+     *            each individual TimeRange in inventory.
+     * @throws GfeException
+     *             If an error occurs while trying to obtain a lock on the
+     *             destination database.
+     */
+    public void put(LinkedHashMap<TimeRange, IGridSlice> inventory,
+            TimeRange timeRangeSpan) throws GfeException {
+        statusHandler.debug("Getting lock for ParmID: " + parmId + " TR: "
+                + timeRangeSpan);
+        ServerResponse<List<LockTable>> lockResponse = LockManager
+                .getInstance().requestLockChange(
+                        new LockRequest(parmId, timeRangeSpan, LockMode.LOCK),
+                        wsId, siteId);
+        if (lockResponse.isOkay()) {
+            statusHandler.debug("LOCKING: Lock granted for: " + wsId
+                    + " for time range: " + timeRangeSpan);
+        } else {
+            statusHandler.error("Could not lock TimeRange " + timeRangeSpan
+                    + " for parm [" + parmId + "]: " + lockResponse.message());
+            throw new GfeException("Request lock failed. "
+                    + lockResponse.message());
+        }
+
+        List<GFERecord> records = new ArrayList<GFERecord>(inventory.size());
+        for (Entry<TimeRange, IGridSlice> entry : inventory.entrySet()) {
+            GFERecord rec = new GFERecord(parmId, entry.getKey());
+            rec.setGridHistory(entry.getValue().getHistory());
+            rec.setMessageData(entry.getValue());
+            records.add(rec);
+        }
+        SaveGridRequest sgr = new SaveGridRequest(parmId, timeRangeSpan,
+                records);
+
+        try {
+            ServerResponse<?> sr = GridParmManager.saveGridData(
+                    Arrays.asList(sgr), wsId, siteId);
+            if (sr.isOkay()) {
+                SendNotifications.send(sr.getNotifications());
+            } else {
+                statusHandler.error("Unable to save grids for parm [" + parmId
+                        + "] over time range " + timeRangeSpan + ": "
+                        + sr.message());
+            }
+        } finally {
+            ServerResponse<List<LockTable>> unLockResponse = LockManager
+                    .getInstance().requestLockChange(
+                            new LockRequest(parmId, timeRangeSpan,
+                                    LockMode.UNLOCK), wsId, siteId);
+            if (unLockResponse.isOkay()) {
+                statusHandler.debug("LOCKING: Unlocked for: " + wsId + " TR: "
+                        + timeRangeSpan);
+            } else {
+                statusHandler.error("Could not unlock TimeRange "
+                        + timeRangeSpan + " for parm [" + parmId + "]: "
+                        + lockResponse.message());
+                throw new GfeException("Request unlock failed. "
+                        + unLockResponse.message());
+            }
+        }
+    }
+
     private void setItem(TimeRange time, IGridSlice gridSlice,
             List<GridDataHistory> gdh) throws GfeException {
         GFERecord rec = new GFERecord(parmId, time);
@@ -373,9 +447,7 @@ public class IFPWE {
     public void setItemDiscrete(TimeRange time, byte[] discreteData,
             String keys, List<GridDataHistory> gdhList) throws GfeException {
         IGridSlice gridSlice = buildDiscreteSlice(time, discreteData, keys,
-                gpi.getGridType());
-        gridSlice
-                .setHistory(gdhList.toArray(new GridDataHistory[gdhList.size()]));
+                gdhList);
         setItem(time, gridSlice, gdhList);
     }
 
@@ -393,9 +465,7 @@ public class IFPWE {
     public void setItemWeather(TimeRange time, byte[] weatherData, String keys,
             List<GridDataHistory> gdhList) throws GfeException {
         IGridSlice gridSlice = buildWeatherSlice(time, weatherData, keys,
-                gpi.getGridType());
-        gridSlice
-                .setHistory(gdhList.toArray(new GridDataHistory[gdhList.size()]));
+                gdhList);
         setItem(time, gridSlice, gdhList);
     }
 
@@ -434,59 +504,95 @@ public class IFPWE {
     }
 
     /**
+     * Builds a ScalarGridSlice to store.
+     * 
+     * @param time
+     *            The valid time of the slice.
+     * @param data
+     *            A float array that corresponds to the slice's data.
+     * @param history
+     *            The GridDataHistory for the new slice.
+     * @return A ScalarGridSlice based on the provided data, valid for the given
+     *         time, with the provided history.
+     */
+    public ScalarGridSlice buildScalarSlice(TimeRange time, float[] data,
+            List<GridDataHistory> history) {
+        return new ScalarGridSlice(time, gpi, history, new Grid2DFloat(gpi
+                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), data));
+    }
+
+    /**
+     * Builds a VectorGridSlice to store.
+     * 
+     * @param time
+     *            The valid time of the slice.
+     * @param magData
+     *            A float array that corresponds to the slice's magnitude data.
+     * @param dirData
+     *            A float array that corresponds to the slice's directional
+     *            data.
+     * @param history
+     *            The GridDataHistory for the new slice.
+     * @return A VectorGridSlice based on the provided data, valid for the given
+     *         time, with the provided history.
+     */
+    public VectorGridSlice buildVectorSlice(TimeRange time, float[] magData,
+            float[] dirData, List<GridDataHistory> history) {
+        return new VectorGridSlice(time, gpi, history, new Grid2DFloat(gpi
+                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), magData),
+                new Grid2DFloat(gpi.getGridLoc().getNx(), gpi.getGridLoc()
+                        .getNy(), dirData));
+    }
+
+    /**
      * Builds a discrete grid slice to store
      * 
      * @param time
-     *            the time of the data
-     * @param slice
-     *            an Object[] { byte[], String } corresponding to discrete/wx
-     *            types
-     * @param type
-     *            the type of the data
+     *            The valid time of the data.
+     * @param bytes
+     *            A byte[] corresponding to discrete
+     * @param keyString
+     *            Python encoded form of discrete keys.
+     * @param history
+     *            histories for this grid.
      * @return
-     * @throws GfeException
      */
-    private IGridSlice buildDiscreteSlice(TimeRange time, byte[] bytes,
-            String keyString, GridType type) throws GfeException {
+    public DiscreteGridSlice buildDiscreteSlice(TimeRange time, byte[] bytes,
+            String keyString, List<GridDataHistory> history) {
         List<DiscreteKey> discreteKeyList = new ArrayList<DiscreteKey>();
         List<String> keys = GfeUtil.discreteKeyStringToList(keyString);
 
         for (String k : keys) {
             discreteKeyList.add(new DiscreteKey(siteId, k, parmId));
         }
-        return new DiscreteGridSlice(
-                time,
-                gpi,
-                new GridDataHistory[] {},
-                new Grid2DByte(gpi.getGridLoc().getNx(), gpi.getGridLoc()
-                        .getNy(), bytes),
-                discreteKeyList.toArray(new DiscreteKey[discreteKeyList.size()]));
+        return new DiscreteGridSlice(time, gpi, history, new Grid2DByte(gpi
+                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), bytes),
+                discreteKeyList);
     }
 
     /**
      * Builds a weather grid slice to store
      * 
      * @param time
-     *            the time of the data
-     * @param slice
-     *            an Object[] { byte[], String } corresponding to weather/wx
-     *            types
-     * @param type
-     *            the type of the data
+     *            The valid time of the data.
+     * @param bytes
+     *            A byte[] corresponding to weather
+     * @param keyString
+     *            Python encoded form of weather keys.
+     * @param history
+     *            histories for this grid.
      * @return
-     * @throws GfeException
      */
-    private IGridSlice buildWeatherSlice(TimeRange time, byte[] bytes,
-            String keyString, GridType type) throws GfeException {
+    public WeatherGridSlice buildWeatherSlice(TimeRange time, byte[] bytes,
+            String keyString, List<GridDataHistory> history) {
         List<WeatherKey> weatherKeyList = new ArrayList<WeatherKey>();
         List<String> keys = GfeUtil.discreteKeyStringToList(keyString);
         for (String k : keys) {
             weatherKeyList.add(new WeatherKey(siteId, k));
         }
-        return new WeatherGridSlice(time, gpi, new GridDataHistory[] {},
-                new Grid2DByte(gpi.getGridLoc().getNx(), gpi.getGridLoc()
-                        .getNy(), bytes),
-                weatherKeyList.toArray(new WeatherKey[weatherKeyList.size()]));
+        return new WeatherGridSlice(time, gpi, history, new Grid2DByte(gpi
+                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), bytes),
+                weatherKeyList);
     }
 
     @Override
