@@ -44,7 +44,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -63,7 +62,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -102,7 +100,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension.IColormapShadedShape;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -139,7 +136,6 @@ import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
@@ -166,6 +162,9 @@ import com.vividsolutions.jts.geom.Point;
  * Apr 9, 2013   1890     dhladky    General cleanup.
  * Apr 10, 2013 1896       bsteffen    Make FFMPResource work better with D2D
  *                                     time matcher.
+ * Apr 25, 2013 1954       bsteffen    Skip extent checking for FFMP shape
+ *                                     generation.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -1241,12 +1240,6 @@ public class FFMPResource extends
                         drawable.setDirty(true);
                     }
 
-                    if ((lastExtent == null)
-                            || !lastExtent.getEnvelope().contains(
-                                    drawable.getExt().getEnvelope())) {
-                        drawable.setDirty(true);
-                    }
-
                     // auto refresh state
                     if (isQuery) {
                         drawable.setDirty(true);
@@ -1273,12 +1266,9 @@ public class FFMPResource extends
             if ((drawable != null) && drawable.isDirty()) {
                 // only need to do the query if extent changed, pfafs may be
                 // fine
-                PixelExtent expandedExtent = getExpandedExtent((PixelExtent) paintProps
-                        .getView().getExtent());
-                drawable.setExt(expandedExtent);
-                queryJob.request(aTarget, descriptor, isShaded, drawable,
-                        expandedExtent, paintTime);
-                lastExtent = expandedExtent;
+                if (!isFirst || queryJob.getState() == Job.NONE) {
+                    queryJob.request(aTarget, isShaded, drawable, paintTime);
+                }
             }
 
             boolean isAllHuc = getHuc().equals(FFMPRecord.ALL);
@@ -2430,96 +2420,33 @@ public class FFMPResource extends
 
             IGraphicsTarget target;
 
-            IMapDescriptor descriptor;
-
             boolean shaded;
 
             FFMPDrawable drawable;
 
-            PixelExtent extent;
-
             DataTime time;
 
-            Request(IGraphicsTarget target, IMapDescriptor descriptor,
-                    boolean shaded, FFMPDrawable drawable, PixelExtent extent,
-                    DataTime time) {
+            Request(IGraphicsTarget target, boolean shaded,
+                    FFMPDrawable drawable, DataTime time) {
                 this.target = target;
-                this.descriptor = descriptor;
                 this.shaded = shaded;
                 this.drawable = drawable;
-                this.extent = extent;
                 this.time = time;
             }
         }
 
-        public void request(IGraphicsTarget target, IMapDescriptor descriptor,
-                boolean shaded, FFMPDrawable drawable, PixelExtent extent,
-                DataTime time) {
+        public void request(IGraphicsTarget target, boolean shaded,
+                FFMPDrawable drawable, DataTime time) {
             if (drawable != null) {
                 if (requestQueue.size() == QUEUE_LIMIT) {
                     requestQueue.poll();
                 }
 
-                Request req = new Request(target, descriptor, shaded, drawable,
-                        extent, time);
+                Request req = new Request(target, shaded, drawable,
+                        time);
                 requestQueue.add(req);
                 this.schedule();
             }
-        }
-
-        /**
-         * Determines the area basins. Return true if they have changed, false
-         * otherwise.
-         * 
-         * @param req
-         * @param templates
-         * @param aggrHuc
-         * @return
-         * @throws VizException
-         */
-        private Set<Long> getAreaBasins(String cwa, Request req, String phuc) {
-            FFMPTemplates templates = monitor.getTemplates(getSiteKey());
-            FFMPDrawable drawable = req.drawable;
-            Set<Long> cwaBasins = drawable.getBasins(cwa);
-            if (cwaBasins == null) {
-                cwaBasins = new HashSet<Long>();
-                drawable.setBasins(cwa, cwaBasins);
-            }
-            if ((cwaBasins.size() == 0)
-                    || !req.extent.equals(drawable.getExt())
-                    || !phuc.equals(drawable.getHuc()) || restoreTable) {
-                Envelope env = null;
-                try {
-                    Envelope e = req.descriptor.pixelToWorld(req.extent,
-                            req.descriptor.getCRS());
-                    ReferencedEnvelope ref = new ReferencedEnvelope(e,
-                            req.descriptor.getCRS());
-                    env = ref.transform(MapUtil.LATLON_PROJECTION, true);
-                } catch (Exception e) {
-                    System.out.println("Error transforming extent");
-                }
-
-                cwaBasins.clear();
-
-                try {
-                    // use the envelopes from HUC0 to speed processing
-                    // if necessary
-                    Map<Long, Envelope> envMap = hucGeomFactory.getEnvelopes(
-                            templates, getSiteKey(), cwa, phuc);
-                    for (Entry<Long, Envelope> entry : envMap.entrySet()) {
-
-                        if (env.intersects(entry.getValue())
-                                || env.contains(entry.getValue())) {
-                            // add the individual basins
-                            cwaBasins.add(entry.getKey());
-                        }
-                    }
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.DEBUG, "Domain: " + cwa
-                            + " Outside of site: " + getSiteKey() + " area...");
-                }
-            }
-            return cwaBasins;
         }
 
         /*
@@ -2543,14 +2470,13 @@ public class FFMPResource extends
                 }
 
             });
-
+            String siteKey = getSiteKey();
             Request req = requestQueue.poll();
             while (req != null) {
                 try {
                     // long t0 = System.currentTimeMillis();
                     FFMPDrawable drawable = req.drawable;
-                    FFMPTemplates templates = monitor
-                            .getTemplates(getSiteKey());
+                    FFMPTemplates templates = monitor.getTemplates(siteKey);
 
                     String phuc = getHuc();
                     boolean isAllPhuc = phuc.equals(FFMPRecord.ALL);
@@ -2564,8 +2490,6 @@ public class FFMPResource extends
 
                     boolean globalRegen = !(phuc.equals(drawable.getHuc())
                             && field.equals(drawable.getField())
-                            && lastExtent.getEnvelope().contains(
-                                    drawable.getExt().getEnvelope())
                             && req.time.equals(drawable.getTime())
                             && ((centeredAggregationKey == null) || !centeredAggregationKey
                                     .equals(drawable.getCenterAggrKey()))
@@ -2577,7 +2501,6 @@ public class FFMPResource extends
                     if (globalRegen) {
                         resetRecords();
                     }
-
                     for (DomainXML domain : getDomains()) {
                         String cwa = domain.getCwa();
 
@@ -2591,8 +2514,8 @@ public class FFMPResource extends
                             // + " Table:"
                             // + resourceData.tableLoad);
                             // get base aggr basins that are in screen area
-                            Set<Long> cwaPfafs = null;
-                            cwaPfafs = getAreaBasins(cwa, req, phuc);
+                            Set<Long> cwaPfafs = templates.getMap(getSiteKey(),
+                                    cwa, phuc).keySet();
                             Set<Long> pfafsToProcess = null;
                             Long centeredAggr = null;
 
@@ -2608,7 +2531,7 @@ public class FFMPResource extends
                                             centeredAggr = templates
                                                     .findAggregatedVGB(
                                                             (String) centeredAggregationKey,
-                                                            getSiteKey(), phuc);
+                                                            siteKey, phuc);
                                         } else {
                                             centeredAggr = (Long) drawable
                                                     .getCenterAggrKey();
@@ -2617,7 +2540,7 @@ public class FFMPResource extends
                                                 centeredAggr = templates
                                                         .findAggregatedVGB(
                                                                 (String) centeredAggregationKey,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 phuc);
                                             }
                                         }
@@ -2632,7 +2555,7 @@ public class FFMPResource extends
                                                 centeredAggr = templates
                                                         .getAggregatedPfaf(
                                                                 (Long) centeredAggregationKey,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 phuc);
                                             }
                                         }
@@ -2659,16 +2582,17 @@ public class FFMPResource extends
                             // long t1 = System.currentTimeMillis();
 
                             if ((pfafsToProcess != null)
-                                    && (pfafsToProcess.size() > 0)) {
+                                    && (!pfafsToProcess.isEmpty())) {
 
-                                HashMap<Object, RGB> colorMap = new HashMap<Object, RGB>();
+                                HashMap<Object, RGB> colorMap = new HashMap<Object, RGB>(
+                                        pfafsToProcess.size());
                                 String shadedHuc = null;
 
                                 if (!isAllPhuc) {
 
                                     Map<Long, Geometry> geomMap = hucGeomFactory
-                                            .getGeometries(templates,
-                                                    getSiteKey(), cwa, phuc);
+                                            .getGeometries(templates, siteKey,
+                                                    cwa, phuc);
 
                                     for (Long pfaf : pfafsToProcess) {
 
@@ -2679,12 +2603,12 @@ public class FFMPResource extends
 
                                             if (isParent()) {
                                                 allPfafs = templates.getMap(
-                                                        getSiteKey(), cwa,
+                                                        siteKey, cwa,
                                                         FFMPRecord.ALL)
                                                         .keySet();
                                             } else {
                                                 allPfafs = (List<Long>) (templates
-                                                        .getMap(getSiteKey(),
+                                                        .getMap(siteKey,
                                                                 cwa, phuc)
                                                         .get(centeredAggr));
                                             }
@@ -2693,7 +2617,7 @@ public class FFMPResource extends
                                                 Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                         .getGeometries(
                                                                 templates,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 cwa,
                                                                 FFMPRecord.ALL);
                                                 IColormapShadedShape shape = shadedShapes
@@ -2718,7 +2642,7 @@ public class FFMPResource extends
                                                 && pfaf.equals(centeredAggr)) {
 
                                             Collection<Long> allPfafs = templates
-                                                    .getMap(getSiteKey(), cwa,
+                                                    .getMap(siteKey, cwa,
                                                             FFMPRecord.ALL)
                                                     .keySet();
 
@@ -2727,7 +2651,7 @@ public class FFMPResource extends
                                                 Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                         .getGeometries(
                                                                 templates,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 cwa,
                                                                 FFMPRecord.ALL);
 
@@ -2765,26 +2689,19 @@ public class FFMPResource extends
                                         }
                                     }
                                 } else {
+                                    Map<Long, Geometry> allGeomMap = hucGeomFactory
+                                            .getGeometries(templates, siteKey,
+                                                    cwa, FFMPRecord.ALL);
+                                    IColormapShadedShape shape = shadedShapes
+                                            .getShape(cwa, FFMPRecord.ALL,
+                                                    req.target, descriptor);
 
-                                    if (pfafsToProcess != null) {
-
-                                        Map<Long, Geometry> allGeomMap = hucGeomFactory
-                                                .getGeometries(templates,
-                                                        getSiteKey(), cwa,
-                                                        FFMPRecord.ALL);
-
-                                        IColormapShadedShape shape = shadedShapes
-                                                .getShape(cwa, FFMPRecord.ALL,
-                                                        req.target, descriptor);
-
-                                        shadedHuc = FFMPRecord.ALL;
-
-                                        for (Long allPfaf : pfafsToProcess) {
-                                            generateShapes(templates,
-                                                    FFMPRecord.ALL, allPfaf,
-                                                    allGeomMap, req, shape,
-                                                    colorMap);
-                                        }
+                                    shadedHuc = FFMPRecord.ALL;
+                                    for (Long allPfaf : pfafsToProcess) {
+                                        generateShapes(templates,
+                                                FFMPRecord.ALL, allPfaf,
+                                                allGeomMap, req, shape,
+                                                colorMap);
                                     }
                                 }
 
@@ -2817,7 +2734,6 @@ public class FFMPResource extends
                     if (lowestCenter != ZOOM.BASIN) {
                         drawable.setCenterAggrKey(centeredAggregationKey);
                     }
-                    drawable.setExt(req.extent);
                     drawable.setField(field);
                     drawable.setHuc(phuc);
                     drawable.setMaintainLayer(isMaintainLayer());
@@ -2856,7 +2772,6 @@ public class FFMPResource extends
                 req = requestQueue.poll();
 
             }
-
             VizApp.runSync(new Runnable() {
 
                 @Override
@@ -2901,7 +2816,7 @@ public class FFMPResource extends
 
                     if (color != null) {
                         if (!shape.getColorKeys().contains(pfaf)) {
-                            shape.addGeometry((Geometry) g.clone(), pfaf);
+                            shape.addGeometry(g, pfaf);
                         }
 
                         colorMap.put(pfaf, color);
@@ -3921,33 +3836,27 @@ public class FFMPResource extends
                     basin.getPfaf());
             basin.setCountyFips(fips);
 
+            FFMPGuidanceInterpolation interp = getGuidanceInterpolation(guidType);
+            long sourceExpiration = getGuidSourceExpiration(guidType);
             if (getResourceData().tableLoad) {
                 // interpolating
-                if (getGuidanceInterpolation(guidType).isInterpolate()) {
+                if (interp.isInterpolate()) {
                     // Interpolating between sources
-                    String source1 = getGuidanceInterpolation(guidType)
-                            .getSource1();
-                    String source2 = getGuidanceInterpolation(guidType)
-                            .getSource2();
+                    String source1 = interp.getSource1();
+                    String source2 = interp.getSource2();
                     dvalue = basin.getInterpolatedValue(source1, source2,
-                            getGuidanceInterpolation(guidType)
-                                    .getInterpolationOffset(),
-                            getGuidanceInterpolation(guidType),
-                            getGuidSourceExpiration(guidType));
+                            interp.getInterpolationOffset(), interp,
+                            sourceExpiration);
                 } else {
-                    dvalue = basin.getValue(getGuidanceInterpolation(guidType)
-                            .getStandardSource(),
-                            getGuidanceInterpolation(guidType),
-                            getGuidSourceExpiration(guidType));
+                    dvalue = basin.getValue(interp.getStandardSource(), interp,
+                            sourceExpiration);
                 }
-
                 if (dvalue == FFMPUtils.MISSING) {
                     return Float.NaN;
                 }
             } else {
-                dvalue = basin.getValue(getPrimarySource(), recentTime,
-                        getGuidanceInterpolation(guidType),
-                        getGuidSourceExpiration(guidType));
+                dvalue = basin.getValue(getPrimarySource(), recentTime, interp,
+                        sourceExpiration);
             }
         }
 
