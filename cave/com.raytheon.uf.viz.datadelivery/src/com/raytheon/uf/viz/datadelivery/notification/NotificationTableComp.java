@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Oct 22, 2012   1284     mpduff       Fix the start/end index for pagination of new records, code cleanup.
  * Nov 29, 2012  1285      bgonzale     Added a refresh pause button to the Notification Center Dialog.
  * Jan 22, 2013  1520      mpduff       Update javadoc.
+ * Apr 25, 2013  1820      mpduff       Get the column list every time.
  * </pre>
  * 
  * @author lvenable
@@ -977,9 +978,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         // Get list of columns from config
         NotificationConfigXML xml = configMan.getConfigXml();
 
-        if (columnList == null) {
-            columnList = xml.getColumnList();
-        }
+        columnList = xml.getColumnList();
 
         pageConfig = xml.getPaginationSetting();
 
