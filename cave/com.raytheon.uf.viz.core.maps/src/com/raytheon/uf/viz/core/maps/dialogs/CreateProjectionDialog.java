@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.d2d.ui.dialogs;
+package com.raytheon.uf.viz.core.maps.dialogs;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.d2d.ui.map.actions.NewMapEditor;
+import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -87,7 +87,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class CreateProjectionDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(CreateProjectionDialog.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CreateProjectionDialog.class);
 
     private DefaultMathTransformFactory factory;
 
@@ -186,30 +187,30 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
 
         factory = new DefaultMathTransformFactory();
         Set<?> methods = factory.getAvailableMethods(Projection.class);
-        //Removed for DR 15567
-//        String[] projections = new String[methods.size()];
+        // Removed for DR 15567
+        // String[] projections = new String[methods.size()];
 
-        //int i = 0;
+        // int i = 0;
         List<Object> prjj = new ArrayList<Object>();
         for (Object obj : methods) {
             if (obj instanceof MapProjection.AbstractProvider) {
                 MapProjection.AbstractProvider prj = (MapProjection.AbstractProvider) obj;
                 // DR15567 Remove "Orthographic" projection temporarily
                 String orthProj = prj.getName().getCode();
-                if (orthProj == "Orthographic"){
-                	continue;
+                if (orthProj == "Orthographic") {
+                    continue;
                 } else {
-                	prjj.add(prj.getName().getCode());
+                    prjj.add(prj.getName().getCode());
                 }
-                //Put this back in when ready to revert the code 
-                //projections[i++] = prj.getName().getCode();
+                // Put this back in when ready to revert the code
+                // projections[i++] = prj.getName().getCode();
             }
         }
         // DR15567
         String[] projections = new String[prjj.size()];
         int j = 0;
-        for (Object obj : prjj){
-        	projections[j++] = obj.toString();
+        for (Object obj : prjj) {
+            projections[j++] = obj.toString();
         }
         // End of mods
         Arrays.sort(projections);

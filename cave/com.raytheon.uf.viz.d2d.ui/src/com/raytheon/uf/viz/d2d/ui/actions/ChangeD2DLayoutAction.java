@@ -31,7 +31,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.d2d.ui.map.actions.NewMapEditor;
+import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
