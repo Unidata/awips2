@@ -49,6 +49,12 @@
          <commandParameter id="mapName" name="Map Name" optional="false"/>
          <commandParameter id="mapPath" name="Map Path" optional="false"/>
       </command>
+      <command
+            id="com.raytheon.viz.ui.maps.createProjection"
+            categoryId="com.raytheon.uf.viz.core.commandCategory"
+      	    description="Command to create a new map projection"
+            name="Create Projection">
+      </command>
    </extension>
    <extension
       point="org.eclipse.ui.handlers">
@@ -59,6 +65,10 @@
       <handler
       	 class="com.raytheon.uf.viz.core.maps.scales.MapScaleHandler"
       	 commandId="com.raytheon.viz.ui.setScale">
+      </handler>
+      <handler
+           class="com.raytheon.uf.viz.core.maps.actions.CreateProjectionHandler"
+           commandId="com.raytheon.viz.ui.maps.createProjection">
       </handler>
    </extension>
    <extension
@@ -116,6 +126,14 @@
    </extension>
    <extension
          point="org.eclipse.ui.menus">
+        <menuContribution
+           locationURI="menu:file.new">
+	       <command
+	            commandId="com.raytheon.viz.ui.maps.createProjection"
+	            label="Map Projection..."
+	            style="push">
+	       </command>
+        </menuContribution>
    		<menuContribution
                locationURI="menu:com.raytheon.viz.ui.scale">
            <dynamic
