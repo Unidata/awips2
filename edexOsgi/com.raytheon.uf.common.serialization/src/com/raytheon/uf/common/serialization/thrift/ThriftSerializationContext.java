@@ -996,7 +996,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
 
                 if (set == null) {
                     // assume hashset if nothing else available
-                    set = new HashSet((int) (tmap.size / 0.75) + 1, 0.75f);
+                    set = new HashSet((int) (tset.size / 0.75) + 1, 0.75f);
                 }
 
                 for (int i = 0; i < tset.size; i++) {
