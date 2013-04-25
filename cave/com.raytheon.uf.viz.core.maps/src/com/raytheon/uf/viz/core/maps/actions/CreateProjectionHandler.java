@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.d2d.ui.map;
+package com.raytheon.uf.viz.core.maps.actions;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -25,7 +25,7 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.d2d.ui.dialogs.CreateProjectionDialog;
+import com.raytheon.uf.viz.core.maps.dialogs.CreateProjectionDialog;
 import com.raytheon.viz.ui.tools.AbstractTool;
 
 /**

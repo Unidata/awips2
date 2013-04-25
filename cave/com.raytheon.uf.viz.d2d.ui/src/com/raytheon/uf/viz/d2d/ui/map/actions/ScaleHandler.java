@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
 import com.raytheon.uf.viz.core.maps.scales.MapScales;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
