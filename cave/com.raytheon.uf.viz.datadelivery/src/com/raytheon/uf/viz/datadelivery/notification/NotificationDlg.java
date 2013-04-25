@@ -96,6 +96,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 03, 2012  1285      bgonzale   Added implementation of the tableLock method.
  *                                    Update title bar text when paused.
  * Jan 22, 2013  1520      mpduff     Change delete menus to hide.
+ * Apr 25, 2013  1820      mpduff     Implemente delete config.
  * 
  * </pre>
  * 
@@ -639,7 +640,6 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         // set the configuration to the selected file
         configMan.setConfigXml(xml);
         tableComp.tableChangedAfterConfigLoad();
-
     }
 
     /**
@@ -682,9 +682,8 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      * Save as configuration action.
      */
     private void handleSaveAsConfig() {
-
-        NotificationConfigManager configMan;
-        configMan = NotificationConfigManager.getInstance();
+        NotificationConfigManager configMan = NotificationConfigManager
+                .getInstance();
 
         LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
                 DialogType.SAVE_AS, CONFIG_PATH, DEFAULT_CONFIG);
@@ -699,7 +698,14 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      * Delete configuration action.
      */
     private void handleDeleteConfig() {
-        System.out.println("Delete");
+        LoadSaveConfigDlg dlg = new LoadSaveConfigDlg(shell, DialogType.DELETE,
+                CONFIG_PATH, true);
+        LocalizationFile fileName = (LocalizationFile) dlg.open();
+
+        NotificationConfigManager configMan = NotificationConfigManager
+                .getInstance();
+        configMan.deleteXml(fileName);
+        tableComp.tableChangedAfterConfigLoad();
     }
 
     /**
