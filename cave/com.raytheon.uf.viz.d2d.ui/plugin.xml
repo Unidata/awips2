@@ -1450,10 +1450,6 @@
                commandId="com.raytheon.viz.ui.actions.densitybutton">
          </handler>
          <handler
-               class="com.raytheon.uf.viz.d2d.ui.map.CreateProjectionHandler"
-               commandId="com.raytheon.viz.ui.createProjection">
-         </handler>
-         <handler
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ToggleResourceHandler"
                commandId="com.raytheon.viz.ui.actions.toggleResource">
             <activeWhen>
