@@ -153,7 +153,7 @@ if [ "${1}" = "-delta" ]; then
    fi
 
    buildRPM "awips2"
-   buildRPM "Installer.ncep-database"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-python"
@@ -190,7 +190,6 @@ if [ "${1}" = "-full" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "Installer.ncep-database"
    buildRPM "awips2-alertviz"
    buildEDEX
    if [ $? -ne 0 ]; then
@@ -357,7 +356,6 @@ if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   buildRPM "Installer.ncep-database"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
