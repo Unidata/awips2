@@ -65,6 +65,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013 1910       djohnson     Initial creation
  * Apr 29, 2013 1910       djohnson     Move to integration tests section.
+ * May 02, 2013 1910       djohnson     Add validator plugins spring file.
  * 
  * </pre>
  * 
@@ -74,7 +75,9 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.EBXML_XML, SpringFiles.EBXML_XACML_XML,
+        SpringFiles.EBXML_SUBSCRIPTION_XML,
         SpringFiles.EBXML_WEBSERVICES_XML,
+        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
         SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
         SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
