@@ -84,8 +84,8 @@ public class ExportObject extends CanonicalEbxmlQuery {
     }
 
     @Override
-    protected void query(QueryType queryType, QueryResponse queryResponse)
-            throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         List<RegistryObjectType> retVal = new ArrayList<RegistryObjectType>();
 
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
