@@ -149,6 +149,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking PreferencesDlg.
  *                                      Changes for non-blocking PublicationsDlg.
  *                                      Changes for non-blocking QcAlertAlarmLimitsDlg.
+ *                                      Changes for non-blocking RadarLocationsDlg.
+ *                                      Changes for non-blocking ReferenceFieldsDlg.
+ *                                      Changes for non-blocking ReferencesDlg.
+ *                                      Changes for non-blocking ReservoirDlg.
  * 
  * </pre>
  * 
@@ -260,6 +264,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow one QC alart/alarm limits dialog.
      */
     private QcAlertAlarmLimitsDlg qcAlertAlarmDlg;
+
+    /**
+     * Allow one Radar locations dialog.
+     */
+    private RadarLocationsDlg radarLocDlg;
+
+    /**
+     * Allow one Reference Field dialog.
+     */
+    private ReferenceFieldsDlg referenceDlg;
+
+    /**
+     * Allow one References dialog per station.
+     */
+    private final Map<String, ReferencesDlg> referencesDlgMap = new HashMap<String, ReferencesDlg>();
+
+    /**
+     * Allow one Reservoir dialog per station.
+     */
+    private final Map<String, ReservoirDlg> reservoirDlgMap = new HashMap<String, ReservoirDlg>();
 
     /**
      * Flood category menu item.
@@ -1000,9 +1024,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         referencesMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ReferencesDlg referencesDlg = new ReferencesDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                referencesDlg.open();
+                String lid = getSelectedLocation().getStation();
+                ReferencesDlg referencesDlg = referencesDlgMap.get(lid);
+                if (referencesDlg == null) {
+                    referencesDlg = new ReferencesDlg(shell,
+                            getStationAndName(), lid);
+                    referencesDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                referencesDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    referencesDlgMap.put(lid, referencesDlg);
+                    referencesDlg.open();
+                } else {
+                    referencesDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(referencesMI);
@@ -1036,9 +1077,24 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         reservoirMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ReservoirDlg reservoirDlg = new ReservoirDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                reservoirDlg.open();
+                String lid = getSelectedLocation().getStation();
+                ReservoirDlg reservoirDlg = reservoirDlgMap.get(lid);
+                if (reservoirDlg == null) {
+                    reservoirDlg = new ReservoirDlg(shell, getStationAndName(),
+                            lid);
+                    reservoirDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                reservoirDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    reservoirDlgMap.put(lid, reservoirDlg);
+                    reservoirDlg.open();
+                }
             }
         });
     }
@@ -1229,9 +1285,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         referenceFieldsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-
-                ReferenceFieldsDlg referenceDlg = new ReferenceFieldsDlg(shell);
-                referenceDlg.open();
+                if (referenceDlg == null || referenceDlg.isDisposed()) {
+                    referenceDlg = new ReferenceFieldsDlg(shell);
+                    referenceDlg.open();
+                } else {
+                    referenceDlg.bringToTop();
+                }
             }
         });
 
@@ -1281,8 +1340,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         radarLocationsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                RadarLocationsDlg radarLocDlg = new RadarLocationsDlg(shell);
-                radarLocDlg.open();
+                if (radarLocDlg == null || radarLocDlg.isDisposed()) {
+                    radarLocDlg = new RadarLocationsDlg(shell);
+                    radarLocDlg.open();
+                } else {
+                    radarLocDlg.bringToTop();
+                }
             }
         });
 
