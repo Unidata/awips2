@@ -1,6 +1,5 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:jaxws="http://cxf.apache.org/jaxws" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
 	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
@@ -12,16 +11,17 @@
     http://cxf.apache.org/schemas/jaxrs.xsd">
 
 	<import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
-	<import resource="classpath:res/spring/ebxml.xml"/>
+	<import resource="classpath:res/spring/ebxml.xml" />
 	<import resource="classpath:res/spring/ebxml-webservices.xml" />
 	<import resource="classpath:res/spring/ebxml-querytypes.xml" />
 	<import resource="classpath:res/spring/ebxml-registry-dao.xml" />
+	<import resource="classpath:res/spring/ebxml-subscription.xml" />
+	<import resource="classpath:res/spring/ebxml-constants.xml" />
 
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-
 
 	<!-- SOAP Service definitions -->
 	<jaxws:server id="QueryService" address="/queryManager">
