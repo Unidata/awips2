@@ -44,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.registry.constants.Languages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
  * 
@@ -202,8 +201,7 @@ public class QueryProtocolRestService {
          */
         for (String key : queryParameters.keySet()) {
             if (!CANONICAL_QUERY_PARAMETERS.contains(key)) {
-                EbxmlObjectUtil.addStringSlot(queryType, key,
-                        queryParameters.getFirst(key), false);
+                queryType.addSlot(key, queryParameters.getFirst(key));
             }
         }
         return responseJaxb.marshalToXml(queryManager

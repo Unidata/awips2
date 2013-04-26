@@ -72,11 +72,20 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 
 public class EbxmlObjectUtil {
 
-    /** The name of the slot designated to hold the home server address of a registry object */
+    /**
+     * The name of the slot designated to hold the home server address of a
+     * registry object
+     */
     public static final String HOME_SLOT_NAME = "urn:oasis:names:tc:ebxml-regrep:rim:RegistryObject:home";
 
     /** The name of the slot designated to hold the email notification formatter */
     public static final String EMAIL_NOTIFICATION_FORMATTER_SLOT = "urn:oasis:names:tc:ebxml-regrep:rim:DeliveryInfo:emailNotificationFormatter";
+
+    /**
+     * Slot name of the slot on the subscription object that holds the last run
+     * time
+     */
+    public static final String SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME = "SubscriptionLastRunTime";
 
     /**
      * The lifecycle manager object factory
