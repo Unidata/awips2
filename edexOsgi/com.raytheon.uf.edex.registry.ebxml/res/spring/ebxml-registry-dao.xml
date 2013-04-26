@@ -42,7 +42,6 @@
 
 	<bean name="AuditableEventTypeDao"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao">
-        <property name="subscriptionManager" ref="registrySubscriptionManagerInvoker" />
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
 
