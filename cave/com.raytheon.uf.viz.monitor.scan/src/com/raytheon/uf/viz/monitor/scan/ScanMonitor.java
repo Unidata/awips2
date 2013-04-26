@@ -111,6 +111,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Jan 29, 2009            dhladky     Initial creation
  * Apr 18, 2013     1926   njensen    Changed inner data maps to have Long key
  *                                                       to avoid !TimeStamp.equals(Date) issue
+ * Apr 26, 2013     1926   njensen     Optimized getAvailableUris()
  * </pre>
  * 
  * @author dhladky
@@ -443,34 +444,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         }
 
         return scanRec;
-    }
-
-    /**
-     * Get list of records
-     * 
-     * @param type
-     * @param interval
-     * @return
-     */
-    public ScanRecord[] getScanRecords(ScanTables type, String icao)
-            throws VizException {
-        List<ScanRecord> recordList = new ArrayList<ScanRecord>();
-        String[] uriList = getAvailableUris(type, icao);
-
-        for (String uri : uriList) {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("pluginName", "scan");
-            vals.put("dataURI", uri);
-
-            ScanRecord scanRec = (ScanRecord) Loader.loadData(vals);
-            File loc = HDF5Util.findHDF5Location(scanRec);
-            IDataStore dataStore = DataStoreFactory.getDataStore(loc);
-            if (scanRec != null) {
-                scanRec.retrieveMapFromDataStore(dataStore);
-                recordList.add(scanRec);
-            }
-        }
-        return recordList.toArray(new ScanRecord[recordList.size()]);
     }
 
     /**
@@ -1277,41 +1250,40 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         return uri;
     }
 
-    public String[] getAvailableUris(ScanTables type, String icao) {
-        List<String> uriList = new ArrayList<String>();
-        SimpleDateFormat datef = new SimpleDateFormat(datePattern);
-        datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
-        String addedSQL = "";
+    public List<String> getAvailableUris(ScanTables type, String icao) {
+        List<String> uriList = null;
+        String sql = null;
         if (type == ScanTables.DMD) {
-            addedSQL = "' and lastelevationangle = 't'";
+            sql = "(select datauri from scan where type = '"
+                    + type.name()
+                    + "' and icao = '"
+                    + icao
+                    + "' and lastelevationangle ='t')"
+                    + " union (select datauri from scan where type = '"
+                    + type.name()
+                    + "' and icao = '"
+                    + icao
+                    + "' and lastelevationangle = 'f' order by reftime desc, tilt desc limit 1)";
         } else {
-            addedSQL = "'";
+            sql = "(select datauri from scan where type = '" + type.name()
+                    + "' and icao = '" + icao + "')";
         }
-        String sql = "(select datauri from scan where type = '"
-                + type.name()
-                + "' and icao = '"
-                + icao
-                + addedSQL
-                + " order by reftime desc) "
-                + "union (select datauri from scan where type = '"
-                + type.name()
-                + "' and icao = '"
-                + icao
-                + "' and lastelevationangle = 'f' order by reftime desc, tilt desc limit 1)";
+
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(sql,
                     "metadata", QueryLanguage.SQL);
 
+            uriList = new ArrayList<String>(results.size());
             if (results.size() > 0) {
                 for (Object[] ob : results) {
                     uriList.add((String) ob[0]);
                 }
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Error retrieving scan uris", e);
         }
 
-        return uriList.toArray(new String[uriList.size()]);
+        return uriList;
     }
 
     /**
