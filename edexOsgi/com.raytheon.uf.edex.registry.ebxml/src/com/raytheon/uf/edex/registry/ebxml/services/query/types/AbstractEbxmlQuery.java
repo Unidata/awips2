@@ -69,7 +69,8 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
             .getHandler(IRegistryQuery.class);
 
     protected abstract void query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException;
+            QueryResponse queryResponse, String client)
+            throws EbxmlRegistryException;
 
     protected abstract List<String> getValidParameters();
 
@@ -82,7 +83,8 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
     protected RegistryObjectDao registryObjectDao;
 
     public void executeQuery(QueryRequest queryRequest,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+            QueryResponse queryResponse, String client)
+            throws EbxmlRegistryException {
         /*
          * The full functionality of querying will be implemented at a later
          * time under a different ticket. Parts of this method have been removed
@@ -104,7 +106,7 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
             maxResults = 0;
         }
 
-        query(queryRequest.getQuery(), queryResponse);
+        query(queryRequest.getQuery(), queryResponse, client);
         statusHandler.info("Query completed.");
     }
 

@@ -62,8 +62,8 @@ public class GetChildrenByParentId extends CanonicalEbxmlQuery {
     }
 
     @Override
-    protected void query(QueryType queryType, QueryResponse queryResponse)
-            throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         // TODO: Implement
     }
 
