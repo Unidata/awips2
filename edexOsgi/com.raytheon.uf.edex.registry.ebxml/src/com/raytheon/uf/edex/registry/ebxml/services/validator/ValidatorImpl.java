@@ -232,12 +232,13 @@ public class ValidatorImpl implements Validator {
             // Find any specific validator for this type
             Validator validator = validatorPlugins
                     .getRegisteredObject(objectType);
-            if (validator == null
-                    && statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler
-                        .debug("There is no plugin validator for registry objects with type ["
-                                + objectType
-                                + "].  Only the generic registry object validator will be used...");
+            if (validator == null) {
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler
+                            .debug("There is no plugin validator for registry objects with type ["
+                                    + objectType
+                                    + "].  Only the generic registry object validator will be used...");
+                }
             } else {
                 final ValidateObjectsResponse validateRegistryObjectsResponse = validator
                         .validateObjects(request);
