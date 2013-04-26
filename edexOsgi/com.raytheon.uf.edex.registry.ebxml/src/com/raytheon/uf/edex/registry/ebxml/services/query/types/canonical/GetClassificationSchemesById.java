@@ -74,8 +74,8 @@ public class GetClassificationSchemesById extends CanonicalEbxmlQuery {
     private RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao;
 
     @Override
-    protected void query(QueryType queryType, QueryResponse queryResponse)
-            throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
