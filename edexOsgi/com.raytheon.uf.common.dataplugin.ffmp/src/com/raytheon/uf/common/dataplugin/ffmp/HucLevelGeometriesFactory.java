@@ -19,16 +19,21 @@
  **/
 package com.raytheon.uf.common.dataplugin.ffmp;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.zip.GZIPInputStream;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -38,6 +43,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.adapters.FloatWKBReader;
+import com.raytheon.uf.common.serialization.adapters.FloatWKBWriter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -50,7 +57,10 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
- * TODO Add Description
+ * Manage a cache of geometries and envelopes for different areas/resolutions.
+ * The first time FFMP is loaded the geometries will be simplified and stored to
+ * localization for faster retrieval. All geometries and envelopes are held in
+ * memory by a soft reference or until they are explicitly cleared.
  * 
  * <pre>
  * 
@@ -59,6 +69,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2010            rjpeter     Initial creation
+ * Apr 25, 2013 1954       bsteffen    Decompress ffmp geometries to save time
+ *                                     loading them.
  * 
  * </pre>
  * 
@@ -122,9 +134,44 @@ public class HucLevelGeometriesFactory {
 
             if (f.exists()) {
                 try {
-                    map = (Map<Long, Geometry>) SerializationUtil
-                            .transformFromThrift(FileUtil.file2bytes(
-                                    f.getFile(), true));
+                    File file = f.getFile();
+                    byte[] bytes = FileUtil.file2bytes(file, false);
+                    if (bytes[0] == (byte) 0x1f && bytes[1] == (byte) 0x8b) {
+                        // GZIP magic number is present, before 13.4.1 these
+                        // files were compressed and stored in a different
+                        // format, to maintain backwards compatibility we check
+                        // for compression and deserialize the old way. This
+                        // code can be removed any time after 13.5.1.
+                        System.out.println("Decompressing geometry files.");
+                        InputStream is = new ByteArrayInputStream(bytes);
+                        is = new GZIPInputStream(is, bytes.length);
+                        ByteArrayOutputStream os = new ByteArrayOutputStream(
+                                bytes.length * 3 / 2);
+                        byte[] buffer = new byte[1024 * 8];
+                        int numRead = 0;
+                        while ((numRead = is.read(buffer)) >= 0) {
+                            os.write(buffer, 0, numRead);
+                        }
+                        bytes = os.toByteArray();
+                        map = (Map<Long, Geometry>) SerializationUtil
+                                .transformFromThrift(Map.class, bytes);
+                        // save them back the new way.
+                        persistGeometryMap(dataKey, cwa, huc, map);
+                    } else {
+                        Map<Long, byte[]> serializableMap = (Map<Long, byte[]>) SerializationUtil
+                                .transformFromThrift(Map.class, bytes);
+                        FloatWKBReader reader = new FloatWKBReader(
+                                new GeometryFactory());
+                        map = new HashMap<Long, Geometry>(
+                                serializableMap.size());
+                        for (Entry<Long, byte[]> entry : serializableMap
+                                .entrySet()) {
+                            InputStream in = new ByteArrayInputStream(
+                                    entry.getValue());
+                            Geometry geom = reader.readGeometry(in);
+                            map.put(entry.getKey(), geom);
+                        }
+                    }
                     int sizeGuess = Math.max(
                             Math.abs(pfafs.size() - map.size()), 10);
                     pfafsToGenerate = new ArrayList<Long>(sizeGuess);
@@ -341,13 +388,23 @@ public class HucLevelGeometriesFactory {
 
     protected synchronized void persistGeometryMap(String dataKey, String cwa,
             String huc, Map<Long, Geometry> map) throws Exception {
+
         LocalizationContext lc = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile lf = pathManager.getLocalizationFile(lc,
                 getGeomPath(dataKey, cwa, huc));
-        FileUtil.bytes2File(SerializationUtil.transformToThrift(map),
-                lf.getFile(), true);
+        FloatWKBWriter writer = new FloatWKBWriter();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+        Map<Long, byte[]> serializableMap = new HashMap<Long, byte[]>();
+        for (Entry<Long, Geometry> entry : map.entrySet()) {
+            writer.writeGeometry(entry.getValue(), bos);
+            serializableMap.put(entry.getKey(), bos.toByteArray());
+            bos.reset();
+        }
+        byte[] bytes = SerializationUtil.transformToThrift(serializableMap);
+        FileUtil.bytes2File(bytes, lf.getFile(), false);
         lf.save();
+
     }
 
     protected synchronized String getGeomPath(String dataKey, String cwa,
