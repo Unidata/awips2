@@ -76,14 +76,14 @@ public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
     private BasicQuery basicQuery;
 
     @Override
-    protected void query(QueryType queryType, QueryResponse queryResponse)
-            throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters params = getParameterMap(queryType.getSlot(),
                 queryResponse);
 
         QueryResponse basicQueryResponse = new QueryResponse();
         basicQuery.setReturnType(RETURN_TYPE.ObjectRef);
-        basicQuery.query(queryType, basicQueryResponse);
+        basicQuery.query(queryType, basicQueryResponse, client);
         ObjectRefListType basicQueryResult = basicQueryResponse
                 .getObjectRefList();
         if (basicQueryResult == null

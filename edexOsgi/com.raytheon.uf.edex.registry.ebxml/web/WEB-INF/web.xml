@@ -10,15 +10,39 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 	version="2.4">
-	<display-name>Data Delivery</display-name>
+	<display-name>Data Delivery Web Services</display-name>
+	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/webServiceBeans.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>hibernateFilter</filter-name>
+		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
+		<init-param>
+			<param-name>singleSession</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>sessionFactoryBeanName</param-name>
+			<param-value>metadataSessionFactory</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>hibernateFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>RegistryWebServiceServlet</servlet-name>
 		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
-		<init-param>
-			<param-name>config-location</param-name>
-			<param-value>/webServiceBeans.xml</param-value>
-		</init-param>
 		<init-param>
 			<param-name>static-welcome-file</param-name>
 			<param-value>/RegistryUserMenu.html</param-value>
