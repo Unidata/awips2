@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * Apr 9, 2013   1890     dhladky    removed loading of phantom Virtual template and cache file processing.
  * Apr 18, 2013 1912       bsteffen    Increase bulk requests to pypies.
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -96,7 +97,7 @@ public class FFMPDataLoader extends Thread {
 
     private String dataKey = null;
 
-    private ArrayList<String> hucsToLoad = null;
+    private List<String> hucsToLoad = null;
 
     private String wfo = null;
 
@@ -109,8 +110,7 @@ public class FFMPDataLoader extends Thread {
     private CountDownLatch latch;
 
     public FFMPDataLoader(FFMPResourceData resourceData, Date timeBack,
-            Date mostRecentTime, LOADER_TYPE loadType,
-            ArrayList<String> hucsToLoad) {
+            Date mostRecentTime, LOADER_TYPE loadType, List<String> hucsToLoad) {
 
         this.product = resourceData.getProduct();
         this.siteKey = resourceData.siteKey;
@@ -172,9 +172,8 @@ public class FFMPDataLoader extends Thread {
                     .getSourceConfig();
 
             ProductRunXML productRun = runner.getProduct(siteKey);
-            ArrayList<SourceXML> qpfSources = new ArrayList<SourceXML>();
+            List<SourceXML> qpfSources = new ArrayList<SourceXML>();
             String layer = config.getFFMPConfigData().getLayer();
-            boolean isProductLoad = true;
             String rateURI = null;
 
             if (loadType != LOADER_TYPE.GENERAL) {
@@ -278,8 +277,8 @@ public class FFMPDataLoader extends Thread {
                 fireLoaderEvent(loadType, "Processing " + product.getRate(),
                         isDone());
                 for (String phuc : hucsToLoad) {
-                    monitor.processUri(isProductLoad, rateURI, siteKey,
-                            product.getRate(), timeBack, phuc);
+                    monitor.processUri(rateURI, siteKey, product.getRate(),
+                            timeBack, phuc);
                 }
                 fireLoaderEvent(loadType, product.getRate(), isDone());
             }
@@ -305,8 +304,8 @@ public class FFMPDataLoader extends Thread {
             if (!qpeURIs.isEmpty()) {
                 for (String phuc : hucsToLoad) {
                     if (phuc.equals(layer) || phuc.equals(FFMPRecord.ALL)) {
-                        monitor.processUris(qpeURIs, isProductLoad, siteKey,
-                                product.getQpe(), timeBack, phuc);
+                        monitor.processUris(qpeURIs, siteKey, product.getQpe(),
+                                timeBack, phuc);
                     }
                 }
             }
@@ -338,8 +337,8 @@ public class FFMPDataLoader extends Thread {
                 if (!qpfURIs.isEmpty()) {
                     for (String phuc : hucsToLoad) {
                         if (phuc.equals(layer) || phuc.equals(FFMPRecord.ALL)) { // old
-                            monitor.processUris(qpfURIs, isProductLoad,
-                                    siteKey, product.getQpf(i), timeBack, phuc);
+                            monitor.processUris(qpfURIs, siteKey,
+                                    product.getQpf(i), timeBack, phuc);
                         }
                     }
                 }
@@ -353,8 +352,8 @@ public class FFMPDataLoader extends Thread {
                     isDone());
             // process virtual all for all only, never uses cache files
             if (!virtualURIs.isEmpty()) {
-                monitor.processUris(virtualURIs, isProductLoad, siteKey,
-                        product.getVirtual(), timeBack, FFMPRecord.ALL);
+                monitor.processUris(virtualURIs, siteKey, product.getVirtual(),
+                        timeBack, FFMPRecord.ALL);
             }
 
             fireLoaderEvent(loadType, product.getVirtual(), isDone());
@@ -373,7 +372,7 @@ public class FFMPDataLoader extends Thread {
                             "Processing " + guidSource.getSourceName(),
                             isDone());
 
-                    monitor.processUris(iguidURIs, isProductLoad, siteKey,
+                    monitor.processUris(iguidURIs, siteKey,
                             guidSource.getSourceName(), timeBack,
                             FFMPRecord.ALL);
 
