@@ -21,8 +21,11 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import java.util.Random;
 
+import com.raytheon.uf.common.registry.constants.EventTypes;
+import com.raytheon.uf.common.util.AbstractFixture;
+
 /**
- * Fixture to retrieve {@link OrganizationType} instances.
+ * Fixture to retrieve {@link ActionType} instances.
  * 
  * <pre>
  * 
@@ -31,7 +34,6 @@ import java.util.Random;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2013 1910       djohnson     Initial creation
- * May 02, 2013 1910       djohnson     Create RegistryObjectTypeFixture.
  * 
  * </pre>
  * 
@@ -39,39 +41,22 @@ import java.util.Random;
  * @version 1.0
  */
 
-public class OrganizationTypeFixture extends
-        RegistryObjectTypeFixture<OrganizationType> {
+public class ActionTypeFixture extends AbstractFixture<ActionType> {
 
-    public static final OrganizationTypeFixture INSTANCE = new OrganizationTypeFixture();
+    public static final ActionTypeFixture INSTANCE = new ActionTypeFixture();
 
-    protected OrganizationTypeFixture() {
+    protected ActionTypeFixture() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected OrganizationType getInstance(long seedValue, Random random) {
-        final OrganizationType organizationType = super.getInstance(seedValue,
-                random);
-        organizationType.setPrimaryContact("primaryContact" + seedValue);
-        return organizationType;
-    }
+    protected ActionType getInstance(long seedValue, Random random) {
+        final ActionType instance = new ActionType();
+        instance.setEventType(EventTypes.CREATED);
+        instance.setKey(random.nextInt());
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getObjectType() {
-        return "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization";
+        return instance;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected OrganizationType getRegistryObject() {
-        return new OrganizationType();
-    }
-
 }

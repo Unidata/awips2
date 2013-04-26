@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.validator;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -37,6 +39,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013 1910       djohnson     Initial creation
+ * May 02, 2013 1910       djohnson     Add ability to validate registry object type.
  * 
  * </pre>
  * 
@@ -77,5 +80,22 @@ public class LocalServerRegistryObjectReferenceValidator implements
      */
     public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
         this.registryObjectDao = registryObjectDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ValidateObjectTypeResponse isValidObjectType(String reference,
+            Class<? extends RegistryObjectType> expectedType) {
+        final RegistryObjectType registryObject = registryObjectDao
+                .getById(reference);
+        if (registryObject == null) {
+            return ValidateObjectTypeResponse.DOESNT_EXIST;
+        } else if (!expectedType.isAssignableFrom(registryObject.getClass())) {
+            return ValidateObjectTypeResponse.WRONG_TYPE;
+        }
+
+        return ValidateObjectTypeResponse.VALID;
     }
 }
