@@ -157,11 +157,11 @@ public class QueryManagerImpl implements QueryManager {
     @Override
     public QueryResponse executeQuery(QueryRequest queryRequest)
             throws MsgRegistryException {
+        String client = EbxmlObjectUtil.getClientHost(wsContext);
         ITimer timer = TimeUtil.getTimer();
         timer.start();
         statusHandler.info("QueryManager received executeQuery Request "
-                + queryRequest.getId() + " from ["
-                + EbxmlObjectUtil.getClientHost(wsContext) + "]");
+                + queryRequest.getId() + " from [" + client + "]");
         QueryResponse response = EbxmlObjectUtil.queryObjectFactory
                 .createQueryResponse();
         response.setStatus(RegistryResponseStatus.SUCCESS);
@@ -209,7 +209,7 @@ public class QueryManagerImpl implements QueryManager {
         IRegistryQuery query = getQuery(queryType);
 
         try {
-            query.executeQuery(queryRequest, response);
+            query.executeQuery(queryRequest, response, client);
             if (eagerFetch) {
                 try {
                     SerializationUtil.getJaxbManager().marshalToXml(response);

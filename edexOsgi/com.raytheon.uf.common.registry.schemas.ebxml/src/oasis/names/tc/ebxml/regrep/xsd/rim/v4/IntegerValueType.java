@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "IntegerValueType", propOrder = { "integerValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "IntegerValue")
 public class IntegerValueType extends ValueType {
     @Column(name = COLUMN_NAME)
@@ -103,7 +103,16 @@ public class IntegerValueType extends ValueType {
      */
     @Override
     public void setValue(Object value) {
-        this.integerValue = (BigInteger) value;
+        if (value instanceof Integer) {
+            this.integerValue = BigInteger.valueOf(((Integer) value)
+                    .longValue());
+        } else if (value instanceof BigInteger) {
+            this.integerValue = (BigInteger) value;
+        } else {
+            throw new IllegalArgumentException(
+                    "IntegerValueType cannot have values of type: "
+                            + value.getClass());
+        }
     }
 
     public BigInteger getIntegerValue() {

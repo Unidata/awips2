@@ -1,11 +1,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="queryTypeManager"
-		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryTypeManager">
-		<property name="queryList">
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryTypeManager" />
+
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod"
+			value="com.raytheon.uf.edex.registry.ebxml.services.query.QueryTypeManager.addQueryTypes" />
+		<property name="arguments">
 			<list>
 				<ref bean="basicQuery" />
 				<ref bean="adhocQuery" />
@@ -19,9 +24,9 @@
 				<ref bean="getAuditTrailById" />
 				<ref bean="getAuditTrailByLid" />
 				<ref bean="getAuditTrailByTimeInterval" />
+				<ref bean="getNotification"/>
 				<ref bean="getChildrenByParentId" />
 				<ref bean="getClassificationSchemesById" />
-				<ref bean="getNotification" />
 				<ref bean="getObjectById" />
 				<ref bean="getObjectsByLid" />
 				<ref bean="getRegistryPackagesByMemberId" />
@@ -87,6 +92,12 @@
 		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
 	</bean>
+	<bean id="getNotification"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetNotification">
+		<property name="subscriptionManager" ref="RegistrySubscriptionManager" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="subscriptionDao" ref="subscriptionTypeDao"/>
+	</bean>
 	<bean id="getChildrenByParentId"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetChildrenByParentId">
 		<property name="registryObjectDao" ref="registryObjectDao" />
@@ -94,11 +105,6 @@
 	<bean id="getClassificationSchemesById"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetClassificationSchemesById">
 		<property name="classificationSchemeTypeDao" ref="classificationSchemeTypeDao" />
-		<property name="registryObjectDao" ref="registryObjectDao" />
-	</bean>
-	<bean id="getNotification"
-		class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetNotification">
-		<property name="subscriptionDao" ref="subscriptionTypeDao" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
 	</bean>
 	<bean id="getObjectById"
