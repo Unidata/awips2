@@ -29,6 +29,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
@@ -48,7 +49,6 @@ import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -77,6 +77,7 @@ import com.raytheon.uf.common.util.ReflectionException;
  * 3/18/2013    1802       bphillip    Implemented transaction boundaries
  * 3/27/2013    1802       bphillip    Changed visibility of processRequest and fixed catch block to catch the correct Exception type
  * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
+ * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
