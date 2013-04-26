@@ -19,10 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
+import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager;
 
 /**
  * Invokes the registry subscription manager directly.
@@ -34,6 +32,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2013 1914       djohnson     Initial creation
+ * May 02, 2013 1910       djohnson     Dependency moved to baseline.
  * 
  * </pre>
  * 
@@ -42,10 +41,11 @@ import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager
  */
 public class DirectlyInvokeRegistrySubscriptionManager implements IRegistrySubscriptionManager {
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(DirectlyInvokeRegistrySubscriptionManager.class);
+    private final RegistrySubscriptionManager registrySubscriptionManager;
 
-    public DirectlyInvokeRegistrySubscriptionManager() {
+    public DirectlyInvokeRegistrySubscriptionManager(
+            RegistrySubscriptionManager registrySubscriptionManager) {
+        this.registrySubscriptionManager = registrySubscriptionManager;
     }
 
     /**
@@ -53,15 +53,7 @@ public class DirectlyInvokeRegistrySubscriptionManager implements IRegistrySubsc
      */
     @Override
     public void processSubscriptions() {
-        // RegistrySubscriptionManager doesn't exist in this repo, so it must be
-        // looked up dynamically until 5-Data_Delivery is merged in
-        try {
-            EDEXUtil.getESBComponent(IRegistrySubscriptionManager.class,
-                    "RegistrySubscriptionManager").processSubscriptions();
-        } catch (Exception e) {
-            statusHandler
-                    .info("Registry subscription management is not enabled.");
-        }
+        registrySubscriptionManager.processSubscriptions();
     }
 
 }
