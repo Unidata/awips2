@@ -144,8 +144,8 @@ public class BasicQuery extends CanonicalEbxmlQuery {
         return true;
     }
 
-    protected void query(QueryType queryType, QueryResponse queryResponse)
-            throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
 
         QueryParameters params = getParameterMap(queryType.getSlot(),
                 queryResponse);
