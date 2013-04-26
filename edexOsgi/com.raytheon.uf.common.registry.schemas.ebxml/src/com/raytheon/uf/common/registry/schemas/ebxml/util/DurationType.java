@@ -108,7 +108,7 @@ public class DurationType implements UserType {
     public void nullSafeSet(PreparedStatement statement, Object value, int index)
             throws HibernateException, SQLException {
         if (value == null) {
-            statement.setDate(index, null);
+            statement.setLong(index, 0);
         } else {
             Duration dur = (Duration) value;
             statement.setLong(index, dur.getTimeInMillis(new java.util.Date()));
