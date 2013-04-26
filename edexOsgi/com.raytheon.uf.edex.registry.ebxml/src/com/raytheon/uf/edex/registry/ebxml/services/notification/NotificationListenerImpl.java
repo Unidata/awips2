@@ -43,7 +43,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,6 @@ import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -159,8 +157,8 @@ public class NotificationListenerImpl implements NotificationListener {
                         for (String id : ids) {
                             RegistryObjectType object = registryObjectDao
                                     .getById(id);
-                            String replicaHome = EbxmlObjectUtil
-                                    .getHomeSlot(object);
+                            String replicaHome = object
+                                    .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
                             if (clientIP.equals(replicaHome)) {
                                 ObjectRefType ref = new ObjectRefType();
                                 ref.setId(id);
@@ -224,8 +222,7 @@ public class NotificationListenerImpl implements NotificationListener {
             // Set the home server slot on the object denoting the home server
             // of the received object.
             for (RegistryObjectType object : remoteObjects) {
-                EbxmlObjectUtil.addStringSlot(object,
-                        EbxmlObjectUtil.HOME_SLOT_NAME, clientIP, false);
+                object.updateSlot(EbxmlObjectUtil.HOME_SLOT_NAME, clientIP);
             }
 
             /*
@@ -234,9 +231,6 @@ public class NotificationListenerImpl implements NotificationListener {
              * notfications will not ping pong back and forth between servers if
              * they have identical subscriptions with one another
              */
-            List<SlotType> slots = new ArrayList<SlotType>();
-            slots.add(RegistryUtil.getSlot(String.class.getName(),
-                    EbxmlObjectUtil.HOME_SLOT_NAME, clientIP));
             RegistryObjectListType objectList = EbxmlObjectUtil
                     .createRegistryObjectList(remoteObjects);
             // Create the submit objects request object
@@ -245,7 +239,8 @@ public class NotificationListenerImpl implements NotificationListener {
                             "Submit Objects for notification ["
                                     + notificationId + "]", mode,
                             "Notification object submission", false,
-                            objectList, slots);
+                            objectList, EbxmlObjectUtil.HOME_SLOT_NAME,
+                            clientIP);
             return request;
         } catch (Exception e) {
             throw new EbxmlRegistryException("Error processing notification", e);
@@ -283,13 +278,9 @@ public class NotificationListenerImpl implements NotificationListener {
         responseOption.setReturnComposedObjects(true);
         responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
 
-        List<SlotType> slots = new ArrayList<SlotType>(2);
-        slots.add(RegistryUtil.getSlot(String.class.getName(), "queryLanguage",
-                "HQL"));
-        slots.add(RegistryUtil.getSlot(String.class.getName(),
-                "queryExpression", queryExpression.toString()));
         QueryType selectorQuery = RegistrySOAPServices.createQueryType(
-                CanonicalQueryTypes.ADHOC_QUERY, slots);
+                CanonicalQueryTypes.ADHOC_QUERY, "queryLanguage", "HQL",
+                "queryExpression", queryExpression.toString());
         return RegistrySOAPServices.createQueryRequest(
                 "Query Request for notification [" + notificationId + "]",
                 "Querying for current state of objects", selectorQuery,
