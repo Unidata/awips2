@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.IRegistryQuery;
@@ -43,15 +42,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.IRegistryQuery;
  */
 public class QueryTypeManager {
 
-    /**
-     * This is a convenience variable used only by Spring to inject the query
-     * types
-     */
-    @SuppressWarnings("unused")
-    private List<IRegistryQuery> queryList;
-
     /** The query map */
-    private Map<String, IRegistryQuery> queryTypeMap = new HashMap<String, IRegistryQuery>();
+    private static Map<String, IRegistryQuery> queryTypeMap = new HashMap<String, IRegistryQuery>();
 
     /**
      * Private constructor
@@ -71,17 +63,9 @@ public class QueryTypeManager {
         return queryTypeMap.get(queryDefinition);
     }
 
-    /**
-     * Setter method used by Spring to inject the list of query types
-     * 
-     * @param queryList
-     *            The list of query types
-     */
-    public void setQueryList(List<IRegistryQuery> queryList) {
-        this.queryList = queryList;
-        for (IRegistryQuery query : queryList) {
+    public static void addQueryTypes(IRegistryQuery... queries) {
+        for (IRegistryQuery query : queries) {
             queryTypeMap.put(query.getQueryDefinition(), query);
         }
     }
-
 }

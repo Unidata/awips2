@@ -20,7 +20,10 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -46,6 +49,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
@@ -87,6 +92,55 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 public abstract class ExtensibleObjectType {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExtensibleObjectType.class);
+
+    private static final Map<Class<?>, Class<?>> SLOT_VALUE_TYPE_MAP;
+
+    static {
+        Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+        map.put(String.class, StringValueType.class);
+        map.put(Integer.class, IntegerValueType.class);
+        map.put(Float.class, FloatValueType.class);
+        SLOT_VALUE_TYPE_MAP = Collections.unmodifiableMap(map);
+
+    }
+
+    public SlotType createSlot(String slotName, Object slotValue) {
+        SlotType slot = new SlotType();
+        slot.setName(slotName);
+        Class<?> slotValueTypeClass = SLOT_VALUE_TYPE_MAP.get(slotValue
+                .getClass());
+        ValueType slotValueObject = null;
+        if (slotValueTypeClass != null) {
+            try {
+                slotValueObject = (ValueType) slotValueTypeClass.newInstance();
+            } catch (Exception e) {
+                statusHandler.error("Error instantiating slot value!", e);
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Unable to create slot for type: " + slotValue.getClass());
+        }
+        slotValueObject.setValue(slotValue);
+        slot.setSlotValue(slotValueObject);
+        return slot;
+    }
+
+    public void addSlot(String slotName, Object slotValue) {
+        getSlot().add(createSlot(slotName, slotValue));
+    }
+
+    public void updateSlot(String slotName, Object slotValue) {
+        for (SlotType slot : getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                slot.getSlotValue().setValue(slotValue);
+                return;
+            }
+        }
+        addSlot(slotName, slotValue);
+    }
+
     @BatchSize(size = 500)
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
@@ -125,6 +179,18 @@ public abstract class ExtensibleObjectType {
 
     public void setSlot(Set<SlotType> slot) {
         this.slot = slot;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Object> T getSlotValue(String slotName) {
+        Object retVal = null;
+        for (SlotType slot : getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                retVal = slot.getSlotValue().getValue();
+                break;
+            }
+        }
+        return (T) retVal;
     }
 
     /*
