@@ -19,7 +19,15 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import java.util.List;
+
+import javax.xml.bind.JAXBException;
+
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
+
+import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
  * Data Access object for interacting with roles in the registry
@@ -39,8 +47,56 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
  */
 public class SubscriptionDao extends RegistryObjectTypeDao<SubscriptionType> {
 
-    public SubscriptionDao() {
+    public static final String EAGER_LOAD_QUERY = "FROM "
+            + SubscriptionType.class.getName()
+            + " sub fetch all properties where sub.id=:id";
 
+    /** The jaxb manager for subscription objects */
+    private JAXBManager subscriptionJaxbManager;
+
+    /**
+     * Creats a new SubscriptionDao object
+     * 
+     * @throws JAXBException
+     *             If errors occur instantiating the jaxb manager
+     */
+    public SubscriptionDao() throws JAXBException {
+        subscriptionJaxbManager = new JAXBManager(SubscriptionType.class);
+    }
+
+    /**
+     * Retrieves the fully populated subscription object
+     * 
+     * @param subscriptionId
+     *            The id of the subscription to retrieve
+     * @return The fully populate subscription object
+     * @throws EbxmlRegistryException
+     *             If errors occur while eagerly fetching all attributes using
+     *             jaxb
+     */
+    public SubscriptionType eagerGetById(String subscriptionId)
+            throws EbxmlRegistryException {
+        List<SubscriptionType> result = this.query(EAGER_LOAD_QUERY, "id",
+                subscriptionId);
+        if (CollectionUtil.isNullOrEmpty(result)) {
+            return null;
+        } else {
+            SubscriptionType retVal = result.get(0);
+            try {
+                /*
+                 * FIXME: This is just a quick and dirty way of fully
+                 * initializing all the fields of the subscription. Since this
+                 * query happens relatively infrequently, having this operation
+                 * here does not pose any sort of performance penalty.
+                 * Obviously, a better solution needs to be devised in the
+                 * future
+                 */
+                subscriptionJaxbManager.marshalToXml(retVal);
+            } catch (JAXBException e) {
+                throw new EbxmlRegistryException("Error initializing bean!", e);
+            }
+            return retVal;
+        }
     }
 
     @Override

@@ -20,11 +20,13 @@
 
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
-import java.util.Iterator;
+import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
@@ -32,7 +34,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -75,10 +77,10 @@ public class AuditableEventTypeDao extends
             + "inner join event.action as action "
             + "inner join action.affectedObjects as AffectedObjects "
             + "inner join AffectedObjects.registryObject as RegistryObjects "
-            + "where (RegistryObjects.id in (:ids) OR action.eventType = ?) and event.timestamp >= ?";
+            + "where (RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
 
     /** Optional end time clause */
-    private static final String END_TIME_CLAUSE = " and event.timestamp <= ?";
+    private static final String END_TIME_CLAUSE = " and event.timestamp <= :endTime";
 
     /** Order by clause */
     private static final String ORDER_CLAUSE = " order by event.timestamp asc";
@@ -107,34 +109,39 @@ public class AuditableEventTypeDao extends
     }
 
     /**
-     * Get events of interest for registry subscriptions
+     * Gets the events of interest based on the start time, end time, and the
+     * list of objects of interest
      * 
+     * @param startTime
+     *            The start time boundary
+     * @param endTime
+     *            The end time boundary
      * @param objectsOfInterest
-     * @return @
+     *            The objects of interest
+     * @return The list of auditable events of interest within the constrains of
+     *         the start time, end time and including the objects of interest
      */
-    public Iterator<AuditableEventType> getEventsOfInterest(
-            SubscriptionType subscription, List<ObjectRefType> objectsOfInterest) {
+    public List<AuditableEventType> getEventsOfInterest(
+            XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
+            List<ObjectRefType> objectsOfInterest) {
         if (objectsOfInterest.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         StringBuilder buf = new StringBuilder();
         for (ObjectRefType objOfInterest : objectsOfInterest) {
             buf.append(", '").append(objOfInterest.getId()).append("'");
         }
         String inString = buf.toString().replaceFirst(",", "");
-        Iterator<AuditableEventType> eventIterator = null;
-        if (subscription.getEndTime() == null) {
-            eventIterator = this.getQueryIterator(
-                    (EVENTS_OF_INTEREST_QUERY + ORDER_CLAUSE).replace(IDS,
-                            inString), ActionTypes.delete, subscription
-                            .getStartTime());
+        if (endTime == null) {
+            return this.query((EVENTS_OF_INTEREST_QUERY + ORDER_CLAUSE)
+                    .replace(IDS, inString), "startTime", startTime,
+                    "eventType", ActionTypes.delete);
         } else {
-            eventIterator = this.getQueryIterator((EVENTS_OF_INTEREST_QUERY
-                    + END_TIME_CLAUSE + ORDER_CLAUSE).replace(IDS, inString),
-                    ActionTypes.delete, subscription.getStartTime(),
-                    subscription.getEndTime());
+            return this.query(
+                    (EVENTS_OF_INTEREST_QUERY + END_TIME_CLAUSE + ORDER_CLAUSE)
+                            .replace(IDS, inString), "startTime", startTime,
+                    "eventType", ActionTypes.delete, "endTime", endTime);
         }
-        return eventIterator;
     }
 
     /**
@@ -148,12 +155,11 @@ public class AuditableEventTypeDao extends
      *            The delivery address @ * If errors occur while adding the slot
      *            to the auditable event
      */
-    public void addSendDate(List<AuditableEventType> auditableEvents,
-            SubscriptionType subscription, String deliveryAddress) {
+    public void persistSendDate(List<AuditableEventType> auditableEvents,
+            String subscriptionId, String deliveryAddress) {
         for (AuditableEventType auditableEvent : auditableEvents) {
-            EbxmlObjectUtil.addStringSlot(auditableEvent, subscription.getId()
-                    + deliveryAddress,
-                    String.valueOf(System.currentTimeMillis()), false);
+            auditableEvent.updateSlot(subscriptionId + deliveryAddress,
+                    (int) TimeUtil.currentTimeMillis());
             this.createOrUpdate(auditableEvent);
         }
     }
@@ -170,15 +176,9 @@ public class AuditableEventTypeDao extends
      *            The delivery address to check
      * @return The last sent date in millis
      */
-    public Long getSendDate(AuditableEventType auditableEvent,
-            SubscriptionType subscription, String deliveryAddress) {
-        String sendDate = EbxmlObjectUtil.getStringSlotValue(auditableEvent,
-                subscription.getId() + deliveryAddress);
-        if (sendDate == null) {
-            return null;
-        } else {
-            return Long.parseLong(sendDate);
-        }
+    public BigInteger getSendTime(AuditableEventType auditableEvent,
+            String subscriptionId, String deliveryAddress) {
+        return auditableEvent.getSlotValue(subscriptionId + deliveryAddress);
     }
 
     /**
@@ -288,11 +288,10 @@ public class AuditableEventTypeDao extends
         event.setUser("Client");
         event.setStatus(StatusTypes.APPROVED);
         event.setVersionInfo(new VersionInfoType());
-        String notificationFrom = EbxmlObjectUtil.getStringSlotValue(request,
-                EbxmlObjectUtil.HOME_SLOT_NAME);
+        String notificationFrom = request
+                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
         if (notificationFrom != null) {
-            EbxmlObjectUtil.addStringSlot(event,
-                    EbxmlObjectUtil.HOME_SLOT_NAME, notificationFrom, false);
+            event.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME, notificationFrom);
         }
         return event;
 
