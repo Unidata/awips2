@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
@@ -182,6 +183,18 @@ public class ValidateObjectsRequest extends RegistryRequestType {
     public void setInvocationControlFile(
             List<ExtrinsicObjectType> invocationControlFile) {
         this.invocationControlFile = invocationControlFile;
+    }
+
+    /**
+     * Get the object references contained by the request.
+     * 
+     * @return the object references
+     */
+    public List<ObjectRefType> getObjectRefs() {
+        if (objectRefList == null) {
+            objectRefList = new ObjectRefListType();
+        }
+        return objectRefList.getObjectRef();
     }
 
 }
