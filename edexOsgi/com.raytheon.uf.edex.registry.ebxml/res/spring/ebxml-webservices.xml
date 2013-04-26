@@ -32,12 +32,14 @@
 		<property name="cataloger" ref="catalogerServiceImpl" />
 	</bean>
 
-	<!-- VALIDATOR -->
-	<!-- Define concrete implementation of the service -->
-	<bean id="validatorServiceImpl"
-		class="com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl">
-		<property name="queryManager" ref="queryServiceImpl" />
-	</bean>
+    <!-- VALIDATOR -->
+    <!-- Define concrete implementation of the service -->
+    <bean id="validatorServiceImpl"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl">
+        <property name="queryManager" ref="queryServiceImpl" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="registryObjectTypeValidator" ref="registryObjectTypeValidator" />
+    </bean>
 
 
 	<!-- CATALOGER -->
@@ -97,6 +99,26 @@
 		<property name="personDao" ref="personDao" />
 		<property name="roleDao" ref="roleDao" />
 	</bean>
-	
+    
+    <!-- Validator Plugins -->
+    <bean id="validatorPluginRegistry" factory-bean="validatorServiceImpl"
+        factory-method="getPluginValidatorRegistry" />
+
+    <bean id="registryObjectTypeValidator"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.RegistryObjectTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+        
+    <bean id="organizationTypeValidatorPlugin"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.OrganizationTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization" />
+        <constructor-arg ref="organizationTypeValidatorPlugin" />
+    </bean>
+    <!-- End Validator Plugins -->
 	
   </beans>
