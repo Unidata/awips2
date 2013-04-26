@@ -108,6 +108,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 27, 2013 1644       djohnson     Force sub-classes to provide an implementation for how to schedule SBN routed subscriptions.
  * Mar 11, 2013 1645       djohnson     Watch configuration file for changes.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 02, 2013 1910       djohnson     Shutdown proposed bandwidth managers in a finally.
  * </pre>
  * 
  * @author dhladky
@@ -1310,21 +1311,37 @@ public abstract class BandwidthManager extends
         BandwidthMap copyOfCurrentMap = BandwidthMap
                 .load(EdexBandwidthContextFactory.getBandwidthMapConfig());
 
-        BandwidthManager proposedBwManager = startProposedBandwidthManager(copyOfCurrentMap);
+        Set<String> unscheduled = Collections.emptySet();
+        BandwidthManager proposedBwManager = null;
+        try {
+            proposedBwManager = startProposedBandwidthManager(copyOfCurrentMap);
 
-        IBandwidthRequest request = new IBandwidthRequest();
-        request.setRequestType(RequestType.SCHEDULE_SUBSCRIPTION);
-        request.setSubscriptions(subscriptions);
+            IBandwidthRequest request = new IBandwidthRequest();
+            request.setRequestType(RequestType.SCHEDULE_SUBSCRIPTION);
+            request.setSubscriptions(subscriptions);
 
-        final Set<String> unscheduled = proposedBwManager
-                .scheduleSubscriptions(subscriptions);
-
-        proposedBwManager.shutdown();
+            unscheduled = proposedBwManager
+                    .scheduleSubscriptions(subscriptions);
+        } finally {
+            nullSafeShutdown(proposedBwManager);
+        }
 
         final ProposeScheduleResponse proposeScheduleResponse = new ProposeScheduleResponse();
         proposeScheduleResponse.setUnscheduledSubscriptions(unscheduled);
 
         return proposeScheduleResponse;
+    }
+
+    /**
+     * Shutdown if not null.
+     * 
+     * @param bandwidthManager
+     *            the bandwidth manager
+     */
+    private void nullSafeShutdown(BandwidthManager bandwidthManager) {
+        if (bandwidthManager != null) {
+            bandwidthManager.shutdown();
+        }
     }
 
     /**
@@ -1342,45 +1359,49 @@ public abstract class BandwidthManager extends
         BandwidthRoute route = copyOfCurrentMap.getRoute(requestNetwork);
         route.setDefaultBandwidth(bandwidth);
 
-        BandwidthManager proposedBwManager = startProposedBandwidthManager(copyOfCurrentMap);
-
-        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-            statusHandler.debug("Current retrieval plan:" + Util.EOL
-                    + showRetrievalPlan(requestNetwork) + Util.EOL
-                    + "Proposed retrieval plan:" + Util.EOL
-                    + proposedBwManager.showRetrievalPlan(requestNetwork));
-        }
-
-        List<BandwidthAllocation> unscheduledAllocations = proposedBwManager.bandwidthDao
-                .getBandwidthAllocationsInState(RetrievalStatus.UNSCHEDULED);
-
-        if (!unscheduledAllocations.isEmpty()
-                && statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-            LogUtil.logIterable(
-                    statusHandler,
-                    Priority.DEBUG,
-                    "The following unscheduled allocations would occur with the proposed bandwidth:",
-                    unscheduledAllocations);
-        }
-
         Set<Subscription> subscriptions = new HashSet<Subscription>();
-        for (BandwidthAllocation allocation : unscheduledAllocations) {
-            if (allocation instanceof SubscriptionRetrieval) {
-                subscriptions.add(((SubscriptionRetrieval) allocation)
-                        .getSubscription());
+        BandwidthManager proposedBwManager = null;
+        try {
+            proposedBwManager = startProposedBandwidthManager(copyOfCurrentMap);
+
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Current retrieval plan:" + Util.EOL
+                        + showRetrievalPlan(requestNetwork) + Util.EOL
+                        + "Proposed retrieval plan:" + Util.EOL
+                        + proposedBwManager.showRetrievalPlan(requestNetwork));
             }
+
+            List<BandwidthAllocation> unscheduledAllocations = proposedBwManager.bandwidthDao
+                    .getBandwidthAllocationsInState(RetrievalStatus.UNSCHEDULED);
+
+            if (!unscheduledAllocations.isEmpty()
+                    && statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                LogUtil.logIterable(
+                        statusHandler,
+                        Priority.DEBUG,
+                        "The following unscheduled allocations would occur with the proposed bandwidth:",
+                        unscheduledAllocations);
+            }
+
+            for (BandwidthAllocation allocation : unscheduledAllocations) {
+                if (allocation instanceof SubscriptionRetrieval) {
+                    subscriptions.add(((SubscriptionRetrieval) allocation)
+                            .getSubscription());
+                }
+            }
+
+            if (!subscriptions.isEmpty()
+                    && statusHandler.isPriorityEnabled(Priority.INFO)) {
+                LogUtil.logIterable(
+                        statusHandler,
+                        Priority.INFO,
+                        "The following subscriptions would not be scheduled with the proposed bandwidth:",
+                        subscriptions);
+            }
+        } finally {
+            nullSafeShutdown(proposedBwManager);
         }
 
-        if (!subscriptions.isEmpty()
-                && statusHandler.isPriorityEnabled(Priority.INFO)) {
-            LogUtil.logIterable(
-                    statusHandler,
-                    Priority.INFO,
-                    "The following subscriptions would not be scheduled with the proposed bandwidth:",
-                    subscriptions);
-        }
-
-        proposedBwManager.shutdown();
 
         return subscriptions;
     }
@@ -1694,11 +1715,11 @@ public abstract class BandwidthManager extends
         BandwidthMap copyOfCurrentMap = BandwidthMap
                 .load(EdexBandwidthContextFactory.getBandwidthMapConfig());
 
-        BandwidthManager proposedBandwidthManager = startProposedBandwidthManager(copyOfCurrentMap);
+        BandwidthManager proposedBandwidthManager = null;
         try {
+            proposedBandwidthManager = startProposedBandwidthManager(copyOfCurrentMap);
             Set<String> unscheduled = proposedBandwidthManager
                     .scheduleSubscriptions(Arrays.asList(subscription));
-            proposedBandwidthManager.shutdown();
             return unscheduled.isEmpty();
         } catch (SerializationException e) {
             statusHandler
@@ -1706,6 +1727,8 @@ public abstract class BandwidthManager extends
                             "Serialization error while determining required latency.  Returning true in order to be fault tolerant.",
                             e);
             return true;
+        } finally {
+            nullSafeShutdown(proposedBandwidthManager);
         }
     }
 
