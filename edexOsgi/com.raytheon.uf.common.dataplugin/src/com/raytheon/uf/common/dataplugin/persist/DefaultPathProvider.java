@@ -56,6 +56,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * 1/08/09      1674       bphillip    Initial creation
  * 04/08/13     1293       bkowal      Removed references to hdffileid.
+ * 04/30/13     1861       bkowal      Added constant for hdf5 file suffix.
  * </pre>
  * 
  * @author bphillip
@@ -64,6 +65,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 public class DefaultPathProvider implements IHDFFilePathProvider {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefaultPathProvider.class);
+    
+    public static final String HDF5_SUFFIX = ".h5";
 
     public static final ThreadLocal<SimpleDateFormat> fileNameFormat = new ThreadLocal<SimpleDateFormat>() {
         @Override
