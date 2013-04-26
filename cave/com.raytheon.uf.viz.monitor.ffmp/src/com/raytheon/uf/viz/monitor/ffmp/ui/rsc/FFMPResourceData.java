@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
@@ -35,11 +34,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
@@ -54,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -78,6 +74,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * Feb 10, 2013  1584      mpduff      Add performance logging.
  * Feb 28, 2013  1729      dhladky     Got rid of thread sleeps
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -134,7 +131,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
     protected FFMPMonitor monitor = null;
 
     /** County Warning Area (Domain) for which to display **/
-    protected ArrayList<DomainXML> domains = null;
+    protected List<DomainXML> domains = null;
 
     /** Product Displayed **/
     private ProductXML product = null;
@@ -177,10 +174,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        this.wfo = context.getContextName();
+        this.wfo = LocalizationManager.getContextName(LocalizationLevel.SITE);
         FFMPMonitor monitor = getMonitor();
         monitor.setWfo(wfo);
         this.field = monitor.getField(sourceName);
@@ -192,8 +186,8 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
         DataTime[] availableTimes = this.getAvailableTimes();
         // no data available;
         if (availableTimes.length != 0) {
-            if (getMonitor().getProductXML(sourceName) != null) {
-                setProduct(getMonitor().getProductXML(sourceName));
+            product = monitor.getProductXML(sourceName);
+            if (product != null) {
                 monitor.launchSplash(siteKey);
                 FFMPTemplates templates = monitor.getTemplates(siteKey);
 
@@ -227,11 +221,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 FFMPConfig ffmpConfig = monitor.getConfig();
                 FFMPConfigBasinXML cfgBasinXML = ffmpConfig.getFFMPConfigData();
                 String[] sdomains = cfgBasinXML.getIncludedCWAs().split(",");
-                ArrayList<DomainXML> defaults = new ArrayList<DomainXML>();
+                List<DomainXML> defaults = new ArrayList<DomainXML>(
+                        sdomains.length);
 
                 for (String domain : sdomains) {
 
-                    if (domain.length() == 0) {
+                    if (domain.isEmpty()) {
                         defaults.add(monitor.getRunConfig().getDomain(wfo));
                         break;
                     }
@@ -247,26 +242,18 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
                 this.domains = defaults;
 
-                DataTime mostRecentTime = availableTimes[availableTimes.length - 1];
+                Date mostRecentTime = availableTimes[availableTimes.length - 1]
+                        .getRefTime();
                 this.timeBack = new Date(
-                        (long) (mostRecentTime.getRefTime().getTime() - (cfgBasinXML
+                        (long) (mostRecentTime.getTime() - (cfgBasinXML
                                 .getTimeFrame() * TimeUtil.MILLIS_PER_HOUR)));
-                ArrayList<String> hucsToLoad = monitor.getTemplates(siteKey)
+                List<String> hucsToLoad = monitor.getTemplates(siteKey)
                         .getTemplateMgr().getHucLevels();
                 // goes back X hours and pre populates the Data Hashes
                 FFMPDataLoader loader = new FFMPDataLoader(this, timeBack,
-                        mostRecentTime.getRefTime(), LOADER_TYPE.INITIAL,
+                        mostRecentTime, LOADER_TYPE.INITIAL,
                         hucsToLoad);
-                loader.start();
-
-                // make the table load wait for finish of initial data load
-                try {
-                    loader.waitFor();
-                } catch (InterruptedException e) {
-                    statusHandler.handle(Priority.INFO,
-                            "Data Loader thread interrupted, dying!", e);
-                }
-
+                loader.run();
             } else {
                 /*
                  * This appears completely un-orthodox for anything in D2D. But
@@ -305,7 +292,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                     NavigableMap<Date, List<String>> sourceURIs = getMonitor()
                             .getAvailableUris(siteKey, dataKey, sourceName,
                                     standAloneTime);
-                    getMonitor().processUris(sourceURIs, false, siteKey,
+                    monitor.processUris(sourceURIs, siteKey,
 							sourceName, standAloneTime, FFMPRecord.ALL);
                 }
             }
@@ -405,50 +392,14 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
      * 
      * @param record
      */
-    public void populateRecord(ProductXML product, FFMPRecord precord,
-            String phuc) throws VizException {
+    public void populateRecord(FFMPRecord precord)
+            throws VizException {
         try {
-            boolean isProductLoad = false;
-            if (product != null) {
-                isProductLoad = true;
-            }
-
-            getMonitor().populateFFMPRecord(isProductLoad, siteKey, precord,
-                    precord.getSourceName(), phuc);
+            getMonitor().populateFFMPRecord(siteKey, precord,
+                    precord.getSourceName(), huc);
         } catch (Exception e) {
             throw new VizException("Failed to populate ffmp record "
-                    + precord.getDataURI() + " for huc " + phuc);
-        }
-    }
-
-    /**
-     * Sort by Date
-     * 
-     * @author dhladky
-     * 
-     */
-    public class SortByDate implements Comparator<FFMPRecord> {
-
-        @Override
-        public int compare(FFMPRecord o1, FFMPRecord o2) {
-
-            return o1.getDataTime().getRefTime()
-                    .compareTo(o2.getDataTime().getRefTime());
-        }
-    }
-
-    /**
-     * Sort by DataTime
-     * 
-     * @author dhladky
-     * 
-     */
-    public class SortByDataTime implements Comparator<DataTime> {
-
-        @Override
-        public int compare(DataTime o1, DataTime o2) {
-
-            return o1.compareTo(o2);
+                    + precord.getDataURI() + " for huc " + huc);
         }
     }
 
@@ -488,7 +439,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
         this.domains = domains;
     }
 
-    public ArrayList<DomainXML> getDomains() {
+    public List<DomainXML> getDomains() {
         return domains;
     }
 
@@ -548,7 +499,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
      * @param pfield
      * @return
      */
-    public ArrayList<String> getSourceName(FIELDS pfield) {
+    public List<String> getSourceName(FIELDS pfield) {
         ArrayList<String> sourceNames = null;
         ProductXML product = getProduct();
         ProductRunXML productRun = FFMPRunConfigurationManager.getInstance()
