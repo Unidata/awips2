@@ -160,6 +160,25 @@ public class RegistryObjectType extends IdentifiableType {
     protected String status;
 
     /**
+     * Constructor.
+     */
+    public RegistryObjectType() {
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param id
+     *            the id to use
+     * @param lid
+     *            the lid to use
+     */
+    public RegistryObjectType(String id, String lid) {
+        this.id = id;
+        this.lid = lid;
+    }
+
+    /**
      * Gets the value of the name property.
      * 
      * @return possible object is {@link InternationalStringType }

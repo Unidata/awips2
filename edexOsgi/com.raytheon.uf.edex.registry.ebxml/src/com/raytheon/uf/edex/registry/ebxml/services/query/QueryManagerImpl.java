@@ -32,12 +32,12 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 184        bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
+ * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
@@ -90,28 +91,28 @@ public class QueryManagerImpl implements QueryManager {
 
     private boolean eagerFetch = false;
 
-    protected static final transient IUFStatusHandler statusHandler = UFStatus
+    protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(QueryManagerImpl.class);
 
     private QueryTypeManager queryTypeMgr;
 
     /**
-     * · ObjectRef - This option specifies that the QueryResponse MUST contain a
+     * ObjectRef - This option specifies that the QueryResponse MUST contain a
      * <rim:ObjectRefList> element. The purpose of this option is to return
      * references to objects rather than the actual objects.
      * 
-     * · RegistryObject - This option specifies that the QueryResponse MUST
+     * RegistryObject - This option specifies that the QueryResponse MUST
      * contain a <rim:RegistryObjectList> element containing
-     * <rim:RegistryObject> elements with xsi:type=“rim:RegistryObjectType”.
+     * <rim:RegistryObject> elements with xsi:type=rim:RegistryObjectType.
      * 
-     * · LeafClass - This option specifies that the QueryResponse MUST contain a
+     * LeafClass - This option specifies that the QueryResponse MUST contain a
      * collection of <rim:RegistryObjectList> element containing
      * <rim:RegistryObject> elements that have an xsi:type attribute that
      * corresponds to leaf classes as defined in [regrep-xsd-v4.0]. No
      * RepositoryItems SHOULD be included for any rim:ExtrinsicObjectType
      * instance in the <rim:RegistryObjectList> element.
      * 
-     * · LeafClassWithRepositoryItem - This option is the same as the LeafClass
+     * LeafClassWithRepositoryItem - This option is the same as the LeafClass
      * option with the additional requirement that the response include the
      * RepositoryItems, if any, for every rim:ExtrinsicObjectType instance in
      * the <rim:RegistryObjectList> element.
