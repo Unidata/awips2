@@ -35,6 +35,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.DamTypeData;
 import com.raytheon.viz.hydrocommon.data.ReservoirOwnerData;
@@ -50,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
+ * Apr 26, 2013             rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -57,6 +61,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ReferenceFieldsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ReferenceFieldsDlg.class);
 
     /**
      * Control font.
@@ -108,16 +114,21 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
     private final int TYPE = 1;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public ReferenceFieldsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Reference Fields");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -128,11 +139,23 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -255,11 +278,14 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Get dam type and reservoir owner data.
+     */
     private void getData() {
         DamTypeData seedData1 = new DamTypeData();
         seedData1.setType("Unk");
@@ -270,7 +296,8 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         try {
             damTypeData = HydroDBDataManager.getInstance().getData(seedData1);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Uable to get dam type data. ", e);
         }
 
         // Get the Reservoir Owner Data
@@ -283,10 +310,16 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         try {
             resOwnerData = HydroDBDataManager.getInstance().getData(seedData2);
         } catch (VizException e) {
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Uable to get reservoir owner data. ", e);
         }
     }
 
+    /**
+     * Place data in the desired list.
+     * 
+     * @param index
+     */
     private void populateDataList(int index) {
         dataList.removeAll();
 
@@ -305,6 +338,9 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Add new data entry and update the lists.
+     */
     private void addEntry() {
         if (dataList.getSelectionIndex() < 0) {
             return;
@@ -324,7 +360,8 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
                 newData.setOwner(dataTF.getText().trim());
                 HydroDBDataManager.getInstance().putData(newData);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to add reservoir owner data. ", e);
             }
         } else if (fieldsCbo.getSelectionIndex() == TYPE) {
             try {
@@ -332,7 +369,8 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
                 newData.setType(dataTF.getText().trim());
                 HydroDBDataManager.getInstance().putData(newData);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to add dam type data. ", e);
             }
         }
 
@@ -340,6 +378,9 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         populateDataList(fieldsCbo.getSelectionIndex());
     }
 
+    /**
+     * Update values for selected item and update display.
+     */
     private void updateSelectedItem() {
         if (dataList.getSelectionIndex() < 0) {
             return;
@@ -363,7 +404,9 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
                 newData.setOwner(dataTF.getText().trim());
                 HydroDBDataManager.getInstance().putData(newData);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to update reservoir owner data. ", e);
+                ;
             }
         } else if (fieldsCbo.getSelectionIndex() == TYPE) {
             try {
@@ -375,7 +418,8 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
                 newData.setType(dataTF.getText().trim());
                 HydroDBDataManager.getInstance().putData(newData);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to update dam type data. ", e);
             }
         }
 
@@ -383,6 +427,9 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
         populateDataList(fieldsCbo.getSelectionIndex());
     }
 
+    /**
+     * Delete selected item and update the display.
+     */
     private void deleteSelectedItem() {
         if (dataList.getSelectionIndex() < 0) {
             MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
@@ -398,7 +445,8 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
                         .getSelectionIndex());
                 HydroDBDataManager.getInstance().deleteRecord(data);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to delete reservoir owner data. ", e);
             }
         } else if (fieldsCbo.getSelectionIndex() == TYPE) {
             try {
@@ -406,7 +454,8 @@ public class ReferenceFieldsDlg extends CaveSWTDialog {
                         .get(dataList.getSelectionIndex());
                 HydroDBDataManager.getInstance().deleteRecord(data);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Uable to delete dam type data. ", e);
             }
         }
 
