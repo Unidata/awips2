@@ -70,6 +70,9 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Apr 13, 2009            chammack     Initial creation
  * Jan 14, 2013 1469       bkowal       Removed the hdf5 data directory.
  * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
+ * Apr 29, 2013 1861       bkowal      Refactor hdf5 filename generation during reads
+ *                                     into its own method so modelsounding dao can
+ *                                     override it.
  * 
  * </pre>
  * 
@@ -487,18 +490,22 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             }
             bm.putAll(obj);
             T bean = (T) bm.getBean();
-            return this.pluginName
-                    + File.separator
-                    + this.pathProvider.getHDFPath(this.pluginName,
-                            (IPersistable) bean)
-                    + File.separator
-                    + getPointDataFileName(bean).replace(".h5", "")
-                    + DefaultPathProvider.fileNameFormat.get().format(
-                            ((PluginDataObject) bean).getDataTime()
-                                    .getRefTime()) + ".h5";
+            return this.generatePointDataFileName(bean);
         } finally {
             this.beanMapCache.offer(bm);
         }
+    }
+    
+    protected String generatePointDataFileName(T bean) {
+        return this.pluginName
+        + File.separator
+        + this.pathProvider.getHDFPath(this.pluginName,
+                (IPersistable) bean)
+        + File.separator
+        + getPointDataFileName(bean).replace(".h5", "")
+        + DefaultPathProvider.fileNameFormat.get().format(
+                ((PluginDataObject) bean).getDataTime()
+                        .getRefTime()) + ".h5";        
     }
 
     public abstract T newObject();
