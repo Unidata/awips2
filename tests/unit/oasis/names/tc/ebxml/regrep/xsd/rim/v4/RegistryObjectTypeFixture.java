@@ -21,8 +21,10 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import java.util.Random;
 
+import com.raytheon.uf.common.util.AbstractFixture;
+
 /**
- * Fixture to retrieve {@link OrganizationType} instances.
+ * Base {@link AbstractFixture} for {@link RegistryObjectType} instances.
  * 
  * <pre>
  * 
@@ -30,8 +32,7 @@ import java.util.Random;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 24, 2013 1910       djohnson     Initial creation
- * May 02, 2013 1910       djohnson     Create RegistryObjectTypeFixture.
+ * Apr 25, 2013 1910       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -39,39 +40,32 @@ import java.util.Random;
  * @version 1.0
  */
 
-public class OrganizationTypeFixture extends
-        RegistryObjectTypeFixture<OrganizationType> {
+public abstract class RegistryObjectTypeFixture<T extends RegistryObjectType>
+        extends AbstractFixture<T> {
 
-    public static final OrganizationTypeFixture INSTANCE = new OrganizationTypeFixture();
-
-    protected OrganizationTypeFixture() {
+    protected RegistryObjectTypeFixture() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected OrganizationType getInstance(long seedValue, Random random) {
-        final OrganizationType organizationType = super.getInstance(seedValue,
-                random);
-        organizationType.setPrimaryContact("primaryContact" + seedValue);
-        return organizationType;
+    protected T getInstance(long seedValue, Random random) {
+        T registryObject = getRegistryObject();
+        registryObject.setObjectType(getObjectType());
+        registryObject.setId(registryObject.getClass().getSimpleName()
+                + seedValue);
+        registryObject.setLid(registryObject.getId());
+        return registryObject;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the object type for the registry object
      */
-    @Override
-    protected String getObjectType() {
-        return "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization";
-    }
+    protected abstract String getObjectType();
 
     /**
-     * {@inheritDoc}
+     * @return the registry object instance
      */
-    @Override
-    protected OrganizationType getRegistryObject() {
-        return new OrganizationType();
-    }
-
+    protected abstract T getRegistryObject();
 }

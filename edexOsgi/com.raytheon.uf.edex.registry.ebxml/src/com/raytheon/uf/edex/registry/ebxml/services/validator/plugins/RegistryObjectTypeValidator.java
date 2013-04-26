@@ -29,7 +29,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalLinkType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 
-import com.google.common.collect.Lists;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013 1910       djohnson     Initial creation
+ * May 02, 2013 1910       djohnson     Extract reusable code to parent class.
  * 
  * </pre>
  * 
@@ -79,12 +79,9 @@ public class RegistryObjectTypeValidator extends
      * {@inheritDoc}
      */
     @Override
-    protected List<RegistryExceptionType> validate(
-            RegistryObjectType registryObject) {
-        List<RegistryExceptionType> exceptions = Lists.newArrayList();
-        exceptions.addAll(resolveReferences(registryObject,
-                registryObject.getId()));
-        return exceptions;
+    protected void validate(RegistryObjectType registryObject,
+            List<RegistryExceptionType> exceptions) {
+        resolveReferences(registryObject, registryObject.getId(), exceptions);
     }
 
     /**
@@ -101,30 +98,28 @@ public class RegistryObjectTypeValidator extends
      *             If errors occur while querying the registry, or there is an
      *             unresolvable property
      */
-    private List<RegistryExceptionType> resolveReferences(
-            RegistryObjectType object, String originalId) {
-        List<RegistryExceptionType> exceptions = Lists.newArrayList();
+    private void resolveReferences(RegistryObjectType object,
+            String originalId, List<RegistryExceptionType> exceptions) {
         final String objectId = object.getId();
         statusHandler.info("Checking references for object with id ["
                 + objectId + "]...");
         Set<ClassificationType> classifications = object.getClassification();
         if (classifications != null) {
             for (ClassificationType classification : classifications) {
-                exceptions
-                        .addAll(resolveReferences(classification, originalId));
+                resolveReferences(classification, originalId, exceptions);
             }
         }
         Set<ExternalIdentifierType> externIdents = object
                 .getExternalIdentifier();
         if (externIdents != null) {
             for (ExternalIdentifierType externIdent : externIdents) {
-                exceptions.addAll(resolveReferences(externIdent, originalId));
+                resolveReferences(externIdent, originalId, exceptions);
             }
         }
         Set<ExternalLinkType> externLinks = object.getExternalLink();
         if (externLinks != null) {
             for (ExternalLinkType externLink : externLinks) {
-                exceptions.addAll(resolveReferences(externLink, originalId));
+                resolveReferences(externLink, originalId, exceptions);
             }
         }
 
@@ -143,6 +138,6 @@ public class RegistryObjectTypeValidator extends
 
             }
         }
-        return exceptions;
     }
+
 }
