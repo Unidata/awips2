@@ -22,7 +22,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import java.util.Random;
 
 /**
- * Fixture to retrieve {@link OrganizationType} instances.
+ * Fixture to retrieve {@link ExternalIdentifierType} instances.
  * 
  * <pre>
  * 
@@ -31,7 +31,6 @@ import java.util.Random;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2013 1910       djohnson     Initial creation
- * May 02, 2013 1910       djohnson     Create RegistryObjectTypeFixture.
  * 
  * </pre>
  * 
@@ -39,23 +38,25 @@ import java.util.Random;
  * @version 1.0
  */
 
-public class OrganizationTypeFixture extends
-        RegistryObjectTypeFixture<OrganizationType> {
+public class ExternalIdentifierTypeFixture extends
+        RegistryObjectTypeFixture<ExternalIdentifierType> {
 
-    public static final OrganizationTypeFixture INSTANCE = new OrganizationTypeFixture();
+    public static final ExternalIdentifierTypeFixture INSTANCE = new ExternalIdentifierTypeFixture();
 
-    protected OrganizationTypeFixture() {
+    protected ExternalIdentifierTypeFixture() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected OrganizationType getInstance(long seedValue, Random random) {
-        final OrganizationType organizationType = super.getInstance(seedValue,
-                random);
-        organizationType.setPrimaryContact("primaryContact" + seedValue);
-        return organizationType;
+    protected ExternalIdentifierType getInstance(long seedValue, Random random) {
+        final ExternalIdentifierType instance = super.getInstance(
+                seedValue, random);
+        instance.setIdentificationScheme("identificationScheme" + seedValue);
+        instance.setValue("value" + seedValue);
+        
+        return instance;
     }
 
     /**
@@ -63,15 +64,15 @@ public class OrganizationTypeFixture extends
      */
     @Override
     protected String getObjectType() {
-        return "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization";
+        return "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier";
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected OrganizationType getRegistryObject() {
-        return new OrganizationType();
+    protected ExternalIdentifierType getRegistryObject() {
+        return new ExternalIdentifierType();
     }
 
 }
