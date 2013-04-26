@@ -22,7 +22,6 @@ package com.raytheon.uf.common.registry.services;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +39,7 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.RemoveObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
@@ -410,16 +410,14 @@ public class RegistrySOAPServices {
      */
     public static SubmitObjectsRequest createSubmitObjectRequest(String id,
             Mode mode, String comment, boolean checkReferences,
-            RegistryObjectListType objectList, List<SlotType> slots) {
+            RegistryObjectListType objectList, Object... slotValues) {
         SubmitObjectsRequest request = new SubmitObjectsRequest();
         request.setId(id);
         request.setMode(mode);
         request.setRegistryObjectList(objectList);
         request.setComment(comment);
         request.setCheckReferences(checkReferences);
-        if (slots != null) {
-            request.getSlot().addAll(slots);
-        }
+        addSlots(request, slotValues);
         return request;
     }
 
@@ -462,13 +460,17 @@ public class RegistrySOAPServices {
      * Creates a QueryType object with the given parameters
      */
     public static QueryType createQueryType(String queryDefinition,
-            List<SlotType> slots) {
+            Object... slotValues) {
         QueryType query = new QueryType();
         query.setQueryDefinition(queryDefinition);
-        if (slots != null) {
-            query.getSlot().addAll(slots);
-        }
+        addSlots(query, slotValues);
         return query;
+    }
+
+    private static void addSlots(ExtensibleObjectType obj, Object... slotValues) {
+        for (int i = 0; i < slotValues.length; i += 2) {
+            obj.addSlot((String) slotValues[i], slotValues[i + 1]);
+        }
     }
 
     @SuppressWarnings("unchecked")
