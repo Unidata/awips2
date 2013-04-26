@@ -60,6 +60,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080303           1026 jkorman     Initial implementation.
  * 20080408           1039 jkorman     Added traceId for tracing data.
  * 11/25/08          #1684 chammack    Camel Refactor
+ * 04/29/13          #1861 bkowal      Create a separate Point Data Container for
+ *                                     every record so each forecast hour will
+ *                                     receive a unique hdf5 file.
  * 
  * </pre>
  * 
@@ -148,9 +151,13 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                     Iterator<BUFRDataDocument> iterator = document.iterator();
                     List<SoundingSite> pdoList = new ArrayList<SoundingSite>();
 
-                    PointDataContainer container = PointDataContainer
-                            .build(pdd);
                     while (iterator.hasNext()) {
+                        /*
+                         * Would it be better to cache the Point Data Container
+                         * based on reftime and forecast hour?
+                         */
+                        PointDataContainer container = PointDataContainer
+                                .build(pdd);
                         SoundingSite soundingData = ModelSoundingDataAdapter
                                 .createSoundingData(iterator, wmoHeader,
                                         container);
