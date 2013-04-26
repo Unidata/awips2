@@ -425,12 +425,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     final String pleaseSpecifyId = "Please specify an id for all registry objects submitted";
 
                     final MsgRegistryException registryException = EbxmlExceptionUtil
-                            .createMsgRegistryException(
-                                    message,
-                                    InvalidRequestExceptionType.class,
-                                    "",
-                                    message,
-                                    pleaseSpecifyId,
+                            .createMsgRegistryException(message,
+                                    InvalidRequestExceptionType.class, "",
+                                    message, pleaseSpecifyId,
                                     ErrorSeverity.ERROR, null, statusHandler);
                     response.getException().add(
                             registryException.getFaultInfo());
@@ -444,18 +441,16 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 final String pleaseSpecifyLid = "Please specify an lid for all registry objects submitted";
 
                 final MsgRegistryException registryException = EbxmlExceptionUtil
-                        .createMsgRegistryException(
-                                message,
-                                InvalidRequestExceptionType.class,
-                                "",
-                                message,
-                                pleaseSpecifyLid,
-                                ErrorSeverity.ERROR, null, statusHandler);
+                        .createMsgRegistryException(message,
+                                InvalidRequestExceptionType.class, "", message,
+                                pleaseSpecifyLid, ErrorSeverity.ERROR, null,
+                                statusHandler);
                 response.getException().add(registryException.getFaultInfo());
                 throw registryException;
             }
 
-            List<RegistryObjectType> dbObjects = registryObjectDao.getByLid(objectLid);
+            List<RegistryObjectType> dbObjects = registryObjectDao
+                    .getByLid(objectLid);
             storedObjects.clear();
             for (RegistryObjectType regObj : dbObjects) {
                 storedObjects.put(regObj.getId(), regObj);
@@ -472,8 +467,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
             switch (request.getMode()) {
             case CREATE_OR_REPLACE:
                 if (storedObjects.containsKey(objectId)) {
-                    VersionInfoType versionInfo = storedObjects
-                            .get(objectId).getVersionInfo();
+                    VersionInfoType versionInfo = storedObjects.get(objectId)
+                            .getVersionInfo();
                     obj.setVersionInfo(versionInfo);
                     obj.setStatus(storedObjects.get(objectId).getStatus());
                     /*
@@ -487,8 +482,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                             + "] replaced in the registry.");
                     // registryObjectDao.delete(storedObjects.get(obj.getId()));
                     objsUpdated.add(obj);
-                    registryObjectDao
-                            .merge(obj, storedObjects.get(objectId));
+                    registryObjectDao.merge(obj, storedObjects.get(objectId));
 
                 } else {
                     obj.setStatus(StatusTypes.APPROVED);
@@ -516,11 +510,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     versionAssociation.setLid(idUUID);
                     versionAssociation.setName(RegistryUtil
                             .getInternationalString("Version Association"));
-                    versionAssociation
-                            .setDescription(RegistryUtil
-                                    .getInternationalString(objectId
-                                            + " Supersedes "
-                                            + dbObjects.get(0).getId()));
+                    versionAssociation.setDescription(RegistryUtil
+                            .getInternationalString(objectId + " Supersedes "
+                                    + dbObjects.get(0).getId()));
                     versionAssociation.setOwner(dbObjects.get(0).getOwner());
                     versionAssociation
                             .setObjectType(RegistryObjectTypes.ASSOCIATION);
@@ -534,8 +526,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     objsVersioned.add(obj);
                     statusHandler
                             .info("Supersedes association for new version of ["
-                                    + objectId
-                                    + "] persisted to the registry");
+                                    + objectId + "] persisted to the registry");
                     registryObjectDao.create(obj);
                 } else {
                     if (!dbObjects.isEmpty()) {
@@ -641,9 +632,12 @@ public class LifecycleManagerImpl implements LifecycleManager {
     private void checkReplica(SubmitObjectsRequest request,
             ExtensibleObjectType object1, ExtensibleObjectType object2)
             throws MsgRegistryException {
-        boolean fromNotification = EbxmlObjectUtil.getHomeSlot(request) != null;
-        String object1Home = EbxmlObjectUtil.getHomeSlot(object1);
-        String object2Home = EbxmlObjectUtil.getHomeSlot(object2);
+        boolean fromNotification = request
+                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME) != null;
+        String object1Home = object1
+                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
+        String object2Home = object2
+                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
 
         if (fromNotification) {
             if (object1Home != null && object2Home == null) {
