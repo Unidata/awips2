@@ -34,6 +34,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.opensaml.xacml.XACMLObject;
@@ -57,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.registry.IRegistryRequest;
 import com.raytheon.uf.common.registry.IRegistryRequest.Action;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
-import com.raytheon.uf.common.registry.constants.RegistryResponseStatus;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
