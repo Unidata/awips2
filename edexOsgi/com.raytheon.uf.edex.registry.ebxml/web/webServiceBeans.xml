@@ -13,6 +13,7 @@
 	<import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
 	<import resource="classpath:res/spring/ebxml.xml" />
 	<import resource="classpath:res/spring/ebxml-webservices.xml" />
+    <import resource="classpath:res/spring/ebxml-validator-plugins.xml" />
 	<import resource="classpath:res/spring/ebxml-querytypes.xml" />
 	<import resource="classpath:res/spring/ebxml-registry-dao.xml" />
 	<import resource="classpath:res/spring/ebxml-subscription.xml" />
