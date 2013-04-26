@@ -23,4 +23,8 @@
 		</constructor-arg>
 	</bean>
 
+    <bean id="registryObjectReferenceValidator" class="com.raytheon.uf.edex.registry.ebxml.services.validator.LocalServerRegistryObjectReferenceValidator">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+    </bean>
+
 </beans>
