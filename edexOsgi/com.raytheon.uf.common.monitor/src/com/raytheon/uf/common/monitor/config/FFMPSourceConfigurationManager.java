@@ -21,6 +21,8 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -47,6 +49,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2012-09-04   DR 14404   gzhang      Fixing ConcurrentModificationException
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -56,8 +59,8 @@ public class FFMPSourceConfigurationManager implements
         ILocalizationFileObserver {
 
     /** Path to FFMP Source config. */
-    private static final String CONFIG_FILE_NAME = "ffmp" + File.separatorChar
-            + "FFMPSourceConfig.xml";
+    private static final String CONFIG_FILE_NAME = "ffmp"
+            + IPathManager.SEPARATOR + "FFMPSourceConfig.xml";
 
     /**
      * FFMP Source Configuration XML object.
@@ -67,20 +70,19 @@ public class FFMPSourceConfigurationManager implements
     /** Singleton instance of this class */
     private static FFMPSourceConfigurationManager instance = new FFMPSourceConfigurationManager();
 
-    private ArrayList<String> virtuals = null;
+    private List<String> virtuals = null;
 
-    private ArrayList<String> rates = null;
+    private List<String> rates = null;
 
     private ArrayList<String> guidances = null;
 
     private ArrayList<String> forecasts = null;
 
-    private ArrayList<String> accumulators = null;
+    private List<String> accumulators = null;
 
     private LocalizationFile lf = null;
     
-    private java.util.concurrent.CopyOnWriteArrayList<MonitorConfigListener> listeners = new java.util.concurrent.CopyOnWriteArrayList<MonitorConfigListener>();// DR 14404
-    //private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();// DR 14404
+    private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     /* Private Constructor */
     private FFMPSourceConfigurationManager() {
@@ -109,18 +111,17 @@ public class FFMPSourceConfigurationManager implements
      * Read the XML configuration data for the current XML file name.
      */
     public synchronized void readConfigXml() {
+        IPathManager pm = PathManagerFactory.getPathManager();
 
         try {
-            IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext lc = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
             lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
             lf.addFileUpdatedObserver(this);
             File file = lf.getFile();
-            // System.out.println("Reading -- " + file.getAbsolutePath());
 
-            FFMPSourceConfigXML configXmltmp = (FFMPSourceConfigXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+            FFMPSourceConfigXML configXmltmp = SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(FFMPSourceConfigXML.class, file);
 
             configXml = configXmltmp;
 
@@ -128,18 +129,17 @@ public class FFMPSourceConfigurationManager implements
             System.err.println("No SITE FFMP Source configuration file found");
 
             // fall back to BASE
-            IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext lc = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
             lf.addFileUpdatedObserver(this);
             File file = lf.getFile();
-            // System.out.println("Reading -- " + file.getAbsolutePath());
 
             FFMPSourceConfigXML configXmltmp = null;
             try {
                 configXmltmp = (FFMPSourceConfigXML) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+                        .jaxbUnmarshalFromXmlFile(FFMPSourceConfigXML.class,
+                                file);
             } catch (SerializationException e1) {
                 e1.printStackTrace();
             }
@@ -160,23 +160,18 @@ public class FFMPSourceConfigurationManager implements
                 LocalizationLevel.SITE);
         LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 CONFIG_FILE_NAME);
-
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            // System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                // System.out.println("Could not create new directory...");
-            }
+        File file = newXmlFile.getFile();
+        
+        if (file.getParentFile().exists() == false) {
+            file.getParentFile().mkdirs();
         }
-
+        
         try {
-            // System.out.println("Saving -- "
-            // + newXmlFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            SerializationUtil.jaxbMarshalToXmlFile(configXml,
+                    file.getAbsolutePath());
             newXmlFile.save();
-
             lf = newXmlFile;
+            lf.addFileUpdatedObserver(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -218,7 +213,7 @@ public class FFMPSourceConfigurationManager implements
      * @param name
      * @return
      */
-    public ArrayList<String> getVirtuals() {
+    public List<String> getVirtuals() {
         if (virtuals == null) {
             virtuals = new ArrayList<String>();
         }
@@ -273,7 +268,7 @@ public class FFMPSourceConfigurationManager implements
      * 
      * @return
      */
-    public ArrayList<String> getQPESources() {
+    public List<String> getQPESources() {
         if (accumulators == null) {
             accumulators = new ArrayList<String>();
         }
@@ -290,7 +285,7 @@ public class FFMPSourceConfigurationManager implements
      * 
      * @return
      */
-    public ArrayList<String> getRates() {
+    public List<String> getRates() {
         if (rates == null) {
             rates = new ArrayList<String>();
         }
@@ -431,26 +426,11 @@ public class FFMPSourceConfigurationManager implements
     }
 
     public SOURCE_TYPE getSourceType(String sourceName) {
-        SOURCE_TYPE source = null;
-        if (getSource(sourceName) != null) {
-            if (getSource(sourceName).getSourceType().equals(
-                    SOURCE_TYPE.RATE.getSourceType())) {
-                source = SOURCE_TYPE.RATE;
-            } else if (getSource(sourceName).getSourceType().equals(
-                    SOURCE_TYPE.QPE.getSourceType())) {
-                source = SOURCE_TYPE.QPE;
-            } else if (getSource(sourceName).getSourceType().equals(
-                    SOURCE_TYPE.QPF.getSourceType())) {
-                source = SOURCE_TYPE.QPF;
-            } else if (getSource(sourceName).getSourceType().equals(
-                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                source = SOURCE_TYPE.GUIDANCE;
-            } else if (getSource(sourceName).getSourceType().equals(
-                    SOURCE_TYPE.GAGE.getSourceType())) {
-                source = SOURCE_TYPE.GAGE;
-            }
+        SourceXML sourceXml = getSource(sourceName);
+        if (sourceXml != null) {
+            return SOURCE_TYPE.valueOf(sourceXml.getSourceType());
         }
-        return source;
+        return null;
     }
 
     /**
