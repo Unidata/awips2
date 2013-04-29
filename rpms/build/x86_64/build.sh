@@ -210,6 +210,7 @@ if [ "${1}" = "-full" ]; then
    fi
    buildRPM "awips2-httpd-pypies"
    buildRPM "awips2-java"
+   buildRPM "awips2-groovy"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
