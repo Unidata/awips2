@@ -142,8 +142,8 @@ public class RedbookDecoder extends AbstractDecoder {
                             + "- File is not Redbook data. Type is "
                             + foreign.dataType);
                 } else {
-                    report = new RedbookParser(traceId, data, wmoHeader)
-                            .getDecodedRecord();
+                    report = new RedbookParser(traceId, data,
+                            wmoHeader).getDecodedRecord();
                 }
                 if (report != null) {
                     report.setPersistenceTime(new Date());
