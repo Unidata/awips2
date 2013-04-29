@@ -3,6 +3,7 @@ package com.raytheon.viz.warnings.rsc;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +75,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      String array returned from getText method
  * Jun 04, 2012 DR14992  mgamazaychikov Reversed the previous changes
  * Sep 26, 2012          jsanchez       Refactored AbstractWarningResource and AbstractWatchesResource into this class.
+ * Apr 11, 2013   1877   jsanchez       Updated conditions for matching a frame.
+ * Apr 18, 2013   1877   jsanchez       Had the child classes set the comparator. Fixed a null pointer.
  * 
  * </pre>
  * 
@@ -152,7 +155,7 @@ public abstract class AbstractWWAResource extends
 
     protected List<AbstractWarningRecord> recordsToLoad;
 
-    protected WarningRecordComparator comparator = new WarningRecordComparator();
+    protected Comparator<AbstractWarningRecord> comparator;
 
     protected abstract void updateDisplay(IGraphicsTarget target)
             throws VizException;
@@ -284,18 +287,24 @@ public abstract class AbstractWWAResource extends
             PaintProperties paintProps) throws VizException {
         FramesInfo info = paintProps.getFramesInfo();
         DataTime[] frames = info.getFrameTimes();
-        int frameToRequestedCompare = frames[0].compareTo(earliestRequested);
-        if (frameToRequestedCompare < 0) {
-            // we haven't requested data this far back
+        if (earliestRequested == null) {
             this.requestData(frames[0]);
-        } else if (frameToRequestedCompare > 0) {
-            // the previous earliest frame was removed as updates came in, so
-            // the warnings need to be disposed and we need to update the
-            // earliestRequested so if they ever went back in time to that
-            // again, it would be re-requested
-            earliestRequested = frames[0];
-            if (paintProps.getDataTime() != null) {
-                cleanupData(paintProps.getDataTime(), frames);
+        } else {
+            int frameToRequestedCompare = frames[0]
+                    .compareTo(earliestRequested);
+            if (frameToRequestedCompare < 0) {
+                // we haven't requested data this far back
+                this.requestData(frames[0]);
+            } else if (frameToRequestedCompare > 0) {
+                // the previous earliest frame was removed as updates came in,
+                // so
+                // the warnings need to be disposed and we need to update the
+                // earliestRequested so if they ever went back in time to that
+                // again, it would be re-requested
+                earliestRequested = frames[0];
+                if (paintProps.getDataTime() != null) {
+                    cleanupData(paintProps.getDataTime(), frames);
+                }
             }
         }
         int index = info.getFrameIndex();
@@ -436,16 +445,13 @@ public abstract class AbstractWWAResource extends
         if (action == WarningAction.CAN && refTime.equals(paintTime)) {
             return false;
             // If this entry has been altered/updated, display its pre-altered
-            // version
-            // only in the frames prior to the time it was altered
+            // version only in the frames prior to the time it was altered
         } else if (entry.altered) {
             if (frameStart.getTime() >= refTime.getTime()
-                    && frameStart.getTime() < (entry.timeAltered.getTime())
-                    && frameStart.getTime() < entry.frameAltered.getTime())
+                    && frameStart.getTime() <= (entry.timeAltered.getTime())
+                    && frameStart.getTime() < entry.frameAltered.getTime()) {
                 return true;
-            if (frameStart.getTime() >= (entry.timeAltered.getTime()))
-                return false;
-
+            }
         } else if (refTime.equals(paintTime)
                 || recordPeriod.contains(frameTime)
                 || (framePeriod.contains(centerTime) && (!lastFrame || !entry.altered))) {
@@ -518,8 +524,9 @@ public abstract class AbstractWWAResource extends
             }
         }
 
-        /* Sorts by phensig, etn, starttime (descending), act */
-        Collections.sort(sortedWarnings, comparator);
+        if (comparator != null) {
+            Collections.sort(sortedWarnings, comparator);
+        }
         return sortedWarnings.toArray(new AbstractWarningRecord[sortedWarnings
                 .size()]);
     }
