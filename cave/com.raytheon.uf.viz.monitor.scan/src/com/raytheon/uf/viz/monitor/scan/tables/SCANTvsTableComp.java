@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.monitor.scan.tables;
 
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable     Initial creation
+ * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
  * 
  * </pre>
  * 
@@ -45,58 +45,25 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
  * @version 1.0
  */
 public class SCANTvsTableComp extends SCANTable {
-    private Point mouseMovePt = new Point(0, 0);
 
-    private Point mouseDownPt = new Point(0, 0);
-
-    private Point prevMousePt = new Point(-9999, -9999);
-
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     *            Parent composite.
+     * @param tableData
+     *            Data to be displayed in the table.
+     * @param tableActionCB
+     *            Callback called when the table is clicked.
+     * @param site
+     *            The site name.
+     */
     public SCANTvsTableComp(Composite parent, SCANTableData tableData,
             ITableAction tableActionCB, String site) {
         super(parent, tableData, tableActionCB, site);
 
         init();
     }
-
-    // @Override
-    // protected void setColumnImages() {
-    // TableColumn[] tCols = table.getColumns();
-    //
-    // for (int i = 0; i < tCols.length; i++) {
-    // String colName = (String) tCols[i].getData();
-    // Image img = new Image(this.getDisplay(), imageWidth, imageHeight);
-    //
-    // GC gc = new GC(img);
-    // gc.setFont(columnFont);
-    //
-    // // Set the initial foreground and background colors.
-    // gc.setForeground(this.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-    // gc.setBackground(this.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-    //
-    // // Set the background color to the sort color if that column is
-    // // sorted.
-    // if (sortedColumnIndex == -1) {
-    // scanCfg.getDefaultName();
-    // String sortColName = scanCfg.getDefaultRank(this.scanTable);
-    // int colIndex = scanCfg.getColumnIndex(scanTable, sortColName);
-    // sortedColumnIndex = colIndex;
-    // }
-    // if (table.indexOf(tCols[i]) == sortedColumnIndex) {
-    // gc.setBackground(scanCfg.getScanColor(ScanColors.Sort));
-    // }
-    //
-    // gc.fillRectangle(0, 0, imageWidth, imageHeight);
-    //
-    // int xCoord = (imageWidth / 2) - (colName.length() * textWidth / 2);
-    //
-    // gc.drawText(colName, xCoord, 3, true);
-    //
-    // gc.dispose();
-    // tCols[i].setImage(img);
-    //
-    // img.dispose();
-    // }
-    // }
 
     @Override
     protected void tableMouseDownAction(MouseEvent event) {
@@ -140,12 +107,4 @@ public class SCANTvsTableComp extends SCANTable {
             }
         }
     }
-
-    // @Override
-    // protected void tableMouseMoveAction(MouseEvent event) {
-    // /*
-    // * TODO: Looking at the WES the TVS table is empty. Need to look at the
-    // * legacy code to determine if there are tool tip texts for the cells.
-    // */
-    // }
 }
