@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>Norms, Means, Extremes </title>
+</head>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=center SRC="awip_ban.gif"></A ><P>
+<center>
+<h3><b>INITIALIZE CLIMATE DATABASE HELP PAGE </b></h3>
+<a href = norms_extremes1.gif>Click here for Climatology Normals, Means, Extremes GUI </a><br>
+<a href = norms_extremes2.gif>Click here for Climatology Normals, Means, Extremes GUI -
+<B>Daily</B></a><br>
+<a href = norms_extremes_mon.gif>Click here for Climatology Normals, Means, Extremes GUI
+- <B>Period</B></a><br>
+</center>
+<hr>
+<br>
+<IMG align=left SRC="arrow.gif"></A > Please look for special <a href = initialize_climate.html#initialize_notes> <b>NOTES/CAUTIONS </b></a>when this arrow appears at the top of page.<br>
+<br>
+Under the <b>FILE</b> option you will find an option to Import data. You can use this option to populate the climate database from a file. Click on <a href= import_climate.html>Import Climate Data</a> for more information.  <br>
+<br>
+<b>Station</b> - This GUI field provides the user with the option to select the climatological station name for which data is to be immediately displayed in the Daily Normals, Means, Extremes GUI.  The station name must be double clicked in order for the Daily Normals, Means, Extremes GUI to respond. <br><br>
+<b>Normals Period</b> - The starting year and ending year of the period over which climatological normal values were determined can be entered in these two fields.<br><br>
+<b>Records Period</b> - The starting year and ending year of the period of record for extreme values can be entered in these two fields.<br><br>
+<b>Save Years</b> - Selecting this button stores the years entered for the Normals Period and Records Period for the selected station.<br><br>
+<b>Climatological Input Type</b> - This field provides the option to select the climatological reports input data type template that will be displayed in the Daily Normals, Means, Extremes GUI.  The choices listed are Daily, Monthly, Seasonally, Yearly, and Display Dailys by Month.<br><br>
+<b>Close</b> - Selecting this field closes the init_climate application and all GUIs associated with it. It then returns the user to the Master Climate GUI<br><br>
+
+The <b>Daily Normals, Means, Extremes</b> GUI is used to manually enter into the database the 
+daily normals, means, and record values for each day of the year, for a station.  The <B>Monthly
+Normals and Extremes</B> GUI is used to manually enter into the database the monthly, seasonal,
+and annual normals and record values for a station.  Basic error checking for the variables is
+provided. A warning message is displayed when values
+are entered that are outside of the allowable range.  The warning message states  Values out of bounds! Please enter last number again. Click on <a href = missing.html> <b>MISSING</b></a> for more information on climate's handling of missing data. The GUIs fields are explained below:<br><br>
+<b>Station</b> - This field displays the station name that was selected by the forecaster in the previous GUI, Climatology Normals, Means, Extremes.<br><br>
+<b>Month and Day</b> - The observation month and day can be entered in these two fields by two methods.  The forecaster can either make a selection from the pull-down menus or increment these fields using the up and down arrows.<br><br>
+<b>First</b> - This option displays the first record in the database that contains data for the selected station.<br><br>
+<b>Add Record</b> - This button saves the changes to the database only if the record has been modified for the first time.<br><br>
+<b>Modify Record</b> - This button saves the changes to the database only if changes have been made to a record that previously contained data.<br><br>
+<b>Delete Record</b> - The displayed day s data are deleted from the Verification database when this field is selected.  The user is prompted to confirm the deletion.<br><br>
+<b>Last</b> -This option displays the last record in the database that contains data for the selected station. It is difficult to type in a station s data for the entire year at once.  Thus, data entry can be quickly resumed with this option since it returns to the last entry.<br><br>
+<b>Temperature</b> - Please refer to users manual for description on individual items.<br><br>
+<b>Precipitation</b> - Please refer to users manual for description on individual items.<br><br>
+<b>Heating/Cooling Degree Days</b> - Please refer to users manual for description on individual items.<br><br>
+<b>Snowfall</b> - Please refer to users manual for description on individual items.<br><br>
+<hr>
+<i><b>Why can't some of the fields be edited in the period GUI?</b></i><br>
+Some of the monthly, seasonal, and annual normals and extremes can be determined
+from daily values which are stored in the database.  Normal average maximum and
+minimum temperatures, normal mean temperature, record maximum and minimum 
+temperatures, normal total precipitation, normal daily average precipitation,
+normal total snowfall, heating degree days, and cooling degree days can be
+derived from daily historical data which is present. Any time a <b><u>daily</u></b>
+record is modified, these values will be recalculated.<br><br>
+<i><b>How are values already stored for monthly, seasonal, and annual if this is the first
+time 5.0 Initialize has been run?</b></i><br>
+If no monthly, seasonal, or annual records exist in the historical database, all of the
+values described in the previous question are generated. There probably was a delay
+between the time that the Climate Master GUI disappeared and the Initialize Climate
+interfaces appeared. This was because the period historical database was being
+initialized automatically. Subsequent runs of initialize climate will not have
+the delay.
+<a name="initialize_notes">
+<h3><b>NOTES/CAUTIONS</h3></b>
+<IMG align=left SRC="dotblue.gif"></a ><b>Do not enter data into year 2 or year 3 if there is not a record for year 1. It creates bad output.</b><br>
+<br><br>
+
+<center>
+<a href= climo_help.html>Return to Main Climate Help Page</a><br>
+</center>
+<hr><p>
+</body>
+</HTML>
