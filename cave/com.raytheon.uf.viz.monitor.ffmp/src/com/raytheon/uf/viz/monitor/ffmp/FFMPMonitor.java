@@ -93,6 +93,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 02/19/13     1639        njensen     Replaced ConcurrentHashMaps with data structures
  * 02/20/13     1635        D. Hladky   Fixed multi guidance sources
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
+ * Apr 9, 2013   1890     dhladky     Fixed the broken cache file load
  * 
  * </pre>
  * 
@@ -386,17 +387,38 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param dataKey
      * @param source
      */
-    public void insertFFMPData(FFMPAggregateRecord data, String siteKey,
-            String source) {
-        // TODO do we need this method if we're no longer supporting cache
-        // records?
-        if (siteDataMap.containsSite(siteKey)) {
-            if (siteDataMap.get(siteKey).containsSource(source)) {
-                for (Entry<String, FFMPBasinData> entry : data.getBasinsMap()
-                        .entrySet()) {
-                    FFMPBasinData basinData = entry.getValue();
-                    basinData.populate(data.getTimes());
+    public void insertFFMPData(FFMPAggregateRecord data,
+            NavigableMap<Date, List<String>> uris, String siteKey, String source) {
+
+        // get record from cache
+        FFMPSourceData sourceData = siteDataMap.get(siteKey).getSourceData(source);
+        FFMPRecord curRecord = sourceData.getRecord();
+
+        if (curRecord == null) {
+            // add each huc requested
+            for (String huc : data.getBasinsMap().keySet()) {
+                // add all of the uris
+                for (Entry<Date, List<String>> duris : uris.entrySet()) {
+                    for (String uri : duris.getValue()) {
+
+                        if (curRecord == null) {
+                            curRecord = new FFMPRecord(uri);
+                            sourceData.setRecord(curRecord);
+                        }
+
+                        sourceData.addLoadedUri(huc, uri);
+                    }
                 }
+            }
+        }
+
+        if (curRecord != null) {
+            for (Entry<String, FFMPBasinData> entry : data.getBasinsMap()
+                    .entrySet()) {
+
+                FFMPBasinData basinData = entry.getValue();
+                basinData.populate(data.getTimes());
+                curRecord.populate(basinData, entry.getKey());
             }
         }
     }

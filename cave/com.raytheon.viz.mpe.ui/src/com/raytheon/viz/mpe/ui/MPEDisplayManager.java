@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * ------------ ---------- ----------- --------------------------
  * Dec 18, 2012            mschenke     Initial creation
  * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
+ * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data.
  * 
  * </pre>
  * 
@@ -401,6 +402,10 @@ public class MPEDisplayManager {
 
     private DisplayFieldData displayedField;
 
+    private int displayedAccumHrs;
+
+    private ArealDisplay displayedArealDisplay;
+
     private final MPEFieldResourceData fieldResourceData = new MPEFieldResourceData();
 
     private MPEFieldResource displayedFieldResource;
@@ -698,9 +703,14 @@ public class MPEDisplayManager {
      */
     public void displayFieldData(DisplayFieldData fieldToDisplay,
             int accumulationHrs, ArealDisplay arealDisplay) {
-        if (displayedField != fieldToDisplay || displayedFieldResource == null) {
+        if (displayedField != fieldToDisplay || displayedFieldResource == null
+                || accumulationHrs != displayedAccumHrs
+                || arealDisplay != displayedArealDisplay) {
             DisplayFieldData oldField = displayedField;
+
             displayedField = fieldToDisplay;
+            displayedAccumHrs = accumulationHrs;
+            displayedArealDisplay = arealDisplay;
             ResourceList list = display.getDescriptor().getResourceList();
 
             if (displayedFieldResource != null) {
@@ -724,14 +734,6 @@ public class MPEDisplayManager {
                 for (IDisplayFieldChangedListener listener : listeners) {
                     listener.displayFieldChanged(oldField, fieldToDisplay);
                 }
-            }
-
-            // reset gages
-            List<MPEGageResource> rscs = display.getDescriptor()
-                    .getResourceList()
-                    .getResourcesByTypeAsType(MPEGageResource.class);
-            for (MPEGageResource rsc : rscs) {
-                rsc.reloadGages();
             }
         }
 
@@ -1118,4 +1120,15 @@ public class MPEDisplayManager {
                 + " - OK to Proceed?");
     }
 
+    /**
+     * Update the Gage resource.
+     */
+    public void updateGages() {
+        // reset gages
+        List<MPEGageResource> rscs = display.getDescriptor().getResourceList()
+                .getResourcesByTypeAsType(MPEGageResource.class);
+        for (MPEGageResource rsc : rscs) {
+            rsc.reloadGages();
+        }
+    }
 }
