@@ -5,6 +5,9 @@ import java.util.ServiceLoader;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 
@@ -20,13 +23,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetriev
  * Oct 10, 2012 0726       djohnson    Make buses final.
  * Dec 11, 2012 1286       djohnson    Create a factory to hold Google event buses.
  * Feb 07, 2013 1543       djohnson    Changed to behave similarly to EventBus.
+ * Apr 29, 2013 1910       djohnson    Watch for NPEs and errors unregistering.
  * 
  * </pre>
  * 
  * @version 1.0
  */
 public class BandwidthEventBus {
-    
+
     private static final BandwidthEventBusFactory eventBusFactory;
     static {
         eventBusFactory = ServiceLoader
@@ -43,15 +47,25 @@ public class BandwidthEventBus {
     private static final com.google.common.eventbus.EventBus retrievalBus = eventBusFactory
             .getRetrievalBus();
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BandwidthEventBus.class);
+
+    private static final String NULL_SUBSCRIBER = "Ignoring a null subscriber.";
+
     /**
      * Registers an object with the event bus.
      * 
      * @param subscriber
      */
     public static void register(Object subscriber) {
-        BandwidthEventBus.retrievalBus.register(subscriber);
-        BandwidthEventBus.subscriptionBus.register(subscriber);
-        BandwidthEventBus.dataSetBus.register(subscriber);
+        if (subscriber != null) {
+            BandwidthEventBus.retrievalBus.register(subscriber);
+            BandwidthEventBus.subscriptionBus.register(subscriber);
+            BandwidthEventBus.dataSetBus.register(subscriber);
+        } else {
+            statusHandler.handle(Priority.WARN, NULL_SUBSCRIBER,
+                    new IllegalArgumentException(NULL_SUBSCRIBER));
+        }
     }
 
     /**
@@ -60,9 +74,35 @@ public class BandwidthEventBus {
      * @param subscriber
      */
     public static void unregister(Object subscriber) {
-        BandwidthEventBus.retrievalBus.unregister(subscriber);
-        BandwidthEventBus.subscriptionBus.unregister(subscriber);
-        BandwidthEventBus.dataSetBus.unregister(subscriber);
+        if (subscriber != null) {
+            try {
+                BandwidthEventBus.retrievalBus.unregister(subscriber);
+            } catch (Throwable t) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to unregister subscriber of type ["
+                                + subscriber.getClass().getName()
+                                + "] from the retrieval event bus!", t);
+            }
+            try {
+                BandwidthEventBus.subscriptionBus.unregister(subscriber);
+            } catch (Throwable t) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to unregister subscriber of type ["
+                                + subscriber.getClass().getName()
+                                + "] from the subscription event bus!", t);
+            }
+            try {
+                BandwidthEventBus.dataSetBus.unregister(subscriber);
+            } catch (Throwable t) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to unregister subscriber of type ["
+                                + subscriber.getClass().getName()
+                                + "] from the dataSet event bus!", t);
+            }
+        } else {
+            statusHandler.handle(Priority.WARN, NULL_SUBSCRIBER,
+                    new IllegalArgumentException(NULL_SUBSCRIBER));
+        }
     }
 
     /**
