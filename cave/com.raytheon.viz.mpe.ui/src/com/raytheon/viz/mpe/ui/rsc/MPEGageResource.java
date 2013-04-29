@@ -192,8 +192,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
         displayMgr.registerDisplayFieldChangedListener(this);
         fontFactory = new MPEFontFactory(target, this);
         loadColors();
-        lastDate = displayMgr.getCurrentEditDate();
-        addPoints(MPEDataManager.getInstance().readGageData(lastDate, lastDate));
+        reloadGages();
     }
 
     @Override
@@ -651,7 +650,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
     public void displayFieldChanged(DisplayFieldData oldFieldData,
             DisplayFieldData newFieldData) {
         loadColors();
+        reloadGages();
         issueRefresh();
     }
-
 }
