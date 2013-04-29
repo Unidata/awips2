@@ -1,0 +1,3 @@
+#!/bin/ksh
+
+echo "work!"
