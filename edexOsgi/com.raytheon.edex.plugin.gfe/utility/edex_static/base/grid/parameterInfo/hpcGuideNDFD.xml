@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Mar 20, 2013    #1774    randerso    Fixed wx definition
+  REVISION HISTORY
+  
+  Date         Ticket#    Engineer    Description
+  03/20/2013    #1774     randerso    Fixed wx definition
+  04/17/2013    #1913     randerso    Corrected wx units
  -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
@@ -129,7 +133,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>wx</short_name>
     <long_name>Weather</long_name>
-    <units/>
+    <units>wx</units>
     <udunits/>
     <uiname>Weather</uiname>
     <valid_range>0.0</valid_range>
