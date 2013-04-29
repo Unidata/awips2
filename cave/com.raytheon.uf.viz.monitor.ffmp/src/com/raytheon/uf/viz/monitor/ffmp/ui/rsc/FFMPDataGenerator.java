@@ -71,6 +71,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
  * Feb 28, 2013  1729      dhladky    General enhancements for speed.
+ * Apr 15, 2013   1890    dhladky     Added another constant fix.
+ * Apr 15, 2013   1911    dhladky     Fixed forced FFG for centered aggregates.
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -497,7 +499,7 @@ public class FFMPDataGenerator {
                                 forced = forceUtil.isForced();
                             }
 
-                            if ((!forcedPfafs.isEmpty()) && forced) {
+                            if ((!forcedPfafs.isEmpty()) && forced && centeredAggregationKey == null) {
                                 // Recalculate the guidance using the forced
                                 // value(s)
                                 guidance = guidRecords
@@ -510,7 +512,7 @@ public class FFMPDataGenerator {
                                                 guidance,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                            } else if (!forcedPfafs.isEmpty()) {
+                            } else if (!forcedPfafs.isEmpty() && centeredAggregationKey == null) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -522,7 +524,7 @@ public class FFMPDataGenerator {
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
                                 forced = true;
-                            } else if (!pfafList.isEmpty()) {
+                            } else if (!pfafList.isEmpty() && centeredAggregationKey == null) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -674,7 +676,7 @@ public class FFMPDataGenerator {
                                 forced = forceUtil.isForced();
                             }
 
-                            if ((!forcedPfafs.isEmpty()) && forced) {
+                            if ((!forcedPfafs.isEmpty()) && forced && centeredAggregationKey == null) {
                                 // Recalculate the guidance using the forced
                                 // value(s)
                                 guidance = guidRecords
@@ -687,7 +689,7 @@ public class FFMPDataGenerator {
                                                 guidance,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                            } else if (!forcedPfafs.isEmpty()) {
+                            } else if (!forcedPfafs.isEmpty() && centeredAggregationKey == null) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -699,7 +701,7 @@ public class FFMPDataGenerator {
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
                                 forced = true;
-                            } else if (!pfafList.isEmpty()) {
+                            } else if (!pfafList.isEmpty() && centeredAggregationKey == null) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -843,7 +845,7 @@ public class FFMPDataGenerator {
                 ArrayList<Long> pfafs = ft.getAggregatePfafs(basin.getPfaf(),
                         siteKey, huc);
                 if (!pfafs.isEmpty()) {
-                    if (huc.equals("COUNTY")) {
+                    if (huc.equals(FFMPRecord.COUNTY)) {
                         name = ft.getCountyStateName(siteKey, basin.getPfaf());
                     } else {
                         for (int i = 0; i < pfafs.size(); i++) {

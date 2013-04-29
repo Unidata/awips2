@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
  *                                  NEW warning when CAN warning is issued
  * Sep 27, 2012  1149     jsanchez     Refactored methods from AbstractWarningsResource into this class.
+ * Arp 18, 2013  1877     jsanchez     Ordered the records the same for update and initial load.
  * </pre>
  * 
  * @author jsanchez
@@ -104,6 +105,7 @@ public class WarningsResource extends AbstractWWAResource {
      */
     public WarningsResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
+        comparator = new WarningRecordComparator();
         resourceName = "Warnings";
     }
 
@@ -148,7 +150,7 @@ public class WarningsResource extends AbstractWWAResource {
             synchronized (WarningsResource.this) {
                 {
                     try {
-                        addRecord(pdo);
+                        addRecord(sort(pdo));
                     } catch (VizException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 e.getLocalizedMessage(), e);
