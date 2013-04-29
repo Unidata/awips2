@@ -94,6 +94,7 @@ public class WatchesResource extends AbstractWWAResource {
 
     public WatchesResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
+        comparator = new WatchesComparator();
         timer = new Timer();
         expTaskSet = new HashSet<Long>();
         resourceName = "Watches";
