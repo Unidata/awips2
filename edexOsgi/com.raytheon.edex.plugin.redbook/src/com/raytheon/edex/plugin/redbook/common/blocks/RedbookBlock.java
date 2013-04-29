@@ -29,17 +29,19 @@ import org.apache.commons.logging.LogFactory;
  * 
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080512           1131 jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
+ *                                     and nested Factory interface.
  * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public abstract class RedbookBlock {
@@ -57,28 +59,28 @@ public abstract class RedbookBlock {
     
     private boolean hasChkSum = false;
     
+    private RedbookBlockHeader header;
+
     private final int length;
     
-    private final int mode;
-    
-    private final int subMode;
-    
+    public interface RedbookBlockFactory {
+        public abstract RedbookBlock createBlock(RedbookBlockHeader header,
+                ByteBuffer data);
+    }
+
     /**
      * 
      * @param separator
      */
-    public RedbookBlock(ByteBuffer data) {
+    public RedbookBlock(RedbookBlockHeader header, ByteBuffer data) {
         
-        int hdr = (data.getShort() & 0xFFFF);
-        
-        hasLength = (hdr & LEN_MASK) == 0;
-        
-        hasChkSum = (hdr & CHKSUM_MASK) == 0;
+        this.header = header;
 
-        mode = (data.get() & 0xFF);
-        subMode = (data.get() & 0xFF);
+        hasLength = (this.header.hdr & LEN_MASK) == 0;
 
-        length = (hasLength) ? (hdr & LENGTH_MASK) : -1;
+        hasChkSum = (this.header.hdr & CHKSUM_MASK) == 0;
+
+        length = (hasLength) ? (this.header.hdr & LENGTH_MASK) : -1;
     }
 
     public boolean isEndBlock() {
@@ -96,14 +98,14 @@ public abstract class RedbookBlock {
      * @return the mode
      */
     public int getMode() {
-        return mode;
+        return this.header.mode;
     }
 
     /**
      * @return the subMode
      */
     public int getSubMode() {
-        return subMode;
+        return this.header.subMode;
     }
 
     /**
@@ -142,7 +144,7 @@ public abstract class RedbookBlock {
         sb.append((hasChkSum) ? 'C' : '.');
         sb.append(':');
         
-        sb.append(String.format("%05d:mode=%02X:submode=%02X",length,mode,subMode));
+        sb.append(String.format("%05d:mode=%02X:submode=%02X",length,header.mode,header.subMode));
         
         return sb;
     }
@@ -165,5 +167,23 @@ public abstract class RedbookBlock {
         }
         return f;
     }
-    
+
+    /**
+     * @return true if this is a Product Id block; false otherwise.
+     */
+    public boolean isProductId() {
+        return header.isProductId();
+    }
+
+    /**
+     * @return true if this is a Product Id block; false otherwise.
+     */
+    public boolean isUpperAirPlot() {
+        return header.isUpperAirPlot();
+    }
+
+    protected void dropShortsFromTheBuffer(ByteBuffer data) {
+        int newPosition = (data.position() + ((getLength() - 2) << 1));
+        data.position(newPosition);
+    }
 }

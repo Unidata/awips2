@@ -39,6 +39,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.plugin.redbook.common.blocks.Block_004_016;
 import com.raytheon.edex.plugin.redbook.common.blocks.DefaultBlock;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockBuilder;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -89,6 +91,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 29, 2008	#1162	    chammack	Initial creation
  * Jan 28, 2010 #4224       M. Huang    Added Line Style, Line Width
  *                                       menu choice
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * 
  * </pre>
  * 
@@ -160,19 +163,24 @@ public class RedbookFrame implements IRenderable {
 
                 while (dataBuf.hasRemaining()) {
 
-                    String currBlock = getBlockKey(dataBuf);
+                    RedbookBlockHeader header = RedbookBlockBuilder
+                            .getHeader(dataBuf);
+                    String currBlock = header.blockFactoryKey;
+
                     if (currBlock.equals("005_002")) {
                         // Block that describes plot data
-                        PlotDataBlock pdb = new PlotDataBlock(dataBuf, mt, m, n);
+                        PlotDataBlock pdb = new PlotDataBlock(header, dataBuf,
+                                mt, m, n);
                         parsedTextBlocks.add(pdb);
                     } else if (currBlock.equals("005_001")) {
                         // Block that describes alphanumeric data
-                        AlphaNumBlock pdb = new AlphaNumBlock(dataBuf, mt, m, n);
+                        AlphaNumBlock pdb = new AlphaNumBlock(header, dataBuf,
+                                mt, m, n);
                         parsedTextBlocks.add(pdb);
                     } else if (currBlock.equals("004_005")) {
                         // Block that describes the relative short/long format
                         ShortLongVectorsBlock vb = new ShortLongVectorsBlock(
-                                dataBuf, mt, m, n, legend);
+                                header, dataBuf, mt, m, n, legend);
                         try {
                             this.compiler.handle(vb.getGeometry());
                         } catch (VizException e) {
@@ -188,12 +196,12 @@ public class RedbookFrame implements IRenderable {
                         }
                     } else if (currBlock.equals("001_004")) {
                         // Block that describes the plot parameters
-                        new PlotParametersBlock(dataBuf);
+                        new PlotParametersBlock(header, dataBuf);
                         // Currently, this is not used in rendering
                     } else if (currBlock.equals("004_017")) {
                         // Block that describes the projection
                         RedbookProjectionBlock vb = new RedbookProjectionBlock(
-                                dataBuf);
+                                header, dataBuf);
 
                         String customProjection = null;
                         try {
@@ -264,7 +272,7 @@ public class RedbookFrame implements IRenderable {
                         }
                     } else if (currBlock.equals("004_016")) {
                         // Block that describes the plot space
-                        Block_004_016 vb = new Block_004_016(dataBuf);
+                        Block_004_016 vb = new Block_004_016(header, dataBuf);
 
                         // Store off the pixel space
                         m = vb.getRefM2coord();
@@ -277,11 +285,11 @@ public class RedbookFrame implements IRenderable {
                             || currBlock.startsWith("002_")) {
 
                         // Recognized blocks that we don't do anything with
-                        new DefaultBlock(dataBuf);
+                        new DefaultBlock(header, dataBuf);
 
                     } else {
 
-                        DefaultBlock block = new DefaultBlock(dataBuf);
+                        DefaultBlock block = new DefaultBlock(header, dataBuf);
                         if (!currBlock.equals("")) {
                             status.unhandledPackets = true;
 
@@ -616,29 +624,6 @@ public class RedbookFrame implements IRenderable {
             }
             return width;
         }
-    }
-
-    /**
-     * 
-     * @param dataBuffer
-     * @return
-     */
-    private static String getBlockKey(ByteBuffer dataBuffer) {
-        String blockKey = "";
-        // Must have at least 4 bytes
-        if (dataBuffer.remaining() > MIN_REMAINING) {
-            dataBuffer.mark();
-            // Dummy read for the flags/length
-            dataBuffer.getShort();
-
-            int mode = (dataBuffer.get() & 0xFF);
-            int subMode = (dataBuffer.get() & 0xFF);
-
-            dataBuffer.reset();
-
-            blockKey = String.format(MODE_KEY_FMT, mode, subMode);
-        }
-        return blockKey;
     }
 
     public void dispose() {
