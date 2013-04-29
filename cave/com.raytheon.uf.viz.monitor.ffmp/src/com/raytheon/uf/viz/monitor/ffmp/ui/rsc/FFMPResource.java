@@ -163,6 +163,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 20, 2013    1635   dhladky      Fixed multiple guidance display
  * Feb 28, 2013  1729      dhladky     Changed the way the loaders are managed via the status updates.
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
+ * Apr 9, 2013   1890     dhladky    General cleanup.
  * Apr 10, 2013 1896       bsteffen    Make FFMPResource work better with D2D
  *                                     time matcher.
  * </pre>
@@ -1219,7 +1220,7 @@ public class FFMPResource extends
             paintProps.setAlpha(getCapability(ImagingCapability.class)
                     .getAlpha());
 
-            boolean isShaded = isPolygonal();
+            boolean isShaded = true;
             FFMPDrawable drawable = null;
 
             if (paintTime != null) {
@@ -1569,14 +1570,6 @@ public class FFMPResource extends
         }
 
         return geometryType;
-    }
-
-    protected boolean isLineal() {
-        return getGeometryType().endsWith("LINESTRING");
-    }
-
-    protected boolean isPolygonal() {
-        return getGeometryType().endsWith("POLYGON");
     }
 
     /**
