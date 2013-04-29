@@ -1,0 +1,28 @@
+#!/bin/ksh
+# file name: run_obsfcst_monitor
+# Created: August 2005 Author : Varalakshmi Rajaram
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../../set_hydro_env
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+# Command line arguments to the program obsfcst_monitor
+
+DATABASE_NAME=$DB_NAME
+LOCATION_FILTER=hsa
+BASISTIME_LOOKBACK_HRS=36
+VALIDTIME_LOOKBACK_HRS=6
+MATCHING_VALID_TIMEWINDOW_MINS=120
+
+# obsfcst_monitor -d dbname -f location filter  -t forecast table name
+#                 -b basis time lookback hrs -v valid time lookback hrs 
+#                 -w matching valid time window in mins
+
+$WHFS_BIN_DIR/obsfcst_monitor.LX -d $DATABASE_NAME -f $LOCATION_FILTER -t FcstHeight -b $BASISTIME_LOOKBACK_HRS -v $VALIDTIME_LOOKBACK_HRS -w $MATCHING_VALID_TIMEWINDOW_MINS 
+
+$WHFS_BIN_DIR/obsfcst_monitor.LX -d $DATABASE_NAME -f $LOCATION_FILTER -t FcstDischarge -b $BASISTIME_LOOKBACK_HRS -v $VALIDTIME_LOOKBACK_HRS -w $MATCHING_VALID_TIMEWINDOW_MINS 
