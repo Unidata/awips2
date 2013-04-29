@@ -1,0 +1,5 @@
+#!/bin/ksh
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+
+runso rary.ohd.util create_bas_bound_main $1 $2
