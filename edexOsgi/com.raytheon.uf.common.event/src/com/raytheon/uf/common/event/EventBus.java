@@ -2,6 +2,10 @@ package com.raytheon.uf.common.event;
 
 import java.util.ServiceLoader;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+
 /**
  * The EventBus.
  * 
@@ -15,6 +19,7 @@ import java.util.ServiceLoader;
  *                                      add unregister.
  * Dec 11, 2012 1407       djohnson     Separate the creation of the Google EventBus from the wrapper class.
  * Feb 05, 2013 1580       mpduff       Moved to common, use IEventBusHandler.
+ * Apr 29, 2013 1910       djohnson     Watch for NPEs and errors unregistering.
  * 
  * </pre>
  * 
@@ -29,6 +34,11 @@ public final class EventBus {
                 .iterator().next();
     }
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EventBus.class);
+
+    private static final String NULL_SUBSCRIBER = "Ignoring a null subscriber.";
+
     private EventBus() {
 
     }
@@ -40,7 +50,12 @@ public final class EventBus {
      *            The subscriber to register
      */
     public static void register(Object subscriber) {
-        handler.register(subscriber);
+        if (subscriber != null) {
+            handler.register(subscriber);
+        } else {
+            statusHandler.handle(Priority.WARN, NULL_SUBSCRIBER,
+                    new IllegalArgumentException(NULL_SUBSCRIBER));
+        }
     }
 
     /**
@@ -50,7 +65,19 @@ public final class EventBus {
      *            The subscriber to unregister
      */
     public static void unregister(Object subscriber) {
-        handler.unregister(subscriber);
+        if (subscriber != null) {
+            try {
+                handler.unregister(subscriber);
+            } catch (Throwable t) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to unregister subscriber of type ["
+                                + subscriber.getClass().getName()
+                                + "] from the retrieval event bus!", t);
+            }
+        } else {
+            statusHandler.handle(Priority.WARN, NULL_SUBSCRIBER,
+                    new IllegalArgumentException(NULL_SUBSCRIBER));
+        }
     }
 
     /**
