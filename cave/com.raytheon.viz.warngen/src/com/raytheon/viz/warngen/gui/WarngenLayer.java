@@ -165,9 +165,11 @@ import com.vividsolutions.jts.io.WKTReader;
  * 03/28/2013   DR 15974   D. Friedman Preserve the set of selected counties when recreating the polygon from the
  *                                     hatched area and remember marked counties outside the polygon on followup.
  * 04/03/2013   1858       jsanchez    Handled creating follow up warnings when created before 0z but issued after 0z.
- * 03/13/2013   DR 15942   Qinglu Lin  Added code to prevent small area from being toggled on that
+ * 04/03/2013   DR 15942   Qinglu Lin  Added code to prevent small area from being toggled on that
  *                                     does not meet inclusionPercent/inclusionArea criteria.
  * 04/10/2013   DR 16044   D. Friedman Fix NPE in getAllFipsInArea.
+ * 04/11/2013   1894       jsanchez    Kept tracked of the currently loaded custom maps.
+ * 04/12/1013   DR 16045   Qinglu Lin  Updated AreaHatcher's run() by calling removeDuplicateCoordinate().
  * </pre>
  * 
  * @author mschenke
@@ -197,7 +199,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class CustomMaps extends Job {
 
-        private final Set<String> customMaps = new HashSet<String>();
+        private Set<String> customMaps = new HashSet<String>();
 
         private Set<String> mapsToLoad;
 
@@ -228,7 +230,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     for (String load : toLoad) {
                         manager.loadMapByName(load);
                     }
-
+                    customMaps = toLoad;
                     issueRefresh();
                 }
 
@@ -241,6 +243,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             synchronized (this) {
                 mapsToLoad = new HashSet<String>(maps);
             }
+
             schedule();
         }
 
@@ -285,6 +288,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
 
                 try {
+            		warningPolygon = PolygonUtil.removeDuplicateCoordinate(warningPolygon);
                     Polygon hatched = polygonUtil.hatchWarningArea(
                             warningPolygon,
                             removeCounties(warningArea,
@@ -293,7 +297,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         // DR 15559
                         Coordinate[] coords = hatched.getCoordinates();
                         PolygonUtil.round(coords, 2);
-                        WarngenUIState.adjustPolygon(coords);
+                        PolygonUtil.adjustPolygon(coords);
                         GeometryFactory gf = new GeometryFactory();
                         LinearRing lr = gf.createLinearRing(coords);
                         hatchedArea = gf.createPolygon(lr, null);
