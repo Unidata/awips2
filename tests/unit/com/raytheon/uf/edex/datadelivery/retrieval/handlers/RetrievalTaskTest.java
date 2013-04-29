@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -84,6 +85,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 15, 2013 1543       djohnson     Class renames.
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * Mar 19, 2013 1794       djohnson     RetrievalTasks integrate at a queue.
+ * Apr 29, 2013 1910       djohnson     Unregister from EventBus after each test.
  * 
  * </pre>
  * 
@@ -163,6 +165,11 @@ public class RetrievalTaskTest {
         sbnRetrieval.setNetwork(Network.SBN);
 
         EventBus.register(this);
+    }
+
+    @After
+    public void tearDown() {
+        EventBus.unregister(this);
     }
 
     @Test
