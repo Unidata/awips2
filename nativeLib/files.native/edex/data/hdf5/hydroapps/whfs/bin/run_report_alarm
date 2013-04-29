@@ -1,0 +1,210 @@
+#!/bin/ksh
+# run_report_alarm
+#
+# script to review the current alert/alarm values and report them in
+# a product and send them to the text database
+#
+# Revised:July 20, 2001
+#
+
+# This allows you to call this script from outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+# Run from local bin dir
+. $RUN_FROM_DIR/../../../set_hydro_env
+export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+#
+# Report output goes to dedicated files named by product_id and the
+# file suffix, which is normally set according to the system tiem. 
+# Log output and error messages should appear in the redirected output of the program.
+#
+
+LOGFILE=$WHFS_UTIL_LOG_DIR/report_alarm.log
+TEMPNAME=$WHFS_UTIL_LOG_DIR/report_alarm.tmp
+
+# setup the AWIPS environment
+# redirect any output from this script to the log file
+#
+. $FXA_HOME/readenv.sh >> $LOGFILE 2>&1
+
+#
+# save only the latest events in the log file
+#
+if [ -e "${LOGFILE}" ]
+then
+	tail -1200 $LOGFILE > $TEMPNAME
+	mv $TEMPNAME $LOGFILE
+fi	
+
+# log start of script
+#
+echo "------------------------------ " >> $LOGFILE
+Dte=`date -u`
+echo Invoking report_alarm$OS_SUFFIX at $Dte >> $LOGFILE
+
+#
+# program usage:
+# report_alarm -d<database> -p<product_id>                    <--required args
+#              -r<report_mode> -s<file_suffix> -m<minutes>    <-- optional args
+#              -f<generalfilter>  -e<PEfilter>                <-- optional args
+#
+
+#  define the product id as per local needs - SET LOCALLY !!!!!!!!!!!!!!!!!!!!!
+#
+
+PRODUCT_ID=CCCACRXXX
+
+#
+# define the file suffix based on the system time
+# use extr var to avoid SCCS problem
+
+hstr="%H"
+SUFFIX=`date -u +%m%d.$hstr%M`
+
+#
+# the name of the created file is set according to how the program
+# builds the name
+
+FILENAME=$WHFS_PRODUCT_DIR/$PRODUCT_ID.$SUFFIX 
+
+#
+# run the application
+
+$WHFS_BIN_DIR/report_alarm$OS_SUFFIX -d$DB_NAME -p$PRODUCT_ID -s$SUFFIX -rNEAREST >> $LOGFILE 2>&1
+NUM_ALARMS=$?
+
+
+if [ $NUM_ALARMS -eq 0 ]
+then
+   print No alarms reported, info sent to $FILENAME  >> $LOGFILE
+   print File NOT sent to text database >> $LOGFILE
+   
+else  
+   print $NUM_ALARMS alarms reported, report written to $FILENAME >> $LOGFILE
+
+   echo Writing $FILENAME to textdb as id $PRODUCT_ID >> $LOGFILE
+   /awips/fxa/bin/textdb -w $PRODUCT_ID < $FILENAME >> $LOGFILE 2>&1
+   RETURN_STATUS=$?   
+
+   if [ $RETURN_STATUS -eq 0 ]
+   then
+      print Product successfully sent >> $LOGFILE   
+   else  
+      print Product send error detected, status= $RETURN_STATUS >> $LOGFILE
+   fi
+fi
+
+Dte=`date -u `
+echo Completed report_alarm at $Dte >> $LOGFILE
+
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
+# USAGES NOTES:
+#
+# program usage:
+#
+# report_alarm -d<database> -p<product_id>                    <--required args
+#              -r<report_mode> -s<file_suffix> -m<minutes>    <-- optional args
+#              -f<generalfilter>  -e<PEfilter>                <-- optional args
+#
+#  database    : name of database, supplied by script
+#  product_id  : nine-character product_id, used to set the output filename
+#                and for sending the product to the text database
+#                !!!!!!  THE LOCAL OFFICE SHOULD SET THIS ACCORDINGLY !!!!!!!!
+#
+# optional args:
+#
+#  filter      : set of characters which instruct the program to only consider
+#                certain types of alert/alarms for reporting.
+#     O - Read observed alert/alarms, which has a type-source of either R* or P*
+#     F - Read forecast alert/alarms, which has a type-source of either F* or C*
+#     R - Read exceed rate-of-change alert/alarms.
+#     U - Read exceed upper limit alert/alarms.
+#     L - Read exceed lower limit alert/alarms.
+#     D - Read exceed diff limit alert/alarms.
+#     M - Read alarm data.
+#     T - Read alert data.
+#     e.g.: -fORT == read observed rate-of-change alerts only.
+#                 Note that one can specify O and F, or R and V, or M and T together,
+#                 but that is equivalent to specifying nothing since the default is
+#                 to include both observed and forecast alert/alarms, both rate-of-change
+#                 and value exceed alerts/alarms, and both alerts and alarms
+#                 (i.e. the default is -fOFRULDMT).
+#
+#  report_mode : reporting mode, set to one of the following:
+#     ALL -        Report all records - and that means ALL records.
+#   
+#     RECENT -     Report all observed or forecast records posted within the
+#                  past xxx minutes.
+#
+#     NEAR_NOW -   Reported observed values within the past xxx minutes and
+#                  forecast values within the next xxx minutes.
+#
+#     NEAREST -    Reporting most recent observed value and earliest
+#                  forecast value.
+#
+#     LATEST_MAXFCST - Reporting most recent observed value and maximum
+#                      forecast value.
+#
+#     UNREPORTED - Report all records that were not previously reported,
+#                  as noted by the action_time field being not equal to null. 
+#  
+#     NEAREST - Report the most recent record for observed data, or the earliest
+#               record for forecast data, for each "group" of data, where a
+#               group is for a unique lid/pe/ts.  This is done regardless of
+#               whether it has been previously reported.
+#
+#     FRESH -  For observed data, listing all records that are later than xxx
+#	       minutes after the time of the most recent reported value. 
+#	       For forecast data, listing the maximum forecast value if it 
+#	       was not reported within the past xxx minutes.
+#
+#     NEW_OR_INCREASED - For observed data, listing unreported records if,
+#              the previous reported was later than xxx minutes ago OR if the
+#             report has a higher value than the last reported record.
+#	      For forecasted data, listing the maximum forecast value if it
+#	      was not reported within the past xxx minutes.
+#
+#   minutes    : the number of minutes used for time window purposes in
+#                the reporting modes: RECENT, NEAR_NOW, FRESH, NEW_OR_INCREASED.
+#
+#  file_suffix : string appended to the end of the product id to form 
+#                the output file name.  the file suffix is set by this script
+#                to be based on the system time.                     
+#
+# - Whenever a record is reported, the action_time field is updated!!!     
+# - Regardless of the report_mode, the data are always filtered by 
+#   and filter options; i.e. the filter is applied FIRST!!!
+#
+#   ALL and UNREPORTED are very simple modes; all mean all and 
+#   unreported means unreported.  These modes are handled easily
+#   by filtering the retrieved data when it is read from the database.
+#   
+#   RECENT and NEAR_NOW are also simple modes.  RECENT means
+#   recently posted, NEAR_NOW means observed or forecast data 
+#   near now.
+#   
+#   NEAREST is also pretty simple, in that it reports the nearest
+#   observed of forecast data, in terms of time.
+#   
+#   LATEST_MAXFCST is also straightforward in that it reports the 
+#   latest (i.e. nearest) observed data, but unlike the NEAREST mode,
+#   reports the maximum forecast value.
+#   
+#   FRESH and NEW_OR_INCREASED use the most complex concepts.
+#   
+#   The following modes do not consider the action_time:
+#   ALL, RECENT, NEAR_NOW, NEAREST, LATEST_MAXFCST   
+#   These other modes do consider the action_time:
+#   UNREPORTED, FRESH, NEW_OR_INCREASED
+#
+#    PEfilter: filter by pe specified by users
