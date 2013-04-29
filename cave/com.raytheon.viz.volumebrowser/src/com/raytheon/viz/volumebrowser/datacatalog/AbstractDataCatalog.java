@@ -29,15 +29,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
@@ -373,12 +374,13 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
             }
         } else {
             try {
-                LevelMappingFactory lmf = LevelMappingFactory.getInstance();
+                LevelMappingFactory lmf = LevelMappingFactory
+                        .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
                 LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
                 if (lm != null) {
                     levels = lm.getLevels();
                 }
-            } catch (VizCommunicationException e) {
+            } catch (CommunicationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
