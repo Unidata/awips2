@@ -67,9 +67,9 @@ integer CNTR=1
 while [[ 1 -eq 1 ]]
 do
    NUM_OF_FILES=`ls -1 $GAGE_PP_DATA | grep BUILD | wc -l`
-   if [[ ($NUM_OF_FILES -ne 0) && ($CNTR -lt 15) ]]
+   if [[ ($NUM_OF_FILES -ne 0) && ($CNTR -lt 2) ]]
    then
-       sleep 2
+       sleep 1
        CNTR=CNTR+1
    else
        break
