@@ -18,6 +18,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12 Sept, 2012   1038      dhladky     Initial creation
+ * 1  May   2013   1959      dhladky     remove backup registry references
  * 
  * </pre>
  * 
@@ -33,18 +34,6 @@ public class HarvesterConfig implements ISerializableObject {
     @DynamicSerializeElement
     private Provider provider;
 
-    @XmlElement(name = "primaryRegistryHost")
-    @DynamicSerializeElement
-    private String primaryRegistryHost;
-
-    @XmlElement(name = "secondaryRegistryHost")
-    @DynamicSerializeElement
-    private String secondaryRegistryHost;
-
-    @XmlElement(name = "tertiaryRegistryHost")
-    @DynamicSerializeElement
-    private String tertiaryRegistryHost;
-
     @XmlElement(name = "agent")
     @DynamicSerializeElement
     private Agent agent;
@@ -57,40 +46,16 @@ public class HarvesterConfig implements ISerializableObject {
         return agent;
     }
 
-    public String getPrimaryRegistryHost() {
-        return primaryRegistryHost;
-    }
-
     public Provider getProvider() {
         return provider;
-    }
-
-    public String getSecondaryRegistryHost() {
-        return secondaryRegistryHost;
-    }
-
-    public String getTertiaryRegistryHost() {
-        return tertiaryRegistryHost;
     }
 
     public void setAgent(Agent agent) {
         this.agent = agent;
     }
 
-    public void setPrimaryRegistryHost(String primaryRegistryHost) {
-        this.primaryRegistryHost = primaryRegistryHost;
-    }
-
     public void setProvider(Provider provider) {
         this.provider = provider;
-    }
-
-    public void setSecondaryRegistryHost(String secondaryRegistryHost) {
-        this.secondaryRegistryHost = secondaryRegistryHost;
-    }
-
-    public void setTertiaryRegistryHost(String tertiaryRegistryHost) {
-        this.tertiaryRegistryHost = tertiaryRegistryHost;
     }
 
 }
