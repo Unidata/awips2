@@ -34,6 +34,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.ReferencesData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -50,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12/19/2008   1782        grichard    Connected to IHFS DB.
  * Nov 03 2011	11273		lbousaidi   make changes to update an existing entry
  * 										without creating new entry
+ * Apr 26, 2013 1790        rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -57,6 +61,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ReferencesDlg.class);
 
     /**
      * Control font.
@@ -113,7 +119,7 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
     private boolean newInsert = false;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -121,14 +127,17 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
      *            Dialog title information.
      */
     public ReferencesDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("References" + titleInfo);
 
         this.lid = lid;
-        // TODO Remove/comment-out this test code statement:
-        // this.lid = "ABSM8";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -139,14 +148,26 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
 
         // Initialize all of the controls and layouts
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
@@ -228,7 +249,7 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -257,7 +278,7 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -291,8 +312,10 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         });
     }
 
-    /**
-     * Get the reference data from the database that matched the location ID.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#getDialogData()
      */
     @Override
     public void getDialogData() {
@@ -305,14 +328,18 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             referenceData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get dialog data. ", e);
         }
 
         updateDialogDisplay();
     }
 
-    /**
-     * Update the reference list control.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateDialogDisplay()
      */
     @Override
     public void updateDialogDisplay() {
@@ -340,8 +367,10 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
 
     }
 
-    /**
-     * Update the dialog's state.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateDialogState()
      */
     @Override
     public void updateDialogState() {
@@ -361,8 +390,10 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         }
     }
 
-    /**
-     * Update the reference information control.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateInformation()
      */
     @Override
     public void updateInformation() {
@@ -372,20 +403,22 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
                 .getReference() : "");
     }
 
-    /**
-     * Obtain the currently selected reference data.
+    /*
+     * (non-Javadoc)
      * 
-     * @return the reference data
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#getSelectedDatum()
      */
     @Override
     public ReferencesData getSelectedDatum() {
         return referenceData.get(referenceList.getSelectionIndex());
     }
 
-    /**
-     * Validate the user entry. Checks for an empty entry in the text control.
+    /*
+     * (non-Javadoc)
      * 
-     * @return True if there is data in the references text control.
+     * @see
+     * com.raytheon.viz.hydrobase.dialogs.IHydroDialog#validateEntryData(org
+     * .eclipse.swt.widgets.Text)
      */
     @Override
     public boolean validateEntryData(Text tf) {
@@ -402,8 +435,10 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         return true;
     }
 
-    /**
-     * Save the record to the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#saveRecord()
      */
     @Override
     public boolean saveRecord() {
@@ -438,16 +473,16 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
                 newInsert = false;
             }
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save.");
-
             String cause = e.getCause().getMessage();
 
             int causeStart = cause.indexOf("ERROR:");
 
             // If the exception contain the SQL exception "ERROR:"
             if (causeStart > 0) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+                mb.setText("Unable to Save");
+                mb.setMessage("An error occurred while trying to save.");
+
                 int causeEnd = cause.indexOf("\n", causeStart);
 
                 cause = cause.substring(causeStart, causeEnd);
@@ -456,11 +491,11 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
                     mb.setMessage("Please enter data for " + lid
                             + " in the River Gauge dialog first");
                 }
+                mb.open();
+            } else {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to save record. ", e);
             }
-
-            mb.open();
-
-            e.printStackTrace();
             return false;
         }
 
@@ -469,8 +504,10 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
         return true;
     }
 
-    /**
-     * Delete the record from the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#deleteRecord()
      */
     @Override
     public void deleteRecord() {
@@ -497,13 +534,8 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
                 clearForm();
 
             } catch (VizException e) {
-                MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
-                        | SWT.OK);
-                mbDel.setText("Unable to Delete");
-                mbDel.setMessage("An error occurred while trying to delete.");
-                mbDel.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to delete record. ", e);
             }
         }
 
@@ -517,8 +549,10 @@ public class ReferencesDlg extends CaveSWTDialog implements IHydroDialog {
 
     }
 
-    /**
-     * Clear the text fields in the form.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#clearForm()
      */
     @Override
     public void clearForm() {
