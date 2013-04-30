@@ -65,6 +65,9 @@ public class ConfigLayer implements ISerializableObject {
 
     @XmlElement(name = "maxy", required = true)
     private Double maxy;
+    
+    @XmlElement(name = "crs", required = true)
+    private String crs;
 
     @XmlElements({ @XmlElement(name = "parameter", type = Parameter.class, required = true) })
     private List<Parameter> parameters;
@@ -126,5 +129,13 @@ public class ConfigLayer implements ISerializableObject {
             }
         }
         return parm;
+    }
+
+    public void setCrs(String crs) {
+        this.crs = crs;
+    }
+
+    public String getCrs() {
+        return crs;
     }
 }
