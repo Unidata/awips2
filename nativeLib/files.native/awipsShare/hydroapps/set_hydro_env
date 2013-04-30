@@ -84,6 +84,7 @@ do
    PGSQL_DRIVER_JAR=$i
 done
 export DB_DRIVER_PATH=${DB_DRIVER_DIR}/${PGSQL_DRIVER_JAR}
+cd -
 
 #===========================================================================
 # This is stuff extracted from the original HYDRO_ENV
