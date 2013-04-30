@@ -6,8 +6,9 @@
 
 	<bean id="ServiceUrlFactory"
 		class="com.raytheon.uf.edex.registry.ebxml.util.ServiceUrlFactory" />
-	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
+	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit" init-method="initDb">
 		<constructor-arg ref="lcmServiceImpl" />
+        <constructor-arg ref="registryDao" />
 	</bean>
 
 	<bean id="registryDao"
