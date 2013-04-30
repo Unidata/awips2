@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * Feb 20, 2013 1543       djohnson     Delegate to sub-classes for which route to create subscriptions for.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * 
  * </pre>
  * 
@@ -136,12 +137,24 @@ public abstract class AbstractBandwidthManagerIntTest {
     @After
     public void tearDown() {
         PathManagerFactoryTest.initLocalization();
-        try {
-            bandwidthManager.shutdown();
-        } catch (IllegalArgumentException iae) {
-            // ignore any exceptions occurring about not being a registered
-            // event bus handler
-            iae.printStackTrace();
+        shutdownBandwidthManager(bandwidthManager);
+        shutdownBandwidthManager(EdexBandwidthContextFactory.getInstance());
+        new EdexBandwidthContextFactory(null);
+    }
+
+    /**
+     * Shutdown the bandwidth manager safely.
+     * 
+     * @param instance
+     */
+    protected void shutdownBandwidthManager(BandwidthManager bwManager) {
+        if (bwManager != null) {
+            try {
+                bwManager.shutdown();
+            } catch (IllegalArgumentException iae) {
+                // ignore any exceptions occurring about not being a registered
+                // event bus handler
+            }
         }
     }
 
