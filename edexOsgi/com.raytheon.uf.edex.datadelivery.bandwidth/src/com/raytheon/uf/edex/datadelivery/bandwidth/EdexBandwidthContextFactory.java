@@ -107,8 +107,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param instance
      *            the {@link BandwidthManager} instance
      */
-    @SuppressWarnings("unused")
-    private EdexBandwidthContextFactory(BandwidthManager instance) {
+    EdexBandwidthContextFactory(BandwidthManager instance) {
         EdexBandwidthContextFactory.instance = instance;
         this.bandwidthDao = null;
         this.bandwidthInitializer = null;
