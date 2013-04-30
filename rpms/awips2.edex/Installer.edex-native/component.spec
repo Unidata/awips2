@@ -36,7 +36,7 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-mkdir -p %{_build_root}/awips2
+mkdir -p %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -48,32 +48,16 @@ fi
 %build
 
 %install
-DIST_NATIVE="%{_baseline_workspace}/dist.native"
+FILES_NATIVE="%{_baseline_workspace}/files.native"
 PACKAGES="%{_awipscm_share}/packages"
 # extract the native libraries
-/bin/tar -xpf ${DIST_NATIVE}/i386-pc-linux-gnu.tar \
-   -C %{_build_root}/awips2 ./edex/lib ./edex/bin
+/bin/cp -rf ${FILES_NATIVE}/edex/lib \
+   ${FILES_NATIVE}/edex/bin \
+   %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
-# purge all libpq with the exception of libpq 5.5
-# temporary until a decision is made about the native tar file -
-# almost any decision that is made will impact this rpm
-_libpq_55="libpq.so.5.5"
-_edex_native_path=%{_build_root}/awips2/edex/lib/native
-_edex_linux32_path=${_edex_native_path}/linux32
-/bin/cp -v ${_edex_linux32_path}/${_libpq_55} ${_edex_native_path}/${_libpq_55}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/rm -fv ${_edex_linux32_path}/libpq.so*
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/mv -v ${_edex_native_path}/${_libpq_55} ${_edex_linux32_path}/${_libpq_55}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+
 # copy the AWIPS I mhs libraries
 cp ${PACKAGES}/mhs/* \
    %{_build_root}/awips2/edex/lib/native/linux32/awips1
@@ -83,6 +67,7 @@ fi
 
 %pre
 %post
+
 %preun
 %postun
 
