@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013 1910       djohnson     Initial creation
+ * Apr 29, 2013 1910       djohnson     Move to integration tests section.
  * 
  * </pre>
  * 
