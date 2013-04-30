@@ -29,14 +29,6 @@
 		</connection>
 	</provider>
 	
-	<!-- Registry hosts for harvester(defaults to localhost) -->
-	<!-- primary -->
-	<primaryRegistryHost>127.0.0.1</primaryRegistryHost>
-	<!-- secondary backup -->
-	<secondaryRegistryHost>127.0.0.1</secondaryRegistryHost>
-	<!-- secondary backup -->
-	<tertiaryRegistryHost>127.0.0.1</tertiaryRegistryHost>
-	
 	<agent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="crawlAgent">
 		<crawlDir>/awips2/crawl</crawlDir>
 		<dateFormat>HHddMMMyyyy</dateFormat>
@@ -56,7 +48,7 @@
         <!-- Ingest new collections found by Seed Scans? -->
         <ingestNew>true</ingestNew>
         <!-- listen to robots.txt denied directory lists? -->
-        <useRobots>true</useRobots>
+        <useRobots>false</useRobots>
         <!-- (-1) is Unlimiited  pages visited-->
         <maxSeedPages>-1</maxSeedPages>
         <maxMainPages>1000</maxMainPages>
