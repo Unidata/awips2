@@ -5,16 +5,10 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
-	<bean id="purge" class="com.raytheon.uf.edex.purgesrv.PurgeSrv" />
-	<bean id="purgeManager" class="com.raytheon.uf.edex.purgesrv.PurgeManager" factory-method="getInstance">
-		<property name="clusterLimit" value="${purge.clusterlimit}"/>
-		<property name="serverLimit" value="${purge.serverlimit}"/>
-		<property name="deadPurgeJobAge" value="${purge.deadjobage}"/>
-		<property name="purgeFrequency" value="${purge.frequency}"/>
-		<property name="fatalFailureCount" value="${purge.fatalfailurecount}"/>
-		<property name="purgeEnabled" value="${purge.enabled}"/>
+	<bean id="purge" class="com.raytheon.uf.edex.purgesrv.PurgeSrv">
+	 	<constructor-arg ref = "purgeManager"/>
 	</bean>
-
+	
    <!-- Register database plugin -->
     <bean id="purgeDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
         <property name="pluginFQN" value="com.raytheon.uf.edex.purgesrv" />
