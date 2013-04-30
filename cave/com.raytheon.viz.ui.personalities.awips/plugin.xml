@@ -74,4 +74,11 @@
             parentId="com.raytheon.viz.ui.cave.scheme">
       </scheme>
    </extension>
+   <extension
+         point="org.eclipse.ui.statusHandlers">
+      <statusHandlerProductBinding
+            handlerId="com.raytheon.viz.notification.statusHandler"
+            productId="com.raytheon.viz.product.awips.CAVE">
+      </statusHandlerProductBinding>
+   </extension>
 </plugin>
