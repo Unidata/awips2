@@ -73,6 +73,8 @@ public class PurgeJob extends Thread {
 
 	/** Last time job has printed a timed out message */
 	private long lastTimeOutMessage = 0;
+	
+	private PurgeManager purgeManager;
 
 	/**
 	 * Creates a new Purge job for the specified plugin.
@@ -82,11 +84,12 @@ public class PurgeJob extends Thread {
 	 * @param purgeType
 	 *            The type of purge to be executed
 	 */
-	public PurgeJob(String pluginName, PURGE_JOB_TYPE purgeType) {
+	public PurgeJob(String pluginName, PURGE_JOB_TYPE purgeType, PurgeManager purgeManager) {
 		// Give the thread a name
 		this.setName("Purge-" + pluginName.toUpperCase() + "-Thread");
 		this.pluginName = pluginName;
 		this.purgeType = purgeType;
+		this.purgeManager = purgeManager;
 	}
 
 	public void run() {
@@ -143,7 +146,7 @@ public class PurgeJob extends Thread {
 				t = t.getCause();
 			}
 		} finally {
-			ClusterTask purgeLock = PurgeManager.getInstance().getPurgeLock();
+			ClusterTask purgeLock = purgeManager.getPurgeLock();
 			try {
 				/*
 				 * Update the status accordingly if the purge failed or
@@ -159,13 +162,11 @@ public class PurgeJob extends Thread {
 				} else {
 					if (failed) {
 						status.incrementFailedCount();
-						if (status.getFailedCount() >= PurgeManager
-								.getInstance().getFatalFailureCount()) {
+						if (status.getFailedCount() >= purgeManager.getFatalFailureCount()) {
 							PurgeLogger
 									.logFatal(
 											"Purger for this plugin has reached or exceeded consecutive failure limit of "
-													+ PurgeManager
-															.getInstance()
+													+ purgeManager
 															.getFatalFailureCount()
 													+ ".  Data will no longer being purged for this plugin.",
 											pluginName);
@@ -188,7 +189,7 @@ public class PurgeJob extends Thread {
 					 * This purger thread has exceeded the time out duration but
 					 * finally finished. Output a message and update the status
 					 */
-					int deadPurgeJobAge = PurgeManager.getInstance()
+					int deadPurgeJobAge = purgeManager
 							.getDeadPurgeJobAge();
 					Calendar purgeTimeOutLimit = Calendar.getInstance();
 					purgeTimeOutLimit.setTimeZone(TimeZone.getTimeZone("GMT"));
