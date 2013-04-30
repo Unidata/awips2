@@ -35,6 +35,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.RadarLocData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -51,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
  * Dec 30, 2008 1802        askripsk    Connect to database.
+ * Apr 26, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -58,6 +62,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class RadarLocationsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarLocationsDlg.class);
 
     /**
      * Control font.
@@ -152,16 +158,21 @@ public class RadarLocationsDlg extends CaveSWTDialog {
     }
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public RadarLocationsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Radar Locations");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -172,11 +183,23 @@ public class RadarLocationsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * shell.dispos (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -413,7 +436,7 @@ public class RadarLocationsDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -441,7 +464,8 @@ public class RadarLocationsDlg extends CaveSWTDialog {
             radarData = HydroDBDataManager.getInstance().getData(
                     RadarLocData.class);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get radar location data. ", e);
         }
         updateDisplay();
     }
@@ -586,12 +610,8 @@ public class RadarLocationsDlg extends CaveSWTDialog {
 
                 getDialogData();
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb.setMessage("An error occurred while trying to save the Radar Location");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to save radar location data. ", e);
             }
         }
     }
@@ -625,12 +645,8 @@ public class RadarLocationsDlg extends CaveSWTDialog {
                     // Refresh the cache
                     getDialogData();
                 } catch (VizException e) {
-                    mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Unable to Delete");
-                    mb.setMessage("An error occurred while trying to delete the City");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to delete radar location data. ", e);
                 }
             }
         } else {
