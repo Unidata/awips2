@@ -27,10 +27,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -44,6 +42,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.Session;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.jdbc.Work;
 
@@ -71,33 +70,24 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/9/2012     184         bphillip    Initial Coding
+ * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class DbInit extends RegistryDao {
+public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
 
     /** The logger */
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbInit.class);
 
     /** Query to check which tables exist in the ebxml database */
     private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'public';";
 
-    /** Constant used for table regeneration */
-    private static final String DROP_TABLE = "drop table ";
-
-    /** Constant used for table regeneration */
-    private static final String DROP_SEQUENCE = "drop sequence ";
-
-    /** Constant used for table regeneration */
-    private static final String IF_EXISTS = "if exists ";
-
-    /** Constant used for table regeneration */
-    private static final String CASCADE = " cascade ";
-
     private LifecycleManagerImpl lcm;
+
+    private final RegistryDao registryDao;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -106,260 +96,23 @@ public class DbInit extends RegistryDao {
      * @throws EbxmlRegistryException
      *             If errors occur while regenerating the database tables
      */
-    public DbInit(LifecycleManagerImpl lcm) throws EbxmlRegistryException {
-        super(null);
+    public DbInit(LifecycleManagerImpl lcm, RegistryDao registryDao)
+            throws EbxmlRegistryException {
+        super("ebxml registry");
         this.lcm = lcm;
-        // try {
-        initDb();
+        this.registryDao = registryDao;
     }
 
     /**
-     * Initializes the RegRep database. This method compares the existing tables
-     * in the database to verify that they match the tables that Hibernate is
-     * aware of. If the existing tables in the database do not match the tables
-     * Hibernate is expecting, the tables are regenerated. During the
-     * regeneration process, the minimum database objects are reloaded into the
-     * database.
-     * 
-     * @throws EbxmlRegistryException
+     * {@inheritDoc}
      */
-    private void initDb() throws EbxmlRegistryException {
-        /*
-         * Create a new configuration object which holds all the classes that
-         * this Hibernate SessionFactory is aware of
-         */
-        AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        for (Object obj : this.getSessionFactory().getAllClassMetadata()
-                .keySet()) {
-            try {
-                Class<?> clazz = Class.forName((String) obj);
-                aConfig.addAnnotatedClass(clazz);
-            } catch (ClassNotFoundException e) {
-                statusHandler.error(
-                        "Error initializing RegRep database. Class not found: "
-                                + obj, e);
-            }
-        }
+    @Override
+    protected void executeAdditionalSql() throws Exception {
+        super.executeAdditionalSql();
 
-        /*
-         * Check to see if the database is valid.
-         */
-        boolean dbIsValid = true;
-        try {
-            dbIsValid = isDbValid(aConfig);
-        } catch (SQLException e) {
-            throw new EbxmlRegistryException("Error checking if db is valid!",
-                    e);
-        }
+        executeRegistrySql();
 
-        if (dbIsValid) {
-            // Database is valid.
-            statusHandler.info("RegRep database is up to date!");
-        } else {
-            // Database is not valid. Drop and regenerate the tables defined by
-            // Hibernate
-            statusHandler
-                    .info("RegRep database is out of sync with defined java classes.  Regenerating default database tables...");
-            statusHandler.info("Dropping existing tables...");
-            try {
-                dropTables(aConfig);
-            } catch (SQLException e) {
-                throw new EbxmlRegistryException(
-                        "An unexpected database error occurred while dropping existing RegRep database tables.",
-                        e);
-            }
-            statusHandler.info("Recreating tables...");
-            try {
-                createTables(aConfig);
-            } catch (SQLException e) {
-                throw new EbxmlRegistryException(
-                        "An unexpected database error occurred while creating RegRep database tables.",
-                        e);
-            }
-
-            statusHandler.info("Executing additional registry SQL...");
-            try {
-                executeRegistrySql();
-            } catch (EbxmlRegistryException e) {
-                throw new EbxmlRegistryException(
-                        "An unexpected database error occurred while executing additional sql on the registry",
-                        e);
-            }
-
-            try {
-                populateDB();
-            } catch (SerializationException e) {
-                throw new EbxmlRegistryException(
-                        "Serialization error populating RegRep database with minDB objects",
-                        e);
-            } catch (MsgRegistryException e) {
-                throw new EbxmlRegistryException(
-                        "SubmitObjects encountered an error while populating RegRep database with minDB",
-                        e);
-            }
-            statusHandler
-                    .info("RegRep database tables have been successfully regenerated!");
-        }
-
-    }
-
-    /**
-     * Drops the union set of tables defined by Hibernate and exist in the
-     * database.
-     * 
-     * @param aConfig
-     *            The Hibernate annotation configuration holding the metadata
-     *            for all Hibernate-aware classes
-     * @throws SQLException
-     *             If the drop sql strings cannot be executed
-     * @throws EbxmlRegistryException
-     */
-    private void dropTables(final AnnotationConfiguration aConfig)
-            throws SQLException, EbxmlRegistryException {
-
-        this.doInTransaction(new RegistryTransactionCallback() {
-
-            @Override
-            public Object execute(Session session)
-                    throws EbxmlRegistryException {
-                session.doWork(new Work() {
-                    @Override
-                    public void execute(Connection connection)
-                            throws SQLException {
-                        final String[] dropSqls = aConfig
-                                .generateDropSchemaScript(((SessionFactoryImpl) getSessionFactory())
-                                        .getDialect());
-                        Statement stmt = connection.createStatement();
-                        for (String sql : dropSqls) {
-                            if (sql.startsWith(DROP_TABLE)) {
-                                // Modify the drop string to add the 'if exists'
-                                // and
-                                // 'cascade' clauses to avoid any errors if the
-                                // tables
-                                // do not exist already
-                                sql = sql.replace(DROP_TABLE, DROP_TABLE
-                                        + IF_EXISTS);
-                                sql += CASCADE;
-                                stmt.execute(sql);
-                                connection.commit();
-                            } else if (sql.startsWith(DROP_SEQUENCE)) {
-                                // Modify the drop string to add the 'if exists'
-                                // and
-                                // 'cascade' clauses to avoid any errors if the
-                                // tables
-                                // do not exist already
-                                sql = sql.replace(DROP_SEQUENCE, DROP_SEQUENCE
-                                        + IF_EXISTS);
-                                sql += CASCADE;
-                                stmt.execute(sql);
-                                connection.commit();
-                            }
-
-                        }
-                    }
-                });
-                return null;
-            }
-        });
-
-    }
-
-    /**
-     * Creates the database tables based on the Class metadata that Hibernate is
-     * aware of
-     * 
-     * @param aConfig
-     *            The Hibernate annotation configuration holding the metadata
-     *            for all Hibernate-aware classes
-     * @throws SQLException
-     *             If the drop sql strings cannot be executed
-     * @throws EbxmlRegistryException
-     */
-    private void createTables(final AnnotationConfiguration aConfig)
-            throws SQLException, EbxmlRegistryException {
-
-        this.doInTransaction(new RegistryTransactionCallback() {
-
-            @Override
-            public Object execute(Session session)
-                    throws EbxmlRegistryException {
-                final String[] createSqls = aConfig
-                        .generateSchemaCreationScript(((SessionFactoryImpl) getSessionFactory())
-                                .getDialect());
-                session.doWork(new Work() {
-                    @Override
-                    public void execute(Connection connection)
-                            throws SQLException {
-                        Statement stmt = connection.createStatement();
-                        for (String sql : createSqls) {
-                            stmt.execute(sql);
-                            connection.commit();
-                        }
-
-                    }
-                });
-                return null;
-            }
-        });
-
-    }
-
-    /**
-     * Checks to see if the database is valid. The RegRep database is considered
-     * to be valid if the set of tables defined by Hibernate contains the set of
-     * tables already in existance in the database
-     * 
-     * @param aConfig
-     *            The Hibernate annotation configuration holding the metadata
-     *            for all Hibernate-aware classes
-     * @return True if the database is valid, else false
-     * @throws SQLException
-     *             If the drop sql strings cannot be executed
-     * @throws EbxmlRegistryException
-     */
-    private boolean isDbValid(AnnotationConfiguration aConfig)
-            throws SQLException, EbxmlRegistryException {
-        statusHandler.info("Verifying RegRep database...");
-        final List<String> existingTables = new ArrayList<String>();
-        List<String> definedTables = new ArrayList<String>();
-        this.doInTransaction(new RegistryTransactionCallback() {
-            @Override
-            public Object execute(Session session)
-                    throws EbxmlRegistryException {
-                session.doWork(new Work() {
-                    @Override
-                    public void execute(Connection connection)
-                            throws SQLException {
-                        Statement stmt = connection.createStatement();
-                        ResultSet results = stmt
-                                .executeQuery(TABLE_CHECK_QUERY);
-                        while (results.next()) {
-                            existingTables.add(results.getString(1));
-                        }
-                    }
-                });
-                return null;
-            }
-        });
-
-        final String[] dropSqls = aConfig
-                .generateDropSchemaScript(((SessionFactoryImpl) getSessionFactory())
-                        .getDialect());
-        for (String sql : dropSqls) {
-            if (sql.startsWith(DROP_TABLE)) {
-                // Drop the table names to all lower case since this is the form
-                // the database expects
-                definedTables.add(sql.replace(DROP_TABLE, "").toLowerCase());
-            }
-        }
-
-        // Check if the table set defined by Hibernate matches the table set
-        // defined in the database already
-        if (existingTables.size() <= definedTables.size()
-                && !existingTables.containsAll(definedTables)) {
-            return false;
-        }
-        return true;
+        populateDB();
     }
 
     /**
@@ -388,9 +141,9 @@ public class DbInit extends RegistryDao {
             statusHandler.info("Populating RegRep database from file: "
                     + fileList[i].getName());
 
-            SubmitObjectsRequest obj = null;
-            obj = (SubmitObjectsRequest) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(fileList[i]);
+            SubmitObjectsRequest obj = SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(SubmitObjectsRequest.class,
+                            fileList[i]);
 
             // Ensure an owner is assigned
             for (RegistryObjectType regObject : obj.getRegistryObjectList()
@@ -403,7 +156,6 @@ public class DbInit extends RegistryDao {
                 }
             }
 
-            // try {
             RegistrySessionManager.openSession();
             try {
                 lcm.submitObjectsInternal(obj);
@@ -449,21 +201,13 @@ public class DbInit extends RegistryDao {
                     while ((line = reader.readLine()) != null) {
                         buffer.append(line);
                     }
-                    this.doInTransaction(new RegistryTransactionCallback() {
+                    executeWork(new Work() {
                         @Override
-                        public Object execute(Session session)
-                                throws EbxmlRegistryException {
-                            session.doWork(new Work() {
-                                @Override
-                                public void execute(Connection connection)
-                                        throws SQLException {
-                                    Statement stmt = connection
-                                            .createStatement();
-                                    stmt.execute(buffer.toString());
-                                    connection.commit();
-                                }
-                            });
-                            return null;
+                        public void execute(Connection connection)
+                                throws SQLException {
+                            Statement stmt = connection.createStatement();
+                            stmt.execute(buffer.toString());
+                            connection.commit();
                         }
                     });
                 } catch (Exception e) {
@@ -535,6 +279,66 @@ public class DbInit extends RegistryDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeWork(final Work work) {
+        try {
+            registryDao.doInTransaction(new RegistryTransactionCallback() {
+                @Override
+                public Object execute(Session session)
+                        throws EbxmlRegistryException {
+                    session.doWork(work);
+                    return null;
+                }
+            });
+        } catch (EbxmlRegistryException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected AnnotationConfiguration getAnnotationConfiguration() {
+        /*
+         * Create a new configuration object which holds all the classes that
+         * this Hibernate SessionFactory is aware of
+         */
+        AnnotationConfiguration aConfig = new AnnotationConfiguration();
+        for (Object obj : registryDao.getSessionFactory().getAllClassMetadata()
+                .keySet()) {
+            try {
+                Class<?> clazz = Class.forName((String) obj);
+                aConfig.addAnnotatedClass(clazz);
+            } catch (ClassNotFoundException e) {
+                statusHandler.error(
+                        "Error initializing RegRep database. Class not found: "
+                                + obj, e);
+            }
+        }
+        return aConfig;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Dialect getDialect() {
+        return ((SessionFactoryImpl) registryDao.getSessionFactory())
+                .getDialect();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getTableCheckQuery() {
+        return TABLE_CHECK_QUERY;
+    }
+
     public LifecycleManagerImpl getLcm() {
         return lcm;
     }
@@ -542,5 +346,4 @@ public class DbInit extends RegistryDao {
     public void setLcm(LifecycleManagerImpl lcm) {
         this.lcm = lcm;
     }
-
 }
