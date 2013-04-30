@@ -26,7 +26,8 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.ebxml,
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
- com.raytheon.uf.common.registry.event;bundle-version="1.0.0"
+ com.raytheon.uf.common.registry.event;bundle-version="1.0.0",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.registry.ebxml.services.lifecycle,
  com.raytheon.uf.edex.registry.ebxml.services.query,
  com.raytheon.uf.edex.registry.ebxml.services.util
