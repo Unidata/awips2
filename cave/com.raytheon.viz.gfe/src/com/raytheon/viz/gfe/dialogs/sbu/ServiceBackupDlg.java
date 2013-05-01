@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Nov 15, 2012   15614    jdynina      Added check for national center
  * Mar 20, 2013    1447    dgilling     Port troubleshooting mode changes
  *                                      from A1 DR 21404, some code cleanup.
+ * May 01, 2013    1762    dgilling     Remove national center check.
  * 
  * </pre>
  * 
@@ -158,8 +159,6 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
 
     private boolean authorized;
 
-    private boolean nationalCenter;
-
     private SVCBU_OP currentOperation = SVCBU_OP.no_backup;
 
     /**
@@ -169,7 +168,6 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         super(parentShell);
         authorized = CheckPermissions.getAuthorization();
         this.site = LocalizationManager.getInstance().getCurrentSite();
-        this.nationalCenter = CheckPermissions.isNationalCenter();
         this.runningAsPrimary = CheckPermissions.runningAsPrimary();
         if (!ServiceBackupJobManager.getInstance().isRunning()) {
             ServiceBackupJobManager.getInstance().start();
@@ -1194,7 +1192,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                     + UserController.getUserObject().uniqueId());
         }
 
-        if ((!runningAsPrimary) & (!nationalCenter)) {
+        if (!runningAsPrimary) {
             doExCon.setEnabled(false);
         }
     }
