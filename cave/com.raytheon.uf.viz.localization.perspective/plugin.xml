@@ -413,4 +413,15 @@
             </activeWhen>
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.activities">
+      <activity
+            id="com.raytheon.uf.viz.localization.perspective.stopPydev"
+            name="com.raytheon.uf.viz.localization.perspective.stopPydev">
+      </activity>
+      <activityPatternBinding
+            activityId="com.raytheon.uf.viz.localization.perspective.stopPydev"
+            pattern="org.python.pydev.debug.*">
+      </activityPatternBinding>
+   </extension>
 </plugin>
