@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 3/18/2013    1802       bphillip    Added additional database functions. Enforcing mandatory transaction propogation
  * 3/27/2013    1802       bphillip    Changed transaction propagation of query methods
  * 4/9/2013     1802       bphillip    Modified how arguments are passed in to query methods
+ * May 1st, 2013   1967  njensen   Fixed autoboxing for Eclipse 3.8
  * 
  * </pre>
  * 
@@ -195,7 +196,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<ENTITY> query(String queryString, int maxResults,
+    public List<ENTITY> query(String queryString, Integer maxResults,
             Object... params) {
         return executeHQLQuery(queryString, maxResults, params);
 
@@ -264,7 +265,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     @SuppressWarnings("unchecked")
     @Transactional(propagation = Propagation.REQUIRED)
     public <T extends Object> List<T> executeHQLQuery(final String queryString,
-            int maxResults, Object... params) {
+            Integer maxResults, Object... params) {
         if (params.length % 2 != 0) {
             throw new IllegalArgumentException(
                     "Wrong number of arguments submitted to executeHQLQuery.");
