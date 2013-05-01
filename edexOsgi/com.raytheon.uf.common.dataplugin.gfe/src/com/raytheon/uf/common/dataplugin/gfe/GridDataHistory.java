@@ -20,21 +20,30 @@
 
 package com.raytheon.uf.common.dataplugin.gfe;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
@@ -49,22 +58,26 @@ import com.raytheon.uf.common.time.TimeRange;
  *                         randerso    Initial creation
  * 02/27/2008   879        rbell       Added clone()
  * 04/18/2008   #875       bphillip    Changed date fields to use java.util.Calendar
- * 
+ * 03/28/2013   1949       rjpeter     Normalized database structure.
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
-@Entity(name = "gfe_gridhistory")
+@Entity
+@Table(name = "gfe_gridhistory")
 @DynamicSerialize
-public class GridDataHistory implements Cloneable, Serializable,
-        ISerializableObject {
+public class GridDataHistory implements Cloneable {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Auto-generated surrogate key
+     */
     @Id
-    @GeneratedValue()
-    private int key;
+    @SequenceGenerator(name = "GFE_HISTORY_GENERATOR", sequenceName = "gfe_history_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GFE_HISTORY_GENERATOR")
+    private int id;
 
     public enum OriginType {
         INITIALIZED("Populated"), TIME_INTERPOLATED("Interpolated"), SCRATCH(
@@ -89,10 +102,13 @@ public class GridDataHistory implements Cloneable, Serializable,
     };
 
     @Column
-    @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.OriginHibType")
+    @Enumerated(value = EnumType.STRING)
     @DynamicSerializeElement
     private OriginType origin;
 
+    // DO NOT LINK TO PARMID TABLE. The ParmId table may be purged out
+    // independent of the history of a forecast grid. Need to keep the history
+    // of where the grid came from.
     @Column
     @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.ParmIdType")
     @DynamicSerializeElement
@@ -122,6 +138,16 @@ public class GridDataHistory implements Cloneable, Serializable,
     @Column
     @DynamicSerializeElement
     private Date lastSentTime;
+
+    /**
+     * Used only for hibernate mappings to allow a look up of GridDataHistory by
+     * a given parmId/timeRange. Do not set cascade options.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @PrimaryKeyJoinColumn
+    @JoinColumn(updatable = false)
+    @Index(name = "gfe_gridhistory_history_idx")
+    private GFERecord parent;
 
     /**
      * Default constructor (all fields initialized null)
@@ -452,16 +478,16 @@ public class GridDataHistory implements Cloneable, Serializable,
     /**
      * @return the key
      */
-    public int getKey() {
-        return key;
+    public int getId() {
+        return id;
     }
 
     /**
      * @param key
      *            the key to set
      */
-    public void setKey(int key) {
-        this.key = key;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void replaceValues(GridDataHistory replacement) {
@@ -572,5 +598,20 @@ public class GridDataHistory implements Cloneable, Serializable,
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the parent
+     */
+    public GFERecord getParent() {
+        return parent;
+    }
+
+    /**
+     * @param parent
+     *            the parent to set
+     */
+    public void setParent(GFERecord parent) {
+        this.parent = parent;
     }
 }
