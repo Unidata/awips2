@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.dialogs.sbu.jobs;
 
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest.ExportGridsMode;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.GFEServerException;
 
@@ -32,7 +33,9 @@ import com.raytheon.viz.gfe.GFEServerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2011            bphillip     Initial creation
+ * Aug 05, 2011            bphillip     Initial creation
+ * Apr 30, 2013  #1761     dgilling     Support changes made to 
+ *                                      ExportGridsRequest.
  * 
  * </pre>
  * 
@@ -54,7 +57,8 @@ public class SvcbuExportDigitalDataJob extends ServiceBackupJob {
 
     @Override
     public void run() {
-        ExportGridsRequest request = new ExportGridsRequest(site, "-m");
+        ExportGridsRequest request = new ExportGridsRequest(site,
+                ExportGridsMode.MANUAL);
         try {
             makeRequest(request);
         } catch (GFEServerException e) {
