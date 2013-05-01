@@ -31,7 +31,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Apr 29, 2013  #1761     dgilling     Make mode field an Enum.
  * 
  * </pre>
  * 
@@ -42,17 +43,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class ExportGridsRequest extends AbstractGfeRequest {
 
+    public enum ExportGridsMode {
+        CRON("-c"), MANUAL("-m"), GRIB2("-g");
+
+        private final String cmdLineArg;
+
+        private ExportGridsMode(String cmdLineArg) {
+            this.cmdLineArg = cmdLineArg;
+        }
+
+        public String getCmdLineArg() {
+            return cmdLineArg;
+        }
+    }
+
     @DynamicSerializeElement
     private String site;
 
     @DynamicSerializeElement
-    private String mode;
+    private ExportGridsMode mode;
 
     public ExportGridsRequest() {
 
     }
 
-    public ExportGridsRequest(String site, String mode) {
+    public ExportGridsRequest(String site, ExportGridsMode mode) {
         this.site = site;
         this.mode = mode;
     }
@@ -75,7 +90,7 @@ public class ExportGridsRequest extends AbstractGfeRequest {
     /**
      * @return the mode
      */
-    public String getMode() {
+    public ExportGridsMode getMode() {
         return mode;
     }
 
@@ -83,8 +98,7 @@ public class ExportGridsRequest extends AbstractGfeRequest {
      * @param mode
      *            the mode to set
      */
-    public void setMode(String mode) {
+    public void setMode(ExportGridsMode mode) {
         this.mode = mode;
     }
-
 }
