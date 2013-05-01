@@ -219,7 +219,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.equinox.p2.metadata.generator"
+         id="org.eclipse.equinox.p2.publisher.eclipse"
          download-size="0"
          install-size="0"
          version="0.0.0"
