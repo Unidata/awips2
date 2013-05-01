@@ -20,12 +20,14 @@
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
-import com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySiteRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * TODO Add Description
+ * Handler for <code>CheckServiceBackupPrimarySiteRequest</code>. Determines
+ * whether the specified site id has been configured as one of service backup's
+ * primary sites.
  * 
  * <pre>
  * 
@@ -33,26 +35,31 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 14, 2012            jdynina     Initial creation
+ * May 02, 2013            dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author jdynina
+ * @author dgilling
  * @version 1.0
  */
 
-public class NcCheckRequestHandler implements IRequestHandler<NcCheckRequest>{
+public class CheckServiceBackupPrimarySiteHandler implements
+        IRequestHandler<CheckServiceBackupPrimarySiteRequest> {
 
-    public Object handleRequest(NcCheckRequest request)
-            throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
-        if (!isNationalCenter()) {
-            sr.addMessage("Site is not a national center.");
-        }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
+     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
+     */
+    @Override
+    public ServerResponse<Boolean> handleRequest(
+            CheckServiceBackupPrimarySiteRequest request) throws Exception {
+        ServerResponse<Boolean> sr = new ServerResponse<Boolean>();
+        boolean isPrimarySite = SvcBackupUtil.getPrimarySites().contains(
+                request.getSiteID());
+        sr.setPayload(isPrimarySite);
         return sr;
-    }
-
-    public boolean isNationalCenter() {
-        return SvcBackupUtil.ncCheck();
     }
 }
