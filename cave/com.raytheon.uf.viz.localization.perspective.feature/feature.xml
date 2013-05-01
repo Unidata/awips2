@@ -124,12 +124,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.python.pydev.debug"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.python.pydev.fastparser"
          download-size="0"
          install-size="0"
@@ -172,12 +166,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.python.pydev.django"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.python.pydev.help"
          download-size="0"
          install-size="0"
@@ -191,12 +179,6 @@
 
    <plugin
          id="org.python.pydev.parser"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.python.pydev.red_core"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -360,5 +342,23 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.python.pydev.shared_core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.shared_interactive_console"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.shared_ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
