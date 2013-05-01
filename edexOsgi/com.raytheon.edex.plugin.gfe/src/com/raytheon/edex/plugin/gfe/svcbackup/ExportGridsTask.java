@@ -19,24 +19,17 @@
  **/
 package com.raytheon.edex.plugin.gfe.svcbackup;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Properties;
-import java.util.Set;
 import java.util.TimerTask;
 
-import com.google.common.collect.Sets;
 import com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportGridsRequestHandler;
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest.ExportGridsMode;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
- * TODO Add Description
+ * Cron job that exports GFE's primary sites' grids. Primary sites are
+ * determined by a combination of the env. variable AW_SITE_IDENTIFIER and the
+ * PRIMARY_SITES entry in svcbu.properties.
  * 
  * <pre>
  * 
@@ -47,6 +40,8 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Aug 03, 2011            bphillip     Initial creation
  * Apr 30, 2013  #1761     dgilling     Read list of sites to export grids
  *                                      for from svcbu.properties.
+ * May 02, 2013  #1762     dgilling     Move code to read PRIMARY_SITES setting
+ *                                      to SvcBackupUtil.
  * 
  * </pre>
  * 
@@ -55,9 +50,6 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  */
 
 public class ExportGridsTask extends TimerTask {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ExportGridsTask.class);
 
     public ExportGridsTask(Date executionTime) {
         ServiceBackupNotificationManager
@@ -74,7 +66,7 @@ public class ExportGridsTask extends TimerTask {
     public void run() {
         final ExportGridsRequestHandler reqHandler = new ExportGridsRequestHandler();
 
-        for (String site : getSites()) {
+        for (String site : SvcBackupUtil.getPrimarySites()) {
             ServiceBackupNotificationManager
                     .sendMessageNotification("Export Grids to central server cron started for site "
                             + site + ".");
@@ -87,36 +79,5 @@ public class ExportGridsTask extends TimerTask {
                                 + site + ".", e);
             }
         }
-    }
-
-    private Collection<String> getSites() {
-        Properties svcbuProps = SvcBackupUtil.getSvcBackupProperties();
-        String siteList = SiteUtil.getSite();
-        if (svcbuProps != null) {
-            String propVal = svcbuProps.getProperty("PRIMARY_SITES", "").trim();
-            if (!propVal.isEmpty()) {
-                siteList = propVal;
-            }
-        }
-
-        String[] sites = siteList.split(",");
-        Collection<String> retVal = new ArrayList<String>(sites.length);
-        Set<String> validSites = Sets.newHashSet(SiteAwareRegistry
-                .getInstance().getActiveSites());
-        for (String site : sites) {
-            final String siteId = site.trim().toUpperCase();
-            if (!siteId.isEmpty()) {
-                if (validSites.contains(siteId)) {
-                    retVal.add(siteId);
-                } else {
-                    statusHandler
-                            .warn("Site "
-                                    + siteId
-                                    + " is not a currently activated site. Grids will not be exported for this site. Check the PRIMARY_SITES setting in svcbu.properties.");
-                }
-            }
-        }
-
-        return retVal;
     }
 }

@@ -347,20 +347,20 @@
 		<constructor-arg ref="CheckPermissionsRequestHandler" />
 	</bean>
 	
+	<bean id="CheckPrimarySiteHandler"
+		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CheckServiceBackupPrimarySiteHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySiteRequest" />
+		<constructor-arg ref="CheckPrimarySiteHandler" />
+	</bean>
+	
 	<bean id="CleanupSvcBuLogRequestHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg
 			value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest" />
 		<constructor-arg ref="CleanupSvcBuLogRequestHandler" />
-	</bean>
-	
-	<bean id="NcCheckRequestHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.NcCheckRequestHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest" />
-		<constructor-arg ref="NcCheckRequestHandler" />
 	</bean>
 
 	<bean id="ExportConfRequestHandler"
