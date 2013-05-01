@@ -79,6 +79,8 @@ import com.raytheon.uf.viz.productbrowser.xml.ProductBrowserBookmarksXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 3, 2010            mnash     Initial creation
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -141,7 +143,7 @@ public class ProductBrowserView extends ViewPart {
         // createBookmarkTreeContextMenu();
         createProductTree(fullComp);
         createProductBrowserContextMenu();
-        createSearchBar(fullComp);
+        // createSearchBar(fullComp);
     }
 
     /**
