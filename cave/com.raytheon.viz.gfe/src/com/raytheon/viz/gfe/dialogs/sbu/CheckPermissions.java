@@ -21,18 +21,16 @@ package com.raytheon.viz.gfe.dialogs.sbu;
 
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest;
-import com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySiteRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.site.requests.GetPrimarySiteRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
- * TODO Add Description
+ * A utility class for the Service Backup GUI to do permissions checks.
  * 
  * <pre>
  * 
@@ -42,6 +40,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2011            bphillip     Initial creation
  * Nov 14, 2012 		   jdynina		Added check for national center
+ * May 02, 2013  #1762     dgilling     Replace national center check with
+ *                                      a svcbu PRIMARY_SITES check.
  * 
  * </pre>
  * 
@@ -53,6 +53,16 @@ public class CheckPermissions {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ServiceBackupDlg.class);
+
+    /**
+     * A private constructor so that Java does not attempt to create one for us.
+     * As this class should not be instantiated, do not attempt to ever call
+     * this constructor; it will simply throw an AssertionError.
+     * 
+     */
+    private CheckPermissions() {
+        throw new AssertionError();
+    }
 
     @SuppressWarnings("unchecked")
     public static boolean getAuthorization() {
@@ -74,39 +84,18 @@ public class CheckPermissions {
         }
         return authorized;
     }
-    
-    @SuppressWarnings("unchecked")
-    public static boolean isNationalCenter() {
-    	boolean isNationalCenter = false;
-    	NcCheckRequest request = new NcCheckRequest();
-    	try {
-    		ServerResponse<String> obj = (ServerResponse<String>) ThriftClient
-    				.sendRequest(request);
-    		if (obj.isOkay()) {
-    			isNationalCenter = true;
-    		} else {
-    			isNationalCenter = false;
-    		}
-    	} catch (VizException e) {
-    		statusHandler.error("Error checking site type!", e);
-    		isNationalCenter = false;
-    	}
-    	return isNationalCenter;
-    }
 
     public static boolean runningAsPrimary() {
-        boolean isPrimary = false;
-
-        GetPrimarySiteRequest request = new GetPrimarySiteRequest();
+        CheckServiceBackupPrimarySiteRequest request = new CheckServiceBackupPrimarySiteRequest();
         try {
-            String obj = (String)ThriftClient
+            @SuppressWarnings("unchecked")
+            ServerResponse<Boolean> sr = (ServerResponse<Boolean>) ThriftClient
                     .sendRequest(request);
-                return LocalizationManager.getInstance().getCurrentSite()
-                        .equalsIgnoreCase(obj);
+            return sr.getPayload();
         } catch (VizException e) {
             statusHandler
                     .error("Error checking if running as primary site!", e);
         }
-        return isPrimary;
+        return false;
     }
 }
