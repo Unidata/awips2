@@ -32,6 +32,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.plugin.redbook.common.blocks.Block_004_017;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -45,6 +46,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 27, 2008	#1162		chammack	Initial creation
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * 
  * </pre>
  * 
@@ -58,8 +60,8 @@ public class RedbookProjectionBlock extends Block_004_017 {
      * 
      * @param separator
      */
-    public RedbookProjectionBlock(ByteBuffer data) {
-        super(data);
+    public RedbookProjectionBlock(RedbookBlockHeader header, ByteBuffer data) {
+        super(header, data);
 
     }
 
