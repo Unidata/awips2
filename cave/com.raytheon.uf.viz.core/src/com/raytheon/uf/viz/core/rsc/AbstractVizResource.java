@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
@@ -139,12 +140,15 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     private Set<IDisposeListener> disposeListeners;
 
-    private IResourceDataChanged removeListener = new IResourceDataChanged() {
+    private IResourceDataChanged changeListener = new IResourceDataChanged() {
         @Override
         public void resourceChanged(ChangeType type, Object object) {
             if (type == ChangeType.DATA_REMOVE && object instanceof DataTime) {
                 remove((DataTime) object);
+            } else {
+                AbstractVizResource.this.resourceDataChanged(type, object);
             }
+            issueRefresh();
         }
     };
 
@@ -310,6 +314,19 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
     }
 
     /**
+     * By default AbstractVizResource adds a {@link IResourceDataChanged}
+     * listener to the resource data on initialization, this method will be
+     * called when a change occurs and resources can opt to override this method
+     * instead of adding and managing their own listeners
+     * 
+     * @param type
+     * @param updateObject
+     */
+    protected void resourceDataChanged(ChangeType type, Object updateObject) {
+        return; // No OP
+    }
+
+    /**
      * Do not call this method unless calling from initInternal in a blended
      * resource
      * 
@@ -328,7 +345,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         status = ResourceStatus.INITIALIZED;
 
         if (resourceData != null) {
-            resourceData.addChangeListener(removeListener);
+            resourceData.addChangeListener(changeListener);
         }
 
         for (IInitListener listener : initListeners) {
@@ -355,7 +372,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
                 disposeInternal();
             } finally {
                 if (resourceData != null) {
-                    resourceData.removeChangeListener(removeListener);
+                    resourceData.removeChangeListener(changeListener);
                 }
             }
             for (IDisposeListener listener : disposeListeners) {
@@ -733,7 +750,9 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         }
         status = ResourceStatus.NEW;
         initJob = null;
-        dataTimes.clear();
+        if (dataTimes.isEmpty() == false) {
+            dataTimes.clear();
+        }
     }
 
     public ResourceOrder getResourceOrder() {
