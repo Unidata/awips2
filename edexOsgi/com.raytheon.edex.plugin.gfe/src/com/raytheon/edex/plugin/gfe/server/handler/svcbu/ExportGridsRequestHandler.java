@@ -39,7 +39,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Apr 30, 2013  #1761     dgilling     Support changes made to 
+ *                                      ExportGridsRequest.
  * 
  * </pre>
  * 
@@ -56,8 +58,9 @@ public class ExportGridsRequestHandler implements
     public Object handleRequest(ExportGridsRequest request) throws Exception {
         ServerResponse<String> sr = new ServerResponse<String>();
 
-        SvcBackupUtil.execute("export_grids", request.getMode(), request
-                .getSite().toLowerCase());
+        SvcBackupUtil.execute("export_grids",
+                request.getMode().getCmdLineArg(), request.getSite()
+                        .toLowerCase());
 
         ServiceBackupNotificationManager
                 .sendMessageNotification("Digital data successfully exported.");
