@@ -388,6 +388,7 @@ public class DecisionTree<T> {
      * @param item
      */
     public void remove(T item) {
+        boolean itemRemoved = false;
         synchronized (this) {
             // This could be optimized but removes are a very uncommon operation
             Iterator<DataPair> exampleIterator = dataPairs.iterator();
@@ -397,10 +398,13 @@ public class DecisionTree<T> {
                 // equivalent item
                 if (example.data == item) {
                     exampleIterator.remove();
+                    itemRemoved = true;
                 }
             }
         }
-        rebuildTree();
+        if (itemRemoved) {
+            rebuildTree();
+        }
     }
 
     public void traverse() {
