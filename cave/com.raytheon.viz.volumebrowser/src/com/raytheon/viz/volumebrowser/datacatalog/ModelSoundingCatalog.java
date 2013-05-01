@@ -51,6 +51,8 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2011            mschenke     Initial creation
+ * May 02, 2013 1949       bsteffen    Force ModelSounding in Vb to play nicely
+ *                                     with others.
  * 
  * </pre>
  * 
@@ -167,7 +169,9 @@ public class ModelSoundingCatalog extends PointDataCatalog {
         String[] selectedSources = request.getSelectedSources();
         if (selectedSources != null) {
             for (int i = 0; i < selectedSources.length; i++) {
-                selectedSources[i] = pluginName;
+                if (selectedSources[i].startsWith(pluginName)) {
+                    selectedSources[i] = pluginName;
+                }
             }
         }
         return request;
