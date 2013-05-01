@@ -22,6 +22,8 @@ package com.raytheon.viz.ui.personalities.awips;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 
 import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchWindowAdvisor;
+import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
+import com.raytheon.viz.ui.statusline.VizActionBarAdvisor;
 
 /**
  * AWIPS window advisor, doesn't show perspective bar when -perspective argument
@@ -60,6 +62,13 @@ public class AWIPSWorkbenchWindowAdvisor extends VizWorkbenchWindowAdvisor {
         super.preWindowOpen();
         IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
         configurer.setShowPerspectiveBar(!singlePerspective);
+    }
+
+    @Override
+    public void postWindowOpen() {
+        super.postWindowOpen();
+        new TearOffMenuListener(VizActionBarAdvisor.getInstance(
+                getWindowConfigurer().getWindow()).getMenuManager());
     }
 
 }
