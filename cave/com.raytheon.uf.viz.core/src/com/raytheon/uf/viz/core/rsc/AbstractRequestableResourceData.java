@@ -275,7 +275,9 @@ public abstract class AbstractRequestableResourceData extends
         Validate.isTrue(updateData instanceof Object[],
                 "Update expected Object[]");
 
-        if (updateData instanceof PluginDataObject[]) {
+        if (updateData instanceof AlertMessage[]) {
+            update((AlertMessage[]) updateData);
+        } else if (updateData instanceof PluginDataObject[]) {
             for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
                 DataTime time = pdo.getDataTime();
                 if (binOffset != null) {
@@ -292,7 +294,7 @@ public abstract class AbstractRequestableResourceData extends
         this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
     }
 
-    public void update(AlertMessage... messages) {
+    protected void update(AlertMessage... messages) {
         List<Object> objectsToSend = new ArrayList<Object>(messages.length);
         boolean consistentCache = true;
         for (AlertMessage message : messages) {
