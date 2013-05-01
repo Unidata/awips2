@@ -20,11 +20,16 @@
 
 package com.raytheon.uf.viz.core.rsc.updater;
 
+import java.util.Map;
+
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.datastructure.DecisionTree;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IDisposeListener;
 
 /**
- * TODO Add Description
+ * Update tree for {@link AbstractVizResource} objects, resources inserted will
+ * automatically be removed once disposed
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -38,7 +43,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
  * @version 1.0
  */
 
-public class DataUpdateTree extends DecisionTree<AbstractVizResource<?, ?>> {
+public class DataUpdateTree extends DecisionTree<AbstractVizResource<?, ?>>
+        implements IDisposeListener {
 
     private static DataUpdateTree instance;
 
@@ -62,6 +68,33 @@ public class DataUpdateTree extends DecisionTree<AbstractVizResource<?, ?>> {
 
     protected DataUpdateTree() {
         super();
+    }
+
+    @Override
+    public void insertCriteria(Map<String, RequestConstraint> searchCriteria,
+            AbstractVizResource<?, ?> item, boolean rebuild) {
+        if (item != null) {
+            super.insertCriteria(searchCriteria, item, rebuild);
+            item.registerListener(this);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.IDisposeListener#disposed(com.raytheon.uf
+     * .viz.core.rsc.AbstractVizResource)
+     */
+    @Override
+    public void disposed(AbstractVizResource<?, ?> rsc) {
+        remove(rsc);
+    }
+
+    @Override
+    public void remove(AbstractVizResource<?, ?> item) {
+        item.unregisterListener(this);
+        super.remove(item);
     }
 
 }
