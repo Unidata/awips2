@@ -20,6 +20,8 @@
 
 package com.raytheon.edex.plugin.ccfp;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -54,6 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 09/21/2009   3072        bsteffen    Removed times because they are stored in DataTime
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * 
  * </pre>
@@ -289,4 +293,10 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
         this.location = location;
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
