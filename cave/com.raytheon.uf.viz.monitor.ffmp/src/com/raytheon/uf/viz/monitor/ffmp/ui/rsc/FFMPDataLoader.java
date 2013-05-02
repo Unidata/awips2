@@ -23,9 +23,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
@@ -67,6 +70,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * Feb 28, 2013  1729      dhladky   Changed the way status messages are sent to the FFMP Dialog.
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
  * Apr 9, 2013   1890     dhladky    removed loading of phantom Virtual template and cache file processing.
+ * Apr 18, 2013 1912       bsteffen    Increase bulk requests to pypies.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -167,15 +172,36 @@ public class FFMPDataLoader extends Thread {
                     .getSourceConfig();
 
             ProductRunXML productRun = runner.getProduct(siteKey);
-            ArrayList<String> qpfSources = new ArrayList<String>();
+            ArrayList<SourceXML> qpfSources = new ArrayList<SourceXML>();
             String layer = config.getFFMPConfigData().getLayer();
             boolean isProductLoad = true;
             String rateURI = null;
 
-            if ((loadType == LOADER_TYPE.INITIAL)
-                    || (loadType == LOADER_TYPE.GENERAL)) {
-                rateURI = monitor.getAvailableUri(siteKey, dataKey,
-                        product.getRate(), mostRecentTime);
+            if (loadType != LOADER_TYPE.GENERAL) {
+                // preload all the uris except guidance. Guidance loads data
+                // much further back and it is not efficient to group with the
+                // rest.
+                Set<String> sources = new HashSet<String>();
+                sources.add(product.getRate());
+                sources.add(product.getQpe());
+                sources.add(product.getVirtual());
+                for (String qpfType : productRun.getQpfTypes(product)) {
+                    for (SourceXML qpfSource : productRun.getQpfSources(
+                            product, qpfType)) {
+                        sources.add(qpfSource.getSourceName());
+                    }
+                }
+                monitor.preloadAvailableUris(siteKey, dataKey, sources,
+                        timeBack);
+            }
+            if ((loadType == LOADER_TYPE.INITIAL || loadType == LOADER_TYPE.GENERAL)
+                    && !product.getRate().equals(product.getQpe())) {
+                Map<Date, List<String>> rateURIs = monitor
+                .getAvailableUris(siteKey, dataKey, product.getRate(),
+                        mostRecentTime);
+                if (rateURIs.containsKey(mostRecentTime)) {
+                    rateURI = rateURIs.get(mostRecentTime).get(0);
+                }
             }
 
             NavigableMap<Date, List<String>> qpeURIs = monitor
@@ -201,7 +227,7 @@ public class FFMPDataLoader extends Thread {
 
                     if (qpfURIs != null && !qpfURIs.isEmpty()) {
                         qpfs.add(qpfURIs);
-                        qpfSources.add(qpfSource.getSourceName());
+                        qpfSources.add(qpfSource);
                     }
                 }
             }
@@ -267,7 +293,7 @@ public class FFMPDataLoader extends Thread {
 
                 SourceXML source = sourceConfig.getSource(product.getQpe());
 
-                qpeCache = readAggregateRecord(source, dataKey, wfo);
+                 qpeCache = readAggregateRecord(source, dataKey, wfo);
 
                 if (qpeCache != null) {
                     monitor.insertFFMPData(qpeCache, qpeURIs, siteKey, product.getQpe());
@@ -276,7 +302,7 @@ public class FFMPDataLoader extends Thread {
 
             // Use this method of QPE data retrieval if you don't have cache
             // files
-            if (!qpeURIs.isEmpty() && qpeCache == null) {
+            if (!qpeURIs.isEmpty()) {
                 for (String phuc : hucsToLoad) {
                     if (phuc.equals(layer) || phuc.equals(FFMPRecord.ALL)) {
                         monitor.processUris(qpeURIs, isProductLoad, siteKey,
@@ -296,45 +322,22 @@ public class FFMPDataLoader extends Thread {
 
                 if (loadType == LOADER_TYPE.INITIAL) {
 
-                    SourceXML source = sourceConfig
-                            .getSource(qpfSources.get(i));
+                    SourceXML source = qpfSources.get(i);
 
                     String pdataKey = findQPFHomeDataKey(source);
                     qpfCache = readAggregateRecord(source, pdataKey, wfo);
 
                     if (qpfCache != null) {
-                        for (String phuc : hucsToLoad) {
-                            if ((phuc.equals(layer) || phuc
-                                    .equals(FFMPRecord.ALL))
-                                    && loadType == LOADER_TYPE.INITIAL
-                                    && source.getSourceName().equals(
-                                            config.getFFMPConfigData()
-                                                    .getIncludedQPF())) {
-                                if (!qpfURIs.isEmpty()) {
-
-                                    monitor.processUris(qpfURIs, isProductLoad,
-                                            siteKey, source.getSourceName(),
-                                            timeBack, phuc);
-                                }
-                            }
-                        }
-
                         monitor.insertFFMPData(qpfCache, qpfURIs, siteKey,
                                 source.getSourceName());
                     }
                 }
-                // if (isUrisProcessNeeded(qpfData,qpfURIs))
-                // {/*DR13839*/
+
                 // Use this method of QPF data retrieval if you don't have cache
                 // files
-                if ((qpfCache == null) && !qpfURIs.isEmpty()) {
+                if (!qpfURIs.isEmpty()) {
                     for (String phuc : hucsToLoad) {
                         if (phuc.equals(layer) || phuc.equals(FFMPRecord.ALL)) { // old
-                            // code:
-                            // keep
-                            // for
-                            // reference*/
-                            // if (isHucProcessNeeded(phuc)) {/*DR13839*/
                             monitor.processUris(qpfURIs, isProductLoad,
                                     siteKey, product.getQpf(i), timeBack, phuc);
                         }

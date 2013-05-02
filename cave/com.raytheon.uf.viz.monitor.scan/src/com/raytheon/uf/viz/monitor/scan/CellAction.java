@@ -22,40 +22,36 @@ package com.raytheon.uf.viz.monitor.scan;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 
+/**
+ * 
+ * Action for launching the Scan Resource with Cell data
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 01/01/09                                   Initial Creation.
+ * 04/23/13    1926       njensen   Use ScanStarterJob
+ * 
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
+
 public class CellAction extends AbstractHandler {
-    
+
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-    
+
         String icao = arg0.getParameter("icao");
-        System.out.println("Activating/Action for Cell table...");
-        final String ficao = icao;
-        Display.getDefault().asyncExec(new Runnable() {
+        ScanStarterJob job = new ScanStarterJob(icao, ScanTables.CELL);
+        job.setSystem(false);
+        job.schedule();
 
-            public void run() {
-                Shell shell = PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getShell();
-                
-                ScanMonitor scan = ScanMonitor.getInstance();
-  
-                // first time initialization, or re-init
-                if (scan.icaos.size() == 0
-                        || !scan.icaos.contains(ficao)) {
-                    scan.launchSplash(shell);
-                    scan.setup(ficao);
-                }
-
-                scan.launchDialog(shell, ficao, ScanTables.CELL);
-            }
-        });
-           
         return null;
     }
 }
-

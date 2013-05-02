@@ -189,6 +189,13 @@ if [ "${MAPS_DB_EXISTS}" = "false" ]; then
       printFailureMessage
    fi
 
+   SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.0/legacy.sql"
+   su ${DB_OWNER} -c \
+      "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
+   if [ $? -ne 0 ]; then
+      printFailureMessage
+   fi
+
    # Import the data into the maps database.
    DB_ARCHIVE="/awips2/database/sqlScripts/share/sql/maps/maps.db"
    su ${DB_OWNER} -c \

@@ -35,6 +35,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -74,6 +75,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 20071129            472  jkorman     Added IDecoderGettable interface.  
  * 06/17/08    #940         bphillip    Implemented GFE Locking
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime 
+ * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author randerso
@@ -83,6 +85,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gfeseq")
 @Table(name = "gfe", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
