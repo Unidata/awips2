@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -59,6 +61,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Nov 4, 2009            jkorman     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -474,4 +479,10 @@ public class VAARecord extends PluginDataObject implements
 //    "\r\r\nANTICIPATED DURING THE NEXT 12 HOURS. ...BALDWIN" +
 //    "\r\r\nNXT ADVISORY: WILL BE ISSUED BY 20091104/2315Z" +
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
