@@ -38,6 +38,7 @@ import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -45,6 +46,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -74,12 +76,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * AWIPS2 DR Work
  * 20120911           1011 jkorman     Added ability to report turbulence from decoded
  *                                     TB group.
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "airepseq")
 @Table(name = "airep", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
