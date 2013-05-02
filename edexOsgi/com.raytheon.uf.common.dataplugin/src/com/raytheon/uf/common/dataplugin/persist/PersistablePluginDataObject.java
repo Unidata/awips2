@@ -23,7 +23,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.SequenceGenerator;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -42,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Dec 16, 2008            chammack     Initial creation
  * Apr 8, 2013  1293       bkowal       Removed references to hdffileid.
  * Apr 12, 2013 1857       bgonzale     Changed to MappedSuperclass.
+ * Mar 02, 2013 1970       bgonzale     Added SequenceGenerator and Inheritance Strategy
+ *                                      annotations.
  * 
  * </pre>
  * 
@@ -49,6 +54,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * @version 1.0
  */
 @MappedSuperclass
+@SequenceGenerator(name = PluginDataObject.ID_GEN)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class PersistablePluginDataObject extends PluginDataObject
