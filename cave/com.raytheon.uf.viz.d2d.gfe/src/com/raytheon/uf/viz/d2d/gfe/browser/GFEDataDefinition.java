@@ -50,6 +50,8 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -136,7 +138,7 @@ public class GFEDataDefinition extends
 
     @Override
     protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
+            Map<String, RequestConstraint> queryList) {
         return super.queryData(GFEDataAccessUtil.PARM_ID, queryList);
     }
 
