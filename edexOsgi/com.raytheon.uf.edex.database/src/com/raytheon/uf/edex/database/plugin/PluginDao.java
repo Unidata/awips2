@@ -33,11 +33,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.hibernate.Criteria;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
@@ -103,6 +105,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     replace only operations.
  * Apr 04, 2013            djohnson    Remove formerly removed methods that won't compile.
  * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -124,6 +128,9 @@ public abstract class PluginDao extends CoreDao {
     protected static final int COMMIT_INTERVAL = 100;
 
     protected static final ConcurrentMap<Class<?>, DuplicateCheckStat> pluginDupCheckRate = new ConcurrentHashMap<Class<?>, DuplicateCheckStat>();
+
+    // Map for tracking which PDOs store dataURI as a column in the DB.
+    protected static final ConcurrentMap<Class<?>, Boolean> pluginDataURIColumn = new ConcurrentHashMap<Class<?>, Boolean>();
 
     /** The base path of the folder containing HDF5 data for the owning plugin */
     public final String PLUGIN_HDF5_DIR;
@@ -344,23 +351,31 @@ public abstract class PluginDao extends CoreDao {
 
     private void populateDatauriCriteria(Criteria criteria, PluginDataObject pdo)
             throws PluginException {
-        criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
-
-        // TODO this code block can be used if we drop the dataURI column.
-
-        // for (Entry<String, Object> uriEntry :
-        // pdo.createDataURIMap().entrySet()) {
-        // String key = uriEntry.getKey();
-        // Object value = uriEntry.getValue();
-        // if (key.equals("pluginName")) {
-        // ;// this is not in the db, only used internally.
-        // } else if (value == null) {
-        // criteria.add(Restrictions.isNull(key));
-        // } else {
-        // criteria.add(Restrictions.eq(key, value));
-        // }
-        // }
-
+        Class<? extends PluginDataObject> pdoClazz = pdo.getClass();
+        Boolean hasDataURIColumn = pluginDataURIColumn.get(pdoClazz);
+        if (!Boolean.FALSE.equals(hasDataURIColumn)) {
+            try {
+                getSessionFactory().getClassMetadata(pdoClazz)
+                        .getPropertyType("dataURI");
+                criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
+                return;
+            } catch (QueryException e) {
+                hasDataURIColumn = Boolean.FALSE;
+                pluginDataURIColumn.put(pdoClazz, hasDataURIColumn);
+            }
+        }
+        // This means dataURI is not a column.
+        for (Entry<String, Object> uriEntry : pdo.createDataURIMap().entrySet()) {
+            String key = uriEntry.getKey();
+            Object value = uriEntry.getValue();
+            if (key.equals("pluginName")) {
+                ;// this is not in the db, only used internally.
+            } else if (value == null) {
+                criteria.add(Restrictions.isNull(key));
+            } else {
+                criteria.add(Restrictions.eq(key, value));
+            }
+        }
     }
 
     /**
