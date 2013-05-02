@@ -34,6 +34,8 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -72,6 +74,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 1, 2009            jkorman     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -1664,4 +1668,10 @@ public class ObsCommon extends PersistablePluginDataObject implements
 	public void setPointDataView(PointDataView pointDataView) {
 		this.pointDataView = pointDataView;
 	}
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
