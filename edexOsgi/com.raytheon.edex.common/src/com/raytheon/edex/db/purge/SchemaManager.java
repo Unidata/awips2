@@ -43,6 +43,7 @@ import org.hibernate.AnnotationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializableManager;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DatabasePluginProperties;
@@ -67,8 +68,8 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
  * 10/8/2008    1532        bphillip    Initial checkin
  * 2/9/2009     1990       bphillip     Fixed index creation
  * 03/20/09                njensen     Implemented IPluginRegistryChanged
- * Mar 02, 2013 1970       bgonzale    Updated createIndexTableNamePattern to match text preceeding
- *                                     %TABLE%.
+ * Mar 02, 2013 1970       bgonzale    Added check for abstract entities in sql index naming.
+ *                                     Removed unused private method populateSchema.
  * </pre>
  * 
  * @author bphillip
@@ -86,6 +87,8 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
      */
     private static final long pluginLockTimeOutMillis = 120000;
 
+    private static final String TABLE = "%TABLE%";
+
     /** The singleton instance */
     private static SchemaManager instance;
 
@@ -102,7 +105,7 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
             .compile("^create (?:table |index |sequence )(?:[A-Za-z_0-9]*\\.)?(.+?)(?: .*)?$");
 
     private Pattern createIndexTableNamePattern = Pattern
-            .compile("^create index \\w*?%TABLE%.+? on (.+?) .*$");
+            .compile("^create index %TABLE%.+? on (.+?) .*$");
 
     /**
      * Gets the singleton instance
@@ -126,52 +129,6 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
         dbPluginRegistry = DatabasePluginRegistry.getInstance();
         pluginDir = PropertiesFactory.getInstance().getEnvProperties()
                 .getEnvValue("PLUGINDIR");
-    }
-
-    private PluginSchema populateSchema(String pluginName, String database,
-            PluginSchema schema, List<String> tableNames) {
-        List<String> ddls = null;
-
-        for (String sql : ddls) {
-            for (String table : tableNames) {
-                if (sql.startsWith("create table " + table.toLowerCase() + " ")) {
-                    schema.addCreateSql(sql);
-                    break;
-                } else if (sql.startsWith("drop table " + table.toLowerCase()
-                        + ";")) {
-                    sql = sql.replace("drop table ", "drop table if exists ");
-                    schema.addDropSql(sql.replace(";", " cascade;"));
-                    break;
-                } else if (sql.startsWith("create index")
-                        && sql.contains(" on " + table.toLowerCase())) {
-                    if (sql.contains("%TABLE%")) {
-                        sql = sql.replaceFirst("%TABLE%", table.toLowerCase());
-                    }
-                    String dropIndexSql = sql.replace("create index",
-                            "drop index if exists");
-                    dropIndexSql = dropIndexSql.substring(0,
-                            dropIndexSql.indexOf(" on "))
-                            + ";";
-                    sql = dropIndexSql + sql;
-                    schema.addCreateSql(sql);
-                    break;
-                } else if (sql.startsWith("alter table " + table.toLowerCase()
-                        + " ")
-                        && sql.contains(" drop ")) {
-                    schema.addDropSql(sql);
-                    break;
-                } else if (sql.startsWith("alter table " + table.toLowerCase()
-                        + " ")
-                        && sql.contains(" add ")) {
-                    if (sql.contains("foreign key")) {
-                        sql = sql.replace(";", " ON DELETE CASCADE;");
-                    }
-                    schema.addCreateSql(sql);
-                    break;
-                }
-            }
-        }
-        return schema;
     }
 
     /**
@@ -349,8 +306,12 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                 if (sql.startsWith("create index")) {
                     Matcher matcher = createIndexTableNamePattern.matcher(sql);
                     if (matcher.matches()) {
-                        createSql.set(i,
-                                sql.replace("%TABLE%", matcher.group(1)));
+                        createSql.set(i, StringUtil.replace(sql, TABLE,
+                                matcher.group(1)));
+                    } else if (sql.contains(TABLE)) {
+                        // replace %TABLE% in sql statements with an empty
+                        // string
+                        createSql.set(i, StringUtil.replace(sql, TABLE, ""));
                     }
                 }
             }
