@@ -22,6 +22,9 @@ package com.raytheon.uf.common.dataplugin.grid;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -61,6 +64,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 21, 2012            bsteffen     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -252,4 +257,10 @@ public class GridRecord extends PersistablePluginDataObject implements
         return true;
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

@@ -16,6 +16,8 @@
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/2013      1293            bkowal      Removed references to hdffileid. 
  * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
  * 
  * </pre>
  * 
@@ -32,6 +34,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -561,5 +565,12 @@ public class NcUairRecord extends PersistablePluginDataObject implements
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 
 }
