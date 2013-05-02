@@ -148,7 +148,7 @@ public class FFMPTableComp extends FFMPTable {
         ArrayList<FFMPTableRowData> rowData = tableData.getTableRows();
         for (int i = 0; i < rowData.size(); i++) {
             rowData.get(i).getTableCellData(threshColumn.getColIndex())
-                    .setColor();
+                    .generateCellColor();
         }
 
         sortTableUsingConfig();

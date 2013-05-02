@@ -27,12 +27,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -44,14 +44,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
@@ -78,6 +82,9 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 8, 2013   1293      bkowal     Removed references to hdffileid.
  * April, 9 2013  1890     dhladky    Moved dates to referenced map in record rather than multiple dates in FFMPBasin objs.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
+ * Apr 18, 2013 1919       dhladky     Added method for VGB loading
  * 
  * </pre>
  * 
@@ -85,6 +92,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ffmpseq")
 @Table(name = "ffmp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -381,115 +389,53 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param dataStore
      * @param huc
      */
-    public void retrieveMapFromDataStore(IDataStore dataStore, String uri,
+    public void retrieveMapFromDataStore(File datastoreFile, String uri,
             FFMPTemplates template, String huc, Date date, String sourceName)
             throws Exception {
-        FFMPBasinData fbd = null;
+
+        FFMPBasinData fbd = getBasinData(huc);
+        ImmutableDate idate = getCacheDate(date);
+
         boolean aggregate = true;
 
         if (huc.equals(ALL)) {
             aggregate = false;
         }
 
-        fbd = getBasinData(huc);
-        ImmutableDate idate = getCacheDate(date);
-
-        SourceXML source = FFMPSourceConfigurationManager.getInstance()
-                .getSource(sourceName);
-
         for (DomainXML domain : template.getDomains()) {
 
-            LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(), domain.getCwa(), huc);
+            LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
+                    domain.getCwa(), huc);
 
             if (map != null && !map.isEmpty()) {
-
-                IDataRecord rec = null;
-
-                try {
-                    rec = dataStore.retrieve(uri + "/" + domain.getCwa(), huc,
-                            Request.ALL);
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "FFMPRecord: no data record for: " + uri + "/"
-                                    + domain.getCwa());
-                }
-
-                if (rec != null) {
-                    float[] values = ((FloatDataRecord) rec).getFloatData();
-
-                    int j = 0;
-                    if (values != null) {
-                        // System.err.println(sourceName);
-                        if (source.getSourceType().equals(
-                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                            for (Long pfaf : map.keySet()) {
-                                try {
-                                    FFMPGuidanceBasin basin = (FFMPGuidanceBasin) fbd
-                                            .get(pfaf);
-
-                                    if (basin == null) {
-                                        basin = new FFMPGuidanceBasin(pfaf,
-                                                aggregate);
-                                        fbd.put(pfaf, basin);
-                                    }
-
-                                    Float curval = basin.getValue(idate,
-                                            sourceName);
-
-                                    if (curval != FFMPUtils.MISSING
-                                            || !curval.isNaN()) {
-
-                                        if (curval >= 0.0f && values[j] >= 0.0f) {
-                                            basin.setValue(sourceName, idate,
-                                                    (curval + values[j]) / 2);
-                                        } else if (values[j] >= 0.0f){
-                                            basin.setValue(sourceName, idate,
-                                                    values[j]);
-                                        } 
-                                        // do not overwrite original value
-                                    } else {
-                                        basin.setValue(sourceName, idate,
-                                                values[j]);
-                                    }
-
-                                    j++;
-                                } catch (Exception e) {
-                                    break;
-                                }
-
-                            }
-                        } else {
-                            for (Long pfaf : map.keySet()) {
-                                try {
-                                    FFMPBasin basin = fbd.get(pfaf);
-                                    if (basin == null) {
-                                        basin = new FFMPBasin(pfaf, aggregate);
-                                        fbd.put(pfaf, basin);
-                                    }
-
-                                    if (basin.contains(idate)) {
-                                        float curval = basin.getValue(idate);
-                                        if (curval >= 0.0f && values[j] >= 0.0f) {
-                                            basin.setValue(idate,
-                                                    (curval + values[j]) / 2);
-                                        } else if (values[j] >= 0.0f) {
-                                            basin.setValue(idate, values[j]);
-                                        } // do not overwrite original value
-                                    } else {
-                                        // no value at time exists, write regardless
-                                        basin.setValue(idate, values[j]);
-                                    }
-                                    j++;
-                                } catch (Exception e) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                fbd.addBasins(datastoreFile, uri, getSiteKey(),
+                        domain.getCwa(), huc, sourceName, idate, map.keySet(),
+                        aggregate);
             }
         }
+    }
 
+    public void retrieveMapFromDataStore(FFMPTemplates template, String huc)
+            throws Exception {
+        retrieveMapFromDataStore(getDataStoreFile(), getDataURI(), template,
+                huc, getDataTime().getRefTime(), getSourceName());
+    }
+
+    public void retrieveVirtualMapFromDataStore(FFMPTemplates template,
+            String huc) throws Exception {
+        retrieveVirtualMapFromDataStore(getDataStoreFile(), getDataURI(), template,
+                getDataTime().getRefTime(), getSourceName());
+    }
+
+    private File getDataStoreFile() {
+        IHDFFilePathProvider pathProvider = getHDFPathProvider();
+
+        String path = pathProvider.getHDFPath(getPluginName(), this);
+        String fileName = pathProvider.getHDFFileName(getPluginName(), this);
+
+        File datastoreFile = new File(getPluginName() + IPathManager.SEPARATOR
+                + path + IPathManager.SEPARATOR + fileName);
+        return datastoreFile;
     }
 
     /**
@@ -525,7 +471,8 @@ public class FFMPRecord extends PersistablePluginDataObject
 
                     try {
                         IDataRecord rec = dataStore.retrieve(
-                                uri + "/" + domain.getCwa(), huc,
+                                uri + DataStoreFactory.DEF_SEPARATOR
+                                        + domain.getCwa(), huc,
                                 Request.buildPointRequest(new Point(index, 0)));
 
                         if (rec != null) {
@@ -569,12 +516,10 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param dataStore
      * @param huc
      */
-    public void retrieveVirtualMapFromDataStore(IDataStore dataStore,
-            String uri, FFMPTemplates template, Date date, String sourceName)
+    public void retrieveVirtualMapFromDataStore(File datastoreFile, String uri,
+            FFMPTemplates template, Date date, String sourceName)
             throws StorageException, FileNotFoundException {
-        FFMPBasinData fbd = null;
-        boolean aggregate = false;
-        fbd = getBasinData(ALL);
+        FFMPBasinData fbd = getBasinData(ALL);
         String key = getDataKey();
         ImmutableDate idate = getCacheDate(date);
 
@@ -587,46 +532,9 @@ public class FFMPRecord extends PersistablePluginDataObject
                 int size = lids.size();
 
                 if (size > 0) {
-
-                    IDataRecord rec = null;
-
-                    try {
-                        rec = dataStore.retrieve(uri + "/" + domain.getCwa(),
-                                ALL, Request.ALL);
-                    } catch (Exception e) {
-                        // This is a routine error. Sometimes you can not have
-                        // data for a configured source
-                        // This suppresses spurrious messages that would inflate
-                        // the loags needlessly.
-                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                            statusHandler.handle(Priority.DEBUG,
-                                    "FFMPRecord: no data for: " + uri + "/"
-                                            + domain.getCwa());
-                        }
-                    }
-
-                    if (rec != null) {
-                        float[] values = ((FloatDataRecord) rec).getFloatData();
-                        if (values != null) {
-                            int j = 0;
-
-                            for (Entry<String, FFMPVirtualGageBasinMetaData> entry : lids
-                                    .entrySet()) {
-                                FFMPVirtualGageBasinMetaData fvgbmd = entry
-                                        .getValue();
-                                FFMPVirtualGageBasin vgbasin = (FFMPVirtualGageBasin) fbd
-                                        .get(fvgbmd.getLookupId());
-                                if (vgbasin == null) {
-                                    vgbasin = new FFMPVirtualGageBasin(
-                                            fvgbmd.getLid(),
-                                            fvgbmd.getLookupId(), aggregate);
-                                    fbd.put(fvgbmd.getLookupId(), vgbasin);
-                                }
-                                vgbasin.setValue(idate, values[j]);
-                                j++;
-                            }
-                        }
-                    }
+                    fbd.addVirtualBasins(datastoreFile, uri, key,
+                            domain.getCwa(), idate,
+                            lids.values());
                 }
             }
         }
@@ -638,59 +546,12 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param dataStore
      * @param huc
      */
-    public void retrieveVirtualBasinFromDataStore(IDataStore dataStore,
+    public void retrieveVirtualBasinFromDataStore(File datastoreFile,
             String uri, FFMPTemplates template, Date date, FFMPBasin basin) {
-        FFMPBasinData fbd = null;
         try {
-            boolean aggregate = false;
-            fbd = getBasinData(ALL);
-            String key = getDataKey();
-            ImmutableDate idate = getCacheDate(date);
-
-            for (DomainXML domain : template.getDomains()) {
-
-                LinkedHashMap<String, FFMPVirtualGageBasinMetaData> lids = template.getVirtualGageBasins(key, domain.getCwa());
-                int size = lids.size();
-
-                if (size > 0) {
-                    try {
-                        IDataRecord rec = dataStore
-                                .retrieve(uri + "/" + domain.getCwa(), ALL,
-                                        Request.ALL);
-
-                        if (rec != null) {
-                            float[] values = ((FloatDataRecord) rec)
-                                    .getFloatData();
-                            if (values != null) {
-                                int j = 0;
-
-                                for (Entry<String, FFMPVirtualGageBasinMetaData> entry : lids
-                                        .entrySet()) {
-                                    FFMPVirtualGageBasinMetaData fvgbmd = entry
-                                            .getValue();
-                                    FFMPVirtualGageBasin vgbasin = (FFMPVirtualGageBasin) fbd
-                                            .get(fvgbmd.getLookupId());
-                                    if (vgbasin == null) {
-                                        vgbasin = new FFMPVirtualGageBasin(
-                                                fvgbmd.getLid(),
-                                                fvgbmd.getLookupId(), aggregate);
-                                        fbd.put(fvgbmd.getLookupId(), vgbasin);
-                                    }
-                                    vgbasin.setValue(idate, values[j]);
-                                    j++;
-                                }
-                            }
-                        }
-                    }
-
-                    catch (Throwable e) {
-                        statusHandler.handle(
-                                Priority.PROBLEM,
-                                "ERROR Retrieving Virtual ..."
-                                        + domain.getCwa() + " : " + ALL);
-                    }
-                }
-            }
+            // Should this be retrieving a single basin instead of all of them?
+            retrieveVirtualMapFromDataStore(datastoreFile, uri, template, date,
+                    uri);
         } catch (Throwable e) {
             statusHandler.handle(Priority.ERROR, "ERROR Retrieving Virtual..."
                     + ALL);
