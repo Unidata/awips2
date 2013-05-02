@@ -34,6 +34,7 @@ import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -55,19 +56,21 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 3, 2009            jkorman     Initial creation
- *
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "mesowestseq")
 @Table(name = "mesowest", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
