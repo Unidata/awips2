@@ -1,22 +1,22 @@
-##
+# #
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
-##
+# #
 
 
 from java.lang import Integer, Float, Long, Boolean, String
@@ -26,18 +26,18 @@ from collections import OrderedDict
 
 #
 # Provides convenience methods for Java-Python bridging
-#   
 #
-#    
+#
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/01/08                      njensen       Initial Creation.
 #    03/12/13         1759         dgilling      Extend Java List types handled
 #                                                by javaObjToPyVal().
-#    
-# 
+#
+#
 #
 
 
@@ -64,7 +64,7 @@ def javaStringMapToPyDict(javaMap):
         fval = str(val)
         if fval.find('[') > -1:
             exec "fval = " + fval
-        else:        
+        else:
             try:
                 fval = float(fval)
             except:
@@ -86,18 +86,21 @@ def javaMapToPyDict(javaMap, customConverter=None):
     return pyDict
 
 def pyDictToJavaMap(pyDict):
+    if pyDict is None :
+        return None
+
     if isinstance(pyDict, OrderedDict):
         jmap = LinkedHashMap()
     else:
         jmap = HashMap()
-        
-    for key in pyDict:   
+
+    for key in pyDict:
         jmap.put(pyValToJavaObj(key), pyValToJavaObj(pyDict[key]))
     return jmap
 
 def pyValToJavaObj(val):
-    retObj = val   
-    valtype = type(val) 
+    retObj = val
+    valtype = type(val)
     if valtype is int:
         retObj = Integer(val)
     elif valtype is float:
@@ -120,12 +123,12 @@ def pyValToJavaObj(val):
     elif issubclass(valtype, JavaWrapperClass):
         retObj = val.toJavaObj()
     return retObj
-    
+
 def javaObjToPyVal(obj, customConverter=None):
     retVal = None
     if obj is None:
         return retVal
-    
+
     objtype = obj.jclassname
     if objtype == "java.lang.Integer":
         retVal = obj.intValue()
@@ -150,7 +153,7 @@ def javaObjToPyVal(obj, customConverter=None):
         retVal = javaMapToPyDict(obj, customConverter)
     elif customConverter is not None:
         retVal = customConverter(obj)
-    
+
     if retVal is None:
         retVal = str(obj)
     return retVal
@@ -158,5 +161,4 @@ def javaObjToPyVal(obj, customConverter=None):
 class JavaWrapperClass(object):
     def toJavaObj(self):
         raise NotImplementedError, "Subclasses must override this method."
-    
-    
+
