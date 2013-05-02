@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -65,6 +67,9 @@ import com.raytheon.uf.common.time.DataTime;
  * 20130408           1293 bkowal      Removed references to hdffileid.
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * Apr 29, 2013       1958 bgonzale    Added equals and hashcode.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -457,6 +462,13 @@ public class RedbookRecord extends PersistablePluginDataObject
         } else if (!wmoTTAAii.equals(other.wmoTTAAii))
             return false;
         return true;
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 
 }

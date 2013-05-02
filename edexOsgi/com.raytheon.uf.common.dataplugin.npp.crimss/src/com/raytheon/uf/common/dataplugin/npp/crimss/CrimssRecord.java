@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.crimss;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -42,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Dec 2, 2011            bsteffen     Initial creation
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -71,5 +76,12 @@ public class CrimssRecord extends NPPSoundingRecord {
     public static final String PDV_H2O = "H2O";
 
     public static final String PDV_P_H2O = "PressureLevels_H2O";
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 
 }
