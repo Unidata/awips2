@@ -31,7 +31,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.dao.FFMPDao;
-import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.FFTISourceXML;
@@ -56,6 +55,8 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * July 11, 2012            dhladky    Edited for FFTI work
  * 02/01/13     1569        D. Hladky   Added constants, records writing switched to pypies
  * </pre>
+ * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
+ * Apr 18, 2013 1919       dhladky     Fixed VGB breakage
  * 
  * @author dhladky
  * @version 1.0
@@ -312,22 +313,30 @@ public class FFTIProcessor {
             FFMPTemplates template) throws PluginException {
 
         try {
-            // file not populated, skip it
-            if (rec.getPluginName() == null) {
-                return rec;
-            }
 
             FFMPDao dao = (FFMPDao) PluginFactory.getInstance().getPluginDao(
                     rec.getPluginName());
             rec = (FFMPRecord) dao.getMetadata(rec.getDataURI());
-            IDataStore dataStore = dao.getDataStore(rec);
+            
+            if (rec.getPluginName() == null) {
+                //return rec;
+                rec.setPluginName("ffmp");
+            }
 
-            rec.retrieveMapFromDataStore(dataStore, rec.getDataURI(), template,
-                    huc, rec.getDataTime().getRefTime(), rec.getSourceName());
+            SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                    .getSource(rec.getSourceName());
+            
+            // check for gage(VGB) types, if so process as a VGB
+            if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
+                rec.retrieveVirtualMapFromDataStore(template, huc);
+            } else {
+                rec.retrieveMapFromDataStore(template, huc);
+            }
 
             // System.out.println("Size of huc: "
             // + rec.getBasinData(huc).getBasins().size());
         } catch (Exception se) {
+
             statusHandler.handle(Priority.ERROR,
                     "Source: " + rec.getSourceName() + " sitekey: "
                             + " domain: " + rec.getWfo()
