@@ -22,8 +22,7 @@
 	<displayList>
 		<displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
-				<resource>
-				<resourceType>PLAN_VIEW</resourceType>
+				<resource>				
 					<loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
@@ -31,6 +30,7 @@
                             </capability>
                             <capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
                         </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
   	                    <perspectiveProperty  xsi:type="d2dLoadProperties" overlayMatchTolerance="1"/>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
