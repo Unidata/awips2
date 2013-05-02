@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 6, 2008  1433       chammack    Initial creation
+ * Apr 17, 2013 1786       mpduff      Allow setting of Handler Factory.
  * </pre>
  * 
  * @author chammack
@@ -100,7 +101,7 @@ public class UFStatus {
     protected final String message;
 
     /** handler factory */
-    private static final IUFStatusHandlerFactory handlerFactory = createHandlerFactory();
+    private static IUFStatusHandlerFactory handlerFactory = createHandlerFactory();
 
     private static final IUFStatusHandlerFactory createHandlerFactory() {
         ServiceLoader<IUFStatusHandlerFactory> loader = ServiceLoader.load(
@@ -313,5 +314,15 @@ public class UFStatus {
     public static IUFStatusHandler getMonitorHandler(Class<?> cls,
             String monitorSource) {
         return handlerFactory.getMonitorInstance(cls, monitorSource);
+    }
+
+    /**
+     * Set the handler factory
+     * 
+     * @param factory
+     *            the handler factory
+     */
+    public static void setHandlerFactory(IUFStatusHandlerFactory factory) {
+        handlerFactory = factory;
     }
 }
