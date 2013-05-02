@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -78,6 +79,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
  *                                      dataURI fields
  * Apr 15, 2013 1868        bsteffen    Improved performance of createDataURIMap
+ * Mar 02, 2013 1970        bgonzale    Moved Index annotation from getters to attributes.
  * </pre>
  * 
  */
@@ -116,6 +118,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     /** The timestamp denoting when this record was inserted into the database */
     @Column(columnDefinition = "timestamp without time zone")
+    @Index(name = "%TABLE%_insertTimeIndex")
     @XmlAttribute
     @DynamicSerializeElement
     protected Calendar insertTime;
