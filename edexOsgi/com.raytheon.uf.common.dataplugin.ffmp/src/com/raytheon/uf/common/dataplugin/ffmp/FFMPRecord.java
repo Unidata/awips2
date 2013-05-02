@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -85,6 +87,8 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
  * Apr 18, 2013 1919       dhladky     Added method for VGB loading
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * </pre>
  * 
@@ -715,4 +719,10 @@ public class FFMPRecord extends PersistablePluginDataObject
         
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

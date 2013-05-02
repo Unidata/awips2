@@ -81,6 +81,8 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * Apr 15, 2013 1868        bsteffen    Improved performance of createDataURIMap
  * May 02, 2013 1970        bgonzale    Moved Index annotation from getters to attributes.
  * </pre>
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  */
 @MappedSuperclass
@@ -97,11 +99,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     @Id
     protected int id;
-
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    protected String dataURI;
 
     /** The name of the plugin this object is associated with */
     @Transient
@@ -128,6 +125,9 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     @DynamicSerializeElement
     protected Object messageData;
 
+    @Transient
+    protected transient String dataURI;
+
     /** Internal variable used for creating an object from a dataURI */
     @Transient
     private transient int uriIndex = 2;
@@ -149,20 +149,13 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     }
 
     /**
-     * Constructs the dataURI for this object
-     * 
-     * @param tableDef
-     *            The tabledefinition corresponding to this data type
-     * @throws PluginException
-     *             If errors occur during dataURI creation
+     * Deprecated: getDataURI will generate the datauri on demand, no need to
+     * construct it.
      */
+    @Deprecated
     public void constructDataURI() throws PluginException {
-        if (dataURI == null) {
-            StringBuffer uriBuffer = new StringBuffer();
-            uriBuffer.append(DataURI.SEPARATOR).append(pluginName);
-            uriBuffer = generateURI(this, uriBuffer);
-            this.dataURI = uriBuffer.toString().replaceAll(" ", "_");
-        }
+        this.dataURI = null;
+        getDataURI();
     }
 
     /**
@@ -175,7 +168,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
      *            The dataURI StringBuffer
      * @return The updated dataURI
      */
-    private StringBuffer generateURI(Object obj, StringBuffer uriBuffer) {
+    private void generateURI(Object obj, StringBuilder uriBuffer) {
 
         // Get the fields with @DataURI annotation
         Field[] dataURIFields = DataURIUtil.getInstance().getDataURIFields(
@@ -192,8 +185,20 @@ public abstract class PluginDataObject extends PersistableDataObject implements
                 e.printStackTrace();
             }
             if (field.getAnnotation(DataURI.class).embedded()) {
-                // Recursive call to get dataURI elements from embedded object
-                uriBuffer = generateURI(property, uriBuffer);
+                if (property == null) {
+                    // Populate datauri with all "null" for null embedded
+                    // objects.
+                    int numFields = DataURIUtil.getInstance().getDataURIFields(
+                            field.getClass()).length;
+                    for (int f = 0; f < numFields; f += 1) {
+                        uriBuffer.append(DataURI.SEPARATOR).append(
+                                String.valueOf(null));
+                    }
+                } else {
+                    // Recursive call to get dataURI elements from embedded
+                    // object
+                    generateURI(property, uriBuffer);
+                }
             } else {
                 // Append to the dataURI buffer
                 uriBuffer.append(DataURI.SEPARATOR);
@@ -208,7 +213,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
                 }
             }
         }
-        return uriBuffer;
     }
 
     /**
@@ -487,6 +491,12 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     }
 
     public String getDataURI() {
+        if (dataURI == null && pluginName != null) {
+            StringBuilder uriBuffer = new StringBuilder(160);
+            uriBuffer.append(DataURI.SEPARATOR).append(pluginName);
+            generateURI(this, uriBuffer);
+            this.dataURI = uriBuffer.toString().replaceAll(" ", "_");
+        }
         return this.dataURI;
     }
 

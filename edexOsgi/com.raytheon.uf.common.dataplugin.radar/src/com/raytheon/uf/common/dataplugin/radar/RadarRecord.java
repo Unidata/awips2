@@ -33,6 +33,8 @@ import java.util.Vector;
 
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -127,6 +129,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -1742,4 +1747,10 @@ public class RadarRecord extends PersistablePluginDataObject implements
         this.setThresholds(storedData.getThresholds());
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
