@@ -73,6 +73,8 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  * ------------ ---------- ----------- --------------------------
  * May 21, 2010            bsteffens    Initial creation
  * May 26, 2010            mnash        Used ProductBrowserLabel implementation instead of requery
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -175,7 +177,7 @@ public class GridProductBrowserDataDefinition extends
 
     @Override
     protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
+            Map<String, RequestConstraint> queryList) {
         try {
             if (getInventory() == null) {
                 return super.queryData(param, queryList);
