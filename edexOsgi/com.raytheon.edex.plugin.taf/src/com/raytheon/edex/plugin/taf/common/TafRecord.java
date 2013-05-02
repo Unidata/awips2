@@ -32,6 +32,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -62,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 6/21/07      180         bphillip    Updated to use new plugin pattern   
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -69,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tafseq")
 @Table(name = "taf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
