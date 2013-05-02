@@ -329,15 +329,23 @@
 		<!-- OGC/DPA services -->
 		<include>ogc-common.xml</include>
 		<include>.*-ogc-request.xml</include>
+		<!--  Purge OGC/DPA registred plugins -->
+		<include>purge-spring.xml</include>
+		<include>ogc-purge.xml</include>
 	</mode>
-	<!-- This is a sample reference implmentation -->
+	<!-- This is MADIS implmentation of dataprovideragent -->
 	<mode name="dataprovideragent">
 		<includeMode>dataProviderAgentTemplate</includeMode>
-		<!-- pointdata/obs specific services -->
+		<!-- pointdata/madis specific services -->
+		<include>madis-common.xml</include>
+		<include>pointdata-common.xml</include>
+		<include>madis-dpa-ingest.xml</include>
+		<include>madis-ogc.xml</include>-->
+		<!-- pointdata/obs specific services 
 		<include>obs-common.xml</include>
 		<include>pointdata-common.xml</include>
 		<include>obs-dpa-ingest.xml</include>
-		<include>obs-ogc.xml</include>
+		<include>obs-ogc.xml</include>-->
 		<!-- grid specific services 
 		<include>grib-common.xml</include>
 		<include>grid-staticdata-process.xml</include>
