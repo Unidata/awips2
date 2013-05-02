@@ -22,6 +22,8 @@ package com.raytheon.uf.common.dataplugin.qc;
 
 import java.util.Date;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -57,6 +59,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/07/2009   3408       bphillip    Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -1967,4 +1971,10 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 	public void setPointDataView(FakePointDataView pointDataView) {
 		this.pointDataView = pointDataView;
 	}
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
