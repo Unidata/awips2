@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserve
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.status.VizStatusHandlerFactory;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
 import com.raytheon.viz.alerts.jobs.MenuUpdater;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -88,6 +89,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  *                                      the command line even if practice
  *                                      mode is off.
  * Jan 09, 2013   #1442    rferrel      Changes to notify SimultedTime listeners.
+ * Apr 17, 2013    1786    mpduff       startComponent now sets StatusHandlerFactory
  * 
  * </pre>
  * 
@@ -162,6 +164,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             // dialog which would break gfeClient-based cron jobs.
             return IApplication.EXIT_OK;
         }
+        UFStatus.setHandlerFactory(new VizStatusHandlerFactory());
+
         initializeSerialization();
         initializeDataStoreFactory();
         initializeObservers();
