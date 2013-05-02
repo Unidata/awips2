@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 6, 2011            bsteffen     Initial creation
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -91,7 +93,7 @@ public class CrimssDataDefinition
 
     @Override
     protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
+            Map<String, RequestConstraint> queryList) {
         if (param.equals(POINT)) {
             // TODO depending on how much data we have this might be way too
             // data to request.
