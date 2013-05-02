@@ -34,8 +34,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.hibernate.Criteria;
+import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.transaction.TransactionStatus;
@@ -69,6 +77,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
@@ -103,6 +112,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 27, 2013 1821       bsteffen    Remove extra store in persistToHDF5 for
  *                                     replace only operations.
  * Apr 04, 2013            djohnson    Remove formerly removed methods that won't compile.
+ * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
  * 
  * </pre>
  * 
@@ -120,6 +130,11 @@ public abstract class PluginDao extends CoreDao {
     /** The hdf5 file system suffix */
     public static final String HDF5_SUFFIX = ".h5";
 
+    // should match batch size in hibernate config
+    protected static final int COMMIT_INTERVAL = 100;
+
+    protected static final ConcurrentMap<Class<?>, DuplicateCheckStat> pluginDupCheckRate = new ConcurrentHashMap<Class<?>, DuplicateCheckStat>();
+
     /** The base path of the folder containing HDF5 data for the owning plugin */
     public final String PLUGIN_HDF5_DIR;
 
@@ -128,9 +143,6 @@ public abstract class PluginDao extends CoreDao {
 
     /** The owning plugin name */
     protected String pluginName;
-
-    /** The sql string used to check for duplicates in the database */
-    protected String dupCheckSql = "select id from awips.:tableName where dataURI=':dataURI'";
 
     protected static final String PURGE_VERSION_FIELD = "dataTime.refTime";
 
@@ -154,8 +166,6 @@ public abstract class PluginDao extends CoreDao {
 
         this.pluginName = pluginName;
         PLUGIN_HDF5_DIR = pluginName + File.separator;
-        dupCheckSql = dupCheckSql.replace(":tableName", PluginFactory
-                .getInstance().getPrimaryTable(pluginName));
         pathProvider = PluginFactory.getInstance().getPathProvider(pluginName);
     }
 
@@ -187,19 +197,178 @@ public abstract class PluginDao extends CoreDao {
         persistToDatabase(records);
     }
 
-    @SuppressWarnings("unchecked")
     public PluginDataObject[] persistToDatabase(PluginDataObject... records) {
-        List<PersistableDataObject<Object>> toPersist = new ArrayList<PersistableDataObject<Object>>();
+        List<PluginDataObject> toPersist = new ArrayList<PluginDataObject>();
         for (PluginDataObject record : records) {
             toPersist.add(record);
         }
-        List<PersistableDataObject<Object>> duplicates = mergeAll(toPersist);
-        for (PersistableDataObject<Object> pdo : duplicates) {
+        List<PluginDataObject> duplicates = mergeAll(toPersist);
+        for (PluginDataObject pdo : duplicates) {
             logger.info("Discarding duplicate: "
                     + ((PluginDataObject) (pdo)).getDataURI());
             toPersist.remove(pdo);
         }
         return toPersist.toArray(new PluginDataObject[toPersist.size()]);
+    }
+
+    /**
+     * Commits(merges) a list of pdos into the database. Duplicates will not be
+     * committed unless the object allows override.
+     * 
+     * @param objects
+     *            the objects to commit
+     * @return any duplicate objects which already existed in the db.
+     */
+    public List<PluginDataObject> mergeAll(final List<PluginDataObject> objects) {
+        if (objects == null || objects.isEmpty()) {
+            return objects;
+        }
+        List<PluginDataObject> duplicates = new ArrayList<PluginDataObject>();
+        Class<? extends PluginDataObject> pdoClass = objects.get(0).getClass();
+        DuplicateCheckStat dupStat = pluginDupCheckRate.get(pdoClass);
+        if (dupStat == null) {
+            dupStat = new DuplicateCheckStat();
+            pluginDupCheckRate.put(pdoClass, dupStat);
+        }
+        boolean duplicateCheck = dupStat.isDuplicateCheck();
+        int dupCommitCount = 0;
+        int noDupCommitCount = 0;
+
+        StatelessSession ss = null;
+        try {
+            ss = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            // process them all in fixed sized batches.
+            for (int i = 0; i < objects.size(); i += COMMIT_INTERVAL) {
+                List<PluginDataObject> subList = objects.subList(i,
+                        Math.min(i + COMMIT_INTERVAL, objects.size()));
+                List<PluginDataObject> subDuplicates = new ArrayList<PluginDataObject>();
+                boolean constraintViolation = false;
+                Transaction tx = null;
+                if (!duplicateCheck) {
+                    // First attempt is to just shove everything in the database
+                    // as fast as possible and assume no duplicates.
+                    try {
+                        tx = ss.beginTransaction();
+                        for (PluginDataObject object : subList) {
+                            if (object == null) {
+                                continue;
+                            }
+                            ss.insert(object);
+                        }
+                        tx.commit();
+                    } catch (ConstraintViolationException e) {
+                        tx.rollback();
+                        constraintViolation = true;
+                    }
+                }
+                if (constraintViolation || duplicateCheck) {
+                    // Second attempt will do duplicate checking, and possibly
+                    // overwrite.
+                    constraintViolation = false;
+                    try {
+                        tx = ss.beginTransaction();
+                        for (PluginDataObject object : subList) {
+                            if (object == null) {
+                                continue;
+                            }
+                            try {
+                                Criteria criteria = ss.createCriteria(pdoClass);
+                                populateDatauriCriteria(criteria, object);
+                                criteria.setProjection(Projections.id());
+                                Integer id = (Integer) criteria.uniqueResult();
+                                if (id != null) {
+                                    object.setId(id);
+                                    if (object.isOverwriteAllowed()) {
+                                        ss.update(object);
+                                    } else {
+                                        subDuplicates.add(object);
+                                    }
+                                } else {
+                                    ss.insert(object);
+                                }
+                            } catch (PluginException e) {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        "Query failed: Unable to insert or update "
+                                                + object.getIdentifier(), e);
+                            }
+                        }
+                        tx.commit();
+                    } catch (ConstraintViolationException e) {
+                        constraintViolation = true;
+                        tx.rollback();
+                    }
+                }
+                if (constraintViolation) {
+                    // Third attempt will commit each pdo individually.
+                    subDuplicates.clear();
+                    for (PluginDataObject object : subList) {
+                        if (object == null) {
+                            continue;
+                        }
+                        try {
+                            tx = ss.beginTransaction();
+                            Criteria criteria = ss.createCriteria(pdoClass);
+                            populateDatauriCriteria(criteria, object);
+                            criteria.setProjection(Projections.id());
+                            Integer id = (Integer) criteria.uniqueResult();
+                            if (id != null) {
+                                object.setId(id);
+                                if (object.isOverwriteAllowed()) {
+                                    ss.update(object);
+                                } else {
+                                    subDuplicates.add(object);
+                                }
+                            } else {
+                                ss.insert(object);
+                            }
+                            tx.commit();
+                        } catch (ConstraintViolationException e) {
+                            subDuplicates.add(object);
+                            tx.rollback();
+                        } catch (PluginException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Query failed: Unable to insert or update "
+                                            + object.getIdentifier(), e);
+                        }
+                    }
+                }
+                if (subDuplicates.isEmpty()) {
+                    noDupCommitCount += 1;
+                } else {
+                    dupCommitCount += 1;
+                    duplicates.addAll(subDuplicates);
+                }
+            }
+            dupStat.updateRate(noDupCommitCount
+                    / (noDupCommitCount + dupCommitCount));
+        } finally {
+            if (ss != null) {
+                ss.close();
+            }
+        }
+        return duplicates;
+    }
+
+    private void populateDatauriCriteria(Criteria criteria, PluginDataObject pdo)
+            throws PluginException {
+        criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
+
+        // TODO this code block can be used if we drop the dataURI column.
+
+        // for (Entry<String, Object> uriEntry :
+        // pdo.createDataURIMap().entrySet()) {
+        // String key = uriEntry.getKey();
+        // Object value = uriEntry.getValue();
+        // if (key.equals("pluginName")) {
+        // ;// this is not in the db, only used internally.
+        // } else if (value == null) {
+        // criteria.add(Restrictions.isNull(key));
+        // } else {
+        // criteria.add(Restrictions.eq(key, value));
+        // }
+        // }
+
     }
 
     /**
@@ -1625,5 +1794,37 @@ public abstract class PluginDao extends CoreDao {
             rval = (double) data[0];
         }
         return rval;
+    }
+
+    protected static class DuplicateCheckStat {
+
+        // percentage of commits that need to succeed without duplicate checking
+        // for a plugin to attempt to skip duplicate checking.
+        protected static final float DUPLICATE_CHECK_THRESHOLD = 0.5f;
+
+        // This number controls the maximum number of transactions to
+        // "remember" which will affect how difficult it is to change the
+        // cumulative rate. The larger the number is, the more successful(or
+        // failed) attempts it will take to change the cumulativeRate.
+        protected static final int DUPLICATE_MEMORY = 5000;
+
+        protected boolean duplicateCheck = true;
+
+        protected float cumulativeRate = 1.0f;
+
+        protected int total = 0;
+
+        protected boolean isDuplicateCheck() {
+            return duplicateCheck;
+        }
+
+        protected void updateRate(float rate) {
+            cumulativeRate = (rate + cumulativeRate * total) / (total + 1);
+            duplicateCheck = cumulativeRate < DUPLICATE_CHECK_THRESHOLD;
+
+            if (total < DUPLICATE_MEMORY) {
+                total++;
+            }
+        }
     }
 }

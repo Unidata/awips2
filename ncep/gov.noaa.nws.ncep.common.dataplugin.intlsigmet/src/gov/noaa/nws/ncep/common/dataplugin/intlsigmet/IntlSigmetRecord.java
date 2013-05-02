@@ -14,6 +14,7 @@
  * 09/2011      				Chin Chen   changed to improve purge performance and
  * 											removed xml serialization as well
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -21,29 +22,32 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.intlsigmet;
 
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
+
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "intlsigmetseq")
 @Table(name = "intlsigmet", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
