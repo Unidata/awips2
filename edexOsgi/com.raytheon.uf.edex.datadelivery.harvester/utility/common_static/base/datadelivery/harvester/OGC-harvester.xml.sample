@@ -7,7 +7,7 @@
 	<provider serviceType="WFS" name="METAROGC">
 		<connection>
 			<!-- for OGC it's your FQDN -->
-			<url>http://127.0.0.1:8085</url>
+			<url>http://your.url.here:8085</url>
 		</connection>
 		<providerType>Point</providerType>
 		<projection type="LatLon">
@@ -15,9 +15,6 @@
 			<description>METAR Test LatLon Coverage</description>
 		</projection>
 	</provider>
-	<primaryRegistryHost>127.0.0.1</primaryRegistryHost>
-	<secondaryRegistryHost>127.0.0.1</secondaryRegistryHost>
-	<tertiaryRegistryHost>127.0.0.1</tertiaryRegistryHost>
 	<agent xsi:type="ogcAgent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<dateFormat>HHddMMMyyyy</dateFormat>
 		<layer name="metar">
