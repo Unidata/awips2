@@ -40,7 +40,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -61,6 +60,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                         Jim Ramer   Original Code
  * Jun 18, 2007            chammack    Partial port to Java
  * Apr 12, 2013 1857       bgonzale    Added Index annotations to getter methods.
+ * Mar 02, 2013 1970       bgonzale    Removed Index annotations.
  * 
  * </pre>
  * 
@@ -344,7 +344,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     /**
      * @return the refTime
      */
-    @Index(name = "refTimeIndex")
     public Date getRefTime() {
         return this.refTime;
     }
@@ -361,7 +360,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     /**
      * @return the fcstTime
      */
-    @Index(name = "fcstTimeIndex")
     public int getFcstTime() {
         return fcstTime;
     }
