@@ -1,35 +1,35 @@
 # #
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 # #
 
 #
 # Python should use this interface to get to the localization files.
-#   
 #
-#    
+#
+#
 #    SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/18/13                      mnash        Initial Creation.
-#    
-# 
+#
+#
 #
 
 import os, os.path
@@ -43,14 +43,14 @@ from LockingFile import File
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext as JavaLocalizationContext
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
-from java.io import File as JavaFile   
+from java.io import File as JavaFile
 from java.lang import String
 
 class PathManager(IPathManager.IPathManager):
-        
+
     def __init__(self):
         self.jpathManager = PathManagerFactory.getPathManager()
-    
+
     def getLocalizationFile(self, name, loctype=None, loclevel=None, locname=None):
         '''
         @param context: the localization context for which to get the file
@@ -68,7 +68,7 @@ class PathManager(IPathManager.IPathManager):
             lFile = self.jpathManager.getStaticLocalizationFile(name)
         if lFile is not None:
             return LocalizationFile(lFile)
-    
+
     def getTieredLocalizationFile(self, loctype, name):
         '''
         @param loctype: The localization type to look in
@@ -77,13 +77,15 @@ class PathManager(IPathManager.IPathManager):
         @summary: Returns the localization levels available for the file given
         '''
         jtype = self._convertType(loctype)
-        jMap = JUtil.javaMapToPyDict(self.jpathManager.getTieredLocalizationFile(jtype, name))
+        jMap = self.jpathManager.getTieredLocalizationFile(jtype, name)
+        iterator = jMap.entrySet().iterator()
         vals = dict()
-        for level in jMap:
-            jlevel = self._convertLevel(level)
-            vals[jlevel.name()] = LocalizationFile(jMap.get(level))
+        while iterator.hasNext() :
+            nextValue = iterator.next()
+            # the key of the entry set is a localization level, the value is a localization file
+            vals[nextValue.getKey().name()] = LocalizationFile(nextValue.getValue())
         return vals
-    
+
     def listFiles(self, name, extensions, recursive, filesOnly, loctype=None, loclevel=None, locname=None):
         '''
         @param name: the name and path of the file
@@ -102,8 +104,8 @@ class PathManager(IPathManager.IPathManager):
         extArr = jarray(extensionSize, String)
         for i in range(extensionSize):
             extArr[i] = String(extensions[i])
-            
-        if contexts is not None :            
+
+        if contexts is not None :
             jfiles = self.jpathManager.listFiles(contexts, name, extArr, recursive, filesOnly)
         else :
             jfiles = self.jpathManager.listStaticFiles(name, extArr, recursive, filesOnly)
@@ -112,7 +114,7 @@ class PathManager(IPathManager.IPathManager):
             for file in jfiles :
                 files.append(LocalizationFile(file))
             return files
-           
+
     def getAvailableLevels(self):
         '''
         @return: the levels available to the caller
@@ -122,7 +124,7 @@ class PathManager(IPathManager.IPathManager):
         levels = list()
         for level in jLevels :
             levels.append(level.name())
-        return levels    
+        return levels
 
     # converts a type of a list of types to the java counterparts
     def _convertType(self, loctype):
@@ -135,7 +137,7 @@ class PathManager(IPathManager.IPathManager):
                 for i in range(loctype):
                     jtype[i] = self._convertType(loctype[i])
             return jtype
-    
+
     # converts a level or a list of levels to the java counterparts
     def _convertLevel(self, loclevel):
         if loclevel is not None :
@@ -147,7 +149,7 @@ class PathManager(IPathManager.IPathManager):
                 for i in range(loclevel):
                     jlevel[i] = self._convertLevel(loclevel[i])
             return jlevel
-        
+
     def _getContext(self, loctype, loclevel, locname=None):
         jtype = self._convertType(loctype)
         jlevel = self._convertLevel(loclevel)
@@ -158,7 +160,7 @@ class PathManager(IPathManager.IPathManager):
             if jlevel is not None :
                 jlevel = [jlevel]
         return self._contextForList(jtype, jlevel, locname)
-                    
+
     def _contextForList(self, loctypes, loclevels, locname=None):
         # gets the contexts in list form, for ease of use, we always use a list of contexts
         # for methods that can take both
@@ -167,7 +169,7 @@ class PathManager(IPathManager.IPathManager):
             if locname is None and loclevels is None:
                 return None
             elif loclevels is not None :
-                contexts[i] = self.jpathManager.getContext(loctypes[i], loclevels[i])   
+                contexts[i] = self.jpathManager.getContext(loctypes[i], loclevels[i])
             if locname is not None :
                 contexts[i].setContextName(locname)
         return contexts
