@@ -58,6 +58,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.message.WsId;
@@ -75,6 +76,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * May 7, 2008              njensen     Initial creation
  * Jan 22, 2010  4248       njensen     Better error msgs
  * Jul 25, 2012  #957       dgilling    Implement getEditArea().
+ * Apr 23, 2013  #1937      dgilling    Implement get().
  * 
  * </pre>
  * 
@@ -199,6 +201,37 @@ public class IFPWE {
         }
 
         return slice;
+    }
+
+    public List<Pair<IGridSlice, List<GridDataHistory>>> get(
+            List<TimeRange> times, boolean histories) {
+        GetGridRequest ggr = new GetGridRequest(parmId, times);
+        ServerResponse<List<IGridSlice>> sr = GridParmManager
+                .getGridData(Arrays.asList(ggr));
+
+        if (!sr.isOkay()) {
+            String msg = "Could not retrieve grid data for parm [" + parmId
+                    + "] for times " + times + ": " + sr.message();
+            statusHandler.error(msg);
+            return Collections.emptyList();
+        }
+
+        List<IGridSlice> data = sr.getPayload();
+        List<Pair<IGridSlice, List<GridDataHistory>>> rval = new ArrayList<Pair<IGridSlice, List<GridDataHistory>>>(
+                data.size());
+        for (IGridSlice grid : data) {
+            List<GridDataHistory> hists = Collections.emptyList();
+            if (histories) {
+                GridDataHistory[] h = grid.getHistory();
+                hists = new ArrayList<GridDataHistory>(h.length);
+                for (GridDataHistory entry : h) {
+                    hists.add(entry);
+                }
+            }
+            rval.add(new Pair<IGridSlice, List<GridDataHistory>>(grid, hists));
+        }
+
+        return rval;
     }
 
     private void setItem(TimeRange time, IGridSlice gridSlice,

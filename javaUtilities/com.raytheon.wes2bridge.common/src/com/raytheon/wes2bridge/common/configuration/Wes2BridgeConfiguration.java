@@ -34,6 +34,8 @@ import org.apache.commons.configuration.XMLConfiguration;
  * Jan 18, 2012 1490       bkowal      Added httpdPypiesPort and
  *                                     pypiesLoggingPort as configurable
  *                                     parameters.
+ * Apr 18, 2013 1899       bkowal      Added qpidHttpPort and qpidJmxPort
+ *                                     as configurable parameters.
  * 
  * </pre>
  * 
@@ -49,6 +51,8 @@ import org.apache.commons.configuration.XMLConfiguration;
  * 		<databasePort>int</databasePort>
  * 		<edexHttpPort>int</edexHttpPort> 
  * 		<jmsPort>int</jmsPort>
+ *      <qpidHttpPort>int</qpidHttpPort>
+ *      <qpidJmxPort>int</qpidJmxPort>
  * 		<webPort>int</webPort> 
  * 		<confidentialPort>int</confidentialPort>
  * 		<httpdPypiesPort>int</httpdPypiesPort>
@@ -62,6 +66,8 @@ public class Wes2BridgeConfiguration {
 		public static final String XML_DATABASE_PORT = "databasePort";
 		public static final String XML_EDEX_HTTP_PORT = "edexHttpPort";
 		public static final String XML_JMS_PORT = "jmsPort";
+		public static final String XML_QPID_HTTP_PORT = "qpidHttpPort";
+		public static final String XML_QPID_JMX_PORT = "qpidJmxPort";
 		public static final String XML_WEB_PORT = "webPort";
 		public static final String XML_CONFIDENTIAL_PORT = "confidentialPort";
 		public static final String XML_HTTPD_PYPIES_PORT = "httpdPypiesPort";
@@ -77,6 +83,8 @@ public class Wes2BridgeConfiguration {
 	private int databasePort = -1;
 	private int edexHttpPort = -1;
 	private int jmsPort = -1;
+	private int qpidHttpPort = -1;
+	private int qpidJmxPort = -1;
 	private int webPort = -1;
 	private int confidentialPort = -1;
 	private int httpdPypiesPort = -1;
@@ -112,6 +120,10 @@ public class Wes2BridgeConfiguration {
 		this.edexHttpPort = xmlConfiguration
 				.getInt(XML_SCHEMA.XML_EDEX_HTTP_PORT);
 		this.jmsPort = xmlConfiguration.getInt(XML_SCHEMA.XML_JMS_PORT);
+		this.qpidHttpPort = 
+		    xmlConfiguration.getInt(XML_SCHEMA.XML_QPID_HTTP_PORT);
+		this.qpidJmxPort = 
+		    xmlConfiguration.getInt(XML_SCHEMA.XML_QPID_JMX_PORT);
 		this.webPort = xmlConfiguration.getInt(XML_SCHEMA.XML_WEB_PORT);
 		this.confidentialPort = xmlConfiguration
 				.getInt(XML_SCHEMA.XML_CONFIDENTIAL_PORT);
@@ -161,7 +173,23 @@ public class Wes2BridgeConfiguration {
 		this.jmsPort = jmsPort;
 	}
 
-	public int getWebPort() {
+	public int getQpidHttpPort() {
+        return qpidHttpPort;
+    }
+
+    public void setQpidHttpPort(int qpidHttpPort) {
+        this.qpidHttpPort = qpidHttpPort;
+    }
+
+    public int getQpidJmxPort() {
+        return qpidJmxPort;
+    }
+
+    public void setQpidJmxPort(int qpidJmxPort) {
+        this.qpidJmxPort = qpidJmxPort;
+    }
+
+    public int getWebPort() {
 		return webPort;
 	}
 
