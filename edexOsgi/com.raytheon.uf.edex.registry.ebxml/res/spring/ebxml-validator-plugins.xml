@@ -1,0 +1,250 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="validatorPluginRegistry" factory-bean="validatorServiceImpl"
+        factory-method="getPluginValidatorRegistry" />
+
+    <bean id="registryObjectTypeValidator"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.RegistryObjectTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+
+    <bean id="organizationTypeValidatorPlugin"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.OrganizationTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+
+    <bean id="associationTypeValidatorPlugin"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.AssociationTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+    
+    <bean id="classificationTypeValidatorPlugin"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.ClassificationTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+    
+    <bean id="externalIdentifierTypeValidatorPlugin"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.ExternalIdentifierTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+
+    <bean id="externalLinkTypeValidatorPlugin"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.ExternalLinkTypeValidator">
+        <constructor-arg ref="registryObjectReferenceValidator" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization" />
+        <constructor-arg ref="organizationTypeValidatorPlugin" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" />
+        <constructor-arg ref="associationTypeValidatorPlugin" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" />
+        <constructor-arg ref="classificationTypeValidatorPlugin" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" />
+        <constructor-arg ref="externalIdentifierTypeValidatorPlugin" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalLink" />
+        <constructor-arg ref="externalLinkTypeValidatorPlugin" />
+    </bean>
+
+<!-- 
+     These are the remaining validator plugins to be implemented, when the validator ticket is worked.
+     Each validator corresponds directly with a registry object in the SubmitObjectsRequest_ObjectTypeScheme.xml
+     file.
+-->
+
+<!-- 
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:AuditableEvent" />
+        <constructor-arg ref="auditableEventTypeValidatorPlugin" />
+    </bean>
+     
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:QueryDefinition" />
+        <constructor-arg ref="queryDefinitionTypeValidatorPlugin" />
+    </bean>
+
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Notification" />
+        <constructor-arg ref="notificationTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Party" />
+        <constructor-arg ref="partyTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Person" />
+        <constructor-arg ref="personTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Subscription" />
+        <constructor-arg ref="subscriptionTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:TaxonomyElement" />
+        <constructor-arg ref="taxonomyElementTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" />
+        <constructor-arg ref="classificationNodeTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme" />
+        <constructor-arg ref="classificationSchemeTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Federation" />
+        <constructor-arg ref="federationTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Registry" />
+        <constructor-arg ref="registryTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage" />
+        <constructor-arg ref="registryPackageTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage:Register" />
+        <constructor-arg ref="registerTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" />
+        <constructor-arg ref="roleTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Service" />
+        <constructor-arg ref="serviceTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceEndpoint" />
+        <constructor-arg ref="serviceEndpointTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceBinding" />
+        <constructor-arg ref="serviceBindingTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ServiceInterface" />
+        <constructor-arg ref="serviceInterfaceTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject" />
+        <constructor-arg ref="extrinsicObjectTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:Comment" />
+        <constructor-arg ref="commentTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML" />
+        <constructor-arg ref="xmlTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XSLT" />
+        <constructor-arg ref="xsltTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XMLSchema" />
+        <constructor-arg ref="xmlSchemaTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:Schematron" />
+        <constructor-arg ref="schematronTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XHTML" />
+        <constructor-arg ref="xhtmlTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XHTML:XForm" />
+        <constructor-arg ref="xformTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML" />
+        <constructor-arg ref="xacmlTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML:Policy" />
+        <constructor-arg ref="policyTypeValidatorPlugin" />
+    </bean>
+    
+    <bean factory-bean="validatorPluginRegistry" factory-method="register">
+        <constructor-arg
+            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExtrinsicObject:XML:XACML:PolicySet" />
+        <constructor-arg ref="policySetTypeValidatorPlugin" />
+    </bean>
+-->
+
+</beans>
