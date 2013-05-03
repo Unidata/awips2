@@ -206,7 +206,7 @@ public class VizDisplayPane implements IDisplayPane {
         this.canvas.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                VizDisplayPane.this.dispose();
+                VizDisplayPane.this.disposePane();
             }
         });
         // set the renderable display
@@ -378,12 +378,7 @@ public class VizDisplayPane implements IDisplayPane {
         return target;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.IDisplayPane#dispose()
-     */
-    public void dispose() {
+    private void disposePane() {
         synchronized (this) {
             DrawCoordinatorJob.getInstance().unregisterPane(this.container,
                     this);
@@ -400,6 +395,21 @@ public class VizDisplayPane implements IDisplayPane {
                 container.notifyRenderableDisplayChangedListeners(this,
                         renderableDisplay, DisplayChangeType.REMOVE);
             }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.IDisplayPane#dispose()
+     */
+    public void dispose() {
+        disposePane();
+
+        if (canvas.isDisposed() == false) {
+            // Dispose was called outside of our own canvas listener so
+            // destroy the canvas composite so the pane disappears
+            canvasComp.dispose();
         }
     }
 
@@ -809,20 +819,28 @@ public class VizDisplayPane implements IDisplayPane {
      * Resize the pane
      */
     protected void resize() {
-        if (canvas == null || canvas.isDisposed()) {
-            return;
+        synchronized (this) {
+            // Schedule this to run so resize can finish if doing multiple panes and 
+            // only called once if layout changing a lot
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    if (canvas == null || canvas.isDisposed()) {
+                        return;
+                    }
+
+                    target.resize();
+
+                    Rectangle clientArea = canvas.getClientArea();
+                    if (renderableDisplay != null) {
+                        renderableDisplay.calcPixelExtent(clientArea);
+                        zoomLevel = renderableDisplay
+                                .recalcZoomLevel(renderableDisplay
+                                        .getDimensions());
+                    }
+                }
+            });
         }
-
-        target.resize();
-
-        Rectangle clientArea = canvas.getClientArea();
-
-        if (renderableDisplay != null) {
-            renderableDisplay.calcPixelExtent(clientArea);
-            zoomLevel = renderableDisplay.recalcZoomLevel(renderableDisplay
-                    .getDimensions());
-        }
-        refresh();
     }
 
     /*
