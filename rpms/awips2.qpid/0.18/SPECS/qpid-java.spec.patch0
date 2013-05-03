@@ -14,7 +14,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 + 
   Name:           qpid-java
   Version:        0.18
-! Release:        4%{?dist}
+! Release:        5%{?dist}
   Summary:        Java implementation of Apache Qpid
   License:        Apache Software License
   Group:          Development/Java
