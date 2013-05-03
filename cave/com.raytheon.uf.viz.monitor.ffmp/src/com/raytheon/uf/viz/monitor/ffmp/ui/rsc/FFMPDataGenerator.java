@@ -74,6 +74,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Apr 12, 2013    1902   mpduff      Code Cleanup.
  * Apr 15, 2013   1890    dhladky     Added another constant fix.
  * Apr 15, 2013   1911    dhladky     Fixed forced FFG for centered aggregates.
+ * Apr 24, 2013   1946    mpduff      Fixed FFFG value for ALL when an aggregate is forced
  * </pre>
  * 
  * @author dhladky
@@ -104,7 +105,7 @@ public class FFMPDataGenerator {
 
     private final String huc;
 
-    private final List<DomainXML> domains;
+    private final ArrayList<DomainXML> domains;
 
     private final double sliderTime;
 
@@ -177,6 +178,12 @@ public class FFMPDataGenerator {
         ffmpTableCfgData = tableConfig.getTableConfigData(siteKey);
     }
 
+    /**
+     * Generate the FFMP Data.
+     * 
+     * @return FFMPTableData object
+     * @throws Exception
+     */
     public FFMPTableData generateFFMPData() throws Exception {
         // You should always have at least a QPE data source
         FFMPTableData tData = null;
@@ -256,8 +263,9 @@ public class FFMPDataGenerator {
                                      * is in the CWA
                                      */
 
-                                    List<Long> pfafs = ft.getAggregatePfafs(
-                                            key, siteKey, huc);
+                                    ArrayList<Long> pfafs = ft
+                                            .getAggregatePfafs(key, siteKey,
+                                                    huc);
 
                                     boolean isVGB = false;
                                     if (ft.checkVGBsInAggregate(key, siteKey,
@@ -493,7 +501,9 @@ public class FFMPDataGenerator {
                                 forced = forceUtil.isForced();
                             }
 
-                            if ((!forcedPfafs.isEmpty()) && forced && centeredAggregationKey == null) {
+                            if ((!forcedPfafs.isEmpty()) && forced
+                                    && centeredAggregationKey == null
+                                    && !pfafList.isEmpty()) {
                                 // Recalculate the guidance using the forced
                                 // value(s)
                                 guidance = guidRecords
@@ -506,7 +516,9 @@ public class FFMPDataGenerator {
                                                 guidance,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                            } else if (!forcedPfafs.isEmpty() && centeredAggregationKey == null) {
+                            } else if (!forcedPfafs.isEmpty()
+                                    && centeredAggregationKey == null
+                                    && !pfafList.isEmpty()) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -518,7 +530,8 @@ public class FFMPDataGenerator {
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
                                 forced = true;
-                            } else if (!pfafList.isEmpty() && centeredAggregationKey == null) {
+                            } else if (!pfafList.isEmpty()
+                                    && centeredAggregationKey == null) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -659,7 +672,9 @@ public class FFMPDataGenerator {
                                 forced = forceUtil.isForced();
                             }
 
-                            if ((!forcedPfafs.isEmpty()) && forced && centeredAggregationKey == null) {
+                            if ((!forcedPfafs.isEmpty()) && forced
+                                    && centeredAggregationKey == null
+                                    && !pfafList.isEmpty()) {
                                 // Recalculate the guidance using the forced
                                 // value(s)
                                 guidance = guidRecords
@@ -672,7 +687,9 @@ public class FFMPDataGenerator {
                                                 guidance,
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
-                            } else if (!forcedPfafs.isEmpty() && centeredAggregationKey == null) {
+                            } else if (!forcedPfafs.isEmpty()
+                                    && centeredAggregationKey == null
+                                    && !pfafList.isEmpty()) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
@@ -684,7 +701,8 @@ public class FFMPDataGenerator {
                                                 forcedPfafs,
                                                 resource.getGuidSourceExpiration(guidType));
                                 forced = true;
-                            } else if (!pfafList.isEmpty() && centeredAggregationKey == null) {
+                            } else if (!pfafList.isEmpty()
+                                    && centeredAggregationKey == null) {
                                 guidance = guidRecords
                                         .get(guidType)
                                         .getBasinData(ALL)
