@@ -77,7 +77,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Sep 26, 2012          jsanchez       Refactored AbstractWarningResource and AbstractWatchesResource into this class.
  * Apr 11, 2013   1877   jsanchez       Updated conditions for matching a frame.
  * Apr 18, 2013   1877   jsanchez       Had the child classes set the comparator. Fixed a null pointer.
- * 
+ *                                      Remove frameAltered condition in matchesFrame. It prevented entries from being displayed.
+ *                                      Check if geometry is null when inspecting.
  * </pre>
  * 
  * @author jsanchez
@@ -105,8 +106,6 @@ public abstract class AbstractWWAResource extends
         protected boolean altered = false;
 
         protected Date timeAltered;
-
-        protected Date frameAltered;
 
         /**
          * was the alter a partial cancel? if it was then a matching CON should
@@ -218,7 +217,8 @@ public abstract class AbstractWWAResource extends
 
                     WarningEntry entry = entryMap.get(key);
                     AbstractWarningRecord record = entry.record;
-                    if (matchesFrame(entry, time, framePeriod, lastFrame)) {
+                    if (matchesFrame(entry, time, framePeriod, lastFrame)
+                            && record.getGeometry() != null) {
 
                         Geometry recordGeom = record.getGeometry();
                         for (int i = 0; i < recordGeom.getNumGeometries(); i++) {
@@ -448,8 +448,7 @@ public abstract class AbstractWWAResource extends
             // version only in the frames prior to the time it was altered
         } else if (entry.altered) {
             if (frameStart.getTime() >= refTime.getTime()
-                    && frameStart.getTime() <= (entry.timeAltered.getTime())
-                    && frameStart.getTime() < entry.frameAltered.getTime()) {
+                    && frameStart.getTime() < entry.timeAltered.getTime()) {
                 return true;
             }
         } else if (refTime.equals(paintTime)
