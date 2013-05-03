@@ -31,7 +31,6 @@ import java.util.Random;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2013 1910       djohnson     Initial creation
- * May 02, 2013 1910       djohnson     Create RegistryObjectTypeFixture.
  * 
  * </pre>
  * 
@@ -39,23 +38,26 @@ import java.util.Random;
  * @version 1.0
  */
 
-public class OrganizationTypeFixture extends
-        RegistryObjectTypeFixture<OrganizationType> {
+public class AssociationTypeFixture extends
+        RegistryObjectTypeFixture<AssociationType> {
 
-    public static final OrganizationTypeFixture INSTANCE = new OrganizationTypeFixture();
-
-    protected OrganizationTypeFixture() {
+    public static final AssociationTypeFixture INSTANCE = new AssociationTypeFixture();
+    
+    protected AssociationTypeFixture() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected OrganizationType getInstance(long seedValue, Random random) {
-        final OrganizationType organizationType = super.getInstance(seedValue,
+    protected AssociationType getInstance(long seedValue, Random random) {
+        final AssociationType registryObject = super.getInstance(seedValue,
                 random);
-        organizationType.setPrimaryContact("primaryContact" + seedValue);
-        return organizationType;
+        registryObject.setSourceObject("sourceObject" + seedValue);
+        registryObject.setTargetObject("targetObject" + seedValue);
+        registryObject.setType("associationType" + seedValue);
+
+        return registryObject;
     }
 
     /**
@@ -63,15 +65,15 @@ public class OrganizationTypeFixture extends
      */
     @Override
     protected String getObjectType() {
-        return "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization";
+        return "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association";
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected OrganizationType getRegistryObject() {
-        return new OrganizationType();
+    protected AssociationType getRegistryObject() {
+        return new AssociationType();
     }
 
 }
