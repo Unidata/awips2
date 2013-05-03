@@ -9,24 +9,11 @@
 		<property name="registry" ref="handlerRegistry"/>
 	</bean>
 
-	<bean id="routeWrapper" class="com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper">
+	<bean id="routeWrapper" class="com.raytheon.uf.edex.registry.ebxml.RegistryRemoteRequestWrapper">
 		<property name="server" ref="serializeServer"/>
 	</bean>    
 
     <bean id="binaryHttpBinding" class="com.raytheon.uf.edex.esb.camel.http.BinaryHttpBinding"/>
-
-    <camelContext id="server-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="ebxmlThriftService" uri="jetty:http://0.0.0.0:${EBXML_THRIFT_SERVICE_PORT}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
-
-        <route id="thriftService">
-            <from ref="ebxmlThriftService" />
-            <bean ref="routeWrapper" method="executeThrift"/>
-        </route>
-
-    </camelContext>
 
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.registry.IRegistryRequest"/>
