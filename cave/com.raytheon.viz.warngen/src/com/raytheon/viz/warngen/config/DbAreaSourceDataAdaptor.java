@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Feb 13, 2012  1605      jsanchez     Calculated the point based on lat,lon values.
  * Mar 25, 2013  1810      jsanchez     Allowed other values to be accepted as a true value for useDirs.
  * Mar 25, 2013  1605      jsanchez     Set ClosestPoint's prepGeom.
+ * Apr 24, 2013  1944      jsanchez     Updated calculateLocationPortion visibility to public.
  * 
  * </pre>
  * 
@@ -119,8 +120,24 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         int gid = getGid(ptFields, attributes);
         ClosestPoint cp = new ClosestPoint(name, point, population, warngenlev,
                 partOfArea, gid);
-        cp.setPrepGeom(PreparedGeometryFactory.prepare(ptRslt.geometry));
+
+        // Used to determine if a storm location is within an urban bound area
+        if (useDirections(attributes.get(useDirectionField))) {
+            cp.setPrepGeom(PreparedGeometryFactory.prepare(ptRslt.geometry));
+        }
         return cp;
+    }
+
+    /**
+     * Converts DB value (i.e. 1, t, true) to a boolean true
+     * 
+     * @param useDirectionValue
+     * @return
+     */
+    private boolean useDirections(Object useDirectionValue) {
+        String userDir = String.valueOf(useDirectionValue).toLowerCase();
+        return Boolean.valueOf(userDir) || userDir.equals("t")
+                || userDir.equals("1");
     }
 
     /**
@@ -148,7 +165,8 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
 
     /**
      * Determines the part of area impacted if the userDirectionField is set to
-     * true.
+     * true. This method only takes into account areas within the warning
+     * polygon.
      * 
      * @param ptFields
      * @param attributes
@@ -158,17 +176,12 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
     private List<String> getPartOfArea(Set<String> ptFields,
             Map<String, Object> attributes, Geometry geom) {
         List<String> partOfArea = null;
-
-        String userDir = String.valueOf(attributes.get(useDirectionField))
-                .toLowerCase();
-        boolean userDirections = Boolean.valueOf(userDir)
-                || userDir.equals("t") || userDir.equals("1");
-        if (userDirections) {
+        if (useDirections(attributes.get(useDirectionField))) {
             PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
                 Geometry intersection = searchArea.intersection(geom);
                 partOfArea = GisUtil.asStringList(calculateLocationPortion(
-                        geom, intersection, gc));
+                        geom, null, intersection, gc));
 
                 if (attributes.get(suppressedDirectionsField) != null) {
                     String suppressedDirections = String.valueOf(
@@ -243,15 +256,20 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
      * Calculates the cardinal directions of a location.
      * 
      * @param geom
+     * @param point
      * @param intersection
      * @param gc
      * @return
      */
-    private static EnumSet<Direction> calculateLocationPortion(Geometry geom,
-            Geometry intersection, GeodeticCalculator gc) {
+    public static EnumSet<Direction> calculateLocationPortion(Geometry geom,
+            Coordinate point, Geometry intersection, GeodeticCalculator gc) {
         EnumSet<Direction> directions = EnumSet.noneOf(Direction.class);
-        Coordinate geomCentroid = geom.convexHull().getCentroid()
-                .getCoordinate();
+        Coordinate geomCentroid = null;
+        if (point != null) {
+            geomCentroid = point;
+        } else {
+            geomCentroid = geom.convexHull().getCentroid().getCoordinate();
+        }
         Coordinate intersectCentroid = intersection.convexHull().getCentroid()
                 .getCoordinate();
 
