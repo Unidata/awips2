@@ -73,10 +73,10 @@ import com.raytheon.uf.common.registry.event.RegistryStatisticsEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.services.AuditableEventService;
 import com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
@@ -132,7 +132,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
     /** The registry object data access object */
     private RegistryObjectDao registryObjectDao;
 
-    private AuditableEventTypeDao auditableEventDao;
+    private AuditableEventService auditableEventService;
 
     /**
      * The Remove Objects protocol allows a client to remove or delete one or
@@ -242,7 +242,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         try {
             Map<String, List<ObjectRefType>> actionMap = new HashMap<String, List<ObjectRefType>>();
             actionMap.put(ActionTypes.delete, objRefs);
-            auditableEventDao.createAuditableEventsFromRefs(request, actionMap,
+            auditableEventService.createAuditableEventsFromRefs(request, actionMap,
                     System.currentTimeMillis());
             registryObjectDao.deleteByRefs(objRefs);
 
@@ -610,7 +610,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 if (!objsUpdated.isEmpty()) {
                     actionMap.put(ActionTypes.update, objsUpdated);
                 }
-                auditableEventDao.createAuditableEventsFromObjects(request,
+                auditableEventService.createAuditableEventsFromObjects(request,
                         actionMap, System.currentTimeMillis());
             } catch (EbxmlRegistryException e) {
                 response.getException()
@@ -716,8 +716,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
         this.validator = validator;
     }
 
-    public void setAuditableEventDao(AuditableEventTypeDao auditableEventDao) {
-        this.auditableEventDao = auditableEventDao;
+    public void setAuditableEventService(
+            AuditableEventService auditableEventService) {
+        this.auditableEventService = auditableEventService;
     }
 
     public void setCataloger(CatalogerImpl cataloger) {
