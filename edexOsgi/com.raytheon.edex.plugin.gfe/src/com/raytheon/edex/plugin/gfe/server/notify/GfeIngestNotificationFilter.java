@@ -187,7 +187,7 @@ public class GfeIngestNotificationFilter {
                     String otherComponent = null;
                     String[] components = parm.getComponents();
                     if (components.length > 1) {
-                        if (components[0].equals(gfeParamName)) {
+                        if (components[0].equals(d2dParamName)) {
                             otherComponent = components[1];
                         } else {
                             otherComponent = components[0];
@@ -207,7 +207,7 @@ public class GfeIngestNotificationFilter {
                             if (otherTimes == null
                                     || !otherTimes.remove(fcstHour)) {
                                 // need to wait for other component
-                                ParmID compPid = new ParmID(gfeParamName,
+                                ParmID compPid = new ParmID(d2dParamName,
                                         parmID.getDbId(), parmID.getParmLevel());
                                 Set<Integer> times = windComps.get(compPid);
                                 if (times == null) {

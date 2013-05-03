@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/09/2012   DR 14581   D. Friedman Fix grid referencing and use custom 
  *                                     nearest-neighbor resampling.i
  * 01/14/2013   #1469       bkowal     Removed the hdf5 data directory.
+ * 04/18/2013   DR 15662   dhuffman    Cross section terrain disappears if baseline is too short.
  * 
  * </pre>
  * 
@@ -313,7 +314,7 @@ public class TopoQuery implements ITopoQuery {
                 index += 2;
             }
 
-            Request request = Request.buildPointRequest(points);
+            Request request = Request.buildXsectPointRequest(points);
             ShortDataRecord record = (ShortDataRecord) dataStore.retrieve("/",
                     "full", request);
             short[] data = record.getShortData();
