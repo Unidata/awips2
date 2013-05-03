@@ -1,10 +1,7 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <!-- QUERY -->
+    <!-- QUERY -->
 	<!-- Define concrete implementation of the service -->
 	<bean id="queryServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
@@ -28,7 +25,7 @@
 		<property name="queryManager" ref="queryServiceImpl" />
 		<property name="validator" ref="validatorServiceImpl" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
-		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
+		<property name="auditableEventService" ref="AuditableEventService" />
 		<property name="cataloger" ref="catalogerServiceImpl" />
 	</bean>
 
@@ -100,25 +97,9 @@
 		<property name="roleDao" ref="roleDao" />
 	</bean>
     
-    <!-- Validator Plugins -->
-    <bean id="validatorPluginRegistry" factory-bean="validatorServiceImpl"
-        factory-method="getPluginValidatorRegistry" />
-
-    <bean id="registryObjectTypeValidator"
-        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.RegistryObjectTypeValidator">
-        <constructor-arg ref="registryObjectReferenceValidator" />
+    <bean id="AuditableEventService" class="com.raytheon.uf.edex.registry.ebxml.services.AuditableEventService">
+        <constructor-arg ref="AuditableEventTypeDao" />
+        <constructor-arg ref="registrySubscriptionManagerInvoker" />
     </bean>
-        
-    <bean id="organizationTypeValidatorPlugin"
-        class="com.raytheon.uf.edex.registry.ebxml.services.validator.plugins.OrganizationTypeValidator">
-        <constructor-arg ref="registryObjectReferenceValidator" />
-    </bean>
-
-    <bean factory-bean="validatorPluginRegistry" factory-method="register">
-        <constructor-arg
-            value="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization" />
-        <constructor-arg ref="organizationTypeValidatorPlugin" />
-    </bean>
-    <!-- End Validator Plugins -->
 	
   </beans>
