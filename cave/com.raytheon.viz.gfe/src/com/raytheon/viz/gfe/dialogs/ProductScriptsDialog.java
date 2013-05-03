@@ -353,11 +353,11 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                     	
                     	start = start - 3;
                         cmd = cmd.substring(0, start) + returnMsg;
-                        
-                    	TaskManager.getInstance().createScriptTask(name, cmd);
-                    }
+                    }   
                 }
 
+                TaskManager.getInstance().createScriptTask(name, cmd);
+                
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);

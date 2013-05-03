@@ -249,13 +249,13 @@
     <Level key="FHAG4000">
         <DatabaseLevel levelName="FHAG" levelOneValue="4000.0" unit="m"/>
     </Level>
-    <Level key="FHAG030">
-        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="30.0" unit="m"/>
+    <Level key="FHAG01000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="1000.0" unit="m"/>
     </Level>
-    <Level key="FHAG3000">
+    <Level key="FHAG03000">
         <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="3000.0" unit="m"/>
     </Level>
-    <Level key="FHAG6000">
+    <Level key="FHAG06000">
         <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="6000.0" unit="m"/>
     </Level>
     <Level key="FRZ">
@@ -398,9 +398,6 @@
     </Level>
     <Level key="MB1100">
         <DatabaseLevel levelName="MB" levelOneValue="1100.0" unit="hPa"/>
-    </Level>
-    <Level key="MB50100">
-        <DatabaseLevel levelName="MB" levelOneValue="1000.0" levelTwoValue="500.0" unit="hPa"/>
     </Level>
     <Level key="MB0500">
         <DatabaseLevel levelName="MB" levelOneValue="1000.0" levelTwoValue="500.0" unit="hPa"/>
