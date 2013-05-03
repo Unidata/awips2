@@ -237,7 +237,7 @@ class DGEXForecaster(Forecaster):
       t_BL120150, t_BL150180, rh_FHAG2, rh_BL030, rh_BL3060, rh_BL6090,
       rh_BL90120, rh_BL120150, rh_BL150180, wind_FHAG10, wind_BL030,
       wind_BL3060, wind_BL6090, wind_BL90120, wind_BL120150, wind_BL150180,
-      p_SFC, PoP, T, RH, sli_MB1000500, stopo, topo, gh_c, t_c, rh_c, wind_c,
+      p_SFC, PoP, T, RH, sli_MB0500, stopo, topo, gh_c, t_c, rh_c, wind_c,
       ctime):
         self.setupBLCube(t_FHAG2, t_BL030, t_BL3060, t_BL6090, t_BL90120,
           t_BL120150, t_BL150180, rh_FHAG2, rh_BL030, rh_BL3060, rh_BL6090,
@@ -374,17 +374,17 @@ class DGEXForecaster(Forecaster):
         #
         #  Where LI<2, make showers
         #
-        sli_MB1000500=where(less(sli_MB1000500,-18.0),10.0,sli_MB1000500)
+        sli_MB0500=where(less(sli_MB0500,-18.0),10.0,sli_MB0500)
 
-        convecMask = less(sli_MB1000500, 2)
+        convecMask = less(sli_MB0500, 2)
         wx=where(convecMask,wx+6,wx)
         #
         #  off the DGEX gridpoints need no weather
         #
         wxgrid = zeros(self._empty.shape, dtype = byte)
         keys = ['<NoCov>:<NoWx>:<NoInten>:<NoVis>:', ]
-#        wxgrid=where(less(sli_MB1000500,-18.0),0,wxgrid)
-        wxgrid[less(sli_MB1000500, -18.0)] = 0
+#        wxgrid=where(less(sli_MB0500,-18.0),0,wxgrid)
+        wxgrid[less(sli_MB0500, -18.0)] = 0
         #
         #  Match PoP, and remove non-occurring wx
         #
@@ -439,13 +439,13 @@ class DGEXForecaster(Forecaster):
         # the instability. SChc  for LI <-1, Chc for LI<-3,
         # Lkly for LI<-5, Def for LI<-8
         #
-        thunder = where(less_equal(sli_MB1000500, -1), 1, 0)
-#        thunder=where(less_equal(sli_MB1000500,-3),2,thunder)
-#        thunder=where(less_equal(sli_MB1000500,-5),3,thunder)
-#        thunder=where(less_equal(sli_MB1000500,-8),4,thunder)
-        thunder[less_equal(sli_MB1000500, -3)] = 2
-        thunder[less_equal(sli_MB1000500, -5)] = 3
-        thunder[less_equal(sli_MB1000500, -8)] = 4
+        thunder = where(less_equal(sli_MB0500, -1), 1, 0)
+#        thunder=where(less_equal(sli_MB0500,-3),2,thunder)
+#        thunder=where(less_equal(sli_MB0500,-5),3,thunder)
+#        thunder=where(less_equal(sli_MB0500,-8),4,thunder)
+        thunder[less_equal(sli_MB0500, -3)] = 2
+        thunder[less_equal(sli_MB0500, -5)] = 3
+        thunder[less_equal(sli_MB0500, -8)] = 4
 
         tprobs = ["None", "SChc", "Chc", "Lkly", "Def"]
         for ith in range(1, 5):
@@ -992,7 +992,7 @@ class DGEXForecaster(Forecaster):
       t_BL120150, t_BL150180, rh_FHAG2, rh_BL030, rh_BL3060, rh_BL6090,
       rh_BL90120, rh_BL120150, rh_BL150180, wind_FHAG10, wind_BL030,
       wind_BL3060, wind_BL6090, wind_BL90120, wind_BL120150, wind_BL150180,
-      p_SFC, sli_MB1000500, tp_SFC, stopo, topo, gh_c, t_c, rh_c, wind_c, ctime):
+      p_SFC, sli_MB0500, tp_SFC, stopo, topo, gh_c, t_c, rh_c, wind_c, ctime):
         self.setupBLCube(t_FHAG2, t_BL030, t_BL3060, t_BL6090, t_BL90120,
           t_BL120150, t_BL150180, rh_FHAG2, rh_BL030, rh_BL3060, rh_BL6090,
           rh_BL90120, rh_BL120150, rh_BL150180, wind_FHAG10, wind_BL030,
@@ -1004,9 +1004,9 @@ class DGEXForecaster(Forecaster):
         #  only thing we have is boundary layer lifted index
         #  set LAL to 2 if LI<0, 3 if LI<-3, 4 if LI<-5
         #
-        lal=where(less(sli_MB1000500, 0), lal+1, lal)
-        lal=where(less(sli_MB1000500, -3), lal+1, lal)
-        lal=where(less(sli_MB1000500, -5), lal+1, lal)
+        lal=where(less(sli_MB0500, 0), lal+1, lal)
+        lal=where(less(sli_MB0500, -3), lal+1, lal)
+        lal=where(less(sli_MB0500, -5), lal+1, lal)
         #
         #  Add more when RH at top of BL is greater than
         #  than 70% and RH at bottom of BL is less than 30
@@ -1019,7 +1019,7 @@ class DGEXForecaster(Forecaster):
         #
         V = logical_and(greater(BLR[5], 80), less(BLR[0], 20))
         lal=where(V,lal+1,lal)
-        lal=where(less(sli_MB1000500,-18.0),1,lal)
+        lal=where(less(sli_MB0500,-18.0),1,lal)
         return lal
 
     #---------------------------------------------------------------------------

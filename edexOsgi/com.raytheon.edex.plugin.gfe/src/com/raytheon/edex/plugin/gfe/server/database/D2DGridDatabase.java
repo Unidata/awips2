@@ -421,12 +421,13 @@ public class D2DGridDatabase extends VGridDatabase {
             }
         }
 
-        String d2dParmName = getD2DParmName(atts.getShort_name());
+        String gfeParmName = atts.getShort_name();
+        String d2dParmName = getD2DParmName(gfeParmName);
 
         D2DParm d2dParm = new D2DParm(pid, gpi, possibleInventorySlots,
                 d2dParmName);
         this.gfeParms.put(pid, d2dParm);
-        this.d2dParms.put(compositeName(atts.getShort_name(), level), d2dParm);
+        this.d2dParms.put(compositeName(gfeParmName, level), d2dParm);
     }
 
     /**
@@ -464,14 +465,17 @@ public class D2DGridDatabase extends VGridDatabase {
                     availableTimes.get(i));
         }
 
-        String uD2dParmName = getD2DParmName(uatts.getShort_name());
-        String vD2dParmName = getD2DParmName(vatts.getShort_name());
+        String uGfeParmName = uatts.getShort_name();
+        String uD2dParmName = getD2DParmName(uGfeParmName);
+
+        String vGfeParmName = vatts.getShort_name();
+        String vD2dParmName = getD2DParmName(vGfeParmName);
 
         D2DParm d2dParm = new D2DParm(pid, gpi, possibleInventorySlots,
                 uD2dParmName, vD2dParmName);
         this.gfeParms.put(pid, d2dParm);
-        this.d2dParms.put(compositeName(uatts.getShort_name(), level), d2dParm);
-        this.d2dParms.put(compositeName(vatts.getShort_name(), level), d2dParm);
+        this.d2dParms.put(compositeName(uGfeParmName, level), d2dParm);
+        this.d2dParms.put(compositeName(vGfeParmName, level), d2dParm);
     }
 
     /**
