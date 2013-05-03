@@ -18,11 +18,19 @@
 	<import resource="classpath:res/spring/ebxml-registry-dao.xml" />
 	<import resource="classpath:res/spring/ebxml-subscription.xml" />
 	<import resource="classpath:res/spring/ebxml-constants.xml" />
-
+	<import resource="classpath:res/spring/ebxml-thrift-client.xml" />
+	<import resource="classpath:res/spring/ebxml-xacml.xml" />
+	<import resource="classpath:res/spring/ebxml-impl.xml"/>
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
-	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<jaxws:server id="RegistryRequest"
+		serviceClass="com.raytheon.uf.common.registry.IRegistryRequestService" address="/registryRequest">
+		<jaxws:serviceBean>
+			<ref bean="routeWrapper" />
+		</jaxws:serviceBean>
+	</jaxws:server>
 
 	<!-- SOAP Service definitions -->
 	<jaxws:server id="QueryService" address="/queryManager">
