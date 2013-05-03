@@ -7,6 +7,16 @@
         class="com.raytheon.uf.edex.registry.ebxml.dao.EbxmlHsqlValidationStrategy" />
 
     <bean id="registrySubscriptionManagerInvoker"
-        class="com.raytheon.uf.edex.registry.ebxml.dao.DirectlyInvokeRegistrySubscriptionManager" />
+        class="com.raytheon.uf.edex.registry.ebxml.dao.DirectlyInvokeRegistrySubscriptionManager">
+        <constructor-arg ref="RegistrySubscriptionManager" />
+    </bean>
+            
+    <bean id="ebxmlSubscriptionsEnabled" class="java.lang.Boolean">
+        <constructor-arg value="true" />
+    </bean>
+    
+    <bean id="ebxmlEmailEnabled" class="java.lang.Boolean">
+        <constructor-arg value="true" />
+    </bean>
 
 </beans>
