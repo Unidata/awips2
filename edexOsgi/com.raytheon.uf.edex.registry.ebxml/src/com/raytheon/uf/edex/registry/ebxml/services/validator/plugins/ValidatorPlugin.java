@@ -30,12 +30,13 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
+import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
+import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator.ValidateObjectTypeResponse;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
@@ -48,6 +49,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013 1910       djohnson     Initial creation
+ * May 02, 2013 1910       djohnson     Extract reusable code to parent class.
  * 
  * </pre>
  * 
@@ -97,10 +99,7 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
         for (RegistryObjectType registryObject : originalObjects
                 .getRegistryObject()) {
             final T expectedType = castToExpectedType(registryObject);
-            final List<RegistryExceptionType> exceptions = validate(expectedType);
-            if (!CollectionUtil.isNullOrEmpty(exceptions)) {
-                allExceptions.addAll(exceptions);
-            }
+            validate(expectedType, allExceptions);
         }
 
         RegistryResponseStatus status = (allExceptions.isEmpty()) ? RegistryResponseStatus.SUCCESS
@@ -108,6 +107,90 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
         response.setStatus(status);
 
         return response;
+    }
+
+    /**
+     * Check a reference for validity. A null reference will return true,
+     * sub-classes should validate any required fields on their own.
+     * 
+     * @param reference
+     *            the reference to check
+     * @param exceptions
+     *            the exceptions collection
+     */
+    protected void validateReference(String reference,
+            List<RegistryExceptionType> exceptions) {
+        final boolean validReference = (reference == null) ? true
+                : registryObjectReferenceValidator.isValidReference(reference);
+        if (!validReference) {
+            exceptions.add(EbxmlExceptionUtil
+                    .createUnresolvedReferenceException(null, reference,
+                            statusHandler));
+        }
+    }
+
+    /**
+     * Check a reference for validity and its type. A null reference will return
+     * true, sub-classes should validate any required fields on their own.
+     * 
+     * @param reference
+     *            the reference to check
+     * @param expectedType
+     *            the expected registry object type
+     * @param exceptions
+     *            the exceptions collection
+     */
+    protected void validateReferenceOfType(String reference,
+            Class<? extends RegistryObjectType> expectedType,
+            List<RegistryExceptionType> exceptions) {
+        if (reference == null) {
+            return;
+        }
+        final ValidateObjectTypeResponse validationResponse = registryObjectReferenceValidator
+                .isValidObjectType(reference, expectedType);
+
+        switch (validationResponse) {
+        case DOESNT_EXIST:
+            exceptions.add(EbxmlExceptionUtil
+                    .createUnresolvedReferenceException(null, reference,
+                            statusHandler));
+            break;
+        case WRONG_TYPE:
+            exceptions.add(EbxmlExceptionUtil.createRegistryException(
+                    ValidationExceptionType.class,
+                    "",
+                    "Referenced object has the wrong type",
+                    "Referenced object with id [" + reference
+                            + "] is not of type ["
+                            + expectedType.getCanonicalName(),
+                    ErrorSeverity.ERROR, statusHandler));
+            break;
+        case VALID:
+            break;
+        }
+    }
+
+    /**
+     * Validate the value is not null. If it's null, an
+     * {@link InvalidRequestExceptionType} will be added to the exceptions.
+     * 
+     * @param value
+     *            the value
+     * @param registryObjectId
+     *            the registry object id
+     * @param exceptions
+     *            the exceptions
+     */
+    protected void validateNotNull(Object value, String fieldName,
+            String registryObjectId, List<RegistryExceptionType> exceptions) {
+        if (value == null) {
+            String exceptionMessage = "[" + fieldName
+                    + "] must not be null on registry object ["
+                    + registryObjectId + "]";
+            exceptions.add(EbxmlExceptionUtil.createRegistryException(
+                    ValidationExceptionType.class, "", exceptionMessage,
+                    exceptionMessage, ErrorSeverity.ERROR, statusHandler));
+        }
     }
 
     /**
@@ -147,6 +230,9 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
      * 
      * @param registryObject
      *            the object to validate
+     * @param exceptions
+     *            the collection to add exceptions to
      */
-    protected abstract List<RegistryExceptionType> validate(T registryObject);
+    protected abstract void validate(T registryObject,
+            List<RegistryExceptionType> exceptions);
 }

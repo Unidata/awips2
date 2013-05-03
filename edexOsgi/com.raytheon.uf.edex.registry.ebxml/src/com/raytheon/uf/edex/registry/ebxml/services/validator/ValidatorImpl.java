@@ -229,6 +229,10 @@ public class ValidatorImpl implements Validator {
             ValidateObjectsRequest validateRegistryObjects = new ValidateObjectsRequest();
             validateRegistryObjects.setOriginalObjects(registryObjectListType);
 
+            // TODO: Make sure to include any registry objects passed in,
+            // e.g. an AssociationType can create an association between two
+            // objects that were passed in with it
+
             // Find any specific validator for this type
             Validator validator = validatorPlugins
                     .getRegisteredObject(objectType);
