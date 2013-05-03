@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.validator;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+
 /**
  * Interface to validate a registry object reference.
  * 
@@ -29,6 +31,7 @@ package com.raytheon.uf.edex.registry.ebxml.services.validator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2013 1910       djohnson     Initial creation
+ * May 02, 2013 1910       djohnson     Add ability to validate registry object type.
  * 
  * </pre>
  * 
@@ -38,6 +41,13 @@ package com.raytheon.uf.edex.registry.ebxml.services.validator;
 public interface IRegistryObjectReferenceValidator {
 
     /**
+     * Return values for validating the type of a reference.
+     */
+    enum ValidateObjectTypeResponse {
+        VALID, DOESNT_EXIST, WRONG_TYPE;
+    }
+
+    /**
      * Check a reference for validity.
      * 
      * @param reference
@@ -45,5 +55,17 @@ public interface IRegistryObjectReferenceValidator {
      * @return true if a valid reference
      */
     boolean isValidReference(final String reference);
+
+    /**
+     * Check a reference to be of the correct type of registry object.
+     * 
+     * @param reference
+     *            the reference
+     * @param expectedType
+     *            the expected type
+     * @return true if the registry object is of the expected type
+     */
+    ValidateObjectTypeResponse isValidObjectType(String reference,
+            Class<? extends RegistryObjectType> expectedType);
 
 }
