@@ -22,13 +22,14 @@ package com.raytheon.uf.edex.registry.ebxml.services.validator.plugins;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
 
 /**
- * {@link Validator} plugin implementation for {@link OrganizationType}
+ * {@link Validator} plugin implementation for {@link AssociationType}
  * instances.
  * 
  * <pre>
@@ -37,8 +38,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectRef
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 23, 2013 1910       djohnson     Initial creation
- * May 02, 2013 1910       djohnson     Extracted reusable methods to parent class.
+ * Apr 25, 2013 1910       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -46,16 +46,14 @@ import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectRef
  * @version 1.0
  */
 
-public class OrganizationTypeValidator extends
-        ValidatorPlugin<OrganizationType> {
+public class AssociationTypeValidator extends ValidatorPlugin<AssociationType> {
 
     /**
      * Constructor.
      * 
      * @param registryObjectReferenceValidator
-     *            the registry object reference validator
      */
-    public OrganizationTypeValidator(
+    protected AssociationTypeValidator(
             IRegistryObjectReferenceValidator registryObjectReferenceValidator) {
         super(registryObjectReferenceValidator);
     }
@@ -64,19 +62,30 @@ public class OrganizationTypeValidator extends
      * {@inheritDoc}
      */
     @Override
-    protected Class<OrganizationType> getRegistryObjectTypeClass() {
-        return OrganizationType.class;
+    protected Class<AssociationType> getRegistryObjectTypeClass() {
+        return AssociationType.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void validate(OrganizationType registryObject,
+    protected void validate(AssociationType registryObject,
             List<RegistryExceptionType> exceptions) {
+        final String sourceObject = registryObject.getSourceObject();
+        final String targetObject = registryObject.getTargetObject();
+        final String type = registryObject.getType();
 
-        validateReference(registryObject.getPrimaryContact(), exceptions);
+        final String registryObjectId = registryObject.getId();
+        validateNotNull(sourceObject, "sourceObject", registryObjectId,
+                exceptions);
+        validateNotNull(targetObject, "targetObject", registryObjectId,
+                exceptions);
+        validateNotNull(type, "type", registryObjectId, exceptions);
 
+        validateReference(sourceObject, exceptions);
+        validateReference(targetObject, exceptions);
+        validateReferenceOfType(type, ClassificationNodeType.class, exceptions);
     }
 
 }
