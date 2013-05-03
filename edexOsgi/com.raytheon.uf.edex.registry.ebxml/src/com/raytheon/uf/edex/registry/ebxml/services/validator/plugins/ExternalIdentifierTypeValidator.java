@@ -22,13 +22,13 @@ package com.raytheon.uf.edex.registry.ebxml.services.validator.plugins;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Validator;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExternalIdentifierType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
 
 /**
- * {@link Validator} plugin implementation for {@link OrganizationType}
+ * {@link Validator} plugin implementation for {@link ExternalIdentifierType}
  * instances.
  * 
  * <pre>
@@ -37,8 +37,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectRef
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 23, 2013 1910       djohnson     Initial creation
- * May 02, 2013 1910       djohnson     Extracted reusable methods to parent class.
+ * Apr 25, 2013 1910       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -46,16 +45,15 @@ import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectRef
  * @version 1.0
  */
 
-public class OrganizationTypeValidator extends
-        ValidatorPlugin<OrganizationType> {
+public class ExternalIdentifierTypeValidator extends
+        ValidatorPlugin<ExternalIdentifierType> {
 
     /**
      * Constructor.
      * 
      * @param registryObjectReferenceValidator
-     *            the registry object reference validator
      */
-    public OrganizationTypeValidator(
+    protected ExternalIdentifierTypeValidator(
             IRegistryObjectReferenceValidator registryObjectReferenceValidator) {
         super(registryObjectReferenceValidator);
     }
@@ -64,19 +62,27 @@ public class OrganizationTypeValidator extends
      * {@inheritDoc}
      */
     @Override
-    protected Class<OrganizationType> getRegistryObjectTypeClass() {
-        return OrganizationType.class;
+    protected Class<ExternalIdentifierType> getRegistryObjectTypeClass() {
+        return ExternalIdentifierType.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void validate(OrganizationType registryObject,
+    protected void validate(ExternalIdentifierType registryObject,
             List<RegistryExceptionType> exceptions) {
+        final String registryObjectId = registryObject.getId();
+        final String identificationScheme = registryObject
+                .getIdentificationScheme();
 
-        validateReference(registryObject.getPrimaryContact(), exceptions);
+        validateNotNull(registryObject.getValue(), "value", registryObjectId,
+                exceptions);
+        validateNotNull(identificationScheme, "identificationScheme",
+                registryObjectId, exceptions);
 
+        validateReference(identificationScheme, exceptions);
+        validateReference(registryObject.getRegistryObject(), exceptions);
     }
 
 }
