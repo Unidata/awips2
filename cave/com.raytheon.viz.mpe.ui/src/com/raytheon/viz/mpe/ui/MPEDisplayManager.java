@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.mpe.ui;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -99,7 +100,8 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * ------------ ---------- ----------- --------------------------
  * Dec 18, 2012            mschenke     Initial creation
  * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
- * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data.
+ * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data, 
+ *                                      fix formatting of legend for Base field Height.
  * 
  * </pre>
  * 
@@ -979,6 +981,13 @@ public class MPEDisplayManager {
                 APPLICATION_NAME, cvUse, durationInHrs * 60 * 60, "E",
                 pColorSetGroup).toArray(new Colorvalue[0]);
 
+        DisplayFieldData displayField = DisplayFieldData.fromString(cvUse);
+
+        if (displayField == DisplayFieldData.Height) {
+            params.setFormatString("0");
+        }
+        DecimalFormat format = new DecimalFormat(params.getFormatString());
+
         int numColors = colorSet.length;
         float[] red = new float[numColors];
         float[] green = new float[numColors];
@@ -1002,6 +1011,9 @@ public class MPEDisplayManager {
                 // display
                 entry.setDisplayValue(dataToDisplay
                         .convert((short) displayToData.convert(threshold)));
+                if (displayField != DisplayFieldData.Index) {
+                    entry.setLabel(format.format(threshold));
+                }
             }
             entry.setPixelValue((double) i);
 
@@ -1022,7 +1034,7 @@ public class MPEDisplayManager {
         params.setColorMapMax(params.getDataMax());
 
         // Check for Index parameter and set labels to radar sites
-        if (DisplayFieldData.fromString(cvUse) == DisplayFieldData.Index) {
+        if (displayField == DisplayFieldData.Index) {
             MPERadarLoc[] radars = MPEDataManager.getInstance().getRadars()
                     .toArray(new MPERadarLoc[0]);
             DataMappingEntry[] entries = dm.getEntries().toArray(
@@ -1037,7 +1049,7 @@ public class MPEDisplayManager {
                     entries[i].setLabel("");
                 }
             }
-        }
+         }
 
         return params;
     }
