@@ -204,23 +204,14 @@ public class WrapUtil implements ICommonPatterns {
 
             if (bestDelim != null) {
                 failed = false;
-                int next = indexIgnoringLockMarkers(line,
-                        bestP + bestDelim.length(), 0);
+                int next = bestP + bestDelim.length();
                 int segmentEnd = " ".equals(bestDelim) ? bestP : next;
                 appendRTrim(line, start, segmentEnd, sb);
+                start = splitEndOfLine(line, next, inBullet, sb);
 
-                // Remove any leading space at the start of the next line.
-                while (next < line.length() && line.charAt(next) == ' ')
-                    next = indexIgnoringLockMarkers(line, next, 1);
-
-                if (next < line.length()) {
-                    sb.append('\n');
-                    if (inBullet) {
-                        sb.append(INDENT);
-                        allowLength = maxLength - INDENT.length();
-                    }
+                if (inBullet) {
+                    allowLength = maxLength - INDENT.length();
                 }
-                start = next;
             } else if (! failed) {
                 /*
                  * Failed to wrap before the margin. Try again, wrapping the
@@ -315,5 +306,55 @@ public class WrapUtil implements ICommonPatterns {
             } else
                 break;
         }
+    }
+
+    /**
+     * Handle whitespace and lock markers between line breaks. Adds line break
+     * and indentation for the next line as necessary.
+     * 
+     * <ul>
+     * <li>If there is nothing but whitespace and lock markers remaining, append
+     * all of it to the current line so as to not create an extra empty blank
+     * line.</li>
+     * <li>If there is an end-lock marker, include it on the current line and
+     * break after it.</li>
+     * <li>If there is a start-lock marker, break before it.
+     * </ul>
+     * 
+     * @return The index in text at which processing for the next line should
+     *         begin.
+     */
+    private static int splitEndOfLine(String text, int start, boolean inBullet, StringBuilder sb) {
+        int goodBreak = start;
+        int i = start;
+
+        while (i < text.length()) {
+            if (Character.isWhitespace(text.charAt(i))) {
+                ++i;
+            } else if (text.startsWith(LOCK_START, i)) {
+                goodBreak = i;
+                i += LOCK_START.length();
+                break;
+            } else if (text.startsWith(LOCK_END, i)) {
+                i += LOCK_END.length();
+                goodBreak = i;
+                break;
+            } else
+                break;
+        }
+
+        if (i >= text.length())
+            goodBreak = i;
+        if (goodBreak >= start) {
+            appendRTrim(text, start, goodBreak, sb);
+        }
+        if (i < text.length()) {
+            sb.append('\n');
+            if (inBullet) {
+                sb.append(INDENT);
+            }
+            appendRTrim(text, goodBreak, i, sb);
+        }
+        return i;
     }
 }
