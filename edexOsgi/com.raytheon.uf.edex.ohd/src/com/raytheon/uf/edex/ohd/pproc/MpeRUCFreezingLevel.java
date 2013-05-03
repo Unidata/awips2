@@ -51,7 +51,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.dat.utils.FreezingLevel;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -65,6 +64,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 19, 2011          dhladky    Initial Creation.
  * Oct 09, 2012 15168    wkwock     Fix incorrect values.
  * Jan 10, 2013 1448     bgonzale   Made methods that are used internally private.
+ * Apr 17, 2013 15914    snaples    Updated constructor to check for and 
+ *                                  create stationFilePath directory if not found.
  * 
  * </pre>
  * 
@@ -96,6 +97,15 @@ public class MpeRUCFreezingLevel {
     public static String[] models = new String[] { "RUC236" };
 
     public MpeRUCFreezingLevel() {
+    	// DR 15914
+    	// make sure directory exists, if not make directory before 
+        // opening file.
+    	File pn = new File(stationFilePath);
+        if (pn.exists() == false) {
+            pn.mkdir();
+        }
+        pn = null;
+        
         this.stationFile = new File(stationFilePath+"/"+mpeSiteId+"_freezing_station_list");
 
         // correct env vairiable dqcPreprocessorBasetime if needed. Default to 12z

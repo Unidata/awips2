@@ -58,6 +58,8 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
+import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GridSpacing;
@@ -170,6 +172,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/10/2013   DR 16044   D. Friedman Fix NPE in getAllFipsInArea.
  * 04/11/2013   1894       jsanchez    Kept tracked of the currently loaded custom maps.
  * 04/12/1013   DR 16045   Qinglu Lin  Updated AreaHatcher's run() by calling removeDuplicateCoordinate().
+ * 04/24/2013   1943       jsanchez    Replaced used of areaConfig with areaSource.
  * </pre>
  * 
  * @author mschenke
@@ -2562,8 +2565,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private String getFips(GeospatialData data) {
-        return (String) data.attributes.get(configuration.getAreaConfig()
-                .getFipsField());
+        for (AreaSourceConfiguration areaSource : configuration
+                .getAreaSources()) {
+            if (areaSource.getType() == AreaType.HATCHING) {
+                return (String) data.attributes.get(areaSource.getFipsField());
+            }
+        }
+        return null;
     }
 
     private String getFips(Geometry g) {
