@@ -50,6 +50,7 @@ import com.raytheon.viz.warnings.DateUtil;
  * May 6, 2008				bwoodle	    Initial creation
  * Dec 28 2012  DR15599     mgamazaychikov  Updated method getListCounties to fix the problem
  * 											with generated list of counties.
+ * Apr 25,2013  1877        jsanchez    Sorted the UGC line for cancellations.
  * 
  * </pre>
  * 
@@ -170,6 +171,7 @@ public class FipsUtil {
             }
         }
 
+        Collections.sort(countiesOrZones);
         rval.append(simplifyHeader(getUgcLine(countiesOrZones)));
         rval.append(du
                 .format(endtime, new SimpleDateFormat("ddHHmm"), interval)
@@ -362,12 +364,12 @@ public class FipsUtil {
         }
 
         /*
-         * DR15599 - completely re-did how rval is calculated. 
+         * DR15599 - completely re-did how rval is calculated.
          */
         String[] lines = matchStr.split("[\n]");
         matchStr = "";
         for (String line : lines) {
-        	matchStr += line;
+            matchStr += line;
         }
 
         String[] ranges = matchStr.split("[-]");
@@ -376,12 +378,12 @@ public class FipsUtil {
         for (String range : ranges) {
             if (Character.isLetter(range.charAt(0))) {
                 /*
-                 * range starts with a character - get the new 
-                 * state or marine zone name
+                 * range starts with a character - get the new state or marine
+                 * zone name
                  */
                 if (curState != null) {
-                    for (String zone: curList) {
-                    	rval.add(curState+zone);
+                    for (String zone : curList) {
+                        rval.add(curState + zone);
                     }
                 }
                 curState = range.substring(0, 3);
@@ -406,8 +408,8 @@ public class FipsUtil {
             }
         }
         if (curState != null) {
-            for (String zone: curList) {
-            	rval.add(curState+zone);
+            for (String zone : curList) {
+                rval.add(curState + zone);
             }
         }
         return rval;
