@@ -1,0 +1,265 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Test if we're running on cygwin.
+cygwin=false
+if [[ "$(uname -a | fgrep Cygwin)" != "" ]]; then
+  cygwin=true
+fi
+
+die() {
+  if [[ $1 = -usage ]]; then
+    shift
+    usage=true
+  else
+    usage=false
+  fi
+  echo "$@"
+  $usage && echo
+  $usage && usage
+  exit 1
+}
+
+OFF=0
+WARN=1
+INFO=2
+
+if [ -z "$QPID_RUN_LOG" ]; then
+    QPID_RUN_LOG=$OFF
+fi
+
+log() {
+  if [ "$1" -le "$QPID_RUN_LOG" ]; then
+    shift
+    echo "$@"
+  fi
+}
+
+if [ -z $AMQJ_LOGGING_LEVEL ]; then
+    export AMQJ_LOGGING_LEVEL=info
+fi
+
+#Set to help us get round the manifold problems of ps/pgrep on various
+#platforms which gather up to prevent qpid_stop from working .....
+if [ -z "$QPID_PNAME" ]; then
+    export QPID_PNAME=" -DPNAME=QPBRKR"
+fi
+
+if [ -z "$QPID_HOME" ]; then
+    export QPID_HOME=$(dirname $(dirname $(readlink -f $0)))
+    export PATH=${PATH}:${QPID_HOME}/bin
+fi
+
+if [ -z "$QPID_WORK" ]; then
+    log $INFO Setting QPID_WORK to $HOME as default
+    QPID_WORK=$HOME
+fi
+
+if [ -z "$JAVA" ]; then
+    JAVA=java
+fi
+
+if $cygwin; then
+  QPID_HOME=$(cygpath -w $QPID_HOME)
+  QPID_WORK=$(cygpath -w $QPID_WORK)
+fi
+
+#Set the default system properties that we'll use now that they have
+#all been initialised
+SYSTEM_PROPS="-Damqj.logging.level=$AMQJ_LOGGING_LEVEL -DQPID_HOME=$QPID_HOME -DQPID_WORK=$QPID_WORK"
+
+#If logprefix or logsuffix set to use PID make that happen
+#Otherwise just pass the value through for these props
+#Using X character to avoid probs with empty strings
+if [ -n "$QPID_LOG_PREFIX" ]; then
+    if [ "X$QPID_LOG_PREFIX" = "XPID" ]; then
+        log $INFO Using pid in qpid log name prefix
+        LOG_PREFIX=" -Dlogprefix=$$"
+    else
+        log $INFO Using qpid logprefix property
+        LOG_PREFIX=" -Dlogprefix=$QPID_LOG_PREFIX"
+    fi
+    SYSTEM_PROPS="${SYSTEM_PROPS} ${LOG_PREFIX}"
+fi
+
+if [ -n "$QPID_LOG_SUFFIX" ]; then
+    if [ "X$QPID_LOG_SUFFIX" = "XPID" ]; then
+        log $INFO Using pid in qpid log name suffix
+        LOG_SUFFIX=" -Dlogsuffix=$$"
+    else
+        log $INFO Using qpig logsuffix property
+        LOG_SUFFIX=" -Dlogsuffix=$QPID_LOG_SUFFIX"
+    fi
+    SYSTEM_PROPS="${SYSTEM_PROPS} ${LOG_SUFFIX}"
+fi
+
+log $INFO System Properties set to $SYSTEM_PROPS
+log $INFO QPID_OPTS set to $QPID_OPTS
+
+program=$(basename $0)
+sourced=${BASH_SOURCE[0]}
+if [[ -z ${sourced:-''} ]]; then
+  sourced=$(which qpid-run) || ${QPID_HOME}/bin/qpid-run
+fi
+
+usage() {
+  echo Usage: $program ... "[-run:<option>]" ...
+  echo
+  echo Options:
+  egrep -B 1 "^\s*#USAGE: " ${sourced} |\
+      sed "s/#USAGE:/       /" |\
+      sed "s/-run:\(.*\))/-run:\1/" |\
+      sed "s/-run:\(.*\)=\*/-run:\1=<value>/" |\
+      sed "s/^--$//"
+}
+
+export EXTERNAL_CLASSPATH=$CLASSPATH
+unset CLASSPATH
+
+#Use QPID_CLASSPATH if set
+if [ -n "$QPID_CLASSPATH" ]; then
+    export CLASSPATH=$QPID_CLASSPATH
+    log $INFO "Using QPID_CLASSPATH" $QPID_CLASSPATH
+else
+    log $WARN "Warning: Qpid classpath not set. CLASSPATH must include qpid jars."
+fi
+
+#Use QPID_JAVA_GC if set
+if [ -n "$QPID_JAVA_GC" ]; then
+    export JAVA_GC=$QPID_JAVA_GC
+    log $INFO "Using QPID_JAVA_GC setting" $QPID_JAVA_GC
+else
+    log $INFO "Info: QPID_JAVA_GC not set. Defaulting to JAVA_GC" $JAVA_GC
+fi
+
+
+#Use QPID_JAVA_MEM if set
+if [ -n "$QPID_JAVA_MEM" ]; then
+    export JAVA_MEM=$QPID_JAVA_MEM
+    log $INFO "Using QPID_JAVA_MEM setting" $QPID_JAVA_MEM
+else
+    log $INFO "Info: QPID_JAVA_MEM not set. Defaulting to JAVA_MEM" $JAVA_MEM
+fi
+
+declare -a RUN_ARGS JAVA_ARGS
+for arg in "$@"; do
+  if [[ $arg == -run:* ]]; then
+    RUN_ARGS[${#RUN_ARGS[@]}]="$arg"
+  else
+    JAVA_ARGS[${#JAVA_ARGS[@]}]="$arg"
+  fi
+done
+
+# this defines the default behavior, it may be modified during option
+# processing below
+DISPATCH() {
+  if $debug; then
+    echo "CLASSPATH=${CLASSPATH}"
+    echo "${COMMAND[@]}"
+  fi
+
+  exec "${COMMAND[@]}"
+}
+
+exclusive() {
+  if [ -z "$PREVIOUS_ARGS" ]; then
+    PREVIOUS_ARGS=$1
+  else
+    PREVIOUS_ARGS="${PREVIOUS_ARGS}, $1"
+    DISPATCH() {
+      die -usage "you must choose one of: $PREVIOUS_ARGS"
+    }
+  fi
+}
+
+debug=false
+
+for arg in "${RUN_ARGS[@]}"; do
+  case $arg in
+    -run:debug)
+#USAGE: print the classpath and command before running it
+      debug=true
+      ;;
+    -run:jpda)
+#USAGE: adds debugging options to the java command, use
+#USAGE: JPDA_TRANSPORT and JPDA_ADDRESS to customize the debugging
+#USAGE: behavior and use JPDA_OPTS to override it entirely
+      if [ -z "$JPDA_OPTS" ]; then
+        JPDA_OPTS="-Xdebug -Xrunjdwp:transport=${JPDA_TRANSPORT:-dt_socket},address=${JPDA_ADDRESS:-8000},server=y,suspend=n"
+      fi
+      QPID_OPTS="${QPID_OPTS} ${JPDA_OPTS}"
+      ;;
+    -run:external-classpath=*)
+#USAGE: controls how the CLASSPATH environment variable is used by
+#USAGE: this script, value can be one of ignore (the default), first,
+#USAGE: last, and only
+      case $arg in
+        *=ignore)
+          # do nothing
+          ;;
+        *=first)
+          CLASSPATH=$EXTERNAL_CLASSPATH:$CLASSPATH
+          ;;
+        *=last)
+          CLASSPATH=$CLASSPATH:$EXTERNAL_CLASSPATH
+          ;;
+        *=only)
+          CLASSPATH=$EXTERNAL_CLASSPATH
+          ;;
+        *)
+          die -usage $(echo $arg | sed "s/=/: invalid value '/")\'
+         ;;
+      esac
+      ;;
+    -run:print-classpath)
+#USAGE: print the classpath
+      DISPATCH() {
+        echo $CLASSPATH
+      }
+      exclusive $arg
+      ;;
+    -run:print-command)
+#USAGE: print the command
+      DISPATCH() {
+        echo "${COMMAND[@]}"
+      }
+      exclusive $arg
+      ;;
+    -run:help)
+#USAGE: print this message
+      DISPATCH() {
+        usage
+      }
+      exclusive $arg
+      ;;
+    *)
+      die -usage "unrecognized -run option '$arg'"
+      ;;
+  esac
+done
+
+if $cygwin; then
+  CLASSPATH=$(cygpath -w -p $CLASSPATH)
+  JAVA=$(cygpath -u $JAVA)
+fi
+
+COMMAND=($JAVA $JAVA_VM $QPID_PNAME $JAVA_GC $JAVA_MEM $SYSTEM_PROPS $JAVA_OPTS $QPID_OPTS "${JAVA_ARGS[@]}")
+
+DISPATCH
