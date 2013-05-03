@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  * Apr 15, 2013 1693       djohnson     Initial creation
  * Apr 18, 2013 1693       djohnson     More tests verifying spec compliance..
  * Apr 23, 2013 1910       djohnson     More checkReference tests.
+ * May 02, 2013 1910       djohnson     Add validator plugins spring file.
  * 
  * </pre>
  * 
@@ -80,6 +81,8 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
         SpringFiles.EBXML_XML, SpringFiles.EBXML_IMPL_XML,
         SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
         SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
+        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
+        SpringFiles.EBXML_SUBSCRIPTION_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
         SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
@@ -114,8 +117,7 @@ public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
      * @throws MsgRegistryException
      */
     @Test
-    public void createOnlyWithExistantObjectFails()
-            throws MsgRegistryException {
+    public void createOnlyWithExistantObjectFails() throws MsgRegistryException {
 
         SubmitObjectsRequest submitObjectsRequest = createSubmitObjectsRequest(
                 MY_REGISTRY_OBJECT_ID, REGISTRY_OBJECT_TYPE, Mode.CREATE_ONLY);
