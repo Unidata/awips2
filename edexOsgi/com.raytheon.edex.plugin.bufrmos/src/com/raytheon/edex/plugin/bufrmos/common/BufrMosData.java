@@ -59,7 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 20080221            862 jkorman     Initial Coding.
  * 02/06/09     1990       bphillip    removed populateDataStore method
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * Mar 02, 2013 1970       bgonzale    Removed Table annotation, changed from Entity
+ * May 02, 2013 1970       bgonzale    Removed Table annotation, changed from Entity
  *                                     annotation to MappedSuperClass.
  * 
  * </pre>

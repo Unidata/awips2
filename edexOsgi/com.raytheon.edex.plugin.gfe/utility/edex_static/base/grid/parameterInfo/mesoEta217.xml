@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  REVISION HISTORY
+  
+  Date         Ticket#    Engineer    Description
+  04/17/2013    #1913     randerso    Corrected heli level
+ -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>0</fcst>
@@ -138,9 +144,9 @@
     <valid_range>1000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>FHAG 0&gt;30</levelsDesc>
+    <levelsDesc>FHAG 3000</levelsDesc>
     <levels>
-      <level>FHAG030</level>
+      <level>FHAG03000</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
@@ -363,9 +369,9 @@
     <valid_range>20.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>MB 50&gt;100</levelsDesc>
+    <levelsDesc>MB 0&gt;500</levelsDesc>
     <levels>
-      <level>MB50100</level>
+      <level>MB0500</level>
     </levels>
   </gridParameterInfo>
 </gridParamInfo>
