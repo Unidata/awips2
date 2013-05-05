@@ -29,10 +29,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.UFStatus;
@@ -51,8 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 23, 2011            mschenke     Initial creation
- * 
+ * Jun 23, 2011            mschenke    Initial creation
+ * Apr 12, 2013 1903       rjpeter     Fix allocateLock freezing out other lock requests.
  * </pre>
  * 
  * @author mschenke
@@ -64,14 +62,26 @@ public class FileLocker {
     private static class LockWaiter {
     }
 
+    private static enum LockState {
+        ACQUIRING, IN_USE, RELEASED
+    }
+
     private static class LockedFile {
-        Type lockType;
+        final Type lockType;
 
-        Thread lockingThread;
+        final Thread lockingThread;
 
-        Set<Object> lockers = new HashSet<Object>();
+        final List<Object> lockers = new ArrayList<Object>();
 
         File lockFile;
+
+        LockState lockState = LockState.ACQUIRING;
+
+        LockedFile(Thread thread, Type type, Object locker) {
+            lockType = type;
+            lockingThread = thread;
+            lockers.add(locker);
+        }
     }
 
     public static enum Type {
@@ -81,10 +91,10 @@ public class FileLocker {
     private static final int MAX_WAIT = 30 * 1000;
 
     /** Map of waiters on threads */
-    private Map<File, Deque<LockWaiter>> waiters = new HashMap<File, Deque<LockWaiter>>();
+    private final Map<File, Deque<LockWaiter>> waiters = new HashMap<File, Deque<LockWaiter>>();
 
     /** Map of locks we have on files */
-    private Map<File, LockedFile> locks = new HashMap<File, LockedFile>();
+    private final Map<File, LockedFile> locks = new HashMap<File, LockedFile>();
 
     /** Singleton instance of FileLocker class */
     private static FileLocker instance = new FileLocker();
@@ -181,22 +191,27 @@ public class FileLocker {
         synchronized (locks) {
             lock = locks.get(file);
             if (lock == null) {
-                lock = new LockedFile();
+                lock = new LockedFile(myThread, type, locker);
                 locks.put(file, lock);
                 grabbedLock = true;
             }
         }
 
-        synchronized (lock) {
-            if (grabbedLock) {
-                // We were able to grab the lock file ourselves
-                return allocateLock(locker, file, type, myThread, lock);
-            } else if (lock.lockingThread == myThread
-                    || (type == lock.lockType && type == Type.READ)) {
-                // Locked on same thread to avoid indefinite waiting. If
-                // there are issues on how locked, they will be known
-                lock.lockers.add(locker);
-                return true;
+        if (grabbedLock) {
+            // We were able to grab the lock file ourselves
+            return allocateLock(file, lock);
+        } else {
+            synchronized (lock) {
+                // if the lock file has been obtained and either the thread is
+                // the same as the one that obtained the lock or the original
+                // lock and this request are both read locks
+                if ((lock.lockState == LockState.IN_USE)
+                        && ((lock.lockingThread == myThread) || ((type == Type.READ) && (type == lock.lockType)))) {
+                    // TODO: This is not safe as another thread could have a
+                    // read lock and we may clobber the read
+                    lock.lockers.add(locker);
+                    return true;
+                }
             }
         }
 
@@ -216,83 +231,121 @@ public class FileLocker {
                 lws.add(waiter);
             }
 
-            while (true) {
-                // Sleep
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    // Ignore
-                }
+            boolean waiterRemoved = false;
 
-                grabbedLock = false;
-                synchronized (locks) {
-                    lock = locks.get(file);
-                    if (lock == null) {
-                        // File ready for grabbing
-                        synchronized (lws) {
-                            if (lws.peek() == waiter) {
-                                lws.poll();
-                                lock = new LockedFile();
-                                locks.put(file, lock);
-                                grabbedLock = true;
+            try {
+                while (true) {
+                    // Sleep
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+
+                    grabbedLock = false;
+                    synchronized (locks) {
+                        lock = locks.get(file);
+                        if (lock == null) {
+                            // File ready for grabbing
+                            synchronized (lws) {
+                                if (lws.peek() == waiter) {
+                                    lws.poll();
+                                    waiterRemoved = true;
+                                    lock = new LockedFile(myThread, type,
+                                            locker);
+                                    locks.put(file, lock);
+                                    grabbedLock = true;
+                                }
                             }
                         }
-                    } else if (lock.lockFile != null) {
+                    }
+
+                    if (grabbedLock) {
+                        // We were able to grab the lock file ourselves
+                        return allocateLock(file, lock);
+                    } else if (lock != null) {
                         synchronized (lock) {
-                            if ((System.currentTimeMillis() - lock.lockFile
-                                    .lastModified()) > MAX_WAIT) {
-                                System.err
-                                        .println("Releasing lock since: "
-                                                + "Lock has been allocated for more than "
-                                                + (MAX_WAIT / 1000) + "s");
-                                locks.remove(file);
+                            switch (lock.lockState) {
+                            case IN_USE:
+                                if ((type == Type.READ)
+                                        && (type == lock.lockType)) {
+                                    // A different waiter grabbed it for
+                                    // reading, we can read it also
+                                    lock.lockers.add(locker);
+                                    return true;
+                                } else {
+                                    long curTime = System.currentTimeMillis();
+                                    long lastMod = lock.lockFile.lastModified();
+                                    if ((curTime - lastMod) > MAX_WAIT) {
+                                        System.err
+                                                .println("Releasing lock: "
+                                                        + "Lock has been allocated for  "
+                                                        + ((curTime - lastMod) / 1000)
+                                                        + "s on file "
+                                                        + file.getPath());
+                                        locks.remove(file);
+                                    }
+                                }
+                                break;
+                            // ACUIRING - NOOP wait for lock to be acquired
+                            // RELEASED - loop again and check if next waiter
                             }
                         }
                     }
                 }
-                if (grabbedLock) {
-                    // We were able to grab the lock file ourselves
-                    allocateLock(locker, file, type, myThread, lock);
-                    return true;
+            } finally {
+                if (!waiterRemoved) {
+                    synchronized (lws) {
+                        lws.remove(waiter);
+                    }
                 }
             }
         }
+
         return false;
     }
 
     private void unlockInternal(Object locker, File file) {
         try {
+            boolean fileUnlocked = false;
             LockedFile lock = null;
             // Get the Lock
             synchronized (locks) {
                 lock = locks.get(file);
-                // Return early if we never locked or have already been
-                // unlocked
-                if (lock == null
-                        || (locker != null && lock.lockers.contains(locker) == false)) {
+                // Return early if we have never locked
+                if ((lock == null) || (locker == null)) {
                     return;
                 }
             }
 
-            // Lock has locker and is not null
             synchronized (lock) {
-                lock.lockers.remove(locker);
-                if (lock.lockers.size() == 0) {
-                    // No more lockers, remove lock and release
-                    locks.remove(file);
-                    unallocateLock(lock);
+                if (lock.lockState == LockState.IN_USE) {
+                    lock.lockers.remove(locker);
+
+                    if (lock.lockers.isEmpty()) {
+                        // No more lockers, remove lock and release
+                        lock.lockState = LockState.RELEASED;
+                        unallocateLock(lock);
+                        fileUnlocked = true;
+                    }
                 }
             }
 
-            // Check for waiters on the file
-            synchronized (waiters) {
-                Deque<LockWaiter> lws = waiters.get(file);
-                if (lws == null) {
-                    waiters.remove(file);
-                } else {
-                    synchronized (lws) {
-                        if (lws.size() == 0) {
-                            waiters.remove(file);
+            if (fileUnlocked) {
+                synchronized (locks) {
+                    locks.remove(file);
+                }
+
+                // Check for waiters on the file
+                synchronized (waiters) {
+                    Deque<LockWaiter> lws = waiters.get(file);
+                    if (lws == null) {
+                        waiters.remove(file);
+                    } else {
+                        synchronized (lws) {
+                            if (lws.isEmpty()) {
+                                waiters.remove(file);
+                            }
                         }
                     }
                 }
@@ -307,20 +360,13 @@ public class FileLocker {
      * Function to actually allocate the lock, this needs to be cross process
      * aware and wait until other processes are finished with the file
      * 
-     * @param locker
      * @param file
-     * @param type
-     * @param thread
+     * @param lock
      * @return
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private boolean allocateLock(Object locker, File file, Type type,
-            Thread thread, LockedFile lock) {
-        // Set tht thread of the lock and add lock allocator
-        lock.lockingThread = Thread.currentThread();
-        lock.lockers.add(locker);
-
+    private boolean allocateLock(File file, LockedFile lock) {
         // Get the lock directory, make sure it is not already taken
         File parentDir = file.getParentFile();
 
@@ -333,23 +379,40 @@ public class FileLocker {
         boolean gotLock = false;
         File lockFile = new File(parentDir, "." + file.getName() + "_LOCK");
         try {
-            long waitInterval = 500;
-            long tryCount = MAX_WAIT / waitInterval;
+            // start with a moderate wait
+            long waitInterval = 100;
+            long curTime = System.currentTimeMillis();
+            long maxWaitTime = curTime + MAX_WAIT;
             long fileTime;
-            for (int i = 0; !gotLock && i < tryCount; ++i) {
+            while ((curTime = System.currentTimeMillis()) < maxWaitTime) {
                 gotLock = lockFile.createNewFile()
-                        || ((fileTime = lockFile.lastModified()) > 0 && (System
-                                .currentTimeMillis() - fileTime) > MAX_WAIT);
-                if (!gotLock) {
+                        || (((fileTime = lockFile.lastModified()) > 0) && ((curTime - fileTime) > MAX_WAIT));
+
+                if (gotLock) {
+                    break;
+                } else {
                     try {
                         Thread.sleep(waitInterval);
                     } catch (InterruptedException e) {
                         // Ignore
                     }
+
+                    // every wait reduces the next wait down to minimum wait of
+                    // 10 milliseconds
+                    if (waitInterval > 10) {
+                        waitInterval -= 10;
+                    }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            UFStatus.getHandler().handle(Priority.PROBLEM,
+                    "Error obtaining file lock: " + file, e);
+        } finally {
+            synchronized (lock) {
+                lock.lockFile = lockFile;
+                lock.lockFile.setLastModified(System.currentTimeMillis());
+                lock.lockState = LockState.IN_USE;
+            }
         }
 
         if (!gotLock) {
@@ -357,14 +420,14 @@ public class FileLocker {
                     + ", returning anyway");
             Thread.dumpStack();
         }
-        lockFile.setLastModified(System.currentTimeMillis());
-        lock.lockFile = lockFile;
+
         return gotLock;
     }
 
     private void unallocateLock(LockedFile lock) throws IOException {
         if (lock.lockFile != null) {
             lock.lockFile.delete();
+            lock.lockFile = null;
         }
     }
 
@@ -381,8 +444,8 @@ public class FileLocker {
             String arg = args[i];
             if (arg.startsWith("-")) {
                 // we have a key
-                if (args.length > (i + 1)
-                        && args[i + 1].startsWith("-") == false) {
+                if ((args.length > (i + 1))
+                        && (args[i + 1].startsWith("-") == false)) {
                     argumentMap.put(arg.substring(1), args[i + 1]);
                     ++i;
                 } else {
@@ -398,12 +461,13 @@ public class FileLocker {
         String fileToLock = argumentMap.get("f");
         String threads = argumentMap.get("tc");
         final boolean verbose = argumentMap.get("v") != null;
-        final boolean verboseCount = argumentMap.get("vc") != null || verbose;
-        final boolean verboseErrors = argumentMap.get("ve") != null || verbose;
+        final boolean verboseCount = (argumentMap.get("vc") != null) || verbose;
+        final boolean verboseErrors = (argumentMap.get("ve") != null)
+                || verbose;
         String outputAtCount = argumentMap.get("c");
         String iterVal = argumentMap.get("i");
 
-        if (fileToLock == null || argumentMap.get("help") != null) {
+        if ((fileToLock == null) || (argumentMap.get("help") != null)) {
             System.out.println("Required argument -f <pathToFile>"
                     + " specifies the file to use in the program");
             System.out.println("-help prints out this help message");
@@ -458,6 +522,7 @@ public class FileLocker {
         final int[] errors = new int[1];
         final File toLock = new File(fileToLock);
         List<Runnable> runnables = new ArrayList<Runnable>(threadCount);
+        final Object lockObj = new Object();
 
         final int[] i = { 0 };
         for (int j = 1; j <= threadCount; ++j) {
@@ -474,8 +539,8 @@ public class FileLocker {
                     System.out.flush();
                 }
                 threadArgs = "rw";
-            } else if (threadArgs.contains("r") == false
-                    && threadArgs.contains("w") == false) {
+            } else if ((threadArgs.contains("r") == false)
+                    && (threadArgs.contains("w") == false)) {
                 System.err.println("Error parsing thread " + j + " arguments ("
                         + threadArgs + "), defaulting to rw");
                 System.err.flush();
@@ -496,7 +561,7 @@ public class FileLocker {
                 @Override
                 public void run() {
                     try {
-                        if (FileLocker.lock(this, toLock, write ? Type.WRITE
+                        if (FileLocker.lock(lockObj, toLock, write ? Type.WRITE
                                 : Type.READ)) {
                             boolean canRead = true;
                             if (toLock.exists() == false) {
@@ -578,7 +643,7 @@ public class FileLocker {
                             t.printStackTrace();
                         }
                     } finally {
-                        FileLocker.unlock(this, toLock);
+                        FileLocker.unlock(lockObj, toLock);
                     }
                 }
             });
@@ -586,7 +651,7 @@ public class FileLocker {
 
         int totalErrors = 0;
         int count = 0;
-        while (iterations == null || i[0] < iterations) {
+        while ((iterations == null) || (i[0] < iterations)) {
             List<Thread> threadList = new ArrayList<Thread>(threadCount);
             for (Runnable r : runnables) {
                 threadList.add(new Thread(r));
@@ -610,7 +675,8 @@ public class FileLocker {
             ++count;
 
             // Output at -c val if we are verbose or indefinitely looping
-            if (count == outputCountAt && (verboseCount || iterations == null)) {
+            if ((count == outputCountAt)
+                    && (verboseCount || (iterations == null))) {
                 PrintStream out = errors[0] > 0 ? System.err : System.out;
                 out.println("Completed " + count + " iterations with "
                         + errors[0] + " errors");
@@ -621,7 +687,7 @@ public class FileLocker {
             }
         }
 
-        if (i[0] % outputCountAt != 0 || !verboseCount) {
+        if ((i[0] % outputCountAt != 0) || !verboseCount) {
             totalErrors += errors[0];
             PrintStream out = totalErrors > 0 ? System.err : System.out;
             out.println("Completed " + i[0] + " iterations with " + totalErrors

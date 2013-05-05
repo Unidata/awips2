@@ -135,7 +135,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       and removed it from updateListSelected().
  *  Feb 18, 2013 #1633       rferrel     Changed checkFollowupSelection to use SimulatedTime.
  *  Mar 28, 2013 DR 15974    D. Friedman Do not track removed GIDs.
- *
+ *  Apr 11, 2013 1894        jsanchez    Removed the ability to load/unload maps via bullet selection. This will be resolved in a follow on ticket.
  * </pre>
  * 
  * @author chammack
@@ -1426,7 +1426,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getBullets(), warngenLayer.getConfiguration()
                 .getDamInfoBullets());
         refreshBulletList();
-        updateMaps(bulletListManager.getMapsToLoad());
 
         // duration
         boolean enableDuration = warngenLayer.getConfiguration()
@@ -1626,7 +1625,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                 bulletListManager.recreateBullets(warngenLayer
                         .getConfiguration().getBullets(), warngenLayer
                         .getConfiguration().getDamInfoBullets());
-                updateMaps(bulletListManager.getMapsToLoad());
+                // TODO Repair load/unload maps via bullet selection
+                // A follow on ticket will be written to fix the existing broken
+                // functionality of loading/unloading maps
+                // updateMaps(bulletListManager.getMapsToLoad());
             } else {
                 bulletListManager.recreateBulletsFromFollowup(
                         warngenLayer.getConfiguration(), action, oldWarning);
@@ -1729,7 +1731,10 @@ public class WarngenDialog extends CaveSWTDialog implements
         bulletList.deselectAll();
         bulletList.setItems(bulletListManager.getAllBulletTexts());
         bulletList.select(bulletListManager.getSelectedIndices());
-        updateMaps(bulletListManager.getMapsToLoad());
+        // TODO Repair load/unload maps via bullet selection
+        // A follow on ticket will be written to fix the existing broken
+        // functionality of loading/unloading maps
+        // updateMaps(bulletListManager.getMapsToLoad());
     }
 
     private void updateMaps(ArrayList<String> mapsToLoad) {

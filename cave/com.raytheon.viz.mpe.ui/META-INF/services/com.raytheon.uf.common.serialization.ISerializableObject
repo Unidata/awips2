@@ -2,3 +2,4 @@ com.raytheon.viz.mpe.ui.rsc.MPERadarRingOverlayResourceData
 com.raytheon.viz.mpe.ui.displays.MPEMapRenderableDisplay
 com.raytheon.viz.mpe.ui.displays.MPETimeMatcher
 com.raytheon.viz.mpe.ui.rsc.RadarGageOverlayRscData
+com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData

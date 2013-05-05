@@ -67,7 +67,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/13/2008   879        rbell       Legacy conversion.
  * 06/10/2009   2159       rjpeter     Updated isValid to call gridSlice.isValid
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
+ * 04/15/2013   1892       randerso    Adding logging to help determine what is different in the gridInfos
+ *                                     Changed how gridInfo is retrieved which seems to have fixed the problem
  * 04/23/2013   1949       rjpeter     Removed validation on copy, source is verified on store.
+
  * </pre>
  * 
  * @author chammack
@@ -1019,16 +1022,20 @@ public abstract class AbstractGridData implements IGridData {
             return false;
         }
 
-        if (!((AbstractGridData) source).gridSlice.getGridInfo().equals(
-                this.gridSlice.getGridInfo())) {
+        if (!source.getParm().getGridInfo()
+                .equals(this.getParm().getGridInfo())) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Differing gridInfos for source/dest for replace()");
+                    "Differing gridInfos for source/dest for replace()."
+                            + "\nSource: " + source.getParm().getGridInfo()
+                            + "\nDest: " + this.getParm().getGridInfo());
             return false;
         }
 
         if (!source.getGridTime().equals(getGridTime())) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Differing gridTimes for source/dest for replace()");
+                    "Differing gridTimes for source/dest for replace()"
+                            + "\nSource: " + source.getGridTime() + "\nDest: "
+                            + this.getGridTime());
             return false;
         }
 
