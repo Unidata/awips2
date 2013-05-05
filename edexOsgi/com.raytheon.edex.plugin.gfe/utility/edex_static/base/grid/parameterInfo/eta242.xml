@@ -58,7 +58,7 @@
     <n3D>0</n3D>
     <levelsDesc>FHAG 3000</levelsDesc>
     <levels>
-      <level>FHAG3000</level>
+      <level>FHAG03000</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
