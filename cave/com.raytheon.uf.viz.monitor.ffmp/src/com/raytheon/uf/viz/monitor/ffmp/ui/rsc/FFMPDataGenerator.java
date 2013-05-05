@@ -73,8 +73,10 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
  * Feb 28, 2013    1729   dhladky     General enhancements for speed.
  * Apr 12, 2013    1902   mpduff      Code Cleanup.
- * Apr 15, 2013   1890    dhladky     Added another constant fix
- * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * Apr 15, 2013 1890      dhladky     Added another constant fix.
+ * Apr 15, 2013 1911      dhladky     Fixed forced FFG for centered aggregates.
+ * Apr 24, 2013 1946      mpduff      Fixed FFFG value for ALL when an aggregate is forced
+ * Apr 26, 2013 1954      bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -96,9 +98,11 @@ public class FFMPDataGenerator {
 
     private final Date paintRefTime;
 
+
     private final Object centeredAggregationKey;
 
     private final String huc;
+
 
     private final double sliderTime;
 
@@ -154,6 +158,12 @@ public class FFMPDataGenerator {
         ffmpTableCfgData = tableConfig.getTableConfigData(siteKey);
     }
 
+    /**
+     * Generate the FFMP Data.
+     * 
+     * @return FFMPTableData object
+     * @throws Exception
+     */
     public FFMPTableData generateFFMPData() throws Exception {
         // You should always have at least a QPE data source
         FFMPTableData tData = null;
@@ -467,6 +477,7 @@ public class FFMPDataGenerator {
                                     isRate);
                         }
                     }
+
                     trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
                             qpe));
 
@@ -477,8 +488,8 @@ public class FFMPDataGenerator {
                             qpf = basin.getAverageValue(window.getAfterTime(),
                                     window.getBeforeTime());
                         }
-
                     }
+
                     trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
                             qpf));
 
@@ -582,7 +593,6 @@ public class FFMPDataGenerator {
         } else {
             guidance = resource.getGuidanceValue(ffmpGuidBasin, paintRefTime,
                     guidType);
-
             if (guidance < 0.0f) {
                 guidance = Float.NaN;
             }

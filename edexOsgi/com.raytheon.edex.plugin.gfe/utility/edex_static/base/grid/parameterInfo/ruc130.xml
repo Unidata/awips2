@@ -49,9 +49,10 @@
     <valid_range>1000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>FHAG 1000 FHAG 3000</levelsDesc>
     <levels>
-      <level>SFC</level>
+      <level>FHAG01000</level>
+      <level>FHAG03000</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">

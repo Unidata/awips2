@@ -26,10 +26,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.hydrocommon.colorscalemgr.ColorScaleMgrDlg;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.colors.MPEColorManager;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
+import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
 
 /**
  * TODO Add Description
@@ -39,6 +42,7 @@ import com.raytheon.viz.mpe.ui.colors.MPEColorManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 5, 2008            mschenke     Initial creation
+ * Apr 18, 2013    1920   mpduff       Set new ColorMap.
  * </pre>
  * 
  * @author mschenke
@@ -69,9 +73,24 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
             colorScaleDlg.open();
         }
 
-        DisplayFieldData dt = MPEDisplayManager.getCurrent()
-                .getDisplayFieldType();
-        MPEDisplayManager.getCurrent().displayFieldData(dt);
+        MPEFieldResource displayedFieldResource = MPEDisplayManager
+                .getCurrent().getDisplayedFieldResource();
+
+        if (displayedFieldResource != null) {
+            MPEFieldResourceData resourceData = displayedFieldResource
+                    .getResourceData();
+            displayedFieldResource.getCapability(ColorMapCapability.class)
+                    .setColorMapParameters(
+                            MPEDisplayManager.createColorMap(
+                                    resourceData.getCvUseString(),
+                                    resourceData.getDurationInHours(),
+                                    resourceData.getDataUnits(),
+                                    resourceData.getDisplayUnits()));
+            DisplayFieldData dt = MPEDisplayManager.getCurrent()
+                    .getDisplayFieldType();
+
+            MPEDisplayManager.getCurrent().displayFieldData(dt);
+        }
 
         return null;
     }
