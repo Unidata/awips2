@@ -2459,7 +2459,7 @@ public class FFMPResource extends
                                     && (!pfafsToProcess.isEmpty())) {
 
                                 HashMap<Object, RGB> colorMap = new HashMap<Object, RGB>(
-                                        pfafsToProcess.size());
+                                        pfafsToProcess.size(), 1);
                                 String shadedHuc = null;
 
                                 if (!isAllPhuc) {
