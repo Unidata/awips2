@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
+
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2009            chammack     Initial creation
+ * Jun 18, 2013 DR 15662   dhuffman     Cross section terrain disappears if baseline is too short.
  * 
  * </pre>
  * 
@@ -91,8 +93,25 @@ public class Request implements ISerializableObject {
         Request request = new Request();
         request.type = Type.POINT;
         request.points = new LinkedHashSet<Point>(Arrays.asList(points))
-                .toArray(new Point[points.length]);
+                .toArray(new Point[points.length]);	
+
         return request;
+    }
+    
+    /**
+     * Build a request that asks for specific cross points to be returned
+     * 
+     * @param points
+     * @return
+     */
+    public static Request buildXsectPointRequest(Point... points) {
+    	Request request = new Request();
+    	request.type = Type.POINT;
+    	request.points = new Point[points.length];
+    	for(int x=0; x<points.length; x++)
+    		request.points[x] = new Point(points[x]);
+    
+    	return request;
     }
 
     /**

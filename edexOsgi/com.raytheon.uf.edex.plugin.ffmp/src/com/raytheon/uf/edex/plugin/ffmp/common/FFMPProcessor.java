@@ -97,6 +97,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 10/25/12		DR 15514    G. Zhang	Fix ConcurrentModificationException
  * 02/01/13     1569        D. Hladky   Added constants
  * 02/25/13     1660        D. Hladky   FFTI design change to help mosaic processing.
+ * 05/01/2013   15684       zhao        Unlock when Exception caught
  * </pre>
  * 
  * @author dhladky
@@ -363,13 +364,23 @@ public class FFMPProcessor {
                                                     .getRawGeometries(dataKey,
                                                             domain.getCwa());
                                         }
-
-                                        sbl = (new RadarSBLGenerator(config)
-                                                .generate(sourceId,
-                                                        map.keySet(),
-                                                        cwaGeometries, radarRec));
-                                        generator.setSourceBinList(sbl);
-                                        isSBL = true;
+                                        //DR15684
+                                        try {
+                                            sbl = (new RadarSBLGenerator(config)
+                                                    .generate(sourceId,
+                                                            map.keySet(),
+                                                            cwaGeometries, radarRec));
+                                        } catch (Exception e) {
+                                            statusHandler.handle(Priority.WARN, "caught an Exception while generating Source Bin List");
+                                            e.printStackTrace();
+                                            if (!checkLockStatus()) {
+                                                ClusterLockUtils.unlock(sourceBinTaskName, sourceId);
+                                            }
+                                        }
+                                        if (sbl != null) {
+                                            generator.setSourceBinList(sbl);
+                                            isSBL = true;
+                                        }
 
                                     } else {
                                         continue;
