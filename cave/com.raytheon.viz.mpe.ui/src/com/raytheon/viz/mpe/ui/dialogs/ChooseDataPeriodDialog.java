@@ -61,6 +61,8 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2008            randerso     Initial creation
+ * Apr 30, 2013            lbousaidi    made seconds in the date/Time 
+ *                                      fields visible.
  * </pre>
  * 
  * @author randerso
@@ -259,7 +261,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         lastSave = new Label(statusComp, SWT.NONE);
         lastSave.setText("NA");
         data = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
-        data.widthHint = 120;
+        data.widthHint = 140;
         lastSave.setLayoutData(data);
 
         Label lab2 = new Label(statusComp, SWT.NONE);
@@ -268,7 +270,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         lastExec = new Label(statusComp, SWT.NONE);
         lastExec.setText("NA");
         data = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
-        data.widthHint = 120;
+        data.widthHint = 140;
         lastExec.setLayoutData(data);
 
         Label lab3 = new Label(statusComp, SWT.NONE);
