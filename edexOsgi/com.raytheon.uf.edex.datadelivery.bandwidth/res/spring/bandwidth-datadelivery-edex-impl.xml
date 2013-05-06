@@ -12,6 +12,11 @@
         <constructor-arg ref="bandwidthManager" />
     </bean>
 
+    <bean id="hibernateBandwidthDbInit"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit">
+        <property name="dao" ref="bandwidthAllocationDao" />
+    </bean>
+
     <!-- Used as the context for creating the BandwidthManager -->
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
@@ -31,8 +36,10 @@
         </constructor-arg>
         <!-- The strategy for how to create the bandwidth manager -->
         <constructor-arg ref="bandwidthManagerCreator" />
+        <!-- The db initializer -->
+        <constructor-arg ref="hibernateBandwidthDbInit" />
     </bean>
-    
+
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 

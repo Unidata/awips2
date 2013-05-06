@@ -86,6 +86,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 03/01/13      DR13228    G. Zhang    Add VGB county and related code 
  * 02/20/13      1635       D. Hladky   Constants
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
+ * 04/15/13      1902       M. Duff     Generic List
  * </pre>
  * 
  * @author dhladky
@@ -108,8 +109,9 @@ public class FFMPTemplates {
 
     private HashMap<String, HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>>> virtualGageBasinsInParentPfaf = null;
 
-    private HashMap<String, HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>> vgbsInCounty = null;// DR 13228
-    
+    private HashMap<String, HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>> vgbsInCounty = null;// DR
+                                                                                                                           // 13228
+
     private HashMap<String, HashMap<String, LinkedHashMap<String, FFMPVirtualGageBasinMetaData>>> virtualDomainMap = null;
 
     private final Map<String, SoftReference<Map<Long, Geometry>>> cwaRawGeometries = new ConcurrentHashMap<String, SoftReference<Map<Long, Geometry>>>();
@@ -229,8 +231,9 @@ public class FFMPTemplates {
         virtualGageBasinsInParentPfaf = new HashMap<String, HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>>>();
         ftcm = FFMPTemplateConfigurationManager.getInstance();
         frcm = FFMPRunConfigurationManager.getInstance();
-        vgbsInCounty = new HashMap<String, HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>>();// DR 13228
-        
+        vgbsInCounty = new HashMap<String, HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>>();// DR
+                                                                                                                        // 13228
+
         try {
             ftcm.readConfigXml();
 
@@ -251,11 +254,12 @@ public class FFMPTemplates {
                                 "No configuration file found, default settings applied");
 
                 // we use 4 because it is the 90% solution as a start point for
-                // the analysis.  Added check to make sure at least 2 HUC layers are created.
+                // the analysis. Added check to make sure at least 2 HUC layers
+                // are created.
                 int preliminarystart = 4;
                 // first crack
-                ArrayList<Integer> hucParams = FFMPUtils.getHucParameters(preliminarystart,
-                        primaryCWA.getCwa());
+                ArrayList<Integer> hucParams = FFMPUtils.getHucParameters(
+                        preliminarystart, primaryCWA.getCwa());
                 int startDepth = hucParams.get(0);
                 int numlevels = hucParams.get(1);
                 int i = 1;
@@ -267,13 +271,13 @@ public class FFMPTemplates {
                     startDepth = hucParams.get(0);
                     numlevels = hucParams.get(1);
                     i++;
-                    
+
                     // safety value in case it just won't work with this shape
                     if (checkDepth == 0) {
                         // bail, won't work
                         statusHandler
-                        .handle(Priority.ERROR,
-                                "Cannot create a good template. There are not enough unique HUC's to create more than 1 layer.");
+                                .handle(Priority.ERROR,
+                                        "Cannot create a good template. There are not enough unique HUC's to create more than 1 layer.");
                         return;
                     }
                 }
@@ -545,7 +549,8 @@ public class FFMPTemplates {
     public FFMPBasinMetaData getBasin(String dataKey, Long pfaf) {
         FFMPBasinMetaData fmbd = null;
         for (DomainXML domain : domains) {
-            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), FFMPRecord.ALL);
+            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(),
+                    FFMPRecord.ALL);
             fmbd = (FFMPBasinMetaData) map.get(pfaf);
             if (fmbd != null) {
                 break;
@@ -570,7 +575,8 @@ public class FFMPTemplates {
             if (isSiteLoaded(product.getProductKey())) {
                 for (DomainXML domain : domains) {
                     LinkedHashMap<Long, ?> map = getMap(
-                            product.getProductKey(), domain.getCwa(), FFMPRecord.ALL);
+                            product.getProductKey(), domain.getCwa(),
+                            FFMPRecord.ALL);
                     fmbd = (FFMPBasinMetaData) map.get(pfaf);
                     if (fmbd != null) {
                         return fmbd;
@@ -829,7 +835,8 @@ public class FFMPTemplates {
         // TODO: make reverse lookup...
         FFMPBasinMetaData basin = null;
         for (DomainXML domain : domains) {
-            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), FFMPRecord.ALL);
+            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(),
+                    FFMPRecord.ALL);
             for (Long key : map.keySet()) {
                 basin = ((FFMPBasinMetaData) map.get(key));
                 if (basin.getBasinId() == basinId) {
@@ -953,8 +960,8 @@ public class FFMPTemplates {
         try {
 
             for (DomainXML domain : domains) {
-                for (Long key : getMap(dataKey, domain.getCwa(), FFMPRecord.COUNTY)
-                        .keySet()) {
+                for (Long key : getMap(dataKey, domain.getCwa(),
+                        FFMPRecord.COUNTY).keySet()) {
                     if (countyMap.get(key) == null) {
                         county = FFMPUtils.getCounty(key, MODE.CAVE.getMode());
                         if (county != null) {
@@ -1146,8 +1153,8 @@ public class FFMPTemplates {
                     TreeSet<Long> aggrPfafs = new TreeSet<Long>();
                     aggrPfafToAllChildPfafsMap = new HashMap<Long, TreeSet<Long>>();
                     if (myHucNum + 1 == getTotalHucLevels()) {
-                        Set<Long> allPfafs = getMap(dataKey, cwa, FFMPRecord.ALL)
-                                .keySet();
+                        Set<Long> allPfafs = getMap(dataKey, cwa,
+                                FFMPRecord.ALL).keySet();
                         for (Long pfaf : allPfafs) {
                             int endIndex = getHucDepthStart() + myHucNum;
                             Long aggrPfaf = Long.parseLong(pfaf.toString()
@@ -1246,7 +1253,8 @@ public class FFMPTemplates {
                     if (huc.equals(FFMPRecord.COUNTY)) {
 
                         if (allMap != null) {
-                            writeTemplateFile(dataKey, FFMPRecord.ALL, cwa, allMap);
+                            writeTemplateFile(dataKey, FFMPRecord.ALL, cwa,
+                                    allMap);
                         }
                     }
                 }
@@ -1274,7 +1282,7 @@ public class FFMPTemplates {
      * @param huc
      * @return
      */
-    public LinkedHashMap<Long, ?> getMap(String dataKey, String cwa, String huc) {
+    public synchronized LinkedHashMap<Long, ?> getMap(String dataKey, String cwa, String huc) {
 
         LinkedHashMap<Long, ?> map = null;
         HashMap<String, LinkedHashMap<Long, ?>> hucMap = null;
@@ -1341,7 +1349,8 @@ public class FFMPTemplates {
                     // Expensive..., use envelopes first to get rough idea and
                     // skip
                     // unnecessary checks
-                    LinkedHashMap<Long, ?> map = getMap(dataKey, cwa, FFMPRecord.ALL);
+                    LinkedHashMap<Long, ?> map = getMap(dataKey, cwa,
+                            FFMPRecord.ALL);
                     for (Entry<Long, ?> entry : map.entrySet()) {
                         Long pfaf = entry.getKey();
                         Geometry geometry = rawGeometries.get(pfaf);
@@ -1376,9 +1385,9 @@ public class FFMPTemplates {
                 writeVGBFile(virtuals, cwa, dataKey);
             }
         } else {
-           
+
             virtuals = readVGBFile("VIRTUAL", cwa, dataKey);
-     
+
         }
 
         return virtuals;
@@ -1389,7 +1398,7 @@ public class FFMPTemplates {
      * 
      * @return
      */
-    public LinkedHashMap<String, FFMPVirtualGageBasinMetaData> getVirtualGageBasins(
+    public synchronized LinkedHashMap<String, FFMPVirtualGageBasinMetaData> getVirtualGageBasins(
             String dataKey, String cwa) {
 
         LinkedHashMap<String, FFMPVirtualGageBasinMetaData> map = null;
@@ -1411,49 +1420,56 @@ public class FFMPTemplates {
 
             virtualmap.put(cwa, map);
 
-            HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> vgbMap = new HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>();// DR 13228
-            
+            HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> vgbMap = new HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>();// DR
+                                                                                                                                             // 13228
+
             HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>> virtualGageBasins = new HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>(
                     (int) (map.size() * 1.3));
-            
+
             for (FFMPVirtualGageBasinMetaData vgb : map.values()) {
-                Long id = vgb.getParentPfaf();		
-                String stateCommaCnty=vgb.getState()+", "+vgb.getCounty();// DR 13228 see getCountyStateName(,)
-                
+                Long id = vgb.getParentPfaf();
+                String stateCommaCnty = vgb.getState() + ", " + vgb.getCounty();// DR
+                                                                                // 13228
+                                                                                // see
+                                                                                // getCountyStateName(,)
+
                 ArrayList<FFMPVirtualGageBasinMetaData> list = virtualGageBasins
-                        .get(id);	
-                ArrayList<FFMPVirtualGageBasinMetaData> list2=vgbMap.get(stateCommaCnty.toUpperCase());// DR 13228
-                
+                        .get(id);
+                ArrayList<FFMPVirtualGageBasinMetaData> list2 = vgbMap
+                        .get(stateCommaCnty.toUpperCase());// DR 13228
+
                 if (list == null) {
                     list = new ArrayList<FFMPVirtualGageBasinMetaData>();
                     virtualGageBasins.put(id, list);
                 }
-                list.add(vgb);	
-                
+                list.add(vgb);
+
                 // DR 13228
-                if(list2==null){
-                	list2=new ArrayList<FFMPVirtualGageBasinMetaData>(); 
-                	vgbMap.put(stateCommaCnty.toUpperCase(),list2);
-                } 
+                if (list2 == null) {
+                    list2 = new ArrayList<FFMPVirtualGageBasinMetaData>();
+                    vgbMap.put(stateCommaCnty.toUpperCase(), list2);
+                }
                 list2.add(vgb);// DR 13228
             }
 
-            HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> vMapCounty = vgbsInCounty.get(dataKey);// DR 13228
+            HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> vMapCounty = vgbsInCounty
+                    .get(dataKey);// DR 13228
             HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMapPfaf = virtualGageBasinsInParentPfaf
                     .get(dataKey);
             if (virtualMapPfaf == null) {
                 virtualMapPfaf = new HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>>();
 
             }
-            
+
             // DR 13228
-            if(vMapCounty==null) {
-            	vMapCounty = new HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>();// DR 13228            	
+            if (vMapCounty == null) {
+                vMapCounty = new HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>>();// DR
+                                                                                                             // 13228
             }
 
-            vMapCounty.put(cwa, vgbMap);// DR 13228	
-            vgbsInCounty.put(dataKey,vMapCounty);// DR 13228
-            
+            vMapCounty.put(cwa, vgbMap);// DR 13228
+            vgbsInCounty.put(dataKey, vMapCounty);// DR 13228
+
             virtualMapPfaf.put(cwa, virtualGageBasins);
             virtualGageBasinsInParentPfaf.put(dataKey, virtualMapPfaf);
         }
@@ -2244,13 +2260,14 @@ public class FFMPTemplates {
      * @return
      */
     public FFMPBasinMetaData getBasinInDomains(String dataKey,
-            ArrayList<DomainXML> domains, ArrayList<Long> pfafs) {
+            List<DomainXML> domains, List<Long> pfafs) {
 
         FFMPBasinMetaData mbasin = null;
 
         for (DomainXML domain : domains) {
 
-            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(), FFMPRecord.ALL);
+            LinkedHashMap<Long, ?> map = getMap(dataKey, domain.getCwa(),
+                    FFMPRecord.ALL);
 
             for (Long key : pfafs) {
                 if (map.containsKey(key)) {
@@ -2379,43 +2396,46 @@ public class FFMPTemplates {
         }
     }
 
-    /** 
-     * DR 13228    
+    /**
+     * DR 13228
      */
-    public static boolean isCountyRow(String huc, String rowName){
+    public static boolean isCountyRow(String huc, String rowName) {
 
-    	return "COUNTY".equals(huc) && rowName.contains(",");// see getCountyStateName(,)
+        return "COUNTY".equals(huc) && rowName.contains(",");// see
+                                                             // getCountyStateName(,)
 
     }
-    
-    /** 
-     * DR 13228    
+
+    /**
+     * DR 13228
      */
-    public synchronized ArrayList<Long> getVgbLookupIdsByCounty(
-                String dataKey, Long pfaf, String huc, String rowName) {
+    public synchronized ArrayList<Long> getVgbLookupIdsByCounty(String dataKey,
+            Long pfaf, String huc, String rowName) {
 
         String stateCommaCnty = rowName;
 
-            HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = vgbsInCounty.get(dataKey);
+        HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = vgbsInCounty
+                .get(dataKey);
 
-            for (DomainXML domain : domains) {
+        for (DomainXML domain : domains) {
 
-                HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
-                        .get(domain.getCwa());
-                if (map != null) {
-                    ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(stateCommaCnty.trim().toUpperCase());
+            HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
+                    .get(domain.getCwa());
+            if (map != null) {
+                ArrayList<FFMPVirtualGageBasinMetaData> list = map
+                        .get(stateCommaCnty.trim().toUpperCase());
 
-                    if (list != null && !list.isEmpty()) {
-                        ArrayList<Long> result = new ArrayList<Long>();
-                        for (FFMPVirtualGageBasinMetaData md : list){
-                        	result.add(md.getLookupId());
+                if (list != null && !list.isEmpty()) {
+                    ArrayList<Long> result = new ArrayList<Long>();
+                    for (FFMPVirtualGageBasinMetaData md : list) {
+                        result.add(md.getLookupId());
 
-                        }
-                        return result;
                     }
+                    return result;
                 }
             }
-            return new ArrayList<Long>();
+        }
+        return new ArrayList<Long>();
     }
 
 }

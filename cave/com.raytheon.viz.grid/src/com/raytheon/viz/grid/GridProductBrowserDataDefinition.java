@@ -42,15 +42,14 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -74,6 +73,8 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  * ------------ ---------- ----------- --------------------------
  * May 21, 2010            bsteffens    Initial creation
  * May 26, 2010            mnash        Used ProductBrowserLabel implementation instead of requery
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -176,7 +177,7 @@ public class GridProductBrowserDataDefinition extends
 
     @Override
     protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
+            Map<String, RequestConstraint> queryList) {
         try {
             if (getInventory() == null) {
                 return super.queryData(param, queryList);
@@ -195,8 +196,11 @@ public class GridProductBrowserDataDefinition extends
                         params = Arrays.asList(value);
                     } else if (key.equals(GridInventory.MASTER_LEVEL_QUERY)) {
                         if (levels == null) {
-                            levels = new ArrayList<Level>(LevelMappingFactory
-                                    .getInstance().getAllLevels());
+                            levels = new ArrayList<Level>(
+                                    LevelMappingFactory
+                                            .getInstance(
+                                                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                            .getAllLevels());
                         }
                         Iterator<Level> iter = levels.iterator();
                         while (iter.hasNext()) {
@@ -209,8 +213,11 @@ public class GridProductBrowserDataDefinition extends
                     } else if (key.equals(GridInventory.LEVEL_ONE_QUERY)) {
                         double doubleValue = Double.parseDouble(value);
                         if (levels == null) {
-                            levels = new ArrayList<Level>(LevelMappingFactory
-                                    .getInstance().getAllLevels());
+                            levels = new ArrayList<Level>(
+                                    LevelMappingFactory
+                                            .getInstance(
+                                                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                            .getAllLevels());
                         }
                         Iterator<Level> iter = levels.iterator();
                         while (iter.hasNext()) {
@@ -221,8 +228,11 @@ public class GridProductBrowserDataDefinition extends
                     } else if (key.equals(GridInventory.LEVEL_TWO_QUERY)) {
                         double doubleValue = Double.parseDouble(value);
                         if (levels == null) {
-                            levels = new ArrayList<Level>(LevelMappingFactory
-                                    .getInstance().getAllLevels());
+                            levels = new ArrayList<Level>(
+                                    LevelMappingFactory
+                                            .getInstance(
+                                                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                            .getAllLevels());
                         }
                         Iterator<Level> iter = levels.iterator();
                         while (iter.hasNext()) {
@@ -280,9 +290,6 @@ public class GridProductBrowserDataDefinition extends
                     return returnQueue.toArray(new String[0]);
                 }
             }
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.ERROR, "Unable to query data for "
-                    + productName, e);
         } catch (CommunicationException e) {
             statusHandler.handle(Priority.ERROR, "Unable to query data for "
                     + productName, e);

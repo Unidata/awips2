@@ -1,11 +1,17 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    
+    <bean id="hibernateBandwidthDbInit"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit">
+        <property name="dao" ref="bandwidthAllocationDao" />
+    </bean>
 
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory">
         <constructor-arg ref="hibernateBandwidthDao" />
         <constructor-arg ref="bandwidthManagerCreator" />
+        <constructor-arg ref="hibernateBandwidthDbInit" />
     </bean>
 
     <bean

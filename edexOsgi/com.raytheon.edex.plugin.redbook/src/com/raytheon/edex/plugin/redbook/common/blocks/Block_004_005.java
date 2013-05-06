@@ -21,30 +21,42 @@ package com.raytheon.edex.plugin.redbook.common.blocks;
 
 import java.nio.ByteBuffer;
 
-/**TODO Add Description
+/**
+ * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080512           1131 jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
+ *                                     and nested Factory class.
  * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class Block_004_005 extends RedbookBlock {
 
+    public static class Factory implements RedbookBlockFactory {
+        @Override
+        public RedbookBlock createBlock(RedbookBlockHeader header,
+                ByteBuffer data) {
+            return new Block_004_005(header, data);
+        }
+    }
+
     /**
      * 
+     * @param header
      * @param separator
      */
-    public Block_004_005(ByteBuffer data) {
-        super(data);
+    public Block_004_005(RedbookBlockHeader header, ByteBuffer data) {
+        super(header, data);
         populate(data);
         if(hasChkSum()) {
             data.getShort();
@@ -52,10 +64,8 @@ public class Block_004_005 extends RedbookBlock {
     }
 
     private void populate(ByteBuffer data) {
-        if(hasLength()) {
-            for(int i = 0;i < getLength()-2;i++) {
-                data.getShort();
-            }
+        if (hasLength()) {
+            dropShortsFromTheBuffer(data);
         }
     }
     

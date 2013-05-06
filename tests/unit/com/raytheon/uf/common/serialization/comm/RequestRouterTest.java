@@ -117,14 +117,10 @@ public class RequestRouterTest {
         verify(requestServerRouter, never()).route(serverRequest);
     }
 
-    @Test
-    public void testUnregisteredRouterWillRouteToRequestRouter()
+    @Test(expected = IllegalStateException.class)
+    public void testUnregisteredRouterWillThrowException()
             throws Exception {
         RequestRouter.route(serverRequest, "noRegisteredServer");
-
-        verify(requestServerRouter).route(serverRequest);
-        verify(server2Router, never()).route(serverRequest);
-        verify(server1Router, never()).route(serverRequest);
     }
 
     @Test(expected = IllegalStateException.class)

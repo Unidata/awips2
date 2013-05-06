@@ -36,10 +36,12 @@ import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.DmdDisplayFilterConfig;
 import com.raytheon.uf.common.monitor.scan.config.StormCellConfig;
 import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -61,6 +63,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009   2307       dhladky     Initial creation
+ * Apr 22, 2013   1926       njensen     Faster rendering
  * 
  * </pre>
  * 
@@ -69,24 +72,23 @@ import com.vividsolutions.jts.geom.Point;
  */
 
 public class ScanDrawer {
-    public static int hexAngle = 60;
 
-    public static int tvsAngle = 45;
+    private static final int HEX_ANGLE = 60;
 
-    public static RGB red = new RGB(255, 0, 0);
+    private static final double SIN_HEX_ANGLE = Math.sin(HEX_ANGLE);
 
-    public static RGB yellow = new RGB(255, 255, 0);
+    public static final RGB red = new RGB(255, 0, 0);
 
-    public static RGB white = new RGB(255, 255, 255);
+    public static final RGB yellow = new RGB(255, 255, 0);
 
-    public static RGB green = new RGB(0, 255, 0);
+    public static final RGB white = new RGB(255, 255, 255);
 
-    public RGB rscColor = null;
+    private RGB rscColor = null;
 
-    public GeometryFactory factory = new GeometryFactory();
+    private GeometryFactory factory = new GeometryFactory();
 
     // defaults
-    public double screenToWorldRatio = 0.0;
+    private double screenToWorldRatio = 0.0;
 
     public IFont font = null;
 
@@ -104,29 +106,21 @@ public class ScanDrawer {
 
     private double wRightX = 0.0;
 
-    private double size = 0;
-
-    public boolean draw = false;
-
-    public boolean drawHexagon = false;
-
     private double hexRadius = 0.0;
 
     /** Cell's center values */
-    double[] center = null;
+    private double[] center = null;
 
     private RGB color = null;
 
     /** Cell's center point */
     private Point centerPoint = null;
 
-    ArrayList<double[]> vertexes = null;
+    private List<double[]> vertexes = null;
 
-    ArrayList<double[]> innervertexes = null;
+    protected StormCellConfig sdc = null;
 
-    public StormCellConfig sdc = null;
-
-    public DmdDisplayFilterConfig ddfc = null;
+    protected DmdDisplayFilterConfig ddfc = null;
 
     private GeodeticCalculator gc = null;
 
@@ -140,17 +134,9 @@ public class ScanDrawer {
 
     private static final int outerTopBottomFactor = 4;
 
-    private static final int innerSideFactor = 4;
-
-    private static final int innerTopBottomFactor = 8;
-
     private int mesoType = 2;
 
     private boolean isExt = false;
-
-    private final Point site;
-
-    private int count = 0;
 
     /**
      * public constructor CELL
@@ -158,11 +144,9 @@ public class ScanDrawer {
      * @param stormCellConfig
      * @param gc
      */
-    public ScanDrawer(StormCellConfig stormCellConfig, GeodeticCalculator gc,
-            Coordinate siteCoor) {
+    public ScanDrawer(StormCellConfig stormCellConfig, GeodeticCalculator gc) {
         this.sdc = stormCellConfig;
         this.gc = gc;
-        this.site = factory.createPoint(siteCoor);
     }
 
     /**
@@ -171,30 +155,9 @@ public class ScanDrawer {
      * @param sdc
      * @param gc
      */
-    public ScanDrawer(DmdDisplayFilterConfig ddfc, GeodeticCalculator gc,
-            Coordinate siteCoor) {
+    public ScanDrawer(DmdDisplayFilterConfig ddfc, GeodeticCalculator gc) {
         this.ddfc = ddfc;
         this.gc = gc;
-        this.site = factory.createPoint(siteCoor);
-    }
-
-    /**
-     * Draw a triangle icon for the TVS marker
-     * 
-     * @param tvdr
-     * @param descriptor
-     * @param aTarget
-     * @throws VizException
-     */
-    public void drawTVS(TVSTableDataRow tvdr, MapDescriptor descriptor,
-            IGraphicsTarget aTarget) throws VizException {
-
-        this.descriptor = descriptor;
-        this.aTarget = aTarget;
-        this.centerPoint = factory.createPoint(new Coordinate(tvdr.getLon(),
-                tvdr.getLat(), 0.0));
-        size = getSize(tvdr) * 2;
-
     }
 
     public boolean isHexagonEnabled() {
@@ -259,35 +222,33 @@ public class ScanDrawer {
         this.aTarget = aTarget;
         this.centerPoint = factory.createPoint(new Coordinate(ctdr.getLon(),
                 ctdr.getLat(), 0.0));
-        this.drawHexagon = false;
 
-        size = getSize(ctdr) * 2;
+        double size = getSize(ctdr) * 2;
 
         // go ahead and draw
         center = descriptor.worldToPixel(new double[] {
                 centerPoint.getCoordinate().x, centerPoint.getCoordinate().y });
 
-        drawHexagon = this.isHexagonEnabled();
-        vertexes = getHexagonVertices();
-        if (drawHexagon) {
+        vertexes = getHexagonVertices(size);
+        if (isHexagonEnabled()) {
             if (size > 0.0) {
-                for (int i = 0; vertexes.size() - 1 > i; i++) {
-                    double[] point = vertexes.get(i);
-                    double[] point2 = vertexes.get(i + 1);
-                    aTarget.drawLine(point[0], point[1], 0, point2[0],
-                            point2[1], 0, color, outlineWidth);
-                }
+                DrawableCircle circle = new DrawableCircle();
+                circle.numberOfPoints = 6;
+                circle.setCoordinates(center[0], center[1]);
+                circle.radius = size * (SIN_HEX_ANGLE);
+                circle.lineWidth = outlineWidth;
+                circle.basics.color = color;
 
                 if (isNew(ctdr)) {
-                    // new cell draw inner hexagon
-                    innervertexes = getInnerHexagonVertices();
-
-                    for (int i = 0; innervertexes.size() - 1 > i; i++) {
-                        double[] point = innervertexes.get(i);
-                        double[] point2 = innervertexes.get(i + 1);
-                        aTarget.drawLine(point[0], point[1], 0, point2[0],
-                                point2[1], 0, color, outlineWidth);
-                    }
+                    DrawableCircle innerCircle = new DrawableCircle();
+                    innerCircle.numberOfPoints = 6;
+                    innerCircle.setCoordinates(center[0], center[1]);
+                    innerCircle.radius = size / 2 * (SIN_HEX_ANGLE);
+                    innerCircle.lineWidth = outlineWidth;
+                    innerCircle.basics.color = color;
+                    aTarget.drawCircle(circle, innerCircle);
+                } else {
+                    aTarget.drawCircle(circle);
                 }
             }
         }
@@ -301,7 +262,6 @@ public class ScanDrawer {
         }
 
         drawCellTrack(ctdr);
-
     }
 
     /**
@@ -385,7 +345,7 @@ public class ScanDrawer {
         this.aTarget = aTarget;
         this.centerPoint = factory.createPoint(new Coordinate(dtdr.getLon(),
                 dtdr.getLat(), 0.0));
-        size = getSize(dtdr);
+        double size = getSize(dtdr);
 
         if ((size > 0) && !dtdr.getRank().equals("NONE")) {
             // go ahead and draw
@@ -460,20 +420,21 @@ public class ScanDrawer {
             int mapWidth = this.descriptor.getMapWidth() / 1000;
             double km = zoomLevel * mapWidth;
 
-            DrawableString ds = new DrawableString(dtdr.getIdent(), getResourceColor());
+            DrawableString ds = new DrawableString(dtdr.getIdent(),
+                    getResourceColor());
             ds.horizontalAlignment = HorizontalAlignment.RIGHT;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
             ds.font = font;
             ds.textStyle = TextStyle.DROP_SHADOW;
-            
+
             if (km < 50) {
                 ds.setCoordinates(center[0] - 1, center[1] - 1);
                 aTarget.drawStrings(ds);
             } else {
-                ds.setCoordinates(wLeftX , center[1] - size);
+                ds.setCoordinates(wLeftX, center[1] - size);
                 aTarget.drawStrings(ds);
             }
-            
+
             if (ddfc.isTrack()) {
                 // draws the center point/circle
                 if ((dtdr.getPastLat() != null) && (dtdr.getPastLon() != null)) {
@@ -515,8 +476,8 @@ public class ScanDrawer {
                     end[1] });
             Point endPoint = factory.createPoint(new Coordinate(endWorld[0],
                     endWorld[1], 0.0));
-            ArrayList<double[]> ears = getDogEarCoordinate(centerPoint,
-                    endPoint, dir, totalLength / 1.25);
+            List<double[]> ears = getDogEarCoordinate(centerPoint, endPoint,
+                    dir, totalLength / 1.25);
 
             // draw it
             if (sdc.getArrowMode()) {
@@ -623,6 +584,7 @@ public class ScanDrawer {
      */
     private double getSize(ScanTableDataRow stdr) {
         double value = 0.0;
+        double size = 0.0;
         if (stdr instanceof CellTableDataRow) {
             setCellColor(((CellTableDataRow) stdr).getValue(sdc.getAttrName()));
 
@@ -637,8 +599,6 @@ public class ScanDrawer {
 
         if (value > 0.0) {
             size = getPixelRelativeLength(centerPoint, value + 1);
-        } else {
-            size = 0.0;
         }
 
         return size;
@@ -675,9 +635,9 @@ public class ScanDrawer {
      * @param center
      * @return
      */
-    private ArrayList<double[]> getHexagonVertices() {
+    private List<double[]> getHexagonVertices(double size) {
 
-        side = size / outerSideFactor * (Math.sin(hexAngle));
+        side = size / outerSideFactor * (SIN_HEX_ANGLE);
         topY = center[1] - (size / outerTopBottomFactor);
         bottomY = center[1] + (size / outerTopBottomFactor);
         rightX = center[0] - (side);
@@ -685,7 +645,7 @@ public class ScanDrawer {
         wRightX = center[0] - 2 * side;
         wLeftX = center[0] + 2 * side;
 
-        ArrayList<double[]> vertexes = new ArrayList<double[]>();
+        List<double[]> vertexes = new ArrayList<double[]>();
         vertexes.add(new double[] { rightX, bottomY });
         vertexes.add(new double[] { wRightX, center[1] });
         vertexes.add(new double[] { rightX, topY });
@@ -694,65 +654,6 @@ public class ScanDrawer {
         vertexes.add(new double[] { leftX, bottomY });
         // add first to the end, this way the hexagon will complete
         vertexes.add(new double[] { rightX, bottomY });
-
-        return vertexes;
-    }
-
-    /**
-     * Gets the vertices of the hexagons
-     * 
-     * @param center
-     * @return
-     */
-    @SuppressWarnings("unused")
-    private ArrayList<double[]> getTVSVertices() {
-
-        side = size / outerSideFactor * (Math.sin(hexAngle));
-        topY = center[1] - (size / outerTopBottomFactor);
-        bottomY = center[1] + (size / outerTopBottomFactor);
-        rightX = center[0] - (side);
-        leftX = center[0] + (side);
-        wRightX = center[0] - 2 * side;
-        wLeftX = center[0] + 2 * side;
-
-        ArrayList<double[]> vertexes = new ArrayList<double[]>();
-        vertexes.add(new double[] { rightX, bottomY });
-        vertexes.add(new double[] { wRightX, center[1] });
-        vertexes.add(new double[] { rightX, topY });
-        vertexes.add(new double[] { leftX, topY });
-        vertexes.add(new double[] { wLeftX, center[1] });
-        vertexes.add(new double[] { leftX, bottomY });
-        // add first to the end, this way the hexagon will complete
-        vertexes.add(new double[] { rightX, bottomY });
-
-        return vertexes;
-    }
-
-    /**
-     * Gets the vertices of the hexagons
-     * 
-     * @param center
-     * @return
-     */
-    private ArrayList<double[]> getInnerHexagonVertices() {
-
-        double iside = size / innerSideFactor * (Math.sin(hexAngle));
-        double itopY = center[1] - (size / innerTopBottomFactor);
-        double ibottomY = center[1] + (size / innerTopBottomFactor);
-        double irightX = center[0] - (iside);
-        double ileftX = center[0] + (iside);
-        double iwRightX = center[0] - 2 * iside;
-        double iwLeftX = center[0] + 2 * iside;
-
-        ArrayList<double[]> vertexes = new ArrayList<double[]>();
-        vertexes.add(new double[] { irightX, ibottomY });
-        vertexes.add(new double[] { iwRightX, center[1] });
-        vertexes.add(new double[] { irightX, itopY });
-        vertexes.add(new double[] { ileftX, itopY });
-        vertexes.add(new double[] { iwLeftX, center[1] });
-        vertexes.add(new double[] { ileftX, ibottomY });
-        // add first to the end, this way the hexagon will complete
-        vertexes.add(new double[] { irightX, ibottomY });
 
         return vertexes;
     }
@@ -927,11 +828,11 @@ public class ScanDrawer {
      * @param dir
      * @return
      */
-    private ArrayList<double[]> getDogEarCoordinate(Point refPoint,
-            Point endPoint, double dir, double length) {
+    private List<double[]> getDogEarCoordinate(Point refPoint, Point endPoint,
+            double dir, double length) {
 
         double[] earAngles = new double[] { 10, -10 };
-        ArrayList<double[]> coords = new ArrayList<double[]>();
+        List<double[]> coords = new ArrayList<double[]>(earAngles.length);
 
         for (double earAngle : earAngles) {
 
@@ -1011,14 +912,12 @@ public class ScanDrawer {
 
             double[] futurePoint = null;
             double[] pastPoint = null;
-            int count = Math.min(dtdr.getFcstLon().size(),
-                    dtdr.getFcstLat().size());
+            int count = Math.min(dtdr.getFcstLon().size(), dtdr.getFcstLat()
+                    .size());
 
             for (int i = 0; i < count; i++) {
-                futurePoint = descriptor
-                        .worldToPixel(new double[] {
-                                dtdr.getFcstLon().get(i),
-                                dtdr.getFcstLat().get(i) });
+                futurePoint = descriptor.worldToPixel(new double[] {
+                        dtdr.getFcstLon().get(i), dtdr.getFcstLat().get(i) });
 
                 if (pastPoint == null) {
                     pastPoint = center;
@@ -1036,14 +935,15 @@ public class ScanDrawer {
 
             double[] futurePoint = null;
             double[] pastPoint = null;
-            int count = Math.min(dtdr.getPastLon().size(),
-                    dtdr.getPastLat().size());
+            int count = Math.min(dtdr.getPastLon().size(), dtdr.getPastLat()
+                    .size());
 
             for (int i = 0; i < count; i++) {
                 try {
-                    futurePoint = descriptor.worldToPixel(new double[] {
-                            dtdr.getPastLon().get(i),
-                            dtdr.getPastLat().get(i) });
+                    futurePoint = descriptor
+                            .worldToPixel(new double[] {
+                                    dtdr.getPastLon().get(i),
+                                    dtdr.getPastLat().get(i) });
 
                     if (pastPoint == null) {
                         pastPoint = center;
@@ -1061,7 +961,7 @@ public class ScanDrawer {
         }
     }
 
-    public void drawCellTrack(CellTableDataRow ctdr) {
+    public void drawCellTrack(CellTableDataRow ctdr) throws VizException {
         List<double[]> futurePoints = new ArrayList<double[]>();
         List<double[]> pastPoints = new ArrayList<double[]>();
         List<Date> dates = new ArrayList<Date>();
@@ -1070,15 +970,13 @@ public class ScanDrawer {
 
         if (sdc.getPastTracks()) {
             if (ctdr.getPastCoordinates() != null) {
-
                 for (Date date : ctdr.getPastCoordinates().keySet()) {
                     dates.add(date);
                 }
-
                 Collections.sort(dates);
                 count = dates.size();
-                double[] point = null;
 
+                double[] point = null;
                 for (int i = dates.size() - 1; i >= 0; i--) {
                     Coordinate coor = ctdr.getPastCoordinates().get(
                             dates.get(i));
@@ -1115,47 +1013,37 @@ public class ScanDrawer {
             }
         }
 
-        // Draw data
-        double[] oldPoint = new double[3];
-        for (int i = pastPoints.size() - 1; i >= 0; i--) {
-            try {
-                double[] point = pastPoints.get(i);
-                if (i == pastPoints.size() - 1) { // first time
-                    oldPoint = point;
-                } else {
-                    aTarget.drawLine(oldPoint[0], oldPoint[1], 0.0, point[0],
-                            point[1], 0.0, getResourceColor(), outlineWidth);
-                }
-
-                drawFilledCircle(point, getResourceColor());
-                oldPoint = point;
-            } catch (VizException e) {
-                e.printStackTrace();
-            }
+        // draw the past points
+        if (pastPoints.size() > 0) {
+            aTarget.drawPoints(pastPoints, getResourceColor(), PointStyle.DISC,
+                    0.7f);
         }
 
-        try {
-            if (oldPoint[0] != 0) {
-                aTarget.drawLine(oldPoint[0], oldPoint[1], 0.0, center[0],
-                        center[1], 0.0, getResourceColor(), outlineWidth);
-            }
-            drawX(center);
-            oldPoint = center;
-        } catch (VizException e) {
-            e.printStackTrace();
+        // draw the X
+        aTarget.drawPoint(center[0], center[1], 0.0, getResourceColor(),
+                PointStyle.X, 1.3f);
+
+        // draw the future points
+        if (futurePoints.size() > 0) {
+            aTarget.drawPoints(futurePoints, getResourceColor(),
+                    PointStyle.CROSS, 1.3f);
         }
 
-        for (int i = 0; i < futurePoints.size(); i++) {
-            try {
-                double[] point = futurePoints.get(i);
-                aTarget.drawLine(oldPoint[0], oldPoint[1], 0.0, point[0],
-                        point[1], 0.0, getResourceColor(), outlineWidth);
+        // draw the track line
+        DrawableLine line = new DrawableLine();
+        for (int i = pastPoints.size() - 1; i > -1; i--) {
+            double[] pt = pastPoints.get(i);
+            line.addPoint(pt[0], pt[1]);
+        }
+        line.addPoint(center[0], center[1]);
+        for (double[] pt : futurePoints) {
+            line.addPoint(pt[0], pt[1]);
+        }
 
-                drawPlus(point, getResourceColor());
-                oldPoint = point;
-            } catch (VizException e) {
-                e.printStackTrace();
-            }
+        if (line.points.size() > 1) {
+            line.width = outlineWidth;
+            line.basics.color = getResourceColor();
+            aTarget.drawLine(line);
         }
     }
 
@@ -1174,10 +1062,11 @@ public class ScanDrawer {
         aTarget.drawLine((point[0] - 4.0 / screenToWorldRatio), point[1], 0.0,
                 (point[0] + 4.0 / screenToWorldRatio), point[1], 0.0, color,
                 outlineWidth);
+
     }
 
     /**
-     * draws the plus sign
+     * draws the X sign
      * 
      * @param point
      * @throws VizException
@@ -1268,14 +1157,6 @@ public class ScanDrawer {
         }
 
         return 10;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
     }
 
     /**

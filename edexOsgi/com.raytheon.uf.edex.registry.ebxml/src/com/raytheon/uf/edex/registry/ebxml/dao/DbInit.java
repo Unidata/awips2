@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -41,7 +43,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.jdbc.Work;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Repository;
@@ -77,6 +79,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
  * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
  * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
+ * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * </pre>
  * 
  * @author bphillip
@@ -84,7 +87,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  */
 @Repository
 @Transactional
-public class DbInit implements ApplicationListener {
+public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements ApplicationListener {
 
     private static volatile boolean INITIALIZED = false;
 
@@ -92,17 +95,8 @@ public class DbInit implements ApplicationListener {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbInit.class);
 
-    /** Constant used for table regeneration */
-    private static final String DROP_TABLE = "drop table ";
-
-    /** Constant used for table regeneration */
-    private static final String DROP_SEQUENCE = "drop sequence ";
-
-    /** Constant used for table regeneration */
-    private static final String IF_EXISTS = "if exists ";
-
-    /** Constant used for table regeneration */
-    private static final String CASCADE = " cascade ";
+    /** Query to check which tables exist in the ebxml database */
+    private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
     private LifecycleManagerImpl lcm;
 
@@ -110,185 +104,24 @@ public class DbInit implements ApplicationListener {
 
     private XACMLPolicyAdministrator xacmlAdmin;
 
-    private IEbxmlDatabaseValidationStrategy dbValidationStrategy;
-
+    /**
+     * Creates a new instance of DbInit. This constructor should only be called
+     * once when loaded by the Spring container.
+     */
     public DbInit() {
+        super("ebxml registry");
     }
 
     /**
-     * Initializes the RegRep database. This method compares the existing tables
-     * in the database to verify that they match the tables that Hibernate is
-     * aware of. If the existing tables in the database do not match the tables
-     * Hibernate is expecting, the tables are regenerated. During the
-     * regeneration process, the minimum database objects are reloaded into the
-     * database.
-     * 
-     * @throws EbxmlRegistryException
+     * {@inheritDoc}
      */
-    protected void initDb() throws EbxmlRegistryException {
-        /*
-         * Create a new configuration object which holds all the classes that
-         * this Hibernate SessionFactory is aware of
-         */
-        AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        for (Object obj : sessionFactory.getAllClassMetadata().keySet()) {
-            try {
-                Class<?> clazz = Class.forName((String) obj);
-                if (clazz.getName().startsWith("oasis")) {
-                    aConfig.addAnnotatedClass(clazz);
-                }
-            } catch (ClassNotFoundException e) {
-                statusHandler.error(
-                        "Error initializing RegRep database. Class not found: "
-                                + obj, e);
-            }
-        }
+    @Override
+    protected void executeAdditionalSql() throws Exception {
+        super.executeAdditionalSql();
 
-        /*
-         * Check to see if the database is valid.
-         */
-        boolean dbIsValid = true;
-        try {
-            dbIsValid = isDbValid(aConfig);
-        } catch (SQLException e) {
-            throw new EbxmlRegistryException("Error checking if db is valid!",
-                    e);
-        }
+        executeRegistrySql();
 
-        if (dbIsValid) {
-            // Database is valid.
-            statusHandler.info("RegRep database is up to date!");
-        } else {
-            // Database is not valid. Drop and regenerate the tables defined by
-            // Hibernate
-            statusHandler
-                    .info("RegRep database is out of sync with defined java classes.  Regenerating default database tables...");
-            statusHandler.info("Dropping existing tables...");
-            try {
-                dropTables(aConfig);
-            } catch (SQLException e) {
-                throw new EbxmlRegistryException(
-                        "An unexpected database error occurred while dropping existing RegRep database tables.",
-                        e);
-            }
-            statusHandler.info("Recreating tables...");
-            try {
-                createTables(aConfig);
-            } catch (SQLException e) {
-                throw new EbxmlRegistryException(
-                        "An unexpected database error occurred while creating RegRep database tables.",
-                        e);
-            }
-
-            statusHandler.info("Executing additional registry SQL...");
-            try {
-                executeRegistrySql();
-            } catch (EbxmlRegistryException e) {
-                throw new EbxmlRegistryException(
-                        "An unexpected database error occurred while executing additional sql on the registry",
-                        e);
-            }
-
-            try {
-                populateDB();
-            } catch (SerializationException e) {
-                throw new EbxmlRegistryException(
-                        "Serialization error populating RegRep database with minDB objects",
-                        e);
-            } catch (MsgRegistryException e) {
-                throw new EbxmlRegistryException(
-                        "SubmitObjects encountered an error while populating RegRep database with minDB",
-                        e);
-            }
-            statusHandler
-                    .info("RegRep database tables have been successfully regenerated!");
-        }
-
-    }
-
-    /**
-     * Drops the union set of tables defined by Hibernate and exist in the
-     * database.
-     * 
-     * @param aConfig
-     *            The Hibernate annotation configuration holding the metadata
-     *            for all Hibernate-aware classes
-     * @throws SQLException
-     *             If the drop sql strings cannot be executed
-     * @throws EbxmlRegistryException
-     */
-    private void dropTables(final AnnotationConfiguration aConfig)
-            throws SQLException, EbxmlRegistryException {
-
-        final String[] dropSqls = aConfig
-                .generateDropSchemaScript(((SessionFactoryImpl) sessionFactory)
-                        .getDialect());
-
-        for (String sql : dropSqls) {
-            if (sql.startsWith(DROP_TABLE)) {
-                // Modify the drop string to add the 'if exists'
-                // and
-                // 'cascade' clauses to avoid any errors if the
-                // tables
-                // do not exist already
-                sql = sql.replace(DROP_TABLE, DROP_TABLE + IF_EXISTS);
-                sql += CASCADE;
-                sessionFactory.getCurrentSession().createSQLQuery(sql)
-                        .executeUpdate();
-            } else if (sql.startsWith(DROP_SEQUENCE)) {
-                // Modify the drop string to add the 'if exists'
-                // and
-                // 'cascade' clauses to avoid any errors if the
-                // tables
-                // do not exist already
-                sql = sql.replace(DROP_SEQUENCE, DROP_SEQUENCE + IF_EXISTS);
-                sql += CASCADE;
-                sessionFactory.getCurrentSession().createSQLQuery(sql)
-                        .executeUpdate();
-            }
-
-        }
-    }
-
-    /**
-     * Creates the database tables based on the Class metadata that Hibernate is
-     * aware of
-     * 
-     * @param aConfig
-     *            The Hibernate annotation configuration holding the metadata
-     *            for all Hibernate-aware classes
-     * @throws SQLException
-     *             If the drop sql strings cannot be executed
-     * @throws EbxmlRegistryException
-     */
-    private void createTables(final AnnotationConfiguration aConfig)
-            throws SQLException, EbxmlRegistryException {
-
-        final String[] createSqls = aConfig
-                .generateSchemaCreationScript(((SessionFactoryImpl) sessionFactory)
-                        .getDialect());
-        for (String createSql : createSqls) {
-            sessionFactory.getCurrentSession().createSQLQuery(createSql)
-                    .executeUpdate();
-        }
-    }
-
-    /**
-     * Checks to see if the database is valid. The RegRep database is considered
-     * to be valid if the set of tables defined by Hibernate contains the set of
-     * tables already in existance in the database
-     * 
-     * @param aConfig
-     *            The Hibernate annotation configuration holding the metadata
-     *            for all Hibernate-aware classes
-     * @return True if the database is valid, else false
-     * @throws SQLException
-     *             If the drop sql strings cannot be executed
-     * @throws EbxmlRegistryException
-     */
-    private boolean isDbValid(AnnotationConfiguration aConfig)
-            throws SQLException, EbxmlRegistryException {
-        return dbValidationStrategy.isDbValid(aConfig, sessionFactory);
+        populateDB();
     }
 
     /**
@@ -318,7 +151,8 @@ public class DbInit implements ApplicationListener {
                     + fileList[i].getName());
 
             SubmitObjectsRequest obj = SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(SubmitObjectsRequest.class, fileList[i]);
+                    .jaxbUnmarshalFromXmlFile(SubmitObjectsRequest.class,
+                            fileList[i]);
 
             // Ensure an owner is assigned
             for (RegistryObjectType regObject : obj.getRegistryObjectList()
@@ -369,8 +203,16 @@ public class DbInit implements ApplicationListener {
                     while ((line = reader.readLine()) != null) {
                         buffer.append(line);
                     }
-                    sessionFactory.getCurrentSession()
-                            .createSQLQuery(buffer.toString()).executeUpdate();
+
+                    executeWork(new Work() {
+                        @Override
+                        public void execute(Connection connection)
+                                throws SQLException {
+                            Statement stmt = connection.createStatement();
+                            stmt.execute(buffer.toString());
+                            connection.commit();
+                        }
+                    });
                 } catch (Exception e) {
                     throw new EbxmlRegistryException(
                             "Unable to execute SQL Scripts for registry", e);
@@ -440,18 +282,32 @@ public class DbInit implements ApplicationListener {
         }
     }
 
-    public LifecycleManagerImpl getLcm() {
-        return lcm;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected AnnotationConfiguration getAnnotationConfiguration() {
+        /*
+         * Create a new configuration object which holds all the classes that
+         * this Hibernate SessionFactory is aware of
+         */
+        AnnotationConfiguration aConfig = new AnnotationConfiguration();
+        for (Object obj : sessionFactory.getAllClassMetadata()
+                .keySet()) {
+            try {
+                Class<?> clazz = Class.forName((String) obj);
+                if (clazz.getName().startsWith("oasis")) {
+                    aConfig.addAnnotatedClass(clazz);
+                }
+            } catch (ClassNotFoundException e) {
+                statusHandler.error(
+                        "Error initializing RegRep database. Class not found: "
+                                + obj, e);
+            }
+        }
+        return aConfig;
     }
-
-    public void setLcm(LifecycleManagerImpl lcm) {
-        this.lcm = lcm;
-    }
-
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
-
+    
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void onApplicationEvent(ApplicationEvent event) {
@@ -459,9 +315,7 @@ public class DbInit implements ApplicationListener {
             try {
                 initDb();
                 xacmlAdmin.loadAccessControlPolicies();
-            } catch (EbxmlRegistryException e) {
-                statusHandler.fatal("Error initializing EBXML database!", e);
-            } catch (MsgRegistryException e) {
+            } catch (Exception e) {
                 statusHandler.fatal("Error initializing EBXML database!", e);
             }
 
@@ -477,24 +331,35 @@ public class DbInit implements ApplicationListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getTableCheckQuery() {
+        return TABLE_CHECK_QUERY;
+    }
+
+    /**
+     * @param lcm
+     *            the lcm to set
+     */
+    public void setLcm(LifecycleManagerImpl lcm) {
+        this.lcm = lcm;
+    }
+
+    /**
+     * @param sessionFactory
+     *            the sessionFactory to set
+     */
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    /**
+     * @param xacmlAdmin
+     *            the xacmlAdmin to set
+     */
     public void setXacmlAdmin(XACMLPolicyAdministrator xacmlAdmin) {
         this.xacmlAdmin = xacmlAdmin;
     }
-
-    /**
-     * @return the dbValidationStrategy
-     */
-    public IEbxmlDatabaseValidationStrategy getDbValidationStrategy() {
-        return dbValidationStrategy;
-    }
-
-    /**
-     * @param dbValidationStrategy
-     *            the dbValidationStrategy to set
-     */
-    public void setDbValidationStrategy(
-            IEbxmlDatabaseValidationStrategy dbValidationStrategy) {
-        this.dbValidationStrategy = dbValidationStrategy;
-    }
-
 }

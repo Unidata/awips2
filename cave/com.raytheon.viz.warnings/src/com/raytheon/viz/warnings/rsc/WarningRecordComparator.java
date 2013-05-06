@@ -18,6 +18,7 @@ import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
  * ------------ ---------- ----------- --------------------------
  * May 12, 2011            jsanchez     Initial creation
  * Sep 27, 2012     1149   jsanchez     Updated order of actions. Put CON before CAN,EXP
+ * Apr 18, 2013     1877   jsanchez     Ordered by starttime before action to handle updates and initial load of the resource.
  * </pre>
  * 
  * @author jsanchez
@@ -27,8 +28,8 @@ public class WarningRecordComparator implements
         Comparator<AbstractWarningRecord> {
 
     /**
-     * Compares the WarningRecords by phenSig, ETN, action, then starttime
-     * (descending order)
+     * Compares the WarningRecords by phenSig, ETN, starttime (ascending order),
+     * then action
      */
     @Override
     public int compare(AbstractWarningRecord wr1, AbstractWarningRecord wr2) {
@@ -43,6 +44,11 @@ public class WarningRecordComparator implements
                 rval = Double.compare(Double.parseDouble(wr1.getEtn()),
                         Double.parseDouble(wr2.getEtn()));
             }
+
+            if (rval == 0) {
+                rval = wr1.getStartTime().compareTo(wr2.getStartTime());
+            }
+
             if (rval == 0) {
                 if (wr1.getAct() != null && wr2.getAct() != null) {
                     WarningAction act1 = WarningAction.valueOf(wr1.getAct());
@@ -55,24 +61,15 @@ public class WarningRecordComparator implements
                         rval = 1;
                     } else if (act1 == WarningAction.CON
                             && (act2 == WarningAction.CAN || act2 == WarningAction.EXP)) {
-                        return -1;
+                        return 1;
                     } else if (act2 == WarningAction.CON
                             && (act1 == WarningAction.CAN || act1 == WarningAction.EXP)) {
-                        return 1;
+                        return -1;
                     } else {
                         rval = wr1.getAct().compareTo(wr2.getAct());
                     }
                 }
 
-                if (rval == 0) {
-                    rval = wr1.getStartTime().compareTo(wr2.getStartTime());
-                    // sort warnings in descending order
-                    if (wr1.getSig() != null) {
-                        if (!wr1.getSig().equals("A")) {
-                            rval *= -1;
-                        }
-                    }
-                }
             }
         }
         return rval;
