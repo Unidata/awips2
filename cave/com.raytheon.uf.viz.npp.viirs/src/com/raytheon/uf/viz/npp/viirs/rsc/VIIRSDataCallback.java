@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2011            mschenke     Initial creation
+ * Apr 04, 2013            djohnson     Remove color import.
  * 
  * </pre>
  * 

@@ -33,10 +33,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -70,7 +68,6 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
@@ -96,6 +93,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 7/24/07      353         bphillip    Initial Check in   
  * 5/14/08      1076        brockwoo    Fix for distinct with multiple properties
  * Oct 10, 2012 1261        djohnson    Incorporate changes to DaoConfig, add generic to {@link IPersistableDataObject}.
+ * Apr 15, 2013 1868        bsteffen    Rewrite mergeAll in PluginDao.
  * 
  * </pre>
  * 
@@ -255,59 +253,13 @@ public class CoreDao extends HibernateDaoSupport {
         });
     }
 
-    private static final String mergeSqlFormat = "select id from awips.%s where dataURI=:dataURI";
-
-    public <T> List<PersistableDataObject<T>> mergeAll(
-            final List<PersistableDataObject<T>> obj) {
-        List<PersistableDataObject<T>> duplicates = new ArrayList<PersistableDataObject<T>>();
-        Session s = this.getHibernateTemplate().getSessionFactory()
-                .openSession();
-        Transaction tx = s.beginTransaction();
-        try {
-            Map<String, Query> pluginQueryMap = new HashMap<String, Query>();
-            for (PersistableDataObject<T> pdo : obj) {
-                if (pdo == null) {
-                    logger.error("Attempted to insert null PersistableDataObject");
-                    continue;
-                }
-                String plugin = ((PluginDataObject) pdo).getPluginName();
-                Query q = pluginQueryMap.get(plugin);
-                if (q == null) {
-                    q = s.createSQLQuery(String.format(mergeSqlFormat, plugin));
-                    pluginQueryMap.put(plugin, q);
-                }
-                q.setString("dataURI", (String) pdo.getIdentifier());
-                if (q.list().size() == 0) {
-                    s.persist(pdo);
-                } else {
-                    if (!pdo.isOverwriteAllowed()) {
-                        duplicates.add(pdo);
-                    } else {
-                        statusHandler.handle(Priority.DEBUG, "Overwriting "
-                                + pdo.getIdentifier());
-                    }
-                }
-            }
-            tx.commit();
-        } catch (Throwable e) {
-            // TODO
-            e.printStackTrace();
-            tx.rollback();
-        } finally {
-            if (s != null) {
-                s.close();
-            }
-        }
-        return duplicates;
-    }
-
     /**
      * Deletes an object from the database
      * 
      * @param obj
      *            The object to delete
      */
-    public <T> void delete(final PersistableDataObject<T> obj) {
+    public <T> void delete(final Object obj) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -359,10 +311,11 @@ public class CoreDao extends HibernateDaoSupport {
                                         id.getDataURI()));
                         List<?> list = getHibernateTemplate().findByCriteria(
                                 criteria);
-                        if (list.size() > 0)
+                        if (list.size() > 0) {
                             return (PluginDataObject) list.get(0);
-                        else
+                        } else {
                             return null;
+                        }
                     }
                 });
         return retVal;
@@ -895,7 +848,7 @@ public class CoreDao extends HibernateDaoSupport {
             logger.error("Unable to close JDBC statement!", e1);
         }
 
-        if (exception == null && transactional) {
+        if ((exception == null) && transactional) {
             trans.commit();
         }
         try {
