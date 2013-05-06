@@ -82,6 +82,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 11/05/12     #1310       dgilling    Remove code from updateCatches()
  *                                      that sent notification to D2DParmIdCache.
  * 01/14/13     #1469       bkowal      Removed the hdf5 data directory
+ * 04/08/13     #1293       bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -415,7 +416,6 @@ public class GribDao extends PluginDao {
             throws PluginException {
         List<StorageException> exceptions = new ArrayList<StorageException>();
         IPersistable persistable = pdo;
-        persistable.setHdfFileId(EDEXUtil.getServerId());
 
         // get the directory
         String directory = pdo.getPluginName() + File.separator

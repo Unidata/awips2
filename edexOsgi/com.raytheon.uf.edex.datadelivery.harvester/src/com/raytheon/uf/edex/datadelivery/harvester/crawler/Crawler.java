@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
@@ -68,7 +69,7 @@ public abstract class Crawler {
 
     protected final HarvesterConfig hconfig;
 
-    protected final String[] proxyParameters;
+    protected final ProxyConfiguration proxyParameters;
 
     protected static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
         @Override
@@ -158,9 +159,9 @@ public abstract class Crawler {
         if (!lockFileDir.exists()) {
             lockFileDir.mkdirs();
         }
-        
+
         File lockFile = new File(lockFileDir, crawlType + "-crawl.lock");
-        
+
         try {
             // if lock file doesn't exist, create it
             if (!lockFile.exists()) {
@@ -172,7 +173,7 @@ public abstract class Crawler {
             // Try acquiring the lock without blocking. This method returns
             // null or throws an exception if the file is already locked.
             FileLock lock = channel.tryLock();
-            
+
             if (lock == null) {
                 // Someone else has the lock
                 statusHandler
@@ -285,11 +286,11 @@ public abstract class Crawler {
          * Do you need to set a proxy? If so, you can use:
          */
         if (proxyParameters != null) {
-            String host = proxyParameters[0];
-            String port = proxyParameters[1];
+            String host = proxyParameters.getHost();
+            int port = proxyParameters.getPort();
 
             config.setProxyHost(host);
-            config.setProxyPort(new Integer(port).intValue());
+            config.setProxyPort(port);
         }
 
         /*

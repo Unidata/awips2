@@ -21,7 +21,9 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXB;
@@ -31,8 +33,6 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
@@ -40,6 +40,9 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData.COLUMN_NAME;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
@@ -55,7 +58,9 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * ------------ ---------- ----------- --------------------------
  * Aug 01, 2012 14168      mpduff       Add convenience methods for 
  *                                      getting ColorCell and ReverseFilter
+ * Apr 12, 2013  1902      mpduff       Speed up cell coloring.
  * Apr 15, 2013   1904     mpduff       Don't allow this class to be nulled out
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -63,6 +68,10 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * @version 1.0
  */
 public class FFMPConfig {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPConfig.class);
+
     private static FFMPConfig classInstance = new FFMPConfig();
 
     public static enum TableCellColor {
@@ -106,14 +115,16 @@ public class FFMPConfig {
     private final Color vgbColor = new Color(Display.getDefault(), 196, 137,
             250);
 
-    private final String defaultConfigXml = "DefaultFFMPconfig_basin.xml";
+    private static final String DEFAULT_CONFIG_XML = "ffmp"
+            + IPathManager.SEPARATOR + "guiConfig" + IPathManager.SEPARATOR
+            + "DefaultFFMPconfig_basin.xml";
 
     /**
      * Used for looking up data - NOT for editing.
      */
-    private HashMap<ThreshColNames, ThresholdManager> threshMgrMap;
+    private Map<ThreshColNames, ThresholdManager> threshMgrMap;
 
-    private HashMap<String, ThreshColNames> thresholdLookup;
+    private Map<String, ThreshColNames> thresholdLookup;
 
     private AttributesDlgData attrData = null;
 
@@ -123,12 +134,13 @@ public class FFMPConfig {
         init();
     }
 
-    public static synchronized FFMPConfig getInstance() {
+    public static FFMPConfig getInstance() {
         return classInstance;
     }
 
     private void init() {
-        threshMgrMap = new HashMap<ThreshColNames, ThresholdManager>();
+        threshMgrMap = new EnumMap<ThreshColNames, ThresholdManager>(
+                ThreshColNames.class);
 
         thresholdLookup = new HashMap<String, ThreshColNames>();
 
@@ -136,7 +148,7 @@ public class FFMPConfig {
             thresholdLookup.put(threshColName.name(), threshColName);
         }
 
-        readDefaultFFMPConfigBasin(defaultConfigXml);
+        readDefaultFFMPConfigBasin();
     }
 
     public boolean isThreshold(String colName) {
@@ -177,7 +189,7 @@ public class FFMPConfig {
     }
 
     public void loadDefaultConfig() {
-        readDefaultFFMPConfigBasin(defaultConfigXml);
+        readDefaultFFMPConfigBasin();
     }
 
     private void readNewFFMPConfigBasin(LocalizationFile xmlFileName) {
@@ -193,32 +205,24 @@ public class FFMPConfig {
         }
     }
 
-    private void readDefaultFFMPConfigBasin(String xmlFileName) {
+    private void readDefaultFFMPConfigBasin() {
         ffmpCfgBasin = null;
-        String fs = String.valueOf(File.separatorChar);
 
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
 
-            Map<LocalizationLevel, LocalizationFile> fileMap = pm
-                    .getTieredLocalizationFile(LocalizationType.CAVE_STATIC,
-                            "ffmp" + fs + "guiConfig" + fs + xmlFileName);
-
-            String path = null;
-            if (fileMap.get(LocalizationLevel.USER) != null) {
-                path = fileMap.get(LocalizationLevel.USER).getFile(true)
-                        .getAbsolutePath();
-            } else if (fileMap.get(LocalizationLevel.SITE) != null) {
-                path = fileMap.get(LocalizationLevel.SITE).getFile(true)
-                        .getAbsolutePath();
-            } else {
-                path = fileMap.get(LocalizationLevel.BASE).getFile(true)
-                        .getAbsolutePath();
+            File file = pm.getStaticFile(DEFAULT_CONFIG_XML);
+            if (file == null) {
+                // Should never get here since there is a baseline version of
+                // the file.
+                statusHandler.handle(Priority.ERROR,
+                        "Default FFMP Configuration File Not Found.");
+                return;
             }
 
-            System.out.println("Path Config FFMP: " + path);
+            System.out.println("Path Config FFMP: " + file.getAbsolutePath());
 
-            ffmpCfgBasin = JAXB.unmarshal(new File(path),
+            ffmpCfgBasin = JAXB.unmarshal(file,
                     FFMPConfigBasinXML.class);
 
             createThresholdManager();
@@ -305,20 +309,15 @@ public class FFMPConfig {
      *         color based on threshold
      */
     public Color getThresholdColor(String colName, double val) {
-        if (thresholdLookup.containsKey(colName) == true) {
-            ArrayList<FFMPTableColumnXML> ffmpTableCols = ffmpCfgBasin
-                    .getTableColumnData();
+        ThreshColNames colNames = thresholdLookup.get(colName);
+        if (colNames != null) {
+            FFMPTableColumnXML tableColData = ffmpCfgBasin
+                    .getTableColumnData(colName);
+            if (tableColData.getColorCell()) {
+                TableCellColor cellColor = threshMgrMap.get(colNames)
+                        .getThresholdColor(val);
 
-            for (FFMPTableColumnXML tableColData : ffmpTableCols) {
-                if (tableColData.getColumnName().compareTo(colName) == 0) {
-                    if (tableColData.getColorCell()) {
-                        return getCellColor(threshMgrMap.get(
-                                thresholdLookup.get(colName))
-                                .getThresholdColor(val));
-                    } else {
-                        return defaultColor;
-                    }
-                }
+                return getCellColor(cellColor);
             }
         }
 
@@ -336,15 +335,15 @@ public class FFMPConfig {
     private void createThresholdManager() {
         threshMgrMap.clear();
 
-        ArrayList<FFMPTableColumnXML> tableColData = ffmpCfgBasin
+        List<FFMPTableColumnXML> tableColData = ffmpCfgBasin
                 .getTableColumnData();
 
-        for (ThreshColNames threshName : ThreshColNames.values()) {
-            for (FFMPTableColumnXML tcXML : tableColData) {
-                if (threshName.name().compareTo(tcXML.getColumnName()) == 0) {
-                    ThresholdManager threshMgr = new ThresholdManager(tcXML);
-                    threshMgrMap.put(threshName, threshMgr);
-                }
+        for (FFMPTableColumnXML tcXML : tableColData) {
+            ThreshColNames colNames = thresholdLookup
+                    .get(tcXML.getColumnName());
+            if (colNames != null) {
+                ThresholdManager threshMgr = new ThresholdManager(tcXML);
+                threshMgrMap.put(colNames, threshMgr);
             }
         }
     }

@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<LevelMappings>
+    <Level key="BL030">
+        <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="30.0" unit="hPa"/>
+    </Level>
+    <Level key="BL0180">
+        <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="180.0" unit="hPa"/>
+    </Level>
+    <Level key="BL0255">
+        <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="255.0" unit="hPa"/>
+    </Level>
+    <Level key="BL3060">
+        <DatabaseLevel levelName="BL" levelOneValue="30.0" levelTwoValue="60.0" unit="hPa"/>
+    </Level>
+    <Level key="BL6090">
+        <DatabaseLevel levelName="BL" levelOneValue="60.0" levelTwoValue="90.0" unit="hPa"/>
+    </Level>
+    <Level key="BL90120">
+        <DatabaseLevel levelName="BL" levelOneValue="90.0" levelTwoValue="120.0" unit="hPa"/>
+    </Level>
+    <Level key="BL120150">
+        <DatabaseLevel levelName="BL" levelOneValue="120.0" levelTwoValue="150.0" unit="hPa"/>
+    </Level>
+    <Level key="BL150180">
+        <DatabaseLevel levelName="BL" levelOneValue="150.0" levelTwoValue="180.0" unit="hPa"/>
+    </Level>
+    <Level key="BLD0">
+        <DatabaseLevel levelName="BLD" levelOneValue="0.0"/>
+    </Level>
+    <Level key="BLS">
+        <DatabaseLevel levelName="BLS" levelOneValue="0.0" unit="m"/>
+    </Level>
+    <Level key="BLS1">
+        <DatabaseLevel levelName="BLS" levelOneValue="1.0" unit="m"/>
+    </Level>
+    <Level key="BLS2">
+        <DatabaseLevel levelName="BLS" levelOneValue="2.0" unit="m"/>
+    </Level>
+    <Level key="BLS3">
+        <DatabaseLevel levelName="BLS" levelOneValue="3.0" unit="m"/>
+    </Level>
+    <Level key="CBL">
+        <DatabaseLevel levelName="CBL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="CCTL">
+        <DatabaseLevel levelName="CCTL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="CLG">
+        <DatabaseLevel levelName="CLG" levelOneValue="0.0"/>
+    </Level>
+    <Level key="CTL">
+        <DatabaseLevel levelName="CTL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="Dflt">
+        <DatabaseLevel levelName="Dflt" levelOneValue="0.0"/>
+    </Level>
+    <Level key="EA">
+        <DatabaseLevel levelName="EA" levelOneValue="0.0"/>
+    </Level>
+    <Level key="EL">
+        <DatabaseLevel levelName="EL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="FH10">
+        <DatabaseLevel levelName="FH" levelOneValue="10.0" unit="m"/>
+    </Level>
+    <Level key="FH304">
+        <DatabaseLevel levelName="FH" levelOneValue="304.0" unit="m"/>
+    </Level>
+    <Level key="FH305">
+        <DatabaseLevel levelName="FH" levelOneValue="305.0" unit="m"/>
+    </Level>
+    <Level key="FH609">
+        <DatabaseLevel levelName="FH" levelOneValue="609.0" unit="m"/>
+    </Level>
+    <Level key="FH610">
+        <DatabaseLevel levelName="FH" levelOneValue="610.0" unit="m"/>
+    </Level>
+    <Level key="FH914">
+        <DatabaseLevel levelName="FH" levelOneValue="914.0" unit="m"/>
+    </Level>
+    <Level key="FH1219">
+        <DatabaseLevel levelName="FH" levelOneValue="1219.0" unit="m"/>
+    </Level>
+    <Level key="FH1500">
+        <DatabaseLevel levelName="FH" levelOneValue="1500.0" unit="m"/>
+    </Level>
+    <Level key="FH1524">
+        <DatabaseLevel levelName="FH" levelOneValue="1524.0" unit="m"/>
+    </Level>
+    <Level key="FH1828">
+        <DatabaseLevel levelName="FH" levelOneValue="1828.0" unit="m"/>
+    </Level>
+    <Level key="FH1829">
+        <DatabaseLevel levelName="FH" levelOneValue="1829.0" unit="m"/>
+    </Level>
+    <Level key="FH2133">
+        <DatabaseLevel levelName="FH" levelOneValue="2133.0" unit="m"/>
+    </Level>
+    <Level key="FH2134">
+        <DatabaseLevel levelName="FH" levelOneValue="2134.0" unit="m"/>
+    </Level>
+    <Level key="FH2438">
+        <DatabaseLevel levelName="FH" levelOneValue="2438.0" unit="m"/>
+    </Level>
+    <Level key="FH2743">
+        <DatabaseLevel levelName="FH" levelOneValue="2743.0" unit="m"/>
+    </Level>
+    <Level key="FH3048">
+        <DatabaseLevel levelName="FH" levelOneValue="3048.0" unit="m"/>
+    </Level>
+    <Level key="FH3352">
+        <DatabaseLevel levelName="FH" levelOneValue="3352.0" unit="m"/>
+    </Level>
+    <Level key="FH3353">
+        <DatabaseLevel levelName="FH" levelOneValue="3353.0" unit="m"/>
+    </Level>
+    <Level key="FH3657">
+        <DatabaseLevel levelName="FH" levelOneValue="3657.0" unit="m"/>
+    </Level>
+    <Level key="FH3658">
+        <DatabaseLevel levelName="FH" levelOneValue="3658.0" unit="m"/>
+    </Level>
+    <Level key="FH3962">
+        <DatabaseLevel levelName="FH" levelOneValue="3962.0" unit="m"/>
+    </Level>
+    <Level key="FH4267">
+        <DatabaseLevel levelName="FH" levelOneValue="4267.0" unit="m"/>
+    </Level>
+    <Level key="FH4572">
+        <DatabaseLevel levelName="FH" levelOneValue="4572.0" unit="m"/>
+    </Level>
+    <Level key="FH4876">
+        <DatabaseLevel levelName="FH" levelOneValue="4876.0" unit="m"/>
+    </Level>
+    <Level key="FH4877">
+        <DatabaseLevel levelName="FH" levelOneValue="4877.0" unit="m"/>
+    </Level>
+    <Level key="FH5181">
+        <DatabaseLevel levelName="FH" levelOneValue="5181.0" unit="m"/>
+    </Level>
+    <Level key="FH5182">
+        <DatabaseLevel levelName="FH" levelOneValue="5182.0" unit="m"/>
+    </Level>
+    <Level key="FH5486">
+        <DatabaseLevel levelName="FH" levelOneValue="5486.0" unit="m"/>
+    </Level>
+    <Level key="FH5791">
+        <DatabaseLevel levelName="FH" levelOneValue="5791.0" unit="m"/>
+    </Level>
+    <Level key="FH6400">
+        <DatabaseLevel levelName="FH" levelOneValue="6400.0" unit="m"/>
+    </Level>
+    <Level key="FH6096">
+        <DatabaseLevel levelName="FH" levelOneValue="6096.0" unit="m"/>
+    </Level>
+    <Level key="FH6401">
+        <DatabaseLevel levelName="FH" levelOneValue="6401.0" unit="m"/>
+    </Level>
+    <Level key="FH6705">
+        <DatabaseLevel levelName="FH" levelOneValue="6705.0" unit="m"/>
+    </Level>
+    <Level key="FH6706">
+        <DatabaseLevel levelName="FH" levelOneValue="6706.0" unit="m"/>
+    </Level>
+    <Level key="FH7010">
+        <DatabaseLevel levelName="FH" levelOneValue="7010.0" unit="m"/>
+    </Level>
+    <Level key="FH7315">
+        <DatabaseLevel levelName="FH" levelOneValue="7315.0" unit="m"/>
+    </Level>
+    <Level key="FH7620">
+        <DatabaseLevel levelName="FH" levelOneValue="7620.0" unit="m"/>
+    </Level>
+    <Level key="FH7924">
+        <DatabaseLevel levelName="FH" levelOneValue="7924.0" unit="m"/>
+    </Level>
+    <Level key="FH7925">
+        <DatabaseLevel levelName="FH" levelOneValue="7925.0" unit="m"/>
+    </Level>
+    <Level key="FH8229">
+        <DatabaseLevel levelName="FH" levelOneValue="8229.0" unit="m"/>
+    </Level>
+    <Level key="FH8230">
+        <DatabaseLevel levelName="FH" levelOneValue="8230.0" unit="m"/>
+    </Level>
+    <Level key="FH8534">
+        <DatabaseLevel levelName="FH" levelOneValue="8534.0" unit="m"/>
+    </Level>
+    <Level key="FH8839">
+        <DatabaseLevel levelName="FH" levelOneValue="8839.0" unit="m"/>
+    </Level>
+    <Level key="FH9144">
+        <DatabaseLevel levelName="FH" levelOneValue="9144.0" unit="m"/>
+    </Level>
+    <Level key="FH9448">
+        <DatabaseLevel levelName="FH" levelOneValue="9448.0" unit="m"/>
+    </Level>
+    <Level key="FH9753">
+        <DatabaseLevel levelName="FH" levelOneValue="9753.0" unit="m"/>
+    </Level>
+    <Level key="FH10058">
+        <DatabaseLevel levelName="FH" levelOneValue="10058.0" unit="m"/>
+    </Level>
+    <Level key="FH10363">
+        <DatabaseLevel levelName="FH" levelOneValue="10363.0" unit="m"/>
+    </Level>
+    <Level key="FH10668">
+        <DatabaseLevel levelName="FH" levelOneValue="10668.0" unit="m"/>
+    </Level>
+    <Level key="FH10972">
+        <DatabaseLevel levelName="FH" levelOneValue="10972.0" unit="m"/>
+    </Level>
+    <Level key="FH11277">
+        <DatabaseLevel levelName="FH" levelOneValue="11227.0" unit="m"/>
+    </Level>
+    <Level key="FH11582">
+        <DatabaseLevel levelName="FH" levelOneValue="11582.0" unit="m"/>
+    </Level>
+    <Level key="FH11887">
+        <DatabaseLevel levelName="FH" levelOneValue="11887.0" unit="m"/>
+    </Level>
+    <Level key="FH12192">
+        <DatabaseLevel levelName="FH" levelOneValue="12192.0" unit="m"/>
+    </Level>
+    <Level key="FH12496">
+        <DatabaseLevel levelName="FH" levelOneValue="12496.0" unit="m"/>
+    </Level>
+    <Level key="FH12801">
+        <DatabaseLevel levelName="FH" levelOneValue="12801.0" unit="m"/>
+    </Level>
+    <Level key="FH13106">
+        <DatabaseLevel levelName="FH" levelOneValue="13106.0" unit="m"/>
+    </Level>
+    <Level key="FH13411">
+        <DatabaseLevel levelName="FH" levelOneValue="13411.0" unit="m"/>
+    </Level>
+    <Level key="FH13716">
+        <DatabaseLevel levelName="FH" levelOneValue="13716.0" unit="m"/>
+    </Level>
+    <Level key="FHAG2">
+        <DatabaseLevel levelName="FHAG" levelOneValue="2.0" unit="m"/>
+    </Level>
+    <Level key="FHAG10">
+        <DatabaseLevel levelName="FHAG" levelOneValue="10.0" unit="m"/>
+    </Level>
+    <Level key="FHAG1000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="1000.0" unit="m"/>
+    </Level>
+    <Level key="FHAG4000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="4000.0" unit="m"/>
+    </Level>
+    <Level key="FHAG01000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="1000.0" unit="m"/>
+    </Level>
+    <Level key="FHAG03000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="3000.0" unit="m"/>
+    </Level>
+    <Level key="FHAG06000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="6000.0" unit="m"/>
+    </Level>
+    <Level key="FRZ">
+        <DatabaseLevel levelName="FRZ" levelOneValue="0.0"/>
+    </Level>
+    <Level key="HCBL">
+        <DatabaseLevel levelName="HCBL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="HYB1">
+        <DatabaseLevel levelName="HYB" levelOneValue="1.0"/>
+    </Level>
+    <Level key="LCBL">
+        <DatabaseLevel levelName="LCBL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="LCL">
+        <DatabaseLevel levelName="LCL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="MAXW">
+        <DatabaseLevel levelName="MAXW" levelOneValue="0.0"/>
+    </Level>
+    <Level key="MB50">
+        <DatabaseLevel levelName="MB" levelOneValue="50.0" unit="hPa"/>
+    </Level>
+    <Level key="MB100">
+        <DatabaseLevel levelName="MB" levelOneValue="100.0" unit="hPa"/>
+    </Level>
+    <Level key="MB125">
+        <DatabaseLevel levelName="MB" levelOneValue="125.0" unit="hPa"/>
+    </Level>
+    <Level key="MB150">
+        <DatabaseLevel levelName="MB" levelOneValue="150.0" unit="hPa"/>
+    </Level>
+    <Level key="MB175">
+        <DatabaseLevel levelName="MB" levelOneValue="175.0" unit="hPa"/>
+    </Level>
+    <Level key="MB200">
+        <DatabaseLevel levelName="MB" levelOneValue="200.0" unit="hPa"/>
+    </Level>
+    <Level key="MB225">
+        <DatabaseLevel levelName="MB" levelOneValue="225.0" unit="hPa"/>
+    </Level>
+    <Level key="MB250">
+        <DatabaseLevel levelName="MB" levelOneValue="250.0" unit="hPa"/>
+    </Level>
+    <Level key="MB275">
+        <DatabaseLevel levelName="MB" levelOneValue="275.0" unit="hPa"/>
+    </Level>
+    <Level key="MB300">
+        <DatabaseLevel levelName="MB" levelOneValue="300.0" unit="hPa"/>
+    </Level>
+    <Level key="MB325">
+        <DatabaseLevel levelName="MB" levelOneValue="325.0" unit="hPa"/>
+    </Level>
+    <Level key="MB350">
+        <DatabaseLevel levelName="MB" levelOneValue="350.0" unit="hPa"/>
+    </Level>
+    <Level key="MB375">
+        <DatabaseLevel levelName="MB" levelOneValue="375.0" unit="hPa"/>
+    </Level>
+    <Level key="MB400">
+        <DatabaseLevel levelName="MB" levelOneValue="400.0" unit="hPa"/>
+    </Level>
+    <Level key="MB425">
+        <DatabaseLevel levelName="MB" levelOneValue="425.0" unit="hPa"/>
+    </Level>
+    <Level key="MB450">
+        <DatabaseLevel levelName="MB" levelOneValue="450.0" unit="hPa"/>
+    </Level>
+    <Level key="MB475">
+        <DatabaseLevel levelName="MB" levelOneValue="475.0" unit="hPa"/>
+    </Level>
+    <Level key="MB500">
+        <DatabaseLevel levelName="MB" levelOneValue="500.0" unit="hPa"/>
+    </Level>
+    <Level key="MB525">
+        <DatabaseLevel levelName="MB" levelOneValue="525.0" unit="hPa"/>
+    </Level>
+    <Level key="MB550">
+        <DatabaseLevel levelName="MB" levelOneValue="550.0" unit="hPa"/>
+    </Level>
+    <Level key="MB575">
+        <DatabaseLevel levelName="MB" levelOneValue="575.0" unit="hPa"/>
+    </Level>
+    <Level key="MB600">
+        <DatabaseLevel levelName="MB" levelOneValue="600.0" unit="hPa"/>
+    </Level>
+    <Level key="MB625">
+        <DatabaseLevel levelName="MB" levelOneValue="625.0" unit="hPa"/>
+    </Level>
+    <Level key="MB650">
+        <DatabaseLevel levelName="MB" levelOneValue="650.0" unit="hPa"/>
+    </Level>
+    <Level key="MB675">
+        <DatabaseLevel levelName="MB" levelOneValue="675.0" unit="hPa"/>
+    </Level>
+    <Level key="MB700">
+        <DatabaseLevel levelName="MB" levelOneValue="700.0" unit="hPa"/>
+    </Level>
+    <Level key="MB725">
+        <DatabaseLevel levelName="MB" levelOneValue="725.0" unit="hPa"/>
+    </Level>
+    <Level key="MB750">
+        <DatabaseLevel levelName="MB" levelOneValue="750.0" unit="hPa"/>
+    </Level>
+    <Level key="MB775">
+        <DatabaseLevel levelName="MB" levelOneValue="775.0" unit="hPa"/>
+    </Level>
+    <Level key="MB800">
+        <DatabaseLevel levelName="MB" levelOneValue="800.0" unit="hPa"/>
+    </Level>
+    <Level key="MB825">
+        <DatabaseLevel levelName="MB" levelOneValue="825.0" unit="hPa"/>
+    </Level>
+    <Level key="MB850">
+        <DatabaseLevel levelName="MB" levelOneValue="850.0" unit="hPa"/>
+    </Level>
+    <Level key="MB875">
+        <DatabaseLevel levelName="MB" levelOneValue="875.0" unit="hPa"/>
+    </Level>
+    <Level key="MB900">
+        <DatabaseLevel levelName="MB" levelOneValue="900.0" unit="hPa"/>
+    </Level>
+    <Level key="MB925">
+        <DatabaseLevel levelName="MB" levelOneValue="925.0" unit="hPa"/>
+    </Level>
+    <Level key="MB950">
+        <DatabaseLevel levelName="MB" levelOneValue="950.0" unit="hPa"/>
+    </Level>
+    <Level key="MB975">
+        <DatabaseLevel levelName="MB" levelOneValue="975.0" unit="hPa"/>
+    </Level>
+    <Level key="MB1000">
+        <DatabaseLevel levelName="MB" levelOneValue="1000.0" unit="hPa"/>
+    </Level>
+    <Level key="MB1025">
+        <DatabaseLevel levelName="MB" levelOneValue="1025.0" unit="hPa"/>
+    </Level>
+    <Level key="MB1050">
+        <DatabaseLevel levelName="MB" levelOneValue="1050.0" unit="hPa"/>
+    </Level>
+    <Level key="MB1100">
+        <DatabaseLevel levelName="MB" levelOneValue="1100.0" unit="hPa"/>
+    </Level>
+    <Level key="MB0500">
+        <DatabaseLevel levelName="MB" levelOneValue="1000.0" levelTwoValue="500.0" unit="hPa"/>
+    </Level>
+    <Level key="MCBL">
+        <DatabaseLevel levelName="MCBL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="MSL">
+        <DatabaseLevel levelName="MSL" levelOneValue="0.0"/>
+    </Level>
+    <Level key="OSEQD1">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="1.0"/>
+    </Level>
+    <Level key="OSEQD2">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="2.0"/>
+    </Level>
+    <Level key="PV5">
+        <DatabaseLevel levelName="PV" levelOneValue="0.5" unit="K * m^2/kg*s * 1000000"/>
+    </Level>
+    <Level key="PV10">
+        <DatabaseLevel levelName="PV" levelOneValue="1.0" unit="K * m^2/kg*s * 1000000"/>
+    </Level>
+    <Level key="PV15">
+        <DatabaseLevel levelName="PV" levelOneValue="1.5" unit="K * m^2/kg*s * 1000000"/>
+    </Level>
+    <Level key="PV20">
+        <DatabaseLevel levelName="PV" levelOneValue="2.0" unit="K * m^2/kg*s * 1000000"/>
+    </Level>
+    <Level key="SFC">
+        <DatabaseLevel levelName="SFC" levelOneValue="0.0"/>
+    </Level>
+    <Level key="SIG0100">
+        <DatabaseLevel levelName="SIG" levelOneValue="0.0" levelTwoValue="1.0"/>
+    </Level>
+    <Level key="SIG9823">
+        <DatabaseLevel levelName="SIG" levelOneValue="0.23" levelTwoValue="0.98"/>
+    </Level>
+    <Level key="SIG33100">
+        <DatabaseLevel levelName="SIG" levelOneValue="0.33" levelTwoValue="1.0"/>
+    </Level>
+    <Level key="SIG44100">
+        <DatabaseLevel levelName="SIG" levelOneValue="0.44" levelTwoValue="1.0"/>
+    </Level>
+    <Level key="SIG47100">
+        <DatabaseLevel levelName="SIG" levelOneValue="0.47" levelTwoValue="1.0"/>
+    </Level>
+    <Level key="SIG8498">
+        <DatabaseLevel levelName="SIG" levelOneValue="0.84" levelTwoValue="0.98"/>
+    </Level>
+    <Level key="TROP">
+        <DatabaseLevel levelName="TROP" levelOneValue="0.0"/>
+    </Level>
+    <Level key="TW0">
+        <DatabaseLevel levelName="TW0" levelOneValue="0.0"/>
+    </Level>
+    <Level key="WBZ0">
+        <DatabaseLevel levelName="WBZ" levelOneValue="0.0"/>
+    </Level>
+</LevelMappings>

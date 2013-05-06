@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2011            mpduff     Initial creation
  * 01/14/13     1569       dhladky    changed arraylist to list
+ * 04/15/13     1890       dhladky    Changed COUNTY to use constant
  * 
  * </pre>
  * 
@@ -132,7 +134,7 @@ public class FFFGForceUtil {
             pfafList = ft.getAggregatePfafs(cBasin.getPfaf(),
                     resource.getSiteKey(), resource.getHuc());
         } else if (!domain.equals("NA")) {
-            if (!resource.getHuc().equals("ALL")) {
+            if (!resource.getHuc().equals(FFMPRecord.ALL)) {
                 pfafList = ft.getAggregatePfafsByDomain(cBasin.getPfaf(),
                         resource.getSiteKey(), domain, resource.getHuc());
             }

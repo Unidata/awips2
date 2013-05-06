@@ -1,0 +1,118 @@
+#!/bin/sh
+
+##############################################################################
+#
+# qc_climate_db
+#
+# This is the script to run the program to allow a user to manually
+# edit climate data (daily, monthly, seasonal, annual) in database.
+#
+# Modification History:
+# ---------------------
+# 12/05/2002  OB2  Bob Morris         - Changed from csh to sh
+#                                     - Removed CLIMATE_BIN_DIR definition, it
+#                                       is set in readenv.sh.  General cleanup.
+#                                     - Replace -a's in tests.
+# 04/21/2003  OB2  Bob Morris         - Check for global_day file existence in
+#                                       CLIMATE_DATA_DIR before allowing run.
+#
+#
+# 09/04/2003 OB3  Mohammed Sikder     A new segment of code is added in order 
+#                                     to explicitly pipe the generated outputs
+#                                     from a set of climate scripts to a logfile.
+#                                     Te reason behind that was some of the nested
+#                                     GUIs in the climate was failing to get
+#                                     displayed at NGIT OB3 test platform.
+#                                     
+##############################################################################
+#
+#
+##############################################################################
+
+#
+# Set the file path environment variables
+#
+
+if [ "${CLIMATE_DIR}" = "" ]
+then
+  echo "Fatal error in qc_climate_db: CLIMATE_DIR not defined in environment!  Exiting."
+  exit 1
+fi
+
+CLIMATE_DATA_DIR=${CLIMATE_DIR}/data; export CLIMATE_DATA_DIR
+
+if [ ! -d ${CLIMATE_DATA_DIR} ]
+then
+   echo "Directory ${CLIMATE_DATA_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting qc_climate_db script execution .... "
+   exit 1
+fi
+
+if [ ! -s ${CLIMATE_DATA_DIR}/global_day ]
+then
+   echo "File ${CLIMATE_DATA_DIR}/global_day does not exist or is empty." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting qc_climate_db script execution .... "
+   exit 1
+fi
+#
+#
+#  The following code has been added in order to resolve the display
+#  problem for some climate GUIs
+#
+#####################################################################
+
+
+  if [ ! -d ${CLIMATE_TMP_DIR} ]
+      then
+         echo "Directory ${CLIMATE_TMP_DIR} does not exist." 
+         echo "Check installation and setup of Climate routines."
+         echo "Halting qc_climate_db script execution .... "
+         exit 1
+  fi
+      
+      LOGFILE=${CLIMATE_TMP_DIR}/tmp.txt
+      echo "QC Climate Database run date/time: `date`" > $LOGFILE
+#
+######################################################################
+#
+# Check that environment variable for path to climate executables is set
+#
+if [ "$CLIMATE_BIN_DIR" = "" ]
+then
+  echo "In qc_climate_db: CLIMATE_BIN_DIR not defined in environment!  Exiting."
+  exit 1
+else
+  echo "In qc_climate_db: CLIMATE_BIN_DIR = $CLIMATE_BIN_DIR \n"
+fi
+
+#
+# Change the directory to the climate/data directory
+#
+cd ${CLIMATE_DATA_DIR}
+
+if [ ! -s ${CLIMATE_BIN_DIR}/qc_climate ]
+then
+   echo "${CLIMATE_BIN_DIR}/qc_climate executable does not exist!"
+   echo "Halting qc_climate_db script execution .... "
+   exit 1
+else if [ ! -x ${CLIMATE_BIN_DIR}/qc_climate ]
+   then 
+      echo "${CLIMATE_BIN_DIR}/qc_climate does not have execute permission!"
+      echo "Halting qc_climate_db script execution .... "
+      exit 1
+   fi
+fi
+
+#
+# Execute qc_climate 
+#
+${CLIMATE_BIN_DIR}/qc_climate $1 $2 >> $LOGFILE 2>> $LOGFILE
+
+#
+# Restart the main climate menu and exit script
+#
+exec ${CLIMATE_BIN_DIR}/climate &
+
+exit 0
