@@ -71,7 +71,7 @@ public class PluginFactory {
         return instance;
     }
 
-    private Map<Class<PluginDao>, PluginDao> pluginDaoMap = new HashMap<Class<PluginDao>, PluginDao>();
+    private Map<String, PluginDao> pluginDaoMap = new HashMap<String, PluginDao>();
 
     private Object daoMapLock = new Object();
 
@@ -98,37 +98,36 @@ public class PluginFactory {
      * @throws PluginException
      *             If the dao cannot be instantiated
      */
-    @SuppressWarnings("unchecked")
     public PluginDao getPluginDao(String pluginName) throws PluginException {
-        PluginProperties props = PluginRegistry.getInstance()
-                .getRegisteredObject(pluginName);
-        if (props != null) {
-            try {
-                Class<PluginDao> clz = (Class<PluginDao>) props.getDao();
-                PluginDao dao = pluginDaoMap.get(clz);
-                if (dao == null) {
+        PluginDao dao = pluginDaoMap.get(pluginName);
+        if (dao == null) {
+            PluginProperties props = PluginRegistry.getInstance()
+                    .getRegisteredObject(pluginName);
+            if (props != null) {
+                try {
                     synchronized (daoMapLock) {
                         // Create dao
                         dao = (PluginDao) ConstructorUtils.invokeConstructor(
-                                clz, pluginName);
+                                props.getDao(), pluginName);
+
                         // Copy dao mapping
-                        Map<Class<PluginDao>, PluginDao> pluginDaoMapCopy = new HashMap<Class<PluginDao>, PluginDao>(
+                        Map<String, PluginDao> pluginDaoMapCopy = new HashMap<String, PluginDao>(
                                 pluginDaoMap);
                         // Add dao
-                        pluginDaoMapCopy.put(clz, dao);
+                        pluginDaoMapCopy.put(pluginName, dao);
                         // Reset mapping
                         pluginDaoMap = pluginDaoMapCopy;
                     }
+                } catch (Exception e) {
+                    throw new PluginException("Error instantiating DAO for "
+                            + pluginName + " plugin!", e);
                 }
-                return dao;
-            } catch (Exception e) {
-                throw new PluginException("Error instantiating DAO for "
-                        + pluginName + " plugin!", e);
+            } else {
+                throw new PluginException("Plugin " + pluginName
+                        + " is not registered with the PluginRegistry");
             }
-        } else {
-            throw new PluginException("Plugin " + pluginName
-                    + " is not registered with the PluginRegistry");
         }
+        return dao;
     }
 
     /**
