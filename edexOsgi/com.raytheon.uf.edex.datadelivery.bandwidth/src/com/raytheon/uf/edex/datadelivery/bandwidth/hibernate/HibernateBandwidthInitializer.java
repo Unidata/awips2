@@ -1,12 +1,9 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -30,6 +27,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializ
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013 1543       djohnson     Add SW history, separate how to find subscriptions.
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
+ * Apr 30, 2013 1960       djohnson     just call init rather than drop/create tables explicitly.
  * 
  * </pre>
  * 
@@ -62,19 +60,11 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
         // fulfilled. In the case were DD has been down for a while
         // BEFORE removing the tables...
 
-        // Empty the bandwidth tables (other than BandwidthDataSetUpdate) on
-        // each start and reload..
-        AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class);
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
-        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class);
-
         try {
-            dbInit.dropTables(aConfig);
-            dbInit.createTables(aConfig);
-        } catch (SQLException e) {
-            // Cannot proceed from here..
-            return false;
+            dbInit.init();
+        } catch (Exception e1) {
+            throw new RuntimeException(
+                    "Error generating bandwidth manager tables", e1);
         }
 
         return true;

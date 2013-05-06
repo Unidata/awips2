@@ -31,12 +31,12 @@ import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
+import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -50,7 +50,14 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
@@ -64,15 +71,23 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 02/10/13    #1603       randerso    Returned number of records purged from timePurge
- * 03/15/13    #1795      njensen    Added updatePublishTime()
- * 
+ * 02/10/13     #1603      randerso    Returned number of records purged from timePurge
+ * 03/15/13     #1795      njensen     Added updatePublishTime()
+ * 04/23/13     #1949      rjpeter     Removed excess validation on retrieval, added 
+ *                                     inventory for a given time range.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class GridParm {
+
+    // separate logger for GFE performance logging
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridParm.class);
 
     /** The parm ID associated with this GridParm */
     private ParmID id;
@@ -121,6 +136,16 @@ public class GridParm {
     }
 
     /**
+     * Returns the grid inventory for this parameter that overlaps the given
+     * timeRange
+     * 
+     * @return The server response containing the grid inventory
+     */
+    public ServerResponse<List<TimeRange>> getGridInventory(TimeRange tr) {
+        return db.getGridInventory(id, tr);
+    }
+
+    /**
      * Returns the grid history for this parameter and specified grids through
      * history. Returns the status
      * 
@@ -131,12 +156,6 @@ public class GridParm {
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             List<TimeRange> trs) {
         return db.getGridHistory(id, trs);
-    }
-
-    @Deprecated
-    public ServerResponse<?> updateGridHistory(
-            Map<TimeRange, List<GridDataHistory>> history) {
-        return db.updateGridHistory(id, history);
     }
 
     /**
@@ -228,8 +247,13 @@ public class GridParm {
         }
 
         // validate the data
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         sr.addMessages(recordsOkay(saveRequest.getGridSlices(),
-                new ArrayList<TimeRange>()));
+                new ArrayList<TimeRange>(0)));
+        timer.stop();
+        perfLog.logDuration("Validating " + saveRequest.getGridSlices().size()
+                + " grids for saving", timer.getElapsedTime());
         if (!sr.isOkay()) {
             return sr;
         }
@@ -286,45 +310,20 @@ public class GridParm {
         // Get current inventory
         List<TimeRange> reqTimes = getRequest.getTimes();
 
-        // TODO do we really need this time range check? it's not worth much
-        // njensen made it only work on non-D2D databases since
-        // it was slowing down smart init
-        if (!id.getDbId().getDbType().equals("D2D")) {
-            List<TimeRange> trs = null;
-            ServerResponse<List<TimeRange>> ssr = getGridInventory();
-            trs = ssr.getPayload();
-            sr.addMessages(ssr);
+        if (!CollectionUtil.isNullOrEmpty(reqTimes)) {
+            // Get the data
+            if (getRequest.isConvertUnit() && (db instanceof D2DGridDatabase)) {
+                sr = ((D2DGridDatabase) db).getGridData(id, reqTimes,
+                        getRequest.isConvertUnit());
+            } else {
+                sr = db.getGridData(id, reqTimes);
+            }
             if (!sr.isOkay()) {
-                sr.addMessage("Cannot get grid data with the get inventory failure");
+                sr.addMessage("Failure in retrieving grid data from GridDatabase");
                 return sr;
             }
-            // Ensure that all requested time ranges are in the inventory
-            if (!trs.containsAll(reqTimes)) {
-                sr.addMessage("Some of the requested time ranges are not in the inventory."
-                        + " Inv: "
-                        + trs
-                        + " requestTimes: "
-                        + getRequest.getTimes());
-                return sr;
-            }
-        }
-
-        // Get the data
-        if (getRequest.isConvertUnit() && (db instanceof D2DGridDatabase)) {
-            sr = ((D2DGridDatabase) db).getGridData(id, reqTimes,
-                    getRequest.isConvertUnit());
         } else {
-            sr = db.getGridData(id, reqTimes);
-        }
-        if (!sr.isOkay()) {
-            sr.addMessage("Failure in retrieving grid data from GridDatabase");
-            return sr;
-        }
-
-        // Validate the data
-        sr.addMessages(dataOkay(sr.getPayload(), badDataTimes));
-        if (!sr.isOkay()) {
-            sr.addMessage("Cannot get grid data - data is not valid");
+            sr.setPayload(new ArrayList<IGridSlice>(0));
         }
 
         return sr;
@@ -374,52 +373,49 @@ public class GridParm {
 
         // Get the lock table
         WsId wsId = new WsId(null, "timePurge", "EDEX");
-        List<LockTable> lts = new ArrayList<LockTable>();
+        List<LockTable> lts = new ArrayList<LockTable>(0);
 
         LockTableRequest lockreq = new LockTableRequest(this.id);
         ServerResponse<List<LockTable>> ssr2 = LockManager.getInstance()
                 .getLockTables(lockreq, wsId, siteID);
         sr.addMessages(ssr2);
         lts = ssr2.getPayload();
-        if (!sr.isOkay() || lts.size() != 1) {
+        if (!sr.isOkay() || (lts.size() != 1)) {
             sr.addMessage("Cannot timePurge since getting lock table failed");
         }
 
         List<TimeRange> breakList = new ArrayList<TimeRange>();
         List<TimeRange> noBreak = new ArrayList<TimeRange>();
-        for (int i = 0; i < lts.get(0).getLocks().size(); i++) {
-            if (lts.get(0).getLocks().get(i).getTimeRange().getEnd()
-                    .before(purgeTime)
-                    || lts.get(0).getLocks().get(i).getTimeRange().getEnd()
-                            .equals(purgeTime)) {
-                breakList.add(lts.get(0).getLocks().get(i).getTimeRange());
+        LockTable myLockTable = lts.get(0);
+        for (Lock lock : myLockTable.getLocks()) {
+            if (lock.getEndTime() < purgeTime.getTime()) {
+                breakList.add(lock.getTimeRange());
 
             } else {
-                noBreak.add(lts.get(0).getLocks().get(i).getTimeRange());
+                noBreak.add(lock.getTimeRange());
             }
         }
 
         List<TimeRange> purge = new ArrayList<TimeRange>();
-        for (int i = 0; i < trs.size(); i++) {
-            if (trs.get(i).getEnd().before(purgeTime)
-                    || trs.get(i).getEnd().equals(purgeTime)) {
+        for (TimeRange tr : trs) {
+            if (tr.getEnd().getTime() <= purgeTime.getTime()) {
                 boolean found = false;
-                for (int j = 0; j < noBreak.size(); j++) {
-                    if (noBreak.get(j).contains(trs.get(i))) {
+                for (TimeRange noBreakTr : noBreak) {
+                    if (noBreakTr.contains(tr)) {
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    purge.add(trs.get(i));
+                    purge.add(tr);
                 }
             }
         }
 
         List<LockRequest> lreqs = new ArrayList<LockRequest>();
         List<LockTable> ltChanged = new ArrayList<LockTable>();
-        for (int i = 0; i < breakList.size(); i++) {
-            lreqs.add(new LockRequest(id, breakList.get(i), LockMode.BREAK_LOCK));
+        for (TimeRange tr : breakList) {
+            lreqs.add(new LockRequest(id, tr, LockMode.BREAK_LOCK));
         }
 
         ServerResponse<List<LockTable>> lockResponse = LockManager
@@ -434,25 +430,24 @@ public class GridParm {
         for (int i = 0; i < ltChanged.size(); i++) {
             lockNotifications
                     .add(new LockNotification(ltChanged.get(i), siteID));
-            // gridNotifications.add(new GridUpdateNotification(id, breakList
-            // .get(i), Arrays.asList, ""));
         }
 
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e) {
-            sr.addMessage("Unable to get gfe dao");
-        }
-        dao.deleteRecords(id, purge);
-        for (int i = 0; i < purge.size(); i++) {
-            // assemble the GridUpdateNotification
+            dao.deleteRecords(id, purge);
             Map<TimeRange, List<GridDataHistory>> histories = new HashMap<TimeRange, List<GridDataHistory>>(
                     0);
-            gridNotifications.add(new GridUpdateNotification(id, purge.get(i),
-                    histories, wsId, siteID));
+            for (TimeRange tr : purge) {
+                // assemble the GridUpdateNotification
+                gridNotifications.add(new GridUpdateNotification(id, tr,
+                        histories, wsId, siteID));
+            }
+            sr.setPayload(new Integer(purge.size()));
+        } catch (Exception e) {
+            sr.addMessage("Failed to delete records for timePurge");
+            statusHandler.error("Failed to delete records for timePurge", e);
         }
-        sr.setPayload(new Integer(purge.size()));
         return sr;
 
     }
@@ -467,20 +462,6 @@ public class GridParm {
     @Override
     public String toString() {
         return "ParmID: " + id;
-    }
-
-    private ServerResponse<?> dataOkay(List<IGridSlice> gridSlices,
-            List<TimeRange> badDataTimes) {
-
-        ServerResponse<?> sr = new ServerResponse<String>();
-        for (IGridSlice slice : gridSlices) {
-            ServerResponse<?> sr1 = gridSliceOkay(slice);
-            sr.addMessages(sr1);
-            if (!sr1.isOkay()) {
-                badDataTimes.add(slice.getValidTime());
-            }
-        }
-        return sr;
     }
 
     /**
@@ -582,7 +563,7 @@ public class GridParm {
                 .getLockTables(req, requestor, siteID);
         lockTables = ssr.getPayload();
         sr.addMessages(ssr);
-        if (!sr.isOkay() || lockTables.size() != 1) {
+        if (!sr.isOkay() || (lockTables.size() != 1)) {
 
             sr.addMessage("Cannot verify locks due to problem with Lock Manager");
             return sr;

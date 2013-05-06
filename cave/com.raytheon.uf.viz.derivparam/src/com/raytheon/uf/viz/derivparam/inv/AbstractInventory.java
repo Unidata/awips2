@@ -35,6 +35,7 @@ import java.util.concurrent.BlockingQueue;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.derivparam.tree.AbstractNode;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
@@ -47,7 +48,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.FloatRequestableData;
@@ -137,27 +137,36 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
          */
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             StackEntry other = (StackEntry) obj;
-            if (!getOuterType().equals(other.getOuterType()))
+            if (!getOuterType().equals(other.getOuterType())) {
                 return false;
-            if (level != other.level)
+            }
+            if (level != other.level) {
                 return false;
+            }
             if (source == null) {
-                if (other.source != null)
+                if (other.source != null) {
                     return false;
-            } else if (!source.equals(other.source))
+                }
+            } else if (!source.equals(other.source)) {
                 return false;
+            }
             if (parameter == null) {
-                if (other.parameter != null)
+                if (other.parameter != null) {
                     return false;
-            } else if (!parameter.equals(other.parameter))
+                }
+            } else if (!parameter.equals(other.parameter)) {
                 return false;
+            }
             return true;
         }
 
@@ -196,7 +205,6 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
         } else {
             this.derParLibrary = derParLibrary;
         }
-        long startTime = System.currentTimeMillis();
         DataTree newTree = null;
         newTree = createBaseTree();
         if (newTree == null) {
@@ -224,9 +232,6 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
                 }
             }
         }
-        System.out.println("Time to initialize "
-                + this.getClass().getSimpleName() + ": "
-                + (System.currentTimeMillis() - startTime) + "ms");
     }
 
     @Override
@@ -478,8 +483,10 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
     protected Collection<Level> getAllLevels() {
         if (allLevels == null) {
             try {
-                return LevelMappingFactory.getInstance().getAllLevels();
-            } catch (VizCommunicationException e) {
+                return LevelMappingFactory.getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                        .getAllLevels();
+            } catch (CommunicationException e) {
                 // TODO recover from this.
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -1098,7 +1105,13 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
             // because it is valid for all requests
         } else if (type == LevelType.LevelMapping) {
             LevelNode target = null;
-            for (Level fieldLevel : field.getLevelMapping().getLevels()) {
+            List<Level> levels;
+            try {
+                levels = field.getLevelMapping().getLevels();
+            } catch (CommunicationException e) {
+                throw new VizCommunicationException(e);
+            }
+            for (Level fieldLevel : levels) {
                 target = resolveNode(fieldSourceNode, fieldParamAbbrev,
                         fieldLevel, stack, nodata);
                 if (target != null) {

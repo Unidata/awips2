@@ -162,7 +162,7 @@ public class AccumDataHandler implements
         requestParams.append(request.getTimeParameter());
         requestParams.append(",");
         requestParams.append(request.getStationParameter());
-
+        
         query.setParameters(requestParams.toString());
 
         query.addParameter(DATATIME,

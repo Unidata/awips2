@@ -35,7 +35,6 @@ import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil.QUERY_MODE;
-import com.raytheon.uf.common.dataaccess.util.PDOUtil;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
@@ -45,7 +44,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
@@ -65,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2013   1552     mpduff      Initial creation
+ * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
  * 
  * </pre>
  * 
@@ -127,12 +126,8 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
             for (Map.Entry<String, Object> es : map.entrySet()) {
                 FFMPRecord rec = (FFMPRecord) es.getValue();
                 try {
-                    IDataStore dataStore = PDOUtil.getDataStore(rec);
-                    rec.retrieveMapFromDataStore(dataStore, rec.getDataURI(),
-                            templates,
-                            (String) request.getIdentifiers().get(HUC), rec
-                                    .getDataTime().getRefTime(), rec
-                                    .getSourceName());
+                    rec.retrieveMapFromDataStore(templates, (String) request
+                            .getIdentifiers().get(HUC));
                 } catch (Exception e) {
                     throw new DataRetrievalException(
                             "Failed to retrieve the IDataRecord for PluginDataObject: "
@@ -211,7 +206,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
 
         FFMPBasinData basinData = rec.getBasinData(huc);
 
-        HashMap<Long, FFMPBasin> basinDataMap = basinData.getBasins();
+        Map<Long, FFMPBasin> basinDataMap = basinData.getBasins();
 
         HucLevelGeometriesFactory geomFactory = HucLevelGeometriesFactory
                 .getInstance();

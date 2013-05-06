@@ -24,7 +24,10 @@
 #    02/16/12        14439         jdynina        modified haines thresholds
 #    02/16/12        13917         jdynina        merged in changes from TRAC ticket 11391
 #    07/25/12        #957          dgilling       implement edit areas as args to calc methods.
-#    10/5/12         15158         ryu            add Forecaster.getDb()
+#    10/05/12        15158         ryu            add Forecaster.getDb()
+#    04/04/13        #1787         randerso       fix validTime check to work with accumulative parms
+#                                                 fix logging so you can actually determine why 
+#                                                 a smartInit is not calculating a parameter
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -836,8 +839,8 @@ class Forecaster(GridUtilities):
     def __sortTimes(self, methods, validTime):
         rval = []
         calced = []
-        haveNoData = {}
         for we, mthd, args in methods:
+#            LogStream.logEvent("Evaluating times for calc"+we)
             calced.append(we)
             args = filter(lambda x, ma=self.magicArgs().keys() + [we]:
                           x not in ma, args)
@@ -865,27 +868,36 @@ class Forecaster(GridUtilities):
                        
                        if validTime is None:
                            valid = True
-                       elif jtr.contains(validTime):
-                           valid = True
-                           
+                       else:
+                          # need check to be inclusive on both ends for methods that
+                          # need both accumulative and non-accumulative parms
+                          valid = validTime.getTime() >= jtr.getStart().getTime() and \
+                                  validTime.getTime() <= jtr.getEnd().getTime()
+                       
                        if valid:
                           timelist = TimeRange.encodeJavaTimeRange(jtr)        
                           pylist.append(timelist)
 
                     ttimes.append(pylist)
-                    timeList = ttimes[len(ttimes)-1]
-                    result = 0
-                    for xtime in timeList:                                         
-                        result += xtime[1] - xtime[0]
-                            
-                    if result == 0:
-                        if not haveNoData.has_key(we):
-                            haveNoData[we] = [p]
-                        else:        
-                            haveNoData[we].append(p)                   
+                    
+#                msg = "Times available for " + p + " " + str(validTime) + ":\n"
+#                timeList = ttimes[len(ttimes)-1]
+#                for xtime in timeList:
+#                    msg += '('                                                
+#                    stime = time.gmtime(xtime[0])
+#                    etime = time.gmtime(xtime[1])
+#                    stime = time.strftime('%Y%m%d_%H%M', stime)
+#                    etime = time.strftime('%Y%m%d_%H%M', etime)
+#                    msg += stime + ", " + etime
+#                    msg += ')\n'
+#                LogStream.logEvent(msg)                    
 
             # compare the times of each parm and find where they match up
             times = self.__compTimes(None, ttimes)
+#            LogStream.logEvent("nargs:",nargs)
+#            LogStream.logEvent("ttimes:",ttimes)
+#            LogStream.logEvent("times:",times)
+
             hadDataButSkipped = {}
             for i in range(len(ttimes)):                
                 timeList = ttimes[i]
@@ -896,7 +908,16 @@ class Forecaster(GridUtilities):
                             hadDataButSkipped[xtime].append(parmName)
                         else:
                             hadDataButSkipped[xtime] = [parmName]
-            
+#            LogStream.logEvent("hadDataButSkipped:",hadDataButSkipped)
+
+            hadNoData = []            
+            for i in range(len(nargs)):
+                timeList = ttimes[i]
+                parmName = nargs[i]
+                if len(timeList) == 0:
+                    hadNoData.append(parmName)
+#            LogStream.logEvent("hadNoData:",hadNoData)
+
             missing = {}                                    
             for xtime in hadDataButSkipped:
                 stime = time.gmtime(xtime[0])
@@ -908,16 +929,17 @@ class Forecaster(GridUtilities):
                 
                 for parmName in nargs:
                     if not hadDataButSkipped[xtime].__contains__(parmName):
-                        if parmName in calced:
-                            if haveNoData.has_key(parmName):
-                                missing[msg].append(parmName)
-                        else:
-                            if parmName in haveNoData.values():
-                                missing[msg].append(parmName)
-                                
-                if not len(missing[msg]):
-                    del missing[msg]
-                                          
+                        missing[msg].append(parmName)
+                        
+            if len(missing) == 0 and len(hadNoData) > 0:
+                msg = ''
+                if (validTime is not None):
+                    vtime = validTime.getTime()/1000
+                    vtime = time.gmtime(vtime)
+                    msg = time.strftime('%Y%m%d_%H%M', vtime)
+                missing[msg] = hadNoData
+#            LogStream.logEvent("missing:",missing)
+
             if len(missing):              
                 LogStream.logEvent("Skipping calc" + we + " for some times due to the following " +
                                    "missing data:", missing)
@@ -1130,7 +1152,7 @@ class Forecaster(GridUtilities):
             parm = self.__getNewWE(m[0])
             tr = parm.getTimeRange(t[0])
             
-            # A vaild time range was not found so the parameter 
+            # A valid time range was not found so the parameter 
             # cannot be calculated, so continue
             if not tr.isValid():
                 continue

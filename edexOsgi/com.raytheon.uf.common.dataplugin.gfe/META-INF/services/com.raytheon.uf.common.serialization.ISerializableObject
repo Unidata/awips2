@@ -3,11 +3,9 @@ com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID
 com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord
 com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation
 com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID
-com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation
 com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData
 com.raytheon.uf.common.dataplugin.gfe.sample.SampleData
 com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock
-com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable
 com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg
 com.raytheon.uf.common.dataplugin.gfe.weatherelement.WEGroup
 com.raytheon.uf.common.dataplugin.gfe.weatherelement.WEItem

@@ -24,7 +24,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.media.opengl.GL;
@@ -48,7 +47,8 @@ import com.vividsolutions.jts.geom.LineString;
 
 /**
  * 
- * TODO Add Description
+ * Provides base implementation of shaded shapes in openGL that can be easily
+ * extended to implement IShadedShape or IColormapShadedShape.
  * 
  * <pre>
  * 
@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 3, 2011            bsteffen     Initial creation
+ * Apr 25, 2013 1954       bsteffen    Speed up creation of      
+ *                                     GLColormapShadedShapes.
  * 
  * </pre>
  * 
@@ -116,30 +118,20 @@ public class GLShadedShapeBase implements IShape {
         for (int i = 0; i < lineString.length; i++) {
             buffers[i] = FloatBuffer.allocate(lineString[i].getNumPoints() * 2);
             for (Coordinate c : lineString[i].getCoordinates()) {
-                double[] loc = { c.x, c.y };
-                loc = worldToPixel(loc);
-                buffers[i].put((float) loc[0]);
-                buffers[i].put((float) loc[1]);
+                buffers[i].put((float) c.x);
+                buffers[i].put((float) c.y);
                 numVertices += 1;
+            }
+            try {
+                float[] array = buffers[i].array();
+                worldToPixel.transform(array, 0, array, 0,
+                        lineString[i].getNumPoints());
+            } catch (TransformException e) {
+                // Ignore...
             }
             numContours += 1;
         }
         polygons.add(buffers);
-    }
-
-    protected double[] worldToPixel(double[] world) {
-        if (worldToPixel != null) {
-            try {
-                double[] out = new double[world.length];
-                worldToPixel.transform(world, 0, out, 0, 1);
-                return out;
-            } catch (TransformException e) {
-                // Ignore...
-            }
-            return null;
-        } else {
-            return Arrays.copyOf(world, world.length);
-        }
     }
 
     public synchronized void addPolygonPixelSpace(LineString[] contours) {
@@ -239,10 +231,10 @@ public class GLShadedShapeBase implements IShape {
         if (tessellate) {
             // This over allocates to avoid future resizing
             if (vertexBuffer == null) {
-                vertexBuffer = FloatBuffer.allocate(numVertices * 2);
+                vertexBuffer = FloatBuffer.allocate(numVertices * 2 * 3);
             } else {
                 FloatBuffer vertexBuffer = FloatBuffer.allocate(numVertices * 2
-                        + this.vertexBuffer.capacity());
+                        * 3 + this.vertexBuffer.capacity());
                 this.vertexBuffer.rewind();
                 vertexBuffer.put(this.vertexBuffer);
                 this.vertexBuffer = vertexBuffer;

@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking RetrieveMergeDlg.
  *                                       Changes for non-blocking LoadSaveDeleteSelectDlg.
  * Mar 28, 2013 #1790      rferrel      Bug fix for non-blocking dialogs.
+ * Apr, 15, 2013 #1911     dhladky       dialog wouldn't open every time to retrieve file.
  * 
  * </pre>
  * 
@@ -1608,8 +1609,8 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
         }
 
         if (isDialogClear() && (fileNameLbl.getText().trim().length() == 0)) {
-            return;
-        } else {
+            getRetrieveFilename(RetrieveMergeAction.RETRIEVE); 
+        } else { 
             if (retMergeDlg == null) {
                 retMergeDlg = new RetrieveMergeDlg(shell);
                 retMergeDlg.setCloseCallback(new ICloseCallback() {
