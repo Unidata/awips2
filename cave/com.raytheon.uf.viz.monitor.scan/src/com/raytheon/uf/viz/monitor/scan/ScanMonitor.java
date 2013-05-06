@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.eclipse.swt.graphics.Color;
@@ -108,6 +109,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2009            dhladky     Initial creation
+ * Apr 18, 2013     1926   njensen    Changed inner data maps to have Long key
+ *                                                       to avoid !TimeStamp.equals(Date) issue
+ * Apr 26, 2013     1926   njensen     Optimized getAvailableUris()
  * </pre>
  * 
  * @author dhladky
@@ -142,19 +146,19 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * DMD table data, indexed by time and volume scan (with a record for each
      * azimith and elevation)
      **/
-    public HashMap<String, ConcurrentHashMap<Date, DMDScanData>> dmdData = null;
+    public Map<String, ConcurrentMap<Long, DMDScanData>> dmdData = null;
 
     /** tvs table data, indexed by time **/
     @SuppressWarnings("rawtypes")
-    public HashMap<String, ConcurrentHashMap<Date, ScanTableData>> tvsData = null;
+    public Map<String, ConcurrentMap<Long, ScanTableData>> tvsData = null;
 
     /** MESO table data, indexed by time **/
     @SuppressWarnings("rawtypes")
-    public HashMap<String, ConcurrentHashMap<Date, ScanTableData>> mdData = null;
+    public Map<String, ConcurrentMap<Long, ScanTableData>> mdData = null;
 
     /** cell table data, indexed by time **/
     @SuppressWarnings("rawtypes")
-    public HashMap<String, ConcurrentHashMap<Date, ScanTableData>> cellData = null;
+    public Map<String, ConcurrentMap<Long, ScanTableData>> cellData = null;
 
     /** Array of scan listeners **/
     private final ArrayList<IScanRadarListener> scanListeners = new ArrayList<IScanRadarListener>();
@@ -245,10 +249,10 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      */
     @SuppressWarnings("rawtypes")
     private void createDataStructures() {
-        dmdData = new HashMap<String, ConcurrentHashMap<Date, DMDScanData>>();
-        tvsData = new HashMap<String, ConcurrentHashMap<Date, ScanTableData>>();
-        mdData = new HashMap<String, ConcurrentHashMap<Date, ScanTableData>>();
-        cellData = new HashMap<String, ConcurrentHashMap<Date, ScanTableData>>();
+        dmdData = new HashMap<String, ConcurrentMap<Long, DMDScanData>>();
+        tvsData = new HashMap<String, ConcurrentMap<Long, ScanTableData>>();
+        mdData = new HashMap<String, ConcurrentMap<Long, ScanTableData>>();
+        cellData = new HashMap<String, ConcurrentMap<Long, ScanTableData>>();
     }
 
     /**
@@ -314,10 +318,10 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         setStationCoordinate(icao);
         setCwa(icao);
 
-        dmdData.put(icao, new ConcurrentHashMap<Date, DMDScanData>());
-        cellData.put(icao, new ConcurrentHashMap<Date, ScanTableData>());
-        tvsData.put(icao, new ConcurrentHashMap<Date, ScanTableData>());
-        mdData.put(icao, new ConcurrentHashMap<Date, ScanTableData>());
+        dmdData.put(icao, new ConcurrentHashMap<Long, DMDScanData>());
+        cellData.put(icao, new ConcurrentHashMap<Long, ScanTableData>());
+        tvsData.put(icao, new ConcurrentHashMap<Long, ScanTableData>());
+        mdData.put(icao, new ConcurrentHashMap<Long, ScanTableData>());
 
         // kill splash
         if (scanSplashDlg != null) {
@@ -443,34 +447,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     }
 
     /**
-     * Get list of records
-     * 
-     * @param type
-     * @param interval
-     * @return
-     */
-    public ScanRecord[] getScanRecords(ScanTables type, String icao)
-            throws VizException {
-        List<ScanRecord> recordList = new ArrayList<ScanRecord>();
-        String[] uriList = getAvailableUris(type, icao);
-
-        for (String uri : uriList) {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("pluginName", "scan");
-            vals.put("dataURI", uri);
-
-            ScanRecord scanRec = (ScanRecord) Loader.loadData(vals);
-            File loc = HDF5Util.findHDF5Location(scanRec);
-            IDataStore dataStore = DataStoreFactory.getDataStore(loc);
-            if (scanRec != null) {
-                scanRec.retrieveMapFromDataStore(dataStore);
-                recordList.add(scanRec);
-            }
-        }
-        return recordList.toArray(new ScanRecord[recordList.size()]);
-    }
-
-    /**
      * Return the tilt angle at which the table is currently at
      * 
      * @param type
@@ -505,11 +481,11 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         if ((scanType == ScanTables.MESO) || (scanType == ScanTables.TVS)) {
             scanType = ScanTables.CELL;
         }
-        Set<Date> ds = getData(scanType, icao).keySet();
+        Set<Long> ds = getData(scanType, icao).keySet();
         DataTime[] times = new DataTime[ds.size()];
         int i = 0;
-        for (Date d : ds) {
-            times[i] = new DataTime(d);
+        for (Long d : ds) {
+            times[i] = new DataTime(new Date(d));
             i++;
         }
         java.util.Arrays.sort(times);
@@ -545,30 +521,39 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Sends a String from the TABLE enum for which table data to grab
      */
-    public ConcurrentHashMap<Date, ?> getData(ScanTables table, String icao) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public ConcurrentMap<Long, ?> getData(ScanTables table, String icao) {
+        ConcurrentMap<Long, ?> data = null;
 
-        ConcurrentHashMap<Date, ?> data = null;
-
-        if (table.equals(ScanTables.CELL)) {
-            if (cellData.get(icao) == null) {
-                cellData.put(icao, new ConcurrentHashMap<Date, ScanTableData>());
-            }
+        switch (table) {
+        case CELL:
             data = cellData.get(icao);
-        } else if (table.equals(ScanTables.DMD)) {
-            if (dmdData.get(icao) == null) {
-                dmdData.put(icao, new ConcurrentHashMap<Date, DMDScanData>());
+            if (data == null) {
+                data = new ConcurrentHashMap<Long, ScanTableData>();
+                cellData.put(icao, (ConcurrentMap<Long, ScanTableData>) data);
             }
+            break;
+        case DMD:
             data = dmdData.get(icao);
-        } else if (table.equals(ScanTables.MESO)) {
-            if (mdData.get(icao) == null) {
-                mdData.put(icao, new ConcurrentHashMap<Date, ScanTableData>());
+            if (data == null) {
+                data = new ConcurrentHashMap<Long, DMDScanData>();
+                dmdData.put(icao, (ConcurrentHashMap<Long, DMDScanData>) data);
             }
+            break;
+        case MESO:
             data = mdData.get(icao);
-        } else if (table.equals(ScanTables.TVS)) {
-            if (tvsData.get(icao) == null) {
-                tvsData.put(icao, new ConcurrentHashMap<Date, ScanTableData>());
+            if (data == null) {
+                data = new ConcurrentHashMap<Long, ScanTableData>();
+                mdData.put(icao, (ConcurrentMap<Long, ScanTableData>) data);
             }
+            break;
+        case TVS:
             data = tvsData.get(icao);
+            if (data == null) {
+                data = new ConcurrentHashMap<Long, ScanTableData>();
+                tvsData.put(icao, (ConcurrentMap<Long, ScanTableData>) data);
+            }
+            break;
         }
 
         return data;
@@ -581,25 +566,29 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     public ScanTableData<?> getTableData(ScanTables table, String icao,
             Date time) {
         ScanTableData<?> tableData = null;
-
-        if (table == ScanTables.CELL) {
-            tableData = (ScanTableData<?>) getData(table, icao).get(time);
-        } else if (table == ScanTables.DMD) {
-            if (getData(table, icao).containsKey(time)) {
-                tableData = ((DMDScanData) getData(table, icao).get(time))
-                        .getTableData(time.getTime());
-            }
-        } else if ((table == ScanTables.TVS) || (table == ScanTables.MESO)) {
-            if (getData(table, icao).containsKey(time)) {
-                tableData = (ScanTableData<?>) getData(table, icao).get(time);
-            } else {
+        ConcurrentMap<Long, ?> data = getData(table, icao);
+        long longtime = time.getTime();
+        switch (table) {
+        case CELL:
+        case TVS:
+        case MESO:
+            tableData = (ScanTableData<?>) data.get(longtime);
+            if (tableData == null
+                    && (table == ScanTables.TVS || table == ScanTables.MESO)) {
                 tableData = getNewTableData(table, icao, time,
                         getTiltAngle(table, icao));
                 if (tableData != null) {
-                    ((ConcurrentHashMap<Date, ScanTableData>) getData(table,
-                            icao)).put(time, tableData);
+                    ((ConcurrentHashMap<Long, ScanTableData>) data).put(
+                            longtime, tableData);
                 }
             }
+            break;
+        case DMD:
+            DMDScanData dmdsd = (DMDScanData) data.get(longtime);
+            if (dmdsd != null) {
+                tableData = dmdsd.getTableData(longtime);
+            }
+            break;
         }
 
         return tableData;
@@ -612,9 +601,10 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             double tiltAngle) {
         ScanTables dmd = ScanTables.DMD;
         ScanTableData<?> tableData = null;
-        if (getData(dmd, icao).containsKey(time)) {
-            tableData = ((DMDScanData) getData(dmd, icao).get(time))
-                    .getTableData(time.getTime());
+        ConcurrentMap<Long, ?> data = getData(dmd, icao);
+        DMDScanData dmdsd = (DMDScanData) data.get(time.getTime());
+        if (dmdsd != null) {
+            tableData = dmdsd.getTableData(time.getTime());
         }
 
         return tableData;
@@ -650,24 +640,25 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     @SuppressWarnings({ "unchecked" })
     public void setTableData(String icao, ScanTableData<?> data, Date date,
             double angle, Date scanTime, String type) {
+        long longScanTime = scanTime.getTime();
         if (type.equals(ScanTables.DMD.name())) {
-            if (getData(ScanTables.DMD, icao).containsKey(scanTime)) {
-                if (((DMDScanData) getData(ScanTables.DMD, icao).get(scanTime))
-                        .containsKey(angle) == false) {
-                    ((DMDScanData) getData(ScanTables.DMD, icao).get(scanTime))
-                            .addData(angle, date.getTime(), data);
+            ConcurrentMap<Long, DMDScanData> dataMap = (ConcurrentMap<Long, DMDScanData>) getData(
+                    ScanTables.DMD, icao);
+            if (dataMap.containsKey(longScanTime)) {
+                DMDScanData dmdsd = dataMap.get(longScanTime);
+                if (!dmdsd.containsKey(angle)) {
+                    dmdsd.addData(angle, date.getTime(), data);
                 }
             } else { // new volume scan
-                DMDScanData sdata = new DMDScanData(scanTime.getTime());
-                ((ConcurrentHashMap<Date, DMDScanData>) getData(ScanTables.DMD,
-                        icao)).put(scanTime, sdata);
-                ((DMDScanData) getData(ScanTables.DMD, icao).get(scanTime))
-                        .addData(angle, date.getTime(), data);
+                DMDScanData sdata = new DMDScanData(longScanTime);
+                sdata.addData(angle, date.getTime(), data);
+                dataMap.put(longScanTime, sdata);
             }
         } else if (type.equals(ScanTables.CELL.name())) {
-            if (!getData(ScanTables.CELL, icao).containsKey(scanTime)) {
-                ((ConcurrentHashMap<Date, ScanTableData<?>>) getData(
-                        ScanTables.CELL, icao)).put(scanTime, data);
+            ConcurrentMap<Long, ScanTableData<?>> dataMap = (ConcurrentMap<Long, ScanTableData<?>>) getData(
+                    ScanTables.CELL, icao);
+            if (!dataMap.containsKey(longScanTime)) {
+                dataMap.put(longScanTime, data);
             }
         }
     }
@@ -1259,41 +1250,40 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         return uri;
     }
 
-    public String[] getAvailableUris(ScanTables type, String icao) {
-        List<String> uriList = new ArrayList<String>();
-        SimpleDateFormat datef = new SimpleDateFormat(datePattern);
-        datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
-        String addedSQL = "";
+    public List<String> getAvailableUris(ScanTables type, String icao) {
+        List<String> uriList = null;
+        String sql = null;
         if (type == ScanTables.DMD) {
-            addedSQL = "' and lastelevationangle = 't'";
+            sql = "(select datauri from scan where type = '"
+                    + type.name()
+                    + "' and icao = '"
+                    + icao
+                    + "' and lastelevationangle ='t')"
+                    + " union (select datauri from scan where type = '"
+                    + type.name()
+                    + "' and icao = '"
+                    + icao
+                    + "' and lastelevationangle = 'f' order by reftime desc, tilt desc limit 1)";
         } else {
-            addedSQL = "'";
+            sql = "(select datauri from scan where type = '" + type.name()
+                    + "' and icao = '" + icao + "')";
         }
-        String sql = "(select datauri from scan where type = '"
-                + type.name()
-                + "' and icao = '"
-                + icao
-                + addedSQL
-                + " order by reftime desc) "
-                + "union (select datauri from scan where type = '"
-                + type.name()
-                + "' and icao = '"
-                + icao
-                + "' and lastelevationangle = 'f' order by reftime desc, tilt desc limit 1)";
+
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(sql,
                     "metadata", QueryLanguage.SQL);
 
+            uriList = new ArrayList<String>(results.size());
             if (results.size() > 0) {
                 for (Object[] ob : results) {
                     uriList.add((String) ob[0]);
                 }
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Error retrieving scan uris", e);
         }
 
-        return uriList.toArray(new String[uriList.size()]);
+        return uriList;
     }
 
     /**
@@ -1318,7 +1308,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                                                                     // minutes
                 // dmdScanData = new DMDScanData();
                 dmdScanData = (DMDScanData) getData(ScanTables.DMD, icao).get(
-                        date);
+                        date.getTime());
 
                 TreeMap<Long, DMDTableDataRow> tmp = dmdScanData
                         .getTimeHeightData(tableCol, dmdIdent);
@@ -1358,11 +1348,11 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * @param set
      * @return
      */
-    public ArrayList<Date> getTimeOrderedKeys(IMonitor monitor, String type,
+    public List<Date> getTimeOrderedKeys(IMonitor monitor, String type,
             String icao) {
-        ArrayList<Date> dates = new ArrayList<Date>();
-        for (Date date : getData(ScanTables.valueOf(type), icao).keySet()) {
-            dates.add(date);
+        List<Date> dates = new ArrayList<Date>();
+        for (Long date : getData(ScanTables.valueOf(type), icao).keySet()) {
+            dates.add(new Date(date));
         }
         Collections.sort(dates, new SortByDate());
         return dates;
@@ -1818,11 +1808,12 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         }
 
         public void purge() {
+            long dateTime = date.getTime();
 
-            ConcurrentHashMap<Date, ?> data = getData(table, icao);
+            ConcurrentMap<Long, ?> data = getData(table, icao);
 
-            for (Date idate : data.keySet()) {
-                if (idate.before(date)) {
+            for (Long idate : data.keySet()) {
+                if (idate < dateTime) {
                     data.remove(idate);
                 }
             }
@@ -1830,20 +1821,18 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             // also check MESO and TVS
             if (table == ScanTables.CELL) {
 
-                ConcurrentHashMap<Date, ?> mesodata = getData(ScanTables.MESO,
-                        icao);
+                ConcurrentMap<Long, ?> mesodata = getData(ScanTables.MESO, icao);
 
-                for (Date idate : mesodata.keySet()) {
-                    if (idate.before(date)) {
+                for (Long idate : mesodata.keySet()) {
+                    if (idate < dateTime) {
                         mesodata.remove(idate);
                     }
                 }
 
-                ConcurrentHashMap<Date, ?> tvsdata = getData(ScanTables.TVS,
-                        icao);
+                ConcurrentMap<Long, ?> tvsdata = getData(ScanTables.TVS, icao);
 
-                for (Date idate : tvsdata.keySet()) {
-                    if (idate.before(date)) {
+                for (Long idate : tvsdata.keySet()) {
+                    if (idate < dateTime) {
                         tvsdata.remove(idate);
                     }
                 }

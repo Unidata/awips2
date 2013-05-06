@@ -83,6 +83,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                      localization performance but caused updated 
  *                                      files on the server not to be retrieved.
  * Jan 17, 2013 1412        djohnson    Add jaxbMarshal.
+ * Apr 12, 2013 1903        rjpeter     Updated getFile to check parentFile for existence.
  * </pre>
  * 
  * @author njensen
@@ -283,7 +284,7 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
             adapter.retrieve(this);
         }
 
-        if ((isDirectory == false) && !file.exists()) {
+        if ((isDirectory == false) && !file.getParentFile().exists()) {
             try {
                 file.getParentFile().mkdirs();
             } catch (Throwable t) {
@@ -647,7 +648,8 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
      * @param jaxbManager
      *            the jaxbManager
      */
-    public void jaxbMarshal(Object obj, JAXBManager jaxbManager) throws LocalizationException{
+    public void jaxbMarshal(Object obj, JAXBManager jaxbManager)
+            throws LocalizationException {
         try {
             String xml = jaxbManager.marshalToXml(obj);
             write(xml.getBytes());

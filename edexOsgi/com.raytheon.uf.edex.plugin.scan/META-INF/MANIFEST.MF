@@ -24,4 +24,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1
 Export-Package: com.raytheon.uf.edex.plugin.scan,
  com.raytheon.uf.edex.plugin.scan.process
 Import-Package: javax.measure.converter,
+ com.raytheon.uf.edex.menus,
  javax.measure.unit

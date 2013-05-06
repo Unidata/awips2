@@ -24,6 +24,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,9 +33,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -56,21 +60,35 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      getPersistenceTime() from new IPersistable
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 20081106           1515  jkorman     Changed units length from 16 to 26
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * - AWIPS2 Baseline Repository --------
  * 07/30/2012    798        jkorman     Support for common satellite data.
  * 03/25/2013   1823        dgilling    Replace underscores with spaces in URI
  *                                      constructor.
+ * 04/08/2013   1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "satelliteseq")
 @Table(name = "satellite", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "satellite",
+		indexes = {
+				@Index(name = "satellite_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
+public class SatelliteRecord extends PersistablePluginDataObject
         implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;

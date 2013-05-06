@@ -62,6 +62,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Dec 1, 2011             mschenke    Initial creation
  * Feb 21, 2012  #30       mschenke    Changed VIIRS decoder to read time attribute out of record
  *                                     instead of using WMO header
+ * May 01, 2013 1962       bsteffen    Allow Viirs Decoder to accept numeric
+ *                                     missing values.
  * 
  * </pre>
  * 
@@ -236,12 +238,27 @@ public class VIIRSDecoder extends AbstractNPPDecoder {
 
                     for (Attribute attr : var.getAttributes()) {
                         if (MISSING_VALUE_ID.equals(attr.getName())) {
-                            String missing = attr.getStringValue();
-                            String[] split = missing
-                                    .split(MISSING_VALUE_SPLIT_STRING);
-                            missingValues = new float[split.length];
-                            for (int i = 0; i < split.length; ++i) {
-                                missingValues[i] = Float.parseFloat(split[i]);
+                            if (attr.getDataType().isString()) {
+                                String missing = attr.getStringValue();
+                                String[] split = missing
+                                        .split(MISSING_VALUE_SPLIT_STRING);
+                                missingValues = new float[split.length];
+                                for (int i = 0; i < split.length; ++i) {
+                                    missingValues[i] = Float
+                                            .parseFloat(split[i]);
+                                }
+                            } else if(attr.getDataType().isNumeric()){
+                                if(attr.isArray()){
+                                    missingValues = new float[attr.getLength()];
+                                    for (int i = 0; i < missingValues.length; i += 1) {
+                                        missingValues[i] = attr
+                                                .getNumericValue(i)
+                                                .floatValue();
+                                    }
+                                }else{
+                                    missingValues = new float[] { attr
+                                            .getNumericValue().floatValue() };
+                                }
                             }
                             break;
                         }

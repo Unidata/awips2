@@ -36,7 +36,7 @@
 		factory-method="getInstance" depends-on="commonTimeRegistered">
 	</bean>
 
-	<bean factory-bean="siteAwareRegistry" factory-method="register">
+	<bean id="gfeSitesActive" factory-bean="siteAwareRegistry" factory-method="register">
 		<constructor-arg ref="gfeSiteActivation" />
 	</bean>
 

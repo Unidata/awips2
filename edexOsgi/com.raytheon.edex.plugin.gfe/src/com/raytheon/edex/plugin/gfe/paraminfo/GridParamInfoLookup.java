@@ -60,6 +60,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  *                                      extension.
  * Mar 20, 2013 #1774      randerso     Added getModelInfo, 
  *                                      added Dflt if no levels specified
+ * Apr 30, 2013 1961       bsteffen    Add ability to disable grib tables.
  * 
  * </pre>
  * 
@@ -72,6 +73,12 @@ public class GridParamInfoLookup {
 
     /** The singleton instance */
     private static GridParamInfoLookup instance;
+
+    /**
+     * Temporary boolean to enable or disable loading deprecated grib
+     * definitions
+     */
+    private static boolean loadGribDefs = false;
 
     /** Parameter information map */
     private Map<String, GridParamInfo> modelParamMap;
@@ -86,6 +93,17 @@ public class GridParamInfoLookup {
             instance = new GridParamInfoLookup();
         }
         return instance;
+    }
+
+    public static synchronized boolean enableLoadGribDefs() {
+        GridParamInfoLookup.loadGribDefs = true;
+        if(instance != null){
+            System.err.println("setLoadGribDefs was called too late.");
+            // this will trigger a complete reload. In testing it is never
+            // called too late, this is paranoia code.
+            instance = null;
+        }
+        return GridParamInfoLookup.loadGribDefs;
     }
 
     /**
@@ -172,9 +190,16 @@ public class GridParamInfoLookup {
     private void init() {
         Unmarshaller um = null;
         try {
-            JAXBContext context = JAXBContext.newInstance(ParameterInfo.class,
-                    GridParamInfo.class, GribParamInfo.class);
-            um = context.createUnmarshaller();
+            if (loadGribDefs) {
+                JAXBContext context = JAXBContext.newInstance(
+                        ParameterInfo.class, GridParamInfo.class,
+                        GribParamInfo.class);
+                um = context.createUnmarshaller();
+            } else {
+                JAXBContext context = JAXBContext.newInstance(
+                        ParameterInfo.class, GridParamInfo.class);
+                um = context.createUnmarshaller();
+            }
         } catch (JAXBException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return;
@@ -194,33 +219,41 @@ public class GridParamInfoLookup {
                 if (!modelParamMap.containsKey(key)) {
                     modelParamMap.put(key, paramInfo);
                 }
+                if (paramInfo instanceof GribParamInfo) {
+                    statusHandler.info("Loaded deprecated gribParamInfo for "
+                            + key);
+                }
             } catch (JAXBException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unmarshalling grid parameter information", e);
             }
         }
+        if (loadGribDefs) {
+            // Deprecated grib SITE level files.
+            files = pm.listFiles(pm.getContext(LocalizationType.EDEX_STATIC,
+                    LocalizationLevel.SITE), "grib" + IPathManager.SEPARATOR
+                    + "parameterInfo", new String[] { ".xml" }, true, true);
+            for (LocalizationFile file : files) {
+                statusHandler.info("Loading deprecated paramInfo file: "
+                        + file.getFile());
+                String name = file.getFile().getName().replace(".xml", "");
+                // Do not override grid files.
+                if (modelParamMap.get(name) != null) {
+                    continue;
+                }
 
-        // Deprecated grib SITE level files.
-        files = pm.listFiles(pm.getContext(LocalizationType.EDEX_STATIC,
-                LocalizationLevel.SITE), "grib" + IPathManager.SEPARATOR
-                + "parameterInfo", new String[] { ".xml" }, true, true);
-        for (LocalizationFile file : files) {
-            String name = file.getFile().getName().replace(".xml", "");
-            // Do not override grid files.
-            if (modelParamMap.get(name) != null) {
-                continue;
-            }
-
-            try {
-                GridParamInfo paramInfo = (GridParamInfo) um.unmarshal(file
-                        .getFile());
-                modelParamMap.put(name, paramInfo);
-            } catch (JAXBException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error unmarshalling grid parameter information", e);
+                try {
+                    GridParamInfo paramInfo = (GridParamInfo) um.unmarshal(file
+                            .getFile());
+                    modelParamMap.put(name, paramInfo);
+                } catch (JAXBException e) {
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Error unmarshalling grid parameter information",
+                                    e);
+                }
             }
         }
-
         for (GridParamInfo gridParamInfo : modelParamMap.values()) {
             for (String parmName : gridParamInfo.getParmNames()) {
                 ParameterInfo parameterInfo = gridParamInfo
