@@ -11,6 +11,8 @@
  * ------- 		------- 	--------	-----------
  * Sep 2011	   		        Chin Chen	Initial Coding (Following BufrsshaRecord to refactor for 
  * 										saving data to HDF5)
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013    1857     bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author Chin Chen
@@ -28,11 +30,15 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -42,7 +48,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "sshaseq")
 @Table(name = "ssha", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ssha",
+		indexes = {
+				@Index(name = "ssha_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 public class SshaRecord extends PersistablePluginDataObject implements
 		IDecoderGettable, IPointData, IPersistable {

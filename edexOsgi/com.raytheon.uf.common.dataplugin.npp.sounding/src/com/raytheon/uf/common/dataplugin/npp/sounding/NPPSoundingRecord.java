@@ -21,12 +21,16 @@ package com.raytheon.uf.common.dataplugin.npp.sounding;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.SequenceGenerator;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -44,13 +48,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 3, 2013            mschenke     Initial creation
+ * Apr 12, 2013 1857       bgonzale    Changed to MappedSuperclass.
+ * Mar 02, 2013 1970       bgonzale    Added SequenceGenerator and Inheritance Strategy
+ *                                     annotations.
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@Entity
+@MappedSuperclass
+@SequenceGenerator(name = PluginDataObject.ID_GEN)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class NPPSoundingRecord extends PersistablePluginDataObject

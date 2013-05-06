@@ -20,13 +20,15 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
@@ -67,6 +69,10 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * 02/01/13      1569    D. Hladky   Changed to reading aggregate records from pypies
  * Feb 28, 2013  1729      dhladky   Changed the way status messages are sent to the FFMP Dialog.
  * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
+ * Apr 9, 2013   1890     dhladky    removed loading of phantom Virtual template and cache file processing.
+ * Apr 18, 2013 1912       bsteffen    Increase bulk requests to pypies.
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -74,7 +80,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  */
 public class FFMPDataLoader extends Thread {
 
-    private static final IUFStatusHandler statusHandler = UFStatus.getHandler(FFMPDataLoader.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPDataLoader.class);
 
     private ProductXML product = null;
 
@@ -90,7 +97,7 @@ public class FFMPDataLoader extends Thread {
 
     private String dataKey = null;
 
-    private ArrayList<String> hucsToLoad = null;
+    private List<String> hucsToLoad = null;
 
     private String wfo = null;
 
@@ -103,8 +110,7 @@ public class FFMPDataLoader extends Thread {
     private CountDownLatch latch;
 
     public FFMPDataLoader(FFMPResourceData resourceData, Date timeBack,
-            Date mostRecentTime, LOADER_TYPE loadType,
-            ArrayList<String> hucsToLoad) {
+            Date mostRecentTime, LOADER_TYPE loadType, List<String> hucsToLoad) {
 
         this.product = resourceData.getProduct();
         this.siteKey = resourceData.siteKey;
@@ -156,24 +162,45 @@ public class FFMPDataLoader extends Thread {
 
     @Override
     public void run() {
-        
+
         long time = System.currentTimeMillis();
 
         try {
             resourceData.setLoader(loadType);
-            FFMPMonitor monitor = getMonitor(); 
-            FFMPSourceConfigurationManager sourceConfig = monitor.getSourceConfig();
+            FFMPMonitor monitor = getMonitor();
+            FFMPSourceConfigurationManager sourceConfig = monitor
+                    .getSourceConfig();
 
             ProductRunXML productRun = runner.getProduct(siteKey);
-            ArrayList<String> qpfSources = new ArrayList<String>();
+            List<SourceXML> qpfSources = new ArrayList<SourceXML>();
             String layer = config.getFFMPConfigData().getLayer();
-            boolean isProductLoad = true;
             String rateURI = null;
 
-            if ((loadType == LOADER_TYPE.INITIAL)
-                    || (loadType == LOADER_TYPE.GENERAL)) {
-                rateURI = monitor.getAvailableUri(siteKey, dataKey,
-                        product.getRate(), mostRecentTime);
+            if (loadType != LOADER_TYPE.GENERAL) {
+                // preload all the uris except guidance. Guidance loads data
+                // much further back and it is not efficient to group with the
+                // rest.
+                Set<String> sources = new HashSet<String>();
+                sources.add(product.getRate());
+                sources.add(product.getQpe());
+                sources.add(product.getVirtual());
+                for (String qpfType : productRun.getQpfTypes(product)) {
+                    for (SourceXML qpfSource : productRun.getQpfSources(
+                            product, qpfType)) {
+                        sources.add(qpfSource.getSourceName());
+                    }
+                }
+                monitor.preloadAvailableUris(siteKey, dataKey, sources,
+                        timeBack);
+            }
+            if ((loadType == LOADER_TYPE.INITIAL || loadType == LOADER_TYPE.GENERAL)
+                    && !product.getRate().equals(product.getQpe())) {
+                Map<Date, List<String>> rateURIs = monitor
+                .getAvailableUris(siteKey, dataKey, product.getRate(),
+                        mostRecentTime);
+                if (rateURIs.containsKey(mostRecentTime)) {
+                    rateURI = rateURIs.get(mostRecentTime).get(0);
+                }
             }
 
             NavigableMap<Date, List<String>> qpeURIs = monitor
@@ -199,7 +226,7 @@ public class FFMPDataLoader extends Thread {
 
                     if (qpfURIs != null && !qpfURIs.isEmpty()) {
                         qpfs.add(qpfURIs);
-                        qpfSources.add(qpfSource.getSourceName());
+                        qpfSources.add(qpfSource);
                     }
                 }
             }
@@ -235,6 +262,10 @@ public class FFMPDataLoader extends Thread {
             if (loadType == LOADER_TYPE.TERTIARY) {
                 hucsToLoad.clear();
                 hucsToLoad.add(FFMPRecord.ALL);
+            } else {
+                // Only used as place holder name, No data is linked to it, uses
+                // ALL
+                hucsToLoad.remove(FFMPRecord.VIRTUAL);
             }
 
             if (isDone()) {
@@ -246,36 +277,35 @@ public class FFMPDataLoader extends Thread {
                 fireLoaderEvent(loadType, "Processing " + product.getRate(),
                         isDone());
                 for (String phuc : hucsToLoad) {
-                    monitor.processUri(isProductLoad, rateURI, siteKey,
-                            product.getRate(), timeBack, phuc);
+                    monitor.processUri(rateURI, siteKey, product.getRate(),
+                            timeBack, phuc);
                 }
                 fireLoaderEvent(loadType, product.getRate(), isDone());
             }
 
             // qpes
-            fireLoaderEvent(loadType, "Processing " + product.getQpe(), isDone());
+            fireLoaderEvent(loadType, "Processing " + product.getQpe(),
+                    isDone());
             FFMPAggregateRecord qpeCache = null;
 
             if (loadType == LOADER_TYPE.INITIAL) {
 
-                SourceXML source = sourceConfig.getSource(
-                        product.getQpe());
+                SourceXML source = sourceConfig.getSource(product.getQpe());
 
-                qpeCache = readAggregateRecord(source, dataKey, wfo);
+                 qpeCache = readAggregateRecord(source, dataKey, wfo);
 
                 if (qpeCache != null) {
-                    monitor.insertFFMPData(qpeCache, siteKey,
-                            product.getQpe());
+                    monitor.insertFFMPData(qpeCache, qpeURIs, siteKey, product.getQpe());
                 }
             }
 
-            // Use this method of QPE data retrieval if you don't have cache files
-            if (!qpeURIs.isEmpty() && qpeCache == null) {
+            // Use this method of QPE data retrieval if you don't have cache
+            // files
+            if (!qpeURIs.isEmpty()) {
                 for (String phuc : hucsToLoad) {
-                    if (phuc.equals(layer)
-                            || phuc.equals(FFMPRecord.ALL)) {
-                        monitor.processUris(qpeURIs, isProductLoad,
-                                siteKey, product.getQpe(), timeBack, phuc);
+                    if (phuc.equals(layer) || phuc.equals(FFMPRecord.ALL)) {
+                        monitor.processUris(qpeURIs, siteKey, product.getQpe(),
+                                timeBack, phuc);
                     }
                 }
             }
@@ -291,48 +321,24 @@ public class FFMPDataLoader extends Thread {
 
                 if (loadType == LOADER_TYPE.INITIAL) {
 
-                    
-                    SourceXML source = sourceConfig
-                            .getSource(qpfSources.get(i));
+                    SourceXML source = qpfSources.get(i);
 
                     String pdataKey = findQPFHomeDataKey(source);
                     qpfCache = readAggregateRecord(source, pdataKey, wfo);
 
                     if (qpfCache != null) {
-                        for (String phuc : hucsToLoad) {
-                            if ((phuc.equals(layer) || phuc.equals(FFMPRecord.ALL))
-                                    && loadType == LOADER_TYPE.INITIAL
-                                    && source.getSourceName().equals(
-                                            config.getFFMPConfigData()
-                        .getIncludedQPF())) {
-                                if (!qpfURIs.isEmpty()) {
-
-                                    monitor.processUris(qpfURIs,
-                                            isProductLoad, siteKey,
-                                            source.getSourceName(), timeBack,
-                                            phuc);
-                                }
-                            }
-                        }
-
-                        monitor.insertFFMPData(qpfCache, siteKey,
+                        monitor.insertFFMPData(qpfCache, qpfURIs, siteKey,
                                 source.getSourceName());
                     }
                 }
-                // if (isUrisProcessNeeded(qpfData,qpfURIs))
-                // {/*DR13839*/
-                // Use this method of QPF data retrieval if you don't have cache files
-                if ((qpfCache == null) && !qpfURIs.isEmpty()) {
+
+                // Use this method of QPF data retrieval if you don't have cache
+                // files
+                if (!qpfURIs.isEmpty()) {
                     for (String phuc : hucsToLoad) {
-                        if (phuc.equals(layer)
-                                || phuc.equals(FFMPRecord.ALL)) { // old
-                                                         // code:
-                                                         // keep
-                                                         // for
-                                                         // reference*/
-                            // if (isHucProcessNeeded(phuc)) {/*DR13839*/
-                            monitor.processUris(qpfURIs, isProductLoad,
-                                    siteKey, product.getQpf(i), timeBack, phuc);
+                        if (phuc.equals(layer) || phuc.equals(FFMPRecord.ALL)) { // old
+                            monitor.processUris(qpfURIs, siteKey,
+                                    product.getQpf(i), timeBack, phuc);
                         }
                     }
                 }
@@ -344,26 +350,10 @@ public class FFMPDataLoader extends Thread {
 
             fireLoaderEvent(loadType, "Processing " + product.getVirtual(),
                     isDone());
-            FFMPAggregateRecord vgbCache = null;
-
-            if (loadType == LOADER_TYPE.INITIAL) {
-
-                SourceXML source = sourceConfig.getSource(
-                        product.getVirtual());
-
-                vgbCache = readAggregateRecord(source, dataKey, wfo);
-
-                if (vgbCache != null) {
-
-                    monitor.insertFFMPData(vgbCache, siteKey,
-                            product.getVirtual());
-                }
-            }
-
-            // Use this method of Virtual data retrieval if you don't have cache files
-            if ((vgbCache == null) && !virtualURIs.isEmpty()) {
-                monitor.processUris(virtualURIs, isProductLoad, siteKey,
-                        product.getVirtual(), timeBack, FFMPRecord.ALL);
+            // process virtual all for all only, never uses cache files
+            if (!virtualURIs.isEmpty()) {
+                monitor.processUris(virtualURIs, siteKey, product.getVirtual(),
+                        timeBack, FFMPRecord.ALL);
             }
 
             fireLoaderEvent(loadType, product.getVirtual(), isDone());
@@ -379,10 +369,12 @@ public class FFMPDataLoader extends Thread {
                             .get(guidSource.getSourceName());
 
                     fireLoaderEvent(loadType,
-                            "Processing " + guidSource.getSourceName(), isDone());
+                            "Processing " + guidSource.getSourceName(),
+                            isDone());
 
-                    monitor.processUris(iguidURIs, isProductLoad, siteKey,
-                            guidSource.getSourceName(), timeBack, FFMPRecord.ALL);
+                    monitor.processUris(iguidURIs, siteKey,
+                            guidSource.getSourceName(), timeBack,
+                            FFMPRecord.ALL);
 
                     fireLoaderEvent(loadType, guidSource.getSourceName(),
                             isDone());
@@ -390,10 +382,11 @@ public class FFMPDataLoader extends Thread {
                 }
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,"General Problem in Loading FFMP Data", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "General Problem in Loading FFMP Data", e);
         } finally {
             latch.countDown();
-            synchronized(this) {
+            synchronized (this) {
                 this.notifyAll();
             }
         }
@@ -406,7 +399,8 @@ public class FFMPDataLoader extends Thread {
         }
 
         long endTime = (System.currentTimeMillis()) - time;
-        System.out.println(loadType.loaderType + " Loader took: " + endTime / 1000 + " seconds");
+        System.out.println(loadType.loaderType + " Loader took: " + endTime
+                / 1000 + " seconds");
         fireLoaderEvent(loadType, message, isDone());
     }
 
@@ -503,7 +497,8 @@ public class FFMPDataLoader extends Thread {
             try {
                 // we are just checking if it exists or not
                 String pdataKey = product.getProductKey();
-                String sourceSiteDataKey = getSourceSiteDataKey(source, pdataKey);
+                String sourceSiteDataKey = getSourceSiteDataKey(source,
+                        pdataKey);
                 File hdf5File = FFMPUtils.getHdf5File(wfo, sourceSiteDataKey);
                 DataStoreFactory.getDataStore(hdf5File);
 
@@ -516,16 +511,16 @@ public class FFMPDataLoader extends Thread {
 
         return siteKey;
     }
-       
+
     /**
      * Get the sourceSiteDataKey for this piece of data
+     * 
      * @param source
      * @param pdataKey
      * @return
      */
     private String getSourceSiteDataKey(SourceXML source, String pdataKey) {
-        return source.getSourceName() + "-" + siteKey + "-"
-        + pdataKey;
+        return source.getSourceName() + "-" + siteKey + "-" + pdataKey;
     }
 
     public boolean isDone() {

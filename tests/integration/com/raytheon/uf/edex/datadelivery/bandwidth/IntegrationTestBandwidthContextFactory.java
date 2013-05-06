@@ -52,9 +52,10 @@ public class IntegrationTestBandwidthContextFactory extends
      *            the bandwidthDao
      */
     IntegrationTestBandwidthContextFactory(IBandwidthDao bandwidthDao,
-            IEdexBandwidthManagerCreator bandwidthManagerCreator) {
+            IEdexBandwidthManagerCreator bandwidthManagerCreator,
+            IBandwidthDbInit dbInit) {
         super(bandwidthDao, new IntegrationTestBandwidthInitializer(),
-                bandwidthManagerCreator);
+                bandwidthManagerCreator, dbInit);
     }
 
     /**
@@ -72,7 +73,7 @@ public class IntegrationTestBandwidthContextFactory extends
      */
     public static File getIntegrationTestBandwidthMapConfigFile() {
         return new IntegrationTestBandwidthContextFactory((IBandwidthDao) null,
-                (IEdexBandwidthManagerCreator) null)
+                (IEdexBandwidthManagerCreator) null, (IBandwidthDbInit) null)
                 .getBandwidthMapConfigFile();
     }
 }

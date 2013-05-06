@@ -37,9 +37,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.internal.IFPClient;
@@ -54,14 +52,15 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 10, 2010     #4475  randerso     Initial creation
- * 
+ * May 02, 2013      1949  rjpeter      Change ServerResponse return type.
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
 public class ClearPracticeGrids extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ClearPracticeGrids.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ClearPracticeGrids.class);
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -97,16 +96,15 @@ public class ClearPracticeGrids extends AbstractHandler {
                             ServerResponse<List<LockTable>> sr = client
                                     .requestLockChange(lreq);
                             if (!sr.isOkay()) {
-                                ArrayList<ServerMsg> messages = sr
-                                        .getMessages();
+                                List<ServerMsg> messages = sr.getMessages();
                                 StringBuilder msg = new StringBuilder(
                                         "Error attempting to remove locks.");
                                 for (ServerMsg serverMsg : messages) {
                                     msg.append("\n").append(
                                             serverMsg.getMessage());
                                 }
-                                statusHandler.handle(Priority.PROBLEM, msg
-                                                .toString());
+                                statusHandler.handle(Priority.PROBLEM,
+                                        msg.toString());
                             }
                         }
 
@@ -121,8 +119,8 @@ public class ClearPracticeGrids extends AbstractHandler {
                     "Prac_Fcst database has been cleared.");
 
         } catch (GFEServerException e) {
-            statusHandler.handle(
-                            Priority.PROBLEM,
+            statusHandler
+                    .handle(Priority.PROBLEM,
                             "Unexpected exception while attempting to clear practice grids",
                             e);
         }

@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
-import java.sql.SQLException;
-
-import org.hibernate.cfg.AnnotationConfiguration;
-
 /**
  * Performs any required database initialization.
  * 
@@ -33,6 +29,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Separated from the implementation
+ * Apr 30, 2013 1960       djohnson     Remove unnecessary methods.
  * 
  * </pre>
  * 
@@ -44,27 +41,8 @@ public interface IBandwidthDbInit {
 
     /**
      * Initializes the database.
+     * 
+     * @throws Exception
      */
-    void init();
-
-    /**
-     * Drop tables.
-     * 
-     * @param aConfig
-     *            the annotation configuration
-     * 
-     * @throws SQLException
-     */
-    void dropTables(AnnotationConfiguration aConfig)
-            throws java.sql.SQLException;
-
-    /**
-     * Create the tables.
-     * 
-     * @param aConfig
-     * 
-     * @throws SQLException
-     */
-    void createTables(AnnotationConfiguration aConfig)
-            throws java.sql.SQLException;;
+    void init() throws Exception;
 }

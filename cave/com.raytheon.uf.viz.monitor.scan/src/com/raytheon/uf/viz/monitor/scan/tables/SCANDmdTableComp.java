@@ -27,7 +27,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
@@ -55,6 +54,8 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.TimeHeightDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable     Initial creation
+ * Apr 26, 2013 #1945      lvenable    Improved SCAN performance, reworked
+ *                                     some bad code, and some code cleanup.
  * 
  * </pre>
  * 
@@ -63,15 +64,13 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.TimeHeightDlg;
  */
 public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
         IRequestTimeHeightData {
-    private Point mouseMovePt = new Point(0, 0);
-
-    private Point mouseDownPt = new Point(0, 0);
-
-    private Point prevMousePt = new Point(-9999, -9999);
 
     private TimeHeightDlg timeHeightDlg = null;
 
     private IRequestTimeHeightData timeHeightCB;
+
+    /** Clutter control column name. */
+    private String clutterColName = "";
 
     public SCANDmdTableComp(Composite parent, SCANTableData tableData,
             ITableAction tableActionCB,
@@ -85,6 +84,15 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
 
     @Override
     protected void setColumnImages() {
+        /*
+         * If the clutter control & sort column hasn't changed then return
+         * because the images will not change.
+         */
+        if (scanCfg.isClutterControl(scanTable, clutterColName)
+                && lastSortColIndex == sortedColumnIndex) {
+            return;
+        }
+
         TableColumn[] tCols = table.getColumns();
 
         for (int i = 0; i < tCols.length; i++) {
@@ -100,9 +108,9 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
             gc.setBackground(this.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
             // Set the foreground color to the clutter control color if the
-            // column
-            // is a clutter control.
+            // column is a clutter control.
             if (scanCfg.isClutterControl(scanTable, colName) == true) {
+                clutterColName = colName;
                 gc.setForeground(scanCfg
                         .getScanColor(ScanColors.ClutterControl));
             }
@@ -120,12 +128,12 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
                 gc.setBackground(scanCfg.getScanColor(ScanColors.Sort));
             }
 
+            lastSortColIndex = sortedColumnIndex;
+
             gc.fillRectangle(0, 0, imageWidth, imageHeight);
 
             int colNameExt = gc.stringExtent(colName).x;
 
-            // int xCoord = (imageWidth / 2) - (colName.length() * textWidth /
-            // 2);
             int xCoord = (imageWidth / 2) - (colNameExt / 2);
 
             gc.drawText(colName, xCoord, 3, true);
@@ -201,12 +209,6 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
 
     @Override
     protected void tableMouseMoveAction(MouseEvent event) {
-        // if (scanCfg.showTips(scanTable) == false) {
-        // prevMousePt.x = -9999;
-        // prevMousePt.y = -9999;
-        // table.setToolTipText(null);
-        // return;
-        // }
 
         mouseMovePt.x = event.x;
         mouseMovePt.y = event.y;
@@ -219,7 +221,6 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
         }
 
         Rectangle rect;
-        // rect = item.getBounds(table.getColumnCount() - 2);
         rect = item.getBounds(scanCfg.getCountyColumnIndex(scanTable));
 
         if ((scanCfg.showTips(scanTable) == false)
@@ -282,9 +283,9 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
     public void redrawTimeHeightGraph() {
         if ((timeHeightDlg == null) || timeHeightDlg.isDisposed()) {
             return;
-        } else {
-            timeHeightDlg.redrawGraph();
         }
+
+        timeHeightDlg.redrawGraph();
     }
 
     public boolean timeHeightDisplayed() {

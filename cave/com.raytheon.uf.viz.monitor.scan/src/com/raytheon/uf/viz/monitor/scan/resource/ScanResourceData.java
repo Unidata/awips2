@@ -21,9 +21,7 @@ package com.raytheon.uf.viz.monitor.scan.resource;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,10 +37,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.ScanRecord;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -52,7 +46,6 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -68,6 +61,7 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009            dhladky     Initial creation
  * Feb 28, 2013 1731       bsteffen    Optimize construction of scan resource.
+ * Apr 18, 2013    1926    njensen     Reuse URIs in construction of resource
  * 
  * </pre>
  * 
@@ -102,8 +96,8 @@ public class ScanResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        List<String> uris = Arrays.asList(getScan().getAvailableUris(
-                ScanTables.valueOf(tableType), icao));
+        List<String> uris = getScan().getAvailableUris(
+                ScanTables.valueOf(tableType), icao);
         try {
             long t0 = System.currentTimeMillis();
             // Forces ScanMonitor to grab data back for one extra hour 1/2 past
@@ -113,14 +107,16 @@ public class ScanResourceData extends AbstractRequestableResourceData {
             firstCal.add(Calendar.MINUTE, -90);
             Date firstDate = firstCal.getTime();
             int count = 0;
-            List<String> urisToLoad = new ArrayList<String>(uris.size());
+            List<ScanRecord> recordsToLoad = new ArrayList<ScanRecord>(
+                    uris.size());
             for (String uri : uris) {
                 ScanRecord record = new ScanRecord(uri);
                 if (record.getDataTime().getRefTime().after(firstDate)) {
-                    urisToLoad.add(uri);
+                    recordsToLoad.add(record);
                 }
             }
-            ScanRecord[] records = getScanRecords(urisToLoad);
+            ScanRecord[] records = recordsToLoad.toArray(new ScanRecord[0]);
+
             populateRecords(records);
             for (ScanRecord record : records) {
                 if ((record.getTableData() != null)
@@ -164,11 +160,10 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                     }
                 }
             }
+            long t4 = System.currentTimeMillis();
 
-            System.out
-                    .println("Loaded " + count + " out of " + uris.size()
-                            + " objects in "
-                            + (System.currentTimeMillis() - t0) + "ms");
+            System.out.println("Loaded " + count + " out of " + uris.size()
+                    + " objects in " + (t4 - t0) + "ms");
             // need to update the dialog here after the
             // scanResourceData has been fully populated
             getScan().setInstantiated(true);
@@ -189,6 +184,7 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             getScan().closeDialog(icao);
         }
         return new ScanResource(this, loadProperties);
@@ -231,8 +227,7 @@ public class ScanResourceData extends AbstractRequestableResourceData {
             }
             try {
                 IDataRecord[] dataRecords = dataStore.retrieveDatasets(
-                        datasetGroupPath,
-                        Request.ALL);
+                        datasetGroupPath, Request.ALL);
                 for (i = 0; i < dataRecords.length; i += 1) {
                     ByteDataRecord byteData = (ByteDataRecord) dataRecords[i];
                     scanRecords[i].setTableData(byteData);
@@ -285,18 +280,6 @@ public class ScanResourceData extends AbstractRequestableResourceData {
         } else {
             return super.getAvailableTimes();
         }
-    }
-
-    private ScanRecord[] getScanRecords(Collection<String> uris)
-            throws VizException {
-        DbQueryRequest request = new DbQueryRequest();
-        request.setEntityClass(ScanRecord.class);
-        RequestConstraint rc = new RequestConstraint(null, ConstraintType.IN);
-        rc.setConstraintValueList(uris);
-        request.addConstraint("dataURI", rc);
-        DbQueryResponse response = (DbQueryResponse) ThriftClient
-                .sendRequest(request);
-        return response.getEntityObjects(ScanRecord.class);
     }
 
 }

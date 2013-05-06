@@ -24,26 +24,49 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpConnectionParams;
@@ -78,6 +101,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    Jan 24, 2013     1526     njensen     Added postDynamicSerialize()
  *    Feb 20, 2013  1628        bsteffen    clean up Inflaters used by
  *                                          HttpClient.
+ *    Mar 11, 2013  1786        mpduff      Add https capability.
  * 
  * </pre>
  * 
@@ -85,7 +109,6 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  * @version 1
  */
 public class HttpClient {
-
     public static class HttpClientResponse {
         public final int code;
 
@@ -97,13 +120,245 @@ public class HttpClient {
         }
     }
 
+    /**
+     * This is using the initialization on demand holder pattern to lazily
+     * initialize the singleton instance of DefaultHttpClient.
+     * 
+     * http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom
+     */
+    private static class HttpsHolder {
+        private static final DefaultHttpClient sslClient;
+
+        static {
+            try {
+                SSLContext ctx = SSLContext.getInstance("TLS");
+                X509TrustManager tm = new X509TrustManager() {
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] xcs,
+                            String string) throws CertificateException {
+                        // blank
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] xcs,
+                            String string) throws CertificateException {
+                        // blank
+                    }
+
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                };
+                X509HostnameVerifier verifier = new X509HostnameVerifier() {
+
+                    @Override
+                    public void verify(String string, X509Certificate xc)
+                            throws SSLException {
+                        // blank
+                    }
+
+                    @Override
+                    public void verify(String string, String[] strings,
+                            String[] strings1) throws SSLException {
+                        // blank
+                    }
+
+                    @Override
+                    public void verify(String arg0, SSLSocket arg1)
+                            throws IOException {
+                        // blank
+
+                    }
+
+                    @Override
+                    public boolean verify(String arg0, SSLSession arg1) {
+                        // always return true to accept the self signed cert
+                        return true;
+                    }
+                };
+                ctx.init(null, new TrustManager[] { tm }, null);
+                SSLSocketFactory ssf = new SSLSocketFactory(ctx, verifier);
+                SchemeRegistry registry = new SchemeRegistry();
+
+                // registry.register(new Scheme("https", 443, ssf));
+                IHttpsConfiguration httpsConf = HttpClient.getInstance()
+                        .getHttpsConfiguration();
+                if (httpsConf == null) {
+                    throw new ExceptionInInitializerError(
+                            "Https configuration required.");
+                }
+                registry.register(new Scheme("https", httpsConf.getHttpsPort(),
+                        ssf));
+                registry.register(new Scheme("http", httpsConf.getHttpPort(),
+                        new PlainSocketFactory()));
+
+                sslClient = new DefaultHttpClient(
+                        new ThreadSafeClientConnManager(registry));
+                sslClient.addRequestInterceptor(new HttpRequestInterceptor() {
+                    @Override
+                    public void process(final HttpRequest request,
+                            final HttpContext context) throws HttpException,
+                            IOException {
+                        try {
+                            if (request != null
+                                    && request.getFirstHeader("Content-Length") != null) {
+                                logBytes(
+                                        Long.valueOf(request.getFirstHeader(
+                                                "Content-Length").getValue()),
+                                        0);
+                            }
+                        } catch (Throwable t) {
+                            statusHandler.handle(Priority.DEBUG,
+                                    "Error in httpClient request interceptor",
+                                    t);
+                        }
+                    }
+                });
+
+                sslClient.addResponseInterceptor(new HttpResponseInterceptor() {
+                    @Override
+                    public void process(final HttpResponse response,
+                            final HttpContext context) throws HttpException,
+                            IOException {
+                        try {
+                            if (response != null
+                                    && response.getEntity() != null) {
+                                logBytes(0, response.getEntity()
+                                        .getContentLength());
+                            }
+                        } catch (Throwable t) {
+                            statusHandler
+                                    .handle(Priority.DEBUG,
+                                            "Error in httpsClient response interceptor",
+                                            t);
+                        }
+                    }
+                });
+
+                // Set the proxy info
+                ProxyConfiguration proxySettings = ProxyUtil.getProxySettings();
+                if (proxySettings != null) {
+                    String proxyHost = proxySettings.getHost();
+                    int proxyPort = proxySettings.getPort();
+
+                    HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+                    sslClient.getParams().setParameter(
+                            ConnRoutePNames.DEFAULT_PROXY, proxy);
+                }
+
+                ((ThreadSafeClientConnManager) sslClient.getConnectionManager())
+                        .setDefaultMaxPerRoute(instance
+                                .getMaxConnectionsPerHost());
+
+                HttpConnectionParams.setTcpNoDelay(sslClient.getParams(), true);
+                HttpConnectionParams.setSoTimeout(sslClient.getParams(),
+                        instance.getSocketTimeout());
+                HttpConnectionParams.setConnectionTimeout(
+                        sslClient.getParams(), instance.getConnectionTimeout());
+                HttpsHolder.sslClient.getParams().setParameter(
+                        "http.protocol.expect-continue", true);
+
+                if (instance.isGzipResponseHandling()) {
+                    // Add gzip compression handlers
+                    // advertise we accept gzip
+                    sslClient
+                            .addRequestInterceptor(new GzipRequestInterceptor());
+                    // handle gzip contents
+                    sslClient
+                            .addResponseInterceptor(new GzipResponseInterceptor());
+                }
+            } catch (KeyManagementException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+                throw new ExceptionInInitializerError(
+                        "Error setting up SSL Client");
+            } catch (NoSuchAlgorithmException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+                throw new ExceptionInInitializerError(
+                        "Error setting up SSL Client");
+            }
+        }
+    }
+
+    /**
+     * This is using the initialization on demand holder pattern to lazily
+     * initialize the singleton instance of DefaultHttpClient.
+     * 
+     * http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom
+     */
+    private static class HttpHolder {
+        private static final DefaultHttpClient client;
+
+        static {
+            client = new DefaultHttpClient(new ThreadSafeClientConnManager());
+            client.addRequestInterceptor(new HttpRequestInterceptor() {
+                @Override
+                public void process(final HttpRequest request,
+                        final HttpContext context) throws HttpException,
+                        IOException {
+                    try {
+                        if (request != null
+                                && request.getFirstHeader("Content-Length") != null) {
+                            logBytes(
+                                    Long.valueOf(request.getFirstHeader(
+                                            "Content-Length").getValue()), 0);
+                        }
+                    } catch (Throwable t) {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Error in httpClient request interceptor", t);
+                    }
+                }
+            });
+
+            client.addResponseInterceptor(new HttpResponseInterceptor() {
+                @Override
+                public void process(final HttpResponse response,
+                        final HttpContext context) throws HttpException,
+                        IOException {
+                    try {
+                        if (response != null && response.getEntity() != null) {
+                            logBytes(0, response.getEntity().getContentLength());
+                        }
+                    } catch (Throwable t) {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Error in httpClient response interceptor", t);
+                    }
+                }
+            });
+
+            connManager = client.getConnectionManager();
+            ((ThreadSafeClientConnManager) connManager)
+                    .setDefaultMaxPerRoute(instance.getMaxConnections());
+
+            HttpConnectionParams.setConnectionTimeout(client.getParams(),
+                    instance.getConnectionTimeout());
+
+            HttpConnectionParams.setTcpNoDelay(client.getParams(), true);
+            HttpConnectionParams.setSoTimeout(client.getParams(),
+                    instance.getSocketTimeout());
+
+            if (instance.isGzipResponseHandling()) {
+                // Add gzip compression handlers
+                // advertise we accept gzip
+                client.addRequestInterceptor(new GzipRequestInterceptor());
+                // handle gzip contents
+                client.addResponseInterceptor(new GzipResponseInterceptor());
+            }
+        }
+    }
+
     private static final int SUCCESS_CODE = 200;
 
-    private final org.apache.http.client.HttpClient client;
+    private static final String HTTPS = "https";
+
+    private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
     private boolean previousConnectionFailed;
 
-    private static HttpClient instance;
+    private static final HttpClient instance = new HttpClient();
 
     /**
      * Number of times to retry in the event of a connection exception. Default
@@ -114,7 +369,9 @@ public class HttpClient {
     private static final IUFStatusHandler statusHandler = UFStatus.getHandler(
             HttpClient.class, "DEFAULT");
 
-    private ThreadSafeClientConnManager connManager = null;
+    private static ClientConnectionManager connManager = null;
+
+    private final ClientConnectionManager sslConnManager = null;
 
     private final NetworkStatistics stats = new NetworkStatistics();
 
@@ -125,43 +382,40 @@ public class HttpClient {
     /** number of requests currently in process by the application per host */
     private final Map<String, AtomicInteger> currentRequestsCount = new ConcurrentHashMap<String, AtomicInteger>();
 
+    private int socketTimeout = 330000;
+
+    private int connectionTimeout = 10000;
+
+    private int maxConnections = 10;
+
+    private IHttpsCredentialsHandler handler;
+
+    private IHttpsConfiguration httpsConfiguration;
+
+    /**
+     * Private constructor.
+     */
     private HttpClient() {
-        connManager = new ThreadSafeClientConnManager();
-        DefaultHttpClient client = new DefaultHttpClient(connManager);
+    }
 
-        client.addRequestInterceptor(new HttpRequestInterceptor() {
+    private org.apache.http.client.HttpClient getHttpsInstance() {
+        return HttpsHolder.sslClient;
+    }
 
-            @Override
-            public void process(final HttpRequest request,
-                    final HttpContext context) throws HttpException,
-                    IOException {
-                try {
-                    stats.log(
-                            Long.valueOf(request.getFirstHeader(
-                                    "Content-Length").getValue()), 0);
-                } catch (Throwable t) {
-                    // Ignore any errors when logging
-                }
-            }
+    private org.apache.http.client.HttpClient getHttpInstance() {
+        return HttpHolder.client;
+    }
 
-        });
+    private static void logBytes(long bytesSent, long bytesReceived) {
+        instance.log(bytesSent, bytesReceived);
+    }
 
-        client.addResponseInterceptor(new HttpResponseInterceptor() {
-            @Override
-            public void process(final HttpResponse response,
-                    final HttpContext context) throws HttpException,
-                    IOException {
-                try {
-                    stats.log(0, response.getEntity().getContentLength());
-                } catch (Throwable t) {
-                    // Ignore any errors when logging
-                }
-            }
-        });
-        HttpConnectionParams.setTcpNoDelay(client.getParams(), true);
-
-        this.client = client;
-        previousConnectionFailed = false;
+    private void log(long bytesSent, long bytesReceived) {
+        try {
+            stats.log(bytesSent, bytesReceived);
+        } catch (Throwable t) {
+            // Ignore any errors when logging
+        }
     }
 
     /**
@@ -173,22 +427,16 @@ public class HttpClient {
      *            whether or not to handle gzip responses
      */
     public void setGzipResponseHandling(boolean acceptGzip) {
-        if (acceptGzip && !handlingGzipResponses) {
-            // Add gzip compression handlers
-
-            // advertise we accept gzip
-            ((AbstractHttpClient) client)
-                    .addRequestInterceptor(new GzipRequestInterceptor());
-            // handle gzip contents
-            ((AbstractHttpClient) client)
-                    .addResponseInterceptor(new GzipResponseInterceptor());
-        } else if (!acceptGzip && handlingGzipResponses) {
-            ((AbstractHttpClient) client)
-                    .removeRequestInterceptorByClass(GzipRequestInterceptor.class);
-            ((AbstractHttpClient) client)
-                    .removeResponseInterceptorByClass(GzipResponseInterceptor.class);
-        }
         handlingGzipResponses = acceptGzip;
+    }
+
+    /**
+     * Get if the instance is gzipping responses
+     * 
+     * @return true if gzipping responses
+     */
+    public boolean isGzipResponseHandling() {
+        return this.handlingGzipResponses;
     }
 
     /**
@@ -201,11 +449,12 @@ public class HttpClient {
         gzipRequests = compress;
     }
 
-    public static synchronized HttpClient getInstance() {
-        if (instance == null) {
-            instance = new HttpClient();
-        }
-
+    /**
+     * Get an instance of this class
+     * 
+     * @return instance
+     */
+    public static final HttpClient getInstance() {
         return instance;
     }
 
@@ -255,13 +504,65 @@ public class HttpClient {
      */
     private HttpResponse postRequest(HttpUriRequest put) throws IOException,
             CommunicationException {
-        HttpResponse resp = client.execute(put);
+        HttpResponse resp = null;
+        if (put.getURI().getScheme().equalsIgnoreCase(HTTPS)) {
+            org.apache.http.client.HttpClient client = getHttpsInstance();
+            resp = execute(client, put);
+
+            // Check for not authorized, 401
+            while (resp.getStatusLine().getStatusCode() == 401) {
+                String authValue = null;
+                if (resp.containsHeader(WWW_AUTHENTICATE)) {
+                    authValue = resp.getFirstHeader(WWW_AUTHENTICATE)
+                            .getValue();
+                }
+                String[] credentials = null;
+                if (handler != null) {
+                    credentials = handler.getCredentials(authValue);
+                }
+                if (credentials == null) {
+                    return resp;
+                }
+                URI uri = put.getURI();
+                String host = uri.getHost();
+                int port = uri.getPort();
+
+                this.setCredentials(host, port, null, credentials[0],
+                        credentials[1]);
+                try {
+                    resp = execute(client, put);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Error retrying http request", e);
+                    return resp;
+                }
+            }
+        } else {
+            resp = getHttpInstance().execute(put);
+        }
+
         if (previousConnectionFailed) {
             previousConnectionFailed = false;
             statusHandler.handle(Priority.INFO,
                     "Connection with server reestablished.");
         }
         return resp;
+    }
+
+    /**
+     * Execute the HttpUriRequest using the provided HttpClient instance.
+     * 
+     * @param client
+     *            The HttpClient instance
+     * @param request
+     *            The request
+     * @return HttpResponse
+     * @throws ClientProtocolException
+     * @throws IOException
+     */
+    private HttpResponse execute(org.apache.http.client.HttpClient client,
+            HttpUriRequest request) throws ClientProtocolException, IOException {
+        return client.execute(request);
     }
 
     /**
@@ -292,9 +593,13 @@ public class HttpClient {
             }
             int currentCount = ongoing.incrementAndGet();
             if (currentCount > getMaxConnectionsPerHost()) {
-                String msg = currentCount + " ongoing http requests to " + host
-                        + ".  Likely waiting for free connection from pool.";
-                statusHandler.debug(msg);
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    String msg = currentCount
+                            + " ongoing http requests to "
+                            + host
+                            + ".  Likely waiting for free connection from pool.";
+                    statusHandler.debug(msg);
+                }
             }
             while (retry) {
                 retry = false;
@@ -310,6 +615,9 @@ public class HttpClient {
                     errorMsg += ".  Currently " + ongoing.get()
                             + " requests ongoing";
                     exc = e;
+                } catch (SSLPeerUnverifiedException e) {
+                    errorMsg = "Problem with security certificates.\nCannot make a secure connection.\nContact server administrator";
+                    throw new CommunicationException(errorMsg, e);
                 } catch (IOException e) {
                     errorMsg = "Error occurred communicating with server: "
                             + e.getMessage();
@@ -467,6 +775,7 @@ public class HttpClient {
         HttpPost put = new HttpPost(address);
         DynamicSerializeEntity dse = new DynamicSerializeEntity(obj, stream,
                 gzipRequests);
+
         put.setEntity(dse);
         if (gzipRequests) {
             put.setHeader("Content-Encoding", "gzip");
@@ -588,22 +897,77 @@ public class HttpClient {
     }
 
     public void setMaxConnectionsPerHost(int maxConnections) {
-        connManager.setDefaultMaxPerRoute(maxConnections);
+        this.maxConnections = maxConnections;
+    }
+
+    /**
+     * Get the maximum number of connections.
+     * 
+     * @return the max connections
+     */
+    public int getMaxConnections() {
+        return this.maxConnections;
     }
 
     public int getMaxConnectionsPerHost() {
-        return connManager.getDefaultMaxPerRoute();
+        if (connManager != null) {
+            return ((ThreadSafeClientConnManager) connManager)
+                    .getDefaultMaxPerRoute();
+        }
+        if (sslConnManager != null) {
+            return ((ThreadSafeClientConnManager) sslConnManager)
+                    .getDefaultMaxPerRoute();
+        }
+
+        return maxConnections;
     }
 
+    /**
+     * Set the socket timeout value
+     * 
+     * @param socketTimeout
+     *            the timeout value
+     */
     public void setSocketTimeout(int socketTimeout) {
-        HttpConnectionParams.setSoTimeout(client.getParams(), socketTimeout);
-        // client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
-        // socketTimeout);
+        this.socketTimeout = socketTimeout;
     }
 
+    /**
+     * Get the socket timeout
+     * 
+     * @return the socket timeout
+     */
+    public int getSocketTimeout() {
+        return this.socketTimeout;
+    }
+
+    /**
+     * Set the connection timeout value
+     * 
+     * @param connectionTimeout
+     *            The timeout value
+     */
     public void setConnectionTimeout(int connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(client.getParams(),
-                connectionTimeout);
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    /**
+     * Get the connection timeout
+     * 
+     * @return the connection timeout
+     */
+    public int getConnectionTimeout() {
+        return this.connectionTimeout;
+    }
+
+    /**
+     * Set the handler.
+     * 
+     * @param handler
+     *            The IHttpsCredentialsHandler
+     */
+    public void setHandler(IHttpsCredentialsHandler handler) {
+        this.handler = handler;
     }
 
     /**
@@ -753,14 +1117,48 @@ public class HttpClient {
                 HeaderElement[] codecs = ceheader.getElements();
                 for (HeaderElement codec : codecs) {
                     if (codec.getName().equalsIgnoreCase("gzip")) {
-                        response.setEntity(new SafeGzipDecompressingEntity(response
-                                .getEntity()));
+                        response.setEntity(new SafeGzipDecompressingEntity(
+                                response.getEntity()));
                         return;
                     }
                 }
             }
         }
-
     }
 
+    /**
+     * Set the credentials for SSL.
+     * 
+     * @param host
+     *            The host
+     * @param port
+     *            The port
+     * @param realm
+     *            The realm
+     * @param username
+     *            The username
+     * @param password
+     *            The password
+     */
+    public void setCredentials(String host, int port, String realm,
+            String username, String password) {
+        (HttpsHolder.sslClient).getCredentialsProvider().setCredentials(
+                new AuthScope(host, port),
+                new UsernamePasswordCredentials(username, password));
+    }
+
+    /**
+     * @param httpsConfiguration
+     *            the httpsConfiguration to set
+     */
+    public void setHttpsConfiguration(IHttpsConfiguration httpsConfiguration) {
+        this.httpsConfiguration = httpsConfiguration;
+    }
+
+    /**
+     * @return the httpsConfiguration
+     */
+    public IHttpsConfiguration getHttpsConfiguration() {
+        return httpsConfiguration;
+    }
 }
