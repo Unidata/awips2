@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<title>HWR NWWS Configuration Parameters</title>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=left SRC="roundup_cloud.gif"</A><P>
+<center>
+<h3><b><a name=defin>HWR NWWS Configuration Parameters</a></b></h3>
+</center>
+<hr>
+<a href=productnwws.html>Product #</a>,  
+<a href=stationnwws.html>Station Format</a>,
+<a href=threshnwws.html>Thresholds</a>,
+<a href=helpnwws.html>HWR NWWS Home</a>
+<hr>
+<BR><BR>
+The "<b>Addressee</b>" field (e.g., ALL) is used to route the product to the specified addressee. <br>
+
+Select the "<b>Include Temp in deg C?</b>" option to output the temperature in the Remarks field, 
+in degrees Celsius.  A "Y" selection does not necessarily result in the output of the temperature in degrees Celsius
+becasues the output "Remarks" section can contain a maximum of two weather elements 
+based on a fixed priority order, with the temperature in degrees Celsius having the 
+lowest priority. <br>
+<br>
+Select the "<b>Express Sky as Fair when SCP Missing?</b>" field to have the word "FAIR" output 
+when the SCP observation is missing and the ASOS observation is clear or partly cloudy.  
+Otherwise, when the SCP is missing, the sky/weather will be output as missing.<br>
+<br>
+Select the "<b>Time Zone</b>" pushbutton to choose from the list of available time zones one 
+to be used in the product. <br>
+<br>
+Select the <b>"Std Time All Yr?</b>" field to prevent the product from switching to Daylight 
+Savings Time during the year. <br>
+<br>
+By default, if observations are more than 1 hour old, they are considered invalid and are not 
+used in the HWR.  However, since C-MAN, buoy, and ship observations are not necessarily reported 
+every hour, the number of hours prior to creation time over which marine observations 
+are to be considered valid can be entered in the "<b>Window for Marine Obs</b>" field.
+<br>
+<p>
+<center><a href=helpnwws.html>HWR NWWS Home</a></center>
+</body>
+</HTML>

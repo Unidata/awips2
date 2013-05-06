@@ -1,0 +1,133 @@
+#!/bin/ksh
+
+###############################################################################
+#  transmit_rfc_bias
+#
+#  This script creates a rfc bias message and transmits it across the WAN.
+# 
+#  The office must set the PRODUCT_ID and RECIPIENTS variables at the
+#  beginning of this script.  The PRODUCT_ID is the 10 character WMO id -
+#  CCCCNNNXXX.  The product category (NNN) should be left as "RRM" indicating
+#  miscellaneous hydrologic data. For example for MARFC, the WMO id could
+#  be set as "KRHARRMRHA".
+#
+#  The RECIPIENTS variable contains a comma-separated list of offices the 
+#  RFC would like to send the bias message to.  For example for MARFC, 
+#  this list could be defined as:
+#  RECIPIENTS="LWX,CTP,PHI,PBZ,BGM,BUF,OKX"
+#
+#  Usage:
+#
+#       transmit_rfc_bias <YYYYMMDDHH>
+#           YYYY is the year
+#           MM is the month
+#           DD is the day
+#           HH is the hour 
+#
+#  Logs for this script are written to:
+#  /awips/hydroapps/precip_proc/local/data/log/process_bias_message
+#
+#  Modification History
+#  March 26, 2007     Bryon Lawrence   Script Written
+#  September 21, 2007 Bryon Lawrence   Added -e option to distributeProduct call.
+#
+###############################################################################
+export PRODUCT_ID="CCCCRRMXXX"
+export RECIPIENTS=""
+
+#
+# Export WHFS environmental variables.
+#
+RUN_FROM_DIR=`dirname $0`
+
+# These lines are commented out because this script will be run
+# from mpe_editor using mpe_editor's environment.  If this script
+# is run stand alone, these lines must be uncommented.
+export FXA_HOME=/awips/fxa
+. $FXA_HOME/readenv.sh
+. $RUN_FROM_DIR/../../set_hydro_env
+export RFC_BIAS_OUTPUT_DIR=$(get_apps_defaults rfc_bias_output_dir)
+export PROCESS_BIAS_LOG_DIR=$(get_apps_defaults process_bias_log_dir)
+export MPE_TRANSMIT_BIAS=$(get_apps_defaults mpe_transmit_bias)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+
+# set java classpath
+export CLASSPATH=$DB_DRIVER_PATH:$PPROC_BIN/bias_trans.jar
+
+#
+# Open the log file to track the status of the transmission of the RFC Bias
+# Message.
+#
+transmit_log=`date +$PROCESS_BIAS_LOG_DIR/transmit_rfc_bias_%m%d`
+
+echo "------------------------------------------------" >> $transmit_log
+
+Dte=`date -u`
+echo "Starting transmit_rfc_bias at $Dte" >> $transmit_log
+
+#
+# Check the mpe_transmit_bias token to make sure it is on.
+#  
+if [[ $MPE_TRANSMIT_BIAS = "OFF" || $MPE_TRANSMIT_BIAS = "off" ]]
+then
+   echo "Token mpe_transmit_bias is off.  RFC Bias Message not generated."
+   exit 1
+fi 
+
+if [[ -z "$RECIPIENTS" ]]
+then
+   echo "No recipients specified in transmit_rfc_bias script."  >> $transmit_log
+   exit 1
+fi
+
+#
+# Create the RFC Bias message.
+#
+echo "Calling the bias message creating program" >> $transmit_log
+echo "${SYS_JAVA_DIR}/bin/java/  ohd.hseb.bias_trans/BiasMessageCreator $JDBCURL $1" >> $transmit_log
+${SYS_JAVA_DIR}/bin/java ohd.hseb.bias_trans/BiasMessageCreator $JDBCURL $1 \
+                >> $transmit_log 2>&1
+
+#
+# Call distribute product and send the RFC Bias Message across the WAN.
+#
+FILENAME=${FXA_LOCAL_SITE}${1}z
+FILEPATH=$RFC_BIAS_OUTPUT_DIR/$FILENAME
+
+#
+# Check to make sure this file exists.
+if [[ ! -a $FILEPATH ]]
+then 
+   echo "$FILEPATH does not exist."
+   exit 1
+fi
+
+SUBJECT="$FILENAME $PRODUCT_ID RADAR_PRECIP_BIAS"
+
+#
+#  Call distributeProduct for the recipients.
+echo "Sending file:$FILENAME product_ID:$PRODUCT_ID to '$RECIPIENTS' via "\
+     "distributeProduct" >> $transmit_log
+echo "distributeProduct -c RADAR_PRECIP_BIAS -s\"$SUBJECT\" "\
+     "-a\"$RECIPIENTS\" -e $FILEPATH $PRODUCT_ID dummy" >> $transmit_log
+/awips/fxa/bin/distributeProduct -c RADAR_PRECIP_BIAS -s "$SUBJECT" -a \
+                                    "$RECIPIENTS" -e $FILEPATH $PRODUCT_ID \
+                                    dummy >> $transmit_log 2>&1
+
+#
+# Test the exit status of distributeProduct.
+#
+if [[ $? -ne 0 ]]
+then
+   echo "The call to distributeProduct failed." >> $transmit_log
+   exit 1
+else
+   echo "The call to distributeProduct was successful." >> $transmit_log
+fi
+
+#
+#  Remove the RFC bias message
+rm -f $FILEPATH >> $transmit_log 2>&1
+
+# End of script.
+#

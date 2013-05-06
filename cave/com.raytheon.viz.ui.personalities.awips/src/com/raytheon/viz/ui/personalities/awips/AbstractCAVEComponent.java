@@ -50,6 +50,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
 import com.raytheon.uf.viz.application.ProgramArguments;
@@ -60,6 +62,8 @@ import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserve
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
+import com.raytheon.uf.viz.core.status.VizStatusHandlerFactory;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
 import com.raytheon.viz.alerts.jobs.MenuUpdater;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -88,6 +92,9 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  *                                      the command line even if practice
  *                                      mode is off.
  * Jan 09, 2013   #1442    rferrel      Changes to notify SimultedTime listeners.
+ * Apr 17, 2013    1786    mpduff       startComponent now sets StatusHandlerFactory
+ * Apr 23, 2013   #1939    randerso     Allow serialization to complete initialization
+ *                                      before connecting to JMS to avoid deadlock
  * 
  * </pre>
  * 
@@ -137,7 +144,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         UnitRegistrar.registerUnits();
         CAVEMode.performStartupDuties();
 
-        long t0 = System.currentTimeMillis();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         Display display = null;
         int modes = getRuntimeModes();
@@ -162,7 +170,9 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             // dialog which would break gfeClient-based cron jobs.
             return IApplication.EXIT_OK;
         }
-        initializeSerialization();
+        UFStatus.setHandlerFactory(new VizStatusHandlerFactory());
+
+        Job serializationJob = initializeSerialization();
         initializeDataStoreFactory();
         initializeObservers();
 
@@ -200,11 +210,21 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         WorkbenchAdvisor workbenchAdvisor = null;
         // A component was passed as command line arg
         // launch cave normally, should cave be registered as component?
-        long t1 = System.currentTimeMillis();
-        System.out.println("Localization time: " + (t1 - t0) + "ms");
-
         try {
             initializeSimulatedTime();
+
+            // wait for serialization initialization to complete before
+            // opening JMS connection to avoid deadlock in class loaders
+            if (serializationJob != null) {
+                serializationJob.join();
+            }
+
+            // open JMS connection to allow alerts to be received
+            NotificationManagerJob.connect();
+
+            timer.stop();
+            System.out.println("Initialization time: " + timer.getElapsedTime()
+                    + "ms");
 
             if (cave) {
                 workbenchAdvisor = getWorkbenchAdvisor();
@@ -216,6 +236,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             if (workbenchAdvisor instanceof HiddenWorkbenchAdvisor == false) {
                 startInternal(componentName);
             }
+
             if (workbenchAdvisor != null) {
                 returnCode = PlatformUI.createAndRunWorkbench(display,
                         workbenchAdvisor);
@@ -235,6 +256,15 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                 // catch any exceptions to ensure rest of finally block
                 // executes
             }
+
+            try {
+                // disconnect from JMS
+                NotificationManagerJob.disconnect();
+            } catch (RuntimeException e) {
+                // catch any exceptions to ensure rest of finally block
+                // executes
+            }
+
             if (av != null) {
                 av.dispose();
             }
@@ -364,8 +394,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                 !LocalizationManager.internalAlertServer).run();
     }
 
-    protected void initializeSerialization() {
-        new Job("Loading Serialization") {
+    protected Job initializeSerialization() {
+        Job job = new Job("Loading Serialization") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
@@ -378,7 +408,9 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                 return Status.OK_STATUS;
             }
 
-        }.schedule();
+        };
+        job.schedule();
+        return job;
     }
 
     /**
