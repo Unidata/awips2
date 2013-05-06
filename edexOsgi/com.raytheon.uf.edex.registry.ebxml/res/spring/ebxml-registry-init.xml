@@ -4,10 +4,10 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
 	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
-		<property name="dbValidationStrategy" ref="ebxmlDbValidationStrategy" />
-		<property name="lcm" ref="lcmServiceImpl" />
+        <property name="lcm" ref="lcmServiceImpl" />
+        <property name="xacmlAdmin" ref="XACMLPolicyAdministrator" />
+        <property name="dao" ref="registryObjectDao" />
 		<property name="sessionFactory" ref="metadataSessionFactory" />
-		<property name="xacmlAdmin" ref="XACMLPolicyAdministrator" />
 	</bean>
 	
 	<bean id="ebxmlDbValidationStrategy"

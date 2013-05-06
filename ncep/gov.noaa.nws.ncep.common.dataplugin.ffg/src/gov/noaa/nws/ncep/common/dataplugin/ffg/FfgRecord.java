@@ -15,7 +15,9 @@
  * 07/2009		14				T. Lee		Migration to TO11
  * 09/2011      				Chin Chen   changed to improve purge performance and
  * 										    removed xml serialization as well
- * </pre>
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
+</pre>
  *
  * @author T.Lee
  * @version 1.0
@@ -26,27 +28,39 @@ package gov.noaa.nws.ncep.common.dataplugin.ffg;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgPrecip;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ffgseq")
 @Table(name = "ffg", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ffg",
+		indexes = {
+				@Index(name = "ffg_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
-
 public class FfgRecord extends PluginDataObject {
     private static final long serialVersionUID = 1L;
     

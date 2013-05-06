@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.dataaccess;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
@@ -36,7 +33,6 @@ import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -66,6 +62,9 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * Feb 4, 2013            bsteffen     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
+ * May 02, 2013 1949       bsteffen    Update GFE data access in Product
+ *                                     Browser, Volume Browser, and Data Access
+ *                                     Framework.
  * 
  * </pre>
  * 
@@ -76,8 +75,16 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         IDataFactory {
 
-    private static final String[] VALID_IDENTIFIERS = { GFEDataAccessUtil.MODEL_NAME,
-            GFEDataAccessUtil.MODEL_TIME, GFEDataAccessUtil.SITE_ID };
+    public static final String MODEL_TIME = "modelTime";
+
+    private static final String MODEL_NAME = "modelName";
+
+    private static final String SITE_ID = "siteId";
+
+    // The more full version from GFEDataAccessUtil is prefered but the smaller
+    // keys are needed for backwards compatibility.
+    private static final String[] VALID_IDENTIFIERS = { MODEL_NAME, MODEL_TIME,
+            SITE_ID };
 
     @Override
     public String[] getValidIdentifiers() {
@@ -102,11 +109,11 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         defaultGridData.setLocationName(gfeRecord.getDbId().getSiteId());
 
         Map<String, Object> attrs = new HashMap<String, Object>();
-        attrs.put(GFEDataAccessUtil.MODEL_NAME, gfeRecord.getDbId()
+        attrs.put(MODEL_NAME, gfeRecord.getDbId()
                 .getModelName());
-        attrs.put(GFEDataAccessUtil.MODEL_TIME, gfeRecord.getDbId()
+        attrs.put(MODEL_TIME, gfeRecord.getDbId()
                 .getModelTime());
-        attrs.put(GFEDataAccessUtil.SITE_ID, gfeRecord.getDbId().getSiteId());
+        attrs.put(SITE_ID, gfeRecord.getDbId().getSiteId());
 
         defaultGridData.setAttributes(attrs);
 
@@ -118,19 +125,31 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
             IDataRequest request) {
         HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
 
-        Map<String, String> parmIdComponents = new HashMap<String, String>();
         Map<String, Object> identifiers = request.getIdentifiers();
         if (identifiers != null) {
             for (Entry<String, Object> entry : identifiers.entrySet()) {
-                parmIdComponents.put(entry.getKey(), entry.getValue()
-                        .toString());
+                if (entry.getKey().equals(MODEL_NAME)) {
+                    constraints.put(GFEDataAccessUtil.MODEL_NAME,
+                            new RequestConstraint(entry
+                        .getValue().toString()));
+                } else if (entry.getKey().equals(SITE_ID)) {
+                    constraints.put(GFEDataAccessUtil.SITE_ID,
+                            new RequestConstraint(entry.getValue().toString()));
+                } else if (entry.getKey().equals(MODEL_TIME)) {
+                    constraints.put(GFEDataAccessUtil.MODEL_TIME,
+                            new RequestConstraint(entry.getValue().toString()));
+                } else {
+                    constraints.put(entry.getKey(), new RequestConstraint(entry
+                            .getValue().toString()));
+                }
             }
         }
 
         String[] parameters = request.getParameters();
         if (parameters != null) {
             if (parameters.length == 1) {
-                parmIdComponents.put(GFEDataAccessUtil.PARM_NAME, parameters[0]);
+                constraints.put(GFEDataAccessUtil.PARM_NAME,
+                        new RequestConstraint(parameters[0]));
             } else if (parameters.length > 1) {
                 RequestConstraint paramNameConstraint = new RequestConstraint(
                         null, ConstraintType.IN);
@@ -142,8 +161,9 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         Level[] levels = request.getLevels();
         if (levels != null) {
             if (levels.length == 1) {
-                parmIdComponents.put(GFEDataAccessUtil.PARM_LEVEL, levels[0]
-                        .getMasterLevel().getName());
+                constraints.put(GFEDataAccessUtil.PARM_LEVEL,
+                        new RequestConstraint(levels[0].getMasterLevel()
+                                .getName()));
             } else if (levels.length > 1) {
                 RequestConstraint paramLevelConstraint = new RequestConstraint(
                         null, ConstraintType.IN);
@@ -158,33 +178,15 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         String[] locationNames = request.getLocationNames();
         if (locationNames != null) {
             if (locationNames.length == 1) {
-                parmIdComponents.put(GFEDataAccessUtil.SITE_ID,
-                        locationNames[0]);
+                constraints.put(GFEDataAccessUtil.SITE_ID,
+                        new RequestConstraint(locationNames[0]));
             } else if (locationNames.length > 1) {
-                RequestConstraint dbIdConstraint = new RequestConstraint(null,
+                RequestConstraint siteConstraint = new RequestConstraint(null,
                         ConstraintType.IN);
-                HashSet<String> locationNamesSet = new HashSet<String>(
-                        Arrays.asList(locationNames));
-                DbQueryRequest dbRequest = new DbQueryRequest();
-                dbRequest.addRequestField(GFEDataAccessUtil.DB_ID);
-                dbRequest.setDistinct(true);
-                DbQueryResponse dbResonse = executeDbQueryRequest(dbRequest,
-                        request.toString());
-                for (Map<String, Object> resultMap : dbResonse.getResults()) {
-                    DatabaseID dbId = (DatabaseID) resultMap
-                            .get(GFEDataAccessUtil.DB_ID);
-                    if (locationNamesSet.contains(dbId.getSiteId())) {
-                        dbIdConstraint
-                                .addToConstraintValueList(dbId.toString());
-                    }
-                }
-                constraints.put(GFEDataAccessUtil.DB_ID, dbIdConstraint);
-
+                siteConstraint.setConstraintValueList(locationNames);
+                constraints.put(GFEDataAccessUtil.SITE_ID, siteConstraint);
             }
         }
-
-        constraints.put(GFEDataAccessUtil.PARM_ID,
-                GFEDataAccessUtil.createParmIdConstraint(parmIdComponents));
 
         return constraints;
     }
@@ -231,17 +233,13 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
         DbQueryRequest dbRequest = buildDbQueryRequest(request);
-        dbRequest.addRequestField(GFEDataAccessUtil.DB_ID);
+        dbRequest.addRequestField(GFEDataAccessUtil.SITE_ID);
         dbRequest.setDistinct(true);
         DbQueryResponse dbResonse = executeDbQueryRequest(dbRequest,
                 request.toString());
-        Set<String> locationNames = new HashSet<String>();
-        for (Map<String, Object> resultMap : dbResonse.getResults()) {
-            DatabaseID dbId = (DatabaseID) resultMap
-                    .get(GFEDataAccessUtil.DB_ID);
-            locationNames.add(dbId.getSiteId());
-        }
-        return locationNames.toArray(new String[0]);
+
+        return dbResonse.getFieldObjects(GFEDataAccessUtil.SITE_ID,
+                String.class);
     }
 
     private GFERecord asGFERecord(Object obj) {

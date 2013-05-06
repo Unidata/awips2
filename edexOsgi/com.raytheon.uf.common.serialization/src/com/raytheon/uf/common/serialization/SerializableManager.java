@@ -14,7 +14,7 @@
  *                         Omaha, NE 68106
  *                         402.291.0100
  * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * See the AWIPS II Master Rights File ("Master Rights File.p df") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.serialization;
@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ServiceConfigurationError;
 import java.util.Set;
 
@@ -58,6 +59,9 @@ import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
  * Aug 31, 2009 2924        rjpeter     Added Embeddable.
  * Feb 07, 2013 1543        djohnson    Implement IJaxbableClassesLocator.
  * Mar 29, 2013 1841        djohnson    Never return null from hibernatables for plugin.
+ * Apr 24, 2013 1939        randerso    Clean up code and attempt to improve speed.
+ *                                      Added initializeHibernatables flag to disable
+ *                                      processing hibernatables on CAVE
  * </pre>
  * 
  * @author njensen
@@ -96,23 +100,37 @@ public class SerializableManager implements IJaxbableClassesLocator {
                     .getResources(
                             "META-INF/services/"
                                     + ISerializableObject.class.getName());
+
+            // doHibernate will be false in CAVE since they are not needed
+            boolean doHibernate = Boolean.getBoolean("initializeHibernatables");
+
             // In testing 1 thread is slowest, 2 threads cuts the time down
             // about 50% and 3 threads cuts down another 5% or so, 4 threads
             // shows no benefit over 2. These results are system specific.
             int numThreads = 3;
-            Thread[] threads = new Thread[numThreads];
-            for (int i = 1; i < numThreads; i++) {
-                threads[i] = new LoadSerializableClassesThread(urls, clazzSet,
-                        hibernatables);
+            LoadSerializableClassesThread[] threads = new LoadSerializableClassesThread[numThreads];
+            for (int i = 0; i < numThreads; i++) {
+                threads[i] = new LoadSerializableClassesThread(urls,
+                        doHibernate);
                 threads[i].start();
             }
-            threads[0] = new LoadSerializableClassesThread(urls, clazzSet,
-                    hibernatables);
-            // Run this one on the current thread since its not doing anything
-            // but waiting and this avoids overhead of starting a new thread
-            threads[0].run();
-            for (int i = 1; i < numThreads; i++) {
-                threads[i].join();
+
+            for (LoadSerializableClassesThread thread : threads) {
+                thread.join();
+                clazzSet.addAll(thread.getClazzList());
+
+                if (doHibernate) {
+                    for (Entry<String, List<Class<ISerializableObject>>> entry : thread
+                            .getHibernatables().entrySet()) {
+                        List<Class<ISerializableObject>> list = hibernatables
+                                .get(entry.getKey());
+                        if (list == null) {
+                            list = new ArrayList<Class<ISerializableObject>>();
+                            hibernatables.put(entry.getKey(), list);
+                        }
+                        list.addAll(entry.getValue());
+                    }
+                }
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -128,6 +146,7 @@ public class SerializableManager implements IJaxbableClassesLocator {
 
         System.out.println("Total time spent loading classes: "
                 + (System.currentTimeMillis() - realStartTime) + "ms");
+
     }
 
     private static void fail(@SuppressWarnings("rawtypes") Class service,
@@ -158,25 +177,28 @@ public class SerializableManager implements IJaxbableClassesLocator {
             return -1;
         }
         int ci = ln.indexOf('#');
-        if (ci >= 0)
+        if (ci >= 0) {
             ln = ln.substring(0, ci);
+        }
         ln = ln.trim();
         int n = ln.length();
         if (n != 0) {
-            if ((ln.indexOf(' ') >= 0) || (ln.indexOf('\t') >= 0))
+            if ((ln.indexOf(' ') >= 0) || (ln.indexOf('\t') >= 0)) {
                 fail(service, u, lc, "Illegal configuration-file syntax");
+            }
             int cp = ln.codePointAt(0);
-            if (!Character.isJavaIdentifierStart(cp))
+            if (!Character.isJavaIdentifierStart(cp)) {
                 fail(service, u, lc, "Illegal provider-class name: " + ln);
+            }
             for (int i = Character.charCount(cp); i < n; i += Character
                     .charCount(cp)) {
                 cp = ln.codePointAt(i);
-                if (!Character.isJavaIdentifierPart(cp) && (cp != '.'))
+                if (!Character.isJavaIdentifierPart(cp) && (cp != '.')) {
                     fail(service, u, lc, "Illegal provider-class name: " + ln);
+                }
             }
 
-            if (!names.contains(ln))
-                names.add(ln);
+            names.add(ln);
         }
         return lc + 1;
     }
@@ -242,30 +264,42 @@ public class SerializableManager implements IJaxbableClassesLocator {
 
         private final Enumeration<URL> urls;
 
-        private final Set<Class<ISerializableObject>> clazzSet;
+        private final boolean doHibernate;
+
+        private final List<Class<ISerializableObject>> clazzList;
 
         private final Map<String, List<Class<ISerializableObject>>> hibernatables;
 
         public LoadSerializableClassesThread(Enumeration<URL> urls,
-                Set<Class<ISerializableObject>> clazzSet,
-                Map<String, List<Class<ISerializableObject>>> hibernatables) {
+                boolean doHibernate) {
             this.urls = urls;
-            this.clazzSet = clazzSet;
-            this.hibernatables = hibernatables;
+            this.doHibernate = doHibernate;
+            this.clazzList = new ArrayList<Class<ISerializableObject>>(500);
+            this.hibernatables = new HashMap<String, List<Class<ISerializableObject>>>();
+        }
+
+        public List<Class<ISerializableObject>> getClazzList() {
+            return clazzList;
+        }
+
+        public Map<String, List<Class<ISerializableObject>>> getHibernatables() {
+            return hibernatables;
         }
 
         @Override
         public void run() {
             try {
                 ClassLoader cl = getClass().getClassLoader();
-                Set<Class<ISerializableObject>> pluginHibernateSet = new HashSet<Class<ISerializableObject>>();
+                Set<Class<ISerializableObject>> pluginHibernateSet = null;
+                if (doHibernate) {
+                    pluginHibernateSet = new HashSet<Class<ISerializableObject>>();
+                }
                 List<String> names = new ArrayList<String>();
                 URL u = getNextUrl();
                 while (u != null) {
                     InputStream in = null;
                     BufferedReader r = null;
                     names.clear();
-                    pluginHibernateSet.clear();
                     String path = u.getPath();
                     int endIndex = path.indexOf(".jar");
                     if (endIndex < 0) {
@@ -285,24 +319,31 @@ public class SerializableManager implements IJaxbableClassesLocator {
                                 "utf-8"));
                         int lc = 1;
                         while ((lc = parseLine(ISerializableObject.class, u, r,
-                                lc, names)) >= 0)
+                                lc, names)) >= 0) {
                             ;
+                        }
                     } catch (IOException x) {
                         fail(ISerializableObject.class,
                                 "Error reading configuration file", x);
                     } finally {
                         try {
-                            if (r != null)
+                            if (r != null) {
                                 r.close();
-                            if (in != null)
+                            }
+                            if (in != null) {
                                 in.close();
+                            }
                         } catch (IOException y) {
                             fail(ISerializableObject.class,
                                     "Error closing configuration file", y);
                         }
                     }
-                    Iterator<String> iter = names.iterator();
 
+                    if (doHibernate) {
+                        pluginHibernateSet.clear();
+                    }
+
+                    Iterator<String> iter = names.iterator();
                     while (iter.hasNext()) {
                         String clazz = iter.next();
                         try {
@@ -313,18 +354,20 @@ public class SerializableManager implements IJaxbableClassesLocator {
                             boolean added = false;
                             if (c.getAnnotation(XmlAccessorType.class) != null
                                     || c.getAnnotation(XmlRegistry.class) != null) {
-                                addToClazzSet(c);
+                                clazzList.add(c);
                                 added = true;
                             }
 
-                            if (c.getAnnotation(Entity.class) != null
-                                    || c.getAnnotation(Embeddable.class) != null) {
-                                pluginHibernateSet.add(c);
-                                added = true;
+                            if (doHibernate) {
+                                if (c.getAnnotation(Entity.class) != null
+                                        || c.getAnnotation(Embeddable.class) != null) {
+                                    pluginHibernateSet.add(c);
+                                    added = true;
+                                }
                             }
 
                             long time = (System.currentTimeMillis() - t0);
-                            if (!added) {
+                            if (doHibernate && !added) {
                                 System.out
                                         .println("Class: "
                                                 + clazz
@@ -339,8 +382,10 @@ public class SerializableManager implements IJaxbableClassesLocator {
                         }
                     }
 
-                    if (pluginHibernateSet.size() > 0) {
-                        addToHibernatables(pluginFQN, pluginHibernateSet);
+                    if (doHibernate && pluginHibernateSet.size() > 0) {
+                        hibernatables.put(pluginFQN,
+                                new ArrayList<Class<ISerializableObject>>(
+                                        pluginHibernateSet));
                     }
                     u = getNextUrl();
                 }
@@ -355,21 +400,6 @@ public class SerializableManager implements IJaxbableClassesLocator {
                     return urls.nextElement();
                 }
                 return null;
-            }
-        }
-
-        private void addToClazzSet(Class<ISerializableObject> clazz) {
-            synchronized (clazzSet) {
-                clazzSet.add(clazz);
-            }
-        }
-
-        private void addToHibernatables(String pluginFQN,
-                Set<Class<ISerializableObject>> pluginHibernateSet) {
-            synchronized (hibernatables) {
-                hibernatables.put(pluginFQN,
-                        new ArrayList<Class<ISerializableObject>>(
-                                pluginHibernateSet));
             }
         }
     }

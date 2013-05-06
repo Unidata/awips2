@@ -37,11 +37,11 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Implementation of a colormap
- *
+ * 
  * <pre>
- *
+ * 
  *  SOFTWARE HISTORY
- *
+ * 
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  Feb 5, 2007              chammack    Initial Creation.
@@ -50,9 +50,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *  Aug 20, 2008			 dglazesk	 Added some interface pieces to make this more
  *                                       usable
  *  Jan 10, 2013 15648       ryu         Added removeDuplicates() method.
- *
+ *  Apr 18, 2013  1920       mpduff      Default changed to true.
+ * 
  * </pre>
- *
+ * 
  * @author chammack
  * @version 1
  */
@@ -67,7 +68,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     private Buffer glBuffer;
 
-    private boolean changed = false;
+    private boolean changed = true;
 
     /**
      * Constructor used by JiBX
@@ -97,7 +98,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /**
      * Creates a ColorMap using name and the list of colors in map.
-     *
+     * 
      * @param name
      *            Name for the new ColorMap
      * @param map
@@ -107,12 +108,11 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         this.name = name;
         colors = new ArrayList<Color>();
         colors.addAll(map.getColors());
-        this.changed = true;
     }
 
     /**
      * Do not instantiate directly, use GLTarget methods
-     *
+     * 
      * @param name
      * @param red
      * @param green
@@ -139,9 +139,10 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.common.colormap.IColorMap#getBlue()
      */
+    @Override
     public float[] getBlue() {
         int colorNum = colors.size();
         float[] blues = new float[colorNum];
@@ -153,9 +154,10 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.common.colormap.IColorMap#getGreen()
      */
+    @Override
     public float[] getGreen() {
         int colorNum = colors.size();
         float[] greens = new float[colorNum];
@@ -167,9 +169,10 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.common.colormap.IColorMap#getRed()
      */
+    @Override
     public float[] getRed() {
         int colorNum = colors.size();
         float[] reds = new float[colorNum];
@@ -181,18 +184,20 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.common.colormap.IColorMap#getSize()
      */
+    @Override
     public int getSize() {
         return colors.size();
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.common.colormap.IColorMap#getAlpha()
      */
+    @Override
     public float[] getAlpha() {
         int colorNum = colors.size();
         float[] alphas = new float[colorNum];
@@ -204,7 +209,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /**
      * Return the buffer representation of the colormap
-     *
+     * 
      * @return the colorMap buffer
      */
     public synchronized Buffer getColorMap() {
@@ -233,20 +238,22 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.edex.colormap.IColorMap#getName()
      */
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public List<Color> getColors() {
         return colors;
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -254,10 +261,12 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         return "COLORMAP { " + getName() + " }";
     }
 
+    @Override
     public boolean isChanged() {
         return changed;
     }
 
+    @Override
     public void setAlpha(float[] anAlpha) {
         int size = anAlpha.length;
         for (int i = 0; i < size; ++i) {
@@ -270,6 +279,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         changed = true;
     }
 
+    @Override
     public void setBlue(float[] aBlue) {
         int size = aBlue.length;
         for (int i = 0; i < size; ++i) {
@@ -282,6 +292,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         changed = true;
     }
 
+    @Override
     public void setGreen(float[] aGreen) {
         int size = aGreen.length;
         for (int i = 0; i < size; ++i) {
@@ -294,6 +305,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         changed = true;
     }
 
+    @Override
     public void setRed(float[] aRed) {
         int size = aRed.length;
         for (int i = 0; i < size; ++i) {
@@ -310,10 +322,12 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
         this.colors.set(index, color);
     }
 
+    @Override
     public void setChanged(boolean aChanged) {
         changed = aChanged;
     }
 
+    @Override
     public void setName(String aName) {
         name = aName;
         changed = true;
@@ -329,7 +343,7 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
      * wavelength to the maximum wavelength. If the reverse flag is set, then a
      * reverse spectrum is generated. The red, green, and blue indexes are
      * returned through the calling arguments.
-     *
+     * 
      * @param numOfColors
      * @param minWaveLength
      * @param maxWaveLength
@@ -416,10 +430,10 @@ public class ColorMap extends AbstractColorMap implements ISerializableObject {
     public void removeDuplicates() {
         List<Color> colors = new ArrayList<Color>();
         Color current = null;
-        for (Color color: this.colors) {
+        for (Color color : this.colors) {
             if (!color.equals(current)) {
-              	colors.add(color);
-              	current = color;
+                colors.add(color);
+                current = color;
             }
         }
 
