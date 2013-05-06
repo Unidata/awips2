@@ -46,6 +46,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  *                                      of getJaxbManager().
  * Feb 07, 2013 1543       djohnson     Use ServiceLoader to find how to load jaxbable classes, defaulting to SerializableManager.
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
+ * May 01, 2013 1968       djohnson     Prevent deadlock due to SerializableManager threads needing to serialize things.
  * 
  * </pre>
  * 
@@ -55,15 +56,11 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
 
 public final class SerializationUtil {
 
-    private static final IJaxbableClassesLocator jaxbableClassesLocator = ServiceLoaderUtil
-            .load(SerializationUtil.class, IJaxbableClassesLocator.class,
-                    SerializableManager.getInstance());
-
     private static volatile JAXBManager jaxbManager;
 
-	private SerializationUtil() {
+    private SerializationUtil() {
 
-	}
+    }
 
     /**
      * Retrieve the {@link JAXBManager} instance. Lazily-initialized using
@@ -80,7 +77,13 @@ public final class SerializationUtil {
             synchronized (SerializationUtil.class) {
                 result = jaxbManager;
                 if (result == null) {
-                    List<Class<ISerializableObject>> jaxbClasses = jaxbableClassesLocator
+                    // This cannot be eagerly created as
+                    // SerializableManager.getInstance() spawns threads which
+                    // were causing a deadlock
+                    List<Class<ISerializableObject>> jaxbClasses = ServiceLoaderUtil
+                            .load(SerializationUtil.class,
+                                    IJaxbableClassesLocator.class,
+                                    SerializableManager.getInstance())
                             .getJaxbables();
                     jaxbManager = result = new JAXBManager(
                             jaxbClasses.toArray(new Class[jaxbClasses.size()]));
@@ -91,9 +94,9 @@ public final class SerializationUtil {
         return result;
     }
 
-	public static JAXBContext getJaxbContext() throws JAXBException {
-		return getJaxbManager().getJaxbContext();
-	}
+    public static JAXBContext getJaxbContext() throws JAXBException {
+        return getJaxbManager().getJaxbContext();
+    }
 
     /**
      * Instantiates an object from the XML representation in a string. Uses
@@ -108,10 +111,10 @@ public final class SerializationUtil {
      *             in a serialization exception
      */
     @Deprecated
-	public static Object unmarshalFromXml(String xml) throws JAXBException {
+    public static Object unmarshalFromXml(String xml) throws JAXBException {
         return unmarshalFromXml(Object.class, xml);
 
-	}
+    }
 
     /**
      * Instantiates an object from the XML representation in a string. Uses
@@ -129,38 +132,38 @@ public final class SerializationUtil {
         return clazz.cast(getJaxbManager().unmarshalFromXml(xml));
     }
 
-	/**
-	 * Convert an instance of a class to an XML representation in a string. Uses
-	 * JAXB.
-	 * 
-	 * @param obj
-	 *            Object being marshalled
-	 * @return XML string representation of the object
-	 * @throws JAXBException
-	 */
-	public static String marshalToXml(Object obj) throws JAXBException {
-		return getJaxbManager().marshalToXml(obj);
-	}
+    /**
+     * Convert an instance of a class to an XML representation in a string. Uses
+     * JAXB.
+     * 
+     * @param obj
+     *            Object being marshalled
+     * @return XML string representation of the object
+     * @throws JAXBException
+     */
+    public static String marshalToXml(Object obj) throws JAXBException {
+        return getJaxbManager().marshalToXml(obj);
+    }
 
-	/**
-	 * Convert an instance of a class to an XML representation and write XML to
-	 * file. Uses JAXB.
-	 * 
-	 * @param obj
-	 *            Object to be marshaled
-	 * @param filePath
-	 *            Path to the output file
-	 * @throws SerializationException
-	 */
-	public static void jaxbMarshalToXmlFile(Object obj, String filePath)
-			throws SerializationException {
-		try {
-			getJaxbManager().jaxbMarshalToXmlFile(obj, filePath);
-		} catch (JAXBException e) {
-			throw new SerializationException(e);
-		}
+    /**
+     * Convert an instance of a class to an XML representation and write XML to
+     * file. Uses JAXB.
+     * 
+     * @param obj
+     *            Object to be marshaled
+     * @param filePath
+     *            Path to the output file
+     * @throws SerializationException
+     */
+    public static void jaxbMarshalToXmlFile(Object obj, String filePath)
+            throws SerializationException {
+        try {
+            getJaxbManager().jaxbMarshalToXmlFile(obj, filePath);
+        } catch (JAXBException e) {
+            throw new SerializationException(e);
+        }
 
-	}
+    }
 
     /**
      * Instantiates an object from the XML representation in a File. Uses JAXB.
@@ -174,10 +177,10 @@ public final class SerializationUtil {
      *             {@link ClassCastException}s in a serialization exception
      */
     @Deprecated
-	public static Object jaxbUnmarshalFromXmlFile(String filePath)
-			throws SerializationException {
+    public static Object jaxbUnmarshalFromXmlFile(String filePath)
+            throws SerializationException {
         return jaxbUnmarshalFromXmlFile(Object.class, filePath);
-	}
+    }
 
     /**
      * Instantiates an object from the XML representation in a File. Uses JAXB.
@@ -211,11 +214,11 @@ public final class SerializationUtil {
      *             performs the cast for you, and wraps any
      *             {@link ClassCastException}s in a serialization exception
      */
-	@Deprecated
-	public static Object jaxbUnmarshalFromXmlFile(File file)
-			throws SerializationException {
+    @Deprecated
+    public static Object jaxbUnmarshalFromXmlFile(File file)
+            throws SerializationException {
         return jaxbUnmarshalFromXmlFile(Object.class, file);
-	}
+    }
 
     /**
      * Instantiates an object from the XML representation in a File. Uses JAXB.
@@ -251,10 +254,10 @@ public final class SerializationUtil {
      *             {@link ClassCastException}s in a serialization exception
      */
     @Deprecated
-	public static Object jaxbUnmarshalFromInputStream(InputStream is)
-			throws SerializationException {
+    public static Object jaxbUnmarshalFromInputStream(InputStream is)
+            throws SerializationException {
         return jaxbUnmarshalFromInputStream(Object.class, is);
-	}
+    }
 
     /**
      * Instantiates an object from the XML representation in a stream. Uses
@@ -269,8 +272,7 @@ public final class SerializationUtil {
      * 
      */
     public static <T> T jaxbUnmarshalFromInputStream(Class<T> clazz,
-            InputStream is)
-            throws SerializationException {
+            InputStream is) throws SerializationException {
         try {
             return clazz
                     .cast(getJaxbManager().jaxbUnmarshalFromInputStream(is));
@@ -279,43 +281,43 @@ public final class SerializationUtil {
         }
     }
 
-	/**
-	 * Transforms an object to the thrift protocol using DynamicSerialize. The
-	 * object will exist in memory 3 times during this process: once in its
-	 * native object form, once in its serialized form in a byte stream, and
-	 * then as an array of bytes returned from byte stream.
-	 * 
-	 * @param obj
-	 *            the object to convert to bytes
-	 * @return the object as bytes
-	 * @throws SerializationException
-	 */
-	public static byte[] transformToThrift(Object obj)
-			throws SerializationException {
-		DynamicSerializationManager dsm = DynamicSerializationManager
-				.getManager(SerializationType.Thrift);
-		return dsm.serialize(obj);
-	}
+    /**
+     * Transforms an object to the thrift protocol using DynamicSerialize. The
+     * object will exist in memory 3 times during this process: once in its
+     * native object form, once in its serialized form in a byte stream, and
+     * then as an array of bytes returned from byte stream.
+     * 
+     * @param obj
+     *            the object to convert to bytes
+     * @return the object as bytes
+     * @throws SerializationException
+     */
+    public static byte[] transformToThrift(Object obj)
+            throws SerializationException {
+        DynamicSerializationManager dsm = DynamicSerializationManager
+                .getManager(SerializationType.Thrift);
+        return dsm.serialize(obj);
+    }
 
-	/**
-	 * Transforms an object to the thrift protocol using DynamicSerialize.
-	 * Object will be written directly to stream reducing memory usage compared
-	 * to returning a byte array. Named differently from standard
-	 * transformToThrift to avoid ambiguity in camel routes.
-	 * 
-	 * @param obj
-	 *            the object to convert to bytes
-	 * @param os
-	 *            the output stream to write the bytes to
-	 * @return the object as bytes
-	 * @throws SerializationException
-	 */
-	public static void transformToThriftUsingStream(Object obj, OutputStream os)
-			throws SerializationException {
-		DynamicSerializationManager dsm = DynamicSerializationManager
-				.getManager(SerializationType.Thrift);
-		dsm.serialize(obj, os);
-	}
+    /**
+     * Transforms an object to the thrift protocol using DynamicSerialize.
+     * Object will be written directly to stream reducing memory usage compared
+     * to returning a byte array. Named differently from standard
+     * transformToThrift to avoid ambiguity in camel routes.
+     * 
+     * @param obj
+     *            the object to convert to bytes
+     * @param os
+     *            the output stream to write the bytes to
+     * @return the object as bytes
+     * @throws SerializationException
+     */
+    public static void transformToThriftUsingStream(Object obj, OutputStream os)
+            throws SerializationException {
+        DynamicSerializationManager dsm = DynamicSerializationManager
+                .getManager(SerializationType.Thrift);
+        dsm.serialize(obj, os);
+    }
 
     /**
      * Transforms a byte array from the thrift protocol to an object using
@@ -329,11 +331,11 @@ public final class SerializationUtil {
      *             the cast for you, and wraps any {@link ClassCastException}s
      *             in a serialization exception
      */
-	@Deprecated
+    @Deprecated
     public static Object transformFromThrift(byte[] bytes)
-			throws SerializationException {
+            throws SerializationException {
         return transformFromThrift(Object.class, bytes);
-	}
+    }
 
     /**
      * Transforms a byte array from the thrift protocol to an object using
@@ -366,10 +368,9 @@ public final class SerializationUtil {
         }
     }
 
-
     /**
-     * Transforms an InputStream byte data from the thrift protocol to an object using
-     * DynamicSerialize.
+     * Transforms an InputStream byte data from the thrift protocol to an object
+     * using DynamicSerialize.
      * 
      * @param is
      *            the input stream to read from

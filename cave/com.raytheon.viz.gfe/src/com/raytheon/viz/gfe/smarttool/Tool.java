@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -62,7 +62,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
 
 /**
  * Ported from Tool.py
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -71,9 +71,10 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * Jan 08, 2013  1486      dgilling    Support changes to BaseGfePyController.
  * 02/14/2013              mnash       Change QueryScript to use new Python concurrency
  * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
- * 
+ * 04/10/2013    16028     ryu         Check for null seTime in execute()
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -109,7 +110,7 @@ public class Tool {
 
     /**
      * Constructor
-     * 
+     *
      * @param aParmMgr
      *            the parm manager
      * @param aToolName
@@ -142,7 +143,7 @@ public class Tool {
 
     /**
      * Returns the objects that should be passed to the smart tool in python
-     * 
+     *
      * @param args
      *            the names of the arguments
      * @param gridTimeRange
@@ -225,7 +226,7 @@ public class Tool {
 
     /**
      * Returns the attribute for a particular parm's name
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param attrStr
@@ -260,7 +261,7 @@ public class Tool {
 
     /**
      * Returns the grid data for the specified parameters
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param mode
@@ -309,7 +310,7 @@ public class Tool {
 
     /**
      * Returns the grid history corresponding to the parm name and time range
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param gridTimeRange
@@ -349,7 +350,7 @@ public class Tool {
 
     /**
      * Returns the grid info corresponding to the parm name and time range
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param gridTimeRange
@@ -383,7 +384,7 @@ public class Tool {
 
     /**
      * Executes a smart tool
-     * 
+     *
      * @param toolName
      *            the name of the tool
      * @param inputParm
@@ -490,7 +491,8 @@ public class Tool {
                 final Date timeInfluence;
                 Date seTime = DataManagerUIFactory.getCurrentInstance()
                         .getSpatialDisplayManager().getSpatialEditorTime();
-                if (grids.length == 1 && grid.getGridTime().contains(seTime)) {
+                if (seTime != null &&
+                        grids.length == 1 && grid.getGridTime().contains(seTime)) {
                     timeInfluence = seTime;
                 } else {
                     timeInfluence = grid.getGridTime().getStart();
@@ -579,7 +581,7 @@ public class Tool {
 
     /**
      * Executes the numeric smart tool
-     * 
+     *
      * @param parmToEdit
      *            the parm to edit
      * @param first
@@ -651,7 +653,7 @@ public class Tool {
     /**
      * Cleans up a smart tool execution or failure and displays any missing data
      * message
-     * 
+     *
      * @param parmToEdit
      *            the parm to edit
      * @param save

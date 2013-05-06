@@ -19,9 +19,12 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
+import java.util.List;
+
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
@@ -35,6 +38,7 @@ import com.raytheon.viz.awipstools.ui.layer.TimeOfArrivalLayer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	07DEC2007   #496       Eric Babin   Initial Creation.
+ *  Apr 12 2013 DR 16032   D. Friedman Make it work in multiple panes.
  * 
  * </pre>
  * 
@@ -45,10 +49,6 @@ import com.raytheon.viz.awipstools.ui.layer.TimeOfArrivalLayer;
 public class TimeOfArrivalAction extends
         AbstractGenericToolAction<TimeOfArrivalLayer> {
 
-    private TimeOfArrivalLayer layer = null;
-
-    private GenericToolsResourceData<TimeOfArrivalLayer> data = null;
-
     /*
      * (non-Javadoc)
      * 
@@ -57,22 +57,40 @@ public class TimeOfArrivalAction extends
      */
     @Override
     protected GenericToolsResourceData<TimeOfArrivalLayer> getResourceData() {
-        if (data == null) {
-            data = new GenericToolsResourceData<TimeOfArrivalLayer>(
+        return new GenericToolsResourceData<TimeOfArrivalLayer>(
                     TimeOfArrivalLayer.NAME, TimeOfArrivalLayer.class);
-        }
-        return data;
     }
 
     @Override
     protected TimeOfArrivalLayer getResource(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        if (layer == null || layer.getStatus() == ResourceStatus.DISPOSED) {
-            layer = super.getResource(loadProperties, descriptor);
-        } else {
-            layer.reopenDialog();
-        }
+        TimeOfArrivalLayer layer = getExistingResource();
+        if (layer == null)
+            return super.getResource(loadProperties, descriptor);
+
+        VizApp.runAsync( new Runnable() {
+            @Override
+            public void run() {
+                TimeOfArrivalLayer layer = getExistingResource();
+                if (layer != null) {
+                    layer.makeEditableAndReopenDialog();
+                }
+            }
+        });
         return layer;
+    }
+
+    private TimeOfArrivalLayer getExistingResource() {
+        IDisplayPane[] panes = getSelectedPanes();
+        if (panes != null && panes.length > 0) {
+            List<TimeOfArrivalLayer> layers = null;
+            layers = panes[0].getDescriptor().getResourceList()
+                    .getResourcesByTypeAsType(TimeOfArrivalLayer.class);
+            if (layers.size() > 0) {
+                return layers.get(0);
+            }
+        }
+        return null;
     }
 
 }

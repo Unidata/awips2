@@ -58,6 +58,7 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
     private static final List JAXB_CLASSES;
     static {
         Class<?>[] array = new Class<?>[] {
+                com.raytheon.edex.plugin.redbook.decoder.RedbookFcstMap.class,
                 com.raytheon.uf.common.datadelivery.registry.AdhocSubscription.class,
                 com.raytheon.uf.common.datadelivery.registry.Connection.class,
                 com.raytheon.uf.common.datadelivery.registry.Coverage.class,

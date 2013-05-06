@@ -22,10 +22,9 @@
 	    <property name="pendingInitMinTimeMillis" value="180000"/>
 	    <property name="runningInitTimeOutMillis" value="300000"/>
 	    <property name="threadSleepInterval" value="60000"/>
-	    <property name="initialDelay" value="320000"/>
 	</bean>
 
-  	<bean depends-on="gfeDbRegistered" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
+  	<bean depends-on="gfeDbRegistered, gfeSitesActive" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
         <constructor-arg ref="smartInitSrvCfg" />
   	</bean>
 	
@@ -119,7 +118,7 @@
 		
 		<!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
 		<route id="gfeDataURINotificationQueueRoute">
-			<from uri="jms-gfe-notify:topic:edex.alerts?clientId=gfeNotify&amp;durableSubscriptionName=gfeNotificationSubscription" />
+			<from uri="jms-gfe-notify:topic:edex.alerts?durableSubscriptionName=gfeNotificationSubscription" />
 			<doTry>
 				<to uri="jms-generic:queue:gfeDataURINotification"/>
 				<doCatch>
@@ -144,12 +143,13 @@
        <property name="connectionHoldTime" value="90000"/>
        <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
        <property name="resourceRetention" value="60000"/>
-       <property name="maxSpareConnections" value="10"/>
+       <property name="maxSpareConnections" value="1"/>
     </bean>
-    
+
 	<bean id="gfeNotifyJmsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
 			factory-bean="jmsConfig" factory-method="copy">
 		<property name="listenerConnectionFactory" ref="gfeNotifyPooledConnectionFactory" />
+		<property name="templateConnectionFactory" ref="gfeNotifyPooledConnectionFactory" />
     </bean>
 
     <bean id="gfeNotifyThreadPool"
