@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.eclipse.swt.graphics.RGB;
@@ -50,6 +51,8 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  * ------------ ----------  ----------- --------------------------
  * 08/29/09      2152       D. Hladky   Initial release
  * 05/21/12		DR 14833    G. Zhang    Error handling for invalid cmap 
+ * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -155,18 +158,15 @@ public class FFMPColorUtils {
      * @return
      */
     private static RGB convert(Color color) {
-        int blue;
-        int green;
-        int red;
-        RGB returnColor = null;
+
         if (color != null) {
-            blue = new Float(color.getBlue() * 255.0).intValue();
-            green = new Float(color.getGreen() * 255.0).intValue();
-            red = new Float(color.getRed() * 255.0).intValue();
-            returnColor = new RGB(red, green, blue);
+            int blue = (int) (color.getBlue() * 255.0f);
+            int green = (int) (color.getGreen() * 255.0f);
+            int red = (int) (color.getRed() * 255.0f);
+            return new RGB(red, green, blue);
         }
 
-        return returnColor;
+        return null;
     }
 
     /**
@@ -186,37 +186,31 @@ public class FFMPColorUtils {
             return rgb;
         }
 
-        double val2 = (Math.round(valueArg * 100.0)) / 100.0;
-        Double value = val2;
+        double value = (Math.round(valueArg * 100.0)) / 100.0;
 
-        if (value < 0.005 && field != FIELDS.DIFF) {
-            ret = 0;
-        } else if (field == FIELDS.DIFF) {
-
-            Color color = colormapparams.getColorByValue(value.floatValue());
+        
+        if (field == FIELDS.DIFF) {
+            Color color = colormapparams.getColorByValue((float) value);
             rgb = convert(color);
             return rgb;
 
-        } else {
-            if (value < 0.0) {
-                ret = 0;
-            } else {
-                Color color = colormapparams
-                        .getColorByValue(value.floatValue());
+        } else if (value >= 0.005) {
+                Color color = colormapparams.getColorByValue((float) value);
                 rgb = convert(color);
                 return rgb;
-            }
         }
 
-        if (ret >= getColorMap().getColors().size()) {
-            ret = getColorMap().getColors().size() - 1;
+        List<Color> colors = getColorMap().getColors();
+
+        if (ret >= colors.size()) {
+            ret = colors.size() - 1;
         }
 
         if (ret < 0) {
             ret = 0;
         }
 
-        rgb = convert(getColorMap().getColors().get(ret));
+        rgb = convert(colors.get(ret));
         return rgb;
     }
 

@@ -44,7 +44,7 @@ Require-Bundle: org.eclipse.ui,
  org.apache.log4j;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: org.apache.velocity, org.apache.log4j, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level
+Eclipse-RegisterBuddy: org.apache.velocity, org.apache.log4j, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level, com.raytheon.uf.common.comm
 Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.alerts,
  com.raytheon.uf.viz.core.auth,

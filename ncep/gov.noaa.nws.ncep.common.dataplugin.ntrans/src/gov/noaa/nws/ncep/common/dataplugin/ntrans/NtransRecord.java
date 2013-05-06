@@ -3,12 +3,16 @@
  * 
  * This java class performs the mapping to the database table for NTRANS Metafiles
  * 
+ * <pre>
  * HISTORY
  *
  * Date     	Author		Description
  * ------------	----------	-----------	--------------------------
- * 02/2013		B. Hebbard	Initial creation	
+ * 02/2013		B. Hebbard	Initial creation
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime	
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * 
+ * </pre>
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
 
@@ -18,6 +22,7 @@ import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -28,15 +33,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ntransseq")
 @Table(name = "ntrans", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ntrans",
+		indexes = {
+				@Index(name = "ntrans_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)

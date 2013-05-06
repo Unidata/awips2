@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ---------- ----------- --------------------------
  * 14Nov2008    1709       MW Fegan    Initial creation.
  * 14Apr2011	5163	   cjeanbap	   NWRWAVES Setting AFOS text triggers in AWIPS II
+ * 04/24/13     1949       rjpeter     Removed @Override on delete.
  * </pre>
  * 
  * @author mfegan
@@ -90,8 +91,7 @@ public class SubscriptionDAO extends CoreDao {
         super(config);
     }
 
-    @Override
-    public void delete(PersistableDataObject obj) {
+    public void delete(PersistableDataObject<?> obj) {
         super.delete(obj);
         sendSubscriptionNotifyMessage(String.valueOf(obj.getIdentifier()));
     }
@@ -145,7 +145,7 @@ public class SubscriptionDAO extends CoreDao {
      */
     @SuppressWarnings("unchecked")
     public List<SubscriptionRecord> getSubscriptions() {
-        if (cachedRecords == null || dirtyRecords) {
+        if ((cachedRecords == null) || dirtyRecords) {
             List<?> retVal = getHibernateTemplate().loadAll(this.daoClass);
             if (retVal == null) {
                 logger.info("Unable to perform query, 'null' result returned");
@@ -182,7 +182,7 @@ public class SubscriptionDAO extends CoreDao {
         synchronized (recordsMap) {
             rval = recordsMap.get(key);
         }
-        if (rval == null || rval.isEmpty() || rval.size() == 0) {
+        if ((rval == null) || rval.isEmpty()) {
             List<?> retVal = null;
             List<QueryParam> params = new ArrayList<QueryParam>();
             for (Property prop : props) {

@@ -41,7 +41,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * TODO Add Description
+ * The Run FieldGen dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Oct 27, 2008            snaples     Initial creation
  * Nov 10, 2008  1649      snaples     Added handlers for Yes button
+ * Apr 18, 2013  1920      mpduff      Call back to MPEDisplayManager to reload the gages.
  * </pre>
  * 
  * @author snaples
@@ -109,6 +110,8 @@ public class DisplayFieldGenDialog extends CaveJFACEDialog {
                     if (rsc != null) {
                         rsc.getResourceData().update(dt);
                     }
+
+                    instance.updateGages();
                 } catch (VizException ex) {
                     Activator.statusHandler.handle(Priority.PROBLEM,
                             "Error regenerating hourly fields", ex);
