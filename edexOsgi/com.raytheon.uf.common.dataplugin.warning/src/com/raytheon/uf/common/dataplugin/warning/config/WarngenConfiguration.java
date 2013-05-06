@@ -59,6 +59,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *    Nov 21, 2007             chammack    Initial Creation.
  *    Aug 26, 2008 #1502       bclement    Added JAXB annotations
  *    May 26, 2010 #4649       Qinglu Lin  Made including TO.A and SV.A mandatory
+ *    Apr 24, 2013  1943       jsanchez    Marked areaConfig as Deprecated.
  * 
  * </pre>
  * 
@@ -83,6 +84,7 @@ public class WarngenConfiguration implements ISerializableObject {
     private AreaSourceConfiguration hatchedAreaSource;
 
     @XmlElement
+    @Deprecated
     private AreaConfiguration areaConfig;
 
     @XmlElementWrapper(name = "bulletActionGroups")
@@ -201,8 +203,8 @@ public class WarngenConfiguration implements ISerializableObject {
             }
         }
 
-        // TODO This section is for 12.9 to be backwards compatible with old
-        // configuration files. 12.10 will drop the use of 'areaConfig'.
+        // AreaConfiguration is deprecated. This is only meant for backwards
+        // compatibility while areaConfig is phased out with updated templates from the template team.
         if (config.getAreaConfig() != null) {
             ArrayList<AreaSourceConfiguration> areaSources = null;
 
@@ -217,16 +219,10 @@ public class WarngenConfiguration implements ISerializableObject {
             config.setAreaSources(areaSources
                     .toArray(new AreaSourceConfiguration[areaSources.size()]));
         }
-        // 12.9 section end
 
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
             if (asc.getAreaSource() == null) {
                 asc.setAreaSource(config.getGeospatialConfig().getAreaSource());
-            }
-
-            // 12.9. 12.10 get rid of 'areaType'
-            if (asc.getAreaType() != null) {
-                asc.setType(asc.getAreaType());
             }
 
             if (asc.getType() == AreaType.HATCHING) {
@@ -252,8 +248,12 @@ public class WarngenConfiguration implements ISerializableObject {
     }
 
     /**
+     * This method is depreciated. Please use AreaSourceConfiguration. The type
+     * AreaType.HATCHING will determine which area source is for hatching.
+     * 
      * @return the areaConfig
      */
+    @Deprecated
     public AreaConfiguration getAreaConfig() {
         return areaConfig;
     }
@@ -262,6 +262,7 @@ public class WarngenConfiguration implements ISerializableObject {
      * @param areaConfig
      *            the areaConfig to set
      */
+    @Deprecated
     public void setAreaConfig(AreaConfiguration areaConfig) {
         this.areaConfig = areaConfig;
     }

@@ -55,6 +55,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1/08/09      1674       bphillip    Initial creation
+ * 04/08/13     1293       bkowal      Removed references to hdffileid.
+ * 04/30/13     1861       bkowal      Added constant for hdf5 file suffix.
  * </pre>
  * 
  * @author bphillip
@@ -63,6 +65,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 public class DefaultPathProvider implements IHDFFilePathProvider {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefaultPathProvider.class);
+    
+    public static final String HDF5_SUFFIX = ".h5";
 
     public static final ThreadLocal<SimpleDateFormat> fileNameFormat = new ThreadLocal<SimpleDateFormat>() {
         @Override
@@ -231,7 +235,6 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
      */
     @Override
     public String getHDFFileName(String pluginName, IPersistable persistable) {
-        Integer partition = persistable.getHdfFileId();
         if (pluginName == null) {
             throw new IllegalArgumentException(
                     "Expected argument pluginName not set on object "
@@ -260,21 +263,10 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
             Date refTime = ((PluginDataObject) persistable).getDataTime()
                     .getRefTime();
             sb.append(fileNameFormat.get().format(refTime));
-
-            if (partition != null) {
-                sb.append("-");
-                sb.append(partition);
-            }
-
             sb.append(".h5");
             return sb.toString();
         }
 
-        if (partition == null) {
-            return pluginName + ".h5";
-        }
-
-        return pluginName + "-" + partition + ".h5";
+        return pluginName + ".h5";
     }
-
 }

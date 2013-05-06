@@ -154,7 +154,7 @@ if [ "${1}" = "-delta" ]; then
    fi
 
    buildRPM "awips2"
-   buildRPM "Installer.ncep-database"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-python"
@@ -192,7 +192,6 @@ if [ "${1}" = "-full" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "Installer.ncep-database"
    buildRPM "awips2-alertviz"
    buildEDEX
    if [ $? -ne 0 ]; then
@@ -233,6 +232,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-localapps-environment"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-notification"
    buildRPM "awips2-pypies"
@@ -345,8 +345,8 @@ fi
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
-   buildCAVE
    buildRPM "awips2-rcm"
+   buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
@@ -361,7 +361,6 @@ if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   buildRPM "Installer.ncep-database"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -380,11 +379,6 @@ if [ "${1}" = "-qpid" ]; then
 fi
 
 if [ "${1}" = "-ldm" ]; then
-   # Ensure that the user has root privileges.
-   if [ ! ${UID} = 0 ]; then
-      echo "ERROR: You must have root privileges to build ldm."
-      exit 1
-   fi
    buildRPM "awips2-ldm"
 
    exit 0

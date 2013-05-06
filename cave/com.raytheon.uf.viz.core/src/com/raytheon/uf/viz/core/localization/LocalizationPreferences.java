@@ -217,7 +217,7 @@ public class LocalizationPreferences extends FieldEditorPreferencePage
     private void checkConnectivity() {
         final ConnectivityResult result = new ConnectivityResult(false, "");
         Text text = localizationEditor.getTextControl(getFieldEditorParent());
-        ConnectivityManager.checkServer(text.getText().trim(),
+        ConnectivityManager.checkHttpServer(text.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
