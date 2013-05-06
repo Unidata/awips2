@@ -269,6 +269,7 @@ execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql
 execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/postgis.sql metadata
 execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/spatial_ref_sys.sql metadata
 execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/rtpostgis.sql metadata
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/legacy.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/create_subscription_tables.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
@@ -281,7 +282,7 @@ su ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_USER} ${SQL_SHARE_DIR} ${SQL_LOG}"
    
 update_createEbxml
-execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
+execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql postgres
 execute_psql_sql_script ${SQL_SHARE_DIR}/vtec_initial_setup.sql metadata
 
 control_pg_ctl "stop"

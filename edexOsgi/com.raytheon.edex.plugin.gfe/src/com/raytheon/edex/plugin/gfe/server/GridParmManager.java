@@ -69,6 +69,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 
@@ -89,11 +90,11 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     fixed a purge inefficiency,
  *                                     fixed error which caused D2D purging to remove 
  *                                     smartInit hdf5 data
- * 03/07/13      #1773     njensen     Logged commitGrid() times
- * 03/15/13       #1795    njensen     Sped up commitGrid()
- * 03/20/2013     #1774    randerso    Removed dead method, changed to use new 
+ * 03/07/13     #1773      njensen     Logged commitGrid() times
+ * 03/15/13     #1795      njensen     Sped up commitGrid()
+ * 03/20/2013   #1774      randerso    Removed dead method, changed to use new 
  *                                     D2DGridDatabase constructor
- * 
+ * 04/23/2013   #1949      rjpeter     Added inventory retrieval for a given time range.
  * </pre>
  * 
  * @author bphillip
@@ -161,6 +162,39 @@ public class GridParmManager {
             GridParm gp = gridParm(parmId);
             if (gp.isValid()) {
                 sr = gp.getGridInventory();
+            } else {
+                sr.addMessage("Unknown Parm: " + parmId
+                        + " in getGridInventory()");
+            }
+        } catch (Exception e) {
+            sr.addMessage("Unknown Parm: " + parmId + " in getGridInventory()");
+            logger.error("Unknown Parm: " + parmId + " in getGridInventory()",
+                    e);
+        }
+
+        return sr;
+    }
+
+    /**
+     * Returns the grid inventory overlapping timeRange for the parmId. Returns
+     * the status. Calls gridParm() to look up the parameter. If not found,
+     * returns the appropriate error. Calls the grid parm's getGridInventory()
+     * to obtain the inventory.
+     * 
+     * @param parmId
+     *            The parmID to get the inventory for
+     * @param timeRange
+     *            The timeRange to get the inventory for
+     * @return The server response
+     */
+    public static ServerResponse<List<TimeRange>> getGridInventory(
+            ParmID parmId, TimeRange timeRange) {
+
+        ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
+        try {
+            GridParm gp = gridParm(parmId);
+            if (gp.isValid()) {
+                sr = gp.getGridInventory(timeRange);
             } else {
                 sr.addMessage("Unknown Parm: " + parmId
                         + " in getGridInventory()");
@@ -485,6 +519,9 @@ public class GridParmManager {
                 continue;
             }
 
+            // TODO: No need to get inventory and then compare for history
+            // times, just request the history times directly
+
             // get the source data inventory
             inventoryTimer.start();
             ServerResponse<List<TimeRange>> invSr = sourceGP.getGridInventory();
@@ -543,14 +580,14 @@ public class GridParmManager {
                     // if update time is less than publish time, grid has not
                     // changed since last published, therefore only update
                     // history, do not publish
-                    if (gdh.getPublishTime() == null
+                    if ((gdh.getPublishTime() == null)
                             || (gdh.getUpdateTime().getTime() > gdh
                                     .getPublishTime().getTime())
                             // in service backup, times on srcHistory could
                             // appear as not needing a publish, even though
                             // dest data does not exist
-                            || currentDestHistory.get(tr) == null
-                            || currentDestHistory.get(tr).size() == 0) {
+                            || (currentDestHistory.get(tr) == null)
+                            || (currentDestHistory.get(tr).size() == 0)) {
                         doPublish = true;
                     }
                 }
@@ -778,10 +815,17 @@ public class GridParmManager {
     public static ServerResponse<List<DatabaseID>> getDbInventory(String siteID) {
         ServerResponse<List<DatabaseID>> sr = new ServerResponse<List<DatabaseID>>();
         List<DatabaseID> databases = new ArrayList<DatabaseID>();
-
-        List<DatabaseID> gfeDbs = gfeDao.getDatabaseInventory();
+        List<DatabaseID> gfeDbs = null;
         List<DatabaseID> singletons = null;
         List<DatabaseID> d2dDbs = null;
+
+        try {
+            gfeDbs = gfeDao.getDatabaseInventory(siteID);
+        } catch (DataAccessLayerException e) {
+            sr.addMessage("Unable to get IFP databases for site: " + siteID);
+            logger.error("Unable to get IFP databases for site: " + siteID, e);
+            return sr;
+        }
 
         d2dDbs = D2DParmIdCache.getInstance().getDatabaseIDs();
 
@@ -793,6 +837,7 @@ public class GridParmManager {
             logger.error("Unable to get singleton databases", e);
             return sr;
         }
+
         if (singletons != null) {
             for (DatabaseID singleton : singletons) {
                 if (singleton.getSiteId().equals(siteID)) {
@@ -800,11 +845,13 @@ public class GridParmManager {
                 }
             }
         }
+
         for (DatabaseID dbId : gfeDbs) {
-            if (!databases.contains(dbId) && dbId.getSiteId().equals(siteID)) {
+            if (!databases.contains(dbId)) {
                 databases.add(dbId);
             }
         }
+
         if (d2dDbs != null) {
             for (DatabaseID d2d : d2dDbs) {
                 if (d2d.getSiteId().equals(siteID)) {
@@ -815,9 +862,7 @@ public class GridParmManager {
 
         DatabaseID topoDbId = TopoDatabaseManager.getTopoDbId(siteID);
         databases.add(topoDbId);
-
         databases.addAll(NetCDFDatabaseManager.getDatabaseIds(siteID));
-
         sr.setPayload(databases);
         return sr;
     }
@@ -994,7 +1039,7 @@ public class GridParmManager {
 
             // process the id and determine whether it should be purged
             count++;
-            if (count > desiredVersions
+            if ((count > desiredVersions)
                     && !dbId.getModelTime().equals(DatabaseID.NO_MODEL_TIME)) {
                 deallocateDb(dbId, true);
                 PurgeLogger.logInfo("Purging " + dbId, "gfe");
@@ -1114,7 +1159,7 @@ public class GridParmManager {
          * Validate the database ID. Throws an exception if the database ID is
          * invalid
          */
-        if (!dbId.isValid() || dbId.getFormat() != DatabaseID.DataType.GRID) {
+        if (!dbId.isValid() || (dbId.getFormat() != DatabaseID.DataType.GRID)) {
             throw new GfeException(
                     "Database id "
                             + dbId
@@ -1192,14 +1237,10 @@ public class GridParmManager {
     }
 
     public static void purgeDbCache(String siteID) {
-        List<DatabaseID> toRemove = new ArrayList<DatabaseID>();
         for (DatabaseID dbId : dbMap.keySet()) {
             if (dbId.getSiteId().equals(siteID)) {
-                toRemove.add(dbId);
+                removeDbFromMap(dbId);
             }
-        }
-        for (DatabaseID dbId : toRemove) {
-            removeDbFromMap(dbId);
         }
     }
 

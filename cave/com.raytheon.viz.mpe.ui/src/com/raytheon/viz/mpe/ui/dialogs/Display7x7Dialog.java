@@ -69,6 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 2, 2008            randerso     Initial creation
+ * May 01,2013  15920     lbousaidi    gages get updated after clicking on 
+ *                                     Regenerate Hour Fields without closing 7x7 Gui.
  * </pre>
  * 
  * @author randerso
@@ -179,8 +181,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
         if (gData != null) {
             workingGage = new MPEDataManager.MPEGageData();
-            workingGage = gData;
-            undoEn = true;
+            workingGage = gData;       
         } else if (editGage.containsKey(selectedGage.getId())) {
             workingGage = editGage.get(selectedGage.getId());
             undoEn = true;
@@ -482,6 +483,14 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 undoMissing.setEnabled(undoEn);
                 String wid = workingGage.getId();
                 editGage.put(wid, workingGage);
+                
+                if (!editGage.isEmpty()) {
+                    Iterator<MPEGageData> x = editGage.values().iterator();
+                    for (int i = 0; i < editGage.size(); i++) {
+                        MPEGageData gd = x.next();
+                        MPEDataManager.getInstance().addEditedGage(gd);
+                    }
+                }
             }
 
         });
@@ -557,6 +566,14 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 oldManedit = workingGage.isManedit();
                 workingGage.setManedit(true);
                 editGage.put(wid, workingGage);
+                
+                if (!editGage.isEmpty()) {
+                    Iterator<MPEGageData> x = editGage.values().iterator();
+                    for (int i = 0; i < editGage.size(); i++) {
+                        MPEGageData gd = x.next();
+                        MPEDataManager.getInstance().addEditedGage(gd);
+                    }
+                }
             }
         });
 
@@ -890,10 +907,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
         valueLabel.setText(String.format("%4.2f", scaleVal / 100.0f));
         if (gageVal.equalsIgnoreCase("bad")) {
             setBad.setText("Set Not Bad");
-        }
-        if (gageVal.equalsIgnoreCase("missing")) {
-            setMissing.setEnabled(false);
-        }
+        }         
+                
+        undoMissing.setEnabled(false); 
         updateGridField(displayTypes[prodSetCbo.getSelectionIndex()]);
     }
 

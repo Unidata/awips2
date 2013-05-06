@@ -31,6 +31,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.jdbc.Work;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -391,11 +392,20 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     }
 
     /**
+     * Low-level method to execute a unit of work.
+     * 
+     * @param work
+     *            the work
+     */
+    public void executeWork(Work work) {
+        this.getSessionFactory().getCurrentSession().doWork(work);
+    }
+
+    /**
      * Get the hibernate dialect.
      * 
      * @return the dialect.
      */
-    // TODO: Remove the requirement of this method
     public Dialect getDialect() {
         return ((SessionFactoryImpl) template.getSessionFactory()).getDialect();
     }
@@ -410,4 +420,5 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @return the entity class type
      */
     protected abstract Class<ENTITY> getEntityClass();
+
 }
