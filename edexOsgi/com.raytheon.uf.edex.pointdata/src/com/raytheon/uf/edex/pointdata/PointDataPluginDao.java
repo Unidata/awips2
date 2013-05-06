@@ -27,28 +27,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.xml.bind.JAXBException;
 
 import net.sf.cglib.beans.BeanMap;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
@@ -64,7 +55,6 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -80,6 +70,10 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Apr 13, 2009            chammack     Initial creation
  * Jan 14, 2013 1469       bkowal       Removed the hdf5 data directory.
  * Feb 27, 2013 1638       mschenke    Switched logger to use statusHandler
+ * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
+ * Apr 29, 2013 1861       bkowal      Refactor hdf5 filename generation during reads
+ *                                     into its own method so modelsounding dao can
+ *                                     override it.
  * 
  * </pre>
  * 
@@ -91,43 +85,6 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
         PluginDao {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PointDataPluginDao.class);
-
-    // should match batch size in hibernate config
-    protected static final int COMMIT_INTERVAL = 100;
-
-    // after limit failures on one persistAll call, will switch to individual
-    // storage and dup check
-    protected static final int BULK_FAILURE_LIMIT = 3;
-
-    protected static final ConcurrentMap<String, DupCheckStat> pluginBulkSuccessRate = new ConcurrentHashMap<String, DupCheckStat>();
-
-    // percentage of bulk commits that need to succeed for a plugin to not use
-    // dup check
-    protected static final float DUP_CHECK_THRESHOLD = 0.5f;
-
-    protected static class DupCheckStat {
-        protected boolean checkDup = true;
-
-        protected float cumulativeRate = 0;
-
-        protected int total = 0;
-
-        protected boolean checkDup() {
-            return checkDup;
-        }
-
-        protected void updateRate(float rate) {
-            cumulativeRate = (rate + cumulativeRate * total) / (total + 1);
-            checkDup = cumulativeRate < DUP_CHECK_THRESHOLD;
-
-            // handle roll over... just incase, which at this point culmulative
-            // updates are almost pointless, 100 there simply for concurrency
-            // handling
-            if (total < Integer.MAX_VALUE - 100) {
-                total++;
-            }
-        }
-    }
 
     public static enum LevelRequest {
         ALL, NONE, SPECIFIC;
@@ -173,169 +130,6 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
         super(pluginName);
         this.pathProvider = new PointDataHDFFileProvider();
         this.beanMapCache = new LinkedBlockingQueue<BeanMap>();
-    }
-
-    /**
-     * Persists all objects in collection
-     * 
-     * @param obj
-     *            The object to be persisted to the database
-     */
-    public void persistAll(final List<? extends Object> objList) {
-        StatelessSession ss = null;
-        try {
-            ss = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
-            int index = 0;
-            int commitPoint = 0;
-
-            // intelligently choose whether to use bulk storage based on
-            // previous stores for this plugin type
-            DupCheckStat rate = pluginBulkSuccessRate.get(pluginName);
-            if (rate == null) {
-                rate = new DupCheckStat();
-                pluginBulkSuccessRate.put(pluginName, rate);
-            }
-
-            boolean bulkPersist = true;
-            Transaction tx = null;
-            int bulkDups = 0;
-            int bulkFailures = 0;
-            int bulkSuccess = 0;
-            boolean dupCheck = rate.checkDup();
-            boolean dupOccurred = false;
-            Query q = null;
-
-            while (commitPoint < objList.size()) {
-                if (bulkPersist) {
-                    Iterator<? extends Object> itr = objList
-                            .listIterator(commitPoint);
-                    index = commitPoint;
-                    dupOccurred = false;
-
-                    try {
-                        tx = ss.beginTransaction();
-                        while (itr.hasNext()) {
-                            PersistableDataObject pdo = (PersistableDataObject) itr
-                                    .next();
-
-                            if (dupCheck) {
-                                if (q == null) {
-                                    String sql = "select id from awips."
-                                            + ((PluginDataObject) pdo)
-                                                    .getPluginName()
-                                            + " where dataURI=:dataURI";
-                                    q = ss.createSQLQuery(sql);
-                                }
-                                q.setString("dataURI",
-                                        (String) pdo.getIdentifier());
-                                List<?> list = q.list();
-                                if ((list == null) || (list.size() == 0)) {
-                                    ss.insert(pdo);
-                                    index++;
-                                } else {
-                                    itr.remove();
-                                    dupOccurred = true;
-                                }
-                            } else {
-                                ss.insert(pdo);
-                                index++;
-                            }
-
-                            if (index % COMMIT_INTERVAL == 0) {
-                                tx.commit();
-                                q = null;
-                                commitPoint = index;
-                                if (dupOccurred) {
-                                    dupOccurred = false;
-                                    bulkDups++;
-                                } else {
-                                    bulkSuccess++;
-                                }
-                                tx = ss.beginTransaction();
-                            }
-                        }
-                        tx.commit();
-                        commitPoint = index;
-                        bulkSuccess++;
-                    } catch (Exception e) {
-                        bulkFailures++;
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Error storing pointdata batch to database, applying dup check and storing batch individually");
-
-                        bulkPersist = false;
-                        try {
-                            tx.rollback();
-                        } catch (HibernateException e1) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "Rollback failed", e1);
-                        }
-                    }
-                } else {
-                    // persist records individually, using uri dup check
-                    Iterator<? extends Object> itr = objList
-                            .listIterator(commitPoint);
-                    index = 0;
-                    dupOccurred = false;
-
-                    // only persist individually through one commit interval
-                    while (itr.hasNext() && (index / COMMIT_INTERVAL == 0)) {
-                        try {
-                            tx = ss.beginTransaction();
-                            PersistableDataObject pdo = (PersistableDataObject) itr
-                                    .next();
-                            String sql = "select id from awips."
-                                    + ((PluginDataObject) pdo).getPluginName()
-                                    + " where dataURI=:dataURI";
-                            q = ss.createSQLQuery(sql);
-                            q.setString("dataURI", (String) pdo.getIdentifier());
-                            List<?> list = q.list();
-                            if ((list == null) || (list.size() == 0)) {
-                                ss.insert(pdo);
-                                tx.commit();
-                                index++;
-                            } else {
-                                tx.commit();
-                                itr.remove();
-                                dupOccurred = true;
-                            }
-                        } catch (Exception e) {
-                            statusHandler
-                                    .handle(Priority.PROBLEM,
-                                            "Error storing pointdata individually to database",
-                                            e);
-                            itr.remove();
-
-                            try {
-                                tx.rollback();
-                            } catch (HibernateException e1) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        "Rollback failed", e1);
-                            }
-                        }
-                    }
-
-                    if (dupOccurred) {
-                        bulkDups++;
-                    } else {
-                        bulkSuccess++;
-                    }
-                    commitPoint += index;
-                    if (bulkFailures < BULK_FAILURE_LIMIT) {
-                        bulkPersist = true;
-                    }
-                }
-            }
-
-            // calculate bulk success rate
-            float thisRate = bulkSuccess / (bulkSuccess + bulkDups);
-            rate.updateRate(thisRate);
-        } finally {
-            if (ss != null) {
-                ss.close();
-            }
-        }
     }
 
     /*
@@ -432,18 +226,6 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                     + (System.currentTimeMillis() - t0));
         }
 
-    }
-
-    @Override
-    public PluginDataObject[] persistToDatabase(PluginDataObject... records) {
-        List<PersistableDataObject> persist = new ArrayList<PersistableDataObject>(
-                Arrays.asList(records));
-        persistAll(persist);
-        if (persist.size() != records.length) {
-            return persist.toArray(new PluginDataObject[persist.size()]);
-        } else {
-            return records;
-        }
     }
 
     public File getFullFilePath(PluginDataObject p) {
@@ -709,18 +491,22 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             }
             bm.putAll(obj);
             T bean = (T) bm.getBean();
-            return this.pluginName
-                    + File.separator
-                    + this.pathProvider.getHDFPath(this.pluginName,
-                            (IPersistable) bean)
-                    + File.separator
-                    + getPointDataFileName(bean).replace(".h5", "")
-                    + DefaultPathProvider.fileNameFormat.get().format(
-                            ((PluginDataObject) bean).getDataTime()
-                                    .getRefTime()) + ".h5";
+            return this.generatePointDataFileName(bean);
         } finally {
             this.beanMapCache.offer(bm);
         }
+    }
+    
+    protected String generatePointDataFileName(T bean) {
+        return this.pluginName
+        + File.separator
+        + this.pathProvider.getHDFPath(this.pluginName,
+                (IPersistable) bean)
+        + File.separator
+        + getPointDataFileName(bean).replace(".h5", "")
+        + DefaultPathProvider.fileNameFormat.get().format(
+                ((PluginDataObject) bean).getDataTime()
+                        .getRefTime()) + ".h5";        
     }
 
     public abstract T newObject();

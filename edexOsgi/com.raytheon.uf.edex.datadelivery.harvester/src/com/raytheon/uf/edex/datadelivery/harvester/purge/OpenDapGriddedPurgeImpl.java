@@ -35,6 +35,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
@@ -105,10 +106,11 @@ class OpenDapGriddedPurgeImpl implements IOpenDapGriddedPurge {
     @VisibleForTesting
     HttpClient getHttpClient() {
         HttpClient httpClient = new DefaultHttpClient();
-        String[] proxyParameters = ConnectionUtil.getProxyParameters();
+        ProxyConfiguration proxyParameters = ConnectionUtil
+                .getProxyParameters();
         if (proxyParameters != null) {
-            HttpHost proxy = new HttpHost(proxyParameters[0],
-                    Integer.parseInt(proxyParameters[1]));
+            HttpHost proxy = new HttpHost(proxyParameters.getHost(),
+                    proxyParameters.getPort());
             httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
                     proxy);
         }

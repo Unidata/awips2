@@ -16,6 +16,8 @@
  * 17May2010		 37	   F. J. Yen	Refactored to dataplugin for migration to to11dr11
  * 09/2011      		   Chin Chen    changed to improve purge performance and
  * 										removed xml serialization as well
+ *  * Apr 4, 2013    1846  bkowal       Added an index on refTime and forecastTime
+ * Apr 12, 2013      1857  bgonzale     Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author F. J. Yen, SIB
@@ -27,7 +29,6 @@ package gov.noaa.nws.ncep.common.dataplugin.wcp;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
-import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpSevrln;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,18 +36,31 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "wcpseq")
 @Table(name = "wcp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "wcp",
+		indexes = {
+				@Index(name = "wcp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
+
 @DynamicSerialize
 
 public class WcpRecord extends PluginDataObject{
