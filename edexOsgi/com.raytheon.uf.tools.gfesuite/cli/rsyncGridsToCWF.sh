@@ -8,9 +8,9 @@
 # Authors:  Virgil Middendorf (BYZ), Steve Sigler (MSO)                        #
 # Contributers: Ahmad Garabi, Ken Sargeant, Dave Pike, Dave Rosenberg,         #
 #               Tim Barker, Maureen Ballard, Jay Smith, Dave Tomalak,          #
-#               Evelyn Bersack, Juliya Dynina                                  #
+#               Evelyn Bersack, Juliya Dynina, Jianning Zeng                   #
 #                                                                              #
-# Date of last revision:  11/02/12                                             #
+# Date of last revision:  04/22/13                                             #
 #                                                                              #
 # Script description: This script can create a netcdf file containing IFPS     #
 #    grids, quality control the netcdf file, send the file to a local rsync    #
@@ -142,6 +142,7 @@
 #            the hard-coded path to /awips2/fxa/bin with $FXA_BIN.  Removed    #
 #            awips1 code.                                                      #
 # 11/02/12:  Restored error checking for AWIPS2.                               #
+# 04/22/13:  Update the permission of the log directories.                               #
 ################################################################################
 # check to see if site id was passed as argument
 # if not then exit from the script
@@ -176,6 +177,11 @@ currdate=$(date -u +%Y%m%d)
 export LOG_FILE="${DXwrkDir}/log/${currdate}/netcdf_rsync.log"
 
 # check to see if log directory structure exists.
+if [ ! -d  ${DXwrkDir}/log ] ;then
+   mkdir -p ${DXwrkDir}/log
+   chmod 777 ${DXwrkDir}/log
+   chown awips:fxalpha ${DXwrkDir}/log
+fi
 if [ ! -d  ${DXwrkDir}/log/${currdate} ] ;then
    mkdir -p ${DXwrkDir}/log/${currdate}
    chmod 777 ${DXwrkDir}/log/${currdate}

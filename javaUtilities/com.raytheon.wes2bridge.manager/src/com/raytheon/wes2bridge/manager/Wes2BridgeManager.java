@@ -28,10 +28,24 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import com.raytheon.wes2bridge.manager.IQpidConfigurationXML;
 import com.raytheon.wes2bridge.common.configuration.Wes2BridgeConfiguration;
 
 /**
@@ -49,6 +63,7 @@ import com.raytheon.wes2bridge.common.configuration.Wes2BridgeConfiguration;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 1490       bkowal      Pypies is now added to each
  *                                     edex-environment instance
+ * Apr 18, 2013 1899       bkowal      Updates qpid 0.18 configuration now.
  * 
  * </pre>
  * 
@@ -57,15 +72,24 @@ import com.raytheon.wes2bridge.common.configuration.Wes2BridgeConfiguration;
  */
 public class Wes2BridgeManager {
 	private static final String AWIPSII = "/awips2";
+
 	private static final String AWIPSII_WES2BRIDGE_SCRIPTS = AWIPSII
 			+ "/edex-environment/scripts";
+
 	private static final String WES2BRIDGE_DIRECTORY = "/usr/local/edex-environment";
+
 	private static final int GROUP_INDEX_ONE = 1;
+
 	private static final int GROUP_INDEX_TWO = 2;
+
 	private static final int EXIT_FAILURE = -1;
+
 	private static final int EXIT_SUCCESS = 0;
+
 	private static final String DEFAULT_HDF5_DIRECTORY = "/edex/data/hdf5";
+
 	private Wes2BridgeConfiguration configuration = null;
+
 	private String wes2BridgeScripts = null;
 
 	/**
@@ -324,49 +348,87 @@ public class Wes2BridgeManager {
 		bw.close();
 	}
 
-	public void reconfigureQPID() throws FileNotFoundException, IOException {
+	public void reconfigureQPID() throws FileNotFoundException, IOException,
+			ParserConfigurationException, SAXException,
+			TransformerFactoryConfigurationError, TransformerException {
 		final String srcQpidDirectory = AWIPSII + "/" + "qpid";
 		final String qpidDirectory = WES2BRIDGE_DIRECTORY + "/"
 				+ this.configuration.getTestCaseName() + "/" + "qpid";
 
-		this.updateQpidConf(srcQpidDirectory, qpidDirectory);
+		this.updateQpidConfigXML(srcQpidDirectory, qpidDirectory);
 		this.updateQPIDD(qpidDirectory);
-		this.updateQueueCreatorSH(qpidDirectory);
 	}
 
-	/* Updates qpidd.conf */
-	private void updateQpidConf(String srcQpidDirectory, String qpidDirectory)
-			throws FileNotFoundException, IOException {
-		String srcqpidd_conf = srcQpidDirectory + "/etc/qpidd.conf";
-		String qpidd_conf = qpidDirectory + "/etc/qpidd.conf";
+	/* Updates qpid config.xml */
+	private void updateQpidConfigXML(String srcQpidDirectory,
+			String qpidDirectory) throws FileNotFoundException, IOException,
+			ParserConfigurationException, SAXException,
+			TransformerFactoryConfigurationError, TransformerException {
+		String srcconfig_xml = srcQpidDirectory + "/etc/config.xml";
+		String config_xml = qpidDirectory + "/etc/config.xml";
 
-		BufferedReader br = this.getBufferedReader(srcqpidd_conf);
-		BufferedWriter bw = this.getBufferedWriter(qpidd_conf);
+		DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance()
+				.newDocumentBuilder();
+		Document document = documentBuilder.parse(srcconfig_xml);
 
-		final String line1 = "data-dir=";
-		final String line2 = "store-dir=";
-		final String line3 = "pid-dir=";
+		// Get the root broker node.
+		Node brokerNode = document.getElementsByTagName(
+				IQpidConfigurationXML.XML_BROKER).item(0);
+		// Get the connector node.
+		Node connectorNode = this.getChildNodeByName(brokerNode,
+				IQpidConfigurationXML.XML_CONNECTOR);
+		// Get the management node.
+		Node managementNode = this.getChildNodeByName(brokerNode,
+				IQpidConfigurationXML.XML_MANAGEMENT);
+		// Get the jmxport node.
+		Node jmxPortNode = this.getChildNodeByName(managementNode,
+				IQpidConfigurationXML.XML_JMXPORT);
+		// Get the http port node.
+		Node httpPortNode = this.getChildNodeByName(managementNode,
+				IQpidConfigurationXML.XML_HTTP);
+
+		Node portNode = null;
+
+		// Get the connector port node.
+		portNode = this.getChildNodeByName(connectorNode,
+				IQpidConfigurationXML.XML_PORT);
+		portNode.setTextContent(Integer.toString(this.configuration
+				.getJmsPort()));
+		// Get the jmxport registryServer node
+		portNode = this.getChildNodeByName(jmxPortNode,
+				IQpidConfigurationXML.XML_REGISTRY_SERVER);
+		portNode.setTextContent(Integer.toString(this.configuration
+				.getQpidJmxPort()));
+		// Get the http port node.
+		portNode = this.getChildNodeByName(httpPortNode,
+				IQpidConfigurationXML.XML_PORT);
+		portNode.setTextContent(Integer.toString(this.configuration
+				.getQpidHttpPort()));
+
 		/*
-		 * add the port to qpidd.conf
+		 * Write the updated configuration file to its destination.
 		 */
-		final String line4 = "auth=no";
+		Transformer transformer = TransformerFactory.newInstance()
+				.newTransformer();
+		DOMSource domSource = new DOMSource(document);
+		StreamResult streamResult = new StreamResult(new File(config_xml));
+		transformer.transform(domSource, streamResult);
+	}
 
-		String line = StringUtils.EMPTY;
-		while ((line = br.readLine()) != null) {
-			if (line.startsWith(line1)) {
-				line = line1 + qpidDirectory + "/data";
-			} else if (line.startsWith(line2)) {
-				line = line2 + qpidDirectory + "/messageStore";
-			} else if (line.startsWith(line3)) {
-				line = line3 + qpidDirectory + "/var/lock";
-			} else if (line.startsWith(line4)) {
-				line = line4 + "\nport=" + this.configuration.getJmsPort();
-			}
-
-			bw.write(line + "\n");
+	private Node getChildNodeByName(Node parentNode, String childName) {
+		if (parentNode.hasChildNodes() == false) {
+			return null;
 		}
-		br.close();
-		bw.close();
+
+		NodeList nodeList = parentNode.getChildNodes();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			if (node.getNodeName().equals(childName)) {
+				return node;
+			}
+		}
+
+		return null;
 	}
 
 	private void updateQPIDD(String qpidDirectory)
@@ -378,34 +440,23 @@ public class Wes2BridgeManager {
 		BufferedWriter bw = this.getBufferedWriter(qpidd);
 
 		final String line1 = "QPID_HOME=";
+		/*
+		 * Need to update the 'ps' command that determines if qpid is running or
+		 * not.
+		 */
+		final String line2 = "isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep -c \"PNAME=QPBRKR \"`";
 
 		String line = StringUtils.EMPTY;
 		while ((line = br.readLine()) != null) {
 			if (line.startsWith(line1)) {
 				line = line1 + qpidDirectory;
-			}
-
-			bw.write(line + "\n");
-		}
-		br.close();
-		bw.close();
-	}
-
-	private void updateQueueCreatorSH(String qpidDirectory)
-			throws FileNotFoundException, IOException {
-		final String srcqueue = AWIPSII_WES2BRIDGE_SCRIPTS + "/"
-				+ "queueCreator.sh";
-		final String queue = qpidDirectory + "/sbin/queueCreator.sh";
-
-		BufferedReader br = this.getBufferedReader(srcqueue);
-		BufferedWriter bw = this.getBufferedWriter(queue);
-
-		final String line1 = "port=";
-
-		String line = StringUtils.EMPTY;
-		while ((line = br.readLine()) != null) {
-			if (line.startsWith(line1)) {
-				line = line1 + this.configuration.getJmsPort();
+			} else if (line.contains(line2)) {
+				StringBuilder stringBuilder = new StringBuilder();
+				stringBuilder
+						.append("isRunning=`ps -ef | grep org.apache.qpid.server.Main | grep QPID_HOME=");
+				stringBuilder.append(qpidDirectory);
+				stringBuilder.append("| grep -c \"PNAME=QPBRKR \"`");
+				line = stringBuilder.toString();
 			}
 
 			bw.write(line + "\n");

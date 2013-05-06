@@ -29,6 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -40,8 +41,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -62,6 +65,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 4/7/09       1994        bphillip    Initial Creation
  * 10/13/10      276        llin        Modified for NC GRIB.
  * 03/07/12      606        ghull       Added eventName to URI for NcInventory updating.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/08/13     1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -69,7 +75,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ncgribseq")
 @Table(name = "ncgrib", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ncgrib",
+		indexes = {
+				@Index(name = "ncgrib_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -365,7 +382,6 @@ public class NcgribRecord extends PersistablePluginDataObject implements
             this.dataTime = recordToCopy.dataTime.clone();
         }
         this.dataURI = recordToCopy.dataURI;
-        this.setHdfFileId(recordToCopy.getHdfFileId());
         this.id = recordToCopy.id;
         this.identifier = recordToCopy.identifier;
         if (recordToCopy.insertTime != null) {

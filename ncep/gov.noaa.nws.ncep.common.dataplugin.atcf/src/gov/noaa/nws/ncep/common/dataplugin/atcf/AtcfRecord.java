@@ -20,10 +20,13 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.atcf;
 
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
 import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,13 +34,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 /**
  * AtcfRecord is the Data Access component for ATCF Automated Tropical Cyclone
@@ -52,6 +55,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * ------------ ---------- ----------- --------------------------
  * 06/23/10        208    F. J. Yen    Initial Coding.
  * 03/10/12        606    G. Hull      added reportType to URI
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -59,7 +64,18 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "atcfseq")
 @Table(name = "atcf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "atcf",
+		indexes = {
+				@Index(name = "atcf_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

@@ -221,7 +221,7 @@ public class CigVisByHourTabComp extends Composite implements ICigVisTabComp {
      *            Data to set.
      */
     public void setCigVisData(CigVisDistDataManager data) {
-        data = data;
+        this.data = data;
         cigVisCanvasComp.setCigVisData(data);
     }
 

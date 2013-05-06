@@ -1,0 +1,29 @@
+#  transmit gridded FFG to AWIPS
+#  add to script that transmits current FFG products to AWIPS
+
+# find set_hydro_env and initialize the environment
+prev_dir=`pwd`
+env_file="set_hydro_env"
+while [ ! -e ${env_file} ]
+do
+	cd ..
+	if [ "/" = "`pwd`" ]
+	then
+		break
+	fi
+done
+. ${env_file}
+cd ${prev_dir}
+
+export FXA_HOME=/awips/fxa
+. $FXA_HOME/readenv.sh
+
+DPBIN=/awips/fxa/bin;export DPBIN
+FFGGRIB=`get_apps_defaults ffg_grib_out`;export FFGGRIB
+FFGA2AID='KcccFFGBIN'
+#  where ccc is your old AFOS id, i.e. MKC
+${DPBIN}/distributeProduct -a DEFAULTNCF -e ${FFGGRIB}/FFGBIN1 ${FFGA2AID} crazy2
+${DPBIN}/distributeProduct -a DEFAULTNCF -e ${FFGGRIB}/FFGBIN3 ${FFGA2AID} crazy2
+${DPBIN}/distributeProduct -a DEFAULTNCF -e ${FFGGRIB}/FFGBIN6 ${FFGA2AID} crazy2
+
+#  end 

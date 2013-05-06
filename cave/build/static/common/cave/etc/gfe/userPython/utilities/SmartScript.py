@@ -42,6 +42,8 @@
 #                                                 improve performance.
 #    Mar 13, 2013    1793          bsteffen       Performance improvements for
 #                                                 TCMWindTool
+#    Apr 24, 2013    1947          randerso       Fix UVToMagDir to work with scalar arguments
+#                                                 Cleaned up some constants
 #    
 ########################################################################
 import types, string, time, sys
@@ -49,6 +51,7 @@ from math import *
 from numpy import *
 import os
 import numpy
+import math
 import re
 import jep
 import BaseTool, Exceptions
@@ -788,19 +791,26 @@ class SmartScript(BaseTool.BaseTool):
     ## Conversion methods
 
     def UVToMagDir(self, u, v):
-        RAD_TO_DEG = 57.29577951308232
+        RAD_TO_DEG = 180.0 / numpy.pi
         # Sign change to make math to meteor. coords work
-        u = - u
-        v = - v
-        speed = numpy.sqrt(u * u + v * v)
-        dir = numpy.arctan2(u, v) * RAD_TO_DEG
-        # adjust values so that 0<dir<360
-        dir[numpy.greater_equal(dir, 360)] -= 360
-        dir[numpy.less(dir, 0)] += 360
+        u = -u
+        v = -v
+        if type(u) is numpy.ndarray or type(v) is numpy.ndarray:
+            speed = numpy.sqrt(u * u + v * v)
+            dir = numpy.arctan2(u, v) * RAD_TO_DEG
+            dir[numpy.greater_equal(dir, 360)] -= 360
+            dir[numpy.less(dir, 0)] += 360
+        else:
+            speed = math.sqrt(u * u + v * v)
+            dir = math.atan2(u, v) * RAD_TO_DEG
+            while dir < 0.0:
+                dir = dir + 360.0
+            while dir >= 360.0:
+                dir = dir - 360.0
         return (speed, dir)
 
     def MagDirToUV(self, mag, dir):
-        DEG_TO_RAD = 0.017453292519943295
+        DEG_TO_RAD = numpy.pi / 180.0
         # Note sign change for components so math to meteor. coords works
         uw = - sin(dir * DEG_TO_RAD) * mag
         vw = - cos(dir * DEG_TO_RAD) * mag
@@ -808,7 +818,7 @@ class SmartScript(BaseTool.BaseTool):
     
     def convertMsecToKts(self, value_Msec):
         # Convert from meters/sec to Kts
-        return value_Msec * 1.944
+        return value_Msec * 3600.0 / 1852.0
     
     def convertKtoF(self, t_K):
         # Convert the temperature from Kelvin to Fahrenheit
@@ -830,7 +840,7 @@ class SmartScript(BaseTool.BaseTool):
 
     def convertFtToM(self, value_Ft):
         # Convert the value in Feet to Meters
-        return value_Ft/3.28084
+        return value_Ft * 0.3048
     
 #########################################################################
 ## Error Handling                                                      ##

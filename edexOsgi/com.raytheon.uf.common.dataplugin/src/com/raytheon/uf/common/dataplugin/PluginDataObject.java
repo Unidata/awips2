@@ -22,16 +22,17 @@ package com.raytheon.uf.common.dataplugin;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -74,12 +75,15 @@ import com.raytheon.uf.common.util.ConvertUtil;
  *                                       Removed unused getIdentfier().
  * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
  *                                      dataURI fields
- * Apr 18, 2013 1638        mschenke    Moved dataURI map generation into DataURIUtil
- * 
+ * Apr 12, 2013 1857        bgonzale    Changed to MappedSuperclass, named generator,
+ *                                      GenerationType SEQUENCE, moved Indexes to getter
+ *                                      methods.
+ * Apr 15, 2013 1868        bsteffen    Improved performance of createDataURIMap
+ * May 02, 2013 1970        bgonzale    Moved Index annotation from getters to attributes.
  * </pre>
  * 
  */
-@Entity
+@MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -88,17 +92,15 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     private static final long serialVersionUID = 1L;
 
-    // @GenericGenerator(name = "generator", strategy = "hilo", parameters = {
-    // @Parameter(name = "max_lo", value = "1000") })
-    // @GeneratedValue(generator = "generator")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    public static final String ID_GEN = "idgen";
+
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     @Id
     protected int id;
 
     @Column
     @XmlAttribute
     @DynamicSerializeElement
-    @Index(name = "dataURI_idx")
     protected String dataURI;
 
     /** The name of the plugin this object is associated with */
@@ -116,7 +118,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     /** The timestamp denoting when this record was inserted into the database */
     @Column(columnDefinition = "timestamp without time zone")
-    @Index(name = "insertTimeIndex")
+    @Index(name = "%TABLE%_insertTimeIndex")
     @XmlAttribute
     @DynamicSerializeElement
     protected Calendar insertTime;
@@ -227,9 +229,33 @@ public abstract class PluginDataObject extends PersistableDataObject implements
      * @throws PluginException
      */
     public Map<String, Object> createDataURIMap() throws PluginException {
-        Map<String, Object> map = DataURIUtil.createDataURIMap(this);
-        map.put("pluginName", getPluginName());
-        return map;
+        try {
+            Class<? extends PluginDataObject> thisClass = this.getClass();
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("pluginName", getPluginName());
+            int index = 0;
+            String fieldName = PluginDataObject.getDataURIFieldName(thisClass,
+                    index++);
+            while (fieldName != null) {
+                Object source = this;
+                int start = 0;
+                int end = fieldName.indexOf('.', start);
+                while (end >= 0) {
+                    source = PropertyUtils.getProperty(source,
+                            fieldName.substring(start, end));
+                    start = end + 1;
+                    end = fieldName.indexOf('.', start);
+                }
+                source = PropertyUtils.getProperty(source,
+                        fieldName.substring(start));
+                map.put(fieldName, source);
+                fieldName = PluginDataObject.getDataURIFieldName(thisClass,
+                        index++);
+            }
+            return map;
+        } catch (Exception e) {
+            throw new PluginException("Error constructing dataURI mapping", e);
+        }
     }
 
     /**
@@ -290,9 +316,9 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
         Field currentField = null;
         String currentUriToken = null;
-        for (int i = 0; i < dataURIFields.length; i++) {
+        for (Field dataURIField : dataURIFields) {
             currentUriToken = uriTokens[uriIndex];
-            currentField = dataURIFields[i];
+            currentField = dataURIField;
 
             if (currentField.getAnnotation(DataURI.class).embedded()) {
                 // The current dataURI token refers to a field in an embedded

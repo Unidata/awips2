@@ -48,6 +48,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Nov 11,2010  2235       cjeanbap    Added attribute, audioFile.
  * Feb  7,2011  6329       rferrel     Checks to make sure details 
  *                                     and message are never null.
+ * Apr 10, 2013 1893       bsteffen    Switch machine to be LOCAL instead of
+ *                                     using RuntimeMXBean
  * 
  * </pre>
  * 
@@ -62,6 +64,8 @@ public class StatusMessage implements ISerializableObject, IMessage {
     private static final int MAX_DETAILS_LENGTH = 32000;
 
     private static final int MAX_MESSAGE_LENGTH = 1024;
+
+    private static final String LOCAL = "LOCAL";
 
     /**
      * The source of the message
@@ -161,7 +165,7 @@ public class StatusMessage implements ISerializableObject, IMessage {
         this.category = category;
         this.priority = priority;
         this.plugin = plugin;
-        this.setMachineToCurrent();
+        this.setMachine(LOCAL);
         buildMessageAndDetails(message, throwable, this);
     }
 

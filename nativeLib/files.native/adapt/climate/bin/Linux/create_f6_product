@@ -1,0 +1,422 @@
+#!/bin/sh 
+
+##############################################################################
+#
+# This is the script to create and wire f6 products
+# for the climate program.
+#
+# Modification History:
+# ---------------------
+# 12/06/2002  OB2  Bob Morris         - Removed CLIMATE_BIN_DIR definition, it
+#                                       is set in readenv.sh.  General cleanup.
+#                                     - Replace -a's in tests.
+#                                     - Call "error.tcl &" if error in man. run
+# 01/27/2003  OB2  Bob Morris         Changes so kill pid works for BASH and HP.
+# 02/28/2003  OB2  Bob Morris         - Leave RecCli pipe files alone when
+#                                       deleting old files from CLIMATE_TMP_DIR.
+#                                     - Add tests/messages for f6 return status
+#                                     - Add chmod block for tmp files at exit
+#
+# 12/13/2005  OB7  Greg Zylstra       Added transmitting F-6s over WAN by 
+#                                       incorporating the script transmit_F6.sh
+#                                       created by Virgil Middendorf.
+#
+##############################################################################
+#
+# Cannot have gui's for automatic (cron) run.  Automatic run corresponds
+# to $1=0.
+no_gui=$1
+
+#
+# Set up the environment for generating and sending the F6 forms.
+# FXA_HOME needs to be defined before we can proceed.
+#
+FXA_HOME=/awips/fxa
+. $FXA_HOME/readenv.sh
+
+#
+# Determine the directory containing the logs of
+# build_f6 and handleOUP runs.
+#
+day=`date +%Y%m%d`
+case "$HOST"
+in
+   ws* | lx* ) 
+      dsplywin=$DISPLAY
+      [ "$dsplywin" = "" ] && dsplywin=":0"
+      logdir=${LOG_DIR}/display/${dsplywin}/${day};;
+   * )
+      logdir=${LOG_DIR}/${day};;
+esac
+
+#
+# Perform some gui stuff if manual run.
+#
+if [ "$no_gui" != "0" ]
+then
+   # Set the following so that `ps -eo pid,args ...` in killpid works in HP-UX.
+   export UNIX95=1
+   #
+   # This function will kill the process id of the "Climate is Running" gui
+   # (wait.tcl).  It is used throughout the scripts.
+   #
+   function killpid {
+   pid_func=`ps -eo pid,args | grep -E 'wish[ ].*wait.tcl' | awk '{print $1}'`
+   if test "$pid_func" != ""
+   then
+      kill $pid_func 2> /dev/null  1> /dev/null
+   fi
+   }
+
+   #
+   # Kill the prior "Climate has completed successfully" icon, if present.
+   #
+   succpid_func=`ps -eo pid,args | grep -E 'wish[ ].*success.tcl' | awk '{print $1}'`
+   if test "$succpid_func" != ""
+   then
+      kill $succpid_func 2> /dev/null  1> /dev/null
+   fi
+   unset succpid_func
+fi
+
+#
+# Set the file path environment variables
+#
+if [ "$CLIMATE_DIR" = "" ]
+then
+  echo "Fatal error in create_f6_product: CLIMATE_DIR not defined in environment!"
+  echo "Exiting script."
+  exit 1
+fi
+
+# CLIMATE_BIN_DIR is defined already from sourcing the readenv shell script.
+# Assume it exists, since this file is called from executables in that directory.
+CLIMATE_DATA_DIR=${CLIMATE_DIR}/data; export CLIMATE_DATA_DIR
+CLIMATE_TMP_DIR=${CLIMATE_DIR}/tmp; export CLIMATE_TMP_DIR
+
+#if [ ! -d ${CLIMATE_BIN_DIR} ]
+#then
+#   echo "Directory ${CLIMATE_BIN_DIR} does not exist."
+#   echo "Check installation and setup of Climate routines."
+#   echo "Halting create_f6_product script execution .... "
+#   exit 1
+#fi
+
+if [ ! -d ${CLIMATE_DATA_DIR} ]
+then
+   echo "Directory ${CLIMATE_DATA_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting create_f6_product script execution .... "
+   exit 1
+fi
+
+if [ ! -d ${CLIMATE_TMP_DIR} ]
+then
+   echo "Directory ${CLIMATE_TMP_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting create_f6_product script execution .... "
+   exit 1
+fi
+
+#
+# Clean the climate tmp directory.
+# Change to the temporary climate directory and clean out previous run's files,
+# making sure to leave the RecordClimate*.dat files in place
+#
+cd ${CLIMATE_TMP_DIR}
+ls * | grep -v .dat |
+  while read fn
+  do
+     rm -f $fn
+  done
+
+# Remove old run's RecordClimate*1.dat regular files, which leaves only the
+# RecordClimate pipe files in CLIMATE_TMP_DIR
+#
+  if [ -f ${CLIMATE_TMP_DIR}/RecordClimateRawData1.dat ]
+  then
+    rm ${CLIMATE_TMP_DIR}/RecordClimateRawData1.dat
+  fi
+
+  if [ -f ${CLIMATE_TMP_DIR}/RecordClimateStationInfo1.dat ]
+  then
+    rm ${CLIMATE_TMP_DIR}/RecordClimateStationInfo1.dat
+  fi
+
+
+# This starts the running clock GUI (wait.tcl) if it's a manual run.
+# If it's an automatic (cron) run, it will not appear.
+
+if [ "$no_gui" != "0" ]
+then
+  wait.tcl &
+fi
+
+#
+# Set up local log file
+#
+LOGFILE=${CLIMATE_TMP_DIR}/tmp.txt
+echo "Create F6 Products run date/time: `date`" > $LOGFILE
+
+#
+# Make sure that an executable build_f6 exists ....
+#
+if [ ! -s ${CLIMATE_BIN_DIR}/build_f6 ]
+then
+   echo "${CLIMATE_BIN_DIR}/build_f6 executable does not exist!" >> $LOGFILE
+   echo "Halting create_f6_product script execution .... " >> $LOGFILE
+   if [ "$no_gui" != "0" ]
+   then
+      error.tcl &
+      killpid
+   fi
+   exit 1
+else if [ ! -x ${CLIMATE_BIN_DIR}/build_f6 ]
+   then 
+      echo "${CLIMATE_BIN_DIR}/build_f6 does not have execute permission!" >> $LOGFILE
+      echo "Halting create_f6_product script execution .... " >> $LOGFILE
+      if [ "$no_gui" != "0" ]
+      then
+         error.tcl &
+         killpid
+      fi
+      exit 1
+   fi
+fi
+
+#
+# Make sure that the executable textdb exists ....
+#
+# comment out this section as this function is done
+# within build_f6.  build_f6 stores nnnLCDmmm and CF6nnn
+# in the text database, where nnn is the icao_id and mmm
+# is the first three letters of the month's name.
+#
+#if [ ! -s ${FXA_HOME}/bin/textdb ]
+#then
+#   echo "${FXA_HOME}/bin/textdb executable does not exist!" >> $LOGFILE
+#   echo "Halting create_f6_product script execution .... " >> $LOGFILE
+#   if [ "$no_gui" != "0" ]
+#   then
+#      error.tcl &
+#      killpid
+#   fi
+#   exit 1
+#else if [ ! -x ${FXA_HOME}/bin/textdb ]
+#   then 
+#      echo "${FXA_HOME}/bin/textdb does not have execute permission!" >> $LOGFILE
+#      echo "Halting create_f6_product script execution .... " >> $LOGFILE
+#      if { "$no_gui" != "0" ]
+#      then
+#         error.tcl &
+#         killpid
+#      fi
+#      exit 1
+#   fi
+#fi
+
+#
+# Make sure that the executable handleOUP.pl exists ....
+#
+if [ ! -s ${FXA_HOME}/bin/handleOUP.pl ]
+then
+   echo "${FXA_HOME}/bin/handleOUP.pl executable does not exist!" >> $LOGFILE
+   echo "Halting create_f6_product script execution .... " >> $LOGFILE
+   if [ "$no_gui" != "0" ]
+   then
+      error.tcl &
+      killpid
+   fi
+   exit 1
+else if [ ! -x ${FXA_HOME}/bin/handleOUP.pl ]
+   then 
+      echo "${FXA_HOME}/bin/handleOUP.pl does not have execute permission!" \
+        >> $LOGFILE
+      echo "Halting create_f6_product script execution .... " >> $LOGFILE
+      if [ "$no_gui" != "0" ]
+      then
+         error.tcl &
+         killpid
+      fi
+      exit 1
+   fi
+fi
+
+#
+# Build F-6s and store F-6s in the text database
+# using executable build_f6.
+# Standard output and standard error streams
+# are redirected into the local log file.
+#
+${CLIMATE_BIN_DIR}/build_f6 $no_gui $2 1>> $LOGFILE 2>> $LOGFILE
+
+#
+# check the return value of build_f6.
+# A non-zero value indicates trouble, but some F6 forms may have
+# been created before trouble was encountered.  So we will not
+# exit at this time.
+#
+f6_status=$?
+echo -n "build_f6 status: " >> $LOGFILE
+case $f6_status in
+   0 ) echo "Successful completion." >> $LOGFILE;;
+   1 ) echo -n "Invalid input argument or " >> $LOGFILE
+       echo "  non-climate process error." >> $LOGFILE;;
+   3 ) echo "Database connection error." >> $LOGFILE;;
+   * ) echo "Unknown error ${f6_status}." >> $LOGFILE;;
+esac
+
+#
+# Completed files will have the line "[REMARKS]" in it.  Remove any 
+# forms without this line and log the removal.
+#
+for file in `ls output_f6_*`
+do
+   if ! grep REMARKS $file > /dev/null
+   then
+      rm $file
+      echo "Removed incomplete F6 form ${file}." >> $LOGFILE
+   fi
+done
+
+#
+# Make the completed F6 forms writeable
+#
+chmod a+w ${CLIMATE_TMP_DIR}/output_f6_*
+
+#
+# Compare the month and year of the F6 form with the
+# current month and year.  If they differ, then add
+# the line "#FINAL-MM-YY#" to the form.
+#
+mon_cur=`date +%B | tr '[a-z]' '[A-Z]'`
+year_cur=`date +%Y`
+for file in `ls output_f6_*`
+do
+   mon_f6=`awk '$1 ~ "MONTH" {month=$2};END{print month}' ${file}`
+   year_f6=`awk '$1 ~ "YEAR" {year=$2};END{print year}' ${file}`
+   if [ "$mon_f6" != "$mon_cur" -o "$year_f6" != "$year_cur" ]
+   then
+      mo=`echo ${mon_f6} | awk \
+         'BEGIN{
+         no["JANUARY"]="01";no["FEBRUARY"]="02";
+         no["MARCH"]="03";no["APRIL"]="04"
+         no["MAY"]="05";no["JUNE"]="06"
+         no["JULY"]="07";no["AUGUST"]="08"
+         no["SEPTEMBER"]="09";no["OCTOBER"]="10"
+         no["NOVEMBER"]="11";no["DECEMBER"]="12"}
+         {print no[$1]}'`
+      yr=`echo ${year_f6} | cut -c3-4`
+      echo "#FINAL-${mo}-${yr}#" >> $file
+   fi
+   cp -f ${CLIMATE_TMP_DIR}/${file} ${CLIMATE_DATA_DIR}
+done
+
+#
+# Set write permissions on all files in /tmp except RecCli pipe files
+#
+ls * | grep -v .dat |
+   while read file
+   do
+      chmod a+w $file
+   done
+
+#
+#Transmit those F6 forms listed in the afos2awips.txt file
+#
+xmt_status=0
+
+#################################################################################
+# An awips_id does not necessarily start with "K". No env var associates with it
+# Determine the "prefix" as the following.
+#
+tmp_id_list=`cat ${FXA_HOME}/data/afos2awips.txt | awk '{print $3}' | grep ${FXA_LOCAL_SITE}`
+
+for id in $tmp_id_list
+do
+    tmp=`echo ${id} | cut -c2-4`
+    if [ "${FXA_LOCAL_SITE}" = "${tmp}" ]
+    then
+        prefix=`echo ${id} | cut -c1`
+        break;
+    fi
+done
+################################################################################
+
+awips_id=${prefix}${FXA_LOCAL_SITE}
+xmt_list=`grep ${NODE}CF6 ${FXA_HOME}/data/afos2awips.txt \
+   | grep $awips_id | awk '{print $1}'`
+cf6_list=`ls output_f6_*`
+for file in $cf6_list
+do
+   stn=`echo ${file} | cut -c12-14`
+   cf6_file=${NODE}CF6${stn}
+   transmit=1
+   for xmt_file in $xmt_list
+   do
+      [ "${xmt_file}" = "${cf6_file}" ] && transmit=0
+   done
+   if [ "$transmit" = "0" ]
+   then
+      ${FXA_HOME}/bin/handleOUP.pl -r ALL ${awips_id}CF6${stn} \
+        ${CLIMATE_DATA_DIR}/$file >> $LOGFILE 2>> $LOGFILE
+      xmit_status=$?
+      if [ "$xmit_status" = "0" ]
+      then
+         echo "${prefix}${cf6_file} sent out as CF6${stn}" >> $LOGFILE
+         xmt_list=`echo ${xmt_list} | sed 's/${cf6_file}//'`
+      else
+         echo "Error in transmitting ${prefix}${cf6_file}." >> $LOGFILE
+      fi
+   else
+      echo "${cf6_file} cannot be transmitted, because" >> $LOGFILE
+      echo "it is not in the local (`hostname`) file: " >> $LOGFILE
+      echo "   ${FXA_HOME}/data/awips2afos.txt" >> $LOGFILE
+   fi
+   [ "$xmit_status" != 0 ] && xmt_status=1
+done
+
+#
+# Note the CF6 forms listed in the afos2awips.txt file
+# that did not get transmitted for one reason or another.
+#
+echo " " >> $LOGFILE
+echo "The following F-6 forms listed in the afos2awips.txt file" >> $LOGFILE
+echo "were not transmitted over the WAN: " >> $LOGFILE
+for file in $xmt_list
+do
+   echo "          $file" >> $LOGFILE
+done
+
+#
+# If manual run, remove the "Climate is Running" gui.
+# Then if the run was successful, put up the success gui
+# and the climate gui.
+# Otherwise put up the error gui and spit out an informative
+# blurb into the local log file about where to get information 
+# about the error.
+#
+if [ "$no_gui" != "0" ]
+then
+   killpid
+   if [ "$f6_status" = "0" -a "$xmt_status" = "0" ]
+   then
+      success.tcl &
+      exec ${CLIMATE_BIN_DIR}/climate &
+   elif [ "$f6_status" != "0" ] 
+   then
+      echo "build_f6 error." >> $LOGFILE
+      echo "Check build_f6 log file in ${logdir}." >> $LOGFILE
+      error.tcl &
+   else #[ "$xmt_status" != 0 ]
+      echo "handleOUP.pl error." >> $LOGFILE
+      echo "Check handleOUP log file in ${logdir}." >> $LOGFILE
+      error.tcl &
+   fi
+fi
+
+#
+# Exit with the proper value (0=success, 1=problem)
+#
+[ "$f6_status" = 0 ] && [ "$xmt_status" = 0 ] && exit 0
+exit 1
