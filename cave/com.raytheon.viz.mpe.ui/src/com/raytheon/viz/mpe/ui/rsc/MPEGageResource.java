@@ -48,6 +48,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -95,6 +96,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Sep 5, 2012   15079    snaples      Added constant for Milli to inches conversion factor
  * Feb 12, 2013  15773    snaples      Updated addPoints to display PC gages when token is set to use PC data.
  * Mar 14, 2013  1457     mpduff       Fixed various bugs.
+ * Apr 19, 2013  1920     mpduff       Fixed gage color contrast, add e to display value of manually edited gages.
  * 
  * </pre>
  * 
@@ -192,8 +194,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
         displayMgr.registerDisplayFieldChangedListener(this);
         fontFactory = new MPEFontFactory(target, this);
         loadColors();
-        lastDate = displayMgr.getCurrentEditDate();
-        addPoints(MPEDataManager.getInstance().readGageData(lastDate, lastDate));
+        reloadGages();
     }
 
     @Override
@@ -350,10 +351,10 @@ public class MPEGageResource extends AbstractMPEInputResource implements
         MPEDisplayManager.GageMissingOptions gm = MPEDisplayManager
                 .getGageMissing();
         boolean displayIsEdit = false;
-        if (paintProps.getDataTime() != null
-                && displayMgr.getCurrentEditDate() != null) {
-            displayIsEdit = displayMgr.getCurrentEditDate().equals(
-                    paintProps.getDataTime().getRefTime());
+        DataTime paintTime = paintProps.getFramesInfo().getCurrentFrame();
+        Date editTime = displayMgr.getCurrentEditDate();
+        if (paintTime != null && editTime != null) {
+            displayIsEdit = editTime.equals(paintTime.getRefTime());
         }
         boolean xor = MPEDisplayManager.getGageColor() == GageColor.Contrast
                 && displayIsEdit;
@@ -421,6 +422,9 @@ public class MPEGageResource extends AbstractMPEInputResource implements
                     }
 
                     if (isGageIdsDisplayed || isGageValuesDisplayed) {
+                        if (gageData.isManedit()) {
+                            gageValue = gageValue.concat("e");
+                        }
                         DrawableString string = new DrawableString(
                                 new String[] { gageValue, gageId, }, gageColor);
                         string.font = font;
@@ -651,7 +655,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
     public void displayFieldChanged(DisplayFieldData oldFieldData,
             DisplayFieldData newFieldData) {
         loadColors();
+        reloadGages();
         issueRefresh();
     }
-
 }

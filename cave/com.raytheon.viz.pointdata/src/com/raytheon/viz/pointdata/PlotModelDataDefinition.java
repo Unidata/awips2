@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -29,9 +30,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -281,12 +280,13 @@ public class PlotModelDataDefinition extends
             try {
                 Level level = LevelFactory.getInstance().getLevel(
                         Long.parseLong(levelid));
-                validLevels.add(LevelMappingFactory.getInstance()
-                        .getLevelMappingForLevel(level).getDisplayName());
+                validLevels
+                        .add(LevelMappingFactory
+                                .getInstance(
+                                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                .getLevelMappingForLevel(level)
+                                .getDisplayName());
             } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (VizCommunicationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }

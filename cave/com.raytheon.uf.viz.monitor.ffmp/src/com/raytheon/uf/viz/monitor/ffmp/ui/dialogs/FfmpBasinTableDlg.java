@@ -119,6 +119,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
  * Mar 29, 2013  1790      rferrel     Bug fix for non-blocking dialogs.
  * Apr 15, 2013  1904      mpduff       Remove calls to reset FFMPConfig.
+ * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
  * </pre>
  * 
  * @author lvenable
@@ -1324,6 +1325,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         } else {
             attrThreshDlg.bringToTop();
         }
+
         attrThreshDlg.newThreshold(colName);
     }
 
@@ -2113,6 +2115,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
             prefix = " Secondary Data Load: ";
+        } else if (status.getLoaderType() == LOADER_TYPE.TERTIARY) {
+            prefix = " Tertiary Data Load: ";
+        } else if (status.getLoaderType() == LOADER_TYPE.GENERAL) {
+            prefix = " General Data Load: ";
         } else {
             prefix = " Tertiary Data Load: ";
         }

@@ -1,0 +1,186 @@
+#!/bin/ksh
+###############################################################################
+# transmit_rfc_qpe
+#
+# This script transmits the 1 hour MPE generated Best Estimate QPE mosaics
+# over the SBN.  Normally, these QPE products will be created at an RFC
+# and sent over the SBN for WFOs to use in their daily operations. These
+# products are displayable through MPE Editor and Hydroview, and they
+# can be used perationally in applications like the Site Specific Head Water 
+# Model.
+#
+# This script is called by MPE Fieldgen when run from the cron and 
+# MPE Editor from the Transmit Best Estimate QPE option on the MPE Control 
+# menu.
+# 
+# The mpe_send_qpe_to_sbn token must be set to "ON" and the mpe_save_grib token
+# must be set to "save" for this script to function.  Also, the section
+# of this script which calls distributeProduct must be uncommented.
+#
+# Example of PRODUCT ID:   KALRQPEBIN
+# Where NNN should be QPE
+# Where XXX should be BIN
+# Where CCCC should be:
+#
+# PACR :  APRFC
+# KALR :  SERFC
+# KTAR :  NERFC
+# KTIR :  OHRFC
+# KFWR :  WGRFC
+# KKRF :  MBRFC
+# KMSR :  NCRFC
+# KORN :  LMRFC
+# KTUA :  ABRFC
+# KPTR :  NWRFC
+# KRHA :  MARFC
+# KRSA :  CNRFC
+# KSTR :  CBRFC
+#
+# Modification History
+# June 1, 2006     Bryon Lawrence                 Original Coding 
+# November 8, 2006 Bryon Lawrence                 Updated to read GRIB
+#                                                 files from qpe_grib_sbn
+#                                                 directory.  Removed
+#                                                 logic using touch file.
+###############################################################################
+
+#
+#  The product id must be locally defined for the office.
+#
+export PRODUCT_ID=CCCCQPEBIN
+
+export FXA_HOME=/awips/fxa
+
+#
+#  Set up the D2D environment...
+. $FXA_HOME/readenv.sh
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../../set_hydro_env
+export GAQ_LOG_DIR=$(get_apps_defaults gaq_log_dir)
+export MPE_SEND_QPE_TO_SBN=$(get_apps_defaults mpe_send_qpe_to_sbn)
+export MPE_SAVE_GRIB=$(get_apps_defaults mpe_save_grib)
+export MPE_QPE_GRIB_SBN_DIR=$(get_apps_defaults mpe_qpe_grib_sbn_dir)
+
+#
+# Open the transmit_rfc_qpe log file.
+#
+transmit_qpe_log=`date +$GAQ_LOG_DIR/transmit_rfc_qpe_%m%d`
+
+#
+#  Save only the latest information in the log file.
+echo "-------------------------------------------" >> $transmit_qpe_log
+
+Dte=`date -u`
+echo "Starting transmit_rfc_qpe at $Dte" >> $transmit_qpe_log
+
+#
+#  Check to make sure that the mpe_save_grib token is set to 'save'
+#
+if [[ $MPE_SAVE_GRIB != "save" && $MPE_SAVE_GRIB != "SAVE" ]]
+then
+   echo "The mpe_save_grib token is not set to save." >> transmit_qpe_log
+   echo "No QPE files transmitted." >> transmit_qpe_log
+   Dte=`date -u`
+   echo "Finished transmit_rfc_qpe at $Dte" >> $transmit_qpe_log
+   exit 1
+fi
+
+#
+# Check the mpe_send_qpe_to_sbn token to make sure that the office
+# wants to send the 1 HR QPE over the SBN.
+#
+if [[ $MPE_SEND_QPE_TO_SBN != "ON" && $MPE_SEND_QPE_TO_SBN != "on" ]]
+then
+   echo "The mpe_send_qpe_to_sbn token is not set to 'ON'." >> \
+         $transmit_qpe_log
+   echo "No QPE files transmitted." >> $transmit_qpe_log
+   Dte=`date -u`
+   echo "Finished transmit_rfc_qpe at $Dte" >> $transmit_qpe_log
+   exit 1
+fi
+
+#
+# Determine the list of QPE grib files to transmit over the SBN
+# Any files in the qpe_grib_sbn directory need to be sent over the SBN.
+# Files are removed from this directory after each successful call to
+# distributeProduct.
+#
+echo "Searching directory $MPE_QPE_GRIB_SBN_DIR for grib " >> $transmit_qpe_log
+echo "files to transmit." >> $transmit_qpe_log
+
+grib_file_list=`ls $MPE_QPE_GRIB_SBN_DIR/*.grib` >> $transmit_qpe_log 2>&1
+
+if [[ $? -ne 0 ]]
+then
+   echo "An error was encountered while searching for grib files in" >> \
+        $transmit_qpe_log
+   echo "the $MPE_QPE_GRIB_SBN_DIR directory." >> \
+        $transmit_qpe_log
+   echo "No QPE files transmitted." >> $transmit_qpe_log
+   Dte=`date -u`
+   echo "Finished transmit_rfc_qpe at $Dte" >> $transmit_qpe_log
+   exit 1
+fi
+
+#
+#  Check if there are any files to process.
+#
+if [[ -z "$grib_file_list" ]]
+then
+   echo "No grib files found to process." >> $transmit_qpe_log
+   Dte=`date -u`
+   echo "Finished transmit_rfc_qpe at $Dte" >> $transmit_qpe_log
+   exit 0
+fi
+
+#
+# Loop over the grib files
+#
+for i in $grib_file_list
+do
+   echo "Processing grib file $i." >> $transmit_qpe_log
+
+#
+#   The GRIB files normally created by the process_grib_files
+#   script have a subcenter code of 0.  GRIB files with a subcenter
+#   code representing the tranmitting RFC need to be created.
+#
+
+#
+#  Send product using distributeProduct
+#  The GRIB file is sent to the DEFAULTNCF.  Upon arrival at the NCF
+#  the GRIB file is placed on the SBN uplink.  The GRIB file is sent
+#  as an attachment to the call to distributeProduct.  The dummy file
+#  does not exist.  It is just a dummy argument.
+#
+   echo "Sending file: $i product ID $PRODUCT_ID to distributeProduct" >> \
+        $transmit_qpe_log
+   echo "/awips/fxa/bin/distributeProduct -a DEFAULTNCF -e $i $PRODUCT_ID dummy" >> \
+        $transmit_qpe_log
+   /awips/fxa/bin/distributeProduct -a DEFAULTNCF -e $i $PRODUCT_ID dummy >> \
+        $transmit_qpe_log 2>&1
+
+   if [[ $? -eq 0 ]]
+   then
+      echo "The call to distributeProduct was successful." >> $transmit_qpe_log
+      echo "Removing grib file $i." >> $transmit_qpe_log 
+      rm -f $i >> $transmit_qpe_log 2>&1
+   else
+      echo "The call to distrbuteProduct failed with code $?."
+      echo "Grib file $i not removed."
+   fi
+
+#
+done
+
+#
+# This script can be locally configured here.
+
+#
+#
+Dte=`date -u`
+echo "Finished transmit_rfc_qpe at $Dte" >> $transmit_qpe_log
+
+#
+exit 0

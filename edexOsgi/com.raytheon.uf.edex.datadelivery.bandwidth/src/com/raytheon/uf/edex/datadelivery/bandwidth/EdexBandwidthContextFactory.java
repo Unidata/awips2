@@ -30,8 +30,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
@@ -84,6 +82,8 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     private final IEdexBandwidthManagerCreator bandwidthManagerCreator;
 
+    private final IBandwidthDbInit dbInit;
+
     /**
      * Intentionally package-private constructor, as it is created from Spring
      * which is able to reflectively instantiate.
@@ -93,10 +93,12 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     EdexBandwidthContextFactory(IBandwidthDao bandwidthDao,
             BandwidthInitializer bandwidthInitializer,
-            IEdexBandwidthManagerCreator bandwidthManagerCreator) {
+            IEdexBandwidthManagerCreator bandwidthManagerCreator,
+            IBandwidthDbInit dbInit) {
         this.bandwidthDao = bandwidthDao;
         this.bandwidthInitializer = bandwidthInitializer;
         this.bandwidthManagerCreator = bandwidthManagerCreator;
+        this.dbInit = dbInit;
     }
 
     /**
@@ -112,6 +114,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
         this.bandwidthDao = null;
         this.bandwidthInitializer = null;
         this.bandwidthManagerCreator = null;
+        this.dbInit = null;
     }
 
     /**
@@ -158,8 +161,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public IBandwidthDbInit getBandwidthDbInit() {
-        return new HibernateBandwidthDbInit(
-                HibernateBandwidthDao.class.cast(getBandwidthDao()));
+        return dbInit;
     }
 
     /**
