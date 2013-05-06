@@ -23,6 +23,7 @@ import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -31,11 +32,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -69,18 +73,32 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20080708           1174  jkorman     Added persistenceTime handling.
  * 20090206           1990  bphillip    Removed populateDataStore method
  * 20130227        DCS 152  jgerth/elau Support for WWLLN and multiple sources
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 20130408           1293  bkowal      Removed references to hdffileid.
+ * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author jkorman
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "binlightningseq")
 @Table(name = "binlightning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "binlightning",
+		indexes = {
+				@Index(name = "binlightning_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 public class BinLightningRecord extends
-        ServerSpecificPersistablePluginDataObject implements IPersistable {
+        PersistablePluginDataObject implements IPersistable {
 
     /** Serializable id * */
     private static final long serialVersionUID = 1L;

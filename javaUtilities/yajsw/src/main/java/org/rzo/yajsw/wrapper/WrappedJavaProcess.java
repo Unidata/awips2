@@ -636,7 +636,7 @@ public class WrappedJavaProcess extends AbstractWrappedProcess
                                 	sb.append(containingDirectory + "*");
 				}
 			}
-		}
+		}
 		return sb;
 	}
 

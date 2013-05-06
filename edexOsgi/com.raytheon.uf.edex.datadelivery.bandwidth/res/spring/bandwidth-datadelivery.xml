@@ -16,7 +16,7 @@
 		factory-method="getBandwidthDao" />
 
 	<bean id="bandwidthDbInit" factory-bean="bandwidthContextFactory"
-		factory-method="getBandwidthDbInit" init-method="init" />
+        factory-method="getBandwidthDbInit" />
 
 	<bean id="bandwidthManagerInitializer" factory-bean="bandwidthContextFactory"
 		factory-method="getBandwidthInitializer" depends-on="registryManagerInstanceInitializer">

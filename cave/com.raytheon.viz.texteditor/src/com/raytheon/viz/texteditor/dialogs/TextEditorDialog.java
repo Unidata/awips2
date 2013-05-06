@@ -319,6 +319,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 											is not a valid WMO heading.
  * 31JAN2013   1563         rferrel     Force location of airport tooltip.
  * 31JAN2013   1568         rferrel     Spell checker now tied to this dialog instead of parent.
+ * 26Apr2013   16123        snaples     Removed setFocus to TextEditor in postExecute method.
  * </pre>
  * 
  * @author lvenable
@@ -1101,7 +1102,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * flag to indicate it a product request is from the GUI or an updated ob.
      */
-    private AtomicInteger updateCount = new AtomicInteger(0);
+    private final AtomicInteger updateCount = new AtomicInteger(0);
 
     /**
      * The expire notification when editing a warn gen product.
@@ -1199,7 +1200,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Job to handle query for products off the UI thread.
      */
-    private ProductQueryJob productQueryJob = new ProductQueryJob(this);
+    private final ProductQueryJob productQueryJob = new ProductQueryJob(this);
 
     /**
      * Flag to indicate if the dialog is in wait mode.
@@ -3175,10 +3176,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         afosCmdTF.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
 
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 String tmp = afosCmdTF.getText();
                 tmp = tmp.trim();
@@ -3253,6 +3256,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         wmoTtaaiiTF.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent event) {
                 if (wmoTtaaiiTF.getCaretPosition() == wmoTtaaiiTF
                         .getTextLimit()) {
@@ -3262,10 +3266,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         wmoTtaaiiTF.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
 
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 wmoTtaaiiTF.setText(wmoTtaaiiTF.getText().toUpperCase());
                 ccccTF.setText(ccccTF.getText().toUpperCase());
@@ -3320,10 +3326,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         ccccTF.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
 
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 wmoTtaaiiTF.setText(wmoTtaaiiTF.getText().toUpperCase());
                 ccccTF.setText(ccccTF.getText().toUpperCase());
@@ -3381,10 +3389,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         awipsIdTF.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
 
             }
 
+            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 awipsIdTF.setText(awipsIdTF.getText().trim().toUpperCase());
                 int charCount = awipsIdTF.getCharCount();
@@ -3794,6 +3804,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // });
 
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
+            @Override
             public void verifyKey(VerifyEvent event) {
                 // Ignore edit keys when not in edit mode.
                 if (textEditor.getEditable() == false) {
@@ -3925,6 +3936,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 mi.setEnabled(isPopItemDefault[items.indexOf(pi)]);
             }
             mi.addListener(SWT.Selection, new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     handleSelection(event);
                 }
@@ -5769,6 +5781,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Set the dispaly model's AFOS command for this editor.
      */
+    @Override
     public void setAfosCmdField(String cmd) {
         afosCmdTF.setText(cmd);
         TextDisplayModel.getInstance().setAfosCommand(token, cmd);
@@ -5795,6 +5808,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Convience method to execuete comand without updating ObsUpdated.
      */
+    @Override
     public void executeCommand(ICommand command) {
         executeCommand(command, false);
     }
@@ -5831,6 +5845,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Request for product(s) is finish now update the display with the
      * information.
      */
+    @Override
     public void requestDone(ICommand command,
             final List<StdTextProduct> prodList, final boolean isObsUpdated) {
         boolean enterEditor = false;
@@ -6011,11 +6026,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 enterEditor();
             } else {
                 resendWarningProductnItem.setEnabled(true);
-            }
-
-            // Always give focus to textEditor after populating it.
-            if (validExecuteCommand) {
-                textEditor.setFocus();
             }
         }
     }
@@ -7181,6 +7191,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void run() {
                     getDisplay().syncExec(new Runnable() {
+                        @Override
                         public void run() {
                             if (!shell.isDisposed()) {
                                 if (autoSave == AutoSaveTask.this) {

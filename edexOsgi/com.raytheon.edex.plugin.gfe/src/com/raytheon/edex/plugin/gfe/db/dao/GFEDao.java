@@ -24,30 +24,27 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Property;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -57,17 +54,14 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotificatio
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * Data access object for manipulating GFE Records
@@ -92,14 +86,15 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 02/12/13     #1608      randerso    Changed to use explicit deletes for groups and datasets
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 03/21/13     #1774      randerso    Moved D2D routines into {@link com.raytheon.edex.plugin.gfe.db.dao.GFED2DDao}
- * 
+ * 04/08/13     #1949      rjpeter     Normalized GFE Database.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class GFEDao extends DefaultPluginDao {
-    private static final Pattern WIND_PATTERN = Pattern.compile("wind");
+    // Number of retries on insert of a new DatabaseID
+    private static final int QUERY_RETRY = 2;
 
     public GFEDao() throws PluginException {
         super("gfe");
@@ -112,6 +107,234 @@ public class GFEDao extends DefaultPluginDao {
      */
     public GFEDao(String pluginName) throws PluginException {
         super(pluginName);
+    }
+
+    /**
+     * Returns the database row for the passed dbId. If the row does not exist,
+     * the row will be created.
+     * 
+     * @param dbId
+     * @return
+     */
+    public DatabaseID getDatabaseId(DatabaseID dbId)
+            throws DataAccessLayerException {
+        DatabaseID rval = null;
+        Session sess = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            int tries = 0;
+            Transaction tx = null;
+            while ((rval == null) && (tries < QUERY_RETRY)) {
+                try {
+                    tx = sess.beginTransaction();
+                    rval = getDatabaseId(sess, dbId);
+
+                    if (rval == null) {
+                        sess.save(dbId);
+                    }
+
+                    tx.commit();
+
+                    if (rval == null) {
+                        rval = dbId;
+                    }
+                } catch (ConstraintViolationException e) {
+                    if (tx != null) {
+                        try {
+                            tx.rollback();
+                        } catch (Exception e1) {
+                            logger.error(
+                                    "Error occurred rolling back transaction",
+                                    e1);
+                        }
+                    }
+
+                    rval = null;
+                    // database may have been inserted on another process, redo
+                    // the look up
+                    if (tries < 2) {
+                        logger.info("Constraint violation on save, attempting to look up database id again");
+                    } else {
+                        throw new DataAccessLayerException(
+                                "Unable to look up DatabaseID: "
+                                        + dbId.toString(), e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessLayerException("Unable to look up DatabaseID: "
+                    + dbId.toString(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+
+        return rval;
+    }
+
+    /**
+     * Looks up a database id from database. Session must have already started a
+     * transaction.
+     * 
+     * @param sess
+     * @param dbId
+     * @return
+     */
+    private DatabaseID getDatabaseId(Session sess, DatabaseID dbId) {
+        Query query = sess
+                .createQuery("from DatabaseID where siteId = ? and modelName = ? and modelTime = ? and dbType = ?");
+        query.setString(0, dbId.getSiteId());
+        query.setString(1, dbId.getModelName());
+        query.setString(2, dbId.getModelTime());
+        query.setString(3, dbId.getDbType());
+        return (DatabaseID) query.uniqueResult();
+    }
+
+    /**
+     * Retrieves all known parm ids for the given database id.
+     * 
+     * @param dbId
+     * @return
+     * @throws DataAccessLayerException
+     */
+    @SuppressWarnings("unchecked")
+    public List<ParmID> getParmIds(final DatabaseID dbId)
+            throws DataAccessLayerException {
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+
+            // reattach so dbId doesn't requery
+            sess.buildLockRequest(LockOptions.NONE).lock(dbId);
+
+            Query query = sess.createQuery("FROM ParmID WHERE dbId = ?");
+            query.setParameter(0, dbId);
+            List<ParmID> list = query.list();
+            tx.commit();
+            return list;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to look up parm id inventory for database id "
+                            + dbId, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the database row for the passed parmId. If the row does not
+     * exist, the row will be created.
+     * 
+     * @param dbId
+     * @return
+     */
+    public ParmID getParmId(final ParmID parmId)
+            throws DataAccessLayerException {
+        ParmID rval = null;
+        Session sess = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+
+            // reattach so dbId doesn't requery
+            sess.buildLockRequest(LockOptions.NONE).lock(parmId.getDbId());
+
+            int tries = 0;
+            Transaction tx = null;
+            while ((rval == null) && (tries < QUERY_RETRY)) {
+                try {
+                    tx = sess.beginTransaction();
+                    rval = getParmId(sess, parmId);
+
+                    if (rval == null) {
+                        sess.save(parmId);
+                    }
+
+                    tx.commit();
+
+                    if (rval == null) {
+                        rval = parmId;
+                    }
+                } catch (ConstraintViolationException e) {
+                    if (tx != null) {
+                        try {
+                            tx.rollback();
+                        } catch (Exception e1) {
+                            logger.error(
+                                    "Error occurred rolling back transaction",
+                                    e1);
+                        }
+                    }
+
+                    rval = null;
+                    // database may have been inserted on another process, redo
+                    // the look up
+                    if (tries < 2) {
+                        logger.info("Constraint violation on save, attempting to look up parm id again");
+                    } else {
+                        throw new DataAccessLayerException(
+                                "Unable to look up ParmID: "
+                                        + parmId.toString(), e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessLayerException("Unable to look up ParmID: "
+                    + parmId.toString(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+
+        return rval;
+    }
+
+    /**
+     * Looks up a parm id from database. Session must have already started a
+     * transaction.
+     * 
+     * @param sess
+     * @param dbId
+     * @return
+     */
+    private ParmID getParmId(Session sess, ParmID parmId) {
+        Query query = sess
+                .createQuery("FROM ParmID WHERE dbId = ? AND parmName = ? AND parmLevel = ?");
+        query.setParameter(0, parmId.getDbId());
+        query.setString(1, parmId.getParmName());
+        query.setString(2, parmId.getParmLevel());
+        return (ParmID) query.uniqueResult();
     }
 
     @Override
@@ -141,53 +364,25 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public int purgeDatabaseForSite(final String siteID)
             throws DataAccessLayerException {
         return (Integer) txTemplate.execute(new TransactionCallback() {
             @Override
             public Integer doInTransaction(TransactionStatus status) {
-                List<DatabaseID> dbs = getDatabaseInventoryForSite(siteID);
-                if (dbs.isEmpty()) {
-                    return 0;
-                } else {
-                    DetachedCriteria criteria = DetachedCriteria.forClass(
-                            GFERecord.class).add(
-                            Property.forName("dbId").in(dbs));
-                    List<GFERecord> list = getHibernateTemplate()
-                            .findByCriteria(criteria);
-                    if (!list.isEmpty()) {
-                        getHibernateTemplate().deleteAll(list);
-                    }
-                    return list.size();
-                }
+                return getHibernateTemplate().bulkUpdate(
+                        "DELETE FROM DatabaseID WHERE siteId = ?", siteID);
             }
         });
     }
 
-    private List<DatabaseID> getDatabaseInventoryForSite(String siteID) {
-        List<DatabaseID> dbInventory = new ArrayList<DatabaseID>();
-        Object[] dbIds = executeSQLQuery("select distinct dbId from awips.gfe where dbId like '"
-                + siteID.toUpperCase() + "%'");
-        for (Object id : dbIds) {
-            dbInventory.add(new DatabaseID((String) id));
-        }
-        return dbInventory;
-    }
-
     /**
-     * Retrieves a GFE Record
      * 
-     * @param record
-     *            the record
-     * @return The record, populated
+     * @param records
+     * @return
      */
-    public GFERecord getRecord(PluginDataObject record) {
-        return (GFERecord) this.queryById(record);
-    }
-
-    public List<GFERecord> saveOrUpdate(final List<GFERecord> records) {
-        List<GFERecord> failedToSave = new ArrayList<GFERecord>();
+    public void save(final Collection<GFERecord> records)
+            throws DataAccessLayerException {
+        // validate fields
         for (GFERecord rec : records) {
             if (rec.getIdentifier() == null) {
                 try {
@@ -196,88 +391,30 @@ public class GFEDao extends DefaultPluginDao {
                     e.printStackTrace();
                 }
             }
+
             if (rec.getInsertTime() == null) {
                 rec.setInsertTime(Calendar.getInstance());
             }
         }
 
-        final int batchSize = 100;
-
-        // First, try committing all of the records in batches of size
-        // batchSize. If a failure occurs on a batch, add that batch to be
-        // retried individually. If the whole commit fails, try saving them all
-        // individually.
-        Session sess = null;
+        StatelessSession sess = null;
         Transaction tx = null;
-        int commitPoint = 0;
-        int index = 0;
-        boolean notDone = index < records.size();
+
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
             tx = sess.beginTransaction();
-            boolean persistIndividually = false;
-            String sql = "select id from awips." + pluginName
-                    + " where dataURI=:dataURI";
-            Query q = sess.createSQLQuery(sql);
-
-            while (notDone) {
-                GFERecord rec = records.get(index++);
-                notDone = index < records.size();
-                try {
-                    q.setString("dataURI", rec.getDataURI());
-                    List<?> list = q.list();
-                    if ((list == null) || (list.size() == 0)) {
-                        sess.save(rec);
-                    } else {
-                        rec.setId(((Number) list.get(0)).intValue());
-                        sess.update(rec);
-                    }
-                    if ((index % batchSize == 0) || persistIndividually
-                            || !notDone) {
-                        sess.flush();
-                        sess.clear();
-                        tx.commit();
-                        tx = null;
-                        commitPoint = index;
-                        if (persistIndividually && (index % batchSize == 0)) {
-                            // batch persisted individually switch back to batch
-                            persistIndividually = false;
-                        }
-                        if (notDone) {
-                            tx = sess.beginTransaction();
-                            q = sess.createSQLQuery(sql);
-                        }
-                    }
-                } catch (Exception e) {
-                    if (tx != null) {
-                        try {
-                            tx.rollback();
-                        } catch (Exception e1) {
-                            logger.error(
-                                    "Error occurred rolling back transaction",
-                                    e1);
-                        }
-                    }
-
-                    if (persistIndividually) {
-                        // log it and continue
-                        logger.error(
-                                "Error occurred persisting gfe record individually",
-                                e);
-                        failedToSave.add(rec);
-                    } else {
-                        // change to persistIndividually and retry from last
-                        // commit
-                        persistIndividually = true;
-                        index = commitPoint;
-                        notDone = true;
-                    }
-
-                    tx = sess.beginTransaction();
-                    q = sess.createSQLQuery(sql);
+            for (GFERecord rec : records) {
+                // TODO: Update saving a record, currently causes 2 inserts and
+                // 2 updates to happen, 1 for the record, 1 for the history,
+                // updates the whole history, then updates parent reference.
+                sess.insert(rec);
+                for (GridDataHistory hist : rec.getGridHistory()) {
+                    sess.insert(hist);
                 }
             }
-        } finally {
+            tx.commit();
+        } catch (Exception e) {
             if (tx != null) {
                 try {
                     tx.rollback();
@@ -285,6 +422,10 @@ public class GFEDao extends DefaultPluginDao {
                     logger.error("Error occurred rolling back transaction", e1);
                 }
             }
+
+            throw new DataAccessLayerException("Unable to save GFERecords: "
+                    + records, e);
+        } finally {
             if (sess != null) {
                 try {
                     sess.close();
@@ -294,39 +435,118 @@ public class GFEDao extends DefaultPluginDao {
                 }
             }
         }
-
-        return failedToSave;
-
-    }
-
-    @Override
-    public void delete(final PersistableDataObject obj) {
-        GFERecord rec = (GFERecord) obj;
-        if (rec.getDataURI() == null) {
-            try {
-                rec.constructDataURI();
-            } catch (PluginException e) {
-                logger.error("Unable to construct dataURI for GFE record", e);
-            }
-        }
-        rec = this.getRecord(rec);
-        super.delete(rec);
     }
 
     /**
-     * Gets list of all database IDs currently being stored in the database
+     * Update the GFERecords. Updating a record will update insert time only on
+     * the record, update all existing histories, and insert all new histories.
+     * 
+     * @param existingRecords
+     */
+    public void update(final Collection<GFERecord> existingRecords)
+            throws DataAccessLayerException {
+        StatelessSession sess = null;
+        Transaction tx = null;
+        List<Integer> ids = new ArrayList<Integer>(existingRecords.size());
+        for (GFERecord rec : existingRecords) {
+            ids.add(rec.getId());
+        }
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+
+            // Update insert time
+            Query query = sess
+                    .createQuery("UPDATE GFERecord SET insertTime = ? WHERE id IN (:ids)");
+            query.setCalendar(0, Calendar.getInstance());
+            query.setParameterList("ids", ids);
+
+            query.executeUpdate();
+
+            // TODO: do smart history diffing as most cases only a few columns
+            // update, if done remove parent calling consolidate and just
+            // passing existing through
+            List<Integer> histToDelete = new ArrayList<Integer>();
+
+            // handle histories
+            for (GFERecord rec : existingRecords) {
+                for (GridDataHistory hist : rec.getGridHistory()) {
+                    if (hist.getId() != 0) {
+                        sess.update(hist);
+                    } else {
+                        sess.insert(hist);
+                    }
+                }
+                List<GridDataHistory> oldHists = rec.getOldHistory();
+                if (!CollectionUtil.isNullOrEmpty(oldHists)) {
+                    for (GridDataHistory oldHist : oldHists) {
+                        histToDelete.add(oldHist.getId());
+                    }
+                }
+            }
+
+            if (!histToDelete.isEmpty()) {
+                query = sess
+                        .createQuery("DELETE FROM GridDataHistory WHERE id in (:ids)");
+                query.setParameterList("ids", histToDelete);
+                query.executeUpdate();
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException("Unable to update GFERecords: "
+                    + existingRecords, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets list of all database IDs currently being stored in the database for
+     * a given site.
+     * 
+     * @param siteId
+     *            The siteId to look up databases for.
      * 
      * @return The list of all database IDs currently being stored in the
      *         database
      */
-    public List<DatabaseID> getDatabaseInventory() {
-        List<DatabaseID> dbInventory = new ArrayList<DatabaseID>();
-
-        Object[] dbIds = executeSQLQuery("select distinct dbId from awips.gfe");
-        for (Object id : dbIds) {
-            dbInventory.add(new DatabaseID((String) id));
+    @SuppressWarnings("unchecked")
+    public List<DatabaseID> getDatabaseInventory(final String siteId)
+            throws DataAccessLayerException {
+        // TODO: Should this be done from GridParmManager?
+        try {
+            return (List<DatabaseID>) txTemplate
+                    .execute(new TransactionCallback() {
+                        @Override
+                        public List<DatabaseID> doInTransaction(
+                                TransactionStatus status) {
+                            return getHibernateTemplate().find(
+                                    "FROM DatabaseID WHERE siteId = ?", siteId);
+                        }
+                    });
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Unable to look up database inventory for site " + siteId,
+                    e);
         }
-        return dbInventory;
     }
 
     /**
@@ -339,174 +559,183 @@ public class GFEDao extends DefaultPluginDao {
      *             If errors occur during the query
      */
     @SuppressWarnings("unchecked")
-    public ArrayList<GFERecord> queryByParmID(ParmID parmId)
+    public List<GFERecord> queryByParmID(final ParmID parmId)
             throws DataAccessLayerException {
-        return (ArrayList<GFERecord>) this.queryBySingleCriteria("parmId",
-                parmId.getParmId());
-    }
+        Session sess = null;
+        Transaction tx = null;
 
-    public GFERecord getRecord(final ParmID parmId, final TimeRange tr)
-            throws DataAccessLayerException {
-        GFERecord retVal = (GFERecord) txTemplate
-                .execute(new TransactionCallback() {
-                    @Override
-                    @SuppressWarnings("unchecked")
-                    public GFERecord doInTransaction(TransactionStatus status) {
-                        DetachedCriteria criteria = DetachedCriteria
-                                .forClass(GFERecord.class)
-                                .add(Property.forName("parmId").eq(parmId))
-                                .add(Property.forName("dataTime").eq(
-                                        new DataTime(tr.getStart().getTime(),
-                                                tr)));
-                        return ((List<GFERecord>) getHibernateTemplate()
-                                .findByCriteria(criteria)).get(0);
-                    }
-                });
-        return retVal;
-    }
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
 
-    @SuppressWarnings("unchecked")
-    public List<GFERecord> getRecords(final ParmID parmId,
-            final List<TimeRange> times) {
-        if (times.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<GFERecord> retVal = (List<GFERecord>) txTemplate
-                .execute(new TransactionCallback() {
-                    @Override
-                    public List<GFERecord> doInTransaction(
-                            TransactionStatus status) {
-                        List<DataTime> dataTimes = new ArrayList<DataTime>();
-                        for (TimeRange tr : times) {
-                            dataTimes.add(new DataTime(tr.getStart().getTime(),
-                                    tr));
-                        }
+            // reattach so parmId doesn't requery
+            sess.buildLockRequest(LockOptions.NONE).lock(parmId);
 
-                        DetachedCriteria criteria = DetachedCriteria
-                                .forClass(GFERecord.class)
-                                .add(Property.forName("parmId").eq(parmId))
-                                .add(Property.forName("dataTime").in(dataTimes));
-                        List<GFERecord> list = getHibernateTemplate()
-                                .findByCriteria(criteria);
-                        return list;
-                    }
-                });
-        return retVal;
-    }
-
-    public void deleteRecords(final ParmID parmId, final List<TimeRange> times) {
-        if (times.isEmpty()) {
-            return;
-        }
-        final List<GFERecord> recordsToDelete = getRecords(parmId, times);
-        final List<GridDataHistory> histories = new ArrayList<GridDataHistory>();
-        for (GFERecord rec : recordsToDelete) {
-            histories.addAll(rec.getGridHistory());
-        }
-        txTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            public void doInTransactionWithoutResult(TransactionStatus status) {
-                getHibernateTemplate().deleteAll(histories);
-                getHibernateTemplate().deleteAll(recordsToDelete);
-                statusHandler.info("Deleted " + recordsToDelete.size()
-                        + " records from the database.");
-            }
-        });
-
-        Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
-                .getHdf5FilesAndGroups(GridDatabase.gfeBaseDataDir, parmId,
-                        times);
-        for (Map.Entry<File, Pair<List<TimeRange>, String[]>> entry : fileMap
-                .entrySet()) {
-            File hdf5File = entry.getKey();
-            IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
-            String[] groupsToDelete = entry.getValue().getSecond();
-
-            try {
-                dataStore.deleteGroups(groupsToDelete);
-
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "Deleted: " + Arrays.toString(groupsToDelete)
-                                    + " from " + hdf5File.getName());
+            Query query = sess.createQuery("FROM GFERecord WHERE parmId = ?");
+            query.setParameter(0, parmId);
+            List<GFERecord> list = query.list();
+            tx.commit();
+            return list;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
                 }
-            } catch (Exception e) {
-                statusHandler.handle(
-                        Priority.WARN,
-                        "Error deleting hdf5 record(s) from file: "
-                                + hdf5File.getPath(), e);
             }
-        }
-    }
 
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public void updateGridHistories(ParmID parmId,
-            Map<TimeRange, List<GridDataHistory>> history)
-            throws DataAccessLayerException {
-        for (TimeRange range : history.keySet()) {
-            DatabaseQuery recordQuery = new DatabaseQuery(GFERecord.class);
-            recordQuery.addQueryParam("parmId", parmId);
-            recordQuery.addQueryParam("dataTime.validPeriod", range);
-            List<GFERecord> result = (List<GFERecord>) this
-                    .queryByCriteria(recordQuery);
-            if (result.size() == 0) {
-                logger.error("No histories were updated for: " + parmId + "::"
-                        + range);
-            } else if (result.size() == 1) {
-                GFERecord returnedRecord = result.get(0);
-
-                List<GridDataHistory> existHist = returnedRecord
-                        .getGridHistory();
-                List<GridDataHistory> newHist = history.get(range);
-                consolidateHistories(existHist, newHist);
-
-                this.update(returnedRecord);
-            } else {
-                logger.error("MORE THAN 1 RESULT WAS RETURNED: "
-                        + result.size());
-            }
-        }
-    }
-
-    public void consolidateHistories(List<GridDataHistory> existHist,
-            List<GridDataHistory> newHist) {
-        for (int i = 0; i < newHist.size(); i++) {
-            if (i < existHist.size()) {
-                existHist.get(i).replaceValues(newHist.get(i));
-            } else {
-                existHist.add(newHist.get(i));
-            }
-        }
-
-        if (existHist.size() > newHist.size()) {
-            // not sure if we will ever have a case where the updated
-            // record has fewer history records than existing record
-
-            // log a message as this has the potential to cause orphaned
-            // history records
-            statusHandler.handle(Priority.WARN,
-                    "Updated record has fewer history records.");
-            for (int i = newHist.size(); i < existHist.size(); i++) {
-                existHist.remove(i);
+            throw new DataAccessLayerException(
+                    "Unable to look up records for parmId " + parmId, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
             }
         }
     }
 
     /**
-     * Gets all GFE Records with the specified DatabaseID
      * 
-     * @param dbId
-     *            The DatabaseID to query for
-     * @return All GFE Records with the specified DatabaseID
+     * @param parmId
+     * @param tr
+     * @return
      * @throws DataAccessLayerException
-     *             If errors occur during the query
      */
     @SuppressWarnings("unchecked")
-    public ArrayList<GFERecord> queryByDatabaseID(DatabaseID dbId)
-            throws DataAccessLayerException {
-        return (ArrayList<GFERecord>) this.queryBySingleCriteria("dbId",
-                dbId.toString());
+    public Map<TimeRange, GFERecord> getOverlappingRecords(final ParmID parmId,
+            final TimeRange tr) throws DataAccessLayerException {
+        Session sess = null;
+        Transaction tx = null;
+        List<GFERecord> records = null;
+
+        try {
+            // stateless session so we can bulk query histories instead of once
+            // per record via hibernate
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+
+            // reattach so parmId doesn't requery
+            sess.buildLockRequest(LockOptions.NONE).lock(parmId);
+
+            // start and end specifically reversed as we want
+            // every record that has a start before our end and
+            // and an end after our start
+            Query query = sess.createQuery("FROM GFERecord WHERE parmId = ?"
+                    + " AND dataTime.validPeriod.start < ?"
+                    + " AND dataTime.validPeriod.end > ?");
+            query.setParameter(0, parmId);
+            query.setTimestamp(1, tr.getEnd());
+            query.setTimestamp(2, tr.getStart());
+            records = query.list();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to look up records for parmId " + parmId
+                            + " overlapping timeRange " + tr, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+
+        Map<TimeRange, GFERecord> recordsByTimeRange = new HashMap<TimeRange, GFERecord>(
+                records.size(), 1);
+        for (GFERecord rec : records) {
+            recordsByTimeRange.put(rec.getTimeRange(), rec);
+        }
+
+        return recordsByTimeRange;
+    }
+
+    /**
+     * Deletes records that have the specified parmId and time range.
+     * 
+     * @param parmId
+     * @param times
+     */
+    public void deleteRecords(final ParmID parmId, final List<TimeRange> times) {
+        if (times.isEmpty()) {
+            return;
+        }
+
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+            Query query = sess
+                    .createQuery("DELETE FROM GFERecord WHERE parmId = :parmId"
+                            + " AND dataTime.validPeriod IN (:times)");
+            query.setParameter("parmId", parmId);
+            query.setParameterList("times", times);
+            int rowsDeleted = query.executeUpdate();
+            tx.commit();
+            statusHandler.info("Deleted " + rowsDeleted
+                    + " records from the database.");
+
+            Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
+                    .getHdf5FilesAndGroups(GridDatabase.gfeBaseDataDir, parmId,
+                            times);
+            for (Map.Entry<File, Pair<List<TimeRange>, String[]>> entry : fileMap
+                    .entrySet()) {
+                File hdf5File = entry.getKey();
+                IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+                String[] groupsToDelete = entry.getValue().getSecond();
+
+                try {
+                    dataStore.deleteGroups(groupsToDelete);
+
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler.handle(Priority.DEBUG, "Deleted: "
+                                + Arrays.toString(groupsToDelete) + " from "
+                                + hdf5File.getName());
+                    }
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.WARN,
+                            "Error deleting hdf5 record(s) from file: "
+                                    + hdf5File.getPath(), e);
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.error("Error deleting database record(s) for parmId "
+                    + parmId + " timeRanges " + times, e);
+
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
     }
 
     /**
@@ -517,23 +746,67 @@ public class GFEDao extends DefaultPluginDao {
      * @return The list of times for a given parm name and level
      * @throws DataAccessLayerException
      */
-    public List<TimeRange> getTimes(ParmID parmId)
+    @SuppressWarnings("unchecked")
+    public List<TimeRange> getTimes(final ParmID parmId)
             throws DataAccessLayerException {
-        List<TimeRange> times = new ArrayList<TimeRange>();
-        String timeQuery = "SELECT rangestart,rangeend from awips.gfe where parmid='"
-                + parmId + "' ORDER BY rangestart";
-        QueryResult result = (QueryResult) executeNativeSql(timeQuery);
-        for (int i = 0; i < result.getResultCount(); i++) {
-            times.add(new TimeRange((Date) result.getRowColumnValue(i, 0),
-                    (Date) result.getRowColumnValue(i, 1)));
+        try {
+            return (List<TimeRange>) txTemplate
+                    .execute(new TransactionCallback() {
+                        @Override
+                        public List<TimeRange> doInTransaction(
+                                TransactionStatus status) {
+                            return getHibernateTemplate()
+                                    .find("SELECT dataTime.validPeriod FROM GFERecord WHERE parmId = ? ORDER BY dataTime.validPeriod.start",
+                                            parmId);
+                        }
+                    });
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Unabled to look up times for parm id " + parmId, e);
         }
-        return times;
+    }
+
+    /**
+     * Gets the list of times for a given parmId that overlap with the given
+     * time range.
+     * 
+     * @param parmId
+     *            The id of the parm
+     * @param tr
+     *            The time range to pull time ranges for
+     * @return The list of times for a given parm name and level
+     * @throws DataAccessLayerException
+     */
+    @SuppressWarnings("unchecked")
+    public List<TimeRange> getOverlappingTimes(final ParmID parmId,
+            final TimeRange tr) throws DataAccessLayerException {
+        try {
+            return (List<TimeRange>) txTemplate
+                    .execute(new TransactionCallback() {
+                        @Override
+                        public List<TimeRange> doInTransaction(
+                                TransactionStatus status) {
+                            List<TimeRange> rval = getHibernateTemplate()
+                                    .find("SELECT dataTime.validPeriod"
+                                            + " FROM GFERecord WHERE parmId = ?"
+                                            + " AND dataTime.validPeriod.start < ?"
+                                            + " AND dataTime.validPeriod.end > ?",
+                                            new Object[] { parmId, tr.getEnd(),
+                                                    tr.getStart() });
+                            return rval;
+                        }
+                    });
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Unabled to look up record inventory for parm id " + parmId,
+                    e);
+        }
     }
 
     /**
      * Retrieves the grid history for the specified parm and time ranges
      * 
-     * @param id
+     * @param parmId
      *            The parm id
      * @param trs
      *            The time ranges to search for
@@ -541,116 +814,116 @@ public class GFEDao extends DefaultPluginDao {
      * @throws DataAccessLayerException
      *             If problems during database interaction occur
      */
-    public Map<TimeRange, List<GridDataHistory>> getGridHistory(ParmID id,
-            List<TimeRange> trs) throws DataAccessLayerException {
-
-        Map<TimeRange, List<GridDataHistory>> history = new HashMap<TimeRange, List<GridDataHistory>>();
+    public Map<TimeRange, List<GridDataHistory>> getGridHistory(
+            final ParmID parmId, final List<TimeRange> trs)
+            throws DataAccessLayerException {
+        // TODO: This would be better of using a single time range to do the
+        // select on
+        Map<TimeRange, List<GridDataHistory>> history = new HashMap<TimeRange, List<GridDataHistory>>(
+                trs.size(), 1);
         if (trs.isEmpty()) {
             return history;
         }
-        List<GFERecord> records = this.getRecords(id, trs);
-        for (GFERecord rec : records) {
-            TimeRange tr = rec.getTimeRange();
-            history.put(tr, rec.getGridHistory());
+
+        StatelessSession sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+
+            Query query = sess
+                    .createQuery("SELECT hist.parent.dataTime.validPeriod, hist "
+                            + "FROM GridDataHistory hist WHERE hist.parent.parmId = ? AND hist.parent.dataTime.validPeriod IN (:periods) ORDER BY hist.id");
+            query.setParameter(0, parmId);
+            query.setParameterList("periods", trs);
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows = query.list();
+            tx.commit();
+
+            for (Object[] cols : rows) {
+                TimeRange tr = (TimeRange) cols[0];
+                List<GridDataHistory> histForTime = history.get(tr);
+                if (histForTime == null) {
+                    histForTime = new ArrayList<GridDataHistory>(1);
+                    history.put(tr, histForTime);
+                }
+                histForTime.add((GridDataHistory) cols[1]);
+            }
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to look up record inventory for parm id " + parmId,
+                    e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
         }
+
         return history;
     }
 
     public void purgeGFEGrids(final DatabaseID dbId) {
-        txTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public void doInTransactionWithoutResult(TransactionStatus status) {
-                DetachedCriteria criteria = DetachedCriteria.forClass(
-                        GFERecord.class).add(Property.forName("dbId").eq(dbId));
-                List<GFERecord> list = getHibernateTemplate().findByCriteria(
-                        criteria);
-                if (!list.isEmpty()) {
-                    List<GridDataHistory> histories = new ArrayList<GridDataHistory>();
-                    for (GFERecord rec : list) {
-                        histories.addAll(rec.getGridHistory());
-                    }
-                    getHibernateTemplate().deleteAll(histories);
-                    getHibernateTemplate().deleteAll(list);
-                }
-            }
-        });
+        delete(dbId);
     }
 
     /**
      * Removes GridParmInfo from the HDF5 file and any data associated with that
      * info
      * 
-     * @param parmAndLevel
-     *            The parm and level to delete
-     * @param dbId
-     *            The database to delete from
+     * @param parmId
+     *            The parm to delete data for
      * @throws DataAccessLayerException
      *             If errors occur
      */
-    public void removeOldParm(String parmAndLevel, DatabaseID dbId)
-            throws DataAccessLayerException {
-
-        ParmID pid = new ParmID(parmAndLevel + ":" + dbId.toString());
+    public void removeParmData(ParmID parmId) throws DataAccessLayerException {
 
         try {
             IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
-                    .getGridParmHdf5File(GridDatabase.gfeBaseDataDir, dbId));
-            ds.deleteDatasets("/GridParmInfo/" + parmAndLevel,
-                    "/GridParmStorageInfo/" + parmAndLevel);
+                    .getGridParmHdf5File(GridDatabase.gfeBaseDataDir,
+                            parmId.getDbId()));
+            ds.deleteDatasets("/GridParmInfo/" + parmId.getCompositeName(),
+                    "/GridParmStorageInfo/" + parmId.getCompositeName());
         } catch (Exception e1) {
             throw new DataAccessLayerException("Error deleting data from HDF5",
                     e1);
         }
-        List<TimeRange> trs = this.getTimes(pid);
-        this.deleteRecords(pid, trs);
+        List<TimeRange> trs = this.getTimes(parmId);
+        this.deleteRecords(parmId, trs);
+        // TODO: Remove all Locks??
+    }
+
+    /**
+     * Removes any data associated with a given parm and the parm itself
+     * 
+     * @param parmId
+     *            The parm to delete data for
+     * @throws DataAccessLayerException
+     *             If errors occur
+     */
+    public void removeParm(ParmID parmId) throws DataAccessLayerException {
+        removeParmData(parmId);
+        delete(parmId);
     }
 
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
         return null;
-    }
-
-    public Date getLatestDbIdInsertTime(DatabaseID dbId)
-            throws DataAccessLayerException {
-        QueryResult result = (QueryResult) this
-                .executeNativeSql("select max(inserttime) as maxtime from awips.gfe where dbid='"
-                        + dbId.toString() + "';");
-        if (result.getResultCount() == 0) {
-            return null;
-        } else {
-            return (Date) result.getRowColumnValue(0, "maxtime");
-        }
-    }
-
-    /**
-     * Retrieves the latest database ID for a given a model name and site
-     * identifier.
-     * 
-     * @param siteId
-     *            The site's identifier (e.g., "OAX")
-     * @param modelName
-     *            The name of the model run (e.g., "GFS40" or "RUC13")
-     * @return The DatabaseID of the latest model run for the given parameters
-     *         or null if no copies of the given model have been ingested for
-     *         the given site.
-     * @throws DataAccessLayerException
-     */
-    public DatabaseID getLatestModelDbId(String siteId, String modelName)
-            throws DataAccessLayerException {
-        QueryResult result = (QueryResult) this
-                .executeNativeSql("select max(dbid) as maxdbid from awips.gfe where dbid like '"
-                        + siteId + "!_GRID!_!_" + modelName + "!_%' escape '!'");
-        if (result.getResultCount() == 0) {
-            return null;
-        } else {
-            String db = (String) result.getRowColumnValue(0, "maxdbid");
-            if (db == null) {
-                return null;
-            }
-            return new DatabaseID(db);
-        }
     }
 
     /**
@@ -665,16 +938,10 @@ public class GFEDao extends DefaultPluginDao {
      */
     public void updatePublishTime(List<GridDataHistory> history,
             Date publishTime) throws DataAccessLayerException {
-        StringBuilder query = new StringBuilder();
-        query.append("update gfe_gridhistory set publishtime=:publishtime where key in (");
-        Iterator<GridDataHistory> itr = history.iterator();
-        while (itr.hasNext()) {
-            query.append(itr.next().getKey());
-            if (itr.hasNext()) {
-                query.append(",");
-            }
+        List<Integer> ids = new ArrayList<Integer>(history.size());
+        for (GridDataHistory hist : history) {
+            ids.add(hist.getId());
         }
-        query.append(");");
 
         Session sess = null;
         Transaction tx = null;
@@ -682,20 +949,140 @@ public class GFEDao extends DefaultPluginDao {
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
             tx = sess.beginTransaction();
-            Query q = sess.createSQLQuery(query.toString());
+            Query q = sess
+                    .createSQLQuery("UPDATE gfe_gridhistory SET publishtime=:publishtime WHERE id IN (:ids)");
             q.setTimestamp("publishtime", publishTime);
+            q.setParameterList("ids", ids);
             q.executeUpdate();
             tx.commit();
         } catch (Exception e) {
             if (tx != null) {
                 try {
                     tx.rollback();
-                    tx = null;
                 } catch (Exception e1) {
                     logger.error("Error occurred rolling back transaction", e1);
                 }
             }
             throw new DataAccessLayerException("Error updating history", e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the sent time for all histories of passed parmId during the
+     * timeRange. The histories are then returned in a map by timeRange.
+     * 
+     * @param parmId
+     * @param tr
+     * @param sentTime
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Map<TimeRange, List<GridDataHistory>> updateSentTime(
+            final ParmID parmId, TimeRange tr, Date sentTime)
+            throws DataAccessLayerException {
+        StatelessSession sess = null;
+        Transaction tx = null;
+        List<Object[]> rows = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+            Query query = sess
+                    .createQuery("UPDATE GridDataHistory SET lastSentTime = ?"
+                            + " WHERE parent.parmId = ? AND parent.dataTime.validPeriod.start >= ?"
+                            + " AND parent.dataTime.validPeriod.end >= ?");
+            query.setParameter(0, parmId);
+            query.setTimestamp(1, tr.getStart());
+            query.setTimestamp(2, tr.getEnd());
+            query.executeUpdate();
+
+            query = sess
+                    .createQuery("SELECT hist.parent.dataTime.validPeriod, hist "
+                            + "FROM GridDataHistory hist"
+                            + " WHERE hist.parent.parmId = ? AND hist.parent.dataTime.validPeriod.start >= ?"
+                            + " AND hist.parent.dataTime.validPeriod.end >= ?");
+            query.setParameter(0, parmId);
+            query.setTimestamp(1, tr.getStart());
+            query.setTimestamp(2, tr.getEnd());
+            rows = query.list();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to look up record inventory for parm id " + parmId,
+                    e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+
+        Map<TimeRange, List<GridDataHistory>> history = new HashMap<TimeRange, List<GridDataHistory>>(
+                rows.size(), 1);
+
+        for (Object[] cols : rows) {
+            TimeRange curTr = (TimeRange) cols[0];
+            List<GridDataHistory> histForTime = history.get(curTr);
+            if (histForTime == null) {
+                histForTime = new ArrayList<GridDataHistory>(1);
+                history.put(curTr, histForTime);
+            }
+            histForTime.add((GridDataHistory) cols[1]);
+        }
+
+        return history;
+    }
+
+    public int deleteRecords(Collection<GFERecord> records)
+            throws DataAccessLayerException {
+        List<Integer> ids = new ArrayList<Integer>(records.size());
+        for (GFERecord rec : records) {
+            ids.add(rec.getId());
+        }
+
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+            Query q = sess
+                    .createQuery("DELETE FROM GFERecord WHERE id in (:ids)");
+            q.setParameterList("ids", ids);
+            int rowsDeleted = q.executeUpdate();
+            tx.commit();
+            return rowsDeleted;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+            throw new DataAccessLayerException("Error deleting records", e);
         } finally {
             if (sess != null) {
                 try {

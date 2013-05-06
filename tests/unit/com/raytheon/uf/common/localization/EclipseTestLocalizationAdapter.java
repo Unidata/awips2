@@ -22,7 +22,6 @@ package com.raytheon.uf.common.localization;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.localization.TestPathManager.TestLocalizationAdapter;
 
@@ -54,13 +53,7 @@ import com.raytheon.uf.common.localization.TestPathManager.TestLocalizationAdapt
  */
 public class EclipseTestLocalizationAdapter extends TestLocalizationAdapter {
 
-    private static final String COMMON_BASELINE_REPO_NAME = System.getProperty(
-            "common.baseline.repo.name", "AWIPS2_baseline");
-
     private static final String EDEX_OSGI = "edexOsgi";
-
-    private static final Pattern REPO_EDEX_OSGI_REGEX = Pattern
-            .compile("/[^/]+/" + EDEX_OSGI);
 
     private static final File EDEX_OSGI_DIR = findEdexOsgiDir();
 
@@ -98,29 +91,6 @@ public class EclipseTestLocalizationAdapter extends TestLocalizationAdapter {
         if (!edexOsgiDir.isDirectory()) {
             throw new IllegalStateException(
                     "Unable to find the edexOsgi directory!");
-        }
-
-        edexOsgiDir = convertToCommonBaselineVersion(edexOsgiDir);
-
-        return edexOsgiDir;
-    }
-
-    /**
-     * Converts the data_delivery specific version of edexOsgi into the common
-     * baseline version. NOTE: This will be unnecessary once the tests project
-     * is moved into the common baseline.
-     */
-    private static File convertToCommonBaselineVersion(File edexOsgiDir) {
-        String path = REPO_EDEX_OSGI_REGEX.matcher(
-                edexOsgiDir.getAbsolutePath()).replaceAll(
-                "/" + COMMON_BASELINE_REPO_NAME + "/" + EDEX_OSGI);
-        edexOsgiDir = new File(path);
-
-        if (!edexOsgiDir.isDirectory()) {
-            throw new IllegalStateException(
-                    "Unable to find the edexOsgi directory!  "
-                            + "Is your common baseline named something other than "
-                            + COMMON_BASELINE_REPO_NAME + "?  ");
         }
 
         return edexOsgiDir;

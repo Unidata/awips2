@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
-import java.sql.SQLException;
-
-import org.hibernate.cfg.AnnotationConfiguration;
-
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 
 /**
@@ -36,6 +32,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
+ * Apr 30, 2013 1960       djohnson     Remove unnecessary methods.
  * 
  * </pre>
  * 
@@ -49,24 +46,6 @@ class InMemoryBandwidthDbInit implements IBandwidthDbInit {
      */
     @Override
     public void init() {
-        // Nothing required
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void dropTables(AnnotationConfiguration aConfig) throws SQLException {
-        // Nothing required
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void createTables(AnnotationConfiguration aConfig)
-            throws SQLException {
         // Nothing required
     }
 }
