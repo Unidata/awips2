@@ -42,6 +42,9 @@
       </handler>
    </extension>
    <extension point="com.raytheon.uf.viz.core.alterBundle">
+          <alterBundle id="tools" class="com.raytheon.viz.volumebrowser.ToolsAlterBundleContributor"/>
+   </extension>
+   <extension point="com.raytheon.uf.viz.core.alterBundle">
    	  <alterBundle id="grids" class="com.raytheon.viz.volumebrowser.GridAlterBundleContributor"/>
    </extension>
    <extension
