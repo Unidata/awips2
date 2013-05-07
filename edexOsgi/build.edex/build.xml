@@ -13,9 +13,9 @@
 		value="false" />
 	
 	<property name="pde.build.script"
-		value="org.eclipse.pde.build_3.6.1.R36x_v20100823/scripts/build.xml" />
+		value="./org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml" />
 	<property name="eclipse.launcher.jar"
-		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
+		value="org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	
 	<target name="main-build" depends="clean">
 		<antcall target="build">
