@@ -48,6 +48,23 @@ import com.raytheon.uf.common.util.mapping.Alias;
 import com.raytheon.uf.common.util.mapping.AliasList;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
+/**
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 29, 2013 DR 15715   dhuffman    Near line 202; Transposed edex site and base precedence
+ *                                         per DR: loading was in reverse.
+ *                                         
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
+
 public class GribModelLookup {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribModelLookup.class);
@@ -181,8 +198,8 @@ public class GribModelLookup {
 
         LocalizationFile[] modelFiles = PathManagerFactory.getPathManager()
                 .listFiles(
-                        new LocalizationContext[] { edexStaticSite,
-                                edexStaticBase },
+                        new LocalizationContext[] { edexStaticBase,
+                                edexStaticSite },
                         "grib" + IPathManager.SEPARATOR + "models", // Win32
                         new String[] { ".xml" }, false, true);
 
