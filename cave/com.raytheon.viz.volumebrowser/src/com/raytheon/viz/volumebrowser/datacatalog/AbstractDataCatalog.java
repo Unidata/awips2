@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/31/2012   #875       rferrel     Now uses points.
  * Feb 21, 2013 1617       bsteffen    fixed vb sounding point selection for
  *                                     points which contain the word Point
+ * May 03, 2013 DR14824 mgamazaychikov Added alterProductParameters method
  * 
  * 
  * </pre>
@@ -502,6 +503,19 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
     protected boolean isPointLine(String plane) {
         return ((plane != null) && (plane.startsWith("Line") || plane
                 .startsWith("Point")));
+    }
+    
+    /**
+     * Alter product parameters
+     * 
+     * @param selectedKey
+     * @param selectedValue
+     * @param productParameters
+     */
+    public void alterProductParameters(
+            String selectedKey,
+            String selectedValue, HashMap<String, RequestConstraint> productParameters) {
+        return;
     }
 
 }
