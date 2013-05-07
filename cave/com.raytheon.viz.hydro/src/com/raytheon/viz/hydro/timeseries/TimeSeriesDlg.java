@@ -120,6 +120,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  *                                     despite start up in CAVE or standalone.
  * 30 Jan 2013 15264       wkwock      Fix the missing group_definition.cfg file crash           
  * 05 Feb 2013 1578        rferrel     Dialog made non-blocking and a singleton.
+ * 06 May 2013  1976       mpduff      Code cleanup.
  * </pre>
  * 
  * @author lvenable
@@ -127,7 +128,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 
  */
 public class TimeSeriesDlg extends CaveHydroSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeSeriesDlg.class);
 
     /* Constants */
@@ -441,27 +442,18 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     private LIDData currLidData = new LIDData();
 
     /** List of GroupInfo objects */
-    private ArrayList<GroupInfo> groupList = new ArrayList<GroupInfo>();
-
-    /** Holds the Group Information */
-    private GroupInfo groupInfo;
+    private final ArrayList<GroupInfo> groupList = new ArrayList<GroupInfo>();
 
     /** Holds the last graphed GroupInfo object */
     private GroupInfo prevGroupInfo;
 
-    /** Holds the page information */
-    private PageInfo pageInfo = null;
-
-    /** Holds the graph information */
-    private GraphData graphData = null;
-
     private String groupConfigFilePath = null;
 
-    private ArrayList<SiteInfo> siteInfoList = new ArrayList<SiteInfo>();
+    private final ArrayList<SiteInfo> siteInfoList = new ArrayList<SiteInfo>();
 
-    private ArrayList<TabInfo> tabInfoList = new ArrayList<TabInfo>();
+    private final ArrayList<TabInfo> tabInfoList = new ArrayList<TabInfo>();
 
-    private HydroDisplayManager displayManager;
+    private final HydroDisplayManager displayManager;
 
     private boolean openTimeSeriesDisplays = false;
 
@@ -662,7 +654,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
 
-        // Initialize all of the controls and layoutsendCal
+        // Initialize all of the controls
         initializeComponents();
         setCurrentData();
     }
@@ -1097,7 +1089,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             public void keyReleased(KeyEvent event) {
                 String search = searchTF.getText();
                 if (!search.equals("") && !search.equals(" ")) {
-
                     /* Iterate over the location Ids in the list */
                     ListIterator<String> iter = lidList.listIterator();
                     while (iter.hasNext()) {
@@ -1119,10 +1110,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             }
                         }
                     }
-                } else {
-                    // topDataList.setSelection(0); // Commented to more closely
-                    // match legacy app
                 }
+
                 if (topDataList.getSelectionIndex() > 0) {
                     populateBottomList(
                             lidList.get(topDataList.getSelectionIndex()),
@@ -1276,6 +1265,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         bottomDataList.setLayoutData(gd);
         bottomDataList.setFont(font);
         bottomDataList.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 correctSelections();
             }
@@ -1532,7 +1522,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 si.setTs((String) row[2]);
                 si.setExt((String) row[3]);
                 si.setDur((Integer) row[4]);
-                // siteInfoList.add(si);
 
                 if (si.getPe().startsWith("H")) {
                     if (!si.getPe().equals(prevPE)) {
@@ -1617,6 +1606,14 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         } else {
             this.populateGroupListForStandalone();
         }
+
+        for (GroupInfo gi : this.groupList) {
+            for (PageInfo pi : gi.getPageInfoList()) {
+                for (GraphData gd : pi.getGraphDataList()) {
+                    gd.saveTraceInfo();
+                }
+            }
+        }
     }
 
     /**
@@ -1644,7 +1641,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         groupDataList.removeAll();
 
         if (this.groupConfigFilePath != null) {
-
             this.readGroupList();
         }
     }
@@ -1653,6 +1649,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * Read the Group List file.
      */
     private void readGroupList() {
+        GroupInfo groupInfo = null;
+        PageInfo pageInfo = null;
+        GraphData graphData = null;
+
         try {
             BufferedReader in = new BufferedReader(new FileReader(
                     groupConfigFilePath));
@@ -1664,7 +1664,148 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 if (str.trim().equals("")) {
                     continue;
                 }
-                processGroupData(str);
+
+                boolean showpp_flag = false;
+
+                // Remove any leading whitespace
+                String line = str.replaceAll("^\\s+", "");
+
+                if (line.startsWith(GROUP)) {
+                    groupInfo = new GroupInfo();
+                    groupInfo.setGroupSelected(true);
+                    groupList.add(groupInfo);
+                }
+                String[] parts = line.split(":");
+
+                if (parts[0].equals(GROUP)) {
+                    String[] pairs = parts[1].split(",");
+                    for (String s : pairs) {
+                        String[] values = s.split("=", 2);
+
+                        // make sure we have values to go with the key
+                        if (values.length > 1) {
+                            if ((values[0] != null)
+                                    && values[0].equalsIgnoreCase(NAME)) {
+                                if (values[1] != null)
+                                    groupInfo.setGroupName(values[1]);
+                                groupDataList.add(groupInfo.getGroupName());
+                            } else if (values[0].equalsIgnoreCase(DESCRIPT)) {
+                                groupInfo.setDescription(values[1]);
+                            } else if (values[0].equalsIgnoreCase(GRID)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    groupInfo.setGridLines(true);
+                                } else {
+                                    groupInfo.setGridLines(false);
+                                }
+                            } else if (values[0].equalsIgnoreCase(TRACEMODE)) {
+                                groupInfo.setTraceMode(values[1]);
+                            } else if (values[0].equalsIgnoreCase(PASTHOURS)) {
+                                groupInfo.setPastHours(Integer
+                                        .parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(FUTUREHOURS)) {
+                                groupInfo.setFutureHours(Integer
+                                        .parseInt(values[1]));
+                            } else {
+                                statusHandler.warn("Invalid key/value pair: "
+                                        + s);
+                            }
+                        }
+                    }
+                } else if (parts[0].equals(PAGE)) {
+                    String[] values = parts[1].split("=", 2);
+                    if (values.length > 1) {
+                        pageInfo = new PageInfo();
+                        pageInfo.setTitle(values[1]);
+                        groupInfo.addPageInfo(pageInfo);
+                    }
+                } else if (parts[0].equals(GRAPH)) {
+                    graphData = new GraphData();
+
+                    String[] pairs = parts[1].split(",");
+                    for (String s : pairs) {
+                        String[] values = s.split("=", 2);
+                        if (values.length > 1) {
+                            if (values[0].equalsIgnoreCase(POS)) {
+                                graphData.setGraph_pos(Integer
+                                        .parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(XSIZE)) {
+                                graphData.setXsize(Integer.parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(YSIZE)) {
+                                graphData.setYsize(Integer.parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(YLINEAR)) {
+                                graphData.setYlinear(values[1]);
+                            } else if (values[0].equalsIgnoreCase(YSCALE)) {
+                                graphData.setYscale(values[1]);
+                            } else if (values[0].equalsIgnoreCase(SHOWCAT)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    graphData.setShowcat(true);
+                                } else {
+                                    graphData.setShowcat(false);
+                                }
+                            } else if (values[0].equalsIgnoreCase(DERIVEPP)) {
+                                graphData.setDerivepp(values[1]);
+                            } else if (values[0].equalsIgnoreCase(SHOWPP)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    showpp_flag = true;
+                                } else {
+                                    showpp_flag = false;
+                                }
+                            } else if (values[0]
+                                    .equalsIgnoreCase(LATESTFCSTONLY)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    graphData.setLatestfcstonly(true);
+                                } else {
+                                    graphData.setLatestfcstonly(false);
+                                }
+                            } else {
+                                statusHandler.warn("Invalid key/value pair: "
+                                        + s);
+                            }
+                        }
+                    }
+
+                    // handle the case where there isn't a page element when
+                    // there should be
+                    if (pageInfo == null) {
+                        pageInfo = new PageInfo();
+                        groupInfo.addPageInfo(pageInfo);
+                    }
+                    pageInfo.addGraphData(graphData);
+                } else if (parts[0].equals(TRACE)) {
+                    TraceData td = new TraceData();
+                    String[] pairs = parts[1].split(",");
+                    for (String s : pairs) {
+                        String[] values = s.split("=", 2);
+                        if (values.length > 1) {
+                            if (values[0].equalsIgnoreCase(STN)) {
+                                td.setLid(values[1]);
+                            } else if (values[0]
+                                    .equalsIgnoreCase(HydroConstants.PC)) {
+                                td.setPc(values[1]);
+                                if (showpp_flag == true)
+                                    graphData.setShowpp(true);
+                                else
+                                    graphData.setShowpp(false);
+                            } else if (values[0].equalsIgnoreCase(COLOR)) {
+                                td.setColorName(values[1]);
+                            }
+                        }
+                    }
+                    graphData.addTrace(td);
+
+                    graphData.setBeginDate(beginDate);
+                    graphData.setEndDate(endDate);
+                } else {
+                    statusHandler
+                            .warn("Error in Group Definition Config file: "
+                                    + line);
+                }
+
+                // select the first item in the list
+                if (groupDataList.getItemCount() > 0) {
+                    groupDataList.select(0);
+                }
+
             }
             in.close();
         } catch (IOException e) {
@@ -1831,7 +1972,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         }
 
-        // Reset the siteInfoList selections
+        // Reset the selections
         int selectedIndex = bottomDataList.getSelectionIndex();
 
         for (int i = 0; i < siteInfoList.size(); i++) {
@@ -1894,144 +2035,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     }
 
     /**
-     * Process the lines in the group config file.
-     * 
-     * @param line
-     */
-    private void processGroupData(String line) {
-        Boolean showpp_flag = false;
-
-        // Remove any leading whitespace
-        line = line.replaceAll("^\\s+", "");
-
-        if (line.startsWith(GROUP)) {
-            groupInfo = new GroupInfo();
-            groupInfo.setGroupSelected(true);
-            groupList.add(groupInfo);
-        }
-        String[] parts = line.split(":");
-
-        if (parts[0].equals(GROUP)) {
-            String[] pairs = parts[1].split(",");
-            for (String s : pairs) {
-                String[] values = s.split("=", 2);
-
-                // make sure we have values to go with the key
-                if (values.length > 1) {
-                    if ((values[0] != null) && values[0].equalsIgnoreCase(NAME)) {
-                        if (values[1] != null)
-                            groupInfo.setGroupName(values[1]);
-                        groupDataList.add(groupInfo.getGroupName());
-                    } else if (values[0].equalsIgnoreCase(DESCRIPT)) {
-                        groupInfo.setDescription(values[1]);
-                    } else if (values[0].equalsIgnoreCase(GRID)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            groupInfo.setGridLines(true);
-                        } else {
-                            groupInfo.setGridLines(false);
-                        }
-                    } else if (values[0].equalsIgnoreCase(TRACEMODE)) {
-                        groupInfo.setTraceMode(values[1]);
-                    } else if (values[0].equalsIgnoreCase(PASTHOURS)) {
-                        groupInfo.setPastHours(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(FUTUREHOURS)) {
-                        groupInfo.setFutureHours(Integer.parseInt(values[1]));
-                    } else {
-                        statusHandler.warn("Invalid key/value pair: " + s);
-                    }
-                }
-            }
-        } else if (parts[0].equals(PAGE)) {
-            String[] values = parts[1].split("=", 2);
-            if (values.length > 1) {
-                pageInfo = new PageInfo();
-                pageInfo.setTitle(values[1]);
-                groupInfo.addPageInfo(pageInfo);
-            }
-        } else if (parts[0].equals(GRAPH)) {
-            graphData = new GraphData();
-
-            String[] pairs = parts[1].split(",");
-            for (String s : pairs) {
-                String[] values = s.split("=", 2);
-                if (values.length > 1) {
-                    if (values[0].equalsIgnoreCase(POS)) {
-                        graphData.setGraph_pos(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(XSIZE)) {
-                        graphData.setXsize(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(YSIZE)) {
-                        graphData.setYsize(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(YLINEAR)) {
-                        graphData.setYlinear(values[1]);
-                    } else if (values[0].equalsIgnoreCase(YSCALE)) {
-                        graphData.setYscale(values[1]);
-                    } else if (values[0].equalsIgnoreCase(SHOWCAT)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            graphData.setShowcat(true);
-                        } else {
-                            graphData.setShowcat(false);
-                        }
-                    } else if (values[0].equalsIgnoreCase(DERIVEPP)) {
-                        graphData.setDerivepp(values[1]);
-                    } else if (values[0].equalsIgnoreCase(SHOWPP)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            showpp_flag = true;
-                        } else {
-                            showpp_flag = false;
-                        }
-                    } else if (values[0].equalsIgnoreCase(LATESTFCSTONLY)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            graphData.setLatestfcstonly(true);
-                        } else {
-                            graphData.setLatestfcstonly(false);
-                        }
-                    } else {
-                        statusHandler.warn("Invalid key/value pair: " + s);
-                    }
-                }
-            }
-            // handle the case where there isn't a page element when
-            // there should be
-            if (pageInfo == null) {
-                pageInfo = new PageInfo();
-            }
-            pageInfo.addGraphData(graphData);
-        } else if (parts[0].equals(TRACE)) {
-            TraceData td = new TraceData();
-            String[] pairs = parts[1].split(",");
-            for (String s : pairs) {
-                String[] values = s.split("=", 2);
-                if (values.length > 1) {
-                    if (values[0].equalsIgnoreCase(STN)) {
-                        td.setLid(values[1]);
-                    } else if (values[0].equalsIgnoreCase(HydroConstants.PC)) {
-                        td.setPc(values[1]);
-                        if (showpp_flag == true)
-                            graphData.setShowpp(true);
-                        else
-                            graphData.setShowpp(false);
-                    } else if (values[0].equalsIgnoreCase(COLOR)) {
-                        td.setColorName(values[1]);
-                    }
-                }
-            }
-            graphData.addTrace(td);
-
-            graphData.setBeginDate(beginDate);
-            graphData.setEndDate(endDate);
-
-        } else {
-            statusHandler
-                    .warn("Error in Group Definition Config file: " + line);
-        }
-
-        // select the first item in the list
-        if (groupDataList.getItemCount() > 0) {
-            groupDataList.select(0);
-        }
-    }
-
-    /**
      * Handle Table option when selected on the Time Series Control Dialog
      */
     private void openTabularDisplay() {
@@ -2062,7 +2065,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
             /* Set up the GraphData objects */
             if (modeCbo.getText().equals(STATION_SELECTION)) {
-                groupInfo = new GroupInfo();
+                GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setCurrentPage(0);
 
                 /* Get the data from the station list */
@@ -2096,7 +2099,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             } else {
 
                 /* Set the group info object */
-                groupInfo = groupList.get(groupDataList.getSelectionIndex());
+                GroupInfo groupInfo = groupList.get(groupDataList
+                        .getSelectionIndex());
                 tabularDlg.setGroupInfo(groupInfo);
 
                 for (PageInfo pi : groupInfo.getPageInfoList()) {
@@ -2151,7 +2155,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             /* Set up the GraphData objects */
             if (modeCbo.getText().equals(STATION_SELECTION)) {
                 int numberGraphs = 1;
-                groupInfo = new GroupInfo();
+                GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setCurrentPage(0);
 
                 /* Get the data from the station list */
