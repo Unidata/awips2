@@ -19,7 +19,9 @@
  **/
 package com.raytheon.viz.awipstools.ui.layer;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
@@ -35,10 +37,12 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.viz.awipstools.common.IRadialVelocityToolSource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -59,6 +63,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                       counter-clockwise rotation. The order of the points will also
  *                                       no longer impact the sign that is displayed.
  *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
+ *  02May2013   DR 14587     D. Friedman Correct calculation.  Make source velocity data choice more
+ *                                       explicit.
  * 
  * </pre>
  * 
@@ -70,6 +76,8 @@ public class VRShearLayer extends ShearLayer {
     public static final String VRSHEAR_LOCATION = "VR Shear";
 
     private static final int NUM_ANGLE_POINTERS = 7200;
+
+    private AbstractVizResource<?, ?> selectedVelocitySource;
 
     /**
      * @param data
@@ -90,17 +98,19 @@ public class VRShearLayer extends ShearLayer {
      */
     @Override
     public String getName() {
-        return VRSHEAR_LOCATION;
+        String name = VRSHEAR_LOCATION;
+        if (selectedVelocitySource != null)
+            name = name + makeLabel(selectedVelocitySource);
+        return name;
     }
 
     @Override
     protected String calculateShearLabel(double length, Coordinate sCoor,
             Coordinate eCoor, Coordinate midpointCoor) throws VizException {
-        ResourceList list = descriptor.getResourceList();
-        for (Iterator<ResourcePair> iter = list.iterator(); iter.hasNext();) {
-            ResourcePair rPair = iter.next();
-            AbstractVizResource<?, ?> rsc = rPair.getResource();
 
+        List<AbstractVizResource<?, ?>> potentialSources = getEligibleResources(false);
+
+        for (AbstractVizResource<?, ?> rsc : getVelocitySources()) {
             Map<String, Object> mapS = (rsc)
                     .interrogate(new ReferencedCoordinate(sCoor));
             Map<String, Object> mapE = (rsc)
@@ -162,13 +172,17 @@ public class VRShearLayer extends ShearLayer {
                 long midpointRange = new Float(getRangeValue(mapMid))
                         .longValue();
                 String velocitySymbol = velS.pickSeparatorSymbol(velE);
-                double sec = (velocity / (length * 3600));
+                double sec = (velocity / (length * 1800));
 
-                return String.format("%1s%.1fkts %.1fnm %.4f/s dist:%2dnm",
-                        velocitySymbol, velocity, length, sec, midpointRange);
+                boolean needLabel = selectedVelocitySource != null
+                        || potentialSources.size() > 1;
+                return String.format("%1s%.1fkts %.1fnm %.4f/s dist:%2dnm%s",
+                        velocitySymbol, velocity, length, sec, midpointRange,
+                        needLabel ? makeLabel(rsc) : "");
             }
         }
-        return "NO DATA";
+        return "NO DATA"
+                + (selectedVelocitySource != null ? makeLabel(selectedVelocitySource) : "");
     }
 
     @Override
@@ -202,5 +216,66 @@ public class VRShearLayer extends ShearLayer {
         }
         drawBaselineLabel(target, labelPoint, label);
         return label;
+    }
+
+    public AbstractVizResource<?, ?> getSelectedVelocitySource() {
+        return selectedVelocitySource;
+    }
+
+    public void setSelectedVelocitySource(
+            AbstractVizResource<?, ?> selectedVelocitySource) {
+        this.selectedVelocitySource = selectedVelocitySource;
+        issueRefresh();
+    }
+
+    public List<AbstractVizResource<?, ?>> getEligibleResources(boolean forDefault) {
+        ArrayList<AbstractVizResource<?, ?>> list = new ArrayList<AbstractVizResource<?,?>>();
+        getEligibleResources1(getDescriptor().getResourceList(), forDefault, list);
+        Collections.reverse(list); // Topmost first, but TODO: shouldn't reverse combos...
+        return list;
+    }
+
+    public void getEligibleResources1(ResourceList resourceList, boolean forDefault,
+            List<AbstractVizResource<?, ?>> list) {
+        for (ResourcePair rp : resourceList) {
+            if (rp.getResource() instanceof IResourceGroup) {
+                getEligibleResources1(((IResourceGroup)rp.getResource()).getResourceList(), forDefault, list);
+            } else if (isEligibleResource(rp, forDefault)) {
+                list.add(rp.getResource());
+            }
+        }
+    }
+
+    private boolean isEligibleResource(ResourcePair rp, boolean forDefault) {
+        AbstractVizResource<?, ?> resource = rp.getResource();
+        return resource instanceof IRadialVelocityToolSource
+                && ((IRadialVelocityToolSource) resource)
+                        .isRadialVelocitySource() &&
+                        (!forDefault || rp.getProperties().isVisible());
+    }
+
+    private List<AbstractVizResource<?, ?>> getVelocitySources() {
+        List<AbstractVizResource<?, ?>> list;
+        if (selectedVelocitySource != null) {
+            /* Note: This checks for DISPOSED, but not if the resource has
+             * somehow changed so that it no longer contains velocity data.
+             * This could happen for combo resources if we held references
+             * to the combo rather than the component resources.
+             */
+            if (selectedVelocitySource.getStatus() != ResourceStatus.DISPOSED) {
+                list = new ArrayList<AbstractVizResource<?, ?>>(1);
+                list.add(selectedVelocitySource);
+                return list;
+            } else {
+                selectedVelocitySource = null;
+            }
+        }
+
+        list = getEligibleResources(true);
+        return list;
+    }
+
+    private String makeLabel(AbstractVizResource<?, ?> resource) {
+        return String.format(" (%s)", resource.getName());
     }
 }

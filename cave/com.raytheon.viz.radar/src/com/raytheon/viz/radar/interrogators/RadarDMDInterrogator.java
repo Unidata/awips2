@@ -260,15 +260,9 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                         break;
                                     case RANK:
                                         // Rank
-                                        String ranks = currFeature
-                                                .getValue(DMDAttributeIDs._2D_STRENGTH_RANK
-                                                        .toString());
-                                        int tiltNum = 0;
-                                        if ((ranks.length() > 0)
-                                                && !ranks.isEmpty()) {
-                                            tiltNum = ranks.split(",").length - 1;
-                                        }
-                                        String rank = ranks.split(",")[tiltNum];
+                                        String rank = currFeature
+                                               .getValue(DMDAttributeIDs.STRENGTH_RANK
+                                        		       .toString());
                                         rval.append("r" + rank + " ");
                                         break;
                                     case MSI:
