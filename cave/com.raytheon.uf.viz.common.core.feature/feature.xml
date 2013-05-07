@@ -18,6 +18,7 @@
    </license>
 
    <requires>
+      <import feature="com.raytheon.uf.viz.base.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
    </requires>
 
