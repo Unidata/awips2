@@ -76,6 +76,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * Mar 24, 2009            snaples     Initial creation
  * Sep 19, 2011 10955      rferrel     Use RunProcess
  * Nov 06, 2012 15481      wkwock      Fix save 6 hours precipitation files
+ * May 02, 2013 15956      wkwock      Fix incorrect contents in precip_LLL_grid_yyyymmdd.nc file
  * 
  * </pre>
  * 
@@ -764,6 +765,13 @@ public class SaveLevel2Data {
                 rcp.render_pcp(j, l, ll, max_stations,
                         DailyQcUtils.precip_stations, hrap_grid,
                         DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+
+                //copy DailyQcUtils.pcp.value to datavals
+               	for (int h = 0; h < hrap_grid.maxj; h++) {
+               		for (int i = 0; i < hrap_grid.maxi; i++) {
+               			datavals[i][h] = (DailyQcUtils.pcp.value[i][h] / 100.f);
+               		}
+               	}
 
                 String dbuf = String.format("%s%s_%04d%02d%02d", grid_file,
                         timefile[2][l], gm.get(Calendar.YEAR),
