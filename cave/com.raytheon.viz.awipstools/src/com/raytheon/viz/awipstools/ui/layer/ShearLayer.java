@@ -66,6 +66,7 @@ import com.vividsolutions.jts.operation.buffer.BufferOp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 15Mar2013	15693	mgamazaychikov	Added magnification capability.
+ * 05/02/2013   DR 14587   D. Friedman Use base velocity.
  * 
  * </pre>
  * 
@@ -458,6 +459,10 @@ public class ShearLayer extends
     }
 
     protected static class VelocityRange {
+        private static String VALUE_KEY = "Value";
+
+        private static String BASE_VELOCITY_VALUE_KEY = "baseVelocity-Value";
+
         Float lower;
 
         Float upper;
@@ -466,13 +471,16 @@ public class ShearLayer extends
 
         public VelocityRange(Map<String, Object> map) {
             if (map != null && map.containsKey("Mnemonic")
-                    && map.containsKey("Value")) {
+                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY) ||
+                            map.containsKey(VALUE_KEY))) {
                 String mnemonic = map.get("Mnemonic").toString();
 
                 if (mnemonic.equalsIgnoreCase("V")
                         || mnemonic.equalsIgnoreCase("SRM")
                         || mnemonic.equalsIgnoreCase("HV")) {
-                    String s = map.get("Value").toString();
+                    String s = map.get(BASE_VELOCITY_VALUE_KEY).toString();
+                    if (s == null)
+                        s = map.get(VALUE_KEY).toString();
                     if (s != null && !s.equalsIgnoreCase("NO DATA")) {
                         final String corePatternStr = "-?[0-9]+\\.[0-9]+";
                         final String symbolPatternStr = "[<>]";
