@@ -20,6 +20,7 @@
    <requires>
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.localization.perspective.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
