@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 10/08/2010   5953       bgonzale    refactored EAV code out of layer class.
+ * 05/02/2013   DR 14587   D. Friedman Use base velocity.
  * 
  * </pre>
  * 
@@ -70,6 +71,10 @@ public class EstimatedActualVelocity {
     public static final String EST_ACT_VEL_LOCATION_EDITABLE = "Estimated Act Vel (Editable)";
 
     public static final String EST_ACT_VEL_LOCATION = "Estimated Act Vel";
+
+    private static String NUMERIC_VALUE_KEY = "numericValue";
+
+    private static String BASE_VELOCITY_NUMERIC_VALUE_KEY = "baseVelocity-numericValue";
 
     private List<EAVConfig> eavList = new ArrayList<EAVConfig>();
 
@@ -194,8 +199,12 @@ public class EstimatedActualVelocity {
                     && (dataMap.get("Mnemonic").equals("V")
                             || dataMap.get("Mnemonic").equals("HV") || dataMap
                             .get("Mnemonic").equals("SRM"))
-                    && dataMap.get("numericValue") != null) {
-                return Double.parseDouble((String) dataMap.get("numericValue"));
+                    && (dataMap.get(BASE_VELOCITY_NUMERIC_VALUE_KEY) != null ||
+                            dataMap.get(NUMERIC_VALUE_KEY) != null)) {
+                String s = (String) dataMap.get(BASE_VELOCITY_NUMERIC_VALUE_KEY);
+                if (s == null)
+                    s = (String) dataMap.get(NUMERIC_VALUE_KEY);
+                return Double.parseDouble(s);
             }
         }
         return 0;
