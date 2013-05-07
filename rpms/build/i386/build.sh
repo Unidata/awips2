@@ -375,6 +375,11 @@ if [ "${1}" = "-qpid" ]; then
 fi
 
 if [ "${1}" = "-ldm" ]; then
+   # Ensure that the user has root privileges.
+   if [ ! ${UID} = 0 ]; then
+      echo "ERROR: You must have root privileges to build ldm."
+      exit 1
+   fi
    buildRPM "awips2-ldm"
 
    exit 0
