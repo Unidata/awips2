@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock.RedbookBlockFactory;
-import com.raytheon.edex.plugin.redbook.decoder.RedbookFcstMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.PropertiesUtil;
@@ -55,8 +54,8 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * @version 1.0
  */
 public class RedbookBlockBuilder {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RedbookFcstMap.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RedbookBlockBuilder.class);
 
     private static final int MIN_REMAINING = 4;
 
