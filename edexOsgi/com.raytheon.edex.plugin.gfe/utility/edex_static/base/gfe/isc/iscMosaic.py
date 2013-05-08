@@ -77,6 +77,8 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    03/12/13        1759          dgilling       Remove unnecessary command line
 #                                                 processing.
 #    04/24/13        1941          dgilling       Re-port WECache to match A1.
+#    05/08/13        1988          dgilling       Fix history handling bug in
+#                                                 __getDbGrid().
 # 
 # 
 
@@ -730,12 +732,6 @@ class IscMosaic:
             grid = self._wec[tr]
             if grid is not None:
                 destGrid, history = grid
-                
-                tempHistory = []
-                for hist in history:
-                    tempHistory.append(hist.getCodedString())
-                history = tempHistory
-                
                 self.__dbGrid = (destGrid, history, tr)
             else:
                 self.logProblem("Unable to access grid for ",
@@ -743,6 +739,7 @@ class IscMosaic:
                 return None
 
         return (self.__dbGrid[0], self.__dbGrid[1])
+
     #---------------------------------------------------------------------
     # calculate file start/end processing times
     # Returns (startTime, endTime) or None for processing
