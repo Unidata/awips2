@@ -22,8 +22,8 @@ package com.raytheon.uf.viz.core.rsc.updater;
 
 import java.util.Map;
 
+import com.raytheon.uf.common.dataquery.DecisionTree;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.viz.core.datastructure.DecisionTree;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IDisposeListener;
 
