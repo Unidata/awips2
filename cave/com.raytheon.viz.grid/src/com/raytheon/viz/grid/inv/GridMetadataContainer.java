@@ -27,13 +27,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataquery.DecisionTree;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.viz.core.RecordFactory;
-import com.raytheon.uf.viz.core.datastructure.DecisionTree;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
