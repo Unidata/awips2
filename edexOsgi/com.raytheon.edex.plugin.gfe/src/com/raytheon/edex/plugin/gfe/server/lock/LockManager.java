@@ -119,12 +119,41 @@ public class LockManager {
         }
 
         // extract the ParmIds from the request list
-        List<ParmID> parmIds = new ArrayList<ParmID>();
+        Set<ParmID> parmIds = new HashSet<ParmID>();
         try {
             sr.addMessages(extractParmIds(request, parmIds, siteID));
+            List<ParmID> nonIfpParmIds = new LinkedList<ParmID>();
 
-            sr.setPayload(new ArrayList<LockTable>(dao.getLocks(parmIds,
-                    requestor).values()));
+            // remove parm IDs that are not persisted to database
+            Iterator<ParmID> iter = parmIds.iterator();
+            while (iter.hasNext()) {
+                ParmID id = iter.next();
+                if (id.getId() == 0) {
+                    nonIfpParmIds.add(id);
+                    iter.remove();
+                }
+            }
+
+            List<LockTable> payLoad = null;
+
+            if (!parmIds.isEmpty()) {
+                Map<ParmID, LockTable> lockMap = dao.getLocks(parmIds,
+                        requestor);
+                payLoad = new ArrayList<LockTable>(lockMap.size()
+                        + nonIfpParmIds.size());
+                payLoad.addAll(lockMap.values());
+            } else {
+                payLoad = new ArrayList<LockTable>(nonIfpParmIds.size());
+            }
+
+            if (!nonIfpParmIds.isEmpty()) {
+                for (ParmID id : nonIfpParmIds) {
+                    payLoad.add(new LockTable(id, new ArrayList<Lock>(0),
+                            requestor));
+                }
+            }
+
+            sr.setPayload(payLoad);
         } catch (Exception e) {
             logger.error("Error getting lock tables for " + parmIds, e);
             sr.addMessage("Error getting lock tables for " + parmIds);
@@ -214,11 +243,21 @@ public class LockManager {
             return sr;
         }
 
-        List<ParmID> parmIds = new LinkedList<ParmID>();
+        Set<ParmID> parmIds = new HashSet<ParmID>();
         Map<ParmID, LockTable> lockTableMap;
         try {
             // extract the ParmIds from the requests
             sr.addMessages(extractParmIdsFromLockReq(req, parmIds, siteID));
+
+            Iterator<ParmID> iter = parmIds.iterator();
+            while (iter.hasNext()) {
+                ParmID id = iter.next();
+                // non persisted parm IDs cannot be locked
+                if (id.getId() == 0) {
+                    sr.addMessage("ParmID " + id + " is not a lockable parm");
+                    iter.remove();
+                }
+            }
 
             // get the lock tables specific to the extracted parmIds
             lockTableMap = dao.getLocks(parmIds, requestor);
@@ -681,14 +720,14 @@ public class LockManager {
      * @throws GfeException
      */
     private ServerResponse<?> extractParmIds(List<LockTableRequest> ltrList,
-            List<ParmID> parmIds, String siteID) throws GfeException {
+            Set<ParmID> parmIds, String siteID) throws GfeException {
 
         ServerResponse<?> sr = new ServerResponse<String>();
         // process each request
         for (LockTableRequest ltr : ltrList) {
             if (ltr.isParmRequest()) {
                 ParmID parmId = ltr.getParmId();
-                // append parm (if not already in the list)
+                // append parm (if not already in the set)
                 if (!parmIds.contains(parmId)) {
                     parmIds.add(GridParmManager.getDb(parmId.getDbId())
                             .getCachedParmID(parmId));
@@ -697,11 +736,7 @@ public class LockManager {
                 // get all the parmIds for that databaseId
                 List<ParmID> pids = GridParmManager.getParmList(ltr.getDbId())
                         .getPayload();
-                for (ParmID id : pids) {
-                    if (!parmIds.contains(id)) {
-                        parmIds.add(id);
-                    }
-                }
+                parmIds.addAll(pids);
             } else {
                 // get all the parms for all the databases
                 List<DatabaseID> dbids = GridParmManager.getDbInventory(siteID)
@@ -709,11 +744,7 @@ public class LockManager {
                 for (int j = 0; j < dbids.size(); j++) {
                     List<ParmID> pids = GridParmManager.getParmList(
                             dbids.get(j)).getPayload();
-                    for (ParmID id : pids) {
-                        if (!parmIds.contains(id)) {
-                            parmIds.add(id);
-                        }
-                    }
+                    parmIds.addAll(pids);
                 }
             }
         }
@@ -738,7 +769,7 @@ public class LockManager {
      *             If errors occur
      */
     private ServerResponse<?> extractParmIdsFromLockReq(List<LockRequest> lrs,
-            List<ParmID> parmIds, String siteID) throws GfeException {
+            Set<ParmID> parmIds, String siteID) throws GfeException {
         ServerResponse<?> sr = new ServerResponse<String>();
 
         // process each request
