@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserver;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
+import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
 import com.raytheon.viz.alerts.jobs.MenuUpdater;
@@ -129,10 +130,20 @@ public class CAVEApplication implements IStandaloneComponent {
             // dialog which would break gfeClient-based cron jobs.
             return IApplication.EXIT_OK;
         }
-        initializeSerialization();
+
+        Job serializationJob = initializeSerialization();
         initializeDataStoreFactory();
         initializeObservers();
         initializeSimulatedTime();
+
+        // wait for serialization initialization to complete before
+        // opening JMS connection to avoid deadlock in class loaders
+        if (serializationJob != null) {
+            serializationJob.join();
+        }
+
+        // open JMS connection to allow alerts to be received
+        NotificationManagerJob.connect();
 
         int returnCode = IApplication.EXIT_OK;
 
@@ -150,6 +161,14 @@ public class CAVEApplication implements IStandaloneComponent {
                 if (CAVEMode.getMode() == CAVEMode.PRACTICE) {
                     saveUserTime();
                 }
+            } catch (RuntimeException e) {
+                // catch any exceptions to ensure rest of finally block
+                // executes
+            }
+
+            try {
+                // disconnect from JMS
+                NotificationManagerJob.disconnect();
             } catch (RuntimeException e) {
                 // catch any exceptions to ensure rest of finally block
                 // executes
@@ -176,8 +195,8 @@ public class CAVEApplication implements IStandaloneComponent {
                 new PyPiesDataStoreFactory(pypiesProps));
     }
 
-    protected void initializeSerialization() {
-        new Job("Loading Serialization") {
+    protected Job initializeSerialization() {
+        Job job = new Job("Loading Serialization") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
@@ -190,7 +209,9 @@ public class CAVEApplication implements IStandaloneComponent {
                 return Status.OK_STATUS;
             }
 
-        }.schedule();
+        };
+        job.schedule();
+        return job;
     }
 
     /**
