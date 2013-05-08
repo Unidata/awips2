@@ -479,6 +479,24 @@ public abstract class GridDatabase {
                 + this.getClass().getName());
     }
 
+    /**
+     * Updates the sent time for all histories of passed parmId during the
+     * timeRange. The histories are then returned in a map by timeRange.
+     * 
+     * @param parmId
+     *            the parmId to use
+     * @param tr
+     *            the time range to update sent time for
+     * @param sentTime
+     *            the sent time to update to
+     * @return
+     */
+    public ServerResponse<Map<TimeRange, List<GridDataHistory>>> updateSentTime(
+            final ParmID parmId, TimeRange tr, Date sentTime) {
+        throw new UnsupportedOperationException("Not implemented for class "
+                + this.getClass().getName());
+    }
+
     public ServerResponse<?> saveGridSlices(ParmID parmId, TimeRange tr,
             List<IGridSlice> sliceData, WsId requestor,
             List<TimeRange> skipDelete) {
