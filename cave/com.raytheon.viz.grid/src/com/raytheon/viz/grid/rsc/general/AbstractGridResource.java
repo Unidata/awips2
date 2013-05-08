@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -107,6 +108,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * May 08, 2013 1980       bsteffen    Set paint status in GridResources for
+ *                                     KML.
  * 
  * </pre>
  * 
@@ -426,6 +429,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
             List<GeneralGridData> dataList = requestData(time);
             if (dataList == null) {
+                updatePaintStatus(PaintStatus.INCOMPLETE);
                 return;
             }
 
