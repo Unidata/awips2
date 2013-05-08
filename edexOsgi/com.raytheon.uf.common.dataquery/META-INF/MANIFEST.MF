@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Export-Package: com.raytheon.uf.common.dataquery.db,
+Export-Package: com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.dataquery.db,
  com.raytheon.uf.common.dataquery.requests,
  com.raytheon.uf.common.dataquery.responses
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1173",
