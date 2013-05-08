@@ -997,23 +997,29 @@ public class GFEDao extends DefaultPluginDao {
             sess = getHibernateTemplate().getSessionFactory()
                     .openStatelessSession();
             tx = sess.beginTransaction();
+            // use intersection of time range, UPDATE statement don't auto join
+            // table so have to manually select the id
             Query query = sess
                     .createQuery("UPDATE GridDataHistory SET lastSentTime = ?"
-                            + " WHERE parent.parmId = ? AND parent.dataTime.validPeriod.start >= ?"
-                            + " AND parent.dataTime.validPeriod.end >= ?");
-            query.setParameter(0, parmId);
-            query.setTimestamp(1, tr.getStart());
+                            + " WHERE parent.id in (SELECT id FROM GFERecord "
+                            + " WHERE parmId = ?"
+                            + " AND dataTime.validPeriod.start < ?"
+                            + " AND dataTime.validPeriod.end > ?)");
+            query.setTimestamp(0, sentTime);
+            query.setParameter(1, parmId);
             query.setTimestamp(2, tr.getEnd());
+            query.setTimestamp(3, tr.getStart());
             query.executeUpdate();
 
+            // use intersection of time range
             query = sess
                     .createQuery("SELECT hist.parent.dataTime.validPeriod, hist "
                             + "FROM GridDataHistory hist"
-                            + " WHERE hist.parent.parmId = ? AND hist.parent.dataTime.validPeriod.start >= ?"
-                            + " AND hist.parent.dataTime.validPeriod.end >= ?");
+                            + " WHERE hist.parent.parmId = ? AND hist.parent.dataTime.validPeriod.start < ?"
+                            + " AND hist.parent.dataTime.validPeriod.end > ?");
             query.setParameter(0, parmId);
-            query.setTimestamp(1, tr.getStart());
-            query.setTimestamp(2, tr.getEnd());
+            query.setTimestamp(1, tr.getEnd());
+            query.setTimestamp(2, tr.getStart());
             rows = query.list();
             tx.commit();
         } catch (Exception e) {
