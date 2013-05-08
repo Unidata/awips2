@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.viz.core.datastructure;
+package com.raytheon.uf.common.dataquery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
