@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
@@ -39,6 +38,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
  * ------------ ---------- ----------- --------------------------
  * Apr 6, 2009            lvenable     Initial creation
  * Apr 12, 2013   1902    mpduff       Optimized the color assignments.
+ * May 7, 2013    1986    njensen      Optimized sortBy
  * 
  * </pre>
  * 
@@ -205,30 +205,19 @@ public class FFMPTableCellData {
         return this.hoverText;
     }
 
-    /**
-     * Sort by method.
-     * 
-     * @param direction
-     *            Sort direction.
-     * @return Object that is a string or number.
-     */
-    public Object sortByObject(int direction) {
-        if (cellText != null) {
-            return String.format("%-20S", cellText);
-        } else if (value.isNaN() == false) {
+    public float sortByNumber() {
+        if (!value.isNaN()) {
             if (displayAsInt == true) {
-                return new Float(Math.round(value));
+                return (float) Math.round(value);
             }
 
-            return new Float(value);
-        } else if (value.isNaN() == true) {
-            if (direction == SWT.DOWN) {
-                return Float.MAX_VALUE * -1.0f;
-            }
-            return Float.MAX_VALUE;
+            return value.floatValue();
+        } else {
+            // NaN is not displayed in the table when sorting by
+            // this column, so the value to return here is not especially
+            // important
+            return Float.NEGATIVE_INFINITY;
         }
-
-        return "Unknown";
     }
 
     public String displayString() {
