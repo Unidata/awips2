@@ -20,7 +20,6 @@
     -->
 <pointDataDescription>
   <parameter name="profilerName" numDims="1" type="STRING" />
-  <parameter name="validTime" numDims="1" type="LONG" />  
   
   <parameter name="windSpeedSfc" numDims="1" type="FLOAT" unit="m/s" />
   <parameter name="windDirSfc" numDims="1" type="FLOAT" unit="degree" />
