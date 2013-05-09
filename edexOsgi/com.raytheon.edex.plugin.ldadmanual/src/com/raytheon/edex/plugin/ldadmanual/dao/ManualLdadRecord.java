@@ -31,6 +31,8 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -61,11 +63,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  *                     
- * ate          Ticket#     Engineer    Description
+ * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 9/30/09                   vkorolev    Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from         
+ *                                      PluginDataObject.
+ * 
  * </pre>
  * 
  * @author vkorolev
@@ -2317,5 +2322,11 @@ IDecoderGettable {
 	public String getRawMessage() {
 		return rawMessage;
 	}
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
 
