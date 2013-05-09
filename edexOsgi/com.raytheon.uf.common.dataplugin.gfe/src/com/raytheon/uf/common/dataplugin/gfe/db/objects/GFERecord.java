@@ -28,6 +28,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -72,6 +75,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime 
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * Apr 23, 2013 1949        rjpeter     Normalized database structure.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -273,5 +279,12 @@ public class GFERecord extends PluginDataObject {
                 gridHistory.remove(i);
             }
         }
+    }
+    
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 }

@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -64,6 +66,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * </pre>
  * 
@@ -417,4 +421,10 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
         return true;
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

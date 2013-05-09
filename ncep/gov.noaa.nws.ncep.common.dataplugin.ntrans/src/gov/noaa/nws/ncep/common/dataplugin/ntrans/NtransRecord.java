@@ -11,6 +11,7 @@
  * 02/2013		B. Hebbard	Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime	
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
  * 
  * </pre>
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -20,6 +21,8 @@ package gov.noaa.nws.ncep.common.dataplugin.ntrans;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -202,4 +205,11 @@ public class NtransRecord extends PersistablePluginDataObject {
 	public void setRecordLength(int recordLength) {
 		this.recordLength = recordLength;
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

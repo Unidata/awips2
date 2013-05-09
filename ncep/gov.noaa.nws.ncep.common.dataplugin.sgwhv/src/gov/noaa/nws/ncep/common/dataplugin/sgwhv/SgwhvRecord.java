@@ -13,6 +13,9 @@
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 8, 2013   1293       bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       	bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
+ *
  * </pre>
  * 
  * @author chin chen
@@ -26,6 +29,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -532,4 +537,11 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
 	public void setPointDataView(PointDataView pointDataView) {
 		this.pointDataView = pointDataView;
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

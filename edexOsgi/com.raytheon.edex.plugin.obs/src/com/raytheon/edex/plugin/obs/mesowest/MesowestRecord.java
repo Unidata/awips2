@@ -22,6 +22,9 @@ package com.raytheon.edex.plugin.obs.mesowest;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -44,7 +47,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------	----------	-----------	--------------------------
  * 2/14/2007	139			Phillippe	Initial creation	
  * 20071129            472  jkorman     Added IDecoderGettable interface.
- *    
+ * May 07, 2013	1869      	bsteffen   	Remove dataURI column from
+ *                                      PluginDataObject.
+ * 
  * 
  * </pre>
  * 
@@ -347,4 +352,10 @@ public class MesowestRecord extends PluginDataObject {
         return null;
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

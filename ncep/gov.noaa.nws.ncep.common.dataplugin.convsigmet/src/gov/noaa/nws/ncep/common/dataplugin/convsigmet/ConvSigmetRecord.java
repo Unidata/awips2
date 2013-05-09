@@ -13,6 +13,9 @@
  * 											removed xml serialization as well
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
+ * 
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -26,6 +29,8 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -295,4 +300,10 @@ public class ConvSigmetRecord extends PluginDataObject{
 	      
 	   }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
