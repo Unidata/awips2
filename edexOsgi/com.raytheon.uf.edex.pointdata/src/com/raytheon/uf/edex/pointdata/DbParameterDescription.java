@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.edex.pointdata;
 
+import java.text.ParseException;
+import java.text.ParsePosition;
+
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -28,7 +34,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * 
- * TODO Add Description
+ * Describes what parameters should be availbale to the point data api that can
+ * be queried from the database rather than loaded from HDF5.
  * 
  * <pre>
  * 
@@ -36,7 +43,9 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 27, 2011            bsteffen     Initial creation
+ * Jan 27, 2011            bsteffen    Initial creation
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -58,8 +67,18 @@ public class DbParameterDescription implements ISerializableObject {
     @XmlAttribute(name = "unit", required = false)
     private String unit;
 
+    /**
+     * If the units in the db are different from the units that we want the
+     * point data container then set dbunit to what is in the database and unit
+     * to what we want and conversion will occur.
+     */
+    @XmlAttribute(name = "dbunit", required = false)
+    private String dbunit;
+
     @XmlAttribute(name = "fillValue", required = false)
     private String fillValue;
+
+    private transient UnitConverter fromDbConverter;
 
     /**
      * @return the parameterName
@@ -121,6 +140,14 @@ public class DbParameterDescription implements ISerializableObject {
         this.unit = unit;
     }
 
+    public String getDbunit() {
+        return dbunit;
+    }
+
+    public void setDbunit(String dbunit) {
+        this.dbunit = dbunit;
+    }
+
     /**
      * @return the fillValue
      */
@@ -134,6 +161,32 @@ public class DbParameterDescription implements ISerializableObject {
      */
     public void setFillValue(String fillValue) {
         this.fillValue = fillValue;
+    }
+
+    /**
+     * Get a converter for converting data from the units in the db to the units
+     * we want in the point data container.
+     * 
+     * @return
+     */
+    public UnitConverter getUnitConverter() {
+        if (fromDbConverter == null) {
+            if (unit == null || dbunit == null || unit.equals(dbunit)) {
+                fromDbConverter = UnitConverter.IDENTITY;
+            } else {
+                try {
+                    Unit<?> dbunit = UnitFormat
+                            .getUCUMInstance()
+                            .parseProductUnit(this.dbunit, new ParsePosition(0));
+                    Unit<?> unit = UnitFormat.getUCUMInstance()
+                            .parseProductUnit(this.unit, new ParsePosition(0));
+                    fromDbConverter = dbunit.getConverterTo(unit);
+                } catch (ParseException e) {
+                    fromDbConverter = UnitConverter.IDENTITY;
+                }
+            }
+        }
+        return fromDbConverter;
     }
 
 }
