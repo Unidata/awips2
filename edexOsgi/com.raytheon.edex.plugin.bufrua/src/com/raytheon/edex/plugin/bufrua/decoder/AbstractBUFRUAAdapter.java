@@ -48,7 +48,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -113,8 +115,6 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
 
                 Calendar validTime = obsData.getValidTime();
 
-                Calendar relTime = TimeTools.copy(validTime);
-
                 // Now offset the "record" validTime using the hour mapping.
                 int hour = validTime.get(Calendar.HOUR_OF_DAY);
                 validTime.add(Calendar.HOUR_OF_DAY, HOUR_MAP[hour]);
@@ -138,9 +138,6 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
                     logger.debug("Creating raob data ");
 
                     PointDataView view = container.append();
-
-                    view.setLong("relTime", relTime.getTimeInMillis());
-                    view.setLong("validTime", validTime.getTimeInMillis());
 
                     SurfaceObsLocation location = new SurfaceObsLocation();
                     location.setStationId(String.format("%05d", wmoStaId));
