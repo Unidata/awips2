@@ -22,11 +22,15 @@ package com.raytheon.uf.edex.pointdata;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.measure.converter.UnitConverter;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -53,7 +57,9 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao.LevelRequest;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 15, 2009            chammack     Initial creation
+ * Apr 15, 2009            chammack    Initial creation
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -254,6 +260,8 @@ public class PointDataQuery {
                 int id = (Integer) workingMap.get("id");
                 int idx = (Integer) workingMap.get("pointDataView.curIdx");
                 dbResultMap.put(id, workingMap);
+                // Clone is needed because getPointDataFileName alters the map
+                workingMap = new HashMap<String, Object>(workingMap);
                 String fileName = dao.getPointDataFileName(workingMap);
                 int listIndex = files.indexOf(fileName);
                 if (listIndex == -1) {
@@ -337,19 +345,29 @@ public class PointDataQuery {
                             continue;
                         }
                     }
+                    if (obj instanceof Date) {
+                        obj = ((Date) obj).getTime();
+                    } else if (obj instanceof Calendar) {
+                        obj = ((Calendar) obj).getTimeInMillis();
+
+                    }
+                    Number num = null;
+                    if (obj instanceof Number) {
+                        num = (Number) obj;
+                        UnitConverter conv = desc.getUnitConverter();
+                        if (conv != null && conv != UnitConverter.IDENTITY) {
+                            num = conv.convert(num.doubleValue());
+                        }
+                    }
                     switch (desc.getType()) {
                     case FLOAT:
-                        pdv.setFloat(desc.getParameterName(),
-                                ((Number) obj).floatValue());
+                        pdv.setFloat(desc.getParameterName(), num.floatValue());
                         break;
                     case INT:
-
-                        pdv.setInt(desc.getParameterName(),
-                                ((Number) obj).intValue());
+                        pdv.setInt(desc.getParameterName(), num.intValue());
                         break;
                     case LONG:
-                        pdv.setLong(desc.getParameterName(),
-                                ((Number) obj).longValue());
+                        pdv.setLong(desc.getParameterName(), num.longValue());
                         break;
                     case STRING:
                         pdv.setString(desc.getParameterName(), obj.toString());
