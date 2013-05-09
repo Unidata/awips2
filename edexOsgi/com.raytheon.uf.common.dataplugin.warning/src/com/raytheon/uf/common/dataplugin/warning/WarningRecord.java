@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -48,6 +51,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 03/12/2007   1003        bwoodle     initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * </pre>
  * 
@@ -171,4 +176,10 @@ public class WarningRecord extends AbstractWarningRecord {
         }
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
