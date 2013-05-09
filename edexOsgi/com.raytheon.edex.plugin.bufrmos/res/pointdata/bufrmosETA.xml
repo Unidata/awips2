@@ -19,8 +19,6 @@
         further_licensing_information.
     -->
 <pointDataDescription>
-  <parameter name="refTime" numDims="1" type="LONG" />
-  <parameter name="forecastHr" numDims="1" type="INT" />
   <parameter name="csevere6hr" numDims="1" type="INT" />
   <parameter name="QPF6hr_cat3" numDims="1" type="INT" />
   <parameter name="QPF6hr_cat2" numDims="1" type="INT" />
