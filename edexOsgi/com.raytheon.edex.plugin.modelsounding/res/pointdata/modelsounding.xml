@@ -21,10 +21,8 @@
 <pointDataDescription>
   <dimension name="maxLevels" length="64"/>
 
-  <parameter name="forecastHr" numDims="1" type="INT" />
   <parameter name="wmoStaNum" numDims="1" type="INT" />
 
-  <parameter name="refTime" numDims="1" type="LONG" unit="s" />
   <parameter name="validTime" numDims="1" type="LONG" unit="s" />
   <parameter name="landSea" numDims="1" type="INT" />
 
