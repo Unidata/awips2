@@ -38,7 +38,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -59,7 +58,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080317           1026 jkorman     Initial implementation.
+ * Mar 17, 2008 1026       jkorman     Initial implementation.
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -169,16 +170,11 @@ public class ModelSoundingDataAdapter {
                                     .getFcstSeconds().intValue());
 
                             obsData.setDataTime(dt);
-                            Calendar baseTime = dt.getRefTimeAsCalendar();
-                            view.setLong(PointDataConstants.DATASET_REFTIME,
-                                    baseTime.getTimeInMillis() / 1000L);
 
                             Calendar validTime = dt.getValidTime();
                             view.setLong("validTime",
                                     validTime.getTimeInMillis() / 1000L);
 
-                            int fcstHour = (int) (obsData.getFcstSeconds() / 3600);
-                            view.setInt("forecastHr", fcstHour);
                         }
 
                         obsData.setPointDataView(view);
