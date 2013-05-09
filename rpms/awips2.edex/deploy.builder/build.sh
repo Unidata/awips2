@@ -136,10 +136,12 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 if [ ${LIGHTNING} = true ]; then
-   /awips2/ant/bin/ant -f build.xml -Dlightning=true
+   /awips2/ant/bin/ant -f build.xml -Dlightning=true \
+      -Duframe.eclipse=${UFRAME_ECLIPSE}
    RC=$?
 else
-   /awips2/ant/bin/ant -f build.xml
+   /awips2/ant/bin/ant -f build.xml \
+      -Duframe.eclipse=${UFRAME_ECLIPSE}
    RC=$?
 fi
 if [ ${RC} -ne 0 ]; then
