@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -51,7 +53,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 /**
  * Record implementation for taf plugin
  * 
- * <pre
+ * <pre>
  * 
  * SOFTWARE HISTORY
  * 
@@ -69,8 +71,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/2013   1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
- * </pre
+ * </pre>
  * 
  * @author sgurung
  * @version 1.0
@@ -1607,6 +1611,13 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
 
 		return newRecords;
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 
 	/**
 	 * 
