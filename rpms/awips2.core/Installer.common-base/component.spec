@@ -57,7 +57,8 @@ fi
 
 cd ${BUILD_EDEX}
 /awips2/ant/bin/ant -f ${_build_xml} \
-   -Dbuild.arch=${_pde_build_arch} ${_hybrid_target}
+   -Dbuild.arch=${_pde_build_arch} \
+   -Duframe.eclipse=%{_uframe_eclipse} ${_hybrid_target}
 if [ $? -ne 0 ]; then
    exit 1
 fi
