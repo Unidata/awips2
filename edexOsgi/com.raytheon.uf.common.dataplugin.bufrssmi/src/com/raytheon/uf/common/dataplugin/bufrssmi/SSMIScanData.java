@@ -22,6 +22,8 @@ package com.raytheon.uf.common.dataplugin.bufrssmi;
 import java.util.Calendar;
 import java.util.Collection;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -62,6 +64,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jun 18, 2009            jkorman     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -404,4 +408,10 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 		return true;
 	}
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
