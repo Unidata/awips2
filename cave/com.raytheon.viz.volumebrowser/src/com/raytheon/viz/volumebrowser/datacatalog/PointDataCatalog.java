@@ -69,7 +69,9 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 1, 2009            bsteffen     Initial creation
+ * Dec 01, 2009            bsteffen    Initial creation
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -146,8 +148,6 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             query.addColumn("location.latitude");
             query.addColumn("location.longitude");
             query.addOrderBy("location.latitude");
-            query.addOrderBy("location.longitude");
-            query.addOrderBy("location.stationId");
             if (type != null && !type.isEmpty()) {
                 query.addConstraint(getTypeKey(sourceKey),
                         new RequestConstraint(type));
@@ -304,6 +304,9 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                         && closestStation.getStationId() != null) {
                     productParameters.put(constraintKey, new RequestConstraint(
                             closestStation.getStationId()));
+                } else {
+                    productParameters.put(constraintKey, new RequestConstraint(
+                            null, ConstraintType.ISNULL));
                 }
             }
         }
