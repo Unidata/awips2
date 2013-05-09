@@ -16,6 +16,9 @@
  * 09/2012					B. Hebbard  Merge out RTS changes from OB12.9.1
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
+ * 
  * </pre>
  * 
  * @author tlee
@@ -26,6 +29,8 @@ package gov.noaa.nws.ncep.common.dataplugin.mcidas;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -366,5 +371,12 @@ public class McidasRecord extends PersistablePluginDataObject implements
 
     public void setImageTypeNumber(Integer imageTypeNumber) {
         this.imageTypeNumber = imageTypeNumber;
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 }
