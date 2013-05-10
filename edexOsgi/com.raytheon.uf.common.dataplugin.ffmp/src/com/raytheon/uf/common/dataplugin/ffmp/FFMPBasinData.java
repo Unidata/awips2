@@ -49,7 +49,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 06/22/09      2152       D. Hladky   Initial release
  * 01/27/13      1478       D. Hladky   Added support for write of aggregate record cache
  * 01/27/13      1569       D. Hladky   Added support for write of aggregate record cache
- * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
+ * 04/16/13      1912       bsteffen    Initial bulk hdf5 access for ffmp
+ * 05/09/13      1919       mpduff      Use parent pfaf instead of lookupId.
  * 
  * </pre>
  * 
@@ -58,10 +59,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 public class FFMPBasinData implements ISerializableObject {
-
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = 8162247989509750715L;
 
     public static final double GUIDANCE_MISSING = -999999.0;
@@ -76,12 +73,12 @@ public class FFMPBasinData implements ISerializableObject {
     /**
      * Pending load tasks that need to be run to fully populate basins
      */
-    private List<LoadTask> tasks = new ArrayList<LoadTask>();
+    private final List<LoadTask> tasks = new ArrayList<LoadTask>();
 
     /**
      * Cache of basins in order for easy population from Load Tasks.
      */
-    private Map<String, FFMPBasin[]> orderedBasinsCache = new HashMap<String, FFMPBasin[]>();
+    private final Map<String, FFMPBasin[]> orderedBasinsCache = new HashMap<String, FFMPBasin[]>();
 
     /**
      * Public one arg constructor
@@ -690,7 +687,7 @@ public class FFMPBasinData implements ISerializableObject {
                     FFMPBasin basin = this.basins.get(fvgbmd.getLookupId());
                     if (basin == null) {
                         basin = new FFMPVirtualGageBasin(fvgbmd.getLid(),
-                                fvgbmd.getLookupId(), false);
+                                fvgbmd.getParentPfaf(), false);
                         this.basins.put(fvgbmd.getLookupId(), basin);
                     }
                     basins[j++] = basin;
@@ -702,6 +699,9 @@ public class FFMPBasinData implements ISerializableObject {
         }
     }
 
+    /**
+     * Load now.
+     */
     public void loadNow() {
         synchronized (tasks) {
             if (!tasks.isEmpty()) {
@@ -728,6 +728,9 @@ public class FFMPBasinData implements ISerializableObject {
             this.date = date;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void process(FloatDataRecord record) {
             float[] values = record.getFloatData();
@@ -736,6 +739,9 @@ public class FFMPBasinData implements ISerializableObject {
             }
         }
 
+        /**
+         * Apply the value to the basin/
+         */
         protected void applyValue(FFMPBasin basin, float value) {
             if (basin.contains(date)) {
                 float curval = basin.getValue(date);
