@@ -43,6 +43,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * Jul 20, 2011            mpduff     Initial creation
  * 01/14/13     1569       dhladky    changed arraylist to list
  * 04/15/13     1890       dhladky    Changed COUNTY to use constant
+ * 05/10/13     1919       mpduff     If there are forced pfafs then the aggregate is forced.
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ public class FFFGForceUtil {
 
     private List<Long> pfafList = new ArrayList<Long>();
 
-    private FFMPResource resource;
+    private final FFMPResource resource;
 
     private String domain = "NA";
 
@@ -65,7 +66,7 @@ public class FFFGForceUtil {
 
     private SourceXML sourceXML2 = null;
 
-    private FFMPGuidanceInterpolation interp;
+    private final FFMPGuidanceInterpolation interp;
 
     private double src1Hr = -999;
 
@@ -151,7 +152,7 @@ public class FFFGForceUtil {
         }
 
         FFFGDataMgr fdm = FFFGDataMgr.getInstance();
-        
+
         if ((sliderTime >= src1Hr) && (sliderTime <= src2Hr)) {
             // Slider falls between the source times
             if (sliderTime == src1Hr) {
@@ -212,6 +213,8 @@ public class FFFGForceUtil {
                         }
                     }
                 }
+            } else if (!forcedPfafList.isEmpty()) {
+                forced = true;
             }
         }
     }
@@ -227,7 +230,7 @@ public class FFFGForceUtil {
             }
             long pfaf = pfafList2.get(i);
             long countyFips = ft.getCountyFipsByPfaf(pfaf);
-            
+
             if (countyFips != prevCtyFips) {
                 if (fdm.isBasinForced(source, countyFips)) {
                     forcedList.add(pfaf);
@@ -243,29 +246,28 @@ public class FFFGForceUtil {
 
         return forcedList;
     }
-    
-    public float getAvgForcedValue(List<Long> pfafList, 
-            List<Long> forcedPfafs, 
-            FFMPGuidanceInterpolation interpolation,
-            long expiration, FFMPTemplates templates) {
+
+    public float getAvgForcedValue(List<Long> pfafList, List<Long> forcedPfafs,
+            FFMPGuidanceInterpolation interpolation, long expiration,
+            FFMPTemplates templates) {
         float tvalue = 0.0f;
         float value;
         int i = 0;
         if (interpolation.isInterpolate() == false) {
             FFFGDataMgr dman = FFFGDataMgr.getInstance();
-            for (long pfaf: forcedPfafs) {
+            for (long pfaf : forcedPfafs) {
                 long countyFips = templates.getCountyFipsByPfaf(pfaf);
                 templates.getCountyFipsByPfaf(pfaf);
-                value = dman.adjustValue(Float.NaN, interpolation.getStandardSource(), pfaf,
-                        countyFips);
-                
+                value = dman.adjustValue(Float.NaN,
+                        interpolation.getStandardSource(), pfaf, countyFips);
+
                 tvalue += value;
                 i++;
             }
-            
-            return tvalue/i;
+
+            return tvalue / i;
         }
-        
+
         return Float.NaN;
     }
 
@@ -307,7 +309,8 @@ public class FFFGForceUtil {
     }
 
     /**
-     * @param sliderTime the sliderTime to set
+     * @param sliderTime
+     *            the sliderTime to set
      */
     public void setSliderTime(double sliderTime) {
         this.sliderTime = sliderTime;
