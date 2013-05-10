@@ -798,7 +798,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             template['pil'] = self._remapPil(template['phen'], 
               template['sig'], self._productPil)
             
-            template['ugcs'] = ugcs
+            template['ugcZoneList'] = ", ".join(ugcs)
             state = ugcstring[0:2]
             if REGIONS.has_key(state):
                 template['region'] = REGIONS[state]
