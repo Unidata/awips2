@@ -24,12 +24,12 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
@@ -51,22 +51,23 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2009            njensen     Initial creation
- * Feb 26, 2013  1447      dgilling    Implement equals().
- * 
+ * Feb 26, 2013 1447       dgilling    Implement equals().
+ * May 10, 2013 1951       rjpeter     Added own id sequence tagging
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
-@Entity
+@MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DynamicSerialize
 public abstract class ActiveTableRecord extends PersistableDataObject {
 
     protected static final long serialVersionUID = 1L;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    protected static final String ID_GEN = "idgen";
+
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     @Id
     protected int id;
 
@@ -1079,7 +1080,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
             atr.setWmoid(wr.getWmoid());
             atr.setXxxid(wr.getXxxid());
 
-            for (String ugc : wr.getUgcsString()) {
+            for (String ugc : wr.getUgcZones()) {
                 ActiveTableRecord ugcRecord = (ActiveTableRecord) atr.clone();
                 ugcRecord.setUgcZone(ugc);
                 list.add(ugcRecord);
