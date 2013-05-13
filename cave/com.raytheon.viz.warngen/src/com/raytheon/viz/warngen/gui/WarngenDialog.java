@@ -136,6 +136,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Feb 18, 2013 #1633       rferrel     Changed checkFollowupSelection to use SimulatedTime.
  *  Mar 28, 2013 DR 15974    D. Friedman Do not track removed GIDs.
  *  Apr 11, 2013 1894        jsanchez    Removed the ability to load/unload maps via bullet selection. This will be resolved in a follow on ticket.
+ *  Apr 30, 2013 DR 16118    Qinglu Lin  For reissue (followup NEW), called redrawFromWarned() in okPressed().
  * </pre>
  * 
  * @author chammack
@@ -987,6 +988,11 @@ public class WarngenDialog extends CaveSWTDialog implements
 
         if (checkFollowupSelection(followupData) == false) {
             return;
+        }
+
+        if (followupData != null && WarningAction.valueOf(followupData
+                .getAct()) == WarningAction.NEW) {
+            redrawFromWarned();
         }
 
         if ((followupData == null || (WarningAction.valueOf(followupData
