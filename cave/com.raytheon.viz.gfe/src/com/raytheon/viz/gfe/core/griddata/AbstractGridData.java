@@ -69,6 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * 04/15/2013   1892       randerso    Adding logging to help determine what is different in the gridInfos
  *                                     Changed how gridInfo is retrieved which seems to have fixed the problem
+ * 04/23/2013   1949       rjpeter     Removed validation on copy, source is verified on store.
+
  * </pre>
  * 
  * @author chammack
@@ -307,14 +309,6 @@ public abstract class AbstractGridData implements IGridData {
     public boolean copyGridValues(final IGridData sourceGrid) {
         populate();
 
-        // ensure valid data in the source before attempting a copy
-        if (!sourceGrid.isValid()) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Attempt to copyGridValues from invalid grid on "
-                            + getParm().getParmID());
-            return false;
-        }
-
         // validate data type
         if (sourceGrid.getParm().getGridInfo().getGridType() != getParm()
                 .getGridInfo().getGridType()) {
@@ -326,7 +320,6 @@ public abstract class AbstractGridData implements IGridData {
         }
 
         // validate units same or can be converted
-
         if (!getParm()
                 .getGridInfo()
                 .getUnitObject()
@@ -413,16 +406,16 @@ public abstract class AbstractGridData implements IGridData {
             ArrayList<GridDataHistory> thisGDHA = new ArrayList<GridDataHistory>();
 
             // add one by one to eliminate any duplicates
-            for (int i = 0; i < history.length; i++) {
+            for (GridDataHistory element : history) {
                 boolean found = false;
                 for (GridDataHistory thisGDH : thisGDHA) {
-                    if (history[i].equals(thisGDH)) {
+                    if (element.equals(thisGDH)) {
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    thisGDHA.add(history[i]);
+                    thisGDHA.add(element);
                 }
             }
             this.gridSlice.setHistory(thisGDHA
@@ -567,8 +560,8 @@ public abstract class AbstractGridData implements IGridData {
             // If we've left the area, we're all done
             int x = (int) (pos.x + 0.5); // round off
             int y = (int) (pos.y + 0.5); // round off
-            if (x >= area.getXdim() || y >= area.getYdim()
-                    || area.get(x, y) != 1) {
+            if ((x >= area.getXdim()) || (y >= area.getYdim())
+                    || (area.get(x, y) != 1)) {
                 // We're either off the grid or out of the area
                 edge.x = x;
                 edge.y = y;
@@ -654,7 +647,7 @@ public abstract class AbstractGridData implements IGridData {
         for (int i = ll.x; i <= ur.x; i++) {
             for (int j = ll.y; j <= ur.y; j++) {
                 if (points.get(i, j) > 0) {
-                    if (i == 0 || i == xMax || j == 0 || j == yMax) {
+                    if ((i == 0) || (i == xMax) || (j == 0) || (j == yMax)) {
                         edge.set(i, j);
                     } else {
                         for (int k = i - 1; k <= i + 1; k++) {
@@ -729,7 +722,8 @@ public abstract class AbstractGridData implements IGridData {
             Point p = new Point((int) thisCoord.x, (int) thisCoord.y);
 
             // if point is in the grid
-            if (p.x >= 0 && p.x < gridSize.x && p.y >= 0 && p.y < gridSize.y) {
+            if ((p.x >= 0) && (p.x < gridSize.x) && (p.y >= 0)
+                    && (p.y < gridSize.y)) {
                 gridCoords.add(p);
             }
         }
@@ -890,8 +884,8 @@ public abstract class AbstractGridData implements IGridData {
     public List<String> getHistorySites() {
         GridDataHistory[] h = this.getHistory();
         List<String> sites = new ArrayList<String>();
-        for (int i = 0; i < h.length; i++) {
-            String site = h[i].getOriginParm().getDbId().getSiteId();
+        for (GridDataHistory element : h) {
+            String site = element.getOriginParm().getDbId().getSiteId();
             if (!sites.contains(site)) {
                 sites.add(site);
             }

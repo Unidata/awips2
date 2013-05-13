@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.monitor.scan.resource;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -177,16 +176,12 @@ public class ScanResource extends
 
                 PluginDataObject[] pdos = (PluginDataObject[]) object;
                 ScanRecord scan = null;
-                List<String> uris = Arrays.asList(getScan().getAvailableUris(
-                        getTable(), resourceData.icao));
                 for (PluginDataObject pdo : pdos) {
                     try {
                         scan = (ScanRecord) pdo;
-                        if (uris.contains(scan.getDataURI())) {
-                            if (scan.getType().equals(getTable().name())) {
-                                addRecord(scan);
-                            }
-                        }
+                        if (scan.getIcao().equals(resourceData.icao)
+                                && scan.getType().equals(getTable().name()))
+                            addRecord(scan);
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Error updating SCAN resource", e);

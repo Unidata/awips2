@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2010 #7277      rjpeter     Initial creation
- * 
+ * Apr 23, 2013 #1949      rjpeter     Removed initial delay
  * </pre>
  * 
  * @author rjpeter
@@ -47,8 +47,6 @@ public class SmartInitSrvConfig {
     protected int runningInitTimeOutMillis;
 
     protected int threadSleepInterval;
-
-    protected int initialDelay;
 
     public int getThreads() {
         return threads;
@@ -88,14 +86,6 @@ public class SmartInitSrvConfig {
 
     public void setThreadSleepInterval(int threadSleepInterval) {
         this.threadSleepInterval = threadSleepInterval;
-    }
-
-    public int getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(int initialDelay) {
-        this.initialDelay = initialDelay;
     }
 
 }

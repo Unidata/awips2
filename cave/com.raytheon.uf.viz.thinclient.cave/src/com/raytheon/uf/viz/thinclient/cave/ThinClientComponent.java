@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.osgi.framework.Bundle;
@@ -67,7 +68,8 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            njensen     Initial creation
+ * Aug  4, 2011            njensen     Initial creation
+ * Apr 23, 2013 1939       randerso    Return null from initializeSerialization
  * 
  * </pre>
  * 
@@ -192,6 +194,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         }
     }
 
+    @Override
     public void stopComponent() {
         // Persist caches
         cacheManager.storeCaches();
@@ -201,13 +204,15 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
     }
 
     @Override
-    protected void initializeSerialization() {
+    protected Job initializeSerialization() {
         try {
             SerializationUtil.getJaxbContext();
         } catch (JAXBException e) {
             statusHandler.handle(Priority.CRITICAL,
                     "An error occured initializing Serialization", e);
         }
+
+        return null;
     }
 
 }

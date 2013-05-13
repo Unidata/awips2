@@ -59,7 +59,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.timeseries.util.GraphData;
 import com.raytheon.viz.hydro.timeseries.util.GroupInfo;
 import com.raytheon.viz.hydro.timeseries.util.PageInfo;
-import com.raytheon.viz.hydro.timeseries.util.TraceData;
 import com.raytheon.viz.hydro.util.LoadMaxFcst;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.ForecastData;
@@ -94,6 +93,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 22 Jan 2013 14903     lbousaidi     Fix display error after save to DB.                
  * 30 Jan 2012 15459     mpduff        Redmine 1560 - Make graph canvases redraw on page up/down.
  * 06 Feb 2013 1578      rferrel       Code cleanup for non-blocking dialogs.
+ * 24 Apr 2013  1921     mpduff        Fix zoom reset to only reset the "active" graph
  * 
  * </pre>
  * 
@@ -392,6 +392,11 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      * reset
      */
     private boolean reset = false;
+
+    /**
+     * The selected graph canvas.
+     */
+    private TimeSeriesDisplayCanvas selectedCanvas;
 
     /**
      * Constructor.
@@ -995,10 +1000,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     setZoomAction(false);
                     setSelectZoom(false);
                     reset = true;
-                    for (TimeSeriesDisplayCanvas dc : canvasList) {
-                        dc.setZoomed(false);
-                        dc.redraw();
-                    }
+                    selectedCanvas.setZoomed(false);
+                    selectedCanvas.redraw();
+                    reset = false;
                 } else {
                     displayCanvas.resetTS();
                 }
@@ -1356,7 +1360,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         String showCat = AppsDefaults.getInstance().getToken(
                                 "timeseries_showcat");
                         int sc = Integer.parseInt(showCat);
-                        System.out.println(showCat);
                         if (sc == 1) {
                             batchDataOnlyShowCatMI.setSelection(false);
                             batchDataOnlyMI.setSelection(true);
@@ -2346,5 +2349,15 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      */
     public boolean isReset() {
         return reset;
+    }
+
+    /**
+     * Set the selected canvas.
+     * 
+     * @param selectedCanvas
+     *            The selected canvas
+     */
+    public void setSelectedCanvas(TimeSeriesDisplayCanvas selectedCanvas) {
+        this.selectedCanvas = selectedCanvas;
     }
 }
