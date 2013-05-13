@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +31,11 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
@@ -44,6 +47,8 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandler
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
+import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
+import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService.ISubscriptionOverlapResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -73,6 +78,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jan 04, 2013 1441       djohnson     Separated out notification methods into their own service.
  * Jan 28, 2013 1530       djohnson     Reset unscheduled flag with each update.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 14, 2013 2000       djohnson     Check for subscription overlap/duplication.
  * 
  * </pre>
  * 
@@ -120,6 +126,22 @@ public class SubscriptionService implements ISubscriptionService {
             return forceApplyPromptResponse;
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void displayMessage(
+                IForceApplyPromptDisplayText displayTextStrategy,
+                final String message) {
+            final Shell shell = displayTextStrategy.getShell();
+            shell.getDisplay().syncExec(new Runnable() {
+                @Override
+                public void run() {
+                    DataDeliveryUtils.showMessage(shell, SWT.OK,
+                            "Shared Subscription", message);
+                }
+            });
+        }
     }
 
     private final IUFStatusHandler statusHandler = UFStatus
@@ -135,6 +157,8 @@ public class SubscriptionService implements ISubscriptionService {
     private final IPermissionsService permissionsService;
 
     private final IDisplayForceApplyPrompt forceApplyPrompt;
+
+    private final ISubscriptionOverlapService subscriptionOverlapService;
 
     /**
      * Implementation of {@link ISubscriptionServiceResult}.
@@ -248,6 +272,15 @@ public class SubscriptionService implements ISubscriptionService {
                 Set<String> wouldBeUnscheduledSubscriptions);
 
         ForceApplyPromptResponse getForceApplyPromptResponse();
+
+        /**
+         * Display a popup message to the user.
+         * 
+         * @param displayTextStrategy
+         * @param message
+         */
+        void displayMessage(IForceApplyPromptDisplayText displayTextStrategy,
+                String message);
     }
 
     /**
@@ -291,15 +324,18 @@ public class SubscriptionService implements ISubscriptionService {
      *            the subscription notification service
      * @param bandwidthService
      *            the bandwidth service
+     * @param subscriptionOverlapService
      */
     @VisibleForTesting
     SubscriptionService(ISubscriptionNotificationService notificationService,
             IBandwidthService bandwidthService,
             IPermissionsService permissionsService,
+            ISubscriptionOverlapService subscriptionOverlapService,
             IDisplayForceApplyPrompt displayForceApplyPrompt) {
         this.notificationService = notificationService;
         this.bandwidthService = bandwidthService;
         this.permissionsService = permissionsService;
+        this.subscriptionOverlapService = subscriptionOverlapService;
         this.forceApplyPrompt = displayForceApplyPrompt;
     }
 
@@ -309,16 +345,19 @@ public class SubscriptionService implements ISubscriptionService {
      * tying specifically to the implementation class.
      * 
      * @param notificationService
-     * @param permissionsService
      * @param bandwidthService
+     * @param permissionsService
+     * @param
      * @return the subscription service
      */
     public static ISubscriptionService newInstance(
             ISubscriptionNotificationService notificationService,
             IBandwidthService bandwidthService,
-            IPermissionsService permissionsService) {
+            IPermissionsService permissionsService,
+            ISubscriptionOverlapService subscriptionOverlapService) {
         return new SubscriptionService(notificationService, bandwidthService,
-                permissionsService, new DisplayForceApplyPrompt());
+                permissionsService, subscriptionOverlapService,
+                new DisplayForceApplyPrompt());
     }
 
     /**
@@ -545,6 +584,39 @@ public class SubscriptionService implements ISubscriptionService {
             List<Subscription> subscriptions, ServiceInteraction action,
             final IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
+
+        for (Subscription subscription : subscriptions) {
+            final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                    .getSubscriptionHandler();
+            final List<Subscription> potentialDuplicates = subscriptionHandler
+                    .getActiveByDataSetAndProvider(
+                            subscription.getDataSetName(),
+                            subscription.getProvider());
+            List<String> overlappingSubscriptions = Lists.newArrayList();
+            for (Subscription potentialDuplicate : potentialDuplicates) {
+                final ISubscriptionOverlapResponse overlapResponse = subscriptionOverlapService
+                        .isOverlapping(potentialDuplicate, subscription);
+                final String potentialDuplicateName = potentialDuplicate
+                        .getName();
+                if (overlapResponse.isDuplicate()) {
+                    return new SubscriptionServiceResult(true,
+                            "This subscription would be an exact duplicate of "
+                                    + potentialDuplicateName);
+                }
+                if (overlapResponse.isOverlapping()) {
+                    overlappingSubscriptions.add(potentialDuplicateName);
+                }
+            }
+            if (!overlappingSubscriptions.isEmpty()) {
+                Collections.sort(overlappingSubscriptions);
+                forceApplyPrompt.displayMessage(
+                        displayTextStrategy,
+                                StringUtil
+                                        .createMessage(
+                                                ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS,
+                                                overlappingSubscriptions));
+            }
+        }
 
         try {
             final ProposeResult result = proposeScheduleAndAction(
