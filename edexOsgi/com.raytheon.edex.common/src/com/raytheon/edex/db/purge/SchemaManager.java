@@ -44,6 +44,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializableManager;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DatabasePluginProperties;
@@ -69,8 +70,8 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
  * 2/9/2009     1990       bphillip     Fixed index creation
  * 03/20/09                njensen      Implemented IPluginRegistryChanged
  * Mar 29, 2013 1841       djohnson     Remove unused method, warnings, and close streams with utility method.
- * May 02, 2013 1970       bgonzale    Updated createIndexTableNamePattern to match text preceeding
- *                                     %TABLE%.
+ * Mar 02, 2013 1970       bgonzale    Added check for abstract entities in sql index naming.
+ *                                     Removed unused private method populateSchema.
  * </pre>
  * 
  * @author bphillip
@@ -89,6 +90,8 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
      */
     private static final long pluginLockTimeOutMillis = 120000;
 
+    private static final String TABLE = "%TABLE%";
+
     /** The singleton instance */
     private static SchemaManager instance;
 
@@ -105,7 +108,7 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
             .compile("^create (?:table |index |sequence )(?:[A-Za-z_0-9]*\\.)?(.+?)(?: .*)?$");
 
     private final Pattern createIndexTableNamePattern = Pattern
-            .compile("^create index \\w*?%TABLE%.+? on (.+?) .*$");
+            .compile("^create index %TABLE%.+? on (.+?) .*$");
 
     /**
      * Gets the singleton instance
@@ -295,8 +298,12 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                 if (sql.startsWith("create index")) {
                     Matcher matcher = createIndexTableNamePattern.matcher(sql);
                     if (matcher.matches()) {
-                        createSql.set(i,
-                                sql.replace("%TABLE%", matcher.group(1)));
+                        createSql.set(i, StringUtil.replace(sql, TABLE,
+                                matcher.group(1)));
+                    } else if (sql.contains(TABLE)) {
+                        // replace %TABLE% in sql statements with an empty
+                        // string
+                        createSql.set(i, StringUtil.replace(sql, TABLE, ""));
                     }
                 }
             }

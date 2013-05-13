@@ -75,8 +75,8 @@ public class GFELockDao extends CoreDao {
      *             If errors occur during database interaction
      */
     @SuppressWarnings("unchecked")
-    public Map<ParmID, LockTable> getLocks(final List<ParmID> parmIds, WsId wsId)
-            throws DataAccessLayerException {
+    public Map<ParmID, LockTable> getLocks(final Collection<ParmID> parmIds,
+            WsId wsId) throws DataAccessLayerException {
         // Return if no parmIDs are provided
         if (parmIds.isEmpty()) {
             return Collections.emptyMap();
