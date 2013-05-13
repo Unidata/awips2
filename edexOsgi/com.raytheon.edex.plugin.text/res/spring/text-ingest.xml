@@ -152,7 +152,7 @@
 				<method bean="textDecoder" method="separator" />
 				<bean ref="textDecoder" method="transformToSimpleString" />
 				<bean ref="serializationUtil" method="transformToThrift"/>
-				<to uri="jms-text:topic:edex.alarms.msg" />
+				<to uri="jms-text:topic:edex.alarms.msg?timeToLive=60000" />
 			</split>
 		</route>
 
