@@ -21,6 +21,7 @@ package com.raytheon.viz.hydro.timeseries.util;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.raytheon.viz.hydrocommon.HydroConstants;
 
@@ -28,62 +29,68 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Object to hold the data and metadata for the time series.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Jun 24, 2008				mpduff	Initial creation
+ * Jun 24, 2008				mpduff	    Initial creation.
+ * May 06, 2013   1976      mpduff      Use List interface.
  * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
-public class GraphData {    
+public class GraphData {
     private double x;
-    
+
     /**
      * yMax - yMin
      */
     private double y;
-    
+
     private double y2;
-    
+
     /**
      * Graph Area Width
      */
     private int w;
-    
+
     /**
      * Graph Area Height
      */
     private int h;
-    
+
     private boolean displayFlowUnit;
 
     private Date xMin;
+
     private Date xMax;
-    
+
     private double ymin = Integer.MAX_VALUE;
+
     private double ymax = Integer.MIN_VALUE;
+
     private double ymin2;
+
     private double ymax2;
 
     /**
      * List of traces for graphing
      */
-    private ArrayList<TraceData> traces = new ArrayList<TraceData>();
-    
+    private List<TraceData> traces = new ArrayList<TraceData>();
+
     /**
      * List of traces for this graphing object
      */
-    private ArrayList<TraceData> originalTraces = new ArrayList<TraceData>();
-    
-    private ArrayList<Boolean> isStage = new ArrayList<Boolean>();
-    
+    private final List<TraceData> originalTraces = new ArrayList<TraceData>();
+
+    private List<Boolean> isStage = new ArrayList<Boolean>();
+
     private Date beginDate = null;
+
     private Date endDate = null;
 
     private String title = null;
@@ -119,16 +126,25 @@ public class GraphData {
     private String showppc = null;
 
     private String latestfcstonlyc = null;
-    
+
     private double actionStage = -9999;
+
     private double floodStage = -9999;
+
     private double minorStage = -9999;
+
     private double moderateStage = -9999;
+
     private double majorStage = -9999;
+
     private double actionFlow = -9999;
+
     private double floodFlow = -9999;
+
     private double minorFlow = -9999;
+
     private double moderateFlow = -9999;
+
     private double majorFlow = -9999;
 
     /**
@@ -139,7 +155,8 @@ public class GraphData {
     }
 
     /**
-     * @param x the x to set
+     * @param x
+     *            the x to set
      */
     public void setX(double x) {
         this.x = x;
@@ -154,7 +171,9 @@ public class GraphData {
 
     /**
      * y = yMax - yMin
-     * @param y the y to set
+     * 
+     * @param y
+     *            the y to set
      */
     public void setY(double y) {
         this.y = y;
@@ -168,7 +187,8 @@ public class GraphData {
     }
 
     /**
-     * @param w the w to set
+     * @param w
+     *            the w to set
      */
     public void setW(int w) {
         this.w = w;
@@ -182,7 +202,8 @@ public class GraphData {
     }
 
     /**
-     * @param h the h to set
+     * @param h
+     *            the h to set
      */
     public void setH(int h) {
         this.h = h;
@@ -203,7 +224,8 @@ public class GraphData {
     }
 
     /**
-     * @param display_flow_unit the display_flow_unit to set
+     * @param display_flow_unit
+     *            the display_flow_unit to set
      */
     public void setDisplayFlowUnit(boolean displayFlowUnit) {
         this.displayFlowUnit = displayFlowUnit;
@@ -217,7 +239,8 @@ public class GraphData {
     }
 
     /**
-     * @param min the xMin to set
+     * @param min
+     *            the xMin to set
      */
     public void setXMin(Date min) {
         xMin = min;
@@ -231,67 +254,12 @@ public class GraphData {
     }
 
     /**
-     * @param max the xMax to set
+     * @param max
+     *            the xMax to set
      */
     public void setXMax(Date max) {
         xMax = max;
     }
-
-//    /**
-//     * @return the oldXMax
-//     */
-//    public Date getOldXMax() {
-//        return oldXMax;
-//    }
-//
-//    /**
-//     * @param oldXMax the oldXMax to set
-//     */
-//    public void setOldXMax(Date oldXMax) {
-//        this.oldXMax = oldXMax;
-//    }
-//
-//    /**
-//     * @return the oldXMin
-//     */
-//    public Date getOldXMin() {
-//        return oldXMin;
-//    }
-//
-//    /**
-//     * @param oldXMin the oldXMin to set
-//     */
-//    public void setOldXMin(Date oldXMin) {
-//        this.oldXMin = oldXMin;
-//    }
-//
-//    /**
-//     * @return the orgXMax
-//     */
-//    public Date getOrgXMax() {
-//        return orgXMax;
-//    }
-//
-//    /**
-//     * @param orgXMax the orgXMax to set
-//     */
-//    public void setOrgXMax(Date orgXMax) {
-//        this.orgXMax = orgXMax;
-//    }
-//
-//    /**
-//     * @return the orgXMin
-//     */
-//    public Date getOrgXMin() {
-//        return orgXMin;
-//    }
-//
-//    /**
-//     * @param orgXMin the orgXMin to set
-//     */
-//    public void setOrgXMin(Date orgXMin) {
-//        this.orgXMin = orgXMin;
-//    }
 
     /**
      * @return the ymin
@@ -301,7 +269,8 @@ public class GraphData {
     }
 
     /**
-     * @param ymin the ymin to set
+     * @param ymin
+     *            the ymin to set
      */
     public void setYmin(double ymin) {
         this.ymin = ymin;
@@ -315,7 +284,8 @@ public class GraphData {
     }
 
     /**
-     * @param ymax the ymax to set
+     * @param ymax
+     *            the ymax to set
      */
     public void setYmax(double ymax) {
         this.ymax = ymax;
@@ -324,21 +294,22 @@ public class GraphData {
     /**
      * @return the traces
      */
-    public ArrayList<TraceData> getTraces() {
+    public List<TraceData> getTraces() {
         return traces;
     }
-    
+
     public TraceData getTraceData(int index) {
         return traces.get(index);
     }
 
     /**
-     * @param traces the traces to set
+     * @param traces
+     *            the traces to set
      */
-    public void setTraces(ArrayList<TraceData> traces) {
+    public void setTraces(List<TraceData> traces) {
         this.traces = traces;
     }
-    
+
     public void addTrace(TraceData trace) {
         if (traces.size() < HydroConstants.MAX_TRACES) {
             if (!traces.contains(trace)) {
@@ -350,12 +321,13 @@ public class GraphData {
     /**
      * @return the isStage
      */
-    public ArrayList<Boolean> getIsStage() {
+    public List<Boolean> getIsStage() {
         return isStage;
     }
 
     /**
-     * @param isStage the isStage to set
+     * @param isStage
+     *            the isStage to set
      */
     public void setIsStage(ArrayList<Boolean> isStage) {
         this.isStage = isStage;
@@ -364,7 +336,8 @@ public class GraphData {
     /**
      * Add the isStage boolean value to the list
      * 
-     * @param isStage true if value is stage, false otherwise
+     * @param isStage
+     *            true if value is stage, false otherwise
      */
     public void addIsStage(boolean isStage) {
         if (traces.size() < HydroConstants.MAX_TRACES) {
@@ -380,7 +353,8 @@ public class GraphData {
     }
 
     /**
-     * @param beginCal the beginCal to set
+     * @param beginCal
+     *            the beginCal to set
      */
     public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
@@ -394,7 +368,8 @@ public class GraphData {
     }
 
     /**
-     * @param endCal the endCal to set
+     * @param endCal
+     *            the endCal to set
      */
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
@@ -408,7 +383,8 @@ public class GraphData {
     }
 
     /**
-     * @param title the title to set
+     * @param title
+     *            the title to set
      */
     public void setTitle(String title) {
         this.title = title;
@@ -422,7 +398,8 @@ public class GraphData {
     }
 
     /**
-     * @param num_traces the num_traces to set
+     * @param num_traces
+     *            the num_traces to set
      */
     public void setNum_traces(int num_traces) {
         this.num_traces = num_traces;
@@ -436,7 +413,8 @@ public class GraphData {
     }
 
     /**
-     * @param graph_pos the graph_pos to set
+     * @param graph_pos
+     *            the graph_pos to set
      */
     public void setGraph_pos(int graph_pos) {
         this.graph_pos = graph_pos;
@@ -450,7 +428,8 @@ public class GraphData {
     }
 
     /**
-     * @param xsize the xsize to set
+     * @param xsize
+     *            the xsize to set
      */
     public void setXsize(int xsize) {
         this.xsize = xsize;
@@ -464,7 +443,8 @@ public class GraphData {
     }
 
     /**
-     * @param ysize the ysize to set
+     * @param ysize
+     *            the ysize to set
      */
     public void setYsize(int ysize) {
         this.ysize = ysize;
@@ -478,7 +458,8 @@ public class GraphData {
     }
 
     /**
-     * @param yscale the yscale to set
+     * @param yscale
+     *            the yscale to set
      */
     public void setYscale(String yscale) {
         this.yscale = yscale;
@@ -492,7 +473,8 @@ public class GraphData {
     }
 
     /**
-     * @param ylinear the ylinear to set
+     * @param ylinear
+     *            the ylinear to set
      */
     public void setYlinear(String ylinear) {
         this.ylinear = ylinear;
@@ -506,7 +488,8 @@ public class GraphData {
     }
 
     /**
-     * @param showcat the showcat to set
+     * @param showcat
+     *            the showcat to set
      */
     public void setShowcat(boolean showcat) {
         this.showcat = showcat;
@@ -520,7 +503,8 @@ public class GraphData {
     }
 
     /**
-     * @param derivepp the derivepp to set
+     * @param derivepp
+     *            the derivepp to set
      */
     public void setDerivepp(String derivepp) {
         this.derivepp = derivepp;
@@ -534,7 +518,8 @@ public class GraphData {
     }
 
     /**
-     * @param showpp the showpp to set
+     * @param showpp
+     *            the showpp to set
      */
     public void setShowpp(boolean showpp) {
         this.showpp = showpp;
@@ -548,7 +533,8 @@ public class GraphData {
     }
 
     /**
-     * @param latestfcstonly the latestfcstonly to set
+     * @param latestfcstonly
+     *            the latestfcstonly to set
      */
     public void setLatestfcstonly(boolean latestfcstonly) {
         this.latestfcstonly = latestfcstonly;
@@ -562,7 +548,8 @@ public class GraphData {
     }
 
     /**
-     * @param ylinearc the ylinearc to set
+     * @param ylinearc
+     *            the ylinearc to set
      */
     public void setYlinearc(String ylinearc) {
         this.ylinearc = ylinearc;
@@ -576,7 +563,8 @@ public class GraphData {
     }
 
     /**
-     * @param yscalec the yscalec to set
+     * @param yscalec
+     *            the yscalec to set
      */
     public void setYscalec(String yscalec) {
         this.yscalec = yscalec;
@@ -590,7 +578,8 @@ public class GraphData {
     }
 
     /**
-     * @param showcatc the showcatc to set
+     * @param showcatc
+     *            the showcatc to set
      */
     public void setShowcatc(String showcatc) {
         this.showcatc = showcatc;
@@ -604,7 +593,8 @@ public class GraphData {
     }
 
     /**
-     * @param deriveppc the deriveppc to set
+     * @param deriveppc
+     *            the deriveppc to set
      */
     public void setDeriveppc(String deriveppc) {
         this.deriveppc = deriveppc;
@@ -618,7 +608,8 @@ public class GraphData {
     }
 
     /**
-     * @param showppc the showppc to set
+     * @param showppc
+     *            the showppc to set
      */
     public void setShowppc(String showppc) {
         this.showppc = showppc;
@@ -632,7 +623,8 @@ public class GraphData {
     }
 
     /**
-     * @param latestfcstonlyc the latestfcstonlyc to set
+     * @param latestfcstonlyc
+     *            the latestfcstonlyc to set
      */
     public void setLatestfcstonlyc(String latestfcstonlyc) {
         this.latestfcstonlyc = latestfcstonlyc;
@@ -651,7 +643,8 @@ public class GraphData {
     }
 
     /**
-     * @param actionStage the actionStage to set
+     * @param actionStage
+     *            the actionStage to set
      */
     public void setActionStage(double actionStage) {
         this.actionStage = actionStage;
@@ -665,7 +658,8 @@ public class GraphData {
     }
 
     /**
-     * @param minorStage the minorStage to set
+     * @param minorStage
+     *            the minorStage to set
      */
     public void setMinorStage(double minorStage) {
         this.minorStage = minorStage;
@@ -679,7 +673,8 @@ public class GraphData {
     }
 
     /**
-     * @param moderateStage the moderateStage to set
+     * @param moderateStage
+     *            the moderateStage to set
      */
     public void setModerateStage(double moderateStage) {
         this.moderateStage = moderateStage;
@@ -693,7 +688,8 @@ public class GraphData {
     }
 
     /**
-     * @param majorStage the majorStage to set
+     * @param majorStage
+     *            the majorStage to set
      */
     public void setMajorStage(double majorStage) {
         this.majorStage = majorStage;
@@ -707,7 +703,8 @@ public class GraphData {
     }
 
     /**
-     * @param actionFlow the actionFlow to set
+     * @param actionFlow
+     *            the actionFlow to set
      */
     public void setActionFlow(double actionFlow) {
         this.actionFlow = actionFlow;
@@ -721,7 +718,8 @@ public class GraphData {
     }
 
     /**
-     * @param minorFlow the minorFlow to set
+     * @param minorFlow
+     *            the minorFlow to set
      */
     public void setMinorFlow(double minorFlow) {
         this.minorFlow = minorFlow;
@@ -735,7 +733,8 @@ public class GraphData {
     }
 
     /**
-     * @param moderateFlow the moderateFlow to set
+     * @param moderateFlow
+     *            the moderateFlow to set
      */
     public void setModerateFlow(double moderateFlow) {
         this.moderateFlow = moderateFlow;
@@ -749,7 +748,8 @@ public class GraphData {
     }
 
     /**
-     * @param majorFlow the majorFlow to set
+     * @param majorFlow
+     *            the majorFlow to set
      */
     public void setMajorFlow(double majorFlow) {
         this.majorFlow = majorFlow;
@@ -763,7 +763,8 @@ public class GraphData {
     }
 
     /**
-     * @param floodStage the floodStage to set
+     * @param floodStage
+     *            the floodStage to set
      */
     public void setFloodStage(double floodStage) {
         this.floodStage = floodStage;
@@ -777,7 +778,8 @@ public class GraphData {
     }
 
     /**
-     * @param floodFlow the floodFlow to set
+     * @param floodFlow
+     *            the floodFlow to set
      */
     public void setFloodFlow(double floodFlow) {
         this.floodFlow = floodFlow;
@@ -791,7 +793,8 @@ public class GraphData {
     }
 
     /**
-     * @param ymin2 the ymin2 to set
+     * @param ymin2
+     *            the ymin2 to set
      */
     public void setYmin2(double ymin2) {
         this.ymin2 = ymin2;
@@ -805,7 +808,8 @@ public class GraphData {
     }
 
     /**
-     * @param ymax2 the ymax2 to set
+     * @param ymax2
+     *            the ymax2 to set
      */
     public void setYmax2(double ymax2) {
         this.ymax2 = ymax2;
@@ -819,7 +823,8 @@ public class GraphData {
     }
 
     /**
-     * @param y2 the y2 to set
+     * @param y2
+     *            the y2 to set
      */
     public void setY2(double y2) {
         this.y2 = y2;
@@ -828,21 +833,22 @@ public class GraphData {
     /**
      * @return the originalTraces
      */
-    public ArrayList<TraceData> getOriginalTraces() {
-        ArrayList<TraceData> rtnList = new ArrayList<TraceData>(originalTraces.size());
-        
-        for (TraceData td: originalTraces) {
+    public List<TraceData> getOriginalTraces() {
+        List<TraceData> rtnList = new ArrayList<TraceData>(
+                originalTraces.size());
+
+        for (TraceData td : originalTraces) {
             TraceData data = new TraceData(td);
             rtnList.add(data);
         }
         return rtnList;
     }
-    
+
     /**
      * Generate a copy of the original trace data.
      */
     public void saveTraceInfo() {
-        for (TraceData td: traces) {
+        for (TraceData td : traces) {
             TraceData data = new TraceData(td);
             originalTraces.add(data);
         }
