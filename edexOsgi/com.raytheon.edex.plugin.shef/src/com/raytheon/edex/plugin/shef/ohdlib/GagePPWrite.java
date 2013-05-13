@@ -52,6 +52,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008   1649     snaples     Initial creation
+ * May 7, 2013   15880    lbousaidi   changed minute_offset to offset in
+ *                                    in write_1_HourValue routine.
  * 
  * </pre>
  * 
@@ -253,7 +255,7 @@ public final class GagePPWrite {
                     pHid.setTs(ts);
                     pHid.setObsdate(obsDate);
                     pHourpc.setId(pHid);
-                    pHourpc.setMinuteOffset(new String(minute_offset));
+                    pHourpc.setMinuteOffset(new String(offset));
                     pHourpc.setHourlyQc(new String(qc));
                     PrecipUtils.set_hour_slot_value(pHourpc, hr, newDataValue);
                     rec = pHourpc;

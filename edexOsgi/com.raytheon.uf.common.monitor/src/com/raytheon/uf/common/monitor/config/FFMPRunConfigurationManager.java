@@ -52,6 +52,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2012-09-04   DR 14404   gzhang      Fixing ConcurrentModificationException
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -60,7 +61,8 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     /** Path to FFMP Source config. */
-    private static final String CONFIG_FILE_NAME = "ffmp" + File.separatorChar
+    private static final String CONFIG_FILE_NAME = "ffmp"
+            + IPathManager.SEPARATOR
             + "FFMPRunConfig.xml";
 
     /**
@@ -211,24 +213,14 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
     }
 
     public DomainXML getDomain(String domainname) {
-        DomainXML domain = null;
-
         for (FFMPRunXML runner : getFFMPRunners()) {
-            if (runner.getPrimaryDomain().getCwa().equals(domainname)) {
-                domain = runner.getPrimaryDomain();
-                break;
-            } else {
-                if (runner.getBackupDomains() != null) {
-                    for (DomainXML backup : runner.getBackupDomains()) {
-                        if (backup.getCwa().equals(domainname)) {
-                            domain = backup;
-                            break;
-                        }
-                    }
+            for (DomainXML domain : runner.getDomains()) {
+                if (domain.getCwa().equals(domainname)) {
+                    return domain;
                 }
             }
         }
-        return domain;
+        return null;
     }
 
     public FFMPRunXML getRunner(String domainName) {
@@ -259,9 +251,11 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
     }
 
     public ProductRunXML getProduct(String productKey) {
-        for (ProductRunXML product : getProducts()) {
-            if (product.getProductKey().equals(productKey)) {
-                return product;
+        for (FFMPRunXML runner : getFFMPRunners()) {
+            for (ProductRunXML product : runner.getProducts()) {
+                if (product.getProductKey().equals(productKey)) {
+                    return product;
+                }
             }
         }
 

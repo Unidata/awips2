@@ -238,7 +238,6 @@ public class ScanDrawer {
                 circle.radius = size * (SIN_HEX_ANGLE);
                 circle.lineWidth = outlineWidth;
                 circle.basics.color = color;
-                aTarget.drawCircle(circle);
 
                 if (isNew(ctdr)) {
                     DrawableCircle innerCircle = new DrawableCircle();
@@ -247,7 +246,9 @@ public class ScanDrawer {
                     innerCircle.radius = size / 2 * (SIN_HEX_ANGLE);
                     innerCircle.lineWidth = outlineWidth;
                     innerCircle.basics.color = color;
-                    aTarget.drawCircle(innerCircle);
+                    aTarget.drawCircle(circle, innerCircle);
+                } else {
+                    aTarget.drawCircle(circle);
                 }
             }
         }
@@ -831,7 +832,7 @@ public class ScanDrawer {
             double dir, double length) {
 
         double[] earAngles = new double[] { 10, -10 };
-        List<double[]> coords = new ArrayList<double[]>();
+        List<double[]> coords = new ArrayList<double[]>(earAngles.length);
 
         for (double earAngle : earAngles) {
 
@@ -969,15 +970,13 @@ public class ScanDrawer {
 
         if (sdc.getPastTracks()) {
             if (ctdr.getPastCoordinates() != null) {
-
                 for (Date date : ctdr.getPastCoordinates().keySet()) {
                     dates.add(date);
                 }
-
                 Collections.sort(dates);
                 count = dates.size();
-                double[] point = null;
 
+                double[] point = null;
                 for (int i = dates.size() - 1; i >= 0; i--) {
                     Coordinate coor = ctdr.getPastCoordinates().get(
                             dates.get(i));
@@ -1014,45 +1013,34 @@ public class ScanDrawer {
             }
         }
 
-        // Draw data
+        // draw the past points
         if (pastPoints.size() > 0) {
-            double cirRadius = 2.0 / screenToWorldRatio;
-            DrawableCircle[] pastCircles = new DrawableCircle[pastPoints.size()];
-            for (int i = 0; i < pastPoints.size(); i++) {
-                DrawableCircle pc = new DrawableCircle();
-                double[] point = pastPoints.get(i);
-                pc.setCoordinates(point[0], point[1], 0);
-                pc.basics.color = getResourceColor();
-                pc.radius = cirRadius;
-                pc.filled = true;
-                pastCircles[i] = pc;
-            }
-            aTarget.drawCircle(pastCircles);
+            aTarget.drawPoints(pastPoints, getResourceColor(), PointStyle.DISC,
+                    0.7f);
         }
 
-        if (pastPoints.size() > 1) {
-            DrawableLine line = new DrawableLine();
-            line.points = pastPoints;
-            line.width = outlineWidth;
-            line.basics.color = getResourceColor();
-            aTarget.drawLine(line);
-        }
+        // draw the X
+        aTarget.drawPoint(center[0], center[1], 0.0, getResourceColor(),
+                PointStyle.X, 1.3f);
 
-        if (pastPoints.size() > 0) {
-            double[] oldPoint = pastPoints.get(0);
-            aTarget.drawLine(oldPoint[0], oldPoint[1], 0.0, center[0],
-                    center[1], 0.0, getResourceColor(), outlineWidth);
-        }
-        drawX(center);
-
+        // draw the future points
         if (futurePoints.size() > 0) {
             aTarget.drawPoints(futurePoints, getResourceColor(),
                     PointStyle.CROSS, 1.3f);
         }
 
-        if (futurePoints.size() > 1) {
-            DrawableLine line = new DrawableLine();
-            line.points = futurePoints;
+        // draw the track line
+        DrawableLine line = new DrawableLine();
+        for (int i = pastPoints.size() - 1; i > -1; i--) {
+            double[] pt = pastPoints.get(i);
+            line.addPoint(pt[0], pt[1]);
+        }
+        line.addPoint(center[0], center[1]);
+        for (double[] pt : futurePoints) {
+            line.addPoint(pt[0], pt[1]);
+        }
+
+        if (line.points.size() > 1) {
             line.width = outlineWidth;
             line.basics.color = getResourceColor();
             aTarget.drawLine(line);

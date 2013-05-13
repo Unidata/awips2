@@ -24,15 +24,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.serialize.LockTableAdapter;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
@@ -44,15 +41,15 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 
+ * 04/23/13     #1949      rjpeter     Added serialization adapter
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+@DynamicSerializeTypeAdapter(factory = LockTableAdapter.class)
 public class LockTable implements Cloneable, ISerializableObject {
 
     /** Enumeration denoting status of the lock */
@@ -66,18 +63,12 @@ public class LockTable implements Cloneable, ISerializableObject {
     };
 
     /** List of locks contained in this lock table */
-    @XmlElement
-    @DynamicSerializeElement
     private List<Lock> locks;
 
     /** The workstation ID of the owner of this lock table */
-    @XmlElement
-    @DynamicSerializeElement
     private WsId wsId;
 
     /** The parm ID for which this lock table holds lock information for */
-    @XmlElement
-    @DynamicSerializeElement
     private ParmID parmId;
 
     /**
@@ -215,35 +206,20 @@ public class LockTable implements Cloneable, ISerializableObject {
      * @return The lock status of the specified time range
      */
     public LockStatus checkLock(TimeRange timeRange, WsId requestorId) {
-
-        for (int i = 0; i < locks.size(); i++) {
-            if (timeRange.overlaps(locks.get(i).getTimeRange())) {
-
-                if (!requestorId.equals(locks.get(i).getWsId())) {
+        for (Lock lock : locks) {
+            TimeRange tr = lock.getTimeRange();
+            if (timeRange.overlaps(tr)) {
+                if (!requestorId.equals(lock.getWsId())) {
                     return LockStatus.LOCKED_BY_OTHER;
-                } else if (locks.get(i).getTimeRange()
-                        .contains(timeRange.getStart())
-                        && (locks.get(i).getTimeRange().getEnd()
-                                .after(timeRange.getEnd()) || locks.get(i)
-                                .getTimeRange().getEnd()
-                                .equals(timeRange.getEnd()))) {
+                } else if (tr.contains(timeRange.getStart())
+                        && (tr.getEnd().after(timeRange.getEnd()) || tr
+                                .getEnd().equals(timeRange.getEnd()))) {
                     return LockStatus.LOCKED_BY_ME;
                 }
             }
         }
-        return LockStatus.LOCKABLE;
-    }
 
-    public void removeLock(Lock lockToRemove) {
-        int removeIndex = -1;
-        for (Lock lock : locks) {
-            if (lock.getKey() == lockToRemove.getKey()) {
-                removeIndex = locks.indexOf(lock);
-            }
-        }
-        if (removeIndex != -1) {
-            locks.remove(removeIndex);
-        }
+        return LockStatus.LOCKABLE;
     }
 
     public void removeLocks(Collection<Lock> locksToRemove) {
@@ -294,13 +270,9 @@ public class LockTable implements Cloneable, ISerializableObject {
 
     @Override
     public LockTable clone() {
-        LockTable newTable = new LockTable();
-        newTable.setWsId(this.wsId);
-        newTable.setParmId(this.parmId);
-        for (Lock lock : locks) {
-            newTable.addLock(lock.clone());
-        }
-        return newTable;
+        // locks are immutable so this is safe
+        List<Lock> lockList = new ArrayList<Lock>(locks);
+        return new LockTable(this.parmId, lockList, this.wsId);
     }
 
     public static LockMode getLockMode(String modeName) {

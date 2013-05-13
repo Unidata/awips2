@@ -121,7 +121,7 @@ function lookupRPM()
    fi
 
    # awips2 rpms.
-   if [ "${1}" = "Installer.ncep-database" ]; then
+   if [ "${1}" = "awips2-ncep-database" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ncep-database"
       return 0
    fi
