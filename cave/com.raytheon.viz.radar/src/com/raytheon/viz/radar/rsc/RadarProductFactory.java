@@ -59,6 +59,7 @@ import com.raytheon.viz.radar.ui.xy.RadarXsectXYResource;
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2010            mnash     Initial creation
  * 03/04/2013   DCS51     zwang     Handle GFM product
+ * 05/02/2013   DR 14587  D. Friedman  Add isVelocityProductCode
  * 
  * </pre>
  * 
@@ -150,5 +151,9 @@ public class RadarProductFactory {
                     interrogator);
         }
         return resource;
+    }
+
+    public static boolean isVelocityProductCode(int productCode) {
+        return velocities.contains(productCode);
     }
 }
