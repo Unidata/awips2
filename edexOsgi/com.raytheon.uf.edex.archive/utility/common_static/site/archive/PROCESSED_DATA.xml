@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<archive>
+    <name>Processed</name>
+    <rootDir>/awips2/edex/data/archive/</rootDir>
+    <retentionHours>168</retentionHours>
+    <category>
+        <name>redbook</name>
+        <retentionHours>0</retentionHours>
+        <dirPattern>hdf5/redbook/([^/]*)/</dirPattern>
+        <display>redbook - \1</display>
+        <saveDir>hdf5/redbook/([^/]*)/</saveDir>
+        <saveFiles>redbook-${YYYY}-${MM}-${DD}-${HH}\..*</saveFiles>
+    </category>
+    <category>
+        <name>obs</name>
+        <retentionHours>0</retentionHours>
+        <dirPattern>hdf5/(obs)/</dirPattern>
+        <display>\1</display>
+        <saveDir>hdf5/(obs)/</saveDir>
+        <saveFiles>metar-${YYYY}-${MM}-${DD}-${HH}\.*</saveFiles>
+    </category>
+</archive>
