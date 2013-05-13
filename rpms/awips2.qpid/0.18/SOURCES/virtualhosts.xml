@@ -75,7 +75,7 @@
                 <slow-consumer-detection>
                     <!-- The maximum depth in bytes before -->
                     <!-- the policy will be applied-->
-                    <!--depth>4235264</depth-->
+                    <depth>104857600</depth>
 
                     <!-- The maximum message age in milliseconds -->
                     <!-- before the policy will be applied -->

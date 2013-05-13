@@ -1,0 +1,80 @@
+#!/bin/sh
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+# Script: check_app_Context
+# Script that determines and sets the APP_CONTEXT variable for the
+# calling script, and checks if the setting for that value is set to 'ON' or 'OFF'
+# If off, this script will exit the calling script.
+
+# get contextName from script name
+oldIFS="$IFS"
+IFS="/"
+n=0
+for element in ${0}
+do
+   n=`expr $n + 1`
+   eval pathPart$n="$element"
+done
+eval contextName='$pathPart'$n
+
+# parse off file extension if necessary
+IFS="."
+n=0
+for element in $contextName
+do
+   n=`expr $n + 1`
+   eval contextName="$element"
+   break
+done
+
+# if APP_CONTEXT is not set
+if [ "${APP_CONTEXT:-NOTSET}" == "NOTSET" ]
+then
+   eval APP_CONTEXT=${contextName}
+else
+   # check if APP_CONTEXT ends with script's context
+   # if not, then append it
+   IFS="."
+   n=0
+   for element in $APP_CONTEXT
+   do
+      n=`expr $n + 1`
+      eval currentContextName="$element"
+   done
+   if [ "${currentContextName}" != "${contextName}" ]
+   then
+       APP_CONTEXT=${APP_CONTEXT}'.'${contextName}
+   fi
+fi
+IFS="${oldIFS}"
+export APP_CONTEXT
+
+# Determine if on or off from APP_CONTEXT. Default APP_CONTEXT is ON
+eval APP_VAR=$(runso rary.ohd.util gad $APP_CONTEXT)
+echo "App Execution Token for script ${contextName} with App Context ${APP_CONTEXT} is ${APP_VAR:-ON}"
+
+# if set to not run, exit the calling script
+if [ "${APP_VAR:-ON}" == "OFF" ]
+then
+   echo "Script ${contextName} will exit and not run."
+   exit
+fi
+

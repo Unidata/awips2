@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.hibernate.Criteria;
-import org.hibernate.StatelessSession;
+import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -234,10 +234,9 @@ public abstract class PluginDao extends CoreDao {
         int dupCommitCount = 0;
         int noDupCommitCount = 0;
 
-        StatelessSession ss = null;
+        Session session = null;
         try {
-            ss = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
+            session = getHibernateTemplate().getSessionFactory().openSession();
             // process them all in fixed sized batches.
             for (int i = 0; i < objects.size(); i += COMMIT_INTERVAL) {
                 List<PluginDataObject> subList = objects.subList(i,
@@ -249,16 +248,17 @@ public abstract class PluginDao extends CoreDao {
                     // First attempt is to just shove everything in the database
                     // as fast as possible and assume no duplicates.
                     try {
-                        tx = ss.beginTransaction();
+                        tx = session.beginTransaction();
                         for (PluginDataObject object : subList) {
                             if (object == null) {
                                 continue;
                             }
-                            ss.insert(object);
+                            session.save(object);
                         }
                         tx.commit();
                     } catch (ConstraintViolationException e) {
                         tx.rollback();
+                        session.clear();
                         constraintViolation = true;
                     }
                 }
@@ -267,25 +267,26 @@ public abstract class PluginDao extends CoreDao {
                     // overwrite.
                     constraintViolation = false;
                     try {
-                        tx = ss.beginTransaction();
+                        tx = session.beginTransaction();
                         for (PluginDataObject object : subList) {
                             if (object == null) {
                                 continue;
                             }
                             try {
-                                Criteria criteria = ss.createCriteria(pdoClass);
+                                Criteria criteria = session
+                                        .createCriteria(pdoClass);
                                 populateDatauriCriteria(criteria, object);
                                 criteria.setProjection(Projections.id());
                                 Integer id = (Integer) criteria.uniqueResult();
                                 if (id != null) {
                                     object.setId(id);
                                     if (object.isOverwriteAllowed()) {
-                                        ss.update(object);
+                                        session.update(object);
                                     } else {
                                         subDuplicates.add(object);
                                     }
                                 } else {
-                                    ss.insert(object);
+                                    session.save(object);
                                 }
                             } catch (PluginException e) {
                                 statusHandler.handle(Priority.PROBLEM,
@@ -297,6 +298,7 @@ public abstract class PluginDao extends CoreDao {
                     } catch (ConstraintViolationException e) {
                         constraintViolation = true;
                         tx.rollback();
+                        session.clear();
                     }
                 }
                 if (constraintViolation) {
@@ -307,20 +309,21 @@ public abstract class PluginDao extends CoreDao {
                             continue;
                         }
                         try {
-                            tx = ss.beginTransaction();
-                            Criteria criteria = ss.createCriteria(pdoClass);
+                            tx = session.beginTransaction();
+                            Criteria criteria = session
+                                    .createCriteria(pdoClass);
                             populateDatauriCriteria(criteria, object);
                             criteria.setProjection(Projections.id());
                             Integer id = (Integer) criteria.uniqueResult();
                             if (id != null) {
                                 object.setId(id);
                                 if (object.isOverwriteAllowed()) {
-                                    ss.update(object);
+                                    session.update(object);
                                 } else {
                                     subDuplicates.add(object);
                                 }
                             } else {
-                                ss.insert(object);
+                                session.save(object);
                             }
                             tx.commit();
                         } catch (ConstraintViolationException e) {
@@ -343,8 +346,8 @@ public abstract class PluginDao extends CoreDao {
             dupStat.updateRate(noDupCommitCount
                     / (noDupCommitCount + dupCommitCount));
         } finally {
-            if (ss != null) {
-                ss.close();
+            if (session != null) {
+                session.close();
             }
         }
         return duplicates;
@@ -1808,7 +1811,7 @@ public abstract class PluginDao extends CoreDao {
         // failed) attempts it will take to change the cumulativeRate.
         protected static final int DUPLICATE_MEMORY = 5000;
 
-        protected boolean duplicateCheck = true;
+        protected boolean duplicateCheck = false;
 
         protected float cumulativeRate = 1.0f;
 

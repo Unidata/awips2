@@ -1,0 +1,295 @@
+#! /bin/ksh
+# purge_mpe_files
+# This script purges mpe (Multi-sensor-Precipitation Estimator)files
+# History: Deng, Jingtao   August 09, 2001
+#          modified by P. Tilles 4/22/2002
+#            - removed stage3 directories
+#            - added jpeg, netCDF, grib directories
+#          modified by P. Tilles 10/2002
+#            - added DISAGG_LOG_DIR purge
+#          modified by P. Tilles 9/2003 
+#            - added LIGHTNING_LOG_DIR purge
+#          March 9 2004  -  added purge of mlmosaic files - pst
+#          March 25 2004 -  added purge of lsatpre files - pst
+#                        -  removed delete from satel_precip dir
+#          March 30 2004 -  added purge of state var files
+#                            for local bias corr satellite - pst
+#          May 5, 2006  - Modified to fix mistakes made in logic
+#                         to purge MAXRMOSAIC, AVGRMOSAIC, and
+#                         P3LMOSAIC fields.  Added logic to purge
+#                         GAGETRIANGLES.
+#          May 5, 2006 -  Modified to purge DailyQC files.
+#          Nov 17, 2006 - Modified to purge sbn grib and sbn qpe directories.
+#          May 2007     - Added SRG related fields (3 new fields)
+#                       - added "-type f" to all find commands
+#                       - added directories for RFC bias transfer RFC bias fields
+#          Sep 2007     - removed stray "i" from delete on FREEZEGRID directory
+#          Nov 2007     - added purge of disagg logs from mpe_editor dir
+#                       - changed purge of mpe_fieldgen logs to purge filenames mpe_*
+#          Dec 2007     - removed purge of old disagg logs from old disagg app
+#          Jan 2008     - added purge of DailyQC freezing level preprocessor logs.
+
+# This allows you to run this script from outside of ./whfs/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up some environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
+export LIGHTNING_LOG_DIR=$(get_apps_defaults lightning_log_dir)
+export GAQ_LOG_DIR=$(get_apps_defaults gaq_log_dir)
+export MPE_QPE_SBN_DIR=$(get_apps_defaults mpe_qpe_sbn_dir)
+export MPE_QPE_GRIB_SBN_DIR=$(get_apps_defaults mpe_qpe_grib_sbn_dir)
+export MPE_GAGEQC_DIR=$(get_apps_defaults mpe_gageqc_dir)
+export MPE_LOG_DIR=$(get_apps_defaults rfcwide_logs_dir)
+export RFCWIDE_OUTPUT_DIR=$(get_apps_defaults rfcwide_output_dir)
+export PPROC_LOG=$(get_apps_defaults pproc_log)
+
+#
+# Define directories for MPE data.
+MPELOGS=$MPE_LOG_DIR          
+MPEEDITLOGS=$PPROC_LOG/mpe_editor
+RFCBIASLOGS=$PPROC_LOG/process_bias_message
+GAQLOGS=$GAQ_LOG_DIR
+
+GAGETRIANGLES=$RFCWIDE_OUTPUT_DIR/gagetriangles
+RWHEIGHT=$RFCWIDE_OUTPUT_DIR/height
+RWINDEX=$RFCWIDE_OUTPUT_DIR/index
+MAXRMOSAIC=$RFCWIDE_OUTPUT_DIR/maxrmosaic
+AVGRMOSAIC=$RFCWIDE_OUTPUT_DIR/avgrmosaic
+P3LMOSAIC=$RFCWIDE_OUTPUT_DIR/p3lmosaic
+RWBMOSAIC=$RFCWIDE_OUTPUT_DIR/bmosaic
+RWRMOSAIC=$RFCWIDE_OUTPUT_DIR/rmosaic
+RWMMOSAIC=$RFCWIDE_OUTPUT_DIR/mmosaic
+RWMLMOSAIC=$RFCWIDE_OUTPUT_DIR/mlmosaic
+RWLSATPRE=$RFCWIDE_OUTPUT_DIR/lsatpre 
+RWLMOSAIC=$RFCWIDE_OUTPUT_DIR/lmosaic
+RWLOCSPAN=$RFCWIDE_OUTPUT_DIR/locspan
+RWLOCBIAS=$RFCWIDE_OUTPUT_DIR/locbias
+RWSTATEVAR=$RFCWIDE_OUTPUT_DIR/state_var
+RWSATSTVAR=$RFCWIDE_OUTPUT_DIR/sat_state_var
+RWGAG=$RFCWIDE_OUTPUT_DIR/gageonly
+RWXMRG=$RFCWIDE_OUTPUT_DIR/qpe
+RWDRAWPRECIP=$RFCWIDE_OUTPUT_DIR/draw_precip
+
+MPESRMOSAIC=$RFCWIDE_OUTPUT_DIR/srmosaic
+MPESGMOSAIC=$RFCWIDE_OUTPUT_DIR/sgmosaic
+MPESRGMOSAIC=$RFCWIDE_OUTPUT_DIR/srgmosaic
+
+MPERFCBMOSAIC=$RFCWIDE_OUTPUT_DIR/rfcbmosaic
+MPERFCMMOSAIC=$RFCWIDE_OUTPUT_DIR/rfcmmosaic
+
+MPEGIF=$RFCWIDE_OUTPUT_DIR/qpe_gif    
+MPEGRIB=$RFCWIDE_OUTPUT_DIR/qpe_grib    
+MPEGRIBSBN=$MPE_QPE_GRIB_SBN_DIR
+MPEQPESBN=$MPE_QPE_SBN_DIR
+MPEJPEG=$RFCWIDE_OUTPUT_DIR/qpe_jpeg    
+MPENETCDF=$RFCWIDE_OUTPUT_DIR/qpe_netcdf    
+
+LIGHTNING_LOG=$LIGHTNING_LOG_DIR
+
+RFCQPETEMP=$RFCWIDE_OUTPUT_DIR/rfcqpe_temp
+RFCQPE01=$RFCWIDE_OUTPUT_DIR/rfcqpe01
+RFCQPE06=$RFCWIDE_OUTPUT_DIR/rfcqpe06
+RFCQPE24=$RFCWIDE_OUTPUT_DIR/rfcqpe24
+
+RFCBIASINDIR=$RFCWIDE_OUTPUT_DIR/bias_message_input
+RFCBIASOUTDIR=$RFCWIDE_OUTPUT_DIR/bias_message_output
+
+#
+# Define directories for DailyQC data
+SCRATCH=$MPE_GAGEQC_DIR/scratch
+
+PRECIPPOINT=$MPE_GAGEQC_DIR/precip/point
+PRECIPMAP=$MPE_GAGEQC_DIR/precip/MAP
+PRECIPGRID=$MPE_GAGEQC_DIR/precip/grid
+PRECIPBAD=$MPE_GAGEQC_DIR/precip/bad
+PRECIPDEV=$MPE_GAGEQC_DIR/precip/dev
+
+TEMPPOINT=$MPE_GAGEQC_DIR/temperature/point
+TEMPMAT=$MPE_GAGEQC_DIR/temperature/MAT
+TEMPGRID=$MPE_GAGEQC_DIR/temperature/grid
+TEMPBAD=$MPE_GAGEQC_DIR/temperature/bad
+TEMPDEV=$MPE_GAGEQC_DIR/temperature/dev
+
+FREEZEPOINT=$MPE_GAGEQC_DIR/freezing_level/point
+FREEZEMAZ=$MPE_GAGEQC_DIR/freezing_level/MAZ
+FREEZEGRID=$MPE_GAGEQC_DIR/freezing_level/grid
+
+Dte=`date -u`
+
+# Setup file names
+#
+fnm=$PPROC_LOG/misc/purge_mpe_files.log
+tmp=$PPROC_LOG/misc/purge_mpe_files.tmp
+
+echo `basename $0` log location: $fnm
+
+# Save only the latest events in the log file
+#
+if [ -e "${fnm}" ]
+then
+	tail -1200 $fnm > $tmp
+	mv $tmp $fnm
+	chmod 777 $fnm
+fi
+
+
+# Log a header line to the output file
+#
+echo "----------------------------------------------------" >> $fnm
+echo "Begin purge_mpe_files at:  " $Dte >> $fnm
+
+
+# Purge mpe log files generated by mpe_fieldgen
+# 
+
+echo " " >> $fnm
+echo "   mpe_fieldgen log files   " >> $fnm
+find $MPELOGS -name 'mpe_*' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPELOGS -name 'error.*' -type f -mtime +10 -print -exec rm {} \;  \
+>> $fnm
+
+find $MPEEDITLOGS -name 'disagg*' -type f -mtime +2 -print -exec rm {} \; \
+>> $fnm
+find $MPEEDITLOGS -name 'mpe_editor*' -type f -mtime +2 -print -exec rm {} \; \
+>> $fnm
+find $MPEEDITLOGS -name 'mpe_pre*' -type f -mtime +2 -print -exec rm {} \; \
+>> $fnm
+find $MPEEDITLOGS -name 'freez*' -type f -mtime +2 -print -exec rm {} \; \
+>> $fnm
+
+
+find $GAQLOGS -name 'process_qpe*' -type f -mtime +3 -print -exec rm {} \; \
+>> $fnm
+find $GAQLOGS -name 'transmit_rfc*' -type f -mtime +3 -print -exec rm {} \; \
+>> $fnm
+
+
+
+#Purge mpe gridded field files older than 2 days
+#For gif/jpeg/grib/netcdf and state variables, purge files older than 1 day
+#
+echo " " >> $fnm
+echo "   mpe gridded field files   " >> $fnm
+find $RWMMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWLSATPRE -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWMLMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWRMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWBMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWLMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWLOCSPAN -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $P3LMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $GAGETRIANGLES -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $AVGRMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MAXRMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWLOCBIAS -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWSTATEVAR -name '*z' -type f -mtime +0 -print -exec rm {} \;  \
+>> $fnm
+find $RWSATSTVAR -name '*z' -type f -mtime +0 -print -exec rm {} \;  \
+>> $fnm
+find $RWHEIGHT -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWINDEX -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWGAG -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWXMRG -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $RWDRAWPRECIP -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPEQPESBN -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+
+find $MPESRMOSAIC  -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPESGMOSAIC  -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPESRGMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+
+find $MPEGIF -name '*.gif' -type f -mtime +0 -print -exec rm {} \; \
+ >> $fnm
+find $MPEGRIB -name '*.grib' -type f -mtime +0 -print -exec rm {} \; \
+ >> $fnm
+find $MPEGRIBSBN -name '*.grib' -type f -mtime +0 -print -exec rm {} \; \
+ >> $fnm
+find $MPEJPEG -name '*.jpg' -type f -mtime +0 -print -exec rm {} \; \
+ >> $fnm
+find $MPENETCDF -name '*.nc' -type f -mtime +0 -print -exec rm {} \; \
+ >> $fnm
+
+find $LIGHTNING_LOG -name 'lightning_proc*' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+
+#
+# Purge the GageQC directories
+find $PRECIPPOINT -name 'precip*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $PRECIPGRID -name 'precip*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $PRECIPMAP -name 'map*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $PRECIPBAD -name 'precip*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $PRECIPDEV -name 'precip*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+
+find $TEMPPOINT -name 'temp*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $TEMPGRID -name 'temp*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $TEMPMAT -name 'mat*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $TEMPBAD -name 'temp*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $TEMPDEV -name 'temp*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+
+find $FREEZEPOINT -name 'freez*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $FREEZEGRID -name 'freez*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+find $FREEZEMAZ -name 'maz*' -type f -mtime +20 -print -exec rm {} \; \
+ >> $fnm
+
+find $SCRATCH -name 'pcp.*' -type f -mtime +0 -print -exec rm {} \; \
+ >> $fnm
+
+find $RFCQPETEMP -name '*[A-Z]*' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+find $RFCQPE01 -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+find $RFCQPE06 -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+find $RFCQPE24 -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+
+find $RFCBIASLOGS -name '*[0-9]' -type f -mtime +3 -print -exec rm {} \; \
+ >> $fnm
+find $MPERFCBMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+find $MPERFCMMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+find $RFCBIASINDIR -name '*[0-9]' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+find $RFCBIASOUTDIR -name '*z' -type f -mtime +1 -print -exec rm {} \; \
+ >> $fnm
+
+Dte=`date -u`
+echo "End   purge_mpe_files at:  " $Dte >> $fnm
+
+#End of purge_mpe_files

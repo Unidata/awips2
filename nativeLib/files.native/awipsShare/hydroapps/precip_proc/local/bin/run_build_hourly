@@ -1,0 +1,77 @@
+#!/bin/ksh
+# file name: run_build_hourly lookback_window end_time
+# lookback_window & end_time is optional, format is YYYY-MM-DD HH:MM:SS 
+# if end_time is not specified then the current time will be assumed
+# Created: 23 June 2005 Author : Varalakshmi Rajaram
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../../set_hydro_env
+export BUILD_HOURLY_ENABLE=$(get_apps_defaults build_hourly_enable)
+export GAGE_PP_DATA=$(get_apps_defaults gage_pp_data)
+export GAGE_PP_LOG=$(get_apps_defaults gage_pp_log)
+export DB_NAME=$(get_apps_defaults db_name)
+
+TEMP_DATE=`date -u +%m%d` 
+BUILD_HOURLY_LOGFILE=$GAGE_PP_LOG/build_hourly_$TEMP_DATE.log
+
+if [[ $BUILD_HOURLY_ENABLE = OFF ]]
+then
+   echo "Build hourly is not enabled...Exiting" >>$BUILD_HOURLY_LOGFILE
+   exit 1
+fi
+
+#Usage
+USAGE="run_build_hourly lookback_window_in_hrs <end_time as \"YYYY-MM-DD HH:MM:SS\">  or run_build_hourly"
+if [[ ! ( ($# -eq 2) || ($# -eq 0) ) ]]
+then
+ print -u2 "\nUSAGE: $USAGE\n"
+ exit 1
+fi
+
+if [[ $# -eq 0 ]]
+then
+   LOOKBACK_WINDOW=3  #default num of hours for which the hourly total is calculated
+else
+   LOOKBACK_WINDOW=$1 #number of hours for which the hourly total is calculated
+fi
+
+# Command line arguments to the program build_hourly
+END_TIME="$2"
+DATABASE_NAME=$DB_NAME
+MIN_PERCENT_FILLED=0.75          # Create the load file for the hour only if 
+                                 # the data obtained by summation of the sub 
+                                 # hourly data covers the whole hour
+TYPE_HANDLING=PTYPE              # SAME / PTYPE     
+                                 # SAME - Retain the org type source
+                                 # PTYPE     - Replace the R in RG, RZ, 
+                                 # RR etc to P
+
+
+echo "******************************" >>$BUILD_HOURLY_LOGFILE
+echo "Started Build Hourly Script..." >>$BUILD_HOURLY_LOGFILE
+
+# build_hourly -d dbname -l lookback_window -p percent_filled
+#                -t type_source [-e end_time]
+
+runso rary.ohd.pproc build_hourly_main -d $DATABASE_NAME -l $LOOKBACK_WINDOW \
+-p $MIN_PERCENT_FILLED -t $TYPE_HANDLING -e "$END_TIME" >>$BUILD_HOURLY_LOGFILE 2>&1
+
+echo " "  >>$BUILD_HOURLY_LOGFILE
+echo "Stopped Build Hourly Script..." >>$BUILD_HOURLY_LOGFILE
+echo "******************************" >>$BUILD_HOURLY_LOGFILE
+
+integer CNTR=1
+while [[ 1 -eq 1 ]]
+do
+   NUM_OF_FILES=`ls -1 $GAGE_PP_DATA | grep BUILD | wc -l`
+   if [[ ($NUM_OF_FILES -ne 0) && ($CNTR -lt 2) ]]
+   then
+       sleep 1
+       CNTR=CNTR+1
+   else 
+       break
+   fi
+done

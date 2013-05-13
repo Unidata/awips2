@@ -22,10 +22,9 @@
 	    <property name="pendingInitMinTimeMillis" value="180000"/>
 	    <property name="runningInitTimeOutMillis" value="300000"/>
 	    <property name="threadSleepInterval" value="60000"/>
-	    <property name="initialDelay" value="320000"/>
 	</bean>
 
-  	<bean depends-on="gfeDbRegistered" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
+  	<bean depends-on="gfeDbRegistered, gfeSitesActive" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
         <constructor-arg ref="smartInitSrvCfg" />
   	</bean>
 	
