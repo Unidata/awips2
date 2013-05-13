@@ -228,8 +228,6 @@ fi
 cd ../${POSTGIS_SRC_DIR}
 _POSTGRESQL_ROOT=${RPM_BUILD_ROOT}/awips2/postgresql
 _POSTGRESQL_BIN=${_POSTGRESQL_ROOT}/bin
-# disable doc since it attempts to download files from
-# the internet
 ./configure \
    --with-pgconfig=${_POSTGRESQL_BIN}/pg_config \
    --with-geosconfig=${_POSTGRESQL_BIN}/geos-config \
@@ -241,9 +239,25 @@ RC="$?"
 if [ ! "${RC}" = "0" ]; then
    exit 1
 fi
+# disable doc since it attempts to download files from
+# the internet
+echo "#Do Nothing" > doc/Makefile.in
+echo "docs:" > doc/Makefile
+echo "" >> doc/Makefile
+echo "docs-install:" >> doc/Makefile
+echo "" >> doc/Makefile
+echo "docs-uninstall:" >> doc/Makefile
+echo "" >> doc/Makefile
+echo "comments-install:" >> doc/Makefile
+echo "" >> doc/Makefile
+echo "comments-uninstall:" >> doc/Makefile
+echo "" >> doc/Makefile
+echo "clean:" >> doc/Makefile
+echo "" >> doc/Makefile
 make
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
+# run make twice - the first time may fail due to doc
+make
+if [ $? -ne 0 ]; then
    exit 1
 fi
 make install
