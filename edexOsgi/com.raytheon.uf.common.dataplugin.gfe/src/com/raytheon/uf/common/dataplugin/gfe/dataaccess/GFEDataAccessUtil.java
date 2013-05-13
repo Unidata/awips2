@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.gfe.dataaccess;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -31,8 +30,6 @@ import com.raytheon.uf.common.dataplugin.gfe.request.GetGridParmInfoRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 
 /**
@@ -46,6 +43,9 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * May 02, 2013 1949       bsteffen    Update GFE data access in Product
+ *                                     Browser, Volume Browser, and Data Access
+ *                                     Framework.
  * 
  * </pre>
  * 
@@ -54,25 +54,21 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  */
 public class GFEDataAccessUtil {
 
-    private static final String PARM_ID_FORMAT = "%s_%s:%s_GRID_%s_%s_%s";
+    public static final String PLUGIN_NAME = "pluginName";
 
     public static final String PARM_ID = "parmId";
 
-    public static final String DB_ID = "dbId";
+    public static final String DB_ID = PARM_ID + ".dbId";
 
-    public static final String PLUGIN_NAME = "pluginName";
+    public static final String SITE_ID = DB_ID + ".siteId";
 
-    public static final String SITE_ID = "siteId";
+    public static final String MODEL_NAME = DB_ID + ".modelName";
 
-    public static final String DB_TYPE = "dbType";
+    public static final String MODEL_TIME = DB_ID + ".modelTime";
 
-    public static final String MODEL_NAME = "modelName";
+    public static final String PARM_NAME = PARM_ID + ".parmName";
 
-    public static final String MODEL_TIME = "modelTime";
-
-    public static final String PARM_NAME = "parmName";
-
-    public static final String PARM_LEVEL = "parmLevel";
+    public static final String PARM_LEVEL = PARM_ID + ".parmLevel";
 
     /**
      * Retrieve the GridParmInfo for a ParmID
@@ -112,52 +108,6 @@ public class GFEDataAccessUtil {
         ServerResponse<List<IGridSlice>> response = (ServerResponse<List<IGridSlice>>) RequestRouter
                 .route(request);
         return response.getPayload().get(0);
-    }
-
-    /**
-     * Take a map of value for various fields that make up the ParmId and
-     * convert it into a single like constraint for ParmId. ANd fields not in
-     * the map will accept any value.
-     * 
-     * @param components
-     * @return
-     */
-    public static RequestConstraint createParmIdConstraint(
-            Map<String, String> components) {
-        String siteId = "%";
-        String modelName = "%";
-        String modelTime = "%";
-        String dbType = "%";
-        String parmName = "%";
-        String parmLevel = "%";
-
-        if (components.containsKey(SITE_ID)) {
-            siteId = components.get(SITE_ID);
-        }
-
-        if (components.containsKey(MODEL_NAME)) {
-            modelName = components.get(MODEL_NAME);
-        }
-
-        if (components.containsKey(MODEL_TIME)) {
-            modelTime = components.get(MODEL_TIME);
-        }
-
-        if (components.containsKey(DB_TYPE)) {
-            dbType = components.get(DB_TYPE);
-        }
-
-        if (components.containsKey(PARM_NAME)) {
-            parmName = components.get(PARM_NAME);
-        }
-
-        if (components.containsKey(PARM_LEVEL)) {
-            parmLevel = components.get(PARM_LEVEL);
-        }
-
-        String parmId = String.format(PARM_ID_FORMAT, parmName,
-                parmLevel, siteId, dbType, modelName, modelTime);
-        return new RequestConstraint(parmId, ConstraintType.LIKE);
     }
 
 }

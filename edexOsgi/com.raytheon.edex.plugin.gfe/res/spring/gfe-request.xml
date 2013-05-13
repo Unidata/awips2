@@ -465,9 +465,8 @@
 	    <property name="threads" value="1"/>
 	    <property name="runningTimeOutMillis" value="300000"/>
 	    <property name="threadSleepInterval" value="5000"/>
-	    <property name="initialDelay" value="120000"/>
 	</bean>
-  	<bean depends-on="gfeDbRegistered" id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv">
+  	<bean depends-on="gfeDbRegistered, gfeSitesActive" id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv">
         <constructor-arg ref="iscSendSrvCfg" />
   	</bean>
   	<!-- End ISC Send Beans -->
