@@ -65,6 +65,26 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * plugin specific data type would be called SatelliteRecord.
  * 
  * <pre>
+ * Hibernate Annotation Requirements for "@Entity" annotated classes that are subclasses
+ * of PluginDataObject
+ * 
+ * 1) If it is not abstract and not a super class for "@Entity" annotated
+ * subclasses, then add a SequenceGenerator annotation:
+ * "@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "
+ * <tablename>seq")"
+ * 
+ * 2) If it is abstract and a super class for @Entity annotated subclasses:
+ * 
+ * - if there are "@ManyToOne" or "@OneToMany" relationships to the class, then
+ * an "@Entity" annotation has to be used otherwise use a "@MappedSuperClass"
+ * annotation
+ * 
+ * - Add an "@Inheritance" annotation
+ * "@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)"
+ * 
+ * - Add an "@Sequence" annotation
+ * "@SequenceGenerator(name = PluginDataObject.ID_GEN)"
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
