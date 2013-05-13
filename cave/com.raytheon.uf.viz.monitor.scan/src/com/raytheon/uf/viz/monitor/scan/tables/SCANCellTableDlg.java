@@ -54,6 +54,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.MESOTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorEvent;
@@ -87,6 +88,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * Nov 21, 2009 #3039      lvenable    Initial creation
  * 
  * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * Apr 26, 2013 #1945      lvenable    Improved SCAN performance, reworked
+ *                                     some bad code, and some code cleanup.
  * 
  * </pre>
  * 
@@ -99,7 +102,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     private boolean killDialog = false;
 
     /*
-     * Action button at the top of the dialog.
+     * Action buttons at the top of the dialog.
      */
     private Button configBtn;
 
@@ -180,6 +183,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
 
     private SCANAlarmsDlg alarmDlg = null;
 
+    /** Date format for the time label. */
+    private SimpleDateFormat dateFmt = new SimpleDateFormat(
+            "E MMM dd HH:mm yyyy");
+
     /**
      * Constructor.
      * 
@@ -209,6 +216,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      */
     @Override
     protected void initComponents() {
+        dateFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
         createTopControls();
         createCellTable();
         createFilePopupMenu();
@@ -231,7 +239,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     }
 
     /**
-     * 
+     * Add an alarm timer.
      */
     private void addAlarmTimer() {
         if (scanTableComp.timer != null) {
@@ -239,6 +247,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 @Override
                 public void run() {
                     Display.getDefault().asyncExec(new Runnable() {
+                        @Override
                         public void run() {
                             if (shell.isDisposed()) {
                                 scanTableComp.timer.cancel();
@@ -437,11 +446,16 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         vertChk.setSelection(cellCfgMgr.getScanCellCfgXML().getFilterOption());
         vertChk.setLayoutData(gd);
-        vertChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            }
-        });
+
+        /*
+         * The vertical table is a techblocked DR. This selection listener will
+         * be commented out until it is needed.
+         */
+        // vertChk.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // }
+        // });
         setupButtonMouseListeners(vertChk);
 
         gd = new GridData();
@@ -475,7 +489,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 alarmDlg.open();
                 if (!alarmBtn.isDisposed()
                         && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
-                	turnOffAlarm();
+                    turnOffAlarm();
                 }
             }
         });
@@ -489,52 +503,19 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
 
     @Override
     public void turnOffAlarm() {
-    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
-    		alarmBtn.setVisible(false);
-    	}
+        if (alarmBtn != null && !alarmBtn.isDisposed()) {
+            alarmBtn.setVisible(false);
+        }
         mgr.setRing(false);
-	}
+    }
 
     @Override
     public void turnOnAlarm() {
-    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
-    		alarmBtn.setVisible(true);
-    	}
+        if (alarmBtn != null && !alarmBtn.isDisposed()) {
+            alarmBtn.setVisible(true);
+        }
         mgr.setRing(true);
-	}
-
-	// private void resetButtonForegroundColor(Button btn)
-    // {
-    // btn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-    // }
-
-    // private void setupButtonMouseListeners(final Button btn)
-    // {
-    // btn.addMouseMoveListener(new MouseMoveListener()
-    // {
-    // @Override
-    // public void mouseMove(MouseEvent e)
-    // {
-    // btn.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-    // }
-    //
-    // });
-    //
-    // btn.addMouseTrackListener(new MouseTrackAdapter()
-    // {
-    // @Override
-    // public void mouseExit(MouseEvent e)
-    // {
-    // btn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-    // }
-    //
-    // @Override
-    // public void mouseEnter(MouseEvent e)
-    // {
-    // btn.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-    // }
-    // });
-    // }
+    }
 
     /**
      * Create the CELL table.
@@ -604,19 +585,6 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 saveConfigurationAs();
             }
         });
-
-        // new MenuItem(filePopupMenu, SWT.SEPARATOR);
-        //
-        // MenuItem exitMI = new MenuItem(filePopupMenu, SWT.NONE);
-        // exitMI.setText("Exit");
-        // exitMI.addSelectionListener(new SelectionAdapter()
-        // {
-        // @Override
-        // public void widgetSelected(SelectionEvent e)
-        // {
-        // shellDisposeDialog();
-        // }
-        // });
 
         fileBtn.setMenu(filePopupMenu);
     }
@@ -903,6 +871,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      */
     private void displayMesoTableDialog() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -921,6 +890,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      */
     private void displayTvsTableDialog() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -943,8 +913,6 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
             return;
         }
 
-        SimpleDateFormat dateFmt = new SimpleDateFormat("E MMM dd HH:mm yyyy");
-        dateFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
         timeLbl.setText(dateFmt.format(currentTime));
     }
 
@@ -1012,144 +980,6 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         mb.open();
     }
 
-    // /**
-    // * Retrieve the default configuration.
-    // */
-    // private void retrieveDefaultConfig()
-    // {
-    // /*
-    // * TODO : when loading the default config, the controls on the dialog
-    // * needs to be updated and a new table data should be loaded
-    // */
-    // scanCfg.loadDefaultConfigFileName(scanTable);
-    //
-    // updateAfterConfigLoad();
-    // }
-    //
-    // /**
-    // * Retrieve an existing configuration.
-    // */
-    // private void retrieveExistingConfig()
-    // {
-    // /*
-    // * TODO : when loading an existing config, the controls on the dialog
-    // * needs to be updated and a new table data should be loaded
-    // */
-    //
-    // if (closedOpenDialogs() == false)
-    // {
-    // return;
-    // }
-    //
-    // LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN,
-    // scanTable);
-    // LocalizationFile fileName = loadDlg.open();
-    //
-    // if (fileName == null)
-    // {
-    // System.out.println("FileName is null...");
-    // return;
-    // }
-    //
-    // scanCfg.loadNewConfigFileName(scanTable, fileName.getFile().getName());
-    //
-    // System.out.println(fileName.getFile().getAbsolutePath());
-    //
-    // updateAfterConfigLoad();
-    //
-    // }
-    //
-    // /**
-    // * Save the current configuration.
-    // */
-    // private void saveCurrentConfiguration()
-    // {
-    // /*
-    // * TODO : save the current configuration...
-    // *
-    // * do not need to update the display...
-    // *
-    // * call to configuration manager to save the config...
-    // */
-    //
-    // /*
-    // * check if the user is trying to save the default config
-    // */
-    //
-    // if (scanCfg.currentConfigIsDefault(scanTable) == true)
-    // {
-    // MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK |
-    // SWT.CANCEL);
-    // mb.setText("Overwrite");
-    // mb.setMessage("Saving will overwrite the default configuration.\n" +
-    // "Do you wish to continue?");
-    // int result = mb.open();
-    //
-    // // If the user selected Cancel then return.
-    // if (result == SWT.CANCEL)
-    // {
-    // return;
-    // }
-    // }
-    //
-    // scanCfg.saveCurrentConfigurationFile(scanTable);
-    // }
-    //
-    // /**
-    // * Save the current configuration as a different name.
-    // */
-    // private void saveConfigurationAs()
-    // {
-    // /*
-    // * TODO : launch the save dialog and then get a name to save the
-    // configuration.
-    // *
-    // * do not need to update the display...
-    // */
-    // String defCfgName = scanCfg.getDefaultConfigName(scanTable);
-    //
-    //
-    //
-    // LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-    // DialogType.SAVE_AS, scanTable);
-    // LocalizationFile fileName = loadDlg.open();
-    //
-    // if (fileName == null)
-    // {
-    // System.out.println("FileName is null...");
-    // return;
-    // }
-    //
-    // if (defCfgName.compareTo(fileName.getFile().getName()) == 0)
-    // {
-    // MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK |
-    // SWT.CANCEL);
-    // mb.setText("Overwrite");
-    // mb.setMessage("The Save As name is the same as the default configuration name.  Saving "
-    // +
-    // "will overwrite the default configuration.\n" +
-    // "Do you wish to continue?");
-    // int result = mb.open();
-    //
-    // // If the user selected Cancel then return.
-    // if (result == SWT.CANCEL)
-    // {
-    // return;
-    // }
-    // }
-    //
-    // scanCfg.saveConfigurationFileAs(scanTable, fileName.getFile().getName());
-    // }
-
-    /**
-     * Shell closed action.
-     */
-    @Override
-    protected void shellCloseAction() {
-        // TODO : this method may be deleted from the abstract
-        // class if it is not needed
-    }
-
     /**
      * Shell dispose action.
      */
@@ -1164,7 +994,6 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
             @Override
             public void shellClosed(ShellEvent e) {
                 e.doit = killDialog;
-                // unregisterDialog();
             }
         });
     }
@@ -1187,24 +1016,37 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     }
 
     /**
+     * Update the table with new data.
+     * 
+     * @param scan
+     *            Scan Monitor.
+     * @param time
+     *            The new time.
+     * @param sdg
+     *            Scan Data Generator.
+     */
+    private void updateTable(ScanMonitor scan, Date time, ScanDataGenerator sdg) {
+        tableData = sdg.generateCellData(scan.getTableData(scanTable, site,
+                time));
+        scanTableComp.setTableData(tableData);
+    }
+
+    /**
      * Notify when the table data needs to be updated.
      */
     @Override
     public void notify(IMonitorEvent me) {
         if (me.getSource() instanceof IMonitor) {
             ScanMonitor scan = (ScanMonitor) me.getSource();
-            Date time = null;
-            try {
-                if (getLinkToFrame(scanTable.name())) {
-                    time = scan.getScanTime(scanTable, site);
-                } else {
-                    time = scan.getMostRecent(scan, scanTable.name(), site)
-                            .getRefTime();
-                }
-            } catch (Exception e) {
+
+            // If scan is null return since nothing will be done.
+            if (scan == null) {
+                return;
             }
 
-            if ((time != null) && (scan != null)) {
+            Date time = getScanTime(scan);
+
+            if ((time != null)) {
 
                 ScanDataGenerator sdg = new ScanDataGenerator(site);
 
@@ -1218,21 +1060,18 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                     sdg.setUnwarnedCells(warnings);
                 }
 
-                tableData = sdg.generateCellData((scan).getTableData(scanTable,
-                        site, time));
-
-                scanTableComp.setTableData(tableData);
-
-                setShellText();
-
                 if (getLinkToFrame(scanTable.name())) {
-
-                    currentTime = (scan).getDialogTime(scanTable, site);
-
+                    currentTime = scan.getDialogTime(scanTable, site);
+                    updateTimeLabel();
+                    updateTable(scan, time, sdg);
                 } else {
-                    currentTime = time;
+                    if (currentTime == null || !currentTime.equals(time)) {
+                        currentTime = time;
+                        updateTimeLabel();
+                        updateTable(scan, time, sdg);
+                    }
                 }
-                updateTimeLabel();
+
                 scan.fireMonitorEvent(SCANMesoTableDlg.class.getName());
                 scan.fireMonitorEvent(SCANTvsTableDlg.class.getName());
 
@@ -1242,11 +1081,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 // closes the alarm dialog if new data comes in or user switches
                 // frame
                 Date scanMostRecentTime = null;
-                try {
-                    scanMostRecentTime = scan.getMostRecent(scan,
-                            scanTable.name(), site).getRefTime();
-                } catch (NullPointerException npe) {
-                    // scan has been turned off
+                DataTime dataTime = scan.getMostRecent(scan, scanTable.name(),
+                        site);
+                if (dataTime != null) {
+                    scanMostRecentTime = dataTime.getRefTime();
                 }
 
                 if (scanMostRecentTime != null) {
@@ -1265,13 +1103,14 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                         scanTableComp.checkBlink(sdg, scanMostRecentTime);
                         if (mgr.getAlertedAlarms(site, scanTable).size() > 0) {
                             boolean displayAlarmBtn = false;
-                            for (AlertedAlarms alarm: mgr.getAlertedAlarms(site, scanTable)) {
+                            for (AlertedAlarms alarm : mgr.getAlertedAlarms(
+                                    site, scanTable)) {
                                 if (!alarm.cleared) {
                                     displayAlarmBtn = true;
                                     break;
                                 }
                             }
-                            
+
                             alarmBtn.setVisible(displayAlarmBtn);
                             addAlarmTimer();
                         } else {

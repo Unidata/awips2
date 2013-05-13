@@ -50,6 +50,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 /**
  * 
+ * Lookup a GridModel based off the information in the grib file.
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -58,13 +60,14 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2013 DR 15715   dhuffman    Near line 202; Transposed edex site and base precedence
  *                                         per DR: loading was in reverse.
- *                                         
+ * Apr 30, 2013            bsteffen    Initial javadoc
+ * Apr 30, 2013 1961       bsteffen    Add ability to disable grib tables.
+ * 
  * </pre>
  * 
- * @author
+ * @author unknown
  * @version 1.0
  */
-
 public class GribModelLookup {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribModelLookup.class);
@@ -216,8 +219,12 @@ public class GribModelLookup {
             }
         }
 
-        modelSet.addModels(initCommonStaticModels());
+        addModels(modelSet);
+        long endTime = System.currentTimeMillis();
+        logger.info("Grib models initialized: " + (endTime - startTime) + "ms");
+    }
 
+    private void addModels(GridModelSet modelSet) {
         for (GridModel model : modelSet.getModels()) {
             modelsByName.put(model.getName(), model);
             for (int process : model.getProcess()) {
@@ -235,8 +242,6 @@ public class GribModelLookup {
                 }
             }
         }
-        long endTime = System.currentTimeMillis();
-        logger.info("Grib models initialized: " + (endTime - startTime) + "ms");
     }
 
     /**
@@ -251,8 +256,8 @@ public class GribModelLookup {
      * @return
      * @throws GribException
      */
-    private List<GridModel> initCommonStaticModels() {
-        List<GridModel> modelSet = new ArrayList<GridModel>();
+    public Boolean initCommonStaticModels() {
+        GridModelSet modelSet = new GridModelSet();
         LocalizationContext commonStaticSite = PathManagerFactory
                 .getPathManager().getContext(
                         LocalizationContext.LocalizationType.COMMON_STATIC,
@@ -267,9 +272,11 @@ public class GribModelLookup {
 
         for (LocalizationFile modelFile : legacyFiles) {
             try {
+                logger.info("Loading deprecated gribModel file: "
+                        + modelFile.getFile());
                 GridModelSet fileSet = JAXB.unmarshal(modelFile.getFile(),
                         GridModelSet.class);
-                modelSet.addAll(fileSet.getModels());
+                modelSet.addModels(fileSet.getModels());
                 ArrayList<DatasetInfo> infoList = new ArrayList<DatasetInfo>(
                         fileSet.getModels().size());
                 for (GridModel model : fileSet.getModels()) {
@@ -332,7 +339,10 @@ public class GribModelLookup {
                 }
             }
         }
-        return modelSet;
+        if (modelSet.getModels() != null) {
+            addModels(modelSet);
+        }
+        return modelSet.getModels() != null && !modelSet.getModels().isEmpty();
     }
 
     private String toKey(Integer center, Integer subcenter, String grid,
