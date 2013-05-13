@@ -61,7 +61,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 19, 2008  #1160     randerso     Initial creation
  * Jul 10, 2009  #2590     njensen      Support for multiple sites.
  * May 04, 2012  #574      dgilling     Re-port to better match AWIPS1.
- * 
+ * Apr 23, 2013  #1949     rjpeter      Removed unused method.
  * </pre>
  * 
  * @author randerso
@@ -70,13 +70,13 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 public class TopoDatabase extends VGridDatabase {
     private static final TimeRange TR = TimeRange.allTimes();
 
-    private TopoDatabaseManager topoMgr;
+    private final TopoDatabaseManager topoMgr;
 
-    private GridLocation gloc;
+    private final GridLocation gloc;
 
-    private ParmID pid;
+    private final ParmID pid;
 
-    private GridParmInfo gpi;
+    private final GridParmInfo gpi;
 
     public TopoDatabase(final IFPServerConfig config,
             TopoDatabaseManager topoMgr) {
@@ -195,7 +195,7 @@ public class TopoDatabase extends VGridDatabase {
 
         if (!this.pid.equals(id)) {
             sr.addMessage("Unknown ParmID: " + id);
-        } else if (timeRanges.size() != 1 || !timeRanges.get(0).equals(TR)) {
+        } else if ((timeRanges.size() != 1) || !timeRanges.get(0).equals(TR)) {
             sr.addMessage("Invalid time requested");
         } else {
 
@@ -276,21 +276,6 @@ public class TopoDatabase extends VGridDatabase {
     @Override
     public void deleteDb() {
         // no-op
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#updateGridHistory
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID, java.util.Map)
-     */
-    @Override
-    public ServerResponse<?> updateGridHistory(ParmID parmId,
-            Map<TimeRange, List<GridDataHistory>> history) {
-        ServerResponse<?> sr = new ServerResponse<Object>();
-        sr.addMessage("Can't update Grid History on TopoDatabase");
-        return sr;
     }
 
     /*
