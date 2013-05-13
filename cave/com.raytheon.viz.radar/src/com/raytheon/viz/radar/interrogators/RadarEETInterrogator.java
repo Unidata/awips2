@@ -54,7 +54,7 @@ public class RadarEETInterrogator extends RadarRadialInterrogator implements
      * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
      */
     @Override
-    public String decodeValues(int dataValue, Map<String, String> dataMap,
+    public String decodeValues(int dataValue, String baseName, Map<String, String> dataMap,
             RadarRecord radarRecord, ColorMapParameters params) {
         dataValue -= 2;
         String d = "";
@@ -66,7 +66,7 @@ public class RadarEETInterrogator extends RadarRadialInterrogator implements
         } else {
             d = String.valueOf(dataValue);
         }
-        dataMap.put("numericValue", d);
+        dataMap.put(baseName + "numericValue", d);
         return String.format("%s %s", d,
                 UnitFormat.getUCUMInstance().format(params.getDisplayUnit()));
     }
