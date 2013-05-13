@@ -27,6 +27,7 @@
  - Date         Ticket#    Engineer    Description
  - ============ ========== =========== ==========================
  - Mar 18, 2013 1814       rjpeter     Initial Creation
+ - May 08, 2013 1814       rjpeter     Remove slow consumer disconnect
  - 
  -->
 <virtualhosts>
@@ -39,11 +40,6 @@
                 <class>org.apache.qpid.server.store.derby.DerbyMessageStore</class>
                 <environment-path>${QPID_WORK}/messageStore</environment-path>
             </store>
-            <slow-consumer-detection>
-                    <!-- Only check every 5 minutes -->
-                    <delay>5</delay>
-                    <timeunit>minutes</timeunit>
-            </slow-consumer-detection>
             <queues>
                 <!-- Define default exchange -->
                 <exchange>amq.direct</exchange>
@@ -63,6 +59,8 @@
                 <durable>true</durable>
 
 <!--            Configure queues
+                Queues created on demand for AWIPS II
+
                 <queue>
                     <name>external.dropbox</name>
                     <external..dropbox>
@@ -71,31 +69,6 @@
                 </queue>
 -->
             </queues>
-            <topics>
-                <slow-consumer-detection>
-                    <!-- The maximum depth in bytes before -->
-                    <!-- the policy will be applied-->
-                    <depth>104857600</depth>
-
-                    <!-- The maximum message age in milliseconds -->
-                    <!-- before the policy will be applied -->
-                    <messageAge>600000</messageAge>
-
-                    <!-- The maximum number of message before -->
-                    <!-- which the policy will be applied-->
-                    <messageCount>5000</messageCount>
-
-                    <!-- Policy Selection -->
-                    <policy>
-                        <name>topicDelete</name>
-                        <topicDelete>
-                            <!-- Uncomment to enable deletion of durable subscriptions that fall behind -->
-                            <!--delete-persistent/-->
-                        </topicDelete>
-                    </policy>
-                </slow-consumer-detection>
-                <!-- Slow Consumer disconnect could be configured per topic.  Use global configuration for now -->
-            </topics>
         </edex>
     </virtualhost>
 </virtualhosts>
