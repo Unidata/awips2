@@ -52,10 +52,13 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2009            chammack     Initial creation
- * Jun 23, 2009           njensen      Combined present weather
- * Jun 29, 2009     2538  jsanchez     Sorted the sky cover.
- * May 17, 2012      460  jkorman      Modified to limit stored data to dimensioned size.
+ * Jun 03, 2009            chammack    Initial creation
+ * Jun 23, 2009            njensen     Combined present weather
+ * Jun 29, 2009 2538       jsanchez    Sorted the sky cover.
+ * May 17, 2012 460        jkorman     Modified to limit stored data to
+ *                                     dimensioned size.
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -258,7 +261,6 @@ public class MetarPointDataTransform {
             pdv.setInt(CORRECTION, 0);
         }
 
-        pdv.setLong(TIME_OBS, record.getDataTime().getRefTime().getTime());
         pdv.setString(AUTO_STATION_TYPE, record.getAutoStationType());
         // TODO: Temporary?
         pdv.setString(RAW_METAR, record.getReport());
