@@ -19,10 +19,123 @@
         further_licensing_information.
     -->
 <DerivedParameter abbreviation="CapeStk" name="Cape Stack">
+    <!-- For Composite Agl levels it is better to explicitly list the levels 
+        to Union to avoid pulling in extra levels, specifically levels defined at 
+        kft heights. -->
+    <Method name="Union" levels="0-1kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-1.5kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-2kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-2.5kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-3kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-4kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-5kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+        <Field abbreviation="cCape" level="4.5kmAgl" />
+        <Field abbreviation="cCape" level="5kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-6kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+        <Field abbreviation="cCape" level="4.5kmAgl" />
+        <Field abbreviation="cCape" level="5kmAgl" />
+        <Field abbreviation="cCape" level="5.5kmAgl" />
+        <Field abbreviation="cCape" level="6kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-8kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+        <Field abbreviation="cCape" level="4.5kmAgl" />
+        <Field abbreviation="cCape" level="5kmAgl" />
+        <Field abbreviation="cCape" level="5.5kmAgl" />
+        <Field abbreviation="cCape" level="6kmAgl" />
+        <Field abbreviation="cCape" level="7kmAgl" />
+        <Field abbreviation="cCape" level="8kmAgl" />
+    </Method>
+    <Method name="Union" levels="0-10kmAgl">
+        <Field abbreviation="cCape" level="0kmAgl" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+        <Field abbreviation="cCape" level="4.5kmAgl" />
+        <Field abbreviation="cCape" level="5kmAgl" />
+        <Field abbreviation="cCape" level="5.5kmAgl" />
+        <Field abbreviation="cCape" level="6kmAgl" />
+        <Field abbreviation="cCape" level="7kmAgl" />
+        <Field abbreviation="cCape" level="8kmAgl" />
+        <Field abbreviation="cCape" level="9kmAgl" />
+        <Field abbreviation="cCape" level="10kmAgl" />
+    </Method>
     <Method name="Union" levels="C,FHAG">
-    	<Field abbreviation="cCape"/>
+        <Field abbreviation="cCape" />
     </Method>
     <Method name="Union" levels="C,MB">
-    	<Field abbreviation="cCape"/>
+        <Field abbreviation="cCape" />
     </Method>
 </DerivedParameter>
