@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.warning.gis;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,10 +66,16 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryCollectionIterator;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
@@ -85,6 +92,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Jul 18, 2011            rjpeter     Initial creation
  * Mar 29, 2012  #14691    Qinglu Lin  Added returned value of getFeArea() of 
  *                                     AreaConfiguration to areaFields List.
+ * May  7, 2013  15690     Qinglu Lin  Added convertToMultiPolygon() and updated queryGeospatialData().
  * </pre>
  * 
  * @author rjpeter
@@ -382,6 +390,36 @@ public class GeospatialDataGenerator {
         SpatialQueryResult[] features = SpatialQueryFactory.create().query(
                 areaSource, areaFields.toArray(new String[areaFields.size()]),
                 null, map, SearchMode.WITHIN);
+
+        // clip against County Warning Area
+        String cwaSource = "cwa";
+        List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList("wfo", "gid"));
+        HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(
+                2);
+        cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.LIKE));
+        SpatialQueryResult[] cwaFeatures = SpatialQueryFactory.create().query(
+                cwaSource, cwaAreaFields.toArray(new String[cwaAreaFields.size()]),
+                null, cwaMap, SearchMode.WITHIN);
+        Geometry multiPolygon = null;
+        Geometry clippedGeom = null;
+        for (int i = 0; i < features.length; i++) {
+            multiPolygon = null;
+            for (int j = 0; j < cwaFeatures.length; j++) {
+                clippedGeom = features[i].geometry.intersection(cwaFeatures[j].geometry);
+                if (clippedGeom instanceof GeometryCollection) {
+                    GeometryCollection gc = (GeometryCollection)clippedGeom;
+                    if (multiPolygon != null)
+                        multiPolygon = multiPolygon.union(convertToMultiPolygon(gc));
+                    else
+                        multiPolygon = convertToMultiPolygon(gc);
+                }
+            }
+            if (multiPolygon != null)
+                features[i].geometry = multiPolygon;
+            else if (clippedGeom != null)
+                features[i].geometry = clippedGeom;
+        }
+
         topologySimplifyQueryResults(features);
 
         // convert to GeospatialData
@@ -396,6 +434,66 @@ public class GeospatialDataGenerator {
         }
 
         return rval;
+    }
+
+    /**
+     * Convert a GeometryCollection to a MultiPolygon.
+     * @param gc 
+     */
+    private static MultiPolygon convertToMultiPolygon(GeometryCollection gc) {
+        GeometryCollectionIterator iter = new GeometryCollectionIterator(gc);
+        Set<Polygon> polygons = new HashSet<Polygon>();
+        MultiPolygon mp = null;
+        iter.next();
+        while (iter.hasNext()) {
+            Object o = iter.next();
+            if (o instanceof MultiPolygon) {
+                if (mp == null)
+                    mp = (MultiPolygon)o;
+                else
+                    mp = (MultiPolygon)mp.union((MultiPolygon)o);
+            } else if (o instanceof Polygon) {
+                polygons.add((Polygon)o);
+            } else if (o instanceof LineString || o instanceof Point) {
+                LinearRing lr = null;
+                Coordinate[] coords = null;
+                if (o instanceof LineString) {
+                    Coordinate[] cs = ((LineString) o).getCoordinates();
+                    if (cs.length < 4) {
+                        coords = new Coordinate[4];
+                        for (int j = 0; j< cs.length; j++)
+                            coords[j] = new Coordinate(cs[j]);
+                        for (int j = cs.length; j < 4; j++)
+                            coords[j] = new Coordinate(cs[3-j]);
+                    } else {
+                        coords = new Coordinate[cs.length+1];
+                        for (int j = 0; j < cs.length; j++)
+                            coords[j] = new Coordinate(cs[j]);
+                        coords[cs.length] = new Coordinate(cs[0]);
+                    }
+                } else {
+                    coords = new Coordinate[4];
+                    for (int i = 0; i < 4; i++)
+                        coords[i] = ((Point)o).getCoordinate();
+                }
+                lr = (((Geometry)o).getFactory()).createLinearRing(coords);
+                Polygon poly = (new GeometryFactory()).createPolygon(lr, null);
+                polygons.add((Polygon)poly);
+            } else {
+                statusHandler.handle(Priority.WARN,
+                        "Unprocessed Geometry object: " + o.getClass().getName());
+            }
+        }
+        if (mp == null && polygons.size() == 0)
+            return null;
+        if (polygons.size() > 0) {
+            Polygon[] p = polygons.toArray(new Polygon[0]);
+            if (mp != null)
+                mp = (MultiPolygon)mp.union(new MultiPolygon(p, gc.getFactory()));
+            else
+                mp = new MultiPolygon(p, gc.getFactory());
+        }
+        return mp;
     }
 
     /**

@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.redbook.common;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -63,6 +64,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 20130408           1293 bkowal      Removed references to hdffileid.
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Apr 29, 2013       1958 bgonzale    Added equals and hashcode.
  * </pre>
  * 
  * @author jkorman
@@ -363,4 +365,98 @@ public class RedbookRecord extends PersistablePluginDataObject
 
         return other;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((corIndicator == null) ? 0 : corIndicator.hashCode());
+        result = prime * result
+                + ((fcstHours == null) ? 0 : fcstHours.hashCode());
+        result = prime * result + ((fileId == null) ? 0 : fileId.hashCode());
+        result = prime * result
+                + ((originatorId == null) ? 0 : originatorId.hashCode());
+        result = prime * result
+                + ((productId == null) ? 0 : productId.hashCode());
+        result = prime * result + Arrays.hashCode(redBookData);
+        result = prime * result
+                + ((retentionHours == null) ? 0 : retentionHours.hashCode());
+        result = prime * result + ((timeObs == null) ? 0 : timeObs.hashCode());
+        result = prime * result
+                + ((wmoCCCCdt == null) ? 0 : wmoCCCCdt.hashCode());
+        result = prime * result
+                + ((wmoTTAAii == null) ? 0 : wmoTTAAii.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RedbookRecord other = (RedbookRecord) obj;
+        if (corIndicator == null) {
+            if (other.corIndicator != null)
+                return false;
+        } else if (!corIndicator.equals(other.corIndicator))
+            return false;
+        if (fcstHours == null) {
+            if (other.fcstHours != null)
+                return false;
+        } else if (!fcstHours.equals(other.fcstHours))
+            return false;
+        if (fileId == null) {
+            if (other.fileId != null)
+                return false;
+        } else if (!fileId.equals(other.fileId))
+            return false;
+        if (originatorId == null) {
+            if (other.originatorId != null)
+                return false;
+        } else if (!originatorId.equals(other.originatorId))
+            return false;
+        if (productId == null) {
+            if (other.productId != null)
+                return false;
+        } else if (!productId.equals(other.productId))
+            return false;
+        if (!Arrays.equals(redBookData, other.redBookData))
+            return false;
+        if (retentionHours == null) {
+            if (other.retentionHours != null)
+                return false;
+        } else if (!retentionHours.equals(other.retentionHours))
+            return false;
+        if (timeObs == null) {
+            if (other.timeObs != null)
+                return false;
+        } else if (!timeObs.equals(other.timeObs))
+            return false;
+        if (wmoCCCCdt == null) {
+            if (other.wmoCCCCdt != null)
+                return false;
+        } else if (!wmoCCCCdt.equals(other.wmoCCCCdt))
+            return false;
+        if (wmoTTAAii == null) {
+            if (other.wmoTTAAii != null)
+                return false;
+        } else if (!wmoTTAAii.equals(other.wmoTTAAii))
+            return false;
+        return true;
+    }
+
 }
